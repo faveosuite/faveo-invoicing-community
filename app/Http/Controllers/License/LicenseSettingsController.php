@@ -39,7 +39,7 @@ class LicenseSettingsController extends LicensePermissionsController
                 });
 
             $licenseTypes = $query->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit);
+                ->paginate($limit);
 
             return successResponse('', $licenseTypes);
         } catch (Exception) {

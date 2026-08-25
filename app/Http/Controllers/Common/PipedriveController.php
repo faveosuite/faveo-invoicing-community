@@ -19,17 +19,63 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 use Logger;
 use Pipedrive\versions\v1\Api\DealFieldsApi;
-use Pipedrive\versions\v1\Api\DealsApi;
 use Pipedrive\versions\v1\Api\OrganizationFieldsApi;
-use Pipedrive\versions\v1\Api\OrganizationsApi;
 use Pipedrive\versions\v1\Api\PersonFieldsApi;
-use Pipedrive\versions\v1\Api\PersonsApi;
 use Pipedrive\versions\v1\ApiException;
 use Pipedrive\versions\v1\Configuration as PipedriveConfiguration;
+use Pipedrive\versions\v2\Api\DealsApi;
+use Pipedrive\versions\v2\Api\OrganizationsApi;
+use Pipedrive\versions\v2\Api\PersonsApi;
+use Pipedrive\versions\v2\ApiException as ApiExceptionV2;
+use Pipedrive\versions\v2\Configuration as PipedriveConfigurationV2;
 use Throwable;
 
 class PipedriveController extends Controller
 {
+    /**
+     * Pipedrive custom fields are always referenced by a randomly generated
+     * 40-character hex hash (per the v2 API docs for `custom_fields` on
+     * Person/Organization/Deal request bodies) — never by a mnemonic name.
+     */
+    private const string CUSTOM_FIELD_KEY_PATTERN = '/^[0-9a-f]{40}$/i';
+
+    /**
+     * Custom-field types whose v2 value must be `{"value": ...}` rather than
+     * a bare scalar — verified live against a real Pipedrive account.
+     * `monetary` also needs this shape but is handled separately below since
+     * it additionally needs a numeric value. `set` (multi-option) needs an
+     * array of option IDs instead, but isn't listed here:
+     * transformPipedriveData() only ever picks one active option, so
+     * multi-select isn't populated at all yet.
+     */
+    private const array CUSTOM_FIELD_OBJECT_VALUE_TYPES = ['time', 'timerange', 'daterange', 'address'];
+
+    /**
+     * Custom-field types that reject a numeric string and require a true
+     * JSON number — verified live. Every local field this app maps from
+     * (User columns) is a string, so these are skipped rather than sent as
+     * "42" when the mapped value isn't actually numeric.
+     */
+    private const array CUSTOM_FIELD_NUMERIC_TYPES = ['double', 'monetary'];
+
+    // Per-entity shape config for toV2RequestBody() — see that method.
+    private const array PERSON_FIELD_MAP = [
+        'top_level' => ['name', 'owner_id', 'org_id', 'add_time', 'update_time', 'visible_to', 'label_ids', 'marketing_status'],
+        'list_fields' => ['email' => 'emails', 'phone' => 'phones'],
+        'id_list_fields' => ['label' => 'label_ids'],
+    ];
+
+    private const array ORGANIZATION_FIELD_MAP = [
+        'top_level' => ['name', 'owner_id', 'add_time', 'update_time', 'visible_to', 'label_ids'],
+        'object_fields' => ['address' => 'address'],
+        'id_list_fields' => ['label' => 'label_ids'],
+    ];
+
+    private const array DEAL_FIELD_MAP = [
+        'top_level' => ['title', 'owner_id', 'person_id', 'org_id', 'pipeline_id', 'stage_id', 'value', 'currency', 'is_deleted', 'is_archived', 'archive_time', 'status', 'probability', 'lost_reason', 'visible_to', 'close_time', 'won_time', 'lost_time', 'expected_close_date', 'label_ids'],
+        'id_list_fields' => ['label' => 'label_ids'],
+    ];
+
     /**
      * @var array<mixed>
      */
@@ -58,16 +104,19 @@ class PipedriveController extends Controller
         $config = new PipedriveConfiguration;
         $config->setApiKey('x-api-token', $token);
 
+        $configV2 = new PipedriveConfigurationV2;
+        $configV2->setApiKey('x-api-token', $token);
+
         $this->client = new Client;
 
         // Initialize API clients
         $this->apiClients = [
             'dealField' => new DealFieldsApi($this->client, $config),
             'personField' => new PersonFieldsApi($this->client, $config),
-            'persons' => new PersonsApi($this->client, $config),
-            'organizations' => new OrganizationsApi($this->client, $config),
+            'persons' => new PersonsApi($this->client, $configV2),
+            'organizations' => new OrganizationsApi($this->client, $configV2),
             'organizationFields' => new OrganizationFieldsApi($this->client, $config),
-            'deals' => new DealsApi($this->client, $config),
+            'deals' => new DealsApi($this->client, $configV2),
         ];
 
         $this->groups = $this->getGroups();
@@ -98,7 +147,7 @@ class PipedriveController extends Controller
             $result = $this->apiClients[$apiClient]->$method(...$args)->getRawData();
 
             return is_array($result) ? $result : (array) $result;
-        } catch (ApiException $e) {
+        } catch (ApiException|ApiExceptionV2 $e) {
             throw new Exception((string) (json_decode((string) $e->getResponseBody())->error ?? ''), $e->getCode(), $e); // @phpstan-ignore cast.string
         } catch (Exception $e) {
             Logger::exception($e);
@@ -122,13 +171,65 @@ class PipedriveController extends Controller
             }
 
             return $response;
-        } catch (ApiException $e) {
+        } catch (ApiException|ApiExceptionV2 $e) {
             return json_decode((string) $e->getResponseBody()); // @phpstan-ignore cast.string
         } catch (Exception $e) {
             Logger::exception($e);
 
             return null;
         }
+    }
+
+    /**
+     * Reshape a flat field_key => value map (v1 style) into the structure
+     * Pipedrive's v2 API expects, per one of the *_FIELD_MAP constants above:
+     *  - `top_level` keys pass through as-is;
+     *  - `list_fields`/`object_fields`/`id_list_fields` keys are rewrapped
+     *    into the array/object/id-list shape v2 requires (e.g. email -> emails);
+     *  - a genuine custom-field hash goes under `custom_fields`;
+     *  - anything else is a v1-only field with no v2 representation (e.g.
+     *    `first_name`, `industry`, `channel`) and is dropped — Pipedrive
+     *    rejects `custom_fields` entries that aren't a real hash, so smuggling
+     *    it in there just trades one validation error for another.
+     *
+     * @param  array<string, mixed>  $data
+     * @param  array{top_level?: array<int, string>, list_fields?: array<string, string>, object_fields?: array<string, string>, id_list_fields?: array<string, string>}  $fieldMap  one of the *_FIELD_MAP constants
+     * @return array<string, mixed>
+     */
+    private function toV2RequestBody(array $data, array $fieldMap): array
+    {
+        $topLevelKeys = $fieldMap['top_level'] ?? [];
+        $listFields = $fieldMap['list_fields'] ?? [];
+        $objectFields = $fieldMap['object_fields'] ?? [];
+        $idListFields = $fieldMap['id_list_fields'] ?? [];
+
+        $payload = [];
+        $customFields = [];
+
+        foreach ($data as $key => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            if (isset($listFields[$key])) {
+                $payload[$listFields[$key]] = [['value' => $value]];
+            } elseif (isset($objectFields[$key])) {
+                $payload[$objectFields[$key]] = ['value' => $value];
+            } elseif (isset($idListFields[$key])) {
+                $payload[$idListFields[$key]] = [(int) $value];
+            } elseif (in_array($key, $topLevelKeys, true)) {
+                $payload[$key] = $value;
+            } elseif (preg_match(self::CUSTOM_FIELD_KEY_PATTERN, (string) $key)) {
+                $customFields[$key] = $value;
+            }
+            // else: v1-only field with no v2 equivalent — dropped, see above.
+        }
+
+        if ($customFields !== []) {
+            $payload['custom_fields'] = $customFields;
+        }
+
+        return $payload;
     }
 
     /**
@@ -187,10 +288,12 @@ class PipedriveController extends Controller
 
     /**
      * Add a person to Pipedrive.
+     *
+     * @param  array<string, mixed>  $person  flat field_key => value map, e.g. from transformPipedriveData()
      */
-    public function addPerson(mixed $person): mixed
+    public function addPerson(array $person): mixed
     {
-        return $this->performApiAction('persons', 'addPerson', $person);
+        return $this->performApiAction('persons', 'addPerson', $this->toV2RequestBody($person, self::PERSON_FIELD_MAP));
     }
 
     /**
@@ -215,7 +318,8 @@ class PipedriveController extends Controller
 
             // Create new organization if not found
             if (! $orgId) {
-                $orgResponse = $this->fetchApiData('organizations', 'addOrganization', $organization);
+                $payload = $this->toV2RequestBody($organization, self::ORGANIZATION_FIELD_MAP);
+                $orgResponse = $this->fetchApiData('organizations', 'addOrganization', $payload);
                 $orgId = $orgResponse['id'] ?? null;
             }
 
@@ -229,10 +333,12 @@ class PipedriveController extends Controller
 
     /**
      * Add a deal to Pipedrive.
+     *
+     * @param  array<string, mixed>  $deal  flat field_key => value map, e.g. from transformPipedriveData()
      */
-    public function addDeal(mixed $deal): mixed
+    public function addDeal(array $deal): mixed
     {
-        return $this->performApiAction('deals', 'addDeal', $deal);
+        return $this->performApiAction('deals', 'addDeal', $this->toV2RequestBody($deal, self::DEAL_FIELD_MAP));
     }
 
     /**
@@ -314,10 +420,13 @@ class PipedriveController extends Controller
      */
     private function excludeKeysFromPipedrive(int $groupID): array
     {
+        // org_id/person_id are always set programmatically by addUserToPipedrive()
+        // (the newly created org/person's real Pipedrive ID) — never legitimately
+        // mappable to a local text field, so keep them out of the admin UI.
         return match ($groupID) {
-            $this->groups['personId'] => ['label_ids'],
+            $this->groups['personId'] => ['label_ids', 'org_id'],
             $this->groups['organizationId'] => ['label_ids', 'website', 'linkedin'],
-            $this->groups['dealId'] => ['user_id'],
+            $this->groups['dealId'] => ['user_id', 'org_id', 'person_id'],
             default => [],
         };
     }
@@ -377,17 +486,30 @@ class PipedriveController extends Controller
         $select1 = $request->input('select1', []);
         $select2 = $request->input('select2', []);
 
+        // select1 is normally [{id: 1}, {id: 2}, ...] but a plain [1, 2, ...]
+        // is accepted too. Flatten to plain field ids once, up front, so
+        // every whereIn() below compares against real scalars instead of
+        // nested arrays (whereIn has no equivalent of where()'s
+        // flattenValue() safety net — passing it the raw rows silently
+        // matches nothing, which previously reset every other field's
+        // mapping to null).
+        $selectedFieldIds = collect((array) $select1)
+            ->map(fn ($row) => is_array($row) ? ($row['id'] ?? null) : $row)
+            ->filter(fn ($id): bool => $id !== null)
+            ->all();
+
         // Validate title field for deals
-        if ($group_name === 'Deal' && ! PipedriveField::whereIn('id', $select1)
+        if ($group_name === 'Deal' && ! PipedriveField::whereIn('id', $selectedFieldIds)
             ->where('field_key', 'title')
             ->exists()) {
             return errorResponse(__('message.title_field_deals'));
         }
 
         try {
-            DB::transaction(function () use ($select1, $select2, $groupID): void {
+            DB::transaction(function () use ($select1, $select2, $selectedFieldIds, $groupID): void {
                 // Update selected fields
-                foreach ($select1 as $key => $fieldId) {
+                foreach ($select1 as $key => $row) {
+                    $fieldId = is_array($row) ? $row['id'] : $row;
                     $localField = $select2[$key];
 
                     if ($localField['faveo_fields'] === 'true') {
@@ -395,7 +517,9 @@ class PipedriveController extends Controller
                             'local_field_id' => $localField['id'],
                         ]);
                     } else {
-                        PipedriveFieldOption::where('id', $localField['id'])->update([
+                        // 'id' is a single option id (enum/label) or an array
+                        // of option ids (a 'set' multi-option field).
+                        PipedriveFieldOption::whereIn('id', (array) $localField['id'])->update([
                             'status' => 1,
                         ]);
                     }
@@ -403,12 +527,15 @@ class PipedriveController extends Controller
 
                 // Reset non-selected fields
                 PipedriveField::where('pipedrive_group_id', $groupID)
-                    ->whereNotIn('id', $select1)
+                    ->whereNotIn('id', $selectedFieldIds)
                     ->update(['local_field_id' => null]);
 
                 // Reset non-selected options
                 $fieldIds = PipedriveField::where('pipedrive_group_id', $groupID)->pluck('id')->toArray();
-                $selectedOptionIds = collect((array) $select2)->filter(fn ($item): bool => isset($item['id']) && $item['faveo_fields'] !== 'true')->pluck('id')->toArray();
+                $selectedOptionIds = collect((array) $select2)
+                    ->filter(fn ($item): bool => isset($item['id']) && $item['faveo_fields'] !== 'true')
+                    ->flatMap(fn ($item): array => (array) $item['id'])
+                    ->all();
 
                 PipedriveFieldOption::whereIn('pipedrive_field_id', $fieldIds)
                     ->whereNotIn('id', $selectedOptionIds)
@@ -463,7 +590,7 @@ class PipedriveController extends Controller
                 return true;
             }
 
-            // Clean up if successful
+            // performApiAction() returns the decoded error body on failure
             if (isset($response->success) && $response->success === false) {
                 return $response->error; // @phpstan-ignore property.notFound
             }
@@ -517,8 +644,14 @@ class PipedriveController extends Controller
                     }
 
                     if ($selectedField === [] && $field->pipedriveOptions->isNotEmpty()) {
-                        $activeOption = $field->pipedriveOptions->firstWhere('status', 1);
-                        if ($activeOption) {
+                        $activeOptions = $field->pipedriveOptions->where('status', 1);
+
+                        if ($field->field_type === 'set') {
+                            // Multi-option field — every active option, not just one.
+                            $selectedField = $activeOptions->values()
+                                ->map(fn ($option): array => ['id' => $option->id, 'value' => $option->value])
+                                ->all();
+                        } elseif ($activeOption = $activeOptions->first()) {
                             $selectedField = [
                                 'id' => $activeOption->id,
                                 'value' => $activeOption->value,
@@ -566,12 +699,14 @@ class PipedriveController extends Controller
 
             return successResponse('', [
                 'is_faveo_options' => true,
+                'is_multi' => false,
                 'options' => $localOptions,
             ]);
         }
 
         return successResponse('', [
             'is_faveo_options' => false,
+            'is_multi' => PipedriveField::where('id', $id)->value('field_type') === 'set',
             'options' => $fieldOptions,
         ]);
     }
@@ -602,11 +737,35 @@ class PipedriveController extends Controller
 
             // Use local field mapping if available
             if ($localFieldKey && ! empty($user->{$localFieldKey})) {
-                $result[$fieldKey] = $this->userTransform($user, $localFieldKey);
+                $value = $this->userTransform($user, $localFieldKey);
+
+                // Custom fields (real 40-char hash keys — built-in fields are
+                // shaped by toV2RequestBody() instead) of some types need
+                // their value reshaped for v2, verified live per field type.
+                $isCustomField = preg_match(self::CUSTOM_FIELD_KEY_PATTERN, (string) $fieldKey) === 1;
+
+                if ($isCustomField && in_array($field->field_type, self::CUSTOM_FIELD_NUMERIC_TYPES, true)) {
+                    // double/monetary reject a numeric string outright — skip
+                    // if the mapped value isn't actually numeric.
+                    if (is_numeric($value)) {
+                        $result[$fieldKey] = $field->field_type === 'monetary' ? ['value' => (float) $value] : (float) $value;
+                    }
+                } elseif ($isCustomField && in_array($field->field_type, self::CUSTOM_FIELD_OBJECT_VALUE_TYPES, true)) {
+                    $result[$fieldKey] = ['value' => $value];
+                } else {
+                    $result[$fieldKey] = $value;
+                }
             }
-            // Otherwise use option if available
-            elseif ($option = $field->pipedriveOptions->first()) {
-                $result[$fieldKey] = $option->key;
+            // Otherwise use the active option(s) if available — Pipedrive
+            // option IDs are always numeric; cast so the JSON body sends a
+            // number, not a string (v2 rejects a string here). A 'set' field
+            // takes every active option as an array; anything else takes one.
+            elseif ($field->pipedriveOptions->isNotEmpty()) {
+                if ($field->field_type === 'set') {
+                    $result[$fieldKey] = $field->pipedriveOptions->map(fn ($option): int => (int) $option->key)->values()->all();
+                } else {
+                    $result[$fieldKey] = (int) $field->pipedriveOptions->first()->key;
+                }
             }
 
             return $result;

@@ -39,7 +39,7 @@ class SeoDefaultPageController extends Controller
                 });
             })
                 ->orderBy('id')
-                ->simplePaginate($limit);
+                ->paginate($limit);
 
             return successResponse('', $rows);
         } catch (Exception $exception) {

@@ -79,7 +79,7 @@ class SystemManagerController extends Controller
                     });
                 })
                 ->select('id', 'email', 'first_name', 'last_name')
-                ->simplePaginate();
+                ->paginate();
 
             $users->getCollection()->transform(fn ($user): array => [
                 'id' => $user->id,

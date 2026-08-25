@@ -31,7 +31,7 @@ describe('TemplateEdit.vue', () => {
             global: {
                 plugins: [createTestingPinia()],
                 stubs: [
-                    'AppAlert', 'TextField', 'SelectField', 'TinyMCE', 'action-button',
+                    'AppAlert', 'TextField', 'DynamicSelect', 'TinyMCE', 'action-button',
                     'loader', 'inline-loader',
                 ],
             },
@@ -53,7 +53,7 @@ describe('TemplateEdit.vue', () => {
         const w = mount(TemplateEdit, {
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['AppAlert', 'TextField', 'SelectField', 'TinyMCE', 'action-button', 'loader', 'inline-loader'],
+                stubs: ['AppAlert', 'TextField', 'DynamicSelect', 'TinyMCE', 'action-button', 'loader', 'inline-loader'],
             },
         })
         await flushPromises()

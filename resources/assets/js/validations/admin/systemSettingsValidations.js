@@ -1,6 +1,8 @@
 import * as yup from 'yup'
 import { reqSelect } from '../shared/helpers'
 
+const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/
+
 export const systemSettingsSchema = yup.object({
     company: yup.string()
         .required(() => __('validation.users.company.required'))
@@ -16,6 +18,10 @@ export const systemSettingsSchema = yup.object({
     country:          reqSelect(() => __('validation.users.country.required')),
     state:            reqSelect(() => __('message.field_required')),
     default_currency: reqSelect(() => __('message.field_required')),
+    gstin:            yup.string().matches(GSTIN_REGEX, {
+        message:            () => __('validation.settings_forms.gstin.regex'),
+        excludeEmptyString: true,
+    }),
 })
 
 export function buildFileStorageSchema(disk) {

@@ -15,7 +15,7 @@
                             <span class="fs-5 text-muted fw-bold">* &nbsp;* &nbsp;* &nbsp;* &nbsp;*</span>
                         </div>
                         <div class="col-sm-4">
-                            <SelectField
+                            <DynamicSelect
                                 v-if="phpPath !== 'other'"
                                 name="php_path"
                                 label=""
@@ -24,7 +24,6 @@
                                 :onChange="(val) => phpPath = val?.id ?? ''"
                                 :clearable="false"
                                 :searchable="false"
-                                :placeholder="__('message.specify_php_executable')"
                             />
                             <div v-else class="input-group">
                                 <input

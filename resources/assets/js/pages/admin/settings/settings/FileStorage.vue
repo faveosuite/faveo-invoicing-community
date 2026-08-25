@@ -15,7 +15,7 @@
                     <h5 class="mb-3">{{ __('message.file_storage') }}</h5>
                     <div class="row">
                         <div class="col-md-4">
-                            <SelectField
+                            <DynamicSelect
                                 name="disk"
                                 :label="__('message.storage_disk')"
                                 :elements="diskOptions"
@@ -32,7 +32,7 @@
 
                         <template v-if="form.disk === 's3'">
                             <div class="col-md-4">
-                                <SelectField
+                                <DynamicSelect
                                     name="s3_path_style_endpoint"
                                     :label="__('message.s3_path_style_endpoint')"
                                     :elements="yesNoOptions"

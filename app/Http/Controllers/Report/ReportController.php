@@ -39,7 +39,7 @@ class ReportController extends Controller
                 });
             })
             ->orderBy($sortField, $sortOrder)
-            ->simplePaginate($limit);
+            ->paginate($limit);
 
         $reports->getCollection()->transform(function ($report): array {
             $fileType = strtoupper(pathinfo((string) $report->file, PATHINFO_EXTENSION)) ?: 'XLSX';

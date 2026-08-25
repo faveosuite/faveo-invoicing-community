@@ -12,7 +12,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div v-for="type in types" :key="type.id" class="col-md-6">
-                            <SelectField
+                            <DynamicSelect
                                 :name="String(type.id)"
                                 :label="toLabel(type.name)"
                                 :elements="templates"
@@ -20,7 +20,6 @@
                                 :onChange="(val) => onSelect(type.id, val)"
                                 :searchable="true"
                                 :clearable="true"
-                                :placeholder="__('message.select_a_template')"
                             />
                         </div>
                     </div>
@@ -38,7 +37,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import SelectField from '@/components/Reusable/FormField/SelectField.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 
 const COMPONENT = 'template-settings'
 
@@ -72,7 +71,7 @@ function toLabel(name) {
         ?? name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
-// SelectField expects the full object as value, not just the id
+// DynamicSelect expects the full object as value, not just the id
 function selected(typeId) {
     const id = mappings[typeId]
     return id ? (templates.value.find(t => t.id === id) ?? null) : null

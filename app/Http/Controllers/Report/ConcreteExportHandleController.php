@@ -409,6 +409,9 @@ class ConcreteExportHandleController extends ExportHandleController
                             $plan = $order->subscription?->plan;
                             $orderData['plan_name'] = $plan ? $plan->name : 'Unknown Plan';
                             break;
+                        case 'group_name':
+                            $orderData['group_name'] = $order->productRelation?->groupRelation?->name;
+                            break;
                         case 'version':
                             $orderData['version'] = $order->subscription?->version;
                             break;

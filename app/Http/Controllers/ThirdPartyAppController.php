@@ -41,10 +41,8 @@ class ThirdPartyAppController extends Controller
                     });
                 });
 
-            $total = $query->count();
-
             $thirdPartyApps = $query->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit);
+                ->paginate($limit);
 
             $thirdPartyApps->getCollection()->transform(function ($app) {
                 $app->app_secret = str_repeat('*', 5);
@@ -54,7 +52,6 @@ class ThirdPartyAppController extends Controller
 
             return successResponse(__('message.third_party_apps_fetched'), [
                 'third_party_apps' => $thirdPartyApps,
-                'total' => $total,
             ]);
         } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));

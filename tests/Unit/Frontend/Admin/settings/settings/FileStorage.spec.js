@@ -48,7 +48,7 @@ describe('FileStorage.vue', () => {
                 plugins: [createTestingPinia()],
                 stubs: [
                     'AppAlert', 'inline-loader', 'loader', 'action-button',
-                    'TextField', 'SelectField',
+                    'TextField', 'DynamicSelect',
                 ],
             },
         })

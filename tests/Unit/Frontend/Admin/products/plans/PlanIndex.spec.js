@@ -21,7 +21,7 @@ describe('PlanIndex.vue', () => {
                     'DataTable', 'AppAlert', 'inline-loader', 'action-button', 'DeleteModal',
                     'DynamicSelect', 'TextField', 'StaticSelect', 'DatePicker', 'RadioButton',
                     'NumberField', 'TinyMCE', 'loader', 'ColumnSelector', 'Switch', 'Checkbox',
-                    'Tooltip', 'ImageField', 'SelectField', 'VersionTableActions',
+                    'Tooltip', 'ImageField', 'DynamicSelect', 'VersionTableActions',
                     'ProductPluginMapping', 'spinner-loader', 'ProductTableActions',
                 ],
             },

@@ -37,7 +37,6 @@
                                                 dataKey="license_types"
                                                 :value="form.typeObj"
                                                 :onChange="onChange"
-                                                :placeholder="__('message.select_license_type')"
                                                 :error="errors.type"
                                             />
                                         </div>
@@ -50,7 +49,6 @@
                                                 dataKey="product_groups"
                                                 :value="form.groupObj"
                                                 :onChange="onChange"
-                                                :placeholder="__('message.select_group')"
                                                 :error="errors.group"
                                             />
                                         </div>
@@ -64,7 +62,6 @@
                                                 dataKey="products"
                                                 :value="form.parentObj"
                                                 :onChange="onChange"
-                                                :placeholder="__('message.select_parent')"
                                             />
                                         </div>
                                         <div class="col-md-6 mb-3">
@@ -134,7 +131,7 @@
                                     <template v-else>
                                         <div class="row">
                                             <div class="col-md-6 mb-2">
-                                                <SelectField
+                                                <DynamicSelect
                                                     name="tax_status"
                                                     :label="__('message.tax_status')"
                                                     :elements="taxStatusOptions"
@@ -145,7 +142,7 @@
                                                 />
                                             </div>
                                             <div class="col-md-6 mb-2" v-if="form.tax_status === 1">
-                                                <SelectField
+                                                <DynamicSelect
                                                     name="tax_class_id"
                                                     :label="__('message.tax_class')"
                                                     :elements="taxClasses"

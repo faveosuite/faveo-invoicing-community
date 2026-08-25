@@ -130,7 +130,7 @@ class OrderController extends BaseOrderController
             $query = $orderSearch->applyOrdersSearch($query, $searchQuery);
 
             $paginated = $query->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit);
+                ->paginate($limit);
 
             $paginated->getCollection()->transform(function (Order $order): array {
                 $user = $order->user;
@@ -411,7 +411,7 @@ class OrderController extends BaseOrderController
                     });
                 })
                 ->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit);
+                ->paginate($limit);
 
             $payments->getCollection()->transform(fn ($payment): array => [
                 'id' => $payment->id,
@@ -441,7 +441,7 @@ class OrderController extends BaseOrderController
         $invoices = $order->invoices()
             ->with(['invoiceItem:id,invoice_id,product_name'])
             ->orderBy($sortField, $sortOrder)
-            ->simplePaginate($limit);
+            ->paginate($limit);
 
         $invoices->getCollection()->transform(fn ($invoice): array => [ // @phpstan-ignore method.notFound
             'id' => $invoice->id,

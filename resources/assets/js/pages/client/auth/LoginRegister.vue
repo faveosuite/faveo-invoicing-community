@@ -72,7 +72,6 @@
                          dataKey="countries"
                          :value="regForm.country"
                          :onChange="onCountryChange"
-                         :placeholder="__('message.choose')"
                          :error="regErrors.country"/>
 
           <PhoneField name="mobile" :label="__('message.mobile')" required

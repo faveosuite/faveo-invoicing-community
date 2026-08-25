@@ -90,7 +90,7 @@
                             :onChange="onChange"
                         />
 
-                        <SelectField
+                        <DynamicSelect
                             name="timezone_id"
                             :label="__('message.timezone')"
                             :required="true"
@@ -100,7 +100,7 @@
                             :clearable="false"
                             :error="errors.timezone_id"
                         />
-                        <SelectField
+                        <DynamicSelect
                             name="country"
                             :label="__('message.country')"
                             :required="true"
@@ -110,12 +110,14 @@
                             :clearable="false"
                             :error="errors.country"
                         />
-                        <SelectField
+                        <DynamicSelect
                             name="state"
                             :label="__('message.state')"
+                            :required="form.has_states"
                             :elements="states"
                             :value="states.find(s => s.id === form.state) ?? null"
-                            :onChange="(val) => form.state = val?.id ?? ''"
+                            :onChange="(val) => { form.state = val?.id ?? ''; setFieldError('state', undefined) }"
+                            :error="errors.state"
                         />
                         <TextField
                             name="zip"
@@ -129,6 +131,7 @@
                             :label="__('message.gstin')"
                             :value="form.gstin"
                             :onChange="onChange"
+                            :error="errors.gstin"
                         />
                     </div>
                     <div class="card-footer">
@@ -243,7 +246,7 @@
             <div v-if="twoFaLoading" class="row justify-content-center py-3"><loader /></div>
             <template v-else>
 
-                <div v-if="modalError" class="alert alert-danger py-2 mb-3">{{ modalError }}</div>
+                <AppAlert :componentName="MODAL_COMPONENT" />
 
                 <!-- Step: Password Verify -->
                 <template v-if="twoFaStep === 'password'">
@@ -255,6 +258,7 @@
                         :value="userPassword"
                         :onChange="(val) => userPassword = val"
                         :placehold="__('message.enter_password')"
+                        :keyupListener="(e) => { if (e.key === 'Enter' && userPassword) validatePassword() }"
                     />
                 </template>
 
@@ -267,6 +271,9 @@
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" @click="copyRecovery" v-tooltip="__('message.copy')">
                                     <i :class="recoveryCopied ? 'fas fa-check' : 'fas fa-clipboard'"></i>
+                                </button>
+                                <button type="button" class="btn btn-tool" @click="downloadRecovery" v-tooltip="__('message.download')">
+                                    <i class="fas fa-download"></i>
                                 </button>
                             </div>
                         </div>
@@ -284,25 +291,34 @@
                 <!-- Step: QR Code -->
                 <template v-if="twoFaStep === 'qr'">
                     <template v-if="!showSecretKey">
-                        <ul class="text-center list-unstyled">
-                            <li>{{ __('message.get_authenticator_app') }}</li>
-                            <li>{{ __('message.choose') }} <b>{{ __('message.scan_a_barcode') }}</b></li>
-                        </ul>
+                        <div class="text-center my-3">
+                            <ul class="d-inline-block text-start">
+                                <li>{{ __('message.get_authenticator_app') }}</li>
+                                <li>{{ __('message.app_select') }} <b>{{ __('message.set_up_account') }}</b></li>
+                                <li>{{ __('message.choose') }} <b>{{ __('message.scan_a_barcode') }}</b></li>
+                            </ul>
+                        </div>
                         <div class="text-center mb-3" v-html="qrImage"></div> <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
                         <div class="text-center">
                             <a href="#" class="text-decoration-underline" @click.prevent="showSecretKey = true">{{ __('message.cant_scan') }}</a>
                         </div>
                     </template>
                     <template v-else>
-                        <TextField
-                            name="qrSecret"
-                            :label="__('message.secret_key_label')"
-                            :value="qrSecret"
-                            :onChange="() => {}"
-                            :disabled="true"
-                        />
                         <div class="text-center">
-                            <a href="#" class="text-decoration-underline" @click.prevent="showSecretKey = false">{{ __('message.scan_barcode') }}</a>
+                            <div class="d-inline-block text-start my-3">
+                                <ul class="ps-3 mb-0">
+                                    <li>{{ __('message.tap') }} <b>{{ __('message.menu') }}</b>, {{ __('message.then') }} <b>{{ __('message.set_up_account') }}</b></li>
+                                    <li>{{ __('message.tap') }} <b>{{ __('message.enter_provided_key') }}</b></li>
+                                    <li>{{ __('message.enter_email_address') }}</li>
+                                </ul>
+                                <input type="text" class="form-control w-100 my-3" :value="qrSecret" readonly disabled>
+                                <ul class="ps-3 mb-0">
+                                    <li>{{ __('message.make_sure') }} <b>{{ __('message.time_based') }}</b> {{ __('message.is_turned_on') }} <b>{{ __('message.add') }}</b> {{ __('message.to_finish') }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <a href="#" class="text-decoration-underline" @click.prevent="showSecretKey = false">{{ __('message.caps_scan_barcode') }}</a>
                         </div>
                     </template>
                 </template>
@@ -355,15 +371,15 @@
             </template>
             <template v-if="twoFaStep === 'qr'">
                 <div class="d-flex w-100 justify-content-between">
-                    <button type="button" class="btn btn-light" @click="twoFaStep = 'recovery'; modalError = ''">
+                    <button type="button" class="btn btn-light" @click="twoFaStep = 'recovery'; clearModalAlert()">
                         <i class="fas fa-arrow-left me-1"></i>{{ __('message.previous') }}
                     </button>
-                    <action-button variant="primary" :label="__('message.next')" icon="fas fa-arrow-right" @click="twoFaStep = 'totp'; modalError = ''" />
+                    <action-button variant="primary" :label="__('message.next')" icon="fas fa-arrow-right" @click="twoFaStep = 'totp'; clearModalAlert()" />
                 </div>
             </template>
             <template v-if="twoFaStep === 'totp'">
                 <div class="d-flex w-100 justify-content-between">
-                    <button type="button" class="btn btn-light" @click="twoFaStep = 'qr'; modalError = ''">
+                    <button type="button" class="btn btn-light" @click="twoFaStep = 'qr'; clearModalAlert()">
                         <i class="fas fa-arrow-left me-1"></i>{{ __('message.previous') }}
                     </button>
                     <action-button
@@ -406,6 +422,7 @@ import { reactive, ref, computed, onMounted } from 'vue'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useAlertStore } from '@/core/stores/alert.js'
 import { validateForm } from '@/helpers/formUtils.js'
 import ImageUpload from '@/components/Reusable/FormField/ImageUpload.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
@@ -414,6 +431,8 @@ import { profileSchema, passwordChangeSchema } from '@/validations/admin/profile
 import { passwordChecks } from '@/validations/client/authSchemas'
 
 const COMPONENT = 'profile-index'
+const MODAL_COMPONENT = 'profile-2fa-modal'
+const clearModalAlert = () => useAlertStore().unsetAlert()
 
 const { errors, setErrors, setFieldError } = useForm()
 
@@ -435,7 +454,6 @@ const totpHpReady      = ref(false)
 const showEnableModal    = ref(false)
 const twoFaStep          = ref('password')
 const twoFaLoading       = ref(false)
-const modalError         = ref('')
 const recoveryCodes      = ref([])
 const recoveryCopied     = ref(false)
 const showSecretKey      = ref(false)
@@ -466,6 +484,7 @@ const form = reactive({
     timezone_id:        null,
     country:            '',
     state:              '',
+    has_states:         false,
     zip:                '',
     gstin:              '',
 })
@@ -547,6 +566,7 @@ async function loadStates(countryCode) {
     } catch {
         states.value = []
     }
+    form.has_states = states.value.length > 0
 }
 
 function onChange(value, name) {
@@ -577,9 +597,10 @@ function onMobileCountryChange({ iso, dialCode }) {
 
 async function onCountryChange(val) {
     setFieldError('country', undefined)
-    form.country = val?.id ?? ''
-    form.state   = ''
-    states.value = []
+    form.country     = val?.id ?? ''
+    form.state       = ''
+    form.has_states  = false
+    states.value     = []
     if (form.country) {
         await loadStates(form.country)
     }
@@ -592,7 +613,7 @@ async function submitProfile() {
     try {
         const data = new FormData()
         Object.entries(form).forEach(([k, v]) => {
-            if (v !== null && v !== undefined) data.append(k, v)
+            if (k !== 'has_states' && v !== null && v !== undefined) data.append(k, v)
         })
         if (selectedImage.value?.file) {
             data.append('profile_pic', selectedImage.value.file, selectedImage.value.name || 'profile_pic.jpg')
@@ -629,10 +650,6 @@ async function submitPassword() {
     }
 }
 
-function setModalError(e) {
-    modalError.value = e?.response?.data?.message ?? e?.message ?? ''
-}
-
 // ── Enable 2FA modal ──────────────────────────────────────────────────────────
 
 async function openEnableModal() {
@@ -644,7 +661,7 @@ async function openEnableModal() {
     qrImage.value         = ''
     qrSecret.value        = ''
     showSecretKey.value   = false
-    modalError.value      = ''
+    clearModalAlert()
     twoFaLoading.value    = true
     showEnableModal.value = true
 
@@ -674,7 +691,7 @@ function closeEnableModal() {
 }
 
 async function validatePassword() {
-    modalError.value        = ''
+    clearModalAlert()
     verifyingPassword.value = true
     try {
         await http.post(`/verify-password`, { user_password: userPassword.value })
@@ -684,7 +701,7 @@ async function validatePassword() {
         const res = await http.post(`/2fa-recovery-code`)
         recoveryCodes.value = res.data?.data?.code ?? []
     } catch (e) {
-        setModalError(e)
+        errorHandler(e, MODAL_COMPONENT)
     } finally {
         verifyingPassword.value = false
         twoFaLoading.value      = false
@@ -695,6 +712,21 @@ function copyRecovery() {
     navigator.clipboard?.writeText(recoveryCodes.value.join('\n'))
     recoveryCopied.value = true
     setTimeout(() => { recoveryCopied.value = false }, 5000)
+}
+
+function downloadRecovery() {
+    const content = [
+        __('message.recovery_codes'),
+        form.email,
+        '',
+        ...recoveryCodes.value,
+        '',
+        __('message.treat_recovery_codes'),
+    ].join('\n')
+    const url = URL.createObjectURL(new Blob([content], { type: 'text/plain' }))
+    const link = Object.assign(document.createElement('a'), { href: url, download: `Backup-recovery-codes-${form.email}.txt` })
+    link.click()
+    URL.revokeObjectURL(url)
 }
 
 async function goToQr() {
@@ -713,14 +745,14 @@ async function goToQr() {
 
 async function verify2fa() {
     if (!totp.value) return
-    modalError.value   = ''
+    clearModalAlert()
     verifying2fa.value = true
     try {
         const res = await http.post(`/2fa/setupValidate`, { totp: totp.value, '2fa_code': totp2faCode.value })
         successHandler(res, COMPONENT)
         twoFaStep.value = 'done'
     } catch (e) {
-        setModalError(e)
+        errorHandler(e, MODAL_COMPONENT)
     } finally {
         verifying2fa.value = false
     }

@@ -38,7 +38,7 @@ describe('CloudDetails.vue', () => {
                 plugins: [createTestingPinia()],
                 stubs: [
                     'DataTable', 'AppAlert', 'AppModal', 'DeleteModal', 'inline-loader', 'loader',
-                    'action-button', 'TextField', 'SelectField', 'Switch',
+                    'action-button', 'TextField', 'DynamicSelect', 'Switch',
                 ],
             },
         })

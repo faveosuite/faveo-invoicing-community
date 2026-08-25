@@ -68,7 +68,7 @@ class GroupController extends Controller
             $query->where('name', 'like', sprintf('%%%s%%', $searchQuery));
         })
             ->orderBy($sortField, $sortOrder)
-            ->simplePaginate($limit);
+            ->paginate($limit);
 
         return successResponse('', $groups);
     }

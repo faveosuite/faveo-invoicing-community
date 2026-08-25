@@ -17,7 +17,7 @@ describe('OpenPaymentsFilter.vue', () => {
             },
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['SelectField', 'DatePicker', 'action-button'],
+                stubs: ['DynamicSelect', 'DatePicker', 'action-button'],
             },
         })
     })

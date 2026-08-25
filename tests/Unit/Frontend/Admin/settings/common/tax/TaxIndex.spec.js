@@ -13,7 +13,7 @@ import { errorHandler } from '@/helpers/responseHandler'
 import TaxIndex from '@/pages/admin/settings/common/tax/TaxIndex.vue'
 
 const SelectFieldStub = {
-    name: 'SelectField',
+    name: 'DynamicSelect',
     props: { name: String, onChange: Function, value: [Object, String, Number, Array], elements: Array, clearable: Boolean, searchable: Boolean, multiple: Boolean, taggable: Boolean },
     template: '<div class="sf-stub" :data-name="name"></div>',
 }
@@ -35,7 +35,7 @@ describe('TaxIndex.vue', () => {
             global: {
                 plugins: [createTestingPinia()],
                 stubs: [
-                    'AppAlert', 'DataTable', 'SelectField', 'action-button',
+                    'AppAlert', 'DataTable', 'DynamicSelect', 'action-button',
                     'DeleteModal', 'loader', 'inline-loader', 'router-link',
                 ],
             },
@@ -57,7 +57,7 @@ describe('TaxIndex.vue', () => {
         const w = mount(TaxIndex, {
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['AppAlert', 'DataTable', 'SelectField', 'action-button', 'DeleteModal', 'loader', 'inline-loader', 'router-link'],
+                stubs: ['AppAlert', 'DataTable', 'DynamicSelect', 'action-button', 'DeleteModal', 'loader', 'inline-loader', 'router-link'],
             },
         })
         await flushPromises()
@@ -101,7 +101,7 @@ describe('TaxIndex.vue — branch coverage', () => {
         wrapper = mount(TaxIndex, {
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['AppAlert', 'DataTable', 'SelectField', 'action-button', 'DeleteModal', 'loader', 'inline-loader', 'router-link'],
+                stubs: ['AppAlert', 'DataTable', 'DynamicSelect', 'action-button', 'DeleteModal', 'loader', 'inline-loader', 'router-link'],
             },
         })
         wrapper.vm.dtRef = { refresh: jest.fn(), tableData: [] }
@@ -229,7 +229,7 @@ describe('TaxIndex.vue — SelectField onChange branch coverage', () => {
         wrapper = mount(TaxIndex, {
             global: {
                 plugins: [createTestingPinia()],
-                components: { SelectField: SelectFieldStub },
+                components: { DynamicSelect: SelectFieldStub },
                 stubs: ['AppAlert', 'DataTable', 'DeleteModal', 'action-button', 'loader', 'router-link', 'TextField'],
             },
         })

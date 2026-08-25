@@ -381,7 +381,7 @@ class PageController extends Controller
                 });
             })
             ->orderBy($sortField, $sortOrder)
-            ->simplePaginate($limit);
+            ->paginate($limit);
 
         return successResponse('', $pages);
     }

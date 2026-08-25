@@ -6,7 +6,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    <SelectField
+                    <DynamicSelect
                         name="filter_module"
                         :label="__('message.module')"
                         :elements="moduleOptions"
@@ -18,7 +18,7 @@
                     />
                 </div>
                 <div class="col-md-4">
-                    <SelectField
+                    <DynamicSelect
                         name="filter_event"
                         :label="__('message.event')"
                         :elements="eventOptions"
@@ -29,7 +29,7 @@
                     />
                 </div>
                 <div class="col-md-4">
-                    <SelectField
+                    <DynamicSelect
                         name="filter_performed_by"
                         :label="__('message.performed_by')"
                         :elements="userOptions"
@@ -48,6 +48,7 @@
                         :clearable="true"
                         :disabledDate="isFutureDate"
                         :onChange="(val) => form.logFrom = val"
+                        :placeholder="__('message.select_date')"
                     />
                 </div>
                 <div class="col-md-4">
@@ -58,6 +59,7 @@
                         :clearable="true"
                         :disabledDate="isFutureDate"
                         :onChange="(val) => form.logTill = val"
+                        :placeholder="__('message.select_date')"
                     />
                 </div>
             </div>

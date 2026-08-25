@@ -6,6 +6,7 @@ use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Common\Bussiness;
 use App\Model\Common\PricingTemplate;
 use App\Model\License\LicenseType;
+use App\Model\Order\Invoice;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Period;
 use App\Model\Payment\Plan;
@@ -33,6 +34,8 @@ class NonPublicDependencies extends BaseDependencyController
                 return $this->orderVersions();
             case 'currencies':
                 return $this->currencies();
+            case 'invoice-currencies':
+                return $this->invoiceCurrencies();
             case 'license-types':
                 return $this->licenseTypes();
             case 'product-groups':
@@ -68,6 +71,28 @@ class NonPublicDependencies extends BaseDependencyController
             });
 
         return $this->get('currencies', $baseQuery, fn ($item): array => ['id' => $item->code, 'name' => $item->code]);
+    }
+
+    /**
+     * Currencies actually used on invoices — distinct from currencies()
+     * above, which only lists currently-*enabled* currencies. A currency can
+     * be disabled after invoices already exist in it, and those invoices
+     * must stay filterable by that currency regardless.
+     */
+    private function invoiceCurrencies(): mixed
+    {
+        $this->sortField = 'currency';
+        $this->sortOrder = 'asc';
+
+        $baseQuery = $this->baseQuery(new Invoice)
+            ->select('currency')
+            ->distinct()
+            ->whereNotNull('currency')
+            ->when($this->searchQuery, function ($query, string $searchQuery): void {
+                $query->where('currency', 'like', sprintf('%%%s%%', $searchQuery));
+            });
+
+        return $this->get('currencies', $baseQuery, fn ($item): array => ['id' => $item->currency, 'name' => $item->currency]);
     }
 
     private function managers(): mixed

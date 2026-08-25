@@ -60,6 +60,20 @@ describe('FrontendPageCreate.vue', () => {
         expect(wrapper.vm.form.slug).toBe('mytestpage')
     })
 
+    it('clears a stale slug error once name auto-derives a real slug', async () => {
+        // Simulates: submit once with everything empty (slug gets a
+        // "required" error since it's auto-derived, not typed), then type a
+        // name — the auto-derived slug must not keep showing that error.
+        wrapper.vm.setFieldError('slug', 'The slug field is required.')
+        expect(wrapper.vm.errors.slug).toBeTruthy()
+
+        wrapper.vm.form.name = 'My Test Page'
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.vm.form.slug).toBe('mytestpage')
+        expect(wrapper.vm.errors.slug).toBeFalsy()
+    })
+
     it('POSTs to /page on submit', async () => {
         await wrapper.vm.submit()
         await flushPromises()

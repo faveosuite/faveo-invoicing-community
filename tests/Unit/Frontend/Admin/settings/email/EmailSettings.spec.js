@@ -29,7 +29,7 @@ describe('EmailSettings.vue', () => {
             global: {
                 plugins: [createTestingPinia()],
                 stubs: [
-                    'AppAlert', 'TextField', 'SelectField', 'action-button',
+                    'AppAlert', 'TextField', 'DynamicSelect', 'action-button',
                     'loader', 'inline-loader',
                 ],
             },
@@ -51,7 +51,7 @@ describe('EmailSettings.vue', () => {
         const w = mount(EmailSettings, {
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['AppAlert', 'TextField', 'SelectField', 'action-button', 'loader', 'inline-loader'],
+                stubs: ['AppAlert', 'TextField', 'DynamicSelect', 'action-button', 'loader', 'inline-loader'],
             },
         })
         await flushPromises()

@@ -39,7 +39,7 @@ describe('InvoiceEdit.vue', () => {
                 plugins: [createTestingPinia()],
                 stubs: [
                     'AppAlert', 'loader', 'DatePicker', 'date-picker',
-                    'TextField', 'text-field', 'SelectField', 'static-select', 'StaticSelect',
+                    'TextField', 'text-field', 'DynamicSelect', 'static-select', 'StaticSelect',
                     'action-button', 'router-link', 'inline-loader',
                 ],
             },
@@ -125,7 +125,7 @@ describe('InvoiceEdit.vue', () => {
         const w = mount(InvoiceEdit, {
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['AppAlert', 'loader', 'DatePicker', 'date-picker', 'TextField', 'text-field', 'SelectField', 'action-button', 'router-link'],
+                stubs: ['AppAlert', 'loader', 'DatePicker', 'date-picker', 'TextField', 'text-field', 'DynamicSelect', 'action-button', 'router-link'],
             },
         })
         await flushPromises()

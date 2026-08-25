@@ -10,7 +10,7 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import TaxEdit from '@/pages/admin/settings/common/tax/TaxEdit.vue'
 
 const SelectFieldStub = {
-    name: 'SelectField',
+    name: 'DynamicSelect',
     props: { name: String, onChange: Function, value: [Object, String, Number], elements: Array, clearable: Boolean, searchable: Boolean },
     template: '<div class="sf-stub" :data-name="name"></div>',
 }
@@ -41,7 +41,7 @@ describe('TaxEdit.vue', () => {
             global: {
                 plugins: [createTestingPinia()],
                 stubs: [
-                    'AppAlert', 'TextField', 'SelectField', 'action-button',
+                    'AppAlert', 'TextField', 'DynamicSelect', 'action-button',
                     'loader', 'inline-loader',
                 ],
             },
@@ -66,7 +66,7 @@ describe('TaxEdit.vue', () => {
         const w = mount(TaxEdit, {
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['AppAlert', 'TextField', 'SelectField', 'action-button', 'loader', 'inline-loader'],
+                stubs: ['AppAlert', 'TextField', 'DynamicSelect', 'action-button', 'loader', 'inline-loader'],
             },
         })
         await flushPromises()
@@ -121,7 +121,7 @@ describe('TaxEdit.vue — branch coverage', () => {
         wrapper = mount(TaxEdit, {
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['AppAlert', 'SelectField', 'NumberField', 'RadioButton', 'action-button', 'loader', 'router-link'],
+                stubs: ['AppAlert', 'DynamicSelect', 'NumberField', 'RadioButton', 'action-button', 'loader', 'router-link'],
             },
         })
         await flushPromises()
@@ -208,7 +208,7 @@ describe('TaxEdit.vue — SelectField onChange branch coverage', () => {
         wrapper = mount(TaxEdit, {
             global: {
                 plugins: [createTestingPinia()],
-                components: { SelectField: SelectFieldStub },
+                components: { DynamicSelect: SelectFieldStub },
                 stubs: ['AppAlert', 'TextField', 'action-button', 'loader'],
             },
         })

@@ -47,7 +47,7 @@ describe('CompanySettings.vue', () => {
                 plugins: [createTestingPinia()],
                 stubs: [
                     'AppAlert', 'inline-loader', 'loader', 'action-button',
-                    'TextField', 'SelectField', 'PhoneField', 'Switch', 'ImageUpload',
+                    'TextField', 'DynamicSelect', 'PhoneField', 'Switch', 'ImageUpload',
                 ],
             },
         })

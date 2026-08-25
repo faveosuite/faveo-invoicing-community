@@ -35,7 +35,7 @@ class SettingsRequest extends FormRequest
             'address' => ['required'],
             'state' => ['required'],
             'country' => ['required'],
-            'gstin' => ['max:15'],
+            'gstin' => ['nullable', 'regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/'],
             'default_currency' => ['required'],
             'admin-logo' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
             'fav-icon' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
@@ -66,7 +66,7 @@ class SettingsRequest extends FormRequest
             'state.required' => __('validation.settings_forms.state.required'),
             'country.required' => __('validation.settings_forms.country.required'),
 
-            'gstin.max' => __('validation.settings_forms.gstin.max'),
+            'gstin.regex' => __('validation.settings_forms.gstin.regex'),
 
             'default_currency.required' => __('validation.settings_forms.default_currency.required'),
 

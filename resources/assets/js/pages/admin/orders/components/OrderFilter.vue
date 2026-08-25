@@ -25,6 +25,17 @@
                     />
                 </div>
                 <div class="col-md-4">
+                    <TextField
+                        name="domain"
+                        :label="__('message.domain')"
+                        :value="form.domain"
+                        :onChange="(val) => form.domain = val"
+                        :placeholder="__('message.search_by_domain')"
+                    />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
                     <DatePicker
                         name="from"
                         :label="__('message.from')"
@@ -33,8 +44,6 @@
                         :placeholder="__('message.select_date')"
                     />
                 </div>
-            </div>
-            <div class="row">
                 <div class="col-md-4">
                     <DatePicker
                         name="till"
@@ -45,22 +54,12 @@
                     />
                 </div>
                 <div class="col-md-4">
-                    <TextField
-                        name="domain"
-                        :label="__('message.domain')"
-                        :value="form.domain"
-                        :onChange="(val) => form.domain = val"
-                        placehold="e.g. example.com"
-                    />
-                </div>
-                <div class="col-md-4">
                     <DynamicSelect
                         name="act_ins"
                         :label="__('message.installations')"
                         :elements="installationOptions"
                         :value="form.act_ins"
                         :onChange="(val) => form.act_ins = val"
-                        :placeholder="__('message.choose')"
                     />
                 </div>
             </div>
@@ -72,7 +71,6 @@
                         :elements="subscriptionOptions"
                         :value="form.renewal"
                         :onChange="(val) => form.renewal = val"
-                        :placeholder="__('message.choose')"
                     />
                 </div>
                 <div class="col-md-4">
@@ -83,7 +81,6 @@
                         dataKey="versions"
                         :value="form.version"
                         :onChange="(val) => form.version = val"
-                        :placeholder="__('message.choose')"
                     />
                 </div>
             </div>

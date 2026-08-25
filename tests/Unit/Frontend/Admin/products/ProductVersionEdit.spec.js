@@ -18,7 +18,7 @@ const VERSION_RESPONSE = {
 }
 
 const STUBS = [
-    'AppAlert', 'action-button', 'TextField', 'SelectField', 'Switch',
+    'AppAlert', 'action-button', 'TextField', 'DynamicSelect', 'Switch',
     'TinyMCE', 'TextArea', 'loader', 'inline-loader',
 ]
 

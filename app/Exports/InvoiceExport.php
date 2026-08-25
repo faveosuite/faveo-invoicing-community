@@ -36,6 +36,7 @@ class InvoiceExport implements FromCollection, WithHeadings, WithTitle
             'country' => 'Country',
             'grand_total' => 'Total',
             'number' => 'InvoiceNo',
+            'product' => 'Product',
             'date' => 'Date',
             'status' => 'Status',
         ];

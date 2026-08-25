@@ -19,7 +19,7 @@ describe('UserFilter.vue', () => {
             },
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['TextField', 'DynamicSelect', 'SelectField', 'DatePicker', 'action-button'],
+                stubs: ['TextField', 'DynamicSelect', 'DatePicker', 'action-button'],
             },
         })
 

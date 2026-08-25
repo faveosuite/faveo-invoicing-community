@@ -209,7 +209,7 @@
             <h4>{{ __('message.cloud_product_configuration') }}</h4>
         </template>
         <template #fields>
-            <SelectField
+            <DynamicSelect
                 name="cloud_product"
                 :label="__('message.cloud_product')"
                 :elements="products"
@@ -218,7 +218,7 @@
                 :searchable="true"
                 :error="errors.cloud_product"
             />
-            <SelectField
+            <DynamicSelect
                 name="cloud_free_plan"
                 :label="__('message.cloud_free_plan')"
                 :elements="plans"
@@ -272,7 +272,7 @@
             <h4>{{ __('message.cloud_data_centers') }}</h4>
         </template>
         <template #fields>
-            <SelectField
+            <DynamicSelect
                 name="cloud_countries"
                 :label="__('message.country')"
                 :elements="countries"
@@ -280,7 +280,7 @@
                 :onChange="v => { dcForm.cloud_countries = v; fetchStates() }"
                 :searchable="true"
             />
-            <SelectField
+            <DynamicSelect
                 name="cloud_state"
                 :label="__('message.state')"
                 :elements="states"
@@ -308,7 +308,7 @@ import { useForm } from 'vee-validate'
 import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import SelectField from '@/components/Reusable/FormField/SelectField.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
@@ -600,7 +600,9 @@ async function exportTenants() {
     if (exportingTenants.value) return
     exportingTenants.value = true
     try {
-        const res = await http.get(`/export-tenats`)
+        const res = await http.get(`/export-tenats`, {
+            params: { selected_columns: selectedTenantReportColumns.value },
+        })
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -653,7 +655,12 @@ const DEFAULT_TENANT_COLUMNS = [
 
 const tenantColumns = ref([...DEFAULT_TENANT_COLUMNS])
 
+// Report_columns keys currently selected in the ColumnSelector — this is what
+// gets sent to the export endpoint so the export matches what's on screen.
+const selectedTenantReportColumns = ref([])
+
 function onTenantColumnsChange(reportKeys) {
+    selectedTenantReportColumns.value = reportKeys.filter(k => k !== 'action')
     const mapped = reportKeys.map(k => TENANT_REPORT_TO_COL[k]).filter(Boolean)
     tenantColumns.value = mapped.length ? mapped : [...DEFAULT_TENANT_COLUMNS]
 }

@@ -6,13 +6,12 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    <SelectField
+                    <DynamicSelect
                         name="status"
                         :label="__('message.status')"
                         :elements="statusOptions"
                         :value="form.status"
                         :onChange="(val) => form.status = val"
-                        :placeholder="__('message.Select')"
                     />
                 </div>
             </div>
@@ -27,7 +26,7 @@
 
 <script setup>
 import { reactive } from 'vue'
-import SelectField from '@/components/Reusable/FormField/SelectField.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 
 defineProps({
     show: { type: Boolean, default: false },

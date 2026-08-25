@@ -32,7 +32,6 @@
                                 :elements="accountManagers"
                                 :value="form.existingAccManager"
                                 :onChange="(val) => form.existingAccManager = val"
-                                :placeholder="__('message.pipe_select_option')"
                             />
                         </div>
                         <div class="col-md-6">
@@ -42,7 +41,6 @@
                                 :apiEndpoint="`${baseUrl}/search-admins`"
                                 :value="form.newAccManager"
                                 :onChange="(val) => form.newAccManager = val"
-                                :placeholder="__('message.search')"
                             />
                         </div>
                     </div>
@@ -55,7 +53,6 @@
                                 :elements="salesManagers"
                                 :value="form.existingSaleManager"
                                 :onChange="(val) => form.existingSaleManager = val"
-                                :placeholder="__('message.pipe_select_option')"
                             />
                         </div>
                         <div class="col-md-6">
@@ -65,7 +62,6 @@
                                 :apiEndpoint="`${baseUrl}/search-admins`"
                                 :value="form.newSaleManager"
                                 :onChange="(val) => form.newSaleManager = val"
-                                :placeholder="__('message.search')"
                             />
                         </div>
                     </div>

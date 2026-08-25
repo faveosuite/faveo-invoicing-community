@@ -24,7 +24,7 @@ describe('SystemSettings.vue', () => {
         wrapper = mount(SystemSettings, {
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['AppAlert', 'loader', 'SelectField', 'action-button'],
+                stubs: ['AppAlert', 'loader', 'DynamicSelect', 'action-button'],
             },
         })
     })

@@ -136,7 +136,7 @@ class Google2FAController extends Controller
             return successResponse('password_verified');
         }
 
-        return errorResponse('password_incorrect');
+        return errorResponse(__('message.password_incorrect'));
     }
 
     /**

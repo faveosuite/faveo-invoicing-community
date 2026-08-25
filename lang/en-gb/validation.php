@@ -688,6 +688,10 @@ return [
         'domain' => [
             'regex' => 'The domain format is invalid.',
         ],
+        'cloud_domain' => [
+            'required' => 'The cloud domain field is required.',
+            'regex' => 'Only letters, numbers, and hyphens are allowed.',
+        ],
         'plan' => [
             'required_if' => 'The subscription field is required.',
         ],

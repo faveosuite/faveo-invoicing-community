@@ -16,7 +16,7 @@ const STUBS = [
     'DataTable', 'AppAlert', 'inline-loader', 'action-button', 'DeleteModal',
     'DynamicSelect', 'TextField', 'StaticSelect', 'DatePicker', 'RadioButton',
     'NumberField', 'TinyMCE', 'loader', 'ColumnSelector', 'Switch', 'Checkbox',
-    'Tooltip', 'SelectField', 'AppModal', 'ImageUpload', 'PhoneField',
+    'Tooltip', 'DynamicSelect', 'AppModal', 'ImageUpload', 'PhoneField',
     'RecaptchaProvider', 'RecaptchaCheckbox', 'RecaptchaV2Invisible', 'RecaptchaV3',
     'ZohoCard', 'spinner-loader', 'v-select',
 ]

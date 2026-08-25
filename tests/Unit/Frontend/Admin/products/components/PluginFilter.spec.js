@@ -18,7 +18,7 @@ describe('PluginFilter.vue', () => {
             },
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['action-button', 'SelectField'],
+                stubs: ['action-button', 'DynamicSelect'],
             },
         })
 

@@ -41,7 +41,6 @@
                             dataKey="data"
                             :value="form.parentObj"
                             :onChange="onChange"
-                            :placeholder="__('message.select_parent_page')"
                         />
                     </div>
                     <div class="col-md-6">
@@ -123,7 +122,11 @@ const form = reactive({
 })
 
 watch(() => form.name, (val) => {
+    // Auto-derived, not typed by the user — bypasses onChange's error
+    // clearing, so a stale "required" error from an earlier empty submit
+    // would otherwise keep showing under slug even once name fills it in.
     form.slug = val.replace(/\s+/g, '').toLowerCase()
+    setFieldError('slug', undefined)
 })
 
 function onChange(val, name) {

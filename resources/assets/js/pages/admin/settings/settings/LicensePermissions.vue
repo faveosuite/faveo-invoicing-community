@@ -108,10 +108,9 @@ const tableOptions = reactive({
     filterable: true,
     requestAdapter: makeRequestAdapter('name'),
     responseAdapter({ data }) {
-        const types = data?.data?.license_types
         return {
-            data:  types?.data ?? [],
-            count: types?.to   ?? types?.data?.length ?? 0,
+            data:  data?.data?.data  ?? [],
+            count: data?.data?.total ?? 0,
         }
     },
     orderBy: { column: 'name', ascending: true },

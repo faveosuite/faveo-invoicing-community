@@ -157,7 +157,7 @@ class ProductController extends BaseProductController
             ->when($searchQuery, function ($query, string $searchQuery): void {
                 $query->where('name', 'like', sprintf('%%%s%%', $searchQuery));
             })
-            ->simplePaginate($limit);
+            ->paginate($limit);
 
         return successResponse('', $plans);
     }
@@ -191,7 +191,7 @@ class ProductController extends BaseProductController
                     });
             })
             ->orderBy($sortField, $sortOrder)
-            ->simplePaginate($limit);
+            ->paginate($limit);
 
         $products->getCollection()->transform(function ($product): array {
             $permissions = LicensePermissionsController::getPermissionsForProduct($product->id);

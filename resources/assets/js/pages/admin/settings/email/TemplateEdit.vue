@@ -56,7 +56,7 @@
                             />
                         </div>
                         <div class="col-md-4">
-                            <SelectField
+                            <DynamicSelect
                                 name="type"
                                 :label="__('message.type')"
                                 :required="true"
@@ -65,7 +65,6 @@
                                 :onChange="onTypeChange"
                                 :searchable="true"
                                 :clearable="false"
-                                placeholder="Select a type"
                                 :error="errors.type"
                             />
                         </div>
@@ -106,7 +105,7 @@ import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { validateForm } from '@/helpers/formUtils.js'
-import SelectField from '@/components/Reusable/FormField/SelectField.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 import { templateEditSchema } from '@/validations/admin/emailValidations'
 
 const COMPONENT = 'template-edit'

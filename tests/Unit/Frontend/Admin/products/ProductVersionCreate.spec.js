@@ -10,7 +10,7 @@ import { createTestingPinia } from '@pinia/testing'
 import ProductVersionCreate from '@/pages/admin/products/ProductVersionCreate'
 
 const STUBS = [
-    'AppAlert', 'action-button', 'TextField', 'SelectField', 'Switch',
+    'AppAlert', 'action-button', 'TextField', 'DynamicSelect', 'Switch',
     'TinyMCE', 'TextArea', 'loader', 'inline-loader', 'AppButton',
 ]
 

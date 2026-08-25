@@ -30,7 +30,7 @@ describe('Cron.vue', () => {
                 plugins: [createTestingPinia()],
                 stubs: [
                     'AppAlert', 'inline-loader', 'loader', 'action-button',
-                    'SelectField', 'TextField', 'Checkbox', 'Tooltip',
+                    'DynamicSelect', 'TextField', 'Checkbox', 'Tooltip',
                 ],
             },
         })

@@ -49,7 +49,7 @@ class LicensePermissionsController extends Controller
                     $query->where('name', 'like', sprintf('%%%s%%', $searchString));
                 })
                 ->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit);
+                ->paginate($limit);
 
             $data = $licenseTypes->getCollection()->map(fn ($license): array => [ // @phpstan-ignore return.type
                 'id' => $license->id,
@@ -64,9 +64,7 @@ class LicensePermissionsController extends Controller
 
             $licenseTypes->setCollection($data); // @phpstan-ignore argument.type
 
-            return successResponse(__('message.license_types_permissions_fetched'), [
-                'license_types' => $licenseTypes,
-            ]);
+            return successResponse(__('message.license_types_permissions_fetched'), $licenseTypes);
         } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }

@@ -6,33 +6,30 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    <SelectField
+                    <DynamicSelect
                         name="status"
                         label="Status"
                         :elements="statusOptions"
                         :value="form.status"
                         :onChange="(val) => form.status = val"
-                        placeholder="All Statuses"
                     />
                 </div>
                 <div class="col-md-4">
-                    <SelectField
+                    <DynamicSelect
                         name="gateway"
                         label="Gateway"
                         :elements="gatewayOptions"
                         :value="form.gateway"
                         :onChange="(val) => form.gateway = val"
-                        placeholder="All Gateways"
                     />
                 </div>
                 <div class="col-md-4">
-                    <SelectField
+                    <DynamicSelect
                         name="currency"
                         label="Currency"
                         :elements="currencyOptions"
                         :value="form.currency"
                         :onChange="(val) => form.currency = val"
-                        placeholder="All Currencies"
                     />
                 </div>
             </div>
@@ -44,6 +41,7 @@
                         :value="form.from_date"
                         :clearable="true"
                         :onChange="(val) => form.from_date = val"
+                        :placeholder="__('message.select_date')"
                     />
                 </div>
                 <div class="col-md-4">
@@ -53,6 +51,7 @@
                         :value="form.to_date"
                         :clearable="true"
                         :onChange="(val) => form.to_date = val"
+                        :placeholder="__('message.select_date')"
                     />
                 </div>
             </div>

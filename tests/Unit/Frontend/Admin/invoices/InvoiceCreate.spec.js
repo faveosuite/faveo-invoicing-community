@@ -131,6 +131,22 @@ describe('InvoiceCreate.vue', () => {
         expect(wrapper.vm.form.price).toBe('')
     })
 
+    it('clears a stale price error once fetchPrice() fills in a real price', async () => {
+        // Simulates: submit once with everything empty (price gets a
+        // "required" error), then pick product/plan — fetchPrice() sets a
+        // real price, and that stale error must not linger under it.
+        wrapper.vm.setFieldError('price', 'The price field is required.')
+        expect(wrapper.vm.errors.price).toBeTruthy()
+
+        wrapper.vm.form.product = { id: 3 }
+        wrapper.vm.form.user = { id: 1 }
+        await wrapper.vm.onPlanChange({ id: 7 })
+        await flushPromises()
+
+        expect(wrapper.vm.form.price).toBe('99.00')
+        expect(wrapper.vm.errors.price).toBeFalsy()
+    })
+
     it('uses buildInvoiceCreateSchema during submit', async () => {
         await wrapper.vm.submit()
         await flushPromises()

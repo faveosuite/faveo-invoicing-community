@@ -35,7 +35,7 @@ const PRODUCTS_RESPONSE = {
 }
 
 const STUBS = [
-    'AppAlert', 'action-button', 'AppButton', 'SelectField', 'Switch',
+    'AppAlert', 'action-button', 'AppButton', 'DynamicSelect', 'Switch',
     'TinyMCE', 'TextArea', 'loader', 'inline-loader', 'spinner-loader',
 ]
 

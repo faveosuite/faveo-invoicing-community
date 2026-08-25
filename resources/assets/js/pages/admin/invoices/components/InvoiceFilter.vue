@@ -1,50 +1,50 @@
 <template>
     <div v-if="show" class="card card-light mb-3">
         <div class="card-header">
-            <h4 class="card-title">{{ __('message.advance_search') }}</h4>
+            <h4 class="card-title">{{ __('message.filter') }}</h4>
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <TextField
                         name="name"
                         :label="`${__('message.first_name')} / ${__('message.last_name')}`"
                         :value="form.name"
                         :onChange="(val) => form.name = val"
+                        :placeholder="__('message.search_by_name')"
                     />
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <TextField
                         name="invoice_no"
                         :label="__('message.invoice_no')"
                         :value="form.invoice_no"
                         :onChange="(val) => form.invoice_no = val"
+                        :placeholder="__('message.exact_invoice_number')"
                     />
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <DynamicSelect
                         name="status"
                         :label="__('message.status')"
                         :elements="statusOptions"
                         :value="form.status"
                         :onChange="(val) => form.status = val"
-                        :placeholder="__('message.choose')"
-                    />
-                </div>
-                <div class="col-md-3">
-                    <DynamicSelect
-                        name="currency"
-                        :label="__('message.currency')"
-                        :apiEndpoint="`${baseUrl}/dependency/currencies`"
-                        dataKey="currencies"
-                        :value="form.currency"
-                        :onChange="(val) => form.currency = val"
-                        :placeholder="__('message.choose')"
                     />
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-4">
+                    <DynamicSelect
+                        name="currency"
+                        :label="__('message.currency')"
+                        :apiEndpoint="`${baseUrl}/dependency/invoice-currencies`"
+                        dataKey="currencies"
+                        :value="form.currency"
+                        :onChange="(val) => form.currency = val"
+                    />
+                </div>
+                <div class="col-md-4">
                     <DatePicker
                         name="from_date"
                         :label="__('message.invoice_form')"
@@ -53,7 +53,7 @@
                         :placeholder="__('message.select_date')"
                     />
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <DatePicker
                         name="to_date"
                         :label="__('message.invoice_till')"
@@ -65,7 +65,7 @@
             </div>
         </div>
         <div class="card-footer d-flex gap-2">
-            <action-button action="search" type="button" @click="apply" />
+            <action-button action="apply" type="button" @click="apply" />
             <action-button action="reset" type="button" @click="reset" />
             <action-button action="cancel" type="button" @click="$emit('close')" />
         </div>

@@ -40,7 +40,7 @@
                             <PhoneField name="phone" :label="__('message.phone')" :required="true" :value="form.phone" :onChange="onChange" :initialCountry="form.phone_country_iso ? form.phone_country_iso.toLowerCase() : 'auto'" :error="errors.phone" @countryChange="onPhoneCountryChange" />
                         </div>
                         <div class="col-md-4">
-                            <SelectField name="language" :label="__('message.language')" :elements="languageOptions" :value="form.language" :onChange="onChange" :searchable="true" :placeholder="__('message.choose')" />
+                            <DynamicSelect name="language" :label="__('message.language')" :elements="languageOptions" :value="form.language" :onChange="onChange" :searchable="true" />
                         </div>
                         <div class="col-md-4">
                             <TextField name="knowledge_base_url" :label="__('message.knowledge_base_url')" :value="form.knowledge_base_url" :onChange="onChange" />
@@ -49,13 +49,13 @@
 
                     <div class="row">
                         <div class="col-md-4">
-                            <SelectField name="default_currency" :label="__('message.default-currency')" :required="true" :elements="currencyOptions" :value="form.default_currency" :onChange="onChange" :searchable="true" :placeholder="__('message.choose')" :error="errors.default_currency" />
+                            <DynamicSelect name="default_currency" :label="__('message.default-currency')" :required="true" :elements="currencyOptions" :value="form.default_currency" :onChange="onChange" :searchable="true" :error="errors.default_currency" />
                         </div>
                         <div class="col-md-4">
                             <TextField name="cin_no" :label="__('message.cin')" :value="form.cin_no" :onChange="onChange" />
                         </div>
                         <div class="col-md-4">
-                            <TextField name="gstin" :label="__('message.gstin')" :value="form.gstin" :onChange="onChange" />
+                            <TextField name="gstin" :label="__('message.gstin')" :value="form.gstin" :onChange="onChange" :error="errors.gstin" />
                         </div>
                     </div>
 
@@ -70,10 +70,10 @@
                             <TextField name="city" :label="__('message.city')" :value="form.city" :onChange="onChange" />
                         </div>
                         <div class="col-md-4">
-                            <SelectField name="country" :label="__('message.country')" :required="true" :elements="countryOptions" :value="form.country" :onChange="onCountryChange" :searchable="true" :placeholder="__('message.choose')" :error="errors.country" />
+                            <DynamicSelect name="country" :label="__('message.country')" :required="true" :elements="countryOptions" :value="form.country" :onChange="onCountryChange" :searchable="true" :error="errors.country" />
                         </div>
                         <div class="col-md-4">
-                            <SelectField name="state" :label="__('message.state')" :required="true" :elements="stateOptions" :value="form.state" :onChange="onChange" :searchable="true" :placeholder="__('message.choose')" :error="errors.state" />
+                            <DynamicSelect name="state" :label="__('message.state')" :required="true" :elements="stateOptions" :value="form.state" :onChange="onChange" :searchable="true" :error="errors.state" />
                         </div>
                     </div>
 
@@ -140,7 +140,7 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import ImageUpload from '@/components/Reusable/FormField/ImageUpload.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
-import SelectField from '@/components/Reusable/FormField/SelectField.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 import PhoneField from '@/components/Reusable/FormField/PhoneField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 import { systemSettingsSchema } from '@/validations/admin/systemSettingsValidations'

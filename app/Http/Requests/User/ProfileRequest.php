@@ -3,10 +3,12 @@
 namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
+use App\Model\Common\State;
 use App\Rules\PhoneNumber;
 use App\Rules\StrongPassword;
 use App\User;
 use Auth;
+use Illuminate\Validation\Rule;
 use Override;
 
 class ProfileRequest extends Request
@@ -42,6 +44,8 @@ class ProfileRequest extends Request
                 'timezone_id' => ['required'],
                 'profile_pic' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
                 'country' => ['required'],
+                'state' => [Rule::requiredIf(fn () => State::where('country_code', $this->country)->exists())],
+                'gstin' => ['nullable', 'regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/'],
             ];
         }
 
@@ -129,7 +133,8 @@ class ProfileRequest extends Request
             'country.required' => __('validation.profile_form.country.required'),
             'country.exists' => __('validation.profile_form.country.exists'),
 
-            'state.required_if' => __('validation.profile_form.state.required_if'),
+            'state.required' => __('validation.profile_form.state.required_if'),
+            'gstin.regex' => __('validation.profile_form.gstin.regex'),
 
             'old_password.required' => __('validation.profile_form.old_password.required'),
             'old_password.min' => __('validation.profile_form.old_password.min'),

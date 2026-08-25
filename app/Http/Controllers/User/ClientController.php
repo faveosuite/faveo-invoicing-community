@@ -26,7 +26,6 @@ use App\Model\User\AccountActivate;
 use App\ReportColumn;
 use App\Services\Payment\CreditBalanceService;
 use App\Services\Payment\UnappliedPaymentService;
-use App\Traits\PaginationTotal;
 use App\Traits\PaymentsAndInvoices;
 use App\User;
 use App\UserLinkReport;
@@ -50,7 +49,6 @@ use ZipArchive;
 
 class ClientController extends AdvanceSearchController
 {
-    use PaginationTotal;
     use PaymentsAndInvoices;
 
     /**
@@ -296,19 +294,13 @@ class ClientController extends AdvanceSearchController
 
         $query = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country', 'created_at', 'email_verified', 'mobile_verified', 'is_2fa_enabled');
 
-        $total = $this->cachedTotal($query, $request, [ // @phpstan-ignore argument.type
-            'company', 'country', 'industry', 'role', 'position',
-            'actmanager', 'salesmanager', 'mobile_verified', 'email_verified',
-            'is_2fa_enabled', 'reg_from', 'reg_till',
-        ]);
-
         $query = $this->applyUsersFilters($query, $request); // @phpstan-ignore argument.type
 
         $query = $this->applyUsersSearch($query, $searchQuery);
 
         $users = $query
             ->orderBy($sortField, $sortOrder)
-            ->simplePaginate($limit);
+            ->paginate($limit);
 
         $users->getCollection()->transform(function ($user) {
             if ($user->country) {
@@ -319,7 +311,7 @@ class ClientController extends AdvanceSearchController
             return $user;
         });
 
-        return $this->paginateResponse($users, $total);
+        return successResponse('', $users);
     }
 
     public function deleteBulkUsers(Request $request): JsonResponse
@@ -376,7 +368,7 @@ class ClientController extends AdvanceSearchController
             $userData = array_merge($userData, [
                 'password' => $password,
                 'active' => 1,
-                'email_verified' => $request->boolean('active'),
+                'email_verified' => $request->boolean('email_verified'),
                 'mobile_verified' => $request->boolean('mobile_verified'),
                 'country' => strtoupper((string) $request->input('country')),
                 'mobile_code' => $mobile_code,
@@ -488,7 +480,22 @@ class ClientController extends AdvanceSearchController
                 return errorResponse(__('message.user_not_found'), 404);
             }
 
-            $user->fill($request->all());
+            // fill() only mass-assigns $fillable columns — role, position, manager,
+            // and account_manager aren't in that list, so they're set explicitly here.
+            $user->fill($request->only([
+                'first_name', 'last_name', 'user_name', 'company', 'zip', 'state', 'town',
+                'mobile', 'mobile_country_iso', 'email', 'address', 'timezone_id',
+                'mobile_code', 'bussiness', 'company_type', 'company_size',
+                'mobile_verified', 'email_verified', 'skype',
+            ]));
+
+            if ($request->filled('country')) {
+                $user->country = strtoupper((string) $request->input('country'));
+            }
+            $user->role = $request->input('role');
+            $user->position = $request->input('position');
+            $user->manager = $request->input('manager');
+            $user->account_manager = $request->input('account_manager');
 
             $user->save();
 

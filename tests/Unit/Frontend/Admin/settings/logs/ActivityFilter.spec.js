@@ -23,7 +23,7 @@ describe('ActivityFilter.vue', () => {
             props: { show: true, baseUrl: '' },
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['SelectField', 'DatePicker', 'action-button'],
+                stubs: ['DynamicSelect', 'DatePicker', 'action-button'],
             },
         })
     })
@@ -43,7 +43,7 @@ describe('ActivityFilter.vue', () => {
             props: { show: false, baseUrl: '' },
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['SelectField', 'DatePicker', 'action-button'],
+                stubs: ['DynamicSelect', 'DatePicker', 'action-button'],
             },
         })
         expect(hiddenWrapper.find('.card').exists()).toBeFalsy()
@@ -68,7 +68,7 @@ describe('ActivityFilter.vue', () => {
             props: { show: true, baseUrl: '' },
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['SelectField', 'DatePicker', 'action-button'],
+                stubs: ['DynamicSelect', 'DatePicker', 'action-button'],
             },
         })
         await flushPromises()

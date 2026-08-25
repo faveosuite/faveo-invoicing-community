@@ -222,7 +222,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div v-if="loadingVersions" class="mb-3"><loader /></div>
-                            <SelectField
+                            <DynamicSelect
                                 v-else
                                 name="version_id"
                                 label="Version"

@@ -196,7 +196,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                         ->orWhere('status', 'like', sprintf('%%%s%%', $status))
                         ->orWhere('currency', 'like', sprintf('%%%s%%', $search));
                 });
-            })->orderBy($sortField, $sortOrder)->simplePaginate($limit);
+            })->orderBy($sortField, $sortOrder)->paginate($limit);
 
             $invoice->getCollection()->transform(function ($invoice): array { // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
                 $statusMapping = [

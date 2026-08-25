@@ -38,13 +38,12 @@
 
                             <!-- Status -->
                             <div class="col-md-4">
-                                <SelectField
+                                <DynamicSelect
                                     name="status"
                                     :label="__('message.status')"
                                     :elements="statusOptions"
                                     :value="statusOptions.find(o => o.id === form.status) ?? null"
                                     :onChange="(val) => { setFieldError('status', undefined); form.status = val?.id ?? '' }"
-                                    :placeholder="__('message.choose')"
                                     :clearable="false"
                                     :searchable="false"
                                 />

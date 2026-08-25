@@ -181,7 +181,7 @@ class MSG91Controller extends Controller
             $baseQuery = $this->filterQueryForMsg($baseQuery);
 
             $logs = $baseQuery->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit);
+                ->paginate($limit);
 
             // Format collection
             $logs->getCollection()->transform(function (MsgDeliveryReports $log): array {

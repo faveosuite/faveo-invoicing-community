@@ -25,25 +25,35 @@
                     />
                 </div>
                 <div class="col-md-4">
-                    <SelectField
-                        name="role"
-                        :label="__('message.role')"
-                        :elements="roleOptions"
-                        :value="form.role"
-                        :onChange="(val) => form.role = val"
-                        :placeholder="__('message.Select')"
+                    <DynamicSelect
+                        name="industry"
+                        :label="__('message.industry')"
+                        :apiEndpoint="`${baseUrl}/dependency/industries`"
+                        dataKey="industries"
+                        :value="form.industry"
+                        :onChange="(val) => form.industry = val"
                     />
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-4">
-                    <SelectField
+                    <DynamicSelect
+                        name="role"
+                        :label="__('message.role')"
+                        :elements="roleOptions"
+                        :value="form.role"
+                        :onChange="(val) => form.role = val"
+                        :searchable="true"
+                    />
+                </div>
+                <div class="col-md-4">
+                    <DynamicSelect
                         name="position"
                         :label="__('message.position')"
                         :elements="positionOptions"
                         :value="form.position"
                         :onChange="(val) => form.position = val"
-                        :placeholder="__('message.Select')"
+                        :searchable="true"
                     />
                 </div>
                 <div class="col-md-4">
@@ -54,6 +64,8 @@
                         :onChange="(val) => form.reg_from = val"
                         :placeholder="__('message.select_date')"                    />
                 </div>
+            </div>
+            <div class="row">
                 <div class="col-md-4">
                     <DatePicker
                         name="reg_till"
@@ -62,8 +74,6 @@
                         :onChange="(val) => form.reg_till = val"
                         :placeholder="__('message.select_date')"                    />
                 </div>
-            </div>
-            <div class="row">
                 <div class="col-md-4">
                     <DynamicSelect
                         name="actmanager"
@@ -96,36 +106,36 @@
                         </template>
                     </DynamicSelect>
                 </div>
+            </div>
+            <div class="row">
                 <div class="col-md-4">
-                    <SelectField
+                    <DynamicSelect
                         name="mobile_verified"
                         :label="__('message.mobile_status')"
                         :elements="verifyOptions"
                         :value="form.mobile_verified"
                         :onChange="(val) => form.mobile_verified = val"
-                        :placeholder="__('message.Select')"
+                        :searchable="true"
                     />
                 </div>
-            </div>
-            <div class="row">
                 <div class="col-md-4">
-                    <SelectField
+                    <DynamicSelect
                         name="email_verified"
                         :label="__('message.email_status')"
                         :elements="verifyOptions"
                         :value="form.email_verified"
                         :onChange="(val) => form.email_verified = val"
-                        :placeholder="__('message.Select')"
+                        :searchable="true"
                     />
                 </div>
                 <div class="col-md-4">
-                    <SelectField
+                    <DynamicSelect
                         name="is_2fa_enabled"
                         :label="__('message.2fa_status')"
                         :elements="twoFAOptions"
                         :value="form.is_2fa_enabled"
                         :onChange="(val) => form.is_2fa_enabled = val"
-                        :placeholder="__('message.Select')"
+                        :searchable="true"
                     />
                 </div>
             </div>
@@ -174,6 +184,7 @@ const empty = () => ({
     reg_from: null, reg_till: null,
     actmanager: null, salesmanager: null,
     mobile_verified: null, email_verified: null, is_2fa_enabled: null,
+    industry: null,
 })
 
 const form = reactive(empty())

@@ -14,10 +14,8 @@ import AppBreadcrumb   from './components/common/Breadcrumb.vue';
 
 // Heavy / page-specific components — split into their own chunks, loaded on demand
 const DataTable        = defineAsyncComponent(() => import('@/components/Reusable/DataTable.vue'));
-const SimplePagination = defineAsyncComponent(() => import('@/components/Reusable/SimplePagination.vue'));
 const AppModal         = defineAsyncComponent(() => import('./components/common/Modal.vue'));
 const TextField        = defineAsyncComponent(() => import('@/components/Reusable/FormField/TextField.vue'));
-const SelectField      = defineAsyncComponent(() => import('@/components/Reusable/FormField/SelectField.vue'));
 const TextareaField    = defineAsyncComponent(() => import('@/components/Reusable/FormField/TextareaField.vue'));
 const DatePicker       = defineAsyncComponent(() => import('@/components/Reusable/FormField/DatePicker.vue'));
 const FileUpload       = defineAsyncComponent(() => import('@/components/Reusable/FormField/FileUpload.vue'));
@@ -37,10 +35,8 @@ export const components = {
     DeleteModal,
     AppBreadcrumb,
     DataTable,
-    SimplePagination,
     AppModal,
     TextField,
-    SelectField,
     TextareaField,
     DatePicker,
     FileUpload,

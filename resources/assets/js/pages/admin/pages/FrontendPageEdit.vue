@@ -44,7 +44,6 @@
                                 dataKey="data"
                                 :value="form.parentObj"
                                 :onChange="onChange"
-                                :placeholder="__('message.select_parent_page')"
                             />
                         </div>
                         <div class="col-md-4">

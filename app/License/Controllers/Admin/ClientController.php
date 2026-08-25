@@ -33,7 +33,7 @@ class ClientController extends Controller
             'email' => $u->email,
         ]);
 
-        return response()->json(['data' => $paginated]);
+        return successResponse('', $paginated);
     }
 
     public function viewProducts(): JsonResponse

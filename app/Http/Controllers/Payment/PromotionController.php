@@ -127,7 +127,7 @@ class PromotionController extends BasePromotionController
                 });
             })
             ->orderBy('promotions.'.$sortField, $sortOrder)
-            ->simplePaginate($limit);
+            ->paginate($limit);
 
         return successResponse('', $promotions);
     }

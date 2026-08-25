@@ -38,7 +38,11 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
-import Treeselect from 'vue3-treeselect'
+// Named import, not default: Vite's dependency pre-bundling resolves this
+// package's default export to the whole CJS module object (not the
+// component itself), which makes Vue warn "missing template or render
+// function" and render nothing. The named export is unambiguous.
+import { Treeselect } from 'vue3-treeselect'
 import 'vue3-treeselect/dist/vue3-treeselect.css'
 import http from '@/plugins/axios'
 import { debounce } from 'lodash'
@@ -59,6 +63,13 @@ const props = defineProps({
     apiParams:   { type: Object, default: () => ({}) },
 })
 
+// Every leaf option ever seen, across pages/searches (id -> {id, name}). A
+// search or page reload replaces `listElements` wholesale — without this,
+// whatever is currently selected can drop out of that new list, and
+// vue3-treeselect can't find its label and falls back to "<id> (unknown)"
+// even though the selection itself is still perfectly valid.
+const optionCache = new Map()
+
 const loaderRef     = ref(null)
 const listElements  = ref([...props.elements])
 const selectedValue = ref(toScalar(props.value))
@@ -69,7 +80,30 @@ const page          = ref(1)
 let   observer      = null
 let   initialLoaded = false
 
+cacheOptions(props.elements)
+
 const hasNextPage = computed(() => Boolean(nextPageUrl.value && props.apiEndpoint))
+
+function cacheOptions(items) {
+    items.forEach(item => {
+        if (item.children?.length) item.children.forEach(child => optionCache.set(child.id, child))
+        else optionCache.set(item.id, item)
+    })
+}
+
+// Re-add whichever selected id(s) a fresh `items` list is missing, using
+// whatever we've cached for them, so a search/page refresh can't silently
+// blank out the currently selected option's label.
+function preserveSelected(items) {
+    const selectedIds = Array.isArray(selectedValue.value) ? selectedValue.value : [selectedValue.value]
+    const present = new Set()
+    items.forEach(item => {
+        present.add(item.id)
+        item.children?.forEach(child => present.add(child.id))
+    })
+    const missing = selectedIds.filter(id => id != null && !present.has(id) && optionCache.has(id))
+    return missing.length ? [...items, ...missing.map(id => optionCache.get(id))] : items
+}
 
 // A single-select tree's v-model is a plain scalar id, not an object — but a
 // caller hydrating from a saved record (e.g. an edit form) only has an
@@ -79,8 +113,12 @@ const hasNextPage = computed(() => Boolean(nextPageUrl.value && props.apiEndpoin
 // label resolves immediately instead of falling back to "<value> (unknown)".
 function toScalar(val) {
     if (val && typeof val === 'object' && !Array.isArray(val)) {
-        if (val.id != null && !listElements.value.some(el => el.id === val.id)) {
-            listElements.value = [...listElements.value, { id: val.id, name: val.name ?? val.label ?? '' }]
+        if (val.id != null) {
+            const entry = { id: val.id, name: val.name ?? val.label ?? '' }
+            optionCache.set(val.id, entry)
+            if (!listElements.value.some(el => el.id === val.id)) {
+                listElements.value = [...listElements.value, entry]
+            }
         }
         return val.id ?? null
     }
@@ -122,7 +160,8 @@ function loadPage(isRefresh = false) {
         const key        = props.dataKey ?? 'data'
         const items      = resData[key] ?? resData.data ?? []
         nextPageUrl.value = resData.next_page_url ?? null
-        if (isRefresh) listElements.value = items
+        cacheOptions(items)
+        if (isRefresh) listElements.value = preserveSelected(items)
         else           listElements.value.push(...items)
     })
     .catch(() => { nextPageUrl.value = null })
@@ -148,12 +187,36 @@ function disconnectObserver() {
     observer?.disconnect()
 }
 
+// If we already have a value whose label we can't resolve yet (e.g. a saved
+// scalar id with no matching option cached), fetch eagerly instead of
+// waiting for the dropdown to be opened — otherwise the closed-state label
+// sits on "<id> (unknown)" until the user happens to click it open.
+function ensureSelectedResolved() {
+    if (initialLoaded) return
+    const ids = Array.isArray(selectedValue.value) ? selectedValue.value : [selectedValue.value]
+    const unresolved = ids.filter(id => id != null && !optionCache.has(id))
+    if (unresolved.length === 0) return
+
+    // Seed a blank placeholder *synchronously*, before the fetch below even
+    // starts: a node vue3-treeselect can find (even with an empty label)
+    // renders blank, but a node it can't find at all renders its own
+    // "<id> (unknown)" fallback — so without this, that fallback flashes
+    // for as long as the real fetch takes, even though it self-corrects.
+    const placeholders = unresolved.map(id => ({ id, name: '' }))
+    placeholders.forEach(p => optionCache.set(p.id, p))
+    listElements.value = [...listElements.value, ...placeholders]
+
+    initialLoaded = true
+    loadPage(true)
+}
+
 onMounted(() => {
     observer = new IntersectionObserver(([{ isIntersecting }]) => {
         if (!isIntersecting || isLoading.value || !hasNextPage.value) return
         page.value += 1
         loadPage(false)
     })
+    ensureSelectedResolved()
 })
 
 onBeforeUnmount(() => {
@@ -161,8 +224,16 @@ onBeforeUnmount(() => {
     onSearch.cancel()
 })
 
-watch(() => props.value, val => { selectedValue.value = toScalar(val) ?? null })
-watch(() => props.elements, val => { if (!props.apiEndpoint) listElements.value = [...val] })
+watch(() => props.value, val => {
+    selectedValue.value = toScalar(val) ?? null
+    ensureSelectedResolved()
+})
+watch(() => props.elements, val => {
+    if (!props.apiEndpoint) {
+        cacheOptions(val)
+        listElements.value = preserveSelected(val)
+    }
+})
 watch(() => props.apiEndpoint, val => {
     if (val) { listElements.value = []; page.value = 1; nextPageUrl.value = null; initialLoaded = false; loadPage(true) }
 })

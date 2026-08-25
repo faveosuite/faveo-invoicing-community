@@ -29,6 +29,8 @@ const mountDynamic = (props = {}) =>
                 'v-select': vSelectStub,
                 VSelect: vSelectStub,
                 loader: true,
+                ToolTip: { template: '<span class="tooltip-stub" :message="message"></span>', props: ['message', 'size'] },
+                Tooltip: { template: '<span class="tooltip-stub" :message="message"></span>', props: ['message', 'size'] },
             },
         },
     })
@@ -127,5 +129,21 @@ describe('DynamicSelect.vue', () => {
 
     it('defaults placeholder to Search or Select', () => {
         expect(wrapper.props('placeholder')).toBe('Search or Select')
+    })
+
+    it('renders tooltip when tooltip prop is provided', () => {
+        wrapper = mountDynamic({ tooltip: 'Choose a user' })
+        expect(wrapper.find('.tooltip-stub').exists()).toBe(true)
+    })
+
+    it('accepts taggable prop', () => {
+        wrapper = mountDynamic({ taggable: true })
+        expect(wrapper.props('taggable')).toBe(true)
+    })
+
+    it('accepts createOption prop', () => {
+        const createOption = (t) => ({ name: t })
+        wrapper = mountDynamic({ createOption })
+        expect(wrapper.props('createOption')).toBe(createOption)
     })
 })

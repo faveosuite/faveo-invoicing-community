@@ -11,6 +11,7 @@
                         :label="__('message.request_id')"
                         :value="form.requestId"
                         :onChange="(val) => form.requestId = val"
+                        :placeholder="__('message.exact_request_id')"
                     />
                 </div>
                 <div class="col-md-4">
@@ -19,6 +20,7 @@
                         :label="__('message.full_name')"
                         :value="form.fullName"
                         :onChange="(val) => form.fullName = val"
+                        :placeholder="__('message.search_by_name')"
                     />
                 </div>
                 <div class="col-md-4">
@@ -27,6 +29,7 @@
                         :label="__('message.email')"
                         :value="form.email"
                         :onChange="(val) => form.email = val"
+                        :placeholder="__('message.search_by_email')"
                     />
                 </div>
                 <div class="col-md-4">
@@ -35,10 +38,11 @@
                         :label="__('message.mobile_number')"
                         :value="form.mobileNumber"
                         :onChange="(val) => form.mobileNumber = val"
+                        :placeholder="__('message.search_by_mobile_number')"
                     />
                 </div>
                 <div class="col-md-4">
-                    <SelectField
+                    <DynamicSelect
                         name="filter_status"
                         :label="__('message.status')"
                         :elements="statusOptions"
@@ -47,7 +51,7 @@
                     />
                 </div>
                 <div class="col-md-4">
-                    <SelectField
+                    <DynamicSelect
                         name="filter_source"
                         :label="__('message.source')"
                         :elements="sourceOptions"
@@ -56,7 +60,7 @@
                     />
                 </div>
                 <div class="col-md-4">
-                    <SelectField
+                    <DynamicSelect
                         name="filter_action"
                         :label="__('message.action')"
                         :elements="actionOptions"
@@ -70,6 +74,7 @@
                         :label="__('message.failure_reason')"
                         :value="form.failureReason"
                         :onChange="(val) => form.failureReason = val"
+                        :placeholder="__('message.search_by_failure_reason')"
                     />
                 </div>
                 <div class="col-md-4">
@@ -79,6 +84,7 @@
                         :value="form.dateFrom"
                         :clearable="true"
                         :onChange="(val) => form.dateFrom = val"
+                        :placeholder="__('message.select_date')"
                     />
                 </div>
                 <div class="col-md-4">
@@ -88,6 +94,7 @@
                         :value="form.dateTo"
                         :clearable="true"
                         :onChange="(val) => form.dateTo = val"
+                        :placeholder="__('message.select_date')"
                     />
                 </div>
             </div>

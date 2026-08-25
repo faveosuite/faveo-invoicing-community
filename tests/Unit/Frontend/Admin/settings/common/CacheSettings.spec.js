@@ -23,7 +23,7 @@ describe('CacheSettings.vue', () => {
                 stubs: [
                     'DataTable', 'AppAlert', 'inline-loader', 'action-button', 'DeleteModal',
                     'DynamicSelect', 'TextField', 'StaticSelect', 'loader', 'ColumnSelector',
-                    'Switch', 'SelectField', 'ZohoCard', 'spinner-loader', 'CurrencyTableActions',
+                    'Switch', 'DynamicSelect', 'ZohoCard', 'spinner-loader', 'CurrencyTableActions',
                 ],
             },
         })

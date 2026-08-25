@@ -14,8 +14,8 @@
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-end mb-0" aria-label="Breadcrumb">
-                            <li class="breadcrumb-item">
-                                <RouterLink to="/dashboard">{{ __('message.home') }}</RouterLink>
+                            <li v-if="route.path !== '/dashboard'" class="breadcrumb-item">
+                                <RouterLink to="/dashboard">{{ __('message.dashboard') }}</RouterLink>
                             </li>
                             <li v-for="(crumb, i) in breadcrumbs"
                                 :key="i"

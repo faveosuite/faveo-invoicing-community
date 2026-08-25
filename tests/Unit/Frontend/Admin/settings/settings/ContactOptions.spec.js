@@ -26,7 +26,7 @@ describe('ContactOptions.vue', () => {
                 plugins: [createTestingPinia()],
                 stubs: [
                     'AppAlert', 'inline-loader', 'loader', 'action-button',
-                    'Switch', 'SelectField',
+                    'Switch', 'DynamicSelect',
                 ],
             },
         })

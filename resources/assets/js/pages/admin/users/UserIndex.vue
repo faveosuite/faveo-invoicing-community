@@ -96,8 +96,9 @@
 </template>
 
 <script setup>
-import { h, ref, reactive } from 'vue'
+import { h, ref, reactive, withDirectives } from 'vue'
 import { RouterLink } from 'vue-router'
+import { vTooltip } from 'floating-vue'
 
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
@@ -140,7 +141,7 @@ async function exportAll() {
     exporting.value = true
     try {
         const res = await http.get(`/export-users`, {
-            params: { search_params: activeFilters.value },
+            params: { search_params: activeFilters.value, selected_columns: selectedReportColumns.value },
         })
         successHandler(res, COMPONENT)
     } catch (e) {
@@ -154,7 +155,7 @@ async function bulkExport() {
     if (!selectedUsers.value.length) return
     try {
         const res = await http.get(`/export-users`, {
-            params: { search_params: { user_ids: selectedUsers.value } },
+            params: { search_params: { user_ids: selectedUsers.value }, selected_columns: selectedReportColumns.value },
         })
         successHandler(res, COMPONENT)
     } catch (e) {
@@ -192,18 +193,23 @@ const columnLabels = {
 const DEFAULT_COLUMNS = ['select', 'name', 'email', 'mobile', 'country', 'created_at', 'account_info', 'action']
 const columns = ref([...DEFAULT_COLUMNS])
 
+// Report_columns keys currently selected in the ColumnSelector — this is what
+// gets sent to the export endpoint so the export matches what's on screen.
+const selectedReportColumns = ref([])
+
 // ColumnSelector emits ordered, visible report_columns keys — map them onto
 // this table's column names so the DataTable shows/orders columns accordingly.
 function onColumnsChange(reportKeys) {
+    selectedReportColumns.value = reportKeys.filter(k => k !== 'checkbox' && k !== 'action')
     const mapped = reportKeys.map(k => REPORT_TO_COL[k]).filter(Boolean)
     columns.value = mapped.length ? mapped : [...DEFAULT_COLUMNS]
 }
 
 const statusIcon = (iconClass, active, activeTitle, inactiveTitle) =>
-    h('i', {
-        class: `${iconClass} ${active ? 'text-success' : 'text-danger'}`,
-        title: active ? activeTitle : inactiveTitle,
-    })
+    withDirectives(
+        h('i', { class: `${iconClass} ${active ? 'text-success' : 'text-danger'}` }),
+        [[vTooltip, active ? activeTitle : inactiveTitle]],
+    )
 
 const tableOptions = reactive({
     headings: {
@@ -254,7 +260,7 @@ const tableOptions = reactive({
         country: (f, row) => row.country?.trim() || '—',
         created_at: (f, row) => row.created_at ? formatDate(row.created_at) : '—',
         account_info: (f, row) => h('div', { class: 'd-flex gap-2' }, [
-            statusIcon('fas fa-envelope-circle-check', row.email_verified,  "User's email address is verified",  "User's email address is not verified"),
+            statusIcon('fas fa-envelope',              row.email_verified,  "User's email address is verified",  "User's email address is not verified"),
             statusIcon('fas fa-phone',                 row.mobile_verified, 'User has verified mobile',           'User has not verified mobile'),
             statusIcon('fas fa-shield-halved',         row.is_2fa_enabled,  'User has enabled 2FA',               'User has not enabled 2FA'),
         ]),

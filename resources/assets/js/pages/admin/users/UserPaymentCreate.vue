@@ -20,7 +20,7 @@
                         />
                     </div>
                     <div class="col-md-4">
-                        <SelectField
+                        <DynamicSelect
                             name="currency"
                             :label="__('message.currency')"
                             :required="true"
@@ -33,7 +33,7 @@
                         />
                     </div>
                     <div class="col-md-4">
-                        <SelectField
+                        <DynamicSelect
                             name="payment_method"
                             :label="__('message.payment-method')"
                             :required="true"

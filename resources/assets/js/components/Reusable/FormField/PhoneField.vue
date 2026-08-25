@@ -10,6 +10,7 @@
             :value="value"
             @input="onInput"
             @keypress="numbersOnly"
+            @blur="onBlur"
         />
         <div v-if="fieldError" class="invalid-feedback d-block">{{ fieldError }}</div>
     </div>
@@ -31,13 +32,28 @@ const props = defineProps({
 
 const emit = defineEmits(['countryChange'])
 
-const fieldError = computed(() => props.error ?? '')
+const localError = ref('')
+const fieldError = computed(() => props.error ?? localError.value)
 
 const phoneRef = ref(null)
 let iti = null
 
 function onInput(e) {
+    localError.value = ''
     props.onChange(e.target.value, props.name)
+}
+
+// Validate the settled value on blur (not per keystroke) — an in-progress
+// number looks "invalid" on every partial digit, so checking mid-typing
+// would flag a number the user hasn't finished entering yet.
+function onBlur() {
+    if (!iti || !props.value) {
+        localError.value = ''
+        return
+    }
+    localError.value = iti.isValidNumberPrecise()
+        ? ''
+        : __('validation.phone_number', { attribute: props.label || __('message.mobile') })
 }
 
 function numbersOnly(e) {
@@ -55,12 +71,13 @@ function emitCountry() {
 onMounted(() => {
     if (!phoneRef.value) return
     const options = {
-        initialCountry:   props.initialCountry && props.initialCountry !== 'auto' ? props.initialCountry : '',
-        separateDialCode: true,
-        showFlags:        true,
-        formatAsYouType:  false,
-        strictMode:       true,
-        excludeCountries: ['ax'],
+        initialCountry:        props.initialCountry && props.initialCountry !== 'auto' ? props.initialCountry : '',
+        separateDialCode:      true,
+        showFlags:             true,
+        formatAsYouType:       false,
+        strictMode:            true,
+        strictRejectAnimation: false,
+        excludeCountries:      ['ax'],
     }
     if (!options.initialCountry) {
         options.initialCountryLookup = () =>
@@ -83,7 +100,7 @@ onBeforeUnmount(() => {
 <style>
 @import 'intl-tel-input/dist/css/intlTelInput.css';
 
-.iti--allow-dropdown { width: 100% !important; }
+.iti--input-container { width: 100% !important; }
 
 .iti__selected-country {
     padding: 5px !important;
@@ -93,7 +110,7 @@ onBeforeUnmount(() => {
 
 .iti__selected-country-primary:hover { background-color: #f2f2f2 !important; }
 
-.iti--inline-dropdown .iti__dropdown-content {
+.iti__country-selector {
     max-width: 355px !important;
     min-width: 270px !important;
 }

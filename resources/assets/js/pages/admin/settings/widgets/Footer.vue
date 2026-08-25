@@ -104,7 +104,7 @@ const saving = reactive({ footer1: false, footer2: false, footer3: false })
 onMounted(async () => {
     try {
         const res = await http.get(`/widgets/list`, { params: { limit: 200 } })
-        const pages = res.data?.data?.pages?.data ?? []
+        const pages = res.data?.data?.data ?? []
 
         for (const ft of footerTypes) {
             const found = pages.find(w => w.type === ft.key)

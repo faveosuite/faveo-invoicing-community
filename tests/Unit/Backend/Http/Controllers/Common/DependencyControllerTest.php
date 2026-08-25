@@ -6,6 +6,7 @@ namespace Tests\Unit\Backend\Http\Controllers\Common;
 
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
+use App\Model\Order\Invoice;
 use App\Model\Product\Product;
 use Tests\DBTestCase;
 
@@ -69,6 +70,17 @@ class DependencyControllerTest extends DBTestCase
     {
         $response = $this->getJson('/dependency/products');
         $response->assertStatus(200);
+    }
+
+    public function test_invoice_currencies_dependency_returns_only_currencies_actually_on_invoices(): void
+    {
+        $response = $this->getJson('/dependency/invoice-currencies');
+        $response->assertStatus(200);
+
+        $returned = collect($response->json('data.currencies'))->pluck('id')->sort()->values();
+        $expected = Invoice::query()->distinct()->whereNotNull('currency')->pluck('currency')->sort()->values();
+
+        $this->assertEquals($expected->all(), $returned->all());
     }
 
     private function productChildren($response): array

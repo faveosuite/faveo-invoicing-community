@@ -118,7 +118,7 @@ class WhatsappController extends Controller
                     });
                 })
                 ->orderBy($sortField, $sortOrder)
-                ->simplePaginate($request->input('limit', 10));
+                ->paginate($request->input('limit', 10));
 
             $users->getCollection()->transform(function ($model): array {
                 $name = trim(($model->user->first_name ?? '').' '.($model->user->last_name ?? ''));

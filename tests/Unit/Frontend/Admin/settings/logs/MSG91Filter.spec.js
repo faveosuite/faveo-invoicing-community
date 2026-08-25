@@ -24,7 +24,7 @@ describe('MSG91Filter.vue', () => {
             props: { show: true, baseUrl: '' },
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['TextField', 'SelectField', 'DatePicker', 'action-button'],
+                stubs: ['TextField', 'DynamicSelect', 'DatePicker', 'action-button'],
             },
         })
     })
@@ -44,7 +44,7 @@ describe('MSG91Filter.vue', () => {
             props: { show: false, baseUrl: '' },
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['TextField', 'SelectField', 'DatePicker', 'action-button'],
+                stubs: ['TextField', 'DynamicSelect', 'DatePicker', 'action-button'],
             },
         })
         expect(hiddenWrapper.find('.card').exists()).toBeFalsy()
@@ -81,7 +81,7 @@ describe('MSG91Filter.vue', () => {
             props: { show: true, baseUrl: '' },
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['TextField', 'SelectField', 'DatePicker', 'action-button'],
+                stubs: ['TextField', 'DynamicSelect', 'DatePicker', 'action-button'],
             },
         })
         await flushPromises()

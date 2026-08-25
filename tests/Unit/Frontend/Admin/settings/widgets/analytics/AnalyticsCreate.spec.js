@@ -18,7 +18,7 @@ describe('AnalyticsCreate.vue', () => {
         wrapper = mount(AnalyticsCreate, {
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['AppAlert', 'TextField', 'SelectField', 'action-button', 'inline-loader'],
+                stubs: ['AppAlert', 'TextField', 'DynamicSelect', 'action-button', 'inline-loader'],
             },
         })
     })

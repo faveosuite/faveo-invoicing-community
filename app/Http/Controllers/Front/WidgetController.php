@@ -41,9 +41,7 @@ class WidgetController extends Controller
                         ->orWhere('type', 'like', sprintf('%%%s%%', $searchString));
                 }))
                 ->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit);
-
-            $total = $widgets->count();
+                ->paginate($limit);
 
             $widgets->getCollection()->transform(fn ($widget): array => [
                 'id' => $widget->id,
@@ -54,10 +52,7 @@ class WidgetController extends Controller
                 'action' => hyperLinkGenerator('widgets/show/'.$widget->id),
             ]);
 
-            return successResponse(__('message.widget_fetched'), [
-                'pages' => $widgets,
-                'total' => $total,
-            ]);
+            return successResponse(__('message.widget_fetched'), $widgets);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }

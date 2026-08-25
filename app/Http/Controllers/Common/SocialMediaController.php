@@ -42,7 +42,7 @@ class SocialMediaController extends Controller
                     });
                 })
                 ->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit);
+                ->paginate($limit);
 
             $socials->getCollection()->transform(fn ($social): array => [
                 'id' => $social->id,

@@ -29,6 +29,17 @@
                 </button>
             </div>
         </div>
+        <div v-else-if="suffix" class="input-group">
+            <input :id="id ? id : 'text-field-' + name" :name="name"
+                   :class="['form-control', inputClass, { 'is-invalid': error }]"
+                   :type="type" :disabled="disabled" :readonly="readonly" :style="inputStyle"
+                   v-model="changedValue" @input="onChange(changedValue, name)"
+                   @keyup="keyupListener($event, name)" @keydown="keydownListener($event, name)"
+                   @keypress="keypressEvt($event, name)" @paste="pasteEvt($event, name)"
+                   :placeholder="placeholderVal" :maxlength="max || undefined"
+                   :required="required" />
+            <span class="input-group-text">{{ suffix }}</span>
+        </div>
         <input v-else :id="id ? id : 'text-field-' + name" :name="name"
                :class="['form-control', inputClass, { 'is-invalid': error }]"
                :type="type" :disabled="disabled" :readonly="readonly" :style="inputStyle"
@@ -76,6 +87,9 @@ const props = defineProps({
     onNewButtonClick: { type: Function,        default: () => {} },
     inputGroupBtn:   { type: Object,           default: () => null },
     error:           { type: String,           default: undefined },
+    // Plain text appended after the input, e.g. ".example.com" for a
+    // subdomain field — matches the client panel's cloud-domain field.
+    suffix:          { type: String,           default: '' },
 })
 
 const changedValue = ref(props.value)

@@ -13,13 +13,12 @@
                         <div class="col-md-4">
                             <DynamicSelect
                                 name="user"
-                                :label="__('message.user')"
+                                :label="__('message.client')"
                                 :required="true"
                                 :apiEndpoint="`${baseUrl}/dependency/users`"
                                 dataKey="managers"
                                 :value="form.user"
                                 :onChange="onChange"
-                                :placeholder="__('message.select_user')"
                                 :error="errors.user"
                             >
                                 <template #option="option">
@@ -36,7 +35,6 @@
                                 :required="true"
                                 :value="form.date"
                                 :onChange="onChange"
-                                placeholder="MM/DD/YYYY"
                                 :error="errors.date"
                             />
                         </div>
@@ -65,7 +63,6 @@
                                 dataKey="plans"
                                 :value="form.plan"
                                 :onChange="onPlanChange"
-                                :placeholder="__('message.select_plan')"
                             />
                         </div>
 
@@ -113,6 +110,7 @@
                                 :value="form.cloud_domain"
                                 :onChange="onChange"
                                 :error="errors.cloud_domain"
+                                :suffix="dynamic.cloud_domain_suffix ? `.${dynamic.cloud_domain_suffix}` : ''"
                             />
                         </div>
 
@@ -185,6 +183,7 @@ const form = reactive({
 const dynamic = reactive({
     required_domain: false,
     is_cloud_product: false,
+    cloud_domain_suffix: '',
     show_quantity: false,
     show_agents: false,
 })
@@ -220,7 +219,7 @@ function onProductChange(val) {
     setFieldError('product', undefined)
     form.product = val
     form.plan = null
-    form.price = ''
+    setPrice('')
     resetDynamicFields()
 }
 
@@ -230,14 +229,24 @@ function onPlanChange(val, _name) {
     if (val) {
         fetchPrice()
     } else {
-        form.price = ''
+        setPrice('')
         resetDynamicFields()
     }
+}
+
+// price is set programmatically (product/plan change, fetchPrice) rather
+// than typed by the user, so it bypasses onChange's error-clearing — without
+// this, a stale "required" error from an earlier failed submit keeps showing
+// under the field even once a real price has loaded in.
+function setPrice(value) {
+    setFieldError('price', undefined)
+    form.price = value
 }
 
 function resetDynamicFields() {
     dynamic.required_domain = false
     dynamic.is_cloud_product = false
+    dynamic.cloud_domain_suffix = ''
     dynamic.show_quantity = false
     dynamic.show_agents = false
     form.domain = ''
@@ -259,11 +268,15 @@ async function fetchPrice() {
             user:    userId || null,
         })
         const data = res.data?.data ?? res.data
-        form.price = data.price ?? ''
+        setPrice(data.price ?? '')
 
         const fields = data.fields ?? {}
         dynamic.required_domain  = !!fields.required_domain
-        dynamic.is_cloud_product = !!fields.is_cloud_product
+        // is_cloud_product is `{ domain: '<suffix>' }` when true, `false`
+        // otherwise — same cloudSubDomain() suffix the client panel appends
+        // after the subdomain the customer types (PlanCard.vue).
+        dynamic.is_cloud_product    = !!fields.is_cloud_product
+        dynamic.cloud_domain_suffix = fields.is_cloud_product?.domain || ''
 
         const qty = data.product_quantity ?? {}
         dynamic.show_quantity = !!qty.can_modify

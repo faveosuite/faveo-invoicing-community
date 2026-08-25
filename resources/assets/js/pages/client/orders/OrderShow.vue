@@ -535,12 +535,11 @@
                         <span class="fw-bold text-dark">{{ cloud?.current_plan_name || '—' }}</span>
                     </div>
 
-                    <SelectField name="planId" required
+                    <DynamicSelect name="planId" required
                                  :label="__('message.select_new_plan')"
                                  :elements="cloud?.plans || []"
                                  :value="(cloud?.plans || []).find(p => p.id === planForm.planId) ?? null"
-                                 :onChange="onPlanChange"
-                                 :placeholder="__('message.select')" />
+                                 :onChange="onPlanChange" />
 
                     <!-- Reads top to bottom like a real deduction: how much
                          credit you have, what the new plan costs, how much
@@ -593,7 +592,7 @@
             </template>
             <template #fields>
                 <AppAlert componentName="auto-renew-modal" />
-                <SelectField
+                <DynamicSelect
                     name="gateway"
                     :label="__('message.select_payment')"
                     :elements="gatewayOptions"

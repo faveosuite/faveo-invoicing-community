@@ -19,7 +19,7 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <SelectField
+                                    <DynamicSelect
                                         name="captcha_version"
                                         :label="__('message.recaptcha_version')"
                                         :elements="versionOptions"
@@ -31,7 +31,7 @@
                                     />
                                 </div>
                                 <div class="col-md-6 mb-3" v-show="isV3">
-                                    <SelectField
+                                    <DynamicSelect
                                         name="failover_action"
                                         :label="__('message.failover_action')"
                                         :elements="failoverOptions"
@@ -161,7 +161,7 @@
                                     <div v-if="errors.size" class="text-danger small mt-1">{{ errors.size }}</div>
                                 </div>
                                 <div class="col-md-6 mb-3" v-show="showBadge">
-                                    <SelectField
+                                    <DynamicSelect
                                         name="badge_position"
                                         :label="__('message.badge_position')"
                                         :elements="badgeOptions"
@@ -231,7 +231,7 @@ import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { validateForm } from '@/helpers/formUtils.js'
-import SelectField from '@/components/Reusable/FormField/SelectField.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import { RecaptchaProvider, RecaptchaCheckbox, RecaptchaV2Invisible, RecaptchaV3 } from '@recaptcha'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'

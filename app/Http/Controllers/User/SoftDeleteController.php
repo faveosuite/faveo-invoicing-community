@@ -35,7 +35,7 @@ class SoftDeleteController extends ClientController
             })
             ->orderBy($sortField, $sortOrder)
             ->onlyTrashed()
-            ->simplePaginate($limit);
+            ->paginate($limit);
 
         $users->getCollection()->transform(function ($user) {
             if ($user->country) {

@@ -6,7 +6,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    <SelectField
+                    <DynamicSelect
                         name="filter_status"
                         :label="__('message.status')"
                         :elements="statusOptions"
@@ -22,6 +22,7 @@
                         :clearable="true"
                         :disabledDate="isFutureDate"
                         :onChange="(val) => form.dateFrom = val"
+                        :placeholder="__('message.select_date')"
                     />
                 </div>
                 <div class="col-md-4">
@@ -32,6 +33,7 @@
                         :clearable="true"
                         :disabledDate="isFutureDate"
                         :onChange="(val) => form.dateTill = val"
+                        :placeholder="__('message.select_date')"
                     />
                 </div>
             </div>

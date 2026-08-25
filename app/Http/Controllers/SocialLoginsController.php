@@ -30,7 +30,7 @@ class SocialLoginsController extends Controller
             });
 
         $socialLogins = $query->orderBy($sortField, $sortOrder)
-            ->simplePaginate($limit);
+            ->paginate($limit);
 
         return successResponse('', $socialLogins);
     }

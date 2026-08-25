@@ -43,7 +43,7 @@ class QueueController extends Controller
                     $query->where('name', 'like', sprintf('%%%s%%', $searchString));
                 })
                 ->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit);
+                ->paginate($limit);
 
             $queueData->getCollection()->transform(fn ($queue): array => [
                 'id' => $queue->id,

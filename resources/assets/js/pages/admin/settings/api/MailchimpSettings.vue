@@ -102,14 +102,15 @@
                                         </template>
                                         <template #no-options="{ search }">
                                             <span v-if="search">{{ __('message.no_results') }}: <em>{{ search }}</em></span>
-                                            <span v-else>{{ __('message.no_results') }}</span>
+                                            <span v-else-if="!listsLoading">{{ __('message.no_results') }}</span>
+                                            <span v-else></span>
                                         </template>
                                     </v-select>
                                     <div v-if="errors.listId" class="text-danger small mt-1">{{ errors.listId }}</div>
                                 </div>
 
                                 <div class="col-md-4 mb-3">
-                                    <SelectField
+                                    <DynamicSelect
                                         name="subscribe_status"
                                         :label="__('message.subscribe_status')"
                                         :required="true"
@@ -140,7 +141,7 @@
                             <template v-else>
                                 <div v-for="(row, idx) in fieldRows" :key="idx" class="row mb-3 align-items-end">
                                     <div class="col-5">
-                                        <SelectField
+                                        <DynamicSelect
                                             :name="'faveo_field_' + idx"
                                             :label="idx === 0 ? __('message.faveo_fields') : ''"
                                             :elements="userFields"
@@ -148,12 +149,11 @@
                                             :onChange="val => { row.faveoFieldId = val?.id ?? null; setFieldError('field_row_' + idx, undefined) }"
                                             :searchable="true"
                                             :clearable="true"
-                                            :placeholder="__('message.select_field')"
                                             :error="errors['field_row_' + idx]"
                                         />
                                     </div>
                                     <div class="col-5">
-                                        <SelectField
+                                        <DynamicSelect
                                             :name="'merge_tag_' + idx"
                                             :label="idx === 0 ? __('message.mailchimp_merge_tag') : ''"
                                             :elements="mergeTagOptions"
@@ -161,7 +161,6 @@
                                             :onChange="val => { row.mergeTagId = val?.id ?? null; setFieldError('field_row_' + idx, undefined) }"
                                             :searchable="true"
                                             :clearable="true"
-                                            :placeholder="__('message.select_merge_tag')"
                                         />
                                     </div>
                                     <div class="col-2 mb-3">
@@ -213,7 +212,7 @@
                                 <template v-if="isPaidStatus">
                                     <div class="row mt-2">
                                         <div class="col-md-5">
-                                            <SelectField
+                                            <DynamicSelect
                                                 name="isPaid_category"
                                                 :label="__('message.select_a_group')"
                                                 :required="true"
@@ -222,7 +221,6 @@
                                                 :onChange="val => { isPaidCategoryId = val?.id ?? null; setFieldError('isPaidCategoryId', undefined) }"
                                                 :searchable="true"
                                                 :clearable="true"
-                                                :placeholder="__('message.select_group')"
                                                 :error="errors.isPaidCategoryId"
                                             />
                                         </div>
@@ -252,7 +250,7 @@
                                     <template v-else-if="interestGroups.length">
                                         <div v-for="(row, idx) in productRows" :key="idx" class="row mb-3 align-items-end">
                                             <div class="col-5">
-                                                <SelectField
+                                                <DynamicSelect
                                                     :name="'product_' + idx"
                                                     :label="idx === 0 ? __('message.product') : ''"
                                                     :elements="productOptions"
@@ -260,12 +258,11 @@
                                                     :onChange="val => { row.productId = val?.id ?? null; setFieldError('product_row_' + idx, undefined) }"
                                                     :searchable="true"
                                                     :clearable="true"
-                                                    :placeholder="__('message.select_product')"
                                                     :error="errors['product_row_' + idx]"
                                                 />
                                             </div>
                                             <div class="col-5">
-                                                <SelectField
+                                                <DynamicSelect
                                                     :name="'group_' + idx"
                                                     :label="idx === 0 ? __('message.interest_group') : ''"
                                                     :elements="interestGroupOptions"
@@ -273,7 +270,6 @@
                                                     :onChange="val => { row.groupId = val?.id ?? null; setFieldError('product_row_' + idx, undefined) }"
                                                     :searchable="true"
                                                     :clearable="true"
-                                                    :placeholder="__('message.select_group')"
                                                 />
                                             </div>
                                             <div class="col-2 mb-3">
@@ -329,7 +325,7 @@ import 'vue-select/dist/vue-select.css'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import SelectField from '@/components/Reusable/FormField/SelectField.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 import { connectionSchema, listSchema } from '@/validations/admin/mailchimpValidations'
 
 const COMPONENT = 'mailchimp-settings'
@@ -407,7 +403,7 @@ const userFields = [
 
 // ── Field mapping rows ─────────────────────────────────────────────────────
 // Rows store IDs only (not object references) to avoid Vue proxy ≠ plain-object
-// mismatch that causes SelectField's elements watcher to clear selections.
+// mismatch that causes DynamicSelect's elements watcher to clear selections.
 const mergeTags = ref([])
 const fieldRows = ref([{ faveoFieldId: null, mergeTagId: null }])
 

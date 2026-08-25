@@ -29,7 +29,6 @@
                             dataKey="pricing_templates"
                             :value="form.templateObj"
                             :onChange="onChange"
-                            :placeholder="__('message.choose')"
                             :error="errors.pricing_templates_id"
                         />
                     </div>

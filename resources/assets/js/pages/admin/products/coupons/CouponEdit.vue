@@ -51,7 +51,6 @@
                                 dataKey="products"
                                 :value="form.productObj"
                                 :onChange="onChange"
-                                :placeholder="__('message.choose')"
                                 :error="errors.applied"
                             />
                         </div>

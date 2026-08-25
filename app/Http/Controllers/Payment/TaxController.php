@@ -68,7 +68,7 @@ class TaxController extends Controller
                     });
                 })
                 ->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit);
+                ->paginate($limit);
 
             $rates->getCollection()->transform(fn ($rate): array => [
                 'id' => $rate->id,

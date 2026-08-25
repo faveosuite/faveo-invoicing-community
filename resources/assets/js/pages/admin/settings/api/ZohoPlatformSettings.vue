@@ -54,7 +54,7 @@
                                 />
                             </div>
                             <div class="col-md-6 mb-3">
-                                <SelectField
+                                <DynamicSelect
                                     name="region"
                                     :label="__('message.region')"
                                     :elements="regionOptions"
@@ -100,26 +100,24 @@
                             <template v-else>
                                 <div v-for="(row, idx) in rows" :key="idx" class="row mb-3 align-items-end">
                                     <div class="col-5">
-                                        <SelectField
+                                        <DynamicSelect
                                             :name="`zoho_field_${idx}`"
                                             :label="idx === 0 ? __('message.zoho') : ''"
                                             :elements="zohoFieldOptions"
                                             :value="zohoFieldOptions.find(o => o.id === row.zohoId) ?? null"
                                             :searchable="true"
                                             :clearable="true"
-                                            :placeholder="__('message.pipe_select_option')"
                                             :onChange="(val) => onZohoFieldChange(row, val)"
                                         />
                                     </div>
                                     <div class="col-5">
-                                        <SelectField
+                                        <DynamicSelect
                                             :name="`target_field_${idx}`"
                                             :label="idx === 0 ? __('message.field_mapping') : ''"
                                             :elements="row.targetOptions"
                                             :value="row.targetOptions.find(o => o.id === row.targetValue) ?? null"
                                             :searchable="true"
                                             :clearable="true"
-                                            :placeholder="__('message.pipe_select_option')"
                                             :onChange="(val) => onTargetChange(row, val)"
                                         />
                                     </div>
@@ -154,7 +152,7 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { validateForm } from '@/helpers/formUtils.js'
 import { zohoCredentialsSchema } from '@/validations/admin/zohoValidations.js'
 import TextField   from '@/components/Reusable/FormField/TextField.vue'
-import SelectField from '@/components/Reusable/FormField/SelectField.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 
 const COMPONENT = 'zoho-platform-settings'
 const route   = useRoute()

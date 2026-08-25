@@ -11,7 +11,7 @@ import TaxCreate from '@/pages/admin/settings/common/tax/TaxCreate.vue'
 
 // A real component stub that accepts and exposes onChange so we can invoke it in tests
 const SelectFieldStub = {
-    name: 'SelectField',
+    name: 'DynamicSelect',
     props: { name: String, onChange: Function, value: [Object, String, Number], elements: Array, clearable: Boolean, searchable: Boolean },
     template: '<div class="sf-stub" :data-name="name"></div>',
 }
@@ -32,7 +32,7 @@ describe('TaxCreate.vue', () => {
             global: {
                 plugins: [createTestingPinia()],
                 stubs: [
-                    'AppAlert', 'TextField', 'SelectField', 'action-button',
+                    'AppAlert', 'TextField', 'DynamicSelect', 'action-button',
                     'loader', 'inline-loader',
                 ],
             },
@@ -54,7 +54,7 @@ describe('TaxCreate.vue', () => {
         const w = mount(TaxCreate, {
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['AppAlert', 'TextField', 'SelectField', 'action-button', 'loader', 'inline-loader'],
+                stubs: ['AppAlert', 'TextField', 'DynamicSelect', 'action-button', 'loader', 'inline-loader'],
             },
         })
         await flushPromises()
@@ -100,7 +100,7 @@ describe('TaxCreate.vue — branch coverage', () => {
         wrapper = mount(TaxCreate, {
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['AppAlert', 'SelectField', 'NumberField', 'RadioButton', 'action-button', 'loader', 'router-link'],
+                stubs: ['AppAlert', 'DynamicSelect', 'NumberField', 'RadioButton', 'action-button', 'loader', 'router-link'],
             },
         })
         await flushPromises()
@@ -156,7 +156,7 @@ describe('TaxCreate.vue — branch coverage', () => {
         const w = mount(TaxCreate, {
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['AppAlert', 'SelectField', 'NumberField', 'RadioButton', 'action-button', 'loader', 'router-link'],
+                stubs: ['AppAlert', 'DynamicSelect', 'NumberField', 'RadioButton', 'action-button', 'loader', 'router-link'],
             },
         })
         await flushPromises()
@@ -200,7 +200,7 @@ describe('TaxCreate.vue — SelectField onChange handlers via component stub', (
         wrapper = mount(TaxCreate, {
             global: {
                 plugins: [createTestingPinia()],
-                components: { SelectField: SelectFieldStub },
+                components: { DynamicSelect: SelectFieldStub },
                 stubs: ['AppAlert', 'TextField', 'action-button', 'loader'],
             },
         })

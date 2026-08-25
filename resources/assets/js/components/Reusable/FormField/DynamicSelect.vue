@@ -2,6 +2,7 @@
     <div class="mb-3">
         <label v-if="label" class="form-label fw-bold">
             {{ label }}<span v-if="required" class="text-danger ms-1">*</span>
+            <ToolTip v-if="tooltip" :message="tooltip" size="small" />
         </label>
         <v-select
             ref="vsRef"
@@ -18,6 +19,7 @@
             :closeOnSelect="closeOnSelect"
             :taggable="taggable"
             :pushTags="pushTags"
+            :create-option="createOption || undefined"
             :noDrop="noDrop"
             :loading="isLoading"
             :dropdownShouldOpen="dropdownShouldOpen"
@@ -38,8 +40,15 @@
                 <loader v-if="isLoading" class="loader-area" :duration="4000" :size="20" />
             </template>
             <template #no-options="{ search }">
+                <!-- A slot whose branches are ALL false renders only Vue
+                     comment placeholders, which Vue treats as "no content"
+                     and silently swaps in vue-select's own hardcoded
+                     "Sorry, no matching options." text instead — hence the
+                     trailing v-else, so the loading state renders a real
+                     (empty) node instead of falling through to that. -->
                 <span v-if="search">No results for <em>{{ search }}</em></span>
                 <span v-else-if="!isLoading">No options found</span>
+                <span v-else></span>
             </template>
         </v-select>
         <div v-if="fieldError" class="invalid-feedback d-block">{{ fieldError }}</div>
@@ -52,10 +61,13 @@ import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
 import http from '@/plugins/axios'
 import { debounce } from 'lodash'
+import ToolTip from '@/components/Reusable/Tooltip.vue'
 
 const props = defineProps({
     name:          { type: String, required: true },
     label:         { type: String, default: '' },
+    tooltip:       { type: String, default: '' },
+    createOption:  { type: Function, default: null },
     apiEndpoint:   { type: String, default: null },
     elements:      { type: Array, default: () => [] },
     multiple:      { type: Boolean, default: false },
@@ -220,6 +232,14 @@ watch(
 </script>
 
 <style>
+/* vue-select's own default renders placeholder text in the same solid
+   color as a real selected value (--vs-search-input-color/-placeholder-color
+   both default to "inherit", so the placeholder inherits ambient dark text).
+   favMer fades its placeholder via opacity, not color — matching that here. */
+.faveo-dynamic-select input.vs__search::placeholder {
+    opacity: 0.3;
+}
+
 .faveo-dynamic-select .vs__dropdown-toggle {
     width: 100%;
     line-height: 1.4;

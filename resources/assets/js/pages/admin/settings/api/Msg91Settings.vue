@@ -45,7 +45,7 @@
                             />
                         </div>
                         <div class="col-md-6 mb-3">
-                            <SelectField
+                            <DynamicSelect
                                 name="third_party_id"
                                 :label="__('message.msg91_third_party_app_key')"
                                 :elements="thirdPartyOptions"
@@ -53,7 +53,6 @@
                                 :onChange="(val) => form.third_party_id = val?.id ?? null"
                                 :searchable="true"
                                 :clearable="true"
-                                :placeholder="__('message.select_third_party_app')"
                             />
                         </div>
 
@@ -96,7 +95,7 @@ import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
-import SelectField from '@/components/Reusable/FormField/SelectField.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 import { msg91Schema } from '@/validations/admin/msg91Validations'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 

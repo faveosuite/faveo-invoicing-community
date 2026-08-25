@@ -32,7 +32,7 @@
                             {{ __('message.preferred_verification') }}
                         </label>
                         <div class="col-sm-8">
-                            <SelectField
+                            <DynamicSelect
                                 name="preferred_verification"
                                 :elements="preferenceOptions"
                                 :value="selectedPreference"

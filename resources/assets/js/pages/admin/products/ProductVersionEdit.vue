@@ -18,7 +18,7 @@
                             :onChange="(v) => { form.version = v; setFieldError('version', undefined) }" :error="errors.version" />
                     </div>
                     <div class="col-md-4">
-                        <SelectField name="release_type" :label="__('message.release_type')" :required="true"
+                        <DynamicSelect name="release_type" :label="__('message.release_type')" :required="true"
                             :elements="releaseTypes" :value="selectedReleaseType"
                             :onChange="(v) => form.release_type = v?.value ?? ''" :clearable="false" :searchable="false" />
                     </div>

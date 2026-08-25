@@ -37,7 +37,7 @@
                             />
                         </div>
                         <div class="col-md-4">
-                            <SelectField
+                            <DynamicSelect
                                 name="tax_class"
                                 :label="__('message.tax_class')"
                                 :tooltip="__('message.tt_tax_class')"
@@ -49,7 +49,7 @@
                             />
                         </div>
                         <div class="col-md-4">
-                            <SelectField
+                            <DynamicSelect
                                 name="country"
                                 :label="__('message.country')"
                                 :tooltip="__('message.tt_country')"
@@ -61,7 +61,7 @@
                             />
                         </div>
                         <div class="col-md-4">
-                            <SelectField
+                            <DynamicSelect
                                 name="state"
                                 :label="__('message.state')"
                                 :tooltip="__('message.tt_state')"
@@ -84,7 +84,7 @@
                             />
                         </div>
                         <div class="col-md-4">
-                            <SelectField
+                            <DynamicSelect
                                 name="compound"
                                 :label="__('message.compound')"
                                 :tooltip="__('message.tt_compound')"
@@ -96,7 +96,7 @@
                             />
                         </div>
                         <div class="col-md-4">
-                            <SelectField
+                            <DynamicSelect
                                 name="active"
                                 :label="__('message.status')"
                                 :tooltip="__('message.tt_status')"

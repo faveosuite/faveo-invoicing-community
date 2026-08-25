@@ -56,7 +56,7 @@ class CurrencyController extends Controller
                     });
                 })
                 ->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit);
+                ->paginate($limit);
 
             // Map data for JSON response
             $currencyData->getCollection()->transform(fn ($currency): array => [

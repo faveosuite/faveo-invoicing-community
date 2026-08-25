@@ -19,7 +19,6 @@
                                 dataKey="plans"
                                 :value="form.plan"
                                 :onChange="onPlanChange"
-                                :placeholder="__('message.select_plan')"
                                 :error="errors.plan"
                             />
                         </div>
@@ -45,7 +44,7 @@
 
                         <!-- Payment Method -->
                         <div class="col-md-4">
-                            <SelectField
+                            <DynamicSelect
                                 name="payment_method"
                                 :label="__('message.payment_method')"
                                 :required="true"
@@ -74,7 +73,7 @@ import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
 import { extractId } from '@/helpers/formUtils.js'
-import SelectField from '@/components/Reusable/FormField/SelectField.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'orders-renew'

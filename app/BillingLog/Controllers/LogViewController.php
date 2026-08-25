@@ -68,7 +68,7 @@ class LogViewController
                     });
                 })
                 ->orderBy($this->sortField, $this->sortOrder)
-                ->simplePaginate($this->limit);
+                ->paginate($this->limit);
 
             return successResponse(__('message.exceptions_fetched_successfully'), $exceptionLog);
         } catch (Exception) {
@@ -100,7 +100,7 @@ class LogViewController
                     });
                 })
                 ->orderBy($this->sortField, $this->sortOrder)
-                ->simplePaginate($this->limit);
+                ->paginate($this->limit);
 
             return successResponse(__('message.crons_fetched_successfully'), $cronLogs);
         } catch (Exception) {
@@ -139,7 +139,7 @@ class LogViewController
                     });
                 })
                 ->orderBy($this->sortField, $this->sortOrder)
-                ->simplePaginate($this->limit);
+                ->paginate($this->limit);
 
             return successResponse(__('message.mail_logs_fetched_successfully'), $mailLogs);
         } catch (Exception) {

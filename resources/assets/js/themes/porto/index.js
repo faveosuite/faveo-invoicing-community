@@ -14,7 +14,6 @@ const AppModal         = defineAsyncComponent(() => import('./components/common/
 const DeleteModal      = defineAsyncComponent(() => import('@/components/Reusable/DeleteModal.vue'))
 const DataTable        = defineAsyncComponent(() => import('@/components/Reusable/DataTable.vue'))
 const AppPagination    = defineAsyncComponent(() => import('./components/common/Pagination.vue'))
-const SimplePagination = defineAsyncComponent(() => import('@/components/Reusable/SimplePagination.vue'))
 const AppBreadcrumb    = defineAsyncComponent(() => import('./components/common/Breadcrumb.vue'))
 const AppAlert         = defineAsyncComponent(() => import('@/components/Reusable/Alert.vue'))
 const AppButton        = defineAsyncComponent(() => import('./components/common/Button.vue'))
@@ -23,7 +22,6 @@ const AppBadge         = defineAsyncComponent(() => import('./components/common/
 const ClientField    = defineAsyncComponent(() => import('./components/forms/ClientField.vue'))
 const ClientCheckbox = defineAsyncComponent(() => import('./components/forms/ClientCheckbox.vue'))
 const TextField     = defineAsyncComponent(() => import('@/components/Reusable/FormField/TextField.vue'))
-const SelectField   = defineAsyncComponent(() => import('@/components/Reusable/FormField/SelectField.vue'))
 const TextareaField = defineAsyncComponent(() => import('@/components/Reusable/FormField/TextareaField.vue'))
 const DatePicker    = defineAsyncComponent(() => import('@/components/Reusable/FormField/DatePicker.vue'))
 const FileUpload    = defineAsyncComponent(() => import('@/components/Reusable/FormField/FileUpload.vue'))
@@ -47,13 +45,11 @@ export const components = {
     DeleteModal,
     DataTable,
     AppPagination,
-    SimplePagination,
     AppBreadcrumb,
     AppAlert,
     AppButton,
     AppBadge,
     TextField,
-    SelectField,
     TextareaField,
     DatePicker,
     FileUpload,

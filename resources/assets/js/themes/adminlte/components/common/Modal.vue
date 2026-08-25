@@ -1,6 +1,6 @@
 <template>
     <transition name="modal">
-        <div v-if="showModal" class="modal-mask" @keyup.enter="onClose">
+        <div v-if="showModal" class="modal-mask" @keyup.esc="onClose">
             <div class="modal-wrapper" :class="classname">
                 <div class="modal-content common-modal" :style="containerStyle">
 

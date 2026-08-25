@@ -32,7 +32,7 @@ describe('UserPaymentEdit.vue', () => {
                 plugins: [createTestingPinia()],
                 stubs: [
                     'AppAlert', 'AppBreadcrumb', 'AppButton', 'DatePicker',
-                    'SelectField', 'TextField', 'inline-loader', 'loader',
+                    'DynamicSelect', 'TextField', 'inline-loader', 'loader',
                 ],
             },
         })

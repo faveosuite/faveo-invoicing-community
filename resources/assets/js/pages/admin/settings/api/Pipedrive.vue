@@ -114,7 +114,7 @@
                             <template v-else>
                                 <div v-for="(row, index) in rows" :key="index" class="row mb-3 align-items-end">
                                     <div class="col-5">
-                                        <SelectField
+                                        <DynamicSelect
                                             :name="'select1_' + index"
                                             :label="index === 0 ? __('message.pipedrive_fields') : ''"
                                             :elements="availablePipedriveOptions(index)"
@@ -122,19 +122,18 @@
                                             :onChange="(val) => onPipedriveChange(index, val)"
                                             :searchable="true"
                                             :clearable="true"
-                                            :placeholder="__('message.pipe_select_option')"
                                         />
                                     </div>
                                     <div class="col-5">
-                                        <SelectField
+                                        <DynamicSelect
                                             :name="'select2_' + index"
                                             :label="index === 0 ? __('message.faveo_invoicing_fields') : ''"
                                             :elements="row.faveoOptions"
                                             :value="row.faveoField"
+                                            :multiple="row.isMulti"
                                             :onChange="(val) => { row.faveoField = val }"
                                             :searchable="true"
                                             :clearable="true"
-                                            :placeholder="__('message.pipe_select_option')"
                                         />
                                     </div>
                                     <div class="col-2 mb-3">
@@ -176,7 +175,7 @@ import { ref, reactive, onMounted, watch } from 'vue'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import SelectField from '@/components/Reusable/FormField/SelectField.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 import { apiKeySchema } from '@/validations/admin/pipedriveValidations'
 
 const COMPONENT = 'pipedrive-settings'
@@ -311,17 +310,21 @@ function applyMapping(data) {
     if (mapped.length > 0) {
         rows.value = mapped.map(f => {
             const isLocal    = !(f.pipedrive_options?.length)
+            const isMulti    = !isLocal && f.field_type === 'set'
             const faveoOpts  = isLocal ? localOptions.value : toOptions(f.pipedrive_options ?? [], 'value')
-            const faveoField = faveoOpts.find(o => o.id === (f.selected_field?.id ?? null)) ?? null
+            const faveoField = isMulti
+                ? faveoOpts.filter(o => (f.selected_field ?? []).some(s => s.id === o.id))
+                : faveoOpts.find(o => o.id === (f.selected_field?.id ?? null)) ?? null
             return {
                 pipedriveField: allPipedriveOptions.value.find(o => o.id === f.id) ?? null,
                 faveoField,
                 faveoOptions:  faveoOpts,
                 isFaveoField:  isLocal,
+                isMulti,
             }
         })
     } else {
-        rows.value = [{ pipedriveField: null, faveoField: null, faveoOptions: localOptions.value, isFaveoField: true }]
+        rows.value = [{ pipedriveField: null, faveoField: null, faveoOptions: localOptions.value, isFaveoField: true, isMulti: false }]
     }
 }
 
@@ -340,6 +343,7 @@ async function switchGroup(groupId) {
 async function onPipedriveChange(index, val) {
     rows.value[index].pipedriveField = val
     rows.value[index].faveoField     = null
+    rows.value[index].isMulti        = false
 
     if (!val) {
         rows.value[index].faveoOptions = localOptions.value
@@ -352,6 +356,8 @@ async function onPipedriveChange(index, val) {
         const d = res.data?.data ?? {}
         rows.value[index].faveoOptions = toOptions(d.options ?? [], 'value')
         rows.value[index].isFaveoField = d.is_faveo_options ?? true
+        rows.value[index].isMulti      = d.is_multi ?? false
+        if (rows.value[index].isMulti) rows.value[index].faveoField = []
     } catch {
         rows.value[index].faveoOptions = localOptions.value
         rows.value[index].isFaveoField = true
@@ -369,7 +375,7 @@ function availablePipedriveOptions(rowIndex) {
 // ── Add / delete row ──────────────────────────────────────────────────────
 function addRow() {
     if (rows.value.length >= allPipedriveOptions.value.length) return
-    rows.value.push({ pipedriveField: null, faveoField: null, faveoOptions: localOptions.value, isFaveoField: true })
+    rows.value.push({ pipedriveField: null, faveoField: null, faveoOptions: localOptions.value, isFaveoField: true, isMulti: false })
 }
 
 function deleteRow(index) {
@@ -378,7 +384,8 @@ function deleteRow(index) {
 
 // ── Save mapping ──────────────────────────────────────────────────────────
 async function saveMapping() {
-    const hasEmpty = rows.value.some(r => !r.pipedriveField || !r.faveoField)
+    const isEmpty  = (r) => r.isMulti ? !r.faveoField?.length : !r.faveoField
+    const hasEmpty = rows.value.some(r => !r.pipedriveField || isEmpty(r))
     if (hasEmpty) {
         errorHandler({ message: __('message.pipe_select_field') }, COMPONENT)
         return
@@ -389,7 +396,10 @@ async function saveMapping() {
         const res = await http.post(`/sync/pipedrive`, {
             group_id: activeGroupId.value,
             select1:  rows.value.map(r => ({ id: r.pipedriveField.id })),
-            select2:  rows.value.map(r => ({ id: r.faveoField.id, faveo_fields: r.isFaveoField })),
+            select2:  rows.value.map(r => ({
+                id: r.isMulti ? r.faveoField.map(o => o.id) : r.faveoField.id,
+                faveo_fields: r.isFaveoField,
+            })),
         })
         successHandler(res, COMPONENT)
     } catch (e) {

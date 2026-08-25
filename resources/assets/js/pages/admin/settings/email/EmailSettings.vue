@@ -23,7 +23,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-4">
-                            <SelectField
+                            <DynamicSelect
                                 name="driver"
                                 :label="__('message.mail_driver')"
                                 :elements="driverOptions"
@@ -48,7 +48,7 @@
                                 <TextField name="port" :label="__('message.smtp_port')" :required="true" :value="form.port" :onChange="onChange" :error="errors.port" />
                             </div>
                             <div class="col-md-4">
-                                <SelectField
+                                <DynamicSelect
                                     name="encryption"
                                     :label="__('message.encryption')"
                                     :elements="encryptionOptions"

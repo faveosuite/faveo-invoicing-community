@@ -73,7 +73,7 @@ class PlanController extends ExtendedPlanController
                 });
             })
             ->orderBy($sortField, $sortOrder)
-            ->simplePaginate($limit);
+            ->paginate($limit);
 
         $plans->getCollection()->transform(fn ($plan): array => [
             'id' => $plan->id,

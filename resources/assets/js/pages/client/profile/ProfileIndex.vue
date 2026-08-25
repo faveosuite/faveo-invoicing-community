@@ -91,7 +91,7 @@
                        v-model="form.town"/>
 
           <!-- Country — managed by admin, read-only on the client panel -->
-          <SelectField name="country"
+          <DynamicSelect name="country"
                        :label="__('message.country')"
                        :elements="countries"
                        optionLabel="name"
@@ -99,7 +99,7 @@
                        :onChange="(v) => form.country = v?.code ?? ''"
                        :disabled="true" />
 
-          <SelectField name="state"
+          <DynamicSelect name="state"
                        :label="__('message.state')"
                        :elements="states"
                        optionLabel="name"
@@ -113,7 +113,6 @@
                          optionLabel="name"
                          :value="selectedTimezone"
                          :onChange="onTimezoneChange"
-                         :placeholder="__('message.select')"
                          :error="errors.timezone_id" />
 
           <div class="form-group row">

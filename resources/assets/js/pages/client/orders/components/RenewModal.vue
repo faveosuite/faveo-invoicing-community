@@ -20,7 +20,7 @@
                     <span class="fw-bold text-dark">{{ order?.agents || '—' }}</span>
                 </div>
 
-                <SelectField name="plan"
+                <DynamicSelect name="plan"
                              :label="__('message.plans')"
                              :elements="plans"
                              :value="selectedPlan"

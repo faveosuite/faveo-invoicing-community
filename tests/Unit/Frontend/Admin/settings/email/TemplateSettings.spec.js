@@ -31,7 +31,7 @@ describe('TemplateSettings.vue', () => {
             global: {
                 plugins: [createTestingPinia()],
                 stubs: [
-                    'AppAlert', 'SelectField', 'action-button',
+                    'AppAlert', 'DynamicSelect', 'action-button',
                     'loader', 'inline-loader',
                 ],
             },
@@ -53,7 +53,7 @@ describe('TemplateSettings.vue', () => {
         const w = mount(TemplateSettings, {
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['AppAlert', 'SelectField', 'action-button', 'loader', 'inline-loader'],
+                stubs: ['AppAlert', 'DynamicSelect', 'action-button', 'loader', 'inline-loader'],
             },
         })
         await flushPromises()

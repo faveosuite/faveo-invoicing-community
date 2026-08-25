@@ -32,7 +32,7 @@
                             ></span>
                             &nbsp;
                             <span
-                                class="fas fa-mobile-alt"
+                                class="fas fa-phone"
                                 :class="user.mobile_verified ? 'icon-success' : 'icon-danger'"
                                 v-tooltip="user.mobile_verified ? __('message.mobile_verified') : __('message.mobile_not_verified')"
                             ></span>

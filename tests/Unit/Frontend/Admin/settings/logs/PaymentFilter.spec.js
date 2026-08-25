@@ -15,7 +15,7 @@ describe('PaymentFilter.vue', () => {
             props: { show: true, baseUrl: '' },
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['SelectField', 'DatePicker', 'action-button'],
+                stubs: ['DynamicSelect', 'DatePicker', 'action-button'],
             },
         })
     })
@@ -29,7 +29,7 @@ describe('PaymentFilter.vue', () => {
             props: { show: false, baseUrl: '' },
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['SelectField', 'DatePicker', 'action-button'],
+                stubs: ['DynamicSelect', 'DatePicker', 'action-button'],
             },
         })
         expect(hiddenWrapper.find('.card').exists()).toBeFalsy()

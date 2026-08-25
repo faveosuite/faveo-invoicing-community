@@ -15,7 +15,7 @@
 
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <SelectField name="release_type" :label="__('message.release_type')" :required="true"
+                        <DynamicSelect name="release_type" :label="__('message.release_type')" :required="true"
                             :elements="releaseTypes" :value="selectedReleaseType"
                             :onChange="(v) => form.release_type = v?.value ?? ''" :clearable="false" :searchable="false" />
                     </div>

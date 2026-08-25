@@ -20,7 +20,7 @@ describe('Queues.vue', () => {
             global: {
                 plugins: [createTestingPinia()],
                 stubs: [
-                    'AppAlert', 'DataTable', 'SelectField', 'action-button',
+                    'AppAlert', 'DataTable', 'DynamicSelect', 'action-button',
                     'inline-loader', 'loader', 'router-link',
                 ],
             },

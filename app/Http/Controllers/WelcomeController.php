@@ -31,7 +31,7 @@ class WelcomeController extends Controller
                     $query->where('country_name', 'like', sprintf('%%%s%%', $searchQuery));
                 })
                 ->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit);
+                ->paginate($limit);
 
             $countryList->getCollection()->transform(fn ($country): array => [
                 'id' => $country->country_id,

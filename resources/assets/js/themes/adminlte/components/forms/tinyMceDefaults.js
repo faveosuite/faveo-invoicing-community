@@ -99,6 +99,9 @@ const plugins = [
 export const editorInit = {
     promotion:     false,
     branding:      false,
+    // Drops the bottom bar entirely (element path + the "Press Alt+0 for
+    // help" accessibility hint) — not something editors here act on.
+    statusbar:     false,
     plugins,
     toolbar:       toolbarItems.join(' | '),
     content_style: `.${TOOLTIP_CLASS} { text-decoration: underline dotted #aaa; cursor: pointer; }`,

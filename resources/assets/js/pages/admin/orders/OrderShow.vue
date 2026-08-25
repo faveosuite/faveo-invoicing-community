@@ -64,11 +64,11 @@
                                                 <div class="row align-items-center">
                                                     <div class="col-4 fw-semibold">{{ __('message.license_code') }}</div>
                                                     <div class="col-8 d-flex align-items-center gap-2">
-                                                        <span class="font-monospace">{{ licenseDetails?.licence_code || '—' }}</span>
-                                                        <button class="btn btn-light table_btn" v-tooltip="__('message.copy')" @click="copyLicenseCode">
+                                                        <span class="font-monospace license-code">{{ licenseDetails?.licence_code || '—' }}</span>
+                                                        <button class="btn btn-light table_btn flex-shrink-0" v-tooltip="__('message.copy')" @click="copyLicenseCode">
                                                             <i :class="copied ? 'fas fa-check' : 'fas fa-clipboard'"></i>
                                                         </button>
-                                                        <button class="btn btn-light table_btn" v-tooltip="__('message.reissue_license')" :disabled="saving.reissue" @click="reissueLicense">
+                                                        <button class="btn btn-light table_btn flex-shrink-0" v-tooltip="__('message.reissue_license')" :disabled="saving.reissue" @click="reissueLicense">
                                                             <i class="fas fa-credit-card"></i>
                                                         </button>
                                                     </div>
@@ -827,6 +827,14 @@ const paymentTableOptions = reactive({
     letter-spacing: 0.04em;
     color: #6c757d;
     margin-bottom: 0.5rem;
+}
+.license-code {
+    /* A flex item won't shrink below its content's natural width by default
+       (min-width: auto), so a long unbroken license code just overflows the
+       row instead of wrapping — override that and let it break anywhere. */
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-all;
 }
 .order-avatar {
     width: 42px;

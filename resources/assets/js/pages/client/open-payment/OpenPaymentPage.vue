@@ -79,7 +79,6 @@
                                     dataKey="countries"
                                     :value="selectedCountryObj"
                                     :onChange="onCountryChange" :required="true"
-                                    placeholder="Search country..."
                                     :error="errors.country" />
                     </div>
                     <div class="col-md-6">
@@ -89,7 +88,6 @@
                                     :apiParams="selectedCountryObj ? { country: selectedCountryObj.code } : {}"
                                     :value="selectedStateObj"
                                     :onChange="onStateChange" :required="true"
-                                    placeholder="Search state..."
                                     :error="errors.state"
                                     :disabled="!selectedCountryObj" />
                     </div>
@@ -111,7 +109,7 @@
                                v-model="form.amount" :error="errors.amount" :required="true"
                                @update:modelValue="setFieldError('amount', undefined)" />
 
-                  <SelectField name="currency" :label="__('message.currency')"
+                  <DynamicSelect name="currency" :label="__('message.currency')"
                              :elements="currencyOptions" :value="selectedCurrency"
                              :onChange="onCurrencyChange"
                              :clearable="false" :searchable="false" />

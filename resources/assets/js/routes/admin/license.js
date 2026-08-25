@@ -27,30 +27,30 @@ const ViewSystemReports = () => import('../../../../../app/License/Resources/js/
 
 export default [
     { path: '/versions', redirect: '/versions/list' },
-    { path: '/versions/list', component: VersionsIndex, meta: { title: 'Versions', titleKey: 'message.versions' } },
+    { path: '/versions/list', component: VersionsIndex, meta: { title: 'All Versions', titleKey: 'message.all_versions' } },
     { path: '/versions/:id/view', component: VersionsView, meta: { title: 'Version View', titleKey: 'message.versions' } },
 
     { path: '/licenses', redirect: '/licenses/list' },
-    { path: '/licenses/list', component: LicensesIndex, meta: { title: 'Licenses', titleKey: 'message.licenses' } },
+    { path: '/licenses/list', component: LicensesIndex, meta: { title: 'All Licenses', titleKey: 'message.all_licenses' } },
     { path: '/licenses/create', component: LicenseCreateEdit, meta: { title: 'New License', titleKey: 'message.licenses' } },
     { path: '/licenses/:id/edit', component: LicenseCreateEdit, meta: { title: 'Edit License', titleKey: 'message.licenses' } },
     { path: '/licenses/:id/view', component: LicensesView, meta: { title: 'License View', titleKey: 'message.licenses' } },
 
     { path: '/installations', redirect: '/installations/list' },
-    { path: '/installations/list', component: InstallationsIndex, meta: { title: 'Installations', titleKey: 'message.installations' } },
+    { path: '/installations/list', component: InstallationsIndex, meta: { title: 'All Installations', titleKey: 'message.all_installations' } },
     { path: '/installations/:id/edit', component: InstallationCreateEdit, meta: { title: 'Edit Installation', titleKey: 'message.installations' } },
     { path: '/installations/:id/view', component: InstallationsView, meta: { title: 'Installation View', titleKey: 'message.installations' } },
 
     { path: '/callbacks', redirect: '/callbacks/list' },
-    { path: '/callbacks/list', component: CallbacksIndex, meta: { title: 'Callbacks', titleKey: 'message.callbacks' } },
+    { path: '/callbacks/list', component: CallbacksIndex, meta: { title: 'All Callbacks', titleKey: 'message.callbacks' } },
 
     { path: '/banned-hosts', redirect: '/banned-hosts/list' },
-    { path: '/banned-hosts/list', component: BannedHostsIndex, meta: { title: 'Banned Hosts', titleKey: 'message.banned_hosts' } },
+    { path: '/banned-hosts/list', component: BannedHostsIndex, meta: { title: 'All Banned Hosts', titleKey: 'message.all_banned_hosts' } },
     { path: '/banned-hosts/create', component: BannedHostCreateEdit, meta: { title: 'New Banned Host', titleKey: 'message.banned_hosts' } },
     { path: '/banned-hosts/:id/edit', component: BannedHostCreateEdit, meta: { title: 'Edit Banned Host', titleKey: 'message.banned_hosts' } },
 
     { path: '/whitelist', redirect: '/whitelist/list' },
-    { path: '/whitelist/list', component: WhiteList, meta: { title: 'Whitelist IP', titleKey: 'message.whitelist_ip' } },
+    { path: '/whitelist/list', component: WhiteList, meta: { title: 'All Whitelist', titleKey: 'message.all_whitelist_ip' } },
     { path: '/whitelist/create', component: WhiteListCreate, meta: { title: 'New Whitelist', titleKey: 'message.whitelist_ip' } },
     { path: '/whitelist/:id/edit', component: WhiteListCreate, meta: { title: 'Edit Whitelist', titleKey: 'message.whitelist_ip' } },
 

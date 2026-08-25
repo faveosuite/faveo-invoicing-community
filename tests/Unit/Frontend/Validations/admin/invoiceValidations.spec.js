@@ -70,7 +70,10 @@ describe('buildInvoiceCreateSchema - with is_cloud_product', () => {
         date:         '2024-01-15',
         product:      '2',
         price:        '99.00',
-        cloud_domain: 'tenant.cloud.example.com',
+        // Just the subdomain label the customer picks — the backend appends
+        // ".<cloudSubDomain()>" itself, same as the client panel's own
+        // cloud-domain field (PlanCard.vue), so this can't contain dots.
+        cloud_domain: 'tenant-cloud',
     }
 
     it('passes when cloud_domain is provided', async () => {
@@ -84,6 +87,14 @@ describe('buildInvoiceCreateSchema - with is_cloud_product', () => {
     it('fails when cloud_domain is missing', async () => {
         const { cloud_domain: _o, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
+    })
+
+    it('fails when cloud_domain contains characters other than letters, numbers, and hyphens', async () => {
+        await expect(schema.validate({ ...valid, cloud_domain: 'tenant.cloud' })).rejects.toThrow()
+    })
+
+    it('fails when cloud_domain starts or ends with a hyphen', async () => {
+        await expect(schema.validate({ ...valid, cloud_domain: '-tenant' })).rejects.toThrow()
     })
 })
 

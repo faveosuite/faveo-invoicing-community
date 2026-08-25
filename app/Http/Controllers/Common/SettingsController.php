@@ -617,7 +617,7 @@ class SettingsController extends BaseSettingsController
                 'module' => 'activity_log.log_name',
             ];
             $activitySortColumn = $activitySortMap[$sortField] ?? 'activity_log.'.$sortField;
-            $logs = $query->orderBy($activitySortColumn, $sortOrder)->simplePaginate($limit);
+            $logs = $query->orderBy($activitySortColumn, $sortOrder)->paginate($limit);
 
             $logs->getCollection()->transform(fn ($row): array => [
                 'id' => $row->id,
@@ -714,7 +714,7 @@ class SettingsController extends BaseSettingsController
 
             $paymentSortMap = ['user' => 'users.first_name'];
             $paymentSortColumn = $paymentSortMap[$sortField] ?? 'payment_logs.'.$sortField;
-            $logs = $query->orderBy($paymentSortColumn, $sortOrder)->simplePaginate($limit);
+            $logs = $query->orderBy($paymentSortColumn, $sortOrder)->paginate($limit);
 
             $logs->getCollection()->transform(fn ($row): array => [ // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
                 'id' => $row->id,

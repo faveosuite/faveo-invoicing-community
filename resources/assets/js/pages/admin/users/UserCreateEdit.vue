@@ -39,16 +39,15 @@
                                 dataKey="industries"
                                 :value="form.bussiness"
                                 :onChange="onChange"
-                                :placeholder="__('message.choose')"
                             />
                         </div>
                         <div class="col-md-3">
                             <RadioButton
-                                name="active"
+                                name="email_verified"
                                 :label="__('message.email_status')"
                                 :options="[{ name: __('message.active'), value: 1 }, { name: __('message.inactive'), value: 0 }]"
-                                :value="form.active"
-                                :onChange="(val) => form.active = val"
+                                :value="form.email_verified"
+                                :onChange="(val) => form.email_verified = val"
                             />
                         </div>
                         <div class="col-md-3">
@@ -65,43 +64,39 @@
                     <!-- Row 3: Role / Position / Company Type / Company Size -->
                     <div class="row">
                         <div class="col-md-3">
-                            <SelectField
+                            <DynamicSelect
                                 name="role"
                                 :label="__('message.role')"
                                 :elements="roleOptions"
                                 :value="form.role"
                                 :onChange="onRoleChange"
-                                :placeholder="__('message.choose')"
                             />
                         </div>
                         <div class="col-md-3">
-                            <SelectField
+                            <DynamicSelect
                                 name="position"
                                 :label="__('message.position')"
                                 :elements="positionOptions"
                                 :value="form.position"
                                 :onChange="onChange"
-                                :placeholder="__('message.choose')"
                             />
                         </div>
                         <div class="col-md-3">
-                            <SelectField
+                            <DynamicSelect
                                 name="company_type"
                                 :label="__('message.company_type')"
                                 :elements="companyTypeOptions"
                                 :value="form.company_type"
                                 :onChange="onChange"
-                                :placeholder="__('message.choose')"
                             />
                         </div>
                         <div class="col-md-3">
-                            <SelectField
+                            <DynamicSelect
                                 name="company_size"
                                 :label="__('message.company_size')"
                                 :elements="companySizeOptions"
                                 :value="form.company_size"
                                 :onChange="onChange"
-                                :placeholder="__('message.choose')"
                             />
                         </div>
                     </div>
@@ -127,7 +122,6 @@
                                 dataKey="countries"
                                 :value="form.country"
                                 :onChange="onCountryChange"
-                                :placeholder="__('message.choose')"
                                 :error="errors.country"
                             />
                         </div>
@@ -140,7 +134,6 @@
                                 dataKey="states"
                                 :value="form.state"
                                 :onChange="onChange"
-                                :placeholder="__('message.choose_country_first')"
                             />
                         </div>
                         <div class="col-md-3">
@@ -159,7 +152,6 @@
                                 dataKey="time_zones"
                                 :value="form.timezone_id"
                                 :onChange="onChange"
-                                :placeholder="__('message.choose')"
                                 :error="errors.timezone_id"
                             />
                         </div>
@@ -167,6 +159,7 @@
                             <PhoneField
                                 name="mobile"
                                 :label="__('message.mobile')"
+                                :required="true"
                                 :value="form.mobile"
                                 :initialCountry="form.mobile_country_iso"
                                 :onChange="onChange"
@@ -285,7 +278,7 @@ const form = reactive({
     user_name:          '',
     company:            '',
     bussiness:          null,
-    active:             1,
+    email_verified:     1,
     mobile_verified:    0,
     role:               null,
     position:           null,
@@ -319,7 +312,7 @@ onMounted(async () => {
         form.user_name          = u.user_name          ?? ''
         form.company            = u.company            ?? ''
         form.bussiness          = u.bussiness          ?? null
-        form.active             = u.active             ?? 1
+        form.email_verified     = u.email_verified     ?? 0
         form.mobile_verified    = u.mobile_verified    ?? 0
         form.role               = roleOptions.find(o => o.id === u.role)          ?? null
         form.position           = positionOptions.find(o => o.id === u.position)  ?? null
@@ -378,7 +371,7 @@ async function submit() {
             user_name:          form.user_name,
             company:            form.company,
             bussiness:          extractId(form.bussiness),
-            active:             form.active,
+            email_verified:     form.email_verified,
             mobile_verified:    form.mobile_verified,
             role:               extractId(form.role),
             position:           extractId(form.position),

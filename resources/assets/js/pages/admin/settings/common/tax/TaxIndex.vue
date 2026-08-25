@@ -12,7 +12,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <SelectField
+                            <DynamicSelect
                                 name="tax_enable"
                                 :label="__('message.tax-enable')"
                                 :tooltip="__('message.tt_tax_enable')"
@@ -24,7 +24,7 @@
                             />
                         </div>
                         <div class="col-md-4">
-                            <SelectField
+                            <DynamicSelect
                                 name="inclusive"
                                 :label="__('message.prices-entered-with-tax')"
                                 :tooltip="__('message.tt_inclusive')"
@@ -36,7 +36,7 @@
                             />
                         </div>
                         <div class="col-md-4">
-                            <SelectField
+                            <DynamicSelect
                                 name="rounding"
                                 :label="__('message.rounding')"
                                 :tooltip="__('message.tt_rounding')"
@@ -48,7 +48,7 @@
                             />
                         </div>
                         <div class="col-md-4">
-                            <SelectField
+                            <DynamicSelect
                                 name="tax_based_on"
                                 :label="__('message.calculate_tax_based_on')"
                                 :tooltip="__('message.tt_based_on')"
@@ -60,7 +60,7 @@
                             />
                         </div>
                         <div class="col-md-8">
-                            <SelectField
+                            <DynamicSelect
                                 name="additional_tax_classes"
                                 :label="__('message.additional_tax_classes')"
                                 :tooltip="__('message.additional_tax_classes_hint')"
@@ -184,7 +184,7 @@ const options = reactive({ tax_enable: 0, inclusive: 0, rounding: 0, tax_based_o
 
 // Additional tax classes as tags ({ name } objects), edited via a taggable multiselect.
 // Stable empty options list: tags come from the value, not from a preset dropdown
-// (binding the value here would trip SelectField's elements-watch and clear them).
+// (binding the value here would trip DynamicSelect's elements-watch and clear them).
 const noClassOptions = []
 const additionalClasses = ref([])
 

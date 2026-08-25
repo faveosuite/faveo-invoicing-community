@@ -12,7 +12,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <SelectField
+                            <DynamicSelect
                                 name="provider"
                                 :label="__('message.validation-provider')"
                                 :elements="providerOptions"
@@ -48,7 +48,7 @@
                                 />
                             </div>
                             <div class="col-md-6">
-                                <SelectField
+                                <DynamicSelect
                                     name="mode"
                                     :label="__('message.mobileMode')"
                                     :elements="modeOptions"

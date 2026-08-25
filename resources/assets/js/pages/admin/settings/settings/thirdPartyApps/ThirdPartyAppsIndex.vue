@@ -250,7 +250,7 @@ const tableOptions = reactive({
         const res = data?.data?.third_party_apps
         return {
             data:  res?.data  ?? [],
-            count: data?.data?.total ?? res?.total ?? 0,
+            count: res?.total ?? 0,
         }
     },
     orderBy: { column: 'created_at', ascending: false },

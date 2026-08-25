@@ -129,6 +129,7 @@ async function exportOrders() {
         Object.entries(activeFilters.value).forEach(([k, v]) => {
             if (v !== '' && v !== null) params.append(k, v)
         })
+        selectedReportColumns.value.forEach(col => params.append('selected_columns[]', col))
 
         const res = await http.get(`/export-orders?${params.toString()}`)
         successHandler(res, 'orders-index')
@@ -202,7 +203,12 @@ const columnLabels = {
 const DEFAULT_COLUMNS = ['select', 'client', 'email', 'mobile', 'country', 'number', 'order_status', 'product_name', 'group', 'plan', 'version', 'agents', 'status', 'order_date', 'update_ends_at', 'action']
 const columns = ref([...DEFAULT_COLUMNS])
 
+// Report_columns keys currently selected in the ColumnSelector — this is what
+// gets sent to the export endpoint so the export matches what's on screen.
+const selectedReportColumns = ref([])
+
 function onColumnsChange(reportKeys) {
+    selectedReportColumns.value = reportKeys.filter(k => k !== 'checkbox' && k !== 'action')
     const mapped = reportKeys.map(k => REPORT_TO_COL[k]).filter(Boolean)
     columns.value = mapped.length ? mapped : [...DEFAULT_COLUMNS]
 }

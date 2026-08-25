@@ -18,7 +18,7 @@
                         />
                     </div>
                     <div class="col-md-4 mb-3">
-                        <SelectField
+                        <DynamicSelect
                             name="on_registration"
                             :label="__('message.show_script')"
                             :required="true"
@@ -30,7 +30,7 @@
                         />
                     </div>
                     <div class="col-md-4 mb-3">
-                        <SelectField
+                        <DynamicSelect
                             name="google_analytics"
                             :label="__('message.google_analytics')"
                             :elements="yesNoOptions"

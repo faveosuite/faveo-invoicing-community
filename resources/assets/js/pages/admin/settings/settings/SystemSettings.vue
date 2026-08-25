@@ -12,7 +12,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <SelectField
+                            <DynamicSelect
                                 name="timezone_id"
                                 :label="__('message.timezone')"
                                 :required="true"
@@ -20,7 +20,6 @@
                                 :value="form.timezone_id"
                                 :onChange="onChange"
                                 :searchable="true"
-                                :placeholder="__('message.choose')"
                                 :error="errors.timezone_id"
                             />
                         </div>
@@ -29,14 +28,13 @@
                                 <label class="form-label fw-bold mb-0">{{ __('message.date_format') }}<span class="text-danger ms-1">*</span></label>
                                 <small v-if="datePreview" class="text-muted fst-italic">(e.g {{ datePreview }})</small>
                             </div>
-                            <SelectField
+                            <DynamicSelect
                                 name="date_format"
                                 label=""
                                 :required="false"
                                 :elements="dateFormatOptions"
                                 :value="form.date_format"
                                 :onChange="onChange"
-                                :placeholder="__('message.choose')"
                                 :error="errors.date_format"
                             />
                         </div>
@@ -45,14 +43,13 @@
                                 <label class="form-label fw-bold mb-0">{{ __('message.time_format') }}<span class="text-danger ms-1">*</span></label>
                                 <small v-if="timePreview" class="text-muted fst-italic">(e.g {{ timePreview }})</small>
                             </div>
-                            <SelectField
+                            <DynamicSelect
                                 name="time_format"
                                 label=""
                                 :required="false"
                                 :elements="timeFormatOptions"
                                 :value="form.time_format"
                                 :onChange="onChange"
-                                :placeholder="__('message.choose')"
                                 :error="errors.time_format"
                             />
                         </div>
@@ -74,7 +71,7 @@ import { DateTime } from 'luxon'
 import { phpToLuxon } from '@/helpers/luxonHelpers'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import SelectField from '@/components/Reusable/FormField/SelectField.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 
 const COMPONENT = 'system-settings'
 

@@ -251,7 +251,7 @@ return [
             'required' => 'The country is required.',
         ],
         'gstin' => [
-            'max' => 'The GSTIN must not exceed 15 characters.',
+            'regex' => 'The GSTIN format is invalid.',
         ],
         'default_currency' => [
             'required' => 'The default currency is required.',
@@ -607,7 +607,7 @@ return [
             'exists' => 'The selected country is invalid.',
         ],
         'state' => [
-            'required_if' => 'The state field is required when country is India.',
+            'required_if' => 'The state field is required for this country.',
         ],
         'timezone_id' => [
             'required' => 'The timezone field is required.',
@@ -618,6 +618,9 @@ return [
         ],
         'zip' => [
             'regex' => 'The state field is required when country is India.',
+        ],
+        'gstin' => [
+            'regex' => 'The GSTIN format is invalid.',
         ],
     ],
 
@@ -661,7 +664,10 @@ return [
             'exists' => 'Selected country is invalid.',
         ],
         'state' => [
-            'required_if' => 'The state field is required when country is India.',
+            'required_if' => 'The state field is required for this country.',
+        ],
+        'gstin' => [
+            'regex' => 'The GSTIN format is invalid.',
         ],
         'old_password' => [
             'required' => 'Old password is required.',
@@ -705,6 +711,7 @@ return [
         ],
         'cloud_domain' => [
             'required' => 'The cloud domain field is required.',
+            'regex' => 'Only letters, numbers, and hyphens are allowed.',
         ],
         'plan' => [
             'required_if' => 'The subscription field is required.',

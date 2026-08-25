@@ -27,21 +27,18 @@
       </template>
     </v-server-table>
 
-    <div class="pagination-container">
+    <div class="pagination-container d-flex justify-content-between align-items-center flex-wrap gap-2">
       <div v-if="!isLoading">
         <template v-if="total === 1">1 record</template>
         <template v-else-if="total !== null && total <= perPage">{{ total }} records</template>
-        <template v-else-if="total !== null && total > perPage">Showing {{ from }} to {{ to }} of {{ total }} records</template>
-        <template v-else-if="from && to && nextPage">Showing {{ from }} to {{ to }} records of many</template>
-        <template v-else-if="from && to">Showing {{ from }} to {{ to }} of {{ to }} records</template>
+        <template v-else-if="total !== null">Showing {{ from }} to {{ to }} of {{ total }} records</template>
       </div>
-      <div v-if="!isLoading && (nextPage || prevPage)" class="float-end mr-0 pt-2">
-        <SimplePagination
-            :nextPage="nextPage"
-            :prevPage="prevPage"
-            @paginate="onPaginate"
-        />
-      </div>
+      <Pagination
+          v-if="!isLoading"
+          :currentPage="currentPage"
+          :totalPages="lastPage"
+          @change="onPageChange"
+      />
     </div>
   </div>
 </template>
@@ -49,7 +46,7 @@
 <script setup>
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import http from '@/plugins/axios'
-import SimplePagination from '@/components/Reusable/SimplePagination.vue'
+import Pagination from '@/components/Reusable/Pagination.vue'
 import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const props = defineProps({
@@ -58,15 +55,15 @@ const props = defineProps({
   option: { type: Object, default: () => ({}) },
 })
 
-const tableRef  = ref(null)
-const isLoading = ref(true)
-const searchStr = ref('')
-const nextPage  = ref(null)
-const prevPage  = ref(null)
-const total     = ref(null)
-const from      = ref(null)
-const to        = ref(null)
-const perPage   = ref(10)
+const tableRef     = ref(null)
+const isLoading    = ref(true)
+const searchStr    = ref('')
+const currentPage  = ref(1)
+const lastPage     = ref(1)
+const total        = ref(null)
+const from         = ref(null)
+const to           = ref(null)
+const perPage      = ref(10)
 
 const isFilterable = computed(() => props.option.filterable ?? false)
 
@@ -78,30 +75,25 @@ function onLoaded() {
   isLoading.value = false
 }
 
-function onPaginate(direction) {
-  const targetUrl = direction === 'next' ? nextPage.value : prevPage.value
-  if (!targetUrl) return
-  const page = parseInt(new URL(targetUrl).searchParams.get('page'))
-  if (page) tableRef.value?.setPage(page)
+function onPageChange(page) {
+  tableRef.value?.setPage(page)
 }
 
 function defaultResponseAdapter(response) {
   // requestFunction's catch returns undefined on HTTP errors — handle that
   // safely so pagination doesn't end up with NaN (→ "Invalid array length").
-  const res         = response?.data?.data
-  const pp          = parseInt(res?.per_page) || 10
-  const currentPage = res?.current_page ?? 1
-  const toVal       = res?.to ?? 0
-  perPage.value     = pp
-  total.value       = res?.total           ?? null
-  from.value        = res?.from            ?? null
-  to.value          = toVal
-  nextPage.value    = res?.next_page_url   ?? null
-  prevPage.value    = res?.prev_page_url   ?? null
-  isLoading.value   = false
+  const res          = response?.data?.data
+  const pp           = parseInt(res?.per_page) || 10
+  perPage.value      = pp
+  total.value        = res?.total        ?? null
+  from.value         = res?.from         ?? null
+  to.value           = res?.to           ?? 0
+  currentPage.value  = res?.current_page ?? 1
+  lastPage.value     = res?.last_page    ?? 1
+  isLoading.value    = false
   return {
     data: res?.data ?? [],
-    count: res?.total ?? (res?.next_page_url ? currentPage * pp + 1 : toVal),
+    count: res?.total ?? 0,
   }
 }
 
@@ -113,7 +105,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (globalThis.emitter) globalThis.emitter.off('refreshData')
 })
-defineExpose({ nextPage, prevPage, paginate: onPaginate, total, from, to, perPage, isLoading, tableData, refresh: () => tableRef.value?.refresh() })
+defineExpose({ currentPage, lastPage, paginate: onPageChange, total, from, to, perPage, isLoading, tableData, refresh: () => tableRef.value?.refresh() })
 
 const computedOptions = computed(() => ({
   perPage: 10,
@@ -143,11 +135,11 @@ const computedOptions = computed(() => ({
       if (res) {
         const pp          = parseInt(res.per_page) || 10
         perPage.value     = pp
-        total.value       = res.total           ?? null
-        from.value        = res.from            ?? null
-        to.value          = res.to              ?? null
-        nextPage.value    = res.next_page_url   ?? null
-        prevPage.value    = res.prev_page_url   ?? null
+        total.value       = res.total        ?? null
+        from.value        = res.from         ?? null
+        to.value          = res.to           ?? null
+        currentPage.value = res.current_page ?? 1
+        lastPage.value    = res.last_page    ?? 1
         isLoading.value   = false
       }
     }

@@ -21,7 +21,7 @@
                                 <span class="fs-5 text-muted fw-bold">* &nbsp;* &nbsp;* &nbsp;* &nbsp;*</span>
                             </div>
                             <div class="col-sm-4">
-                                <SelectField
+                                <DynamicSelect
                                     v-if="phpPath !== 'other'"
                                     name="php_path"
                                     label=""
@@ -30,7 +30,6 @@
                                     :onChange="(val) => phpPath = val?.id ?? ''"
                                     :clearable="false"
                                     :searchable="false"
-                                    :placeholder="__('message.specify_php_executable')"
                                 />
                                 <div v-else class="input-group">
                                     <input type="text" class="form-control" v-model="customPhpPath"
@@ -82,7 +81,7 @@
                                         <div v-if="statuses[job.status]" class="col-md-5">
                                             <div class="row">
                                                 <div :class="conditionForms[job.key].condition === 'dailyAt' ? 'col-sm-6' : 'col-sm-12'">
-                                                    <SelectField
+                                                    <DynamicSelect
                                                         :name="'schedule_' + job.key"
                                                         label=""
                                                         :elements="commandOptions"
@@ -126,7 +125,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4">
-                        <SelectField
+                        <DynamicSelect
                             name="expiryday"
                             :label="__('message.expiry_mail_days')"
                             :elements="expiryElements.filter(o => !days.expiryday.includes(o.id))"
@@ -139,7 +138,7 @@
                         />
                     </div>
                     <div class="col-md-4">
-                        <SelectField
+                        <DynamicSelect
                             name="subexpiryday"
                             :label="__('message.auto_renewal_days')"
                             :elements="expiryElements.filter(o => !days.subexpiryday.includes(o.id))"
@@ -152,7 +151,7 @@
                         />
                     </div>
                     <div class="col-md-4">
-                        <SelectField
+                        <DynamicSelect
                             name="postsubexpiry_days"
                             :label="__('message.post_expiry_days')"
                             :elements="expiryElements.filter(o => !days.postsubexpiry_days.includes(o.id))"
@@ -165,7 +164,7 @@
                         />
                     </div>
                     <div v-for="field in dayFields" :key="field.key" class="col-md-4">
-                        <SelectField
+                        <DynamicSelect
                             :name="field.key"
                             :label="field.label"
                             :elements="field.elements"
