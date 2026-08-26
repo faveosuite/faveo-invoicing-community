@@ -69,8 +69,13 @@ import { ref, watch, nextTick } from 'vue'
 import { lang } from '@/helpers/extraLogics'
 import { useAlertStore } from '@/core/stores/alert'
 import { b64toBlob } from '@/helpers/imageUtils'
-import VueCropper from 'vue-cropperjs'
+import VueCropperImport from 'vue-cropperjs'
 import 'cropperjs/dist/cropper.css'
+
+// vue-cropperjs ships as a Babel-transpiled CJS module (exports.default = {...}),
+// which Vite doesn't always unwrap — import can resolve to the raw
+// { default, __esModule } wrapper instead of the component itself.
+const VueCropper = VueCropperImport?.default ?? VueCropperImport
 
 const props = defineProps({
     label:         { type: String,   required: true },

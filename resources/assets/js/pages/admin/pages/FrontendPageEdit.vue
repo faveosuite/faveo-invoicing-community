@@ -65,15 +65,6 @@
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold d-block">{{ __('message.set_as_default_page') }}</label>
-                                <Switch name="is_default" :value="form.is_default" :onChange="(val) => form.is_default = val" />
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="mb-3">
                         <TinyMCE name="content" :label="__('message.content')" :required="true" id="editor-content" :value="form.content" :onChange="onChange" :error="errors.content" />
                     </div>
@@ -142,7 +133,6 @@ const form = reactive({
     parent_page_id: null,
     parentObj:      null,
     created_at_date: '',
-    is_default:     false,
     meta_title:       '',
     meta_description: '',
     og_title:         '',
@@ -174,7 +164,6 @@ onMounted(async () => {
         form.publish        = Boolean(p.publish)
         form.content        = p.content ?? ''
         form.parent_page_id = p.parent_page_id ?? null
-        form.is_default     = Boolean(p.is_default)
         form.meta_title       = p.meta_title ?? ''
         form.meta_description = p.meta_description ?? ''
         form.og_title         = p.og_title ?? ''
@@ -217,7 +206,6 @@ async function submit() {
         fd.append('content', form.content)
         fd.append('parent_page_id', form.parent_page_id ?? '')
         fd.append('created_at', created_at)
-        if (form.is_default) fd.append('default_page_id', route.params.id)
         fd.append('meta_title', form.meta_title ?? '')
         fd.append('meta_description', form.meta_description ?? '')
         fd.append('og_title', form.og_title ?? '')

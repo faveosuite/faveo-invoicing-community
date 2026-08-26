@@ -924,6 +924,8 @@ return [
         'version_required' => 'Version is required.',
         'filename_required' => 'Please upload a file.',
         'dependencies_required' => 'Dependencies field is required.',
+        'description_required' => 'Description is required.',
+        'release_type_required' => 'Release type is required.',
     ],
     'product_sku_unique' => 'Product SKU should be unique',
     'product_name_unique' => 'Name should be unique',
@@ -984,6 +986,8 @@ return [
         'no_agent_req' => 'The no of agents field is required when product quantity is not present.',
         'pro_req' => 'The product field is required',
         'offer_price' => 'Offer prices  must not be greater than 100',
+        'currency_duplicate' => 'Each currency can only be used once.',
+        'non_negative' => 'This value cannot be negative.',
     ],
     'razorpay_val' => [
         'business_required' => 'The business field is required.',

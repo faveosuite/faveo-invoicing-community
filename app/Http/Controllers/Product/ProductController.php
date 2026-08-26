@@ -268,15 +268,19 @@ class ProductController extends BaseProductController
             'producttitle' => ['required', 'string', 'max:255'],
             'version' => ['required', 'string', 'max:50'],
             'filename' => ['required', 'string', 'max:255'],
-            'dependencies' => ['required', 'array'],
+            // 'present' not 'required': an empty [] is a legitimate "no
+            // dependencies" — 'required' rejects empty arrays outright
+            // (Laravel treats count() < 1 as "missing"), which is exactly
+            // what the frontend sends by default.
+            'dependencies' => ['present', 'array'],
             'description' => ['required'],
             'release_type' => ['required'],
         ], [
             'producttitle.required' => __('validation.product_validate.producttitle_required'),
             'version.required' => __('validation.product_validate.version_required'),
             'filename.required' => __('validation.product_validate.filename_required'),
-            'dependencies.required' => __('validation.product_validate.dependencies_required'),
-            'description' => __('validation.product_vaidation.discription_required'),
+            'dependencies.present' => __('validation.product_validate.dependencies_required'),
+            'description' => __('validation.product_validate.description_required'),
             'release_type' => __('validation.product_validate.release_type_required'),
         ]);
 
@@ -309,7 +313,11 @@ class ProductController extends BaseProductController
     {
         $validated = $request->validate([
             'filename' => ['required', 'string', 'max:255'],
-            'dependencies' => ['required', 'array'],
+            // 'present' not 'required': an empty [] is a legitimate "no
+            // dependencies" — 'required' rejects empty arrays outright
+            // (Laravel treats count() < 1 as "missing"), which is exactly
+            // what the frontend sends by default.
+            'dependencies' => ['present', 'array'],
             'description' => ['required'],
             'release_type' => ['required'],
             'products' => ['required', 'array', 'min:1'],
@@ -317,8 +325,8 @@ class ProductController extends BaseProductController
             'products.*.version' => ['required', 'string', 'max:50'],
         ], [
             'filename.required' => __('validation.product_validate.filename_required'),
-            'dependencies.required' => __('validation.product_validate.dependencies_required'),
-            'description' => __('validation.product_vaidation.discription_required'),
+            'dependencies.present' => __('validation.product_validate.dependencies_required'),
+            'description' => __('validation.product_validate.description_required'),
             'release_type' => __('validation.product_validate.release_type_required'),
             'products.required' => __('message.select-a-row'),
             'products.*.version.required' => __('validation.product_validate.version_required'),
@@ -450,12 +458,16 @@ class ProductController extends BaseProductController
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'version' => ['required', 'string', 'max:50'],
-            'dependencies' => ['required', 'array'],
+            // 'present' not 'required': an empty [] is a legitimate "no
+            // dependencies" — 'required' rejects empty arrays outright
+            // (Laravel treats count() < 1 as "missing"), which is exactly
+            // what the frontend sends by default.
+            'dependencies' => ['present', 'array'],
             'release_type' => ['required'],
         ], [
             'title.required' => __('validation.extend_product.title_required'),
             'version.required' => __('validation.extend_product.version_required'),
-            'dependencies.required' => __('validation.extend_product.dependencies_required'),
+            'dependencies.present' => __('validation.extend_product.dependencies_required'),
         ]);
 
         try {

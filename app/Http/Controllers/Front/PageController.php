@@ -344,24 +344,47 @@ class PageController extends Controller
         }
     }
 
-    public function getDemoStatus(): JsonResponse
+    public function getPageSettings(): JsonResponse
     {
         $demo = Demo_page::first();
+        $defaultPageId = DefaultPage::value('page_id');
+
+        // page_id used to be written as 1 (instead of a real "nothing
+        // selected" value) whenever no custom page was picked, which
+        // collides with an actual page once one exists with id 1. Only
+        // report a default_page_id that still resolves to a real page.
+        if ($defaultPageId && ! FrontendPage::where('id', $defaultPageId)->exists()) {
+            $defaultPageId = null;
+        }
 
         return successResponse('', [
             'status' => $demo && (bool) $demo->status,
+            'default_page_id' => $defaultPageId,
         ]);
     }
 
-    public function saveDemoPage(Request $request): JsonResponse
+    public function savePageSettings(Request $request): JsonResponse
     {
         $request->validate([
             'status' => ['required', 'boolean'],
+            'default_page_id' => ['nullable', 'integer', 'exists:frontend_pages,id'],
         ]);
 
         Demo_page::updateOrCreate([],
             ['status' => $request->boolean('status')]
         );
+
+        $defaultPageId = $request->input('default_page_id');
+        $defaultUrl = $defaultPageId
+            ? FrontendPage::where('id', $defaultPageId)->value('url')
+            : url('my-invoices');
+
+        DefaultPage::findOrFail(1)->update([
+            // 0 is never a real frontend_pages id, unlike 1 — safe sentinel
+            // for "no custom page selected, fall back to my-invoices".
+            'page_id' => $defaultPageId ?? 0,
+            'page_url' => $defaultUrl,
+        ]);
 
         return successResponse(__('message.data_updated_successfully'));
     }
@@ -486,9 +509,7 @@ class PageController extends Controller
     {
         try {
             $page = FrontendPage::with('parent:id,name')->findOrFail($pageId);
-            $defaultPageId = DefaultPage::value('page_id');
             $data = $page->toArray();
-            $data['is_default'] = (int) $page->id === (int) $defaultPageId;
             $data['og_image'] = $page->og_image ? Attach::getUrlPath('images/'.$page->og_image) : null;
 
             return successResponse('', $data);
@@ -523,16 +544,6 @@ class PageController extends Controller
             }
 
             $page->save();
-
-            $defaultPageId = $request->input('default_page_id');
-            $defaultUrl = $defaultPageId
-                ? FrontendPage::where('id', $defaultPageId)->value('url')
-                : url('my-invoices');
-
-            DefaultPage::findOrFail(1)->update([
-                'page_id' => $defaultPageId ?? 1,
-                'page_url' => $defaultUrl,
-            ]);
 
             $this->regenerateSeoFiles();
 

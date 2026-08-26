@@ -20,7 +20,8 @@
                     <div class="col-md-4">
                         <DynamicSelect name="release_type" :label="__('message.release_type')" :required="true"
                             :elements="releaseTypes" :value="selectedReleaseType"
-                            :onChange="(v) => form.release_type = v?.value ?? ''" :clearable="false" :searchable="false" />
+                            :onChange="(v) => { form.release_type = v?.value ?? ''; setFieldError('release_type', undefined) }"
+                            :clearable="false" :searchable="false" :error="errors.release_type" />
                     </div>
 
                     <div class="col-md-4">
@@ -41,12 +42,12 @@
 
                     <div class="col-md-12">
                         <TinyMCE name="description" id="editor-version-description-edit" :label="__('message.description')"
-                            :value="form.description" :onChange="(v) => form.description = v" />
+                            :value="form.description" :onChange="(v) => { form.description = v; setFieldError('description', undefined) }" :error="errors.description" />
                     </div>
 
                     <div class="col-md-12">
-                        <TextArea name="dependencies" type="textarea" :rows="8" :length="100000" :label="__('message.dependencies')" :required="true"
-                            :hint="__('message.enter_json_format')" :value="form.dependencies"
+                        <TextArea name="dependencies" type="textarea" :rows="8" :length="100000" :label="__('message.dependencies')"
+                            :hint="__('message.enter_json_format')" placeholder="{}" :value="form.dependencies"
                             :onChange="(v) => { form.dependencies = v; setFieldError('dependencies', undefined) }" :error="errors.dependencies" />
                     </div>
                 </div>
@@ -93,11 +94,14 @@ const releaseTypes = [
 const selectedReleaseType = computed(() => releaseTypes.find(r => r.value === form.value.release_type) ?? releaseTypes[0])
 
 function parseDependencies() {
-    const raw = (form.value.dependencies || '').trim() || '[]'
+    const raw = (form.value.dependencies || '').trim() || '{}'
     try {
         const data = JSON.parse(raw)
 
-        return Array.isArray(data) ? { data } : { error: 'invalid_json' }
+        // Backend just needs an `array` (json_decode(..., true) turns both a
+        // JSON array and a JSON object into a PHP array) - reject only what
+        // that would actually reject: a bare string/number/bool/null.
+        return typeof data === 'object' && data !== null ? { data } : { error: 'invalid_json' }
     } catch {
         return { error: 'invalid_json' }
     }
@@ -118,8 +122,8 @@ async function submit() {
     validateSlot()
 
     const errs = {}
-    if (!form.value.title)   errs.title   = __('message.title')
-    if (!form.value.version) errs.version = __('message.version')
+    if (!form.value.title)   errs.title   = __('validation.extend_product.title_required')
+    if (!form.value.version) errs.version = __('validation.extend_product.version_required')
     const deps = parseDependencies()
     if (deps.error) errs.dependencies = __('message.enter_json_format') || 'Enter valid JSON format.'
     setErrors(errs)
@@ -157,7 +161,12 @@ onMounted(async () => {
             title: u.title ?? '', version: u.version ?? '', description: u.description ?? '',
             release_type: u.release_type ?? 'official',
             is_private: !!u.is_private, is_restricted: !!u.is_restricted,
-            dependencies: JSON.stringify(u.dependencies ?? [], null, 2),
+            // Leave it blank rather than forcing literal "[]" text into the
+            // box when there's nothing to show - parseDependencies() already
+            // treats a blank textarea as "no dependencies" on submit.
+            // dependencies can come back as either a JSON array or object,
+            // so Object.keys() (not .length) is what actually detects empty.
+            dependencies: Object.keys(u.dependencies ?? {}).length ? JSON.stringify(u.dependencies, null, 2) : '',
             file: u.file ?? '',
         }
     } catch (err) {

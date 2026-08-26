@@ -21,15 +21,13 @@
                                 <span class="fs-5 text-muted fw-bold">* &nbsp;* &nbsp;* &nbsp;* &nbsp;*</span>
                             </div>
                             <div class="col-sm-4">
-                                <DynamicSelect
+                                <StaticSelect
                                     v-if="phpPath !== 'other'"
                                     name="php_path"
                                     label=""
                                     :elements="phpPathOptions"
-                                    :value="phpPathOptions.find(o => o.id === phpPath) ?? null"
-                                    :onChange="(val) => phpPath = val?.id ?? ''"
-                                    :clearable="false"
-                                    :searchable="false"
+                                    :value="phpPath"
+                                    :onChange="(val) => phpPath = val"
                                 />
                                 <div v-else class="input-group">
                                     <input type="text" class="form-control" v-model="customPhpPath"
@@ -81,14 +79,13 @@
                                         <div v-if="statuses[job.status]" class="col-md-5">
                                             <div class="row">
                                                 <div :class="conditionForms[job.key].condition === 'dailyAt' ? 'col-sm-6' : 'col-sm-12'">
-                                                    <DynamicSelect
+                                                    <StaticSelect
                                                         :name="'schedule_' + job.key"
                                                         label=""
                                                         :elements="commandOptions"
-                                                        :value="selectedOption(job.key)"
+                                                        :value="conditionForms[job.key].condition"
                                                         :onChange="(val) => onScheduleChange(job.key, val)"
-                                                        :clearable="false"
-                                                        :searchable="false"
+                                                        :hideEmptySelect="true"
                                                     />
                                                 </div>
                                                 <div v-if="conditionForms[job.key].condition === 'dailyAt'" class="col-sm-6">
@@ -187,6 +184,7 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import Tooltip from '@/components/Reusable/Tooltip.vue'
 import Checkbox from '@/components/Reusable/FormField/Checkbox.vue'
+import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { __ } from '@/plugins/i18n'
@@ -286,12 +284,8 @@ jobs.forEach(job => {
     conditionForms[job.key] = { condition: 'daily', at: '' }
 })
 
-function selectedOption(jobKey) {
-    return commandOptions.find(o => o.id === conditionForms[jobKey].condition) ?? null
-}
-
 function onScheduleChange(jobKey, val) {
-    conditionForms[jobKey].condition = val?.id ?? 'daily'
+    conditionForms[jobKey].condition = val || 'daily'
 }
 
 onMounted(load)

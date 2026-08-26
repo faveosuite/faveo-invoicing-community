@@ -134,10 +134,10 @@
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
-                                <RouterLink to="/pages/demo" class="nav-link"
-                                            :class="{ active: isExact('/pages/demo') }"
+                                <RouterLink to="/pages/settings" class="nav-link"
+                                            :class="{ active: isExact('/pages/settings') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.add-demo') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.page_settings') }}</p>
                                 </RouterLink>
                             </li>
                         </ul>

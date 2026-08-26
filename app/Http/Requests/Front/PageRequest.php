@@ -38,7 +38,6 @@ class PageRequest extends Request
             'publish' => ['nullable', 'boolean'],
             'parent_page_id' => ['nullable', 'integer'],
             'content' => [$requiredRule, 'string'],
-            'default_page_id' => ['nullable', 'integer'],
             'meta_title' => ['nullable', 'string'],
             'meta_description' => ['nullable', 'string'],
             'og_title' => ['nullable', 'string'],

@@ -27,7 +27,7 @@ class PlanRequest extends FormRequest
             'offer_price' => ['nullable', 'array', 'array_size_equals:currency'],
 
             // Element-level checks
-            'currency.*' => ['required_with:currency'],
+            'currency.*' => ['required_with:currency', 'distinct'],
             'add_price.*' => ['required_with:currency', 'integer', 'min:0', 'max:10000000'],
             'renew_price.*' => ['required_with:currency', 'integer', 'min:0', 'max:1000000'],
             'offer_price.*' => ['nullable', 'numeric', 'between:0,100'],
@@ -66,6 +66,7 @@ class PlanRequest extends FormRequest
             'renew_price.*.required_with' => trans('message.renew_price_required'),
             'renew_price.*.numeric' => trans('message.renew_price_numeric'),
             'currency.*.required_with' => trans('message.currency_missing'),
+            'currency.*.distinct' => __('validation.plan_request.currency_duplicate'),
             'offer_price.*.between' => __('validation.plan_request.offer_price'),
             'offer_price.*.numeric' => __('validation.plan_request.offer_price'),
             'status.unique' => __('message.active_plan_exists_simple'),

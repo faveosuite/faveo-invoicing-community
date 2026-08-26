@@ -381,19 +381,19 @@
                 </div>
             </template>
         </div>
-    </div>
 
-    <DeleteModal
-        v-if="pendingDeleteVersions"
-        :showModal="true"
-        :onClose="() => pendingDeleteVersions.value = null"
-        :deleteUrl="versionDeleteUrl"
-        :deleteData="pendingDeleteVersions"
-        :title="__('message.Delete')"
-        :message="__('message.are_you_sure')"
-        componentName="products-edit"
-        @deleted="() => { pendingDeleteVersions.value = null; selectedVersions.value = []; dtVersionRef.value?.refresh() }"
-    />
+        <DeleteModal
+            v-if="pendingDeleteVersions"
+            :showModal="true"
+            :onClose="() => pendingDeleteVersions = null"
+            :deleteUrl="versionDeleteUrl"
+            :deleteData="pendingDeleteVersions"
+            :title="__('message.Delete')"
+            :message="__('message.are_you_sure')"
+            componentName="products-edit"
+            @deleted="() => { pendingDeleteVersions = null; selectedVersions = []; dtVersionRef?.refresh() }"
+        />
+    </div>
 </template>
 
 <script setup>
@@ -478,6 +478,12 @@ function confirmBulkDeleteVersions() {
     pendingDeleteVersions.value = { select: [...selectedVersions.value] }
 }
 
+const releaseTypeBadges = {
+    official:     { label: __('message.official'),    class: 'badge bg-success' },
+    pre_release:  { label: __('message.pre_release'),  class: 'badge bg-warning text-dark' },
+    beta:         { label: __('message.beta'),         class: 'badge bg-info text-dark' },
+}
+
 const versionColumns = ['select', 'version', 'description', 'release_type', 'file', 'action']
 const versionTableOptions = reactive({
     headings: {
@@ -496,7 +502,9 @@ const versionTableOptions = reactive({
         select:       (f, row) => h('div', {}, [h('input', { type: 'checkbox', checked: selectedVersions.value.includes(row.id), onChange: () => toggleVersion(row.id) })]),
         version:      (f, row) => row.version || '—',
         description:  (f, row) => h('span', { innerHTML: row.description || '—' }),
-        release_type: (f, row) => row.release_type || '—',
+        release_type: (f, row) => row.release_type
+            ? h('span', { class: releaseTypeBadges[row.release_type]?.class ?? 'badge bg-secondary' }, releaseTypeBadges[row.release_type]?.label ?? row.release_type)
+            : '—',
         file:         (f, row) => row.file || '—',
         action:       (f, row) => h(VersionTableActions, { productId: route.params.id, versionId: row.id, baseUrl, onDeleted: () => dtVersionRef.value?.refresh() }),
     },

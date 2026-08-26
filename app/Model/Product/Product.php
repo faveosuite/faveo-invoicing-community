@@ -361,12 +361,12 @@ class Product extends BaseModel
      */
     protected function image(): Attribute
     {
-        return Attribute::make(get: function (?string $value) {
-            if (! $value) {
-                return asset('common/images/image.png');
-            }
+        return Attribute::get(function (?string $value): string {
+            $path = 'common/images/'.$value;
 
-            return Attach::getUrlPath('common/images/'.$value);
+            return $value && Attach::exists($path)
+                ? Attach::getUrlPath($path)
+                : asset('images/image.png');
         });
     }
 

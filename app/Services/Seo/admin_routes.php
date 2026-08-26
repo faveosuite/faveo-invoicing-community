@@ -42,7 +42,7 @@ return [
     'pages' => ['title' => 'message.pages', 'description' => 'Manage frontend content pages.'],
     'pages/create' => ['title' => 'message.create_new_page', 'description' => 'Create a new content page.'],
     'pages/*/edit' => ['title' => 'message.edit_page', 'description' => 'Edit a content page.'],
-    'pages/demo' => ['title' => 'message.add-demo', 'description' => 'Configure the demo page.'],
+    'pages/settings' => ['title' => 'message.page_settings', 'description' => 'Configure the demo request button and the default landing page.'],
 
     'products' => ['title' => 'message.products', 'description' => 'Manage products and pricing.'],
     'products/create' => ['title' => 'message.create_new_product', 'description' => 'Create a new product.'],

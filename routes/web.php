@@ -266,10 +266,9 @@ Route::middleware('installAgora')->group(function (): void {
         ->middleware('recaptcha:newsletter');
     Route::post('demo-request', [PageController::class, 'postDemoReq'])
         ->withoutMiddleware(['auth']);
-    // Published pages / contact info / demo status (public, no auth)
+    // Published pages / contact info (public, no auth)
     Route::get('page-content/{slug}', [PageController::class, 'pageBySlug']);
     Route::get('contact-us-info', [PageController::class, 'contactUsInfo']);
-    Route::get('demo', [PageController::class, 'getDemoStatus']);
 
     // Open Payment (pay/*) — public payment page, no auth required
     Route::prefix('pay')->withoutMiddleware(['auth', 'web'])->group(function (): void {
@@ -513,8 +512,9 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('page/{id}', [PageController::class, 'getPage']);
     Route::put('page/{id}', [PageController::class, 'updatePage']);
 
-    // Legacy page admin endpoints
-    Route::post('save/demo', [PageController::class, 'saveDemoPage']);
+    // Page settings (demo request toggle + default landing page)
+    Route::get('page-settings', [PageController::class, 'getPageSettings']);
+    Route::post('page-settings', [PageController::class, 'savePageSettings']);
 
     // --------------------------------------------------------
     // SEO (default pages: login, forgot/reset password; site-wide settings)

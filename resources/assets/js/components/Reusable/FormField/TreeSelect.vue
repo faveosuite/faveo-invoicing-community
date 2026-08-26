@@ -241,6 +241,7 @@ watch(() => props.apiEndpoint, val => {
 
 <style>
 .vue-treeselect__control { border: 1px solid rgba(60,60,60,0.26) !important; }
+.vue-treeselect.is-invalid .vue-treeselect__control { border-color: #dc3545 !important; }
 .vue-treeselect__icon-container { display: none !important; }
 .vue-treeselect__option--highlight { background: #5897fb !important; color: #fff !important; }
 .ts-loader { padding: 4px; display: flex; justify-content: center; }

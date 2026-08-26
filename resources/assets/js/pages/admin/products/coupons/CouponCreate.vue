@@ -22,13 +22,15 @@
                         />
                     </div>
                     <div class="col-md-4">
-                        <StaticSelect
+                        <DynamicSelect
                             name="type"
                             :label="__('message.type')"
                             :required="true"
                             :elements="promotionTypes"
-                            :value="form.type"
-                            :onChange="onChange"
+                            :value="promotionTypes.find(o => o.id === form.type) ?? null"
+                            :onChange="(val) => { form.type = val?.id ?? ''; setFieldError('type', undefined) }"
+                            :clearable="false"
+                            :searchable="false"
                             :error="errors.type"
                         />
                     </div>
@@ -37,27 +39,32 @@
                     </div>
                 </div>
 
-                <!-- Row 2: Applied / Uses / Start / Expiry -->
+                <!-- Row 2: Applied / Uses / Start -->
                 <div class="row">
-                    <div class="col-md-3">
-                        <DynamicSelect
+                    <div class="col-md-4">
+                        <TreeSelect
                             name="applied"
                             :label="__('message.applied')"
                             :required="true"
-                            :apiEndpoint="`${baseUrl}/dependency/all-products`"
+                            :apiEndpoint="`${baseUrl}/dependency/products`"
                             dataKey="products"
                             :value="form.productObj"
                             :onChange="onChange"
+                            :placeholder="__('message.choose')"
                             :error="errors.applied"
                         />
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <TextField name="uses" :label="__('message.uses')" :required="true" type="number" :value="form.uses" :onChange="onChange" :error="errors.uses" />
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <DatePicker name="start" :label="__('message.start')" :required="true" :value="form.start" :onChange="onChange" format="YYYY-MM-DD" :error="errors.start" />
                     </div>
-                    <div class="col-md-3">
+                </div>
+
+                <!-- Row 3: Expiry -->
+                <div class="row">
+                    <div class="col-md-4">
                         <DatePicker name="expiry" :label="__('message.expiry')" :required="true" :value="form.expiry" :onChange="onChange" format="YYYY-MM-DD" :error="errors.expiry" />
                     </div>
                 </div>
@@ -79,7 +86,7 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { validateForm } from '@/helpers/formUtils.js'
 import { couponSchema } from '@/validations/admin/couponValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
-import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
+import TreeSelect from '@/components/Reusable/FormField/TreeSelect.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'coupons-create'
@@ -107,7 +114,7 @@ function onChange(val, name) {
     setFieldError(name, undefined)
     if (name === 'applied') {
         form.productObj = val
-        form.applied = val?.id ?? null
+        form.applied = val ?? null
     } else {
         form[name] = val
     }
