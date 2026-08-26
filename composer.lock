@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7e1f660df4f1244f813cb42807fcbe43",
+    "content-hash": "0b938bfc4bb4d3fcd640f8ec04396d3b",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -340,6 +340,142 @@
                 }
             ],
             "time": "2024-02-09T16:56:22+00:00"
+        },
+        {
+            "name": "chrome-php/chrome",
+            "version": "v1.16.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/chrome-php/chrome.git",
+                "reference": "2618fbcd0530e917433675b507eca25ad4c52376"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/chrome-php/chrome/zipball/2618fbcd0530e917433675b507eca25ad4c52376",
+                "reference": "2618fbcd0530e917433675b507eca25ad4c52376",
+                "shasum": ""
+            },
+            "require": {
+                "chrome-php/wrench": "^1.9",
+                "evenement/evenement": "^3.0.1",
+                "monolog/monolog": "^1.27.1 || ^2.8 || ^3.2",
+                "php": "^7.4.15 || ^8.0.2",
+                "psr/log": "^1.1 || ^2.0 || ^3.0",
+                "symfony/filesystem": "^5.4 || ^6.0 || ^7.0 || ^8.0",
+                "symfony/polyfill-mbstring": "^1.26",
+                "symfony/process": "^5.4 || ^6.0 || ^7.0 || ^8.0"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "phpunit/phpunit": "^9.6.3 || ^10.0.12",
+                "symfony/var-dumper": "^5.4 || ^6.0 || ^7.0 || ^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": true,
+                    "forward-command": false
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "HeadlessChromium\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Graham Campbell",
+                    "email": "hello@gjcampbell.co.uk",
+                    "homepage": "https://github.com/GrahamCampbell"
+                },
+                {
+                    "name": "Enrico Dias",
+                    "email": "enrico@enricodias.com",
+                    "homepage": "https://github.com/enricodias"
+                }
+            ],
+            "description": "Instrument headless chrome/chromium instances from PHP",
+            "keywords": [
+                "browser",
+                "chrome",
+                "chromium",
+                "crawl",
+                "headless",
+                "pdf",
+                "puppeteer",
+                "screenshot"
+            ],
+            "support": {
+                "issues": "https://github.com/chrome-php/chrome/issues",
+                "source": "https://github.com/chrome-php/chrome/tree/v1.16.1"
+            },
+            "time": "2026-07-06T19:06:52+00:00"
+        },
+        {
+            "name": "chrome-php/wrench",
+            "version": "v1.9.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/chrome-php/wrench.git",
+                "reference": "c314dcfaca020e836d05e0913a63db97d7d3da05"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/chrome-php/wrench/zipball/c314dcfaca020e836d05e0913a63db97d7d3da05",
+                "reference": "c314dcfaca020e836d05e0913a63db97d7d3da05",
+                "shasum": ""
+            },
+            "require": {
+                "ext-sockets": "*",
+                "php": "^7.4.15 || ^8.0.2",
+                "psr/log": "^1.1 || ^2.0 || ^3.0",
+                "symfony/polyfill-php80": "^1.26"
+            },
+            "conflict": {
+                "wrench/wrench": "*"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "phpunit/phpunit": "^9.6.3 || ^10.0.12"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": true,
+                    "forward-command": false
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Wrench\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Graham Campbell",
+                    "email": "hello@gjcampbell.co.uk",
+                    "homepage": "https://github.com/GrahamCampbell"
+                }
+            ],
+            "description": "A simple PHP WebSocket implementation",
+            "keywords": [
+                "WebSockets",
+                "hybi",
+                "websocket"
+            ],
+            "support": {
+                "issues": "https://github.com/chrome-php/wrench/issues",
+                "source": "https://github.com/chrome-php/wrench/tree/v1.9.2"
+            },
+            "time": "2026-07-06T19:07:11+00:00"
         },
         {
             "name": "coconutcraig/laravel-postmark",
@@ -1313,6 +1449,53 @@
                 }
             ],
             "time": "2025-03-06T22:45:56+00:00"
+        },
+        {
+            "name": "evenement/evenement",
+            "version": "v3.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/igorw/evenement.git",
+                "reference": "0a16b0d71ab13284339abb99d9d2bd813640efbc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/igorw/evenement/zipball/0a16b0d71ab13284339abb99d9d2bd813640efbc",
+                "reference": "0a16b0d71ab13284339abb99d9d2bd813640efbc",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9 || ^6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Evenement\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Igor Wiedler",
+                    "email": "igor@wiedler.ch"
+                }
+            ],
+            "description": "Événement is a very simple event dispatching library for PHP",
+            "keywords": [
+                "event-dispatcher",
+                "event-emitter"
+            ],
+            "support": {
+                "issues": "https://github.com/igorw/evenement/issues",
+                "source": "https://github.com/igorw/evenement/tree/v3.0.2"
+            },
+            "time": "2023-08-08T05:53:35+00:00"
         },
         {
             "name": "ezyang/htmlpurifier",
@@ -16288,6 +16471,7 @@
     "prefer-lowest": false,
     "platform": {
         "php": "^8.4",
+        "ext-curl": "*",
         "ext-intl": "*",
         "ext-pcntl": "*",
         "ext-pdo": "*",

@@ -22,6 +22,7 @@
         "ext-sodium": "*",
         "ext-zip": "*",
         "bacon/bacon-qr-code": "^v3.0.3",
+        "chrome-php/chrome": "^1.16",
         "coconutcraig/laravel-postmark": "^v3.3.1",
         "creativeorange/gravatar": "^v1.0.25",
         "darryldecode/cart": "^4.2.6",

@@ -40,8 +40,7 @@ export function buildFileStorageSchema(disk) {
 }
 
 export const pdfSettingsSchema = yup.object({
-    node_path:   yup.string().required(() => __('validation.pdf_settings.node_path.required')).typeError(() => __('validation.pdf_settings.node_path.string')),
-    npm_path:    yup.string().required(() => __('validation.pdf_settings.npm_path.required')).typeError(() => __('validation.pdf_settings.npm_path.string')),
+    pdf_driver: yup.string().required(),
     chrome_path: yup.string().required(() => __('validation.pdf_settings.chrome_path.required')).typeError(() => __('validation.pdf_settings.chrome_path.string')),
 })
 

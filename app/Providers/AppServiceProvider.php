@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use App\Events\UserOrderDelete;
-use App\Helper\PdfManager\FaveoBrowserShot;
+use App\Services\Pdf\PdfManager;
 use App\Listeners\CloudDeletion;
 use App\Services\NewsletterManager;
 use App\Services\Seo\SeoTemplateFormatter;
@@ -45,7 +45,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(UserOrderDelete::class, CloudDeletion::class);
         $this->fileMacros();
 
-        FaveoBrowserShot::bootForLaravelPdf();
+        $this->app->make(PdfManager::class)->boot();
     }
 
     /**
@@ -61,6 +61,8 @@ class AppServiceProvider extends ServiceProvider
         // independently — without this, every page render doubled those
         // queries.
         $this->app->singleton(SeoTemplateFormatter::class);
+
+        $this->app->singleton(PdfManager::class);
     }
 
     /**

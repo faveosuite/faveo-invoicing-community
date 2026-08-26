@@ -71,10 +71,15 @@
                     <h5 class="mb-3">{{ __('message.pdf_settings') }}</h5>
                     <div class="row">
                         <div class="col-md-4">
-                            <TextField name="node_path" :label="__('message.node_path')" :required="true" :hint="__('message.node_path_tooltip')" :value="pdfForm.node_path" :onChange="onPdfChange" :error="errors.node_path" />
-                        </div>
-                        <div class="col-md-4">
-                            <TextField name="npm_path" :label="__('message.npm_path')" :required="true" :hint="__('message.npm_path_tooltip')" :value="pdfForm.npm_path" :onChange="onPdfChange" :error="errors.npm_path" />
+                            <DynamicSelect
+                                name="pdf_driver"
+                                :label="__('message.pdf_driver')"
+                                :elements="pdfDriverOptions"
+                                :value="pdfDriverOptions.find(o => o.id === pdfForm.pdf_driver) ?? null"
+                                :onChange="(val) => onPdfChange(val?.id ?? 'chrome', 'pdf_driver')"
+                                :clearable="false"
+                                :searchable="false"
+                            />
                         </div>
                         <div class="col-md-4">
                             <TextField name="chrome_path" :label="__('message.chrome_path')" :required="true" :hint="__('message.chrome_path_tooltip')" :value="pdfForm.chrome_path" :onChange="onPdfChange" :error="errors.chrome_path" />
@@ -117,6 +122,11 @@ const yesNoOptions = [
     { id: 'false', name: __('message.no')  },
 ]
 
+// ponytail: only 'chrome' is implemented — add options here as new drivers land (e.g. gotenberg)
+const pdfDriverOptions = [
+    { id: 'chrome', name: __('message.chrome') },
+]
+
 const form = reactive({
     disk: 'system',
     path: '',
@@ -130,8 +140,7 @@ const form = reactive({
 })
 
 const pdfForm = reactive({
-    node_path:   '',
-    npm_path:    '',
+    pdf_driver: 'chrome',
     chrome_path: '',
 })
 
@@ -172,8 +181,7 @@ onMounted(async () => {
         const res = await http.get(`/pdf-settings`)
         const d = res.data?.data ?? {}
         Object.assign(pdfForm, {
-            node_path:   d.node_path ?? '',
-            npm_path:    d.npm_path ?? '',
+            pdf_driver: d.pdf_driver ?? 'chrome',
             chrome_path: d.chrome_path ?? '',
         })
     } catch (e) { errorHandler(e, COMPONENT) }

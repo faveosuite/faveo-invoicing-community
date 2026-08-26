@@ -893,11 +893,9 @@ return [
 
     // pdf settings
     'pdf_settings' => 'PDF Settings',
-    'node_path' => 'Node Path',
-    'npm_path' => 'NPM Path',
+    'pdf_driver' => 'PDF Driver',
+    'chrome' => 'Chrome',
     'chrome_path' => 'Chrome Path',
-    'node_path_tooltip' => 'Enter the path where Node.js is installed. To find it, run "where node" on Windows or "which node" on Unix/macOS.',
-    'npm_path_tooltip' => 'Enter the path where NPM is installed. To find it, run "where npm" on Windows or "which npm" on Unix/macOS.',
     'chrome_path_tooltip' => 'Enter the path where Google Chrome is installed. To find it, run "where chrome" on Windows or "which google-chrome" on Unix/macOS.',
     'file_not_exist' => 'Requested file doest not exits',
     's3_error' => 'Invalid S3 details were provided.',

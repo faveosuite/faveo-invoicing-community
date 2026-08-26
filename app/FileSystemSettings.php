@@ -18,9 +18,8 @@ use Spatie\Activitylog\Models\Activity;
  * @property string|null $local_file_storage_path
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property string|null $node_path
- * @property string|null $npm_path
  * @property string|null $chrome_path
+ * @property string|null $pdf_driver
  * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  *
@@ -32,8 +31,7 @@ use Spatie\Activitylog\Models\Activity;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereDisk($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereLocalFileStoragePath($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereNodePath($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereNpmPath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings wherePdfDriver($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereUpdatedAt($value)
  *
  * @mixin \Eloquent
@@ -50,7 +48,7 @@ class FileSystemSettings extends Model
     protected $table = 'settings_filesystem';
 
     protected $fillable = [
-        'disk', 'local_file_storage_path', 'node_path', 'npm_path', 'chrome_path',
+        'disk', 'local_file_storage_path', 'chrome_path', 'pdf_driver',
     ];
 
     protected string $logName = 'file_storage';
@@ -61,7 +59,7 @@ class FileSystemSettings extends Model
      * @var array<mixed>
      */
     protected array $logAttributes = [
-        'disk', 'local_file_storage_path', 'node_path', 'npm_path', 'chrome_path',
+        'disk', 'local_file_storage_path', 'chrome_path', 'pdf_driver',
     ];
 
     /**
@@ -79,9 +77,8 @@ class FileSystemSettings extends Model
         return [
             'disk' => ['Disk', fn ($value) => $value],
             'local_file_storage_path' => ['Local File Storage Path', fn ($value) => $value],
-            'node_path' => ['Node Path', fn ($value) => $value],
-            'npm_path' => ['NPM Path', fn ($value) => $value],
             'chrome_path' => ['Chrome Path', fn ($value) => $value],
+            'pdf_driver' => ['PDF Driver', fn ($value) => $value],
         ];
     }
 }

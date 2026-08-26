@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\ApiKey;
 use App\FileSystemSettings;
+use App\Services\Pdf\PdfManager;
 use App\Http\Requests\UpdateStoragePathRequest;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\StatusSetting;
@@ -430,9 +431,8 @@ trait ApiKeySettings
             $settings = FileSystemSettings::first();
 
             return successResponse('', [
-                'node_path' => $settings->node_path ?? '',
-                'npm_path' => $settings->npm_path ?? '',
                 'chrome_path' => $settings->chrome_path ?? '',
+                'pdf_driver' => $settings->pdf_driver ?? 'chrome',
             ]);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
@@ -444,11 +444,12 @@ trait ApiKeySettings
         try {
             $settings = FileSystemSettings::firstOrNew([]);
             $settings->fill([
-                'node_path' => $request->input('node_path', ''),
-                'npm_path' => $request->input('npm_path', ''),
                 'chrome_path' => $request->input('chrome_path', ''),
+                'pdf_driver' => $request->input('pdf_driver', 'chrome'),
             ]);
             $settings->save();
+
+            app(PdfManager::class)->clearCache();
 
             return successResponse(trans('message.setting_updated'));
         } catch (Exception $exception) {
