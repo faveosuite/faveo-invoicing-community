@@ -3,9 +3,9 @@
 namespace App\Providers;
 
 use App\Events\UserOrderDelete;
-use App\Services\Pdf\PdfManager;
 use App\Listeners\CloudDeletion;
 use App\Services\NewsletterManager;
+use App\Services\Pdf\PdfManager;
 use App\Services\Seo\SeoTemplateFormatter;
 use File;
 use Illuminate\Pagination\LengthAwarePaginator;
