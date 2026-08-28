@@ -5,6 +5,9 @@
             <div class="card-header">
                 <h4 class="card-title">{{ lang('view_banned_hosts') }}</h4>
                 <div class="card-tools">
+                    <router-link to="/banned-hosts/settings" class="btn btn-tool" v-tooltip="lang('security_settings')">
+                        <i class="fas fa-gear"></i>
+                    </router-link>
                     <router-link to="/banned-hosts/create" class="btn btn-tool" v-tooltip="lang('create_banned_host')">
                         <i class="fas fa-plus"></i>
                     </router-link>

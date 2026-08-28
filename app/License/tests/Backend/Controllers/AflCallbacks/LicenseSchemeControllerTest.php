@@ -5,6 +5,7 @@ namespace App\License\tests\Backend\Controllers\AflCallbacks;
 use App\License\Controllers\AflCallbacks\LicenseSchemeController;
 use App\License\Helpers\LicenseValidator;
 use App\License\Models\LicenseScheme;
+use App\License\Services\BannedHostService;
 use App\License\tests\Backend\LicenseTestCase;
 use Mockery;
 use PHPUnit\Framework\Attributes\Group;
@@ -40,7 +41,7 @@ class LicenseSchemeControllerTest extends LicenseTestCase
         $validator->shouldReceive('findLicense')->once()->andReturn($license);
         $validator->shouldReceive('validateLicense')->once()->andReturn(['valid' => true, 'license' => $license]);
 
-        $response = new LicenseSchemeController($validator)->licenseScheme($this->moduleRequest([
+        $response = new LicenseSchemeController($validator, new BannedHostService)->licenseScheme($this->moduleRequest([
             'product_id' => $product->id,
             'root_url' => 'https://example.com/helpdesk',
             'client_email' => 'client@example.com',

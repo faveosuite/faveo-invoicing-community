@@ -147,9 +147,8 @@ class InstallationControllerTest extends LicenseTestCase
         $response = $this->controller->deleteInstallations($this->moduleRequest([
             'id' => $installation->id,
         ], 'POST'));
-        $json = $this->assertSuccessfulJson($response);
+        $this->assertSuccessfulJson($response);
 
-        $this->assertSame(1, $json['data']);
         $this->assertDatabaseMissing('installations', ['id' => $installation->id]);
     }
 

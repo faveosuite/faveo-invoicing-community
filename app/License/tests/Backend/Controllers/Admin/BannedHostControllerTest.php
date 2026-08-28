@@ -4,8 +4,9 @@ namespace App\License\tests\Backend\Controllers\Admin;
 
 use App\License\Controllers\Admin\BannedHostController;
 use App\License\Models\LicenseBannedHost;
-use App\License\Models\LicenseWhitelistIp;
+use App\License\Models\LicenseSecuritySetting;
 use App\License\Requests\BannedHostRequest;
+use App\License\Requests\SecuritySettingsRequest;
 use App\License\tests\Backend\LicenseTestCase;
 use Illuminate\Support\Facades\Validator;
 use PHPUnit\Framework\Attributes\Group;
@@ -44,24 +45,6 @@ class BannedHostControllerTest extends LicenseTestCase
 
     #[Test]
     #[Group('license-admin')]
-    public function banned_host_add_rejects_whitelisted_ip(): void
-    {
-        LicenseWhitelistIp::create([
-            'whitelist_host_ip' => '10.10.10.11',
-            'whitelist_host_comments' => 'Allowed',
-        ]);
-        $request = BannedHostRequest::create('/api/admin/bannedHosts/add', 'POST', [
-            'banned_host_ip' => '10.10.10.11',
-        ]);
-
-        $response = $this->controller->bannedHostAdd($request);
-
-        $this->assertErrorJson($response, 400);
-        $this->assertDatabaseMissing('license_banned_hosts', ['banned_host_ip' => '10.10.10.11']);
-    }
-
-    #[Test]
-    #[Group('license-admin')]
     public function banned_host_update_changes_existing_record(): void
     {
         $host = LicenseBannedHost::create([
@@ -93,9 +76,8 @@ class BannedHostControllerTest extends LicenseTestCase
         ]);
 
         $response = $this->controller->deleteBannedHost($this->moduleRequest(['id' => $host->id], 'POST'));
-        $json = $this->assertSuccessfulJson($response, 201);
+        $this->assertSuccessfulJson($response, 201);
 
-        $this->assertSame(1, $json['data']);
         $this->assertDatabaseMissing('license_banned_hosts', ['id' => $host->id]);
     }
 
@@ -150,6 +132,34 @@ class BannedHostControllerTest extends LicenseTestCase
         $validator = Validator::make($request->all(), $request->rules());
 
         $this->assertFalse($validator->fails());
+    }
+
+    #[Test]
+    #[Group('license-admin')]
+    public function security_settings_default_to_disabled(): void
+    {
+        $response = $this->controller->getSecuritySettings();
+        $json = $this->assertSuccessfulJson($response);
+
+        $this->assertFalse($json['data']['auto_ban_enabled']);
+        $this->assertSame(0, $json['data']['failed_licensings_limit']);
+    }
+
+    #[Test]
+    #[Group('license-admin')]
+    public function security_settings_can_be_updated(): void
+    {
+        $request = SecuritySettingsRequest::create('/api/admin/bannedHosts/security-settings', 'POST', [
+            'auto_ban_enabled' => true,
+            'failed_licensings_limit' => 5,
+        ]);
+
+        $response = $this->controller->updateSecuritySettings($request);
+        $this->assertSuccessfulJson($response);
+
+        $settings = LicenseSecuritySetting::findOrFail(1);
+        $this->assertTrue($settings->auto_ban_enabled);
+        $this->assertSame(5, $settings->failed_licensings_limit);
     }
 
     #[Test]

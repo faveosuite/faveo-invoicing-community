@@ -22,7 +22,6 @@ use App\License\Controllers\AfuCallbacks\DownloadFileController;
 use App\License\Controllers\AfuCallbacks\GetAllVersionsController;
 use App\License\Controllers\AfuCallbacks\GetVersionsController;
 use App\License\Controllers\LicenseApiController;
-use App\License\Controllers\WhitelistIpsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -114,7 +113,7 @@ Route::prefix('api/admin')->middleware(['web', 'auth', 'admin'])->group(function
     Route::get('/installationLogs/{id}', [LicenseViewController::class, 'getLicenseInstallationLogs']);
     Route::post('/license/add', [LicenseController::class, 'licenseAdd']);
     Route::post('/license/edit', [LicenseController::class, 'licenseUpdate']);
-    Route::post('/license/delete', [LicenseController::class, 'deleteLicense']);
+    Route::delete('/license/delete', [LicenseController::class, 'deleteLicense']);
 
     // ========================================================================
     // INSTALLATIONS
@@ -124,7 +123,7 @@ Route::prefix('api/admin')->middleware(['web', 'auth', 'admin'])->group(function
     Route::get('/installation/{installation_id}', [InstallationController::class, 'edit']);
     Route::get('/installationCallbacks/{installation_id}', [InstallationViewController::class, 'getInstallationCallBacks']);
     Route::post('/installations/edit', [InstallationController::class, 'installationUpdate']);
-    Route::post('/installations/delete', [InstallationController::class, 'deleteInstallations']);
+    Route::delete('/installations/delete', [InstallationController::class, 'deleteInstallations']);
 
     // ========================================================================
     // CALLBACKS
@@ -147,15 +146,9 @@ Route::prefix('api/admin')->middleware(['web', 'auth', 'admin'])->group(function
     Route::get('/viewBannedHost/{banned_host_id}', [BannedHostController::class, 'view']);
     Route::post('/bannedHosts/add', [BannedHostController::class, 'bannedHostAdd']);
     Route::post('/bannedHosts/edit', [BannedHostController::class, 'bannedHostUpdate']);
-    Route::post('/bannedHosts/delete', [BannedHostController::class, 'deleteBannedHost']);
-
-    // ========================================================================
-    // WHITELIST IPS
-    // ========================================================================
-    Route::get('/view-Whitelist', [WhitelistIpsController::class, 'view']);
-    Route::get('/whitelist-edit/{id}', [WhitelistIpsController::class, 'edit']);
-    Route::post('/whitelist/updateOrCreate', [WhitelistIpsController::class, 'whitelistAdd']);
-    Route::post('/delete-whitelist-ip', [WhitelistIpsController::class, 'deleteWhitelistIp']);
+    Route::delete('/bannedHosts/delete', [BannedHostController::class, 'deleteBannedHost']);
+    Route::get('/bannedHosts/security-settings', [BannedHostController::class, 'getSecuritySettings']);
+    Route::post('/bannedHosts/security-settings', [BannedHostController::class, 'updateSecuritySettings']);
 
     // ========================================================================
     // SERVER NOTIFICATIONS

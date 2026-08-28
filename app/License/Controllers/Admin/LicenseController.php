@@ -143,12 +143,11 @@ class LicenseController extends Controller
     }
 
     public function deleteLicense(Request $request): JsonResponse
-    /** @var License|null $license */
     {
         /** @var License|null $license */
         $license = License::find($request->input('id'));
         if (! $license) {
-            return successResponse(__('license::lang.delete'), 0, 200);
+            return successResponse(__('license::lang.delete'));
         }
 
         DB::transaction(function () use ($license): void {
@@ -159,7 +158,7 @@ class LicenseController extends Controller
             $license->delete();
         });
 
-        return successResponse(__('license::lang.delete'), 1, 200);
+        return successResponse(__('license::lang.delete'));
     }
 
     public function show(Request $request): JsonResponse

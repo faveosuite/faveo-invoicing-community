@@ -4,6 +4,7 @@ namespace App\License\tests\Backend\Controllers\AflCallbacks;
 
 use App\License\Controllers\AflCallbacks\LicenseVerifyController;
 use App\License\Helpers\LicenseValidator;
+use App\License\Services\BannedHostService;
 use App\License\Services\InstallationService;
 use App\License\tests\Backend\LicenseTestCase;
 use Mockery;
@@ -30,7 +31,7 @@ class LicenseVerifyControllerTest extends LicenseTestCase
         $validator->shouldReceive('validateIntegerValue')->zeroOrMoreTimes()->andReturn(true);
         $service = Mockery::mock(InstallationService::class);
 
-        $response = new LicenseVerifyController($validator, $service)->licenseVerify($this->moduleRequest([
+        $response = new LicenseVerifyController($validator, $service, new BannedHostService)->licenseVerify($this->moduleRequest([
             'product_id' => $product->id,
             'root_url' => 'https://example.com/helpdesk',
             'client_email' => 'client@example.com',

@@ -152,11 +152,7 @@ return [
     'banned-hosts/list' => ['title' => 'message.banned_hosts', 'description' => 'Manage banned hosts and IP restrictions.'],
     'banned-hosts/create' => ['title' => 'message.banned_hosts', 'description' => 'Ban a new host.'],
     'banned-hosts/*/edit' => ['title' => 'message.banned_hosts', 'description' => 'Edit a banned host.'],
-
-    'whitelist' => ['title' => 'message.whitelist_ip', 'description' => 'Manage whitelisted hosts and domains.'],
-    'whitelist/list' => ['title' => 'message.whitelist_ip', 'description' => 'Manage whitelisted hosts and domains.'],
-    'whitelist/create' => ['title' => 'message.whitelist_ip', 'description' => 'Whitelist a new host.'],
-    'whitelist/*/edit' => ['title' => 'message.whitelist_ip', 'description' => 'Edit a whitelisted host.'],
+    'banned-hosts/settings' => ['title' => 'message.security_settings', 'description' => 'Configure auto-ban for repeated failed license checks.'],
 
     'server' => ['title' => 'message.server_notifications', 'description' => 'Server notifications and update settings.'],
     'server/notifications' => ['title' => 'message.server_notifications', 'description' => 'Customize license server notifications.'],

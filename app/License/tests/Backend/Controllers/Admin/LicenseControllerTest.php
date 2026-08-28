@@ -178,9 +178,8 @@ class LicenseControllerTest extends LicenseTestCase
         $this->createInstallationLog(['license' => $license]);
 
         $response = $this->controller->deleteLicense($this->moduleRequest(['id' => $license->id], 'POST'));
-        $json = $this->assertSuccessfulJson($response);
+        $this->assertSuccessfulJson($response);
 
-        $this->assertSame(1, $json['data']);
         $this->assertDatabaseMissing('licenses', ['id' => $license->id]);
         $this->assertSame(0, LicenseCallback::where('license_code', $license->license_code)->count());
         $this->assertSame(0, Installation::where('license_code', $license->license_code)->count());

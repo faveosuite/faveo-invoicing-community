@@ -22,7 +22,7 @@ class LicenseViewController extends Controller
             ->find($license_id);
 
         if (! $license) {
-            return successResponse(__('lang.license_details'), data: null);
+            return successResponse(__('license::lang.license_details'), data: null);
         }
 
         /** @var License $license */
@@ -49,7 +49,7 @@ class LicenseViewController extends Controller
             'call_backs_count' => $license->call_backs_count,
         ];
 
-        return successResponse(__('lang.license_details'), (array) $formatted);
+        return successResponse(__('license::lang.license_details'), (array) $formatted);
     }
 
     public function getLicenseInstallations(Request $request, mixed $license_id): JsonResponse
@@ -62,7 +62,7 @@ class LicenseViewController extends Controller
 
         $license = License::query()->select('id', 'user_id as client_id', 'license_code')->find($license_id);
         if (! $license) {
-            return successResponse(__('lang.license_installations'), collect([]));
+            return successResponse(__('license::lang.license_installations'), collect([]));
         }
 
         /** @var License $license */
@@ -80,7 +80,7 @@ class LicenseViewController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        return successResponse(__('lang.license_installations'), $licenseInstallations);
+        return successResponse(__('license::lang.license_installations'), $licenseInstallations);
     }
 
     public function getLicenseCallBacks(Request $request, mixed $license_id): JsonResponse
@@ -93,7 +93,7 @@ class LicenseViewController extends Controller
 
         $license = License::query()->select('id', 'user_id as client_id', 'license_code')->find($license_id);
         if (! $license) {
-            return successResponse(__('lang.license_callback'), collect([]));
+            return successResponse(__('license::lang.license_callback'), collect([]));
         }
 
         /** @var License $license */
@@ -117,7 +117,7 @@ class LicenseViewController extends Controller
             'callback_status' => $cb->callback_status,
         ]);
 
-        return successResponse(__('lang.license_callback'), $licenseCallBacks);
+        return successResponse(__('license::lang.license_callback'), $licenseCallBacks);
     }
 
     public function getLicenseInstallationLogs(Request $request, mixed $license_id): JsonResponse

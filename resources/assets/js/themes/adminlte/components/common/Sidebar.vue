@@ -368,29 +368,11 @@
                                     <i class="nav-icon far fa-circle"></i><p>All Banned Hosts</p>
                                 </RouterLink>
                             </li>
-                        </ul>
-                    </li>
-
-                    <!-- Whitelist IP -->
-                    <li class="nav-item" :class="{ 'menu-open': isOpen('whitelist') }">
-                        <a class="nav-link" :class="{ active: isGroupActive('/whitelist') }"
-                           @click.prevent="toggleSection('whitelist')">
-                            <i class="nav-icon fas fa-shield-halved"></i>
-                            <p>Whitelist IP <i class="nav-arrow fas fa-chevron-right"></i></p>
-                        </a>
-                        <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <RouterLink to="/whitelist/create" class="nav-link"
-                                            :class="{ active: isExact('/whitelist/create') }"
+                                <RouterLink to="/banned-hosts/settings" class="nav-link"
+                                            :class="{ active: isExact('/banned-hosts/settings') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>New Whitelist</p>
-                                </RouterLink>
-                            </li>
-                            <li class="nav-item">
-                                <RouterLink to="/whitelist/list" class="nav-link"
-                                            :class="{ active: isExact('/whitelist/list') }"
-                                            active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>All Whitelist</p>
+                                    <i class="nav-icon far fa-circle"></i><p>Banned Host Settings</p>
                                 </RouterLink>
                             </li>
                         </ul>
@@ -455,7 +437,6 @@ const routeGroupMap = {
     '/installations': 'installations',
     '/callbacks': 'callbacks',
     '/banned-hosts': 'banned-hosts',
-    '/whitelist': 'whitelist',
 }
 
 function toggleSection(key) {

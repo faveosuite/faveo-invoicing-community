@@ -168,8 +168,10 @@ class InstallationController extends Controller
     public function deleteInstallations(Request $request): JsonResponse
     {
         $id = $request->input('id');
-        $removed = LicenseHelper::validateIntegerValue($id) ? Installation::where('id', $id)->delete() : 0;
+        if (LicenseHelper::validateIntegerValue($id)) {
+            Installation::where('id', $id)->delete();
+        }
 
-        return successResponse(__('license::lang.installation_delete'), $removed);
+        return successResponse(__('license::lang.installation_delete'));
     }
 }

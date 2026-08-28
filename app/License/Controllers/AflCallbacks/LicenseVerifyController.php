@@ -6,6 +6,7 @@ use App\License\Controllers\Traits\AflCallbackHelpers;
 use App\License\Helpers\LicenseValidator;
 use App\License\Models\Installation;
 use App\License\Models\License;
+use App\License\Services\BannedHostService;
 use App\License\Services\InstallationService;
 use App\Model\Product\Product;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class LicenseVerifyController extends Controller
 {
     use AflCallbackHelpers;
 
-    public function __construct(protected LicenseValidator $validator, protected InstallationService $installationService)
+    public function __construct(protected LicenseValidator $validator, protected InstallationService $installationService, protected BannedHostService $bannedHostService)
     {
     }
 

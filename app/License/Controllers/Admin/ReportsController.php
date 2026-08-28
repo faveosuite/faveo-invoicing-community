@@ -33,13 +33,13 @@ class ReportsController extends Controller
 
             if (! LicenseHelper::validateIntegerValue($this->removed_records)) {
                 $this->action_success = 0;
-                $this->error_details .= Lang::get('lang.inavalid_records');
+                $this->error_details .= Lang::get('license::lang.inavalid_records');
             } else {
                 $this->action_success = 1;
             }
         } else {
             $this->action_success = 0;
-            $this->error_details .= Lang::get('lang.no_record_selected');
+            $this->error_details .= Lang::get('license::lang.no_record_selected');
         }
 
         $page_message = $this->whichReportDeleted($whichReport, $this->action_success, $this->removed_records, $this->error_details);
@@ -109,7 +109,7 @@ class ReportsController extends Controller
             'user_formatted' => $report->user->email ?? 'System',
         ]);
 
-        return successResponse(__('lang.SystemReport_Show'), $reportsQuery, 200);
+        return successResponse(__('license::lang.SystemReport_Show'), $reportsQuery, 200);
     }
 
     public function reportArrayCracking(Request $request): JsonResponse
@@ -153,7 +153,7 @@ class ReportsController extends Controller
             'license_id' => $licenseIdsByCode[$report->license_code] ?? null,
         ]);
 
-        return successResponse(__('lang.CrackingReport_Show'), $crakingReports, 200);
+        return successResponse(__('license::lang.CrackingReport_Show'), $crakingReports, 200);
     }
 
     public function reportArrayLicense(Request $request): JsonResponse
@@ -198,7 +198,7 @@ class ReportsController extends Controller
             'license_id' => $licenseIdsByCode[$report->license_code] ?? null,
         ]);
 
-        return successResponse(__('lang.LicenseReport_Show'), $LicenseReports, 200);
+        return successResponse(__('license::lang.LicenseReport_Show'), $LicenseReports, 200);
     }
 
     public function reportArrayUpdate(Request $request): JsonResponse
@@ -238,7 +238,7 @@ class ReportsController extends Controller
             'product_id' => $report->product_id,
         ]);
 
-        return successResponse(__('lang.report_update'), $updateReports, 200);
+        return successResponse(__('license::lang.report_update'), $updateReports, 200);
     }
 
     private function reportStatusFormatter(mixed $status): mixed

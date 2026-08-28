@@ -1018,9 +1018,6 @@ return [
             'required' => 'The banned host IP field is required.',
             'invalid' => 'Please enter a valid IP address.',
         ],
-        'whitelist_host_ip' => [
-            'required' => 'The whitelist host IP field is required.',
-        ],
         'installation_ip' => [
             'required' => 'The installation IP field is required.',
         ],

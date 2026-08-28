@@ -26,6 +26,10 @@ trait AflCallbackHelpers
         ?string $license_code = null,
         ?string $root_url = null
     ): JsonResponse {
+        if (! in_array($notificationCase, ['notification_license_ok', 'notification_host_banned'], true)) {
+            $this->bannedHostService->recordFailedLicensing((string) request()->ip());
+        }
+
         $notification = LicenseNotification::first();
         $notificationText = $notification ? ($notification->{$notificationCase} ?? $notificationCase) : $notificationCase;
 

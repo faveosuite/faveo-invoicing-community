@@ -17,11 +17,11 @@ class VersionsViewController extends Controller
             ->find($version_id);
 
         if (! $version) {
-            return successResponse(__('lang.version_details'), data: null);
+            return successResponse(__('license::lang.version_details'), data: null);
         }
 
         /** @var ProductUpload $version */
-        return successResponse(__('lang.version_details'), [
+        return successResponse(__('license::lang.version_details'), [
             'id' => $version->id,
             'product_id' => $version->product_id,
             'version_number' => $version->version,
@@ -67,6 +67,6 @@ class VersionsViewController extends Controller
             'callback_type' => $cb->callback_type,
         ]);
 
-        return successResponse(__('lang.version_callbacks'), $versionInstallation);
+        return successResponse(__('license::lang.version_callbacks'), $versionInstallation);
     }
 }

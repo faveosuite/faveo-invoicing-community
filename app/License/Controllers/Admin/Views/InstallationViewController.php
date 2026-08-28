@@ -33,7 +33,7 @@ class InstallationViewController extends Controller
             ];
         }
 
-        return successResponse(__('lang.installation_details'), $installation);
+        return successResponse(__('license::lang.installation_details'), $installation);
     }
 
     public function getInstallationCallbacks(Request $request, mixed $id): JsonResponse
@@ -65,6 +65,6 @@ class InstallationViewController extends Controller
             'callback_status' => $cb->callback_status,
         ]);
 
-        return successResponse(__('lang.installation_callbacks'), $callbacks);
+        return successResponse(__('license::lang.installation_callbacks'), $callbacks);
     }
 }

@@ -5,8 +5,9 @@ namespace App\License\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\LicenseBannedHost;
-use App\License\Models\LicenseWhitelistIp;
+use App\License\Models\LicenseSecuritySetting;
 use App\License\Requests\BannedHostRequest;
+use App\License\Requests\SecuritySettingsRequest;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -38,12 +39,7 @@ class BannedHostController extends Controller
         $comments = $request->input('comments', '');
 
         if (empty($banned_host_ip)) {
-            return errorResponse(__('lang.banned_empty'), 400);
-        }
-
-        $whitelistIpExists = LicenseWhitelistIp::where('whitelist_host_ip', $banned_host_ip)->exists();
-        if ($whitelistIpExists) {
-            return errorResponse(__('lang.banned_ip_in_whitelist'), 400);
+            return errorResponse(__('license::lang.banned_empty'), 400);
         }
 
         $banned = new LicenseBannedHost([
@@ -52,7 +48,7 @@ class BannedHostController extends Controller
         ]);
         $banned->save();
 
-        return successResponse(__('lang.banned_add'), $banned, 201);
+        return successResponse(__('license::lang.banned_add'), $banned, 201);
     }
 
     /**
@@ -71,12 +67,7 @@ class BannedHostController extends Controller
 
         if (empty($id) || ! LicenseHelper::validateIntegerValue($id) ||
         empty(LicenseBannedHost::where('id', $id)->get()->toArray())) { // invalid record
-            return errorResponse(__('lang.banned_host_not_found'), 404);
-        }
-
-        $whitelistIpExists = LicenseWhitelistIp::where('whitelist_host_ip', $banned_host_ip)->exists();
-        if ($whitelistIpExists) {
-            return errorResponse(__('lang.banned_ip_in_whitelist'), 400);
+            return errorResponse(__('license::lang.banned_host_not_found'), 404);
         }
 
         $banned = LicenseBannedHost::where('id', $id)->update([
@@ -84,7 +75,7 @@ class BannedHostController extends Controller
             'comments' => $comments,
         ]);
 
-        return successResponse(__('lang.banned_edit'), $banned, 201);
+        return successResponse(__('license::lang.banned_edit'), $banned, 201);
     }
 
     /**
@@ -94,15 +85,14 @@ class BannedHostController extends Controller
      */
     public function deleteBannedHost(Request $request): JsonResponse
     {
-        $removed_records = 0;
         $id = $request->input('id');
         if (! LicenseHelper::validateIntegerValue($id)) {
-            return errorResponse(__('lang.banned_empty'), 400);
+            return errorResponse(__('license::lang.banned_empty'), 400);
         }
 
-        $removed_records += LicenseBannedHost::where('id', $id)->delete();
+        LicenseBannedHost::where('id', $id)->delete();
 
-        return successResponse(__('lang.delete'), $removed_records, 201);
+        return successResponse(__('license::lang.delete'), statusCode: 201);
     }
 
     /**
@@ -129,7 +119,7 @@ class BannedHostController extends Controller
             return $host;
         });
 
-        return successResponse(__('lang.Banned_Show'), $banned, 200);
+        return successResponse(__('license::lang.Banned_Show'), $banned, 200);
     }
 
     public function view(mixed $id): JsonResponse
@@ -137,5 +127,35 @@ class BannedHostController extends Controller
         $banned_host_data = LicenseBannedHost::where('id', $id)->firstOrFail();
 
         return successResponse('', ['banned_host_data' => $banned_host_data], 200);
+    }
+
+    /**
+     * Get the auto-ban settings: whether it's on, and the failed-attempts threshold.
+     */
+    public function getSecuritySettings(): JsonResponse
+    {
+        $settings = LicenseSecuritySetting::find(1);
+
+        return successResponse('', [
+            'auto_ban_enabled' => (bool) $settings?->auto_ban_enabled,
+            'failed_licensings_limit' => $settings->failed_licensings_limit ?? 0,
+        ], 200);
+    }
+
+    /**
+     * Update the auto-ban settings.
+     */
+    public function updateSecuritySettings(SecuritySettingsRequest $request): JsonResponse
+    {
+        $settings = LicenseSecuritySetting::findOrFail(1);
+        $settings->update([
+            'auto_ban_enabled' => $request->boolean('auto_ban_enabled'),
+            'failed_licensings_limit' => (int) $request->input('failed_licensings_limit'),
+        ]);
+
+        return successResponse(__('license::lang.security_settings_updated'), [
+            'auto_ban_enabled' => $settings->auto_ban_enabled,
+            'failed_licensings_limit' => $settings->failed_licensings_limit,
+        ], 200);
     }
 }

@@ -18,10 +18,6 @@ export const bannedHostSchema = yup.object({
         .matches(IP_ADDRESS_REGEX, { message: () => __('validation.license.banned_host_ip.invalid'), excludeEmptyString: true }),
 })
 
-export const whitelistSchema = yup.object({
-    whitelist_host_ip: yup.string().required(() => __('validation.license.whitelist_host_ip.required')),
-})
-
 export const installationSchema = yup.object({
     installation_ip: yup.string().required(() => __('validation.license.installation_ip.required')),
 })

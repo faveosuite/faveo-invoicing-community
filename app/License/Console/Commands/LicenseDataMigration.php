@@ -130,7 +130,6 @@ class LicenseDataMigration extends Command
             ['Migrating license schemes', $this->migrateLicenseSchemes(...)],
             ['Migrating license notifications', $this->migrateLicenseNotifications(...)],
             ['Migrating banned hosts', $this->migrateBannedHosts(...)],
-            ['Migrating whitelist IPs', $this->migrateWhitelistIps(...)],
             ['Migrating license reports', $this->migrateLicenseReports(...)],
             ['Migrating product versions', $this->migrateProductVersions(...)],
             ['Migrating version callbacks', $this->migrateVersionCallbacks(...)],
@@ -270,18 +269,6 @@ class LicenseDataMigration extends Command
                 'banned_host_date' => $this->cleanDate($r->banned_host_date ?? null),
                 'banned_host_blocks' => $r->banned_host_blocks ?? null,
                 'banned_host_last_block_date' => $this->cleanDate($r->banned_host_last_block_date ?? null),
-                ...$this->timestamps($r),
-            ],
-        );
-    }
-
-    private function migrateWhitelistIps(): int
-    {
-        return $this->migrateTable(
-            'afl_whitelist_ips', 'license_whitelist_ips', 'whitelist_host_id',
-            fn (\stdClass $r): array => [
-                'whitelist_host_ip' => $r->whitelist_host_ip,
-                'whitelist_host_comments' => $r->whitelist_host_comments ?? null,
                 ...$this->timestamps($r),
             ],
         );
@@ -785,7 +772,7 @@ class LicenseDataMigration extends Command
         $tables = [
             'installation_logs', 'license_options', 'license_plugins',
             'version_installations', 'version_callbacks',
-            'product_uploads', 'license_reports', 'license_whitelist_ips',
+            'product_uploads', 'license_reports',
             'license_banned_hosts', 'license_notifications',
             'version_notifications', 'license_schemes',
             'license_callbacks', 'installations', 'licenses',

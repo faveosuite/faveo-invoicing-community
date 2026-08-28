@@ -125,6 +125,7 @@
                         <DynamicSelect
                             name="expiryday"
                             :label="__('message.expiry_mail_days')"
+                            :tooltip="__('message.expiry_mail_days_tooltip')"
                             :elements="expiryElements.filter(o => !days.expiryday.includes(o.id))"
                             :value="expiryElements.filter(o => days.expiryday.includes(o.id))"
                             :onChange="(val) => days.expiryday = (val || []).map(o => o.id)"
@@ -138,6 +139,7 @@
                         <DynamicSelect
                             name="subexpiryday"
                             :label="__('message.auto_renewal_days')"
+                            :tooltip="__('message.auto_renewal_days_tooltip')"
                             :elements="expiryElements.filter(o => !days.subexpiryday.includes(o.id))"
                             :value="expiryElements.filter(o => days.subexpiryday.includes(o.id))"
                             :onChange="(val) => days.subexpiryday = (val || []).map(o => o.id)"
@@ -151,6 +153,7 @@
                         <DynamicSelect
                             name="postsubexpiry_days"
                             :label="__('message.post_expiry_days')"
+                            :tooltip="__('message.post_expiry_days_tooltip')"
                             :elements="expiryElements.filter(o => !days.postsubexpiry_days.includes(o.id))"
                             :value="expiryElements.filter(o => days.postsubexpiry_days.includes(o.id))"
                             :onChange="(val) => days.postsubexpiry_days = (val || []).map(o => o.id)"
@@ -164,6 +167,7 @@
                         <DynamicSelect
                             :name="field.key"
                             :label="field.label"
+                            :tooltip="field.tooltip"
                             :elements="field.elements"
                             :value="field.elements.find(o => o.id === days[field.key]) ?? null"
                             :onChange="(val) => days[field.key] = val?.id ?? ''"
@@ -230,7 +234,7 @@ const jobs = [
     { key: 'expiryMail',                  status: 'expiry_cron',            label: __('message.expiry_mail'),                              icon: 'fas fa-envelope',      info: __('message.expiry_mail_tooltip') },
     { key: 'deleteLogs',                  status: 'activity',                label: __('message.delete_activity'),                          icon: 'fas fa-trash-alt',     info: __('message.cron_trigger_deletion_activity_logs') },
     { key: 'subsExpirymail',              status: 'subs_expirymail',         label: __('message.subscription_renewal_reminder_autopayment'), icon: 'fas fa-bell',          info: __('message.auto_renewal_reminder_tooltip') },
-    { key: 'postExpirymail',              status: 'postsubs_expirymail',     label: __('message.subscription_expired'),                     icon: 'fas fa-paper-plane',   info: __('message.auto_renewal_reminder_tooltip') },
+    { key: 'postExpirymail',              status: 'postsubs_expirymail',     label: __('message.subscription_expired'),                     icon: 'fas fa-paper-plane',   info: __('message.post_expiry_notification_tooltip') },
     { key: 'cloud',                       status: 'cloud_cron',              label: __('message.cloud_subscription_deletion'),              icon: 'fas fa-cloud',         info: __('message.cron_trigger_cloud_new') },
     { key: 'invoice',                     status: 'invoice_cron',            label: __('message.invoice_deletion'),                         icon: 'fas fa-file-invoice',  info: __('message.cron_trigger_deletion_old') },
     { key: 'msg91Reports',                status: 'msg91_cron',              label: __('message.msg91_reports_deletion'),                   icon: 'fas fa-comments',      info: __('message.cron_trigger_deletion_msg91_reports') },
@@ -265,18 +269,18 @@ const expiryElements  = makeOptions(['30', '15', '7', '1'])
 const licenseElements = makeOptions(['720', '365', '180', '90', '30', '15', '7', '1'])
 
 const dayFields = [
-    { key: 'cloud_days',             label: __('message.cloud_mail_days'),             elements: expiryElements,                                                                                                    jobStatus: 'cloud_cron' },
-    { key: 'invoice_days',           label: __('message.invoice_deletion_days'),       elements: makeOptions(['7', '5', '2', '1']),                                                                                 jobStatus: 'invoice_cron' },
-    { key: 'msg91_days',             label: __('message.msg91_report_days'),           elements: makeOptions(['720', '365', '180', '150', '60', '30', '15', '5', '2', '0'], __('message.delete_all_reports')),     jobStatus: 'msg91_cron' },
-    { key: 'reoon_days',             label: __('message.reoon_log_days'),              elements: makeOptions(['30', '15', '10', '5', '1']),                                                                         jobStatus: 'reoon_cron' },
-    { key: 'system_logs_days',       label: __('message.system_log_days'),             elements: makeOptions(['720', '365', '180', '150', '60', '30', '15', '5', '2', '0'], __('message.delete_all_logs')),        jobStatus: 'systemlogs_cron' },
-    { key: 'installation_logs_days', label: __('message.installation_log_days'),       elements: licenseElements,                                                                                                   jobStatus: 'installationlogs_cron' },
-    { key: 'license_reports_days',   label: __('message.license_reports_days'),        elements: licenseElements,                                                                                                   jobStatus: 'licensereports_cron' },
-    { key: 'license_callbacks_days', label: __('message.license_callbacks_days'),      elements: licenseElements,                                                                                                   jobStatus: 'licensecallbacks_cron' },
-    { key: 'license_crack_days',     label: __('message.license_crack_days'),          elements: licenseElements,                                                                                                   jobStatus: 'licensecrack_cron' },
-    { key: 'license_system_days',    label: __('message.license_system_days'),         elements: licenseElements,                                                                                                   jobStatus: 'licensesystem_cron' },
-    { key: 'license_versions_days',  label: __('message.license_versions_days'),       elements: licenseElements,                                                                                                   jobStatus: 'licenseversions_cron' },
-    { key: 'logdelday',              label: __('message.activity_log_days'),           elements: makeOptions(['720', '365', '180', '150', '60', '30', '15', '5', '2', '0'], __('message.delete_all_logs')),        jobStatus: 'activity' },
+    { key: 'cloud_days',             label: __('message.cloud_mail_days'),             tooltip: __('message.cloud_mail_days_tooltip'),             elements: expiryElements,                                                                                                    jobStatus: 'cloud_cron' },
+    { key: 'invoice_days',           label: __('message.invoice_deletion_days'),       tooltip: __('message.invoice_deletion_days_tooltip'),       elements: makeOptions(['7', '5', '2', '1']),                                                                                 jobStatus: 'invoice_cron' },
+    { key: 'msg91_days',             label: __('message.msg91_report_days'),           tooltip: __('message.msg91_report_days_tooltip'),           elements: makeOptions(['720', '365', '180', '150', '60', '30', '15', '5', '2', '0'], __('message.delete_all_reports')),     jobStatus: 'msg91_cron' },
+    { key: 'reoon_days',             label: __('message.reoon_log_days'),              tooltip: __('message.reoon_log_days_tooltip'),              elements: makeOptions(['30', '15', '10', '5', '1']),                                                                         jobStatus: 'reoon_cron' },
+    { key: 'system_logs_days',       label: __('message.system_log_days'),             tooltip: __('message.system_log_days_tooltip'),             elements: makeOptions(['720', '365', '180', '150', '60', '30', '15', '5', '2', '0'], __('message.delete_all_logs')),        jobStatus: 'systemlogs_cron' },
+    { key: 'installation_logs_days', label: __('message.installation_log_days'),       tooltip: __('message.installation_log_days_tooltip'),       elements: licenseElements,                                                                                                   jobStatus: 'installationlogs_cron' },
+    { key: 'license_reports_days',   label: __('message.license_reports_days'),        tooltip: __('message.license_reports_days_tooltip'),        elements: licenseElements,                                                                                                   jobStatus: 'licensereports_cron' },
+    { key: 'license_callbacks_days', label: __('message.license_callbacks_days'),      tooltip: __('message.license_callbacks_days_tooltip'),      elements: licenseElements,                                                                                                   jobStatus: 'licensecallbacks_cron' },
+    { key: 'license_crack_days',     label: __('message.license_crack_days'),          tooltip: __('message.license_crack_days_tooltip'),          elements: licenseElements,                                                                                                   jobStatus: 'licensecrack_cron' },
+    { key: 'license_system_days',    label: __('message.license_system_days'),         tooltip: __('message.license_system_days_tooltip'),         elements: licenseElements,                                                                                                   jobStatus: 'licensesystem_cron' },
+    { key: 'license_versions_days',  label: __('message.license_versions_days'),       tooltip: __('message.license_versions_days_tooltip'),       elements: licenseElements,                                                                                                   jobStatus: 'licenseversions_cron' },
+    { key: 'logdelday',              label: __('message.activity_log_days'),           tooltip: __('message.activity_log_days_tooltip'),           elements: makeOptions(['720', '365', '180', '150', '60', '30', '15', '5', '2', '0'], __('message.delete_all_logs')),        jobStatus: 'activity' },
 ]
 
 jobs.forEach(job => {

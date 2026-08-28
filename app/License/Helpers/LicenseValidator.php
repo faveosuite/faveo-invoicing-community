@@ -5,7 +5,6 @@ namespace App\License\Helpers;
 use App\License\Models\License;
 use App\License\Models\LicenseBannedHost;
 use App\License\Models\LicensePlugin;
-use App\License\Models\LicenseWhitelistIp;
 use App\Model\Product\Product;
 use App\User;
 use DateTime;
@@ -62,14 +61,6 @@ class LicenseValidator
     public function isBanned(string $ip): bool
     {
         return LicenseBannedHost::where('banned_host_ip', $ip)->exists();
-    }
-
-    /**
-     * Check if IP is whitelisted.
-     */
-    public function isWhitelisted(string $ip): bool
-    {
-        return LicenseWhitelistIp::where('whitelist_host_ip', $ip)->exists();
     }
 
     /**

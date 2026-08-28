@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Enums\FaveoStatusCode;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Lang;
@@ -31,7 +32,7 @@ trait RequestJsonValidation
             $formattedErrors[$key] = $message[0];
         }
 
-        throw new HttpResponseException(errorResponse($formattedErrors, 412));
+        throw new HttpResponseException(errorResponse($formattedErrors, FaveoStatusCode::ValidationError->value));
     }
 
     /**
@@ -42,7 +43,7 @@ trait RequestJsonValidation
      */
     final protected function failedAuthorization()
     {
-        throw new HttpResponseException(errorResponse(Lang::get('message.permission_denied_action'), 400));
+        throw new HttpResponseException(errorResponse(Lang::get('message.unauthorized_action'), FaveoStatusCode::Error->value));
     }
 
     /**

@@ -154,7 +154,7 @@ class Handler extends ExceptionHandler
      */
     private function methodNotAllowedResponse(): JsonResponse
     {
-        return errorResponse(__('lang.method_not_allowed'), FaveoStatusCode::InvalidMethod->value);
+        return errorResponse(__('message.method_not_allowed'), FaveoStatusCode::InvalidMethod->value);
     }
 
     /**
@@ -162,7 +162,7 @@ class Handler extends ExceptionHandler
      */
     private function notFoundResponse(): JsonResponse
     {
-        return errorResponse(__('lang.record_not_found'), FaveoStatusCode::NotFound->value);
+        return errorResponse(__('message.record_not_found'), FaveoStatusCode::NotFound->value);
     }
 
     /**
@@ -170,7 +170,7 @@ class Handler extends ExceptionHandler
      */
     private function invalidEndpointResponse(): JsonResponse
     {
-        return errorResponse(__('lang.invalid-api-endpoint'), FaveoStatusCode::NotFound->value);
+        return errorResponse(__('message.invalid-api-endpoint'), FaveoStatusCode::NotFound->value);
     }
 
     /**
@@ -189,7 +189,7 @@ class Handler extends ExceptionHandler
      */
     private function requestTooLargeResponse(): JsonResponse
     {
-        return errorResponse(__('lang.request_entity_too_large_maxsize', ['maxsize' => (int) ini_get('post_max_size')]), 422);
+        return errorResponse(__('message.request_entity_too_large_maxsize', ['maxsize' => (int) ini_get('post_max_size')]), 422);
     }
 
     /**
@@ -199,7 +199,7 @@ class Handler extends ExceptionHandler
     {
         return config('app.debug')
             ? exceptionResponse($exception)
-            : errorResponse(__('lang.internal-server-error'), FaveoStatusCode::Exception->value);
+            : errorResponse(__('message.internal-server-error'), FaveoStatusCode::Exception->value);
     }
 
     /**

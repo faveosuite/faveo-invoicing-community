@@ -13,12 +13,10 @@ const CallbacksIndex = () => import('../../../../../app/License/Resources/js/Pag
 
 const BannedHostCreateEdit = () => import('../../../../../app/License/Resources/js/Pages/BannedHost/BannedHostCreateEdit.vue');
 const BannedHostsIndex = () => import('../../../../../app/License/Resources/js/Pages/BannedHost/BannedHostsIndex.vue');
+const BannedHostSecuritySettings = () => import('../../../../../app/License/Resources/js/Pages/BannedHost/BannedHostSecuritySettings.vue');
 
 const CustomizeNotifications = () => import('../../../../../app/License/Resources/js/Pages/ServerNotifications/CustomizeNotifications.vue');
 const CustomizeUpdateNotifications = () => import('../../../../../app/License/Resources/js/Pages/ServerNotifications/CustomizeUpdateNotifications.vue');
-
-const WhiteList = () => import('../../../../../app/License/Resources/js/Pages/WhiteList/WhiteList.vue');
-const WhiteListCreate = () => import('../../../../../app/License/Resources/js/Pages/WhiteList/WhiteListCreate.vue');
 
 const ViewCrackingReports = () => import('../../../../../app/License/Resources/js/Pages/Report/ViewCrackingReports.vue');
 const ViewLicenseReports = () => import('../../../../../app/License/Resources/js/Pages/Report/ViewLicenseReports.vue');
@@ -48,11 +46,7 @@ export default [
     { path: '/banned-hosts/list', component: BannedHostsIndex, meta: { title: 'All Banned Hosts', titleKey: 'message.all_banned_hosts' } },
     { path: '/banned-hosts/create', component: BannedHostCreateEdit, meta: { title: 'New Banned Host', titleKey: 'message.banned_hosts' } },
     { path: '/banned-hosts/:id/edit', component: BannedHostCreateEdit, meta: { title: 'Edit Banned Host', titleKey: 'message.banned_hosts' } },
-
-    { path: '/whitelist', redirect: '/whitelist/list' },
-    { path: '/whitelist/list', component: WhiteList, meta: { title: 'All Whitelist', titleKey: 'message.all_whitelist_ip' } },
-    { path: '/whitelist/create', component: WhiteListCreate, meta: { title: 'New Whitelist', titleKey: 'message.whitelist_ip' } },
-    { path: '/whitelist/:id/edit', component: WhiteListCreate, meta: { title: 'Edit Whitelist', titleKey: 'message.whitelist_ip' } },
+    { path: '/banned-hosts/settings', component: BannedHostSecuritySettings, meta: { title: 'Banned Host Settings', titleKey: 'message.security_settings' } },
 
     { path: '/server', redirect: '/server/notifications' },
     { path: '/server/notifications', component: CustomizeNotifications, meta: { title: 'License Custom Notification', titleKey: 'message.server_notifications' } },
