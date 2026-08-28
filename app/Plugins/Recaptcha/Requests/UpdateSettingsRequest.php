@@ -2,8 +2,8 @@
 
 namespace App\Plugins\Recaptcha\Requests;
 
-use App\Traits\RequestJsonValidation;
 use App\Plugins\Recaptcha\Services\RecaptchaVerifier;
+use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
 use Override;
 

@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\User;
 
-use App\Traits\RequestJsonValidation;
 use App\Http\Requests\Request;
 use App\Rules\PhoneNumber;
+use App\Traits\RequestJsonValidation;
 use Override;
 
 class ClientRequest extends Request

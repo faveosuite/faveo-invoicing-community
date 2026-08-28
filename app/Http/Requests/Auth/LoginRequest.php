@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Auth;
 
-use App\Traits\RequestJsonValidation;
 use App\Rules\Honeypot;
+use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
 use Override;
 

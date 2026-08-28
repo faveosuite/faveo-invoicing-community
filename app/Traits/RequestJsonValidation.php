@@ -46,7 +46,7 @@ trait RequestJsonValidation
     }
 
     /**
-     * Changes validation message
+     * Changes validation message.
      *
      * @return array<string, string>
      */
@@ -54,8 +54,8 @@ trait RequestJsonValidation
     {
         return [
             '*.required' => 'This field is required',
-            '*.required_if'=>'This field is required',
-            '*.required_unless'=>'This field is required',
+            '*.required_if' => 'This field is required',
+            '*.required_unless' => 'This field is required',
         ];
     }
 }
