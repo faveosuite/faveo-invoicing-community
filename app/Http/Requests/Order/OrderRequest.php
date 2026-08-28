@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Order;
 
-use App\Traits\RequestJsonValidation;
 use App\Http\Requests\Request;
+use App\Traits\RequestJsonValidation;
 use Override;
 
 class OrderRequest extends Request

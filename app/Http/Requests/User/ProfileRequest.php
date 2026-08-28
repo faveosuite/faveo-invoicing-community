@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests\User;
 
-use App\Traits\RequestJsonValidation;
 use App\Http\Requests\Request;
 use App\Model\Common\State;
 use App\Rules\PhoneNumber;
 use App\Rules\StrongPassword;
+use App\Traits\RequestJsonValidation;
 use App\User;
 use Auth;
 use Illuminate\Validation\Rule;

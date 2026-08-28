@@ -105,7 +105,8 @@ class Handler extends ExceptionHandler
     /**
      * Build an API response for the given exception.
      */
-    protected function responseForApi(Request $request, Throwable $exception): JsonResponse {
+    protected function responseForApi(Request $request, Throwable $exception): JsonResponse
+    {
         return match (true) {
             $exception instanceof AuthenticationException => $this->unauthenticatedResponse(),
 
@@ -175,7 +176,8 @@ class Handler extends ExceptionHandler
     /**
      * Response when API rate limit is exceeded.
      */
-    private function throttleResponse(ThrottleRequestsException $exception): JsonResponse {
+    private function throttleResponse(ThrottleRequestsException $exception): JsonResponse
+    {
         return response()->json([
             'success' => false,
             'message' => $exception->getMessage(),
@@ -187,7 +189,7 @@ class Handler extends ExceptionHandler
      */
     private function requestTooLargeResponse(): JsonResponse
     {
-        return errorResponse(__('lang.request_entity_too_large_maxsize', ['maxsize' => (int) ini_get('post_max_size'),]), 422);
+        return errorResponse(__('lang.request_entity_too_large_maxsize', ['maxsize' => (int) ini_get('post_max_size')]), 422);
     }
 
     /**
@@ -217,8 +219,8 @@ class Handler extends ExceptionHandler
     }
 
     #[Override]
-    protected function unauthenticated($request, AuthenticationException $exception) {
-
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
         if ($request->expectsJson()) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }

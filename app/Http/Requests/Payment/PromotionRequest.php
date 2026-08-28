@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Payment;
 
-use App\Traits\RequestJsonValidation;
 use App\Http\Requests\Request;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Price;
+use App\Traits\RequestJsonValidation;
 use Override;
 
 class PromotionRequest extends Request

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Payment;
 
-use App\Traits\RequestJsonValidation;
 use App\Http\Requests\Request;
+use App\Traits\RequestJsonValidation;
 use Override;
 
 class TaxRequest extends Request

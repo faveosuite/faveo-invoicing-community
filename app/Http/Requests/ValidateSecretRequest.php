@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
-use App\Traits\RequestJsonValidation;
 use App\Rules\Honeypot;
+use App\Traits\RequestJsonValidation;
 use Override;
 
 class ValidateSecretRequest extends Request
