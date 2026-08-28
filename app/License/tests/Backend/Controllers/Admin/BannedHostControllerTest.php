@@ -7,6 +7,7 @@ use App\License\Models\LicenseBannedHost;
 use App\License\Models\LicenseWhitelistIp;
 use App\License\Requests\BannedHostRequest;
 use App\License\tests\Backend\LicenseTestCase;
+use Illuminate\Support\Facades\Validator;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -68,11 +69,11 @@ class BannedHostControllerTest extends LicenseTestCase
             'comments' => 'Old',
         ]);
 
-        $response = $this->controller->bannedHostUpdate($this->moduleRequest([
+        $response = $this->controller->bannedHostUpdate(BannedHostRequest::create('/api/admin/bannedHosts/edit', 'POST', [
             'id' => $host->id,
             'banned_host_ip' => '10.10.10.13',
             'comments' => 'New',
-        ], 'POST'));
+        ]));
 
         $this->assertSuccessfulJson($response, 201);
         $this->assertDatabaseHas('license_banned_hosts', [
@@ -116,6 +117,39 @@ class BannedHostControllerTest extends LicenseTestCase
         $this->assertSame($host->id, $json['data']['data'][0]['id']);
         $this->assertSame('10.10.10.15', $json['data']['data'][0]['banned_host_ip']);
         $this->assertArrayHasKey('banned_host_date', $json['data']['data'][0]);
+    }
+
+    #[Test]
+    #[Group('license-admin')]
+    public function banned_host_request_rejects_invalid_ip(): void
+    {
+        $request = BannedHostRequest::create('/api/admin/bannedHosts/add', 'POST', [
+            'banned_host_ip' => 'not-an-ip',
+        ]);
+
+        $validator = Validator::make($request->all(), $request->rules());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('banned_host_ip', $validator->errors()->toArray());
+    }
+
+    #[Test]
+    #[Group('license-admin')]
+    public function banned_host_request_unique_rule_ignores_self_on_edit(): void
+    {
+        $host = LicenseBannedHost::create([
+            'banned_host_ip' => '10.10.10.20',
+            'comments' => 'Existing',
+        ]);
+
+        $request = BannedHostRequest::create('/api/admin/bannedHosts/edit', 'POST', [
+            'id' => $host->id,
+            'banned_host_ip' => '10.10.10.20',
+        ]);
+
+        $validator = Validator::make($request->all(), $request->rules());
+
+        $this->assertFalse($validator->fails());
     }
 
     #[Test]

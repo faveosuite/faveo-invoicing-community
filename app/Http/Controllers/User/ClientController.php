@@ -195,8 +195,8 @@ class ClientController extends AdvanceSearchController
     public function saveColumns(Request $request): JsonResponse
     {
         $userId = auth()->id();
-        $entityType = $request->get('entity_type');
-        $selectedKeys = $request->get('selected_columns', []);
+        $entityType = $request->input('entity_type');
+        $selectedKeys = $request->input('selected_columns', []);
 
         // Always ensure the locked checkbox & action columns exist, while
         // preserving the incoming display order (drag-and-drop reordering).
@@ -247,7 +247,7 @@ class ClientController extends AdvanceSearchController
     public function getColumns(Request $request): JsonResponse
     {
         $userId = auth()->id();
-        $entityType = $request->get('entity_type');
+        $entityType = $request->input('entity_type');
 
         // All available columns for this entity, in their canonical order.
         $allColumns = ReportColumn::where('type', $entityType)

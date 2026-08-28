@@ -21,7 +21,7 @@ class LicenseValidator
     public function isValidConnection(mixed $product_id, ?string $connection_hash): bool
     {
         $ip = request()->ip();
-        $refer = request()->get('refer', request()->header('referer'));
+        $refer = request()->input('refer', request()->header('referer'));
 
         return filter_var($ip, FILTER_VALIDATE_IP) !== false
             && filter_var($refer, FILTER_VALIDATE_URL) !== false

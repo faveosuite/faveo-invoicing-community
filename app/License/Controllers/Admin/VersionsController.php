@@ -3,6 +3,7 @@
 namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
@@ -17,8 +18,9 @@ class VersionsController extends Controller
         $searchQuery = $request->input('search-query', $request->input('search-query', $request->input('search_query', '')));
         $sortOrder = $request->input('sort-order', $request->input('sort_order', 'desc'));
         $sortField = $request->input('sort-field', $request->input('sort_field', 'id'));
-        $allowedSortFields = ['id', 'product_id', 'version', 'created_at', 'status'];
-        $sortField = in_array($sortField, $allowedSortFields, strict: true) ? $sortField : 'id';
+        $allowedSortFields = ['id', 'product_id', 'version', 'created_at', 'status', 'version_install_count', 'callback_count'];
+        $sortByProduct = $sortField === 'product_title';
+        $sortField = $sortByProduct || in_array($sortField, $allowedSortFields, strict: true) ? $sortField : 'id';
         $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
 
         $versions = ProductUpload::query()
@@ -33,7 +35,12 @@ class VersionsController extends Controller
                         });
                 });
             })
-            ->orderBy($sortField, $sortOrder)
+            ->orderBy(
+                $sortByProduct
+                    ? Product::select('name')->whereColumn('products.id', 'product_uploads.product_id')
+                    : $sortField,
+                $sortOrder
+            )
             ->paginate($perPage, ['*'], 'page', $page);
 
         $versions->getCollection()->transform(fn (ProductUpload $version): array => [ // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType

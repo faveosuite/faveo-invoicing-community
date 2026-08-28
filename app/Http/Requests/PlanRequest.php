@@ -2,12 +2,15 @@
 
 namespace App\Http\Requests;
 
+use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Override;
 
 class PlanRequest extends FormRequest
 {
+    use RequestJsonValidation;
+
     /**
      * Get the validation rules that apply to the request.
      *

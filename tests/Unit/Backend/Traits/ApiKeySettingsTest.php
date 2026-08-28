@@ -143,8 +143,8 @@ class ApiKeySettingsTest extends DBTestCase
             'msg91_sender' => 'SENDER',
             'msg91_template_id' => 'TMPL123',
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['msg91_auth_key']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['msg91_auth_key'], 'message');
     }
 
     public function test_update_mobile_details_with_invalid_auth_key_returns_400(): void

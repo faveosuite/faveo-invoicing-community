@@ -151,7 +151,7 @@ onMounted(async () => {
             key:        d.key        ?? '',
             region:     d.region     ?? '',
         })
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
     finally { loading.value = false }
 })
 
@@ -168,7 +168,7 @@ async function submit() {
         }
         const res = await http.patch(`/settings/email`, payload)
         successHandler(res, COMPONENT)
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
     finally { saving.value = false }
 }
 </script>

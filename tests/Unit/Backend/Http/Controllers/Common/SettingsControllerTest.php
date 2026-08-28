@@ -41,8 +41,8 @@ class SettingsControllerTest extends DBTestCase
             'default_currency' => 'USD',
             'country' => 'IN',
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['company']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['company'], 'message');
     }
 
     public function test_returns_mobile_verification_details(): void
@@ -236,8 +236,8 @@ class SettingsControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
         $response = $this->patchJson('/settings/system-data', []);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['company']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['company'], 'message');
     }
 
     public function test_update_datetime_settings_validates_fields(): void
@@ -245,7 +245,7 @@ class SettingsControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
         $response = $this->patchJson('/settings/datetime-data', []);
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     public function test_get_cron_settings_returns_200(): void
@@ -509,7 +509,7 @@ class SettingsControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
         $response = $this->postJson('/pdf-settings', []);
-        $this->assertContains($response->status(), [200, 400, 422]);
+        $this->assertContains($response->status(), [200, 400, 412]);
     }
 
     public function test_update_cron_settings_returns_success_message(): void
@@ -1196,6 +1196,6 @@ class SettingsControllerTest extends DBTestCase
             'deployment_enabled' => false,
         ]);
 
-        $this->assertContains($response->status(), [200, 302, 400, 422, 500]);
+        $this->assertContains($response->status(), [200, 302, 400, 412, 500]);
     }
 }

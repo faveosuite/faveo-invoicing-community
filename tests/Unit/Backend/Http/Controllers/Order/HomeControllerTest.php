@@ -22,8 +22,9 @@ class HomeControllerTest extends DBTestCase
         $response = $this->post('/renewurl', [
             'domain' => '',
         ]);
-        session('errors');
-        $response->assertStatus(302);
+        // ProductRenewalRequest uses RequestJsonValidation, which always returns JSON (412),
+        // even for a plain non-JSON POST.
+        $response->assertStatus(412);
     }
 
     public function test_renewurl_return_orderid_(): void

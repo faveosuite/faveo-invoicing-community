@@ -68,8 +68,8 @@ class ProductControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $response = $this->putJson('/product', []);
 
-        $response->assertStatus(422);
-        $errors = $response->json('errors');
+        $response->assertStatus(412);
+        $errors = $response->json('message');
 
         foreach (['name', 'type', 'group'] as $field) {
             $this->assertArrayHasKey($field, $errors, "Expected '$field' in product errors");
@@ -84,8 +84,8 @@ class ProductControllerTest extends DBTestCase
             'github_owner' => 'owner', 'github_repository' => 'repo',
         ]);
 
-        $response->assertStatus(422);
-        $this->assertSame('The name field is required.', $response->json('errors.name.0'));
+        $response->assertStatus(412);
+        $this->assertSame('The name field is required.', $response->json('message.name'));
     }
 
     public function test_create_blocked_for_client_returns_302(): void
@@ -101,7 +101,7 @@ class ProductControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $response = $this->patchJson('/product/999999999', ['name' => 'Test']);
 
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     // --- DELETE /products ---
@@ -316,7 +316,7 @@ class ProductControllerTest extends DBTestCase
 
         $response = $this->patchJson('/product/999999', ['name' => 'Updated']);
 
-        $this->assertContains($response->status(), [200, 400, 422]);
+        $this->assertContains($response->status(), [200, 400, 412]);
     }
 
     public function test_update_product_upload_returns_error_for_nonexistent(): void
@@ -325,7 +325,7 @@ class ProductControllerTest extends DBTestCase
 
         $response = $this->patchJson('/product/upload/999999', ['version' => '1.0.0']);
 
-        $this->assertContains($response->status(), [200, 400, 422]);
+        $this->assertContains($response->status(), [200, 400, 412]);
     }
 
     // =========================================================================
@@ -339,8 +339,8 @@ class ProductControllerTest extends DBTestCase
 
         $response = $this->putJson("/product/upload/{$product->id}", []);
 
-        $response->assertStatus(422);
-        $errors = $response->json('errors');
+        $response->assertStatus(412);
+        $errors = $response->json('message');
         foreach (['producttitle', 'version', 'dependencies'] as $field) {
             $this->assertArrayHasKey($field, $errors, "Expected '$field' validation error");
         }
@@ -359,7 +359,7 @@ class ProductControllerTest extends DBTestCase
             'release_type' => 'official',
         ]);
 
-        $response->assertStatus(422)->assertJsonValidationErrors('filename');
+        $response->assertStatus(412)->assertJsonValidationErrors('filename', 'message');
     }
 
     public function test_product_upload_create_with_valid_data_returns_200(): void
@@ -438,8 +438,8 @@ class ProductControllerTest extends DBTestCase
             'release_type' => 'official',
         ]);
 
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('title', $response->json('errors'));
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('title', $response->json('message'));
     }
 
     public function test_update_product_upload_with_new_filename_updates_file_field(): void
@@ -652,7 +652,7 @@ class ProductControllerTest extends DBTestCase
             'products' => [['id' => $product->id, 'version' => '1.0.0']],
         ]);
 
-        $response->assertStatus(422)->assertJsonValidationErrors('filename');
+        $response->assertStatus(412)->assertJsonValidationErrors('filename', 'message');
         $this->assertDatabaseMissing('product_uploads', ['product_id' => $product->id]);
     }
 

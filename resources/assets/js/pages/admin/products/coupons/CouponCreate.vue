@@ -138,7 +138,7 @@ onMounted(async () => {
         const res = await http.get(`/dependency/promotion-types`)
         promotionTypes.value = res.data?.data?.promotion_types ?? []
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     }
 })
 
@@ -159,7 +159,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/products/coupons'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

@@ -156,7 +156,7 @@
                     </li>
                 </ul>
                 <div class="p-3">
-                    <DataTable v-if="endPoint" :url="endPoint" ref="dataTable" :dataColumns="columns" :option="tableOptions">
+                    <DataTable v-if="endPoint" :key="activeTab" :url="endPoint" ref="dataTable" :dataColumns="columns" :option="tableOptions">
                         <template #actions="props"><table-actions :data="props.row" /></template>
                     </DataTable>
                 </div>
@@ -454,3 +454,51 @@ onBeforeMount(() => {
     updateData('installations', licenseId)
 })
 </script>
+
+<style scoped>
+/* Domain is the one column every tab shares as an "identity" column, so it
+   stays a fixed, identical px everywhere. Every other column is left at
+   width:auto — under table-layout:fixed, the browser splits whatever space
+   remains after Domain EQUALLY across the auto columns of THAT table. Tabs
+   have different column counts (installations/logs: 5, callbacks: 4), so
+   each one's equal-share differs — that's expected; only Domain is pinned. */
+:deep(.VueTables__table) {
+    table-layout: fixed;
+}
+:deep(.dt-text) { width: 250px; }
+:deep(.dt-code),
+:deep(.dt-date),
+:deep(.dt-status),
+:deep(.dt-action) {
+    width: auto;
+}
+
+/* table-layout:fixed only ever looks at the width property — min-width is
+   silently ignored for it, so on a narrow screen the auto columns above have
+   no floor at all and get crushed to a couple px, wrapping their header text
+   one letter per line. Below md, give them back a real width floor; that
+   makes the table wider than the viewport, and the existing .table-responsive
+   wrapper (Bootstrap, overflow-x:auto) scrolls it — the standard, legible
+   mobile pattern instead of squished columns. */
+@media (max-width: 768px) {
+    :deep(.dt-code)   { width: 120px; }
+    :deep(.dt-date)   { width: 160px; }
+    :deep(.dt-status) { width: 130px; }
+    :deep(.dt-action) { width: 200px; }
+}
+
+/* Sort icon: float:right participates in the header's flow, so anything
+   changing the header's content width nudges it. position:absolute takes
+   it out of flow entirely; reserved padding-right keeps it clear of text. */
+:deep(.VueTables__table th.VueTables__sortable) {
+    position: relative;
+    padding-right: 1.75rem;
+}
+:deep(.VueTables__sort-icon) {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    float: none !important;
+    transform: translateY(-50%) !important;
+}
+</style>

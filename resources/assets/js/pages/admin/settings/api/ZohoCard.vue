@@ -31,15 +31,14 @@
                 <i class="fas fa-gear"></i>
             </RouterLink>
 
-            <button
-                class="btn btn-link p-0"
-                :class="{ 'opacity-50 pe-none': toggling }"
-                :title="integration.is_active ? __('message.disable') : __('message.enable')"
+            <Switch
+                name="status"
+                :value="integration.is_active"
                 :disabled="toggling"
-                @click="$emit('toggle', integration)"
-            >
-                <i :class="integration.is_active ? 'fa-solid fa-toggle-on' : 'fa-solid fa-toggle-off'" class="text-secondary fs-5"></i>
-            </button>
+                :title="integration.is_active ? __('message.disable') : __('message.enable')"
+                :onChange="() => $emit('toggle', integration)"
+                classname="gateway-toggle"
+            />
         </div>
     </div>
 </template>
@@ -47,6 +46,7 @@
 <script setup>
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
+import Switch from '@/components/Reusable/FormField/Switch.vue'
 
 const props = defineProps({
     integration: { type: Object, required: true },
@@ -107,5 +107,17 @@ const label = computed(() => {
     font-size: 14px;
     font-weight: 700;
     line-height: 1.1;
+}
+
+/* Match the old toggle icon's footprint (fa-toggle-on/off at fs-5, ~20px) —
+   scoped here so it doesn't shrink the Switch used elsewhere (e.g. auto-renewal). */
+:deep(.gateway-toggle .toggle) {
+    width: 28px !important;
+    height: 12px !important;
+}
+
+:deep(.gateway-toggle .toggle-handle) {
+    width: 12px !important;
+    height: 12px !important;
 }
 </style>

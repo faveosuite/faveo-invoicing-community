@@ -133,7 +133,7 @@ onMounted(async () => {
         statusOptions.value = d.status_options ?? []
         selectedBits.value  = d.selected_bits  ?? []
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -154,7 +154,7 @@ async function save() {
         const res = await http.post(`/email-settings-save`, payload)
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

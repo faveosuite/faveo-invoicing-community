@@ -55,6 +55,21 @@ describe('BannedHostCreateEdit.vue', () => {
         expect(wrapper.exists()).toBe(true)
     })
 
+    it('applies server-side field errors (e.g. duplicate IP) so they show under the input', async () => {
+        const { errorHandler } = require('@/helpers/responseHandler')
+        axiosMock.onPost(/\/api\/admin\/bannedHost/).reply(422, {
+            message: 'The banned host ip has already been taken.',
+            errors: { banned_host_ip: ['The banned host ip has already been taken.'] },
+        })
+        wrapper.vm.onSubmit()
+        await flushPromises()
+        expect(errorHandler).toHaveBeenCalledWith(
+            expect.anything(),
+            'banned-hosts',
+            expect.objectContaining({ setErrors: expect.any(Function) })
+        )
+    })
+
     it('saving is false after submit completes', async () => {
         axiosMock.onPost(/\/api\/admin\/bannedHost/).reply(200, { data: {}, message: 'Done' })
         wrapper.vm.onSubmit()

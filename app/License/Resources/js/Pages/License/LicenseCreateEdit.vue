@@ -13,13 +13,16 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-sm-6">
-                            <dynamic-select name="product" apiEndpoint="/api/admin/viewproducts" :multiple="false" :label="lang('product')" :onChange="onChange"
-                                            :value="product_title" optionLabel="product_title" :required="true" :error="errors.product">
-                            </dynamic-select>
+                            <TreeSelect name="product" :label="lang('product')" :required="true"
+                                        :apiEndpoint="`${baseUrl}/dependency/products`" dataKey="products"
+                                        :apiParams="{ include_hidden: 1 }"
+                                        :value="product_obj" :onChange="onChange" :error="errors.product">
+                            </TreeSelect>
                         </div>
                         <div class="col-sm-6">
                             <text-field :label="lang('license_code')" :value="license_code" type="text" name="license_code"
                                         :onChange="onChange" :required="true" :error="errors.license_code"
+                                        :placeholder="lang('enter_license_code')"
                                         :inputGroupBtn="{ text: 'generate', action: generateCode }">
                             </text-field>
                         </div>
@@ -28,12 +31,13 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <dynamic-select name="client" apiEndpoint="/api/admin/viewClients/0" :multiple="false" :label="lang('client')" :onChange="onChange"
-                                            :value="client_name" optionLabel="full_name" :required="true" :error="errors.client">
+                                            :value="client_name" optionLabel="full_name" :error="errors.client">
                             </dynamic-select>
                         </div>
                         <div class="col-sm-6">
                             <number-field :label="lang('order_number')" :value="license_order_number"
-                                          name="license_order_number" :onChange="onChange">
+                                          name="license_order_number" :onChange="onChange"
+                                          :placeholder="lang('enter_license_order_number')">
                             </number-field>
                         </div>
                     </div>
@@ -41,21 +45,22 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <text-field :label="lang('licensed_ip')" :value="license_ip" type="text" name="license_ip"
-                                        :onChange="onChange">
+                                        :onChange="onChange" :placeholder="lang('enter_license_ip')">
                             </text-field>
                         </div>
                         <div class="col-sm-6">
-                            <text-field :label="lang('licensed_domain')" :multiple="true" :elements="[]"
-                                        name="license_domain" :value="license_domain" :onChange="onChange"
-                                        :strlength="35" :required="false" :taggable="true" :hint="lang('domain_tip')">
+                            <text-field :label="lang('licensed_machine_id')" :value="license_machine_id" type="text"
+                                        name="license_machine_id" :onChange="onChange" :placeholder="lang('enter_license_machine_id')">
                             </text-field>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-sm-6">
-                            <text-field :label="lang('licensed_machine_id')" :value="license_machine_id" type="text"
-                                        name="license_machine_id" :onChange="onChange">
+                        <div class="col-sm-12">
+                            <text-field :label="lang('licensed_domain')" :multiple="true" :elements="[]"
+                                        name="license_domain" :value="license_domain" :onChange="onChange"
+                                        :strlength="35" :required="false" :taggable="true" :hint="lang('domain_tip')"
+                                        :placeholder="lang('enter_license_domain')">
                             </text-field>
                         </div>
                     </div>
@@ -84,7 +89,7 @@
                         </div>
                         <div class="col-sm-6">
                             <number-field :label="lang('installations_limit')" :value="license_limit" name="license_limit"
-                                          :onChange="onChange">
+                                          :onChange="onChange" :placeholder="lang('enter_license_limit')">
                             </number-field>
                         </div>
                     </div>
@@ -103,9 +108,9 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col-sm-12">
                             <text-field :label="lang('comments')" :value="license_comments" type="textarea"
-                                        name="license_comments" :onChange="onChange">
+                                        name="license_comments" :onChange="onChange" :placeholder="lang('enter_license_comments')">
                             </text-field>
                         </div>
                     </div>
@@ -132,7 +137,10 @@ import { DateTime } from 'luxon'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import NumberField from '@/components/Reusable/FormField/NumberField.vue'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
+import TreeSelect from '@/components/Reusable/FormField/TreeSelect.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
+const baseUrl = useBaseUrl()
 const router = useRouter()
 
 const { errors, setErrors, setFieldError } = useForm()
@@ -148,7 +156,7 @@ const domainOptions = [{ name: 'yes', value: 1 }, { name: 'no', value: 0 }]
 const apiEndpoint = ref('')
 const license_id = ref('')
 const product_id = ref('')
-const product_title = ref('')
+const product_obj = ref(null)
 const client_id = ref('')
 const client_name = ref('')
 const license_code = ref('')
@@ -166,8 +174,8 @@ const license_comments = ref('')
 function onChange(value, name) {
     setFieldError(name, undefined)
     if (name === 'product') {
-        product_id.value = value.product_id
-        product_title.value = value.product_title
+        product_id.value = value ?? ''
+        product_obj.value = value
         setFieldError('product', undefined)
     } else if (name === 'client') {
         client_id.value = value ? value.client_id : client_id.value
@@ -192,7 +200,7 @@ function generateCode() {
 
 async function isValid() {
     return await validateForm(licenseSchema, {
-        product:              product_title.value,
+        product:              product_id.value,
         client:               client_name.value,
         license_code:         license_code.value,
         license_expire_date:  license_expire_date.value,
@@ -212,7 +220,7 @@ function getInitialValues(id) {
         licenseData['license_support_date'] = licenseData.license_support_date ? DateTime.fromSQL(licenseData.license_support_date).toFormat('dd-MM-yyyy') : ''
 
         product_id.value = resData.product_name[0].product_id
-        product_title.value = resData.product_name[0].product_title
+        product_obj.value = { id: resData.product_name[0].product_id, name: resData.product_name[0].product_title }
         client_id.value = resData.client_name[0].client_id
         client_name.value = resData.client_name[0].full_name
         license_id.value = licenseData.id
@@ -263,7 +271,7 @@ async function onSubmit() {
             setTimeout(() => { router.push('/licenses/list') }, 2000)
         }
     }).catch(err => {
-        errorHandler(err, 'license')
+        errorHandler(err, 'license', { setErrors })
     }).finally(() => {
         saving.value = false
     })
@@ -283,3 +291,21 @@ onBeforeMount(() => {
     }
 })
 </script>
+
+<style scoped>
+/* The "generate" button next to license code is a solid btn-secondary by
+   default — restyle it to match the neutral .input-group-text look used by
+   the password eye-icon toggle elsewhere, so it reads as part of the input
+   group instead of a heavier standalone button. */
+:deep(.input-group .btn-secondary) {
+    color: var(--bs-body-color);
+    background-color: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
+}
+:deep(.input-group .btn-secondary:hover),
+:deep(.input-group .btn-secondary:focus) {
+    color: var(--bs-body-color);
+    background-color: var(--bs-secondary-bg, #e9ecef);
+    border-color: var(--bs-border-color);
+}
+</style>

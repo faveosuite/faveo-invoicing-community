@@ -100,8 +100,8 @@ class PromotionControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $response = $this->putJson('/promotionCreate', []);
 
-        $response->assertStatus(422);
-        $errors = $response->json('errors');
+        $response->assertStatus(412);
+        $errors = $response->json('message');
 
         foreach (['code', 'type', 'applied', 'uses', 'start', 'expiry', 'value'] as $field) {
             $this->assertArrayHasKey($field, $errors, "Expected '$field' in promotion errors");
@@ -116,8 +116,8 @@ class PromotionControllerTest extends DBTestCase
             'start' => '2025-01-01', 'expiry' => '2025-12-31', 'value' => 50,
         ]);
 
-        $response->assertStatus(422);
-        $this->assertSame('The coupon code field is required.', $response->json('errors.code.0'));
+        $response->assertStatus(412);
+        $this->assertSame('The coupon code field is required.', $response->json('message.code'));
     }
 
     public function test_create_expiry_before_start_has_expiry_error(): void
@@ -128,8 +128,8 @@ class PromotionControllerTest extends DBTestCase
             'uses' => 10, 'start' => '2025-12-31', 'expiry' => '2025-01-01', 'value' => 50,
         ]);
 
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('expiry', $response->json('errors'));
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('expiry', $response->json('message'));
     }
 
     public function test_create_non_numeric_uses_has_uses_error(): void
@@ -140,8 +140,8 @@ class PromotionControllerTest extends DBTestCase
             'uses' => 'many', 'start' => '2025-01-01', 'expiry' => '2025-12-31', 'value' => 50,
         ]);
 
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('uses', $response->json('errors'));
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('uses', $response->json('message'));
     }
 
     // =========================================================================

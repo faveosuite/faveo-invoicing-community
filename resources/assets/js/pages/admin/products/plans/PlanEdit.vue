@@ -261,7 +261,7 @@ onMounted(async () => {
             }))
         }
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -307,7 +307,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/products/plans'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

@@ -88,18 +88,18 @@ class AuthControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // POST /login — missing email: 422 with field error
+    // POST /login — missing email: 412 with field error (RequestJsonValidation)
     // =========================================================================
 
-    public function test_missing_password_field_returns_422_with_password_error(): void
+    public function test_missing_password_field_returns_412_with_password_error(): void
     {
         $response = $this->postJson('/login', [
             'email_username' => 'user@test.com',
             'login' => $this->honeypot(),
         ]);
 
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('password1', $response->json('errors'));
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('password1', $response->json('message'));
     }
 
     // =========================================================================
@@ -120,10 +120,10 @@ class AuthControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // POST /login — honeypot filled: 422 blocks bot
+    // POST /login — honeypot filled: 412 blocks bot (RequestJsonValidation)
     // =========================================================================
 
-    public function test_filled_honeypot_returns_422_blocking_bot_submission(): void
+    public function test_filled_honeypot_returns_412_blocking_bot_submission(): void
     {
         $response = $this->postJson('/login', [
             'email_username' => 'user@test.com',
@@ -131,7 +131,7 @@ class AuthControllerTest extends DBTestCase
             'login' => ['pTestKey' => 'bot-filled', 'tTestKey' => Crypt::encrypt(time() - 2)],
         ]);
 
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     // =========================================================================
@@ -142,8 +142,8 @@ class AuthControllerTest extends DBTestCase
     {
         $this->withoutMiddleware();
         $response = $this->postJson('/otp/send', []);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['eid']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['eid'], 'message');
     }
 
     public function test_request_otp_with_invalid_encrypted_value_returns_400(): void
@@ -183,8 +183,8 @@ class AuthControllerTest extends DBTestCase
     {
         $this->withoutMiddleware();
         $response = $this->postJson('/resend_otp', ['default_type' => 'mobile', 'type' => 'text']);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['eid']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['eid'], 'message');
     }
 
     public function test_resend_otp_missing_type_returns_422(): void
@@ -195,8 +195,8 @@ class AuthControllerTest extends DBTestCase
             'default_type' => 'mobile',
             'eid' => Crypt::encrypt($user->email),
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['type']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['type'], 'message');
     }
 
     public function test_resend_otp_invalid_type_value_returns_422(): void
@@ -208,8 +208,8 @@ class AuthControllerTest extends DBTestCase
             'eid' => Crypt::encrypt($user->email),
             'type' => 'fax',
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['type']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['type'], 'message');
     }
 
     public function test_resend_otp_with_invalid_encrypted_eid_returns_400(): void
@@ -232,8 +232,8 @@ class AuthControllerTest extends DBTestCase
     {
         $this->withoutMiddleware();
         $response = $this->postJson('/send-email', []);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['eid']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['eid'], 'message');
     }
 
     public function test_send_email_for_nonexistent_user_returns_400(): void
@@ -263,8 +263,8 @@ class AuthControllerTest extends DBTestCase
     {
         $this->withoutMiddleware();
         $response = $this->postJson('/otp/verify', []);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['eid', 'otp']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['eid', 'otp'], 'message');
     }
 
     public function test_verify_otp_wrong_length_otp_returns_422(): void
@@ -275,8 +275,8 @@ class AuthControllerTest extends DBTestCase
             'eid' => Crypt::encrypt($user->email),
             'otp' => '123',   // must be exactly 6 chars
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['otp']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['otp'], 'message');
     }
 
     public function test_verify_otp_non_numeric_otp_returns_400(): void
@@ -299,8 +299,8 @@ class AuthControllerTest extends DBTestCase
     {
         $this->withoutMiddleware();
         $response = $this->postJson('/email/verify', []);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['eid', 'otp']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['eid', 'otp'], 'message');
     }
 
     public function test_verify_email_wrong_length_otp_returns_422(): void
@@ -311,8 +311,8 @@ class AuthControllerTest extends DBTestCase
             'eid' => Crypt::encrypt($user->email),
             'otp' => '12',
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['otp']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['otp'], 'message');
     }
 
     public function test_verify_email_with_wrong_token_returns_400(): void
@@ -390,8 +390,8 @@ class AuthControllerTest extends DBTestCase
     {
         $this->withoutMiddleware();
         $response = $this->postJson('/otp/send', []);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['eid']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['eid'], 'message');
     }
 
     public function test_request_otp_returns_error_for_invalid_encrypted_email(): void
@@ -433,7 +433,7 @@ class AuthControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $response = $this->postJson('/send-email', []);
         // Validation fails or eid missing
-        $this->assertContains($response->status(), [400, 422]);
+        $this->assertContains($response->status(), [400, 412]);
     }
 
     // =========================================================================
@@ -444,7 +444,7 @@ class AuthControllerTest extends DBTestCase
     {
         $this->withoutMiddleware();
         $response = $this->postJson('/otp/verify', []);
-        $this->assertContains($response->status(), [400, 422]);
+        $this->assertContains($response->status(), [400, 412]);
     }
 
     // =========================================================================
@@ -455,7 +455,7 @@ class AuthControllerTest extends DBTestCase
     {
         $this->withoutMiddleware();
         $response = $this->postJson('/email/verify', []);
-        $this->assertContains($response->status(), [400, 422]);
+        $this->assertContains($response->status(), [400, 412]);
     }
 
     public function test_verify_email_returns_error_for_invalid_token(): void

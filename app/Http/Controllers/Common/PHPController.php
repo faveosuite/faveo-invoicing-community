@@ -67,7 +67,7 @@ class PHPController extends Controller
     public function checkPHPExecutablePath(Request $request): JsonResponse
     {
         try {
-            $path = $request->get('path');
+            $path = $request->input('path');
             $version = '7.2';
             if (! file_exists($path) || ! is_executable($path)) {
                 return errorResponse(__('message.invalid-php-path'));

@@ -1,6 +1,16 @@
 import { useAlertStore } from '@/core/stores/alert.js'
 
-export const errorHandler = (err, componentName = '') => {
+/**
+ * @param {Error}     err                Axios error
+ * @param {string}    componentName      component name for the alert store
+ * @param {Object}    [validation]
+ * @param {Function}  validation.setErrors  vee-validate setErrors() — when given, a 412's field
+ *                                           errors (RequestJsonValidation / Handler::invalidJson(),
+ *                                           sent as message: { field: "msg" }) are mapped inline
+ *                                           (by field name) instead of only toasted. Every
+ *                                           returned field is mapped as-is.
+ */
+export const errorHandler = (err, componentName = '', { setErrors } = {}) => {
     if (err.duplicateRequestRejection) {
         return;
     }
@@ -19,55 +29,25 @@ export const errorHandler = (err, componentName = '') => {
         return
     }
 
+    if (status === 412 && data?.message && typeof data.message === 'object' && setErrors) {
+        setErrors(Object.fromEntries(
+            Object.entries(data.message).map(([key, val]) => [key, Array.isArray(val) ? val[0] : val])
+        ))
+        return
+    }
+
     // Extract a human-readable message, prioritizing the structured data.message,
-    // then validation errors, then axios error message, and finally a default fallback.
+    // then axios error message, and finally a default fallback.
     let message = data?.message
-    if (!message && data && typeof data === 'object') {
-        if (data.errors) {
-            message = Object.values(data.errors)
-                .map(e => Array.isArray(e) ? e[0] : e)
-                .join(' ')
-        }
+    if (message && typeof message === 'object') {
+        // Object-shaped message (412 field errors) with no setErrors to catch it — flatten for the toast.
+        message = Object.values(message).map(e => Array.isArray(e) ? e[0] : e).join(' ')
     }
     if (!message) {
         message = err.message || 'Something went wrong.'
     }
 
     store.setAlert({ type: 'danger', message, component_name: componentName })
-}
-
-/**
- * Apply Laravel validation errors from a failed request.
- * - An error whose key matches a known form field → set as a field-level error.
- * - An error for any other key (e.g. a hidden honeypot field) → surfaced in the
- *   top alert via errorHandler, so it's never silently swallowed.
- *
- * @param {Error}    err              Axios error
- * @param {Object}   opts
- * @param {Function} opts.setErrors   vee-validate setErrors()
- * @param {string[]} opts.fields      known/visible field names on the form
- * @param {string}   opts.component   component name for the alert store
- */
-export const applyServerValidation = (err, { setErrors, fields = [], component = '' } = {}) => {
-    const serverErrors = err?.response?.data?.errors
-    if (!serverErrors) {
-        errorHandler(err, component)
-        return
-    }
-
-    const fieldMap = {}
-    let hasUnknown = false
-    Object.entries(serverErrors).forEach(([key, val]) => {
-        const message = Array.isArray(val) ? val[0] : val
-        if (fields.includes(key)) {
-            fieldMap[key] = message
-        } else {
-            hasUnknown = true
-        }
-    })
-
-    if (Object.keys(fieldMap).length) setErrors(fieldMap)
-    if (hasUnknown) errorHandler(err, component) // show on top
 }
 
 export const successHandler = (res, componentName = '') => {

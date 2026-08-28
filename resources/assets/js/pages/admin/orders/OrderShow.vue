@@ -531,7 +531,7 @@ async function reissueLicense() {
         successHandler(res, COMPONENT)
         await reload()
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.reissue = false
     }
@@ -544,7 +544,7 @@ async function disableRenewal() {
         successHandler(res, COMPONENT)
         await reload()
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.renewal = false
     }
@@ -558,7 +558,7 @@ async function toggleLicenseMode(checked) {
         successHandler(res, COMPONENT)
         await reload()
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.licenseMode = false
     }
@@ -635,7 +635,7 @@ async function submitBinding() {
         triggerDownload(pendingDownloadProductId.value)
         showDownloadModal.value = true
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         bindingBusy.value = false
     }
@@ -669,7 +669,7 @@ async function saveLicenseEdit() {
         successHandler(res, COMPONENT)
         await reload()
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.licenseEdit = false
     }
@@ -703,7 +703,7 @@ onMounted(async () => {
     try {
         await reload()
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }

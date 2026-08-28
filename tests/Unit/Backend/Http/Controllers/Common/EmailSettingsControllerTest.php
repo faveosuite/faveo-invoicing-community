@@ -39,8 +39,8 @@ class EmailSettingsControllerTest extends DBTestCase
     public function test_post_settings_email_missing_driver_returns_422(): void
     {
         $response = $this->patchJson('/settings/email', []);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['driver']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['driver'], 'message');
     }
 
     public function test_post_settings_email_smtp_missing_host_returns_422(): void
@@ -49,8 +49,8 @@ class EmailSettingsControllerTest extends DBTestCase
             'driver' => 'smtp',
             // missing host, port, encryption, password
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['host']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['host'], 'message');
     }
 
     public function test_post_settings_email_smtp_missing_port_returns_422(): void
@@ -59,8 +59,8 @@ class EmailSettingsControllerTest extends DBTestCase
             'driver' => 'smtp',
             'host' => 'smtp.example.com',
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['port']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['port'], 'message');
     }
 
     // =========================================================================
@@ -85,7 +85,7 @@ class EmailSettingsControllerTest extends DBTestCase
         ]);
 
         // mail driver may succeed (200) or fail due to env (400)
-        $this->assertContains($response->status(), [200, 400, 422]);
+        $this->assertContains($response->status(), [200, 400, 412]);
     }
 
     // =========================================================================

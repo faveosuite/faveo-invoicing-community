@@ -125,7 +125,7 @@ onMounted(async () => {
             }
         }
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     }
 })
 
@@ -152,7 +152,7 @@ async function fetchCost(planId) {
         const match = data?.formatted_price?.match(/^[^\d]+/)
         currencySymbol.value = match ? match[0].trim() : ''
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     }
 }
 
@@ -175,7 +175,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/orders'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

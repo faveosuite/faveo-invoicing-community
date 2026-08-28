@@ -84,7 +84,7 @@ async function submitPassword() {
                 return
             }
         }
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

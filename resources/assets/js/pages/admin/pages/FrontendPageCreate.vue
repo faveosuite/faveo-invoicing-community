@@ -170,7 +170,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/pages'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

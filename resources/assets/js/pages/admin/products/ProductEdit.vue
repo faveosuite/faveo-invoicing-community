@@ -675,7 +675,7 @@ onMounted(async () => {
         const pr = p.parent_relation ?? p.parentRelation
         if (pr) form.parentObj = { id: p.parent, name: pr.name }
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -727,7 +727,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/products'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

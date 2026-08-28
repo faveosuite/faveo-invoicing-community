@@ -162,7 +162,7 @@ class SocialMediaControllerTest extends DBTestCase
     {
         $response = $this->postJson('/social-media/create', []);
 
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     public function test_it_filters_social_media_list_by_search_query(): void

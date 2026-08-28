@@ -43,7 +43,7 @@ class ProfileTest extends DBTestCase
             'email' => 'invalid-email',
         ]);
 
-        $response->assertStatus(422)->assertJsonValidationErrors([
+        $response->assertStatus(412)->assertJsonValidationErrors([
             'first_name',
             'last_name',
             'mobile',
@@ -51,7 +51,7 @@ class ProfileTest extends DBTestCase
             'company',
             'address',
             'country',
-        ]);
+        ], 'message');
     }
 
     public function test_post_password_successful_update(): void
@@ -86,10 +86,10 @@ class ProfileTest extends DBTestCase
             'new_password' => '123',
         ]);
 
-        $response->assertStatus(422)->assertJsonValidationErrors([
+        $response->assertStatus(412)->assertJsonValidationErrors([
             'new_password',
             'confirm_password',
-        ]);
+        ], 'message');
     }
 
     public function test_my_profile_successful_update(): void
@@ -124,7 +124,8 @@ class ProfileTest extends DBTestCase
             'mobile' => $user->mobile,
             'address' => $user->address,
         ]);
-        $response->assertSessionHasErrors(['first_name' => 'First name is required.']);
+        $response->assertStatus(412);
+        $this->assertSame('First name is required.', $response->json('message.first_name'));
     }
 
     public function test_when_email_already_present(): void
@@ -142,7 +143,8 @@ class ProfileTest extends DBTestCase
             'mobile' => $user->mobile,
             'address' => $user->address,
         ]);
-        $response->assertSessionHasErrors(['email' => 'The email address has already been taken. Please choose a different email.']);
+        $response->assertStatus(412);
+        $this->assertSame('The email address has already been taken. Please choose a different email.', $response->json('message.email'));
     }
 
     public function test_when_2fa_update_recovery_code(): void

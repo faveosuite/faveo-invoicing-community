@@ -29,15 +29,15 @@ class ForgotPasswordControllerTest extends DBTestCase
     public function test_send_reset_link_missing_email_returns_422(): void
     {
         $response = $this->postJson('/password/email', []);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['email']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['email'], 'message');
     }
 
     public function test_send_reset_link_invalid_email_format_returns_422(): void
     {
         $response = $this->postJson('/password/email', ['email' => 'not-an-email']);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['email']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['email'], 'message');
     }
 
     public function test_send_reset_link_nonexistent_email_returns_422(): void
@@ -46,8 +46,8 @@ class ForgotPasswordControllerTest extends DBTestCase
         $response = $this->postJson('/password/email', [
             'email' => 'nobody_'.uniqid().'@example.com',
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['email']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['email'], 'message');
     }
 
     public function test_send_reset_link_for_known_user_covers_controller_body(): void

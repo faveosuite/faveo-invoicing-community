@@ -919,7 +919,7 @@ class SettingsController extends BaseSettingsController
             return successResponse('', $query->paginate($request->input('limit', 10))
                 ->through(fn ($r): array => array_merge($r->only(['id', 'email', 'registration', 'created_at']), [
                     'method' => ucfirst((string) $r->method),
-                    'status' => ucfirst((string) $r->status),
+                    'status' => ucwords(str_replace('_', ' ', (string) $r->status)),
                 ])));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
@@ -1089,7 +1089,7 @@ class SettingsController extends BaseSettingsController
                 'mode' => $provider->mode ?? 'quick',
                 'accepted_output' => $current,
                 'selected_bits' => $selected,
-                'status_options' => array_map(fn ($b, $n): array => ['bit' => $b, 'name' => $n], $statusBits, $statusNames),
+                'status_options' => array_map(fn ($b, $n): array => ['bit' => $b, 'name' => ucwords(str_replace('_', ' ', $n))], $statusBits, $statusNames),
             ]);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());

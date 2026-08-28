@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Front;
 
+use App\Traits\RequestJsonValidation;
 use App\Http\Requests\Request;
 use Illuminate\Validation\Rule;
 use Override;
 
 class PageRequest extends Request
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
      */

@@ -223,7 +223,7 @@ class TenantControllerTest extends DBTestCase
     {
         $this->withExceptionHandling();
         $response = $this->postJson('/cloud-details', []);
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     public function test_save_cloud_details_with_valid_data_returns_200(): void

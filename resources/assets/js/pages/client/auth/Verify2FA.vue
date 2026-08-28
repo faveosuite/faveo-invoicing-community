@@ -142,7 +142,7 @@ async function postVerify(url, payload, captchaRef) {
             captchaRef?.value?.triggerFallback()
             return
         }
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

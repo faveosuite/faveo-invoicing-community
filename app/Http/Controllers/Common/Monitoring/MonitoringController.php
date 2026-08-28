@@ -18,7 +18,7 @@ class MonitoringController extends Controller
      */
     public function checkPulseHorizon(Request $request): JsonResponse
     {
-        $type = strtolower((string) $request->get('type', ''));
+        $type = strtolower((string) $request->input('type', ''));
 
         if (! in_array($type, ['pulse', 'horizon', 'clockwork'], strict: true)) {
             return errorResponse('Invalid monitoring type', 400);

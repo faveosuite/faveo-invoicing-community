@@ -77,8 +77,8 @@ class ExtendedOrderControllerTest extends DBTestCase
     {
         $response = $this->patchJson('/reissue-license', []);
 
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['id']);
+        $response->assertStatus(412)
+            ->assertJsonValidationErrors(['id'], 'message');
     }
 
     public function test_reissue_license_returns_400_for_nonexistent_order(): void

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\User;
 
+use App\Traits\RequestJsonValidation;
 use App\Http\Requests\Request;
 use App\Model\Common\State;
 use App\Rules\PhoneNumber;
@@ -13,6 +14,8 @@ use Override;
 
 class ProfileRequest extends Request
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
      */

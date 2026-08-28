@@ -94,7 +94,7 @@ onMounted(async () => {
         ogImagePreview.value = row.og_image ?? ''
         ogSameAsMeta.value = Boolean(row.og_same_as_meta)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -122,7 +122,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/settings/seo/pages'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

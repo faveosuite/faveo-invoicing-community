@@ -47,17 +47,17 @@ class OpenPaymentControllerTest extends DBTestCase
     {
         $response = $this->postJson('/pay/create', []);
 
-        $response->assertStatus(422);
-        $errors = $response->json('errors');
+        $response->assertStatus(412);
+        $errors = $response->json('message');
 
         // Verify specific messages per the OpenPaymentRequest::messages()
-        $this->assertSame('Please enter your name.', $errors['name'][0]);
-        $this->assertSame('Please enter your email address.', $errors['email'][0]);
-        $this->assertSame('Please enter your mobile number.', $errors['mobile'][0]);
-        $this->assertSame('Please enter your address.', $errors['address'][0]);
-        $this->assertSame('Please enter the payment amount.', $errors['amount'][0]);
-        $this->assertSame('Please select a currency.', $errors['currency'][0]);
-        $this->assertSame('Please select a payment gateway.', $errors['gateway'][0]);
+        $this->assertSame('Please enter your name.', $errors['name']);
+        $this->assertSame('Please enter your email address.', $errors['email']);
+        $this->assertSame('Please enter your mobile number.', $errors['mobile']);
+        $this->assertSame('Please enter your address.', $errors['address']);
+        $this->assertSame('Please enter the payment amount.', $errors['amount']);
+        $this->assertSame('Please select a currency.', $errors['currency']);
+        $this->assertSame('Please select a payment gateway.', $errors['gateway']);
     }
 
     public function test_create_invalid_email_gives_specific_message(): void
@@ -65,8 +65,8 @@ class OpenPaymentControllerTest extends DBTestCase
         $data = array_merge($this->validPayload(), ['email' => 'not-an-email']);
         $response = $this->postJson('/pay/create', $data);
 
-        $response->assertStatus(422);
-        $this->assertSame('Please enter a valid email address.', $response->json('errors.email.0'));
+        $response->assertStatus(412);
+        $this->assertSame('Please enter a valid email address.', $response->json('message.email'));
     }
 
     public function test_create_amount_zero_gives_amount_error(): void
@@ -74,8 +74,8 @@ class OpenPaymentControllerTest extends DBTestCase
         $data = array_merge($this->validPayload(), ['amount' => 0]);
         $response = $this->postJson('/pay/create', $data);
 
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('amount', $response->json('errors'));
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('amount', $response->json('message'));
     }
 
     public function test_create_negative_amount_gives_amount_error(): void
@@ -83,8 +83,8 @@ class OpenPaymentControllerTest extends DBTestCase
         $data = array_merge($this->validPayload(), ['amount' => -50]);
         $response = $this->postJson('/pay/create', $data);
 
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('amount', $response->json('errors'));
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('amount', $response->json('message'));
     }
 
     public function test_create_unsupported_currency_eur_gives_currency_error(): void
@@ -92,8 +92,8 @@ class OpenPaymentControllerTest extends DBTestCase
         $data = array_merge($this->validPayload(), ['currency' => 'EUR']);
         $response = $this->postJson('/pay/create', $data);
 
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('currency', $response->json('errors'));
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('currency', $response->json('message'));
     }
 
     public function test_create_unsupported_gateway_paypal_gives_gateway_error(): void
@@ -101,8 +101,8 @@ class OpenPaymentControllerTest extends DBTestCase
         $data = array_merge($this->validPayload(), ['gateway' => 'PayPal']);
         $response = $this->postJson('/pay/create', $data);
 
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('gateway', $response->json('errors'));
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('gateway', $response->json('message'));
     }
 
     public function test_create_mobile_7_chars_below_minimum_gives_mobile_error(): void
@@ -110,8 +110,8 @@ class OpenPaymentControllerTest extends DBTestCase
         $data = array_merge($this->validPayload(), ['mobile' => '1234567']); // 7 < min:8
         $response = $this->postJson('/pay/create', $data);
 
-        $response->assertStatus(422);
-        $this->assertSame('Mobile number must be at least 8 characters.', $response->json('errors.mobile.0'));
+        $response->assertStatus(412);
+        $this->assertSame('Mobile number must be at least 8 characters.', $response->json('message.mobile'));
     }
 
     public function test_create_name_over_100_chars_gives_name_error(): void
@@ -119,8 +119,8 @@ class OpenPaymentControllerTest extends DBTestCase
         $data = array_merge($this->validPayload(), ['name' => str_repeat('a', 101)]);
         $response = $this->postJson('/pay/create', $data);
 
-        $response->assertStatus(422);
-        $this->assertSame('Name cannot exceed 100 characters.', $response->json('errors.name.0'));
+        $response->assertStatus(412);
+        $this->assertSame('Name cannot exceed 100 characters.', $response->json('message.name'));
     }
 
     // --- GET /pay/order/{id} ---
@@ -163,7 +163,7 @@ class OpenPaymentControllerTest extends DBTestCase
         $response = $this->getJson('/pay/calculate');
 
         // Validation fails → 422 or 400
-        $this->assertContains($response->status(), [400, 422]);
+        $this->assertContains($response->status(), [400, 412]);
     }
 
     public function test_calculate_returns_totals_with_valid_params(): void

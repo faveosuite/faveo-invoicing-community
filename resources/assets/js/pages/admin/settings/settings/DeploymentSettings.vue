@@ -98,7 +98,7 @@ onMounted(async () => {
         form.install_script_url       = d.install_script_url ?? ''
         form.manual_install_guide_url = d.manual_install_guide_url ?? ''
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -116,7 +116,7 @@ async function save() {
         })
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

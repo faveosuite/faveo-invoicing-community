@@ -275,7 +275,7 @@ async function switchModule(tabId) {
     zohoFields.value    = []
     rows.splice(0)
     loadingModule.value = true
-    try { await loadMappings() } catch (e) { errorHandler(e, COMPONENT) }
+    try { await loadMappings() } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
     finally { loadingModule.value = false }
 }
 
@@ -301,7 +301,7 @@ onMounted(async () => {
             await loadMappings()
         }
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -326,7 +326,7 @@ async function saveConnection() {
         }
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }
@@ -340,7 +340,7 @@ async function syncFields() {
         successHandler(res, COMPONENT)
         await loadMappings()
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         syncing.value = false
     }
@@ -364,7 +364,7 @@ async function saveMapping() {
         })
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         savingMapping.value = false
     }

@@ -23,6 +23,7 @@
             :onClose="() => showDetailModal = false"
             classname="modal-lg"
             :containerStyle="{ maxWidth: '800px' }"
+            modalBodyClass="scrollable-body"
         >
             <template #title><h4>{{ __('message.email_validation_result') }}</h4></template>
             <template #fields>
@@ -100,8 +101,11 @@ const tableOptions = reactive({
     templates: {
         status: (f, row) => {
             const s = row.status?.toLowerCase()
-            const cls = s === 'safe' ? 'bg-success'
-                : s === 'invalid' || s === 'disposable' ? 'bg-danger'
+            const danger  = ['invalid', 'disposable', 'disabled', 'spamtrap']
+            const warning = ['catch all', 'unknown', 'inbox full', 'role account']
+            const cls = s === 'safe' || s === 'valid' ? 'bg-success'
+                : danger.includes(s) ? 'bg-danger'
+                : warning.includes(s) ? 'bg-warning'
                 : 'bg-secondary'
             return h('span', { class: `badge ${cls}` }, row.status || '—')
         },
@@ -121,4 +125,5 @@ const tableOptions = reactive({
 
 <style scoped>
 .col-key-width { width: 40%; }
+:deep(.scrollable-body) { max-height: 60vh; overflow-y: auto; }
 </style>

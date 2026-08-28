@@ -3,7 +3,6 @@ jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: je
 jest.mock('@/helpers/responseHandler', () => ({
     successHandler: jest.fn(),
     errorHandler: jest.fn(),
-    applyServerValidation: jest.fn(),
 }))
 jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)), scrollToFirstError: jest.fn() }))
 const mockPush = jest.fn()
@@ -11,7 +10,7 @@ jest.mock('vue-router', () => ({ useRouter: () => ({ push: mockPush }), useRoute
 
 import { mount } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
-import { successHandler, applyServerValidation } from '@/helpers/responseHandler'
+import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import ProductBuildApply from '@/pages/admin/products/ProductBuildApply'
 
 const PRODUCTS_RESPONSE = {
@@ -252,7 +251,7 @@ describe('ProductBuildApply.vue', () => {
         expect(mockPush).toHaveBeenCalledWith('/products')
     })
 
-    it('calls applyServerValidation with the known form fields on API failure', async () => {
+    it('calls errorHandler with setErrors on API failure', async () => {
         globalThis.mockHttp.onPut(/\/product\/upload-build\/apply/).reply(422, {
             errors: { description: ['Description is required.'] },
         })
@@ -261,9 +260,10 @@ describe('ProductBuildApply.vue', () => {
         await wrapper.vm.submit()
         await flushPromises()
 
-        expect(applyServerValidation).toHaveBeenCalledWith(
+        expect(errorHandler).toHaveBeenCalledWith(
             expect.anything(),
-            expect.objectContaining({ fields: ['description', 'dependencies', 'products'], component: 'product-build-apply' }),
+            'product-build-apply',
+            expect.objectContaining({ setErrors: expect.any(Function) }),
         )
     })
 

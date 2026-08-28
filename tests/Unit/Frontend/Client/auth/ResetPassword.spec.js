@@ -2,7 +2,6 @@ jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: je
 jest.mock('@/helpers/responseHandler', () => ({
     successHandler: jest.fn(),
     errorHandler: jest.fn(),
-    applyServerValidation: jest.fn(),
 }))
 jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)), scrollToFirstError: jest.fn() }))
 jest.mock('vue-router', () => ({
@@ -28,7 +27,7 @@ import { createTestingPinia } from '@pinia/testing'
 import MockAdapter from 'axios-mock-adapter'
 import http from '@/plugins/axios.js'
 import { validateForm } from '@/helpers/formUtils.js'
-import { successHandler, applyServerValidation } from '@/helpers/responseHandler'
+import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import ResetPassword from '@/pages/client/auth/ResetPassword.vue'
 
 describe('ResetPassword.vue', () => {
@@ -157,7 +156,7 @@ describe('ResetPassword.vue', () => {
         expect(successHandler).toHaveBeenCalled()
     })
 
-    it('calls applyServerValidation when reset API returns 422', async () => {
+    it('calls errorHandler with setErrors when reset API returns 422', async () => {
         axiosMock.onPost('/password/reset').reply(422, {
             errors: { password: ['Password does not meet requirements.'] },
         })
@@ -167,6 +166,10 @@ describe('ResetPassword.vue', () => {
         await wrapper.find('form').trigger('submit')
         await flushPromises()
 
-        expect(applyServerValidation).toHaveBeenCalled()
+        expect(errorHandler).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.any(String),
+            expect.objectContaining({ setErrors: expect.any(Function) })
+        )
     })
 })

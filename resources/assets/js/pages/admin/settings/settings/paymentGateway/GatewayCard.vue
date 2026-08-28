@@ -28,20 +28,21 @@
                 <i class="fas fa-gear"></i>
             </button>
 
-            <button
-                class="btn btn-link p-0"
-                :class="{ 'opacity-50 pe-none': toggling }"
-                :title="plugin.status ? __('message.disable') : __('message.enable')"
+            <Switch
+                name="status"
+                :value="plugin.status"
                 :disabled="toggling"
-                @click="$emit('toggle', plugin)"
-            >
-                <i :class="plugin.status ? 'fa-solid fa-toggle-on' : 'fa-solid fa-toggle-off'" class="text-secondary fs-5"></i>
-            </button>
+                :title="plugin.status ? __('message.disable') : __('message.enable')"
+                :onChange="() => $emit('toggle', plugin)"
+                classname="gateway-toggle"
+            />
         </div>
     </div>
 </template>
 
 <script setup>
+import Switch from '@/components/Reusable/FormField/Switch.vue'
+
 defineProps({
     plugin:      { type: Object,  required: true },
     logoSrc:     { type: String,  default: null },
@@ -104,5 +105,17 @@ defineEmits(['toggle', 'settings'])
     font-size: 14px;
     font-weight: 700;
     line-height: 1.1;
+}
+
+/* Match the old toggle icon's footprint (fa-toggle-on/off at fs-5, ~20px) —
+   scoped here so it doesn't shrink the Switch used elsewhere (e.g. auto-renewal). */
+:deep(.gateway-toggle .toggle) {
+    width: 28px !important;
+    height: 12px !important;
+}
+
+:deep(.gateway-toggle .toggle-handle) {
+    width: 12px !important;
+    height: 12px !important;
 }
 </style>

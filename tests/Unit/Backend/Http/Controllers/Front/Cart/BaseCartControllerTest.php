@@ -61,8 +61,8 @@ class BaseCartControllerTest extends DBTestCase
             'product_id' => 999999,
         ]);
 
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['product_id']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['product_id'], 'message');
     }
 
     public function test_update_agent_qty_updates_cart_when_modifying_agent_not_allowed_returns_same_cart_values(): void

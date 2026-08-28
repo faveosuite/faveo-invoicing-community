@@ -406,7 +406,7 @@ onMounted(async () => {
         countries.value = data.countries ?? []
         regions.value   = data.regions   ?? []
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -460,7 +460,7 @@ async function removeRegion(name, marker) {
         await http.delete(`/remove-location`, { data: { location_id: name } })
         leafletMap?.removeLayer(marker)
         regions.value = regions.value.filter(r => r.name !== name)
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
 }
 
 // ── Save handlers ─────────────────────────────────────────────────────────────
@@ -486,7 +486,7 @@ async function saveSettings() {
             http.post(`/cloud-pop-up`, popup),
         ])
         successHandler(res, COMPONENT)
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
     finally { saving.value = false }
 }
 
@@ -502,7 +502,7 @@ async function saveProduct() {
         successHandler(res, COMPONENT)
         closeProductModal()
         productDtRef.value?.refresh()
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
     finally { savingProduct.value = false }
 }
 
@@ -522,7 +522,7 @@ async function saveDataCenter() {
             addMapMarkers()
         }
         closeDCModal()
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
     finally { savingDC.value = false }
 }
 
@@ -533,7 +533,7 @@ async function fetchStates() {
     try {
         const res = await http.get(`/get-state/${dcForm.cloud_countries.code.toUpperCase()}`)
         states.value = res.data?.data?.states ?? []
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
 }
 
 // ── Products DataTable ────────────────────────────────────────────────────────
@@ -541,7 +541,7 @@ async function fetchStates() {
 async function toggleTrialStatus(id, status) {
     try {
         await http.post(`/update-trial-status`, { id, status })
-    } catch (e) { errorHandler(e, COMPONENT); productDtRef.value?.refresh() }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }); productDtRef.value?.refresh() }
 }
 
 function confirmDeleteProduct(id) {
@@ -605,7 +605,7 @@ async function exportTenants() {
         })
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         exportingTenants.value = false
     }
@@ -723,7 +723,7 @@ const tenantTableOptions = reactive({
     requestFunction(data) {
         return http.get(`/get-tenants`, { params: data })
             .catch(e => {
-                errorHandler(e, COMPONENT)
+                errorHandler(e, COMPONENT, { setErrors })
                 return { data: { data: { data: [], total: 0, per_page: data.limit || 10, current_page: 1, from: null, to: null, next_page_url: null, prev_page_url: null } } }
             })
     },

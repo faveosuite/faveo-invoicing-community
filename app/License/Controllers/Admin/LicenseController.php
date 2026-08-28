@@ -13,6 +13,7 @@ use App\License\Models\LicensePlugin;
 use App\License\Requests\LicenseRequest;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
+use App\User;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
@@ -31,22 +32,28 @@ class LicenseController extends Controller
     public function licenseAdd(LicenseRequest $request): JsonResponse
     {
         $productId = $request->integer('product_id');
-        $licenseCode = $request->get('license_code') ?: null;
-        $clientId = $request->get('client_id') ?: null;
+        $licenseCode = $request->input('license_code') ?: null;
+        $clientId = $request->input('client_id') ?: null;
 
-        if (! LicenseHelper::validateIntegerValue($productId) || ! LicenseHelper::validateIntegerValue($request->get('license_require_domain'), 0, 1) || ! LicenseHelper::validateIntegerValue($request->get('license_status'), 0, 2)) {
-            return errorResponse(__('license::lang.invalid'), 400);
+        if (! LicenseHelper::validateIntegerValue($productId)) {
+            return errorResponse(__('license::lang.invalid_product'), 400);
+        }
+        if (! LicenseHelper::validateIntegerValue($request->input('license_require_domain'), 0, 1)) {
+            return errorResponse(__('license::lang.invalid_license_require_domain'), 400);
+        }
+        if (! LicenseHelper::validateIntegerValue($request->input('license_status'), 0, 2)) {
+            return errorResponse(__('license::lang.invalid_license_status'), 400);
         }
 
         $checks = $this->licenseChecks(
             $clientId,
             $licenseCode,
-            $request->get('license_ip'),
-            $request->get('license_domain'),
-            $request->get('license_limit'),
-            $request->get('license_expire_date'),
-            $request->get('license_updates_date'),
-            $request->get('license_support_date')
+            $request->input('license_ip'),
+            $request->input('license_domain'),
+            $request->input('license_limit'),
+            $request->input('license_expire_date'),
+            $request->input('license_updates_date'),
+            $request->input('license_support_date')
         );
 
         if ($checks instanceof JsonResponse) {
@@ -63,22 +70,22 @@ class LicenseController extends Controller
             'product_id' => $productId,
             'user_id' => LicenseHelper::validateIntegerValue($clientId) ? $clientId : null,
             'license_code' => $licenseCode,
-            'license_order_number' => $request->get('license_order_number'),
-            'license_ip' => $request->get('license_ip'),
-            'license_domain' => $request->get('license_domain'),
-            'license_machine_id' => $request->get('license_machine_id'),
-            'license_require_domain' => $request->get('license_require_domain'),
-            'license_limit' => $request->get('license_limit') ?: 1,
+            'license_order_number' => $request->input('license_order_number'),
+            'license_ip' => $request->input('license_ip'),
+            'license_domain' => $request->input('license_domain'),
+            'license_machine_id' => $request->input('license_machine_id'),
+            'license_require_domain' => $request->input('license_require_domain'),
+            'license_limit' => $request->input('license_limit') ?: 1,
             'license_date' => now(),
-            'license_cancel_date' => $request->get('license_status') == 1 ? null : now(),
-            'license_expire_date' => $request->get('license_expire_date'),
-            'license_expire_email_date' => $request->get('license_expire_date'),
-            'license_updates_date' => $request->get('license_updates_date'),
-            'license_updates_email_date' => $request->get('license_updates_date'),
-            'license_support_date' => $request->get('license_support_date'),
-            'license_support_email_date' => $request->get('license_support_date'),
-            'license_comments' => $request->get('license_comments'),
-            'license_status' => $request->get('license_status'),
+            'license_cancel_date' => $request->input('license_status') == 1 ? null : now(),
+            'license_expire_date' => $request->input('license_expire_date'),
+            'license_expire_email_date' => $request->input('license_expire_date'),
+            'license_updates_date' => $request->input('license_updates_date'),
+            'license_updates_email_date' => $request->input('license_updates_date'),
+            'license_support_date' => $request->input('license_support_date'),
+            'license_support_email_date' => $request->input('license_support_date'),
+            'license_comments' => $request->input('license_comments'),
+            'license_status' => $request->input('license_status'),
         ]);
 
         $license->load('user:id,email');
@@ -91,20 +98,20 @@ class LicenseController extends Controller
     public function licenseUpdate(Request $request): JsonResponse
     {
         /** @var License|null $license */
-        $license = License::with('user:id,email')->find($request->get('id'));
+        $license = License::with('user:id,email')->find($request->input('id'));
         if (! $license) {
-            return errorResponse(__('license::lang.license_id'), 400);
+            return errorResponse(__('license::lang.license_not_found'), 400);
         }
 
         $checks = $this->licenseChecks(
-            $request->get('client_id') ?: null,
-            $request->get('license_code') ?: null,
-            $request->get('license_ip'),
-            $request->get('license_domain'),
-            $request->get('license_limit'),
-            $request->get('license_expire_date'),
-            $request->get('license_updates_date'),
-            $request->get('license_support_date'),
+            $request->input('client_id') ?: null,
+            $request->input('license_code') ?: null,
+            $request->input('license_ip'),
+            $request->input('license_domain'),
+            $request->input('license_limit'),
+            $request->input('license_expire_date'),
+            $request->input('license_updates_date'),
+            $request->input('license_support_date'),
             isUpdate: true
         );
 
@@ -113,21 +120,21 @@ class LicenseController extends Controller
         }
 
         $license->update([
-            'license_order_number' => $request->get('license_order_number'),
-            'license_ip' => $request->get('license_ip'),
-            'license_domain' => $request->get('license_domain'),
-            'license_machine_id' => $request->get('license_machine_id'),
-            'license_require_domain' => $request->get('license_require_domain'),
-            'license_limit' => $request->get('license_limit'),
-            'license_cancel_date' => $request->get('license_status') == 1 ? null : ($license->license_cancel_date ?: now()),
-            'license_expire_date' => $request->get('license_expire_date'),
-            'license_expire_email_date' => $request->get('license_expire_date') !== $license->license_expire_date ? null : $license->license_expire_email_date,
-            'license_updates_date' => $request->get('license_updates_date'),
-            'license_updates_email_date' => $request->get('license_updates_date') !== $license->license_updates_date ? null : $license->license_updates_email_date,
-            'license_support_date' => $request->get('license_support_date'),
-            'license_support_email_date' => $request->get('license_support_date') !== $license->license_support_date ? null : $license->license_support_email_date,
-            'license_comments' => $request->get('license_comments'),
-            'license_status' => $request->get('license_status'),
+            'license_order_number' => $request->input('license_order_number'),
+            'license_ip' => $request->input('license_ip'),
+            'license_domain' => $request->input('license_domain'),
+            'license_machine_id' => $request->input('license_machine_id'),
+            'license_require_domain' => $request->input('license_require_domain'),
+            'license_limit' => $request->input('license_limit'),
+            'license_cancel_date' => $request->input('license_status') == 1 ? null : ($license->license_cancel_date ?: now()),
+            'license_expire_date' => $request->input('license_expire_date'),
+            'license_expire_email_date' => $request->input('license_expire_date') !== $license->license_expire_date ? null : $license->license_expire_email_date,
+            'license_updates_date' => $request->input('license_updates_date'),
+            'license_updates_email_date' => $request->input('license_updates_date') !== $license->license_updates_date ? null : $license->license_updates_email_date,
+            'license_support_date' => $request->input('license_support_date'),
+            'license_support_email_date' => $request->input('license_support_date') !== $license->license_support_date ? null : $license->license_support_email_date,
+            'license_comments' => $request->input('license_comments'),
+            'license_status' => $request->input('license_status'),
         ]);
 
         $clientFormatted = LicenseHelper::formatClient($license->license_code, $license->user?->email);
@@ -139,7 +146,7 @@ class LicenseController extends Controller
     /** @var License|null $license */
     {
         /** @var License|null $license */
-        $license = License::find($request->get('id'));
+        $license = License::find($request->input('id'));
         if (! $license) {
             return successResponse(__('license::lang.delete'), 0, 200);
         }
@@ -161,7 +168,11 @@ class LicenseController extends Controller
         $page = $request->input('page', 1);
         $searchQuery = $request->input('search-query', $request->input('search_query', ''));
         $sortOrder = strtolower((string) $request->input('sort-order', $request->input('sort_order', 'desc'))) === 'asc' ? 'asc' : 'desc';
-        $sortField = in_array($request->input('sort-field', $request->input('sort_field', 'id')), ['id', 'product_id', 'user_id', 'license_code', 'license_ip', 'license_machine_id', 'license_limit', 'license_expire_date', 'license_support_date', 'license_order_number', 'license_domain', 'license_date', 'license_updates_date', 'license_status'], strict: true) ? $request->input('sort-field', $request->input('sort_field', 'id')) : 'id';
+        $sortField = $request->input('sort-field', $request->input('sort_field', 'id'));
+        $allowedSortFields = ['id', 'product_id', 'user_id', 'license_code', 'license_ip', 'license_machine_id', 'license_limit', 'license_expire_date', 'license_support_date', 'license_order_number', 'license_domain', 'license_date', 'license_updates_date', 'license_status'];
+        $sortByProduct = $sortField === 'product_title';
+        $sortByClient = $sortField === 'client_email';
+        $sortField = $sortByProduct || $sortByClient || in_array($sortField, $allowedSortFields, strict: true) ? $sortField : 'id';
 
         $licenses = License::query()
             ->with(['product:id,name', 'user:id,email'])
@@ -184,7 +195,14 @@ class LicenseController extends Controller
                         ->orWhere('license_status', 'like', '%'.LicenseHelper::statusFormatter($searchQuery).'%');
                 });
             })
-            ->orderBy($sortField, $sortOrder)
+            ->orderBy(
+                match (true) {
+                    $sortByProduct => Product::select('name')->whereColumn('products.id', 'licenses.product_id'),
+                    $sortByClient => User::select('email')->whereColumn('users.id', 'licenses.user_id'),
+                    default => $sortField,
+                },
+                $sortOrder
+            )
             ->paginate($perPage, ['*'], 'page', $page);
 
         $licenses->getCollection()->transform(fn (License $license) => (object) [ // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
@@ -281,12 +299,12 @@ class LicenseController extends Controller
 
     public function reissueLicenseCloud(Request $request): void
     {
-        Installation::where('license_code', $request->get('license_code'))->delete();
+        Installation::where('license_code', $request->input('license_code'))->delete();
     }
 
     public function licenseDeactivate(Request $request): void
     {
-        License::where('license_code', $request->get('license_code'))->update(['license_status' => 0]);
+        License::where('license_code', $request->input('license_code'))->update(['license_status' => 0]);
     }
 
     public function updateTheLicenseCode(Request $request): int

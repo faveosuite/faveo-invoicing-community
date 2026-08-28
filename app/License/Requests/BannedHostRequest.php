@@ -6,6 +6,7 @@ namespace App\License\Requests;
 
 use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class BannedHostRequest extends FormRequest
 {
@@ -26,16 +27,15 @@ class BannedHostRequest extends FormRequest
      */
     public function rules(): array
     {
+        // used for both add (no `id`) and edit (`id` present, must ignore itself in the unique check)
+        $unique = Rule::unique('license_banned_hosts', 'banned_host_ip');
+        if ($this->filled('id')) {
+            $unique = $unique->ignore($this->input('id'));
+        }
+
         return [
-            'banned_host_ip' => [
-                'required',
-                'string',
-                'unique:license_banned_hosts,banned_host_ip',
-                'regex:/\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b|\b(?:\d{1,3}\.){3}\d{1,3}\b/',
-            ],
-            'banned_host_date' => ['date'],
-            'banned_host_blocks' => ['numeric'],
-            'banned_host_last_block_date' => ['date'],
+            'banned_host_ip' => ['required', 'ip', $unique],
+            'comments' => ['nullable', 'string'],
         ];
     }
 }

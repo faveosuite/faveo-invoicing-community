@@ -169,7 +169,7 @@ class SystemManagerControllerTest extends DBTestCase
             'autoAssignSales' => true,
         ]);
 
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     public function test_it_only_updates_auto_assign_flags(): void

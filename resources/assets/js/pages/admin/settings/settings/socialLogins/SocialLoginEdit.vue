@@ -93,7 +93,7 @@ onMounted(async () => {
         form.redirect_url = d.redirect_url ?? ''
         form.status       = Boolean(d.status)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -119,7 +119,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/settings/social-logins'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

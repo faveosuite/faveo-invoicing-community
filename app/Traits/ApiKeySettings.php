@@ -4,10 +4,11 @@ namespace App\Traits;
 
 use App\ApiKey;
 use App\FileSystemSettings;
+use App\Services\Pdf\PdfManager;
+use App\Http\Requests\UpdatePdfSettingsRequest;
 use App\Http\Requests\UpdateStoragePathRequest;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\StatusSetting;
-use App\Services\Pdf\PdfManager;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
 use DrewM\MailChimp\MailChimp;
@@ -439,7 +440,7 @@ trait ApiKeySettings
         }
     }
 
-    public function updatePdfSettings(Request $request): JsonResponse
+    public function updatePdfSettings(UpdatePdfSettingsRequest $request): JsonResponse
     {
         try {
             $settings = FileSystemSettings::firstOrNew([]);

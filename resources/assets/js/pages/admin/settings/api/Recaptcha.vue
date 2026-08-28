@@ -323,7 +323,7 @@ onMounted(async () => {
             badge_position:   d.badge_position   ?? 'bottomright',
         })
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
         bumpPreview.cancel()
@@ -438,7 +438,7 @@ async function save() {
                 Object.entries(errs).map(([k, msgs]) => [k, Array.isArray(msgs) ? msgs[0] : msgs])
             ))
         } else {
-            errorHandler(e, COMPONENT)
+            errorHandler(e, COMPONENT, { setErrors })
         }
     } finally {
         saving.value = false

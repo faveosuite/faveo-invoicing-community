@@ -121,7 +121,8 @@ class NonPublicDependencies extends BaseDependencyController
 
     private function products(): mixed
     {
-        $products = Product::where('invoice_hidden', 0)
+        $products = Product::query()
+            ->when(! $this->request->boolean('include_hidden'), fn ($q) => $q->where('invoice_hidden', 0))
             ->when($this->searchQuery, fn ($q, string $s) => $q->where('name', 'like', "%{$s}%"))
             ->when($this->request->input('permission'), function ($query, string $permission): void {
                 $label = array_search($permission, LicensePermissionsController::permissionMap(), true) ?: $permission;

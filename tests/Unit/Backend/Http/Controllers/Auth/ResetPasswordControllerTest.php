@@ -59,8 +59,8 @@ class ResetPasswordControllerTest extends DBTestCase
     public function test_reset_missing_token_returns_422(): void
     {
         $response = $this->postJson('/password/reset', ['reset' => $this->honeypot()]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['token']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['token'], 'message');
     }
 
     public function test_reset_missing_email_returns_422(): void
@@ -69,8 +69,8 @@ class ResetPasswordControllerTest extends DBTestCase
             'token' => 'abc',
             'reset' => $this->honeypot(),
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['email']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['email'], 'message');
     }
 
     public function test_reset_missing_password_returns_422(): void
@@ -80,8 +80,8 @@ class ResetPasswordControllerTest extends DBTestCase
             'email' => 'test@example.com',
             'reset' => $this->honeypot(),
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['password']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['password'], 'message');
     }
 
     public function test_reset_with_invalid_token_returns_400(): void

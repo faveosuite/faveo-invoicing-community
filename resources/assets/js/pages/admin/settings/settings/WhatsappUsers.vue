@@ -87,7 +87,7 @@ async function saveWebhook() {
         closeEdit()
         tableRef.value?.refresh()
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }
@@ -115,7 +115,7 @@ async function remove(row) {
         successHandler(res, COMPONENT)
         tableRef.value?.refresh()
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     }
 }
 

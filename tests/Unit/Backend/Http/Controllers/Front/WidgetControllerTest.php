@@ -134,8 +134,8 @@ class WidgetControllerTest extends DBTestCase
             'publish' => 1,
         ]);
 
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['type']);
+        $response->assertStatus(412)
+            ->assertJsonValidationErrors(['type'], 'message');
     }
 
     public function test_updates_widget_successfully(): void

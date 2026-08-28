@@ -180,7 +180,7 @@ onMounted(async () => {
             form.created_at_date = d.toISOString().substring(0, 10)
         }
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -222,7 +222,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/pages'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

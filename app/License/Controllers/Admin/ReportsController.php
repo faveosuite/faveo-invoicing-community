@@ -25,7 +25,7 @@ class ReportsController extends Controller
     public function reports(Request $request): ResponseFactory|Response
     {
         $report_ids_array = $request->arr;
-        $whichReport = $request->get('which_report');
+        $whichReport = $request->input('which_report');
         if (! empty($report_ids_array)) {
             foreach ($report_ids_array as $report_id) {
                 $this->removed_records += (int) $this->deleteReport($report_id, $this->removed_records);

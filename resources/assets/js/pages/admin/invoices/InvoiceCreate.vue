@@ -286,7 +286,7 @@ async function fetchPrice() {
         dynamic.show_agents = !!agents.can_modify
         if (agents.can_modify) form.agents = agents.quantity ?? 0
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     }
 }
 
@@ -315,7 +315,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/invoices'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

@@ -115,7 +115,7 @@ class ProfileControllerTest extends DBTestCase
             'country' => $this->user->country ?? 'IN',
         ]);
 
-        $this->assertContains($response->status(), [200, 422]);
+        $this->assertContains($response->status(), [200, 412]);
     }
 
     public function test_update_password_returns_400_for_wrong_old_password(): void
@@ -129,6 +129,6 @@ class ProfileControllerTest extends DBTestCase
             'new_password_confirmation' => 'NewPass@456!',
         ]);
 
-        $this->assertContains($response->status(), [200, 400, 422]);
+        $this->assertContains($response->status(), [200, 400, 412]);
     }
 }

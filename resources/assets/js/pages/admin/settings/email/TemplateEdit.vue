@@ -183,7 +183,7 @@ onMounted(async () => {
             name: toLabel(name),
         }))
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -203,7 +203,7 @@ async function save() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/settings/email/templates'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

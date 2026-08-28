@@ -180,13 +180,13 @@ class Google2FAControllerTest extends DBTestCase
     public function test_post_login_validate_token_returns_error_when_no_session(): void
     {
         // No 2fa:user:id in session → findOrFail(null) throws → errorResponse 400
-        // OR ValidateSecretRequest validation fails → 422
+        // OR ValidateSecretRequest validation fails → 412 (RequestJsonValidation)
         $response = $this->postJson('/2fa/loginValidate', [
             'totp' => '000000',
             'validate_2fa' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
         ]);
 
-        $this->assertContains($response->getStatusCode(), [200, 400, 422]);
+        $this->assertContains($response->getStatusCode(), [200, 400, 412]);
     }
 
     public function test_post_login_validate_token_returns_error_for_invalid_code(): void
@@ -203,8 +203,8 @@ class Google2FAControllerTest extends DBTestCase
             'validate_2fa' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
         ]);
 
-        // ValidateSecretRequest requires 'totp' — 422 if validation fails, 400 from errorResponse if it runs
-        $this->assertContains($response->getStatusCode(), [200, 400, 422]);
+        // ValidateSecretRequest requires 'totp' — 412 if validation fails (RequestJsonValidation), 400 from errorResponse if it runs
+        $this->assertContains($response->getStatusCode(), [200, 400, 412]);
         $this->assertFalse($response->json('success') ?? false);
     }
 

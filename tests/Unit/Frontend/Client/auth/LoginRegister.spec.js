@@ -2,7 +2,6 @@ jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: je
 jest.mock('@/helpers/responseHandler', () => ({
     successHandler: jest.fn(),
     errorHandler: jest.fn(),
-    applyServerValidation: jest.fn(),
 }))
 jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)), scrollToFirstError: jest.fn() }))
 jest.mock('vue-router', () => ({ useRouter: () => ({ push: jest.fn() }), useRoute: () => ({ params: {}, query: {} }), RouterLink: { template: '<a><slot/></a>' } }))
@@ -25,7 +24,7 @@ import { createTestingPinia } from '@pinia/testing'
 import MockAdapter from 'axios-mock-adapter'
 import http from '@/plugins/axios.js'
 import { validateForm } from '@/helpers/formUtils.js'
-import { successHandler, applyServerValidation } from '@/helpers/responseHandler'
+import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import { registerSchema } from '@/validations/client/authSchemas.js'
 import LoginRegister from '@/pages/client/auth/LoginRegister.vue'
 
@@ -113,7 +112,7 @@ describe('LoginRegister.vue', () => {
         expect(postCalled).toBe(false)
     })
 
-    it('calls applyServerValidation on login API error', async () => {
+    it('calls errorHandler with setErrors on login API error', async () => {
         axiosMock.onPost('/login').reply(422, {
             errors: { email_username: ['Invalid credentials.'] },
         })
@@ -121,7 +120,11 @@ describe('LoginRegister.vue', () => {
         await wrapper.findAll('form')[0].trigger('submit')
         await flushPromises()
 
-        expect(applyServerValidation).toHaveBeenCalled()
+        expect(errorHandler).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.any(String),
+            expect.objectContaining({ setErrors: expect.any(Function) })
+        )
     })
 
     it('calls POST /auth/register on register form submit when validation passes', async () => {
@@ -147,7 +150,7 @@ describe('LoginRegister.vue', () => {
         expect(successHandler).toHaveBeenCalled()
     })
 
-    it('calls applyServerValidation on register API error', async () => {
+    it('calls errorHandler with setErrors on register API error', async () => {
         axiosMock.onPost('/auth/register').reply(422, {
             errors: { email: ['Email already taken.'] },
         })
@@ -155,7 +158,11 @@ describe('LoginRegister.vue', () => {
         await wrapper.findAll('form')[1].trigger('submit')
         await flushPromises()
 
-        expect(applyServerValidation).toHaveBeenCalled()
+        expect(errorHandler).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.any(String),
+            expect.objectContaining({ setErrors: expect.any(Function) })
+        )
     })
 
     // ── onCountryChange ──────────────────────────────────────────────

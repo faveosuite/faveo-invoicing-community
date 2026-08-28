@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Cart;
 
+use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AddCartItemRequest extends FormRequest
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
      */

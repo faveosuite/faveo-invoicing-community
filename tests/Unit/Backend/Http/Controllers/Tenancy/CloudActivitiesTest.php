@@ -818,8 +818,8 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $response = $this->postJson('/cloud-data-center-store', ['cloud_state' => 'TN']);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['cloud_countries']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['cloud_countries'], 'message');
     }
 
     public function test_store_cloud_data_center_missing_state_returns_422(): void
@@ -828,8 +828,8 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $response = $this->postJson('/cloud-data-center-store', ['cloud_countries' => 'IN']);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['cloud_state']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['cloud_state'], 'message');
     }
 
     public function test_remove_location_with_data_returns_200(): void

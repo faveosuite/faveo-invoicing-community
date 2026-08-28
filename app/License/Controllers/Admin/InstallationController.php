@@ -20,7 +20,7 @@ class InstallationController extends Controller
 
     public function installationUpdate(Request $request): JsonResponse
     {
-        $id = $request->get('id');
+        $id = $request->input('id');
         /** @var Installation|null $installation */
         $installation = Installation::with('product:id,name')->find($id);
 
@@ -28,7 +28,7 @@ class InstallationController extends Controller
             return errorResponse(__('license::lang.invalid'), 400);
         }
 
-        if ($request->get('delete_record') == 1) {
+        if ($request->input('delete_record') == 1) {
             $removed = $this->deleteInstallation($id);
 
             return response()->json([
@@ -40,7 +40,7 @@ class InstallationController extends Controller
             ]);
         }
 
-        if (! filter_var($request->get('installation_ip'), FILTER_VALIDATE_IP) || ! LicenseHelper::validateIntegerValue($request->get('installation_status'), 0, 2)) {
+        if (! filter_var($request->input('installation_ip'), FILTER_VALIDATE_IP) || ! LicenseHelper::validateIntegerValue($request->input('installation_status'), 0, 2)) {
             return response()->json([
                 'api_action_success' => 1,
                 'api_error_detected' => 0,
@@ -51,9 +51,9 @@ class InstallationController extends Controller
         }
 
         $installation->update([
-            'installation_ip' => $request->get('installation_ip'),
-            'installation_disable_ip_verification' => $request->get('installation_disable_ip'),
-            'installation_status' => $request->get('installation_status'),
+            'installation_ip' => $request->input('installation_ip'),
+            'installation_disable_ip_verification' => $request->input('installation_disable_ip'),
+            'installation_status' => $request->input('installation_status'),
         ]);
 
         $name = $installation->product->name;
@@ -129,7 +129,7 @@ class InstallationController extends Controller
 
     public function installationAdd(Request $request): JsonResponse
     {
-        $license = License::where('license_code', $request->get('license_code'))->first();
+        $license = License::where('license_code', $request->input('license_code'))->first();
         if (! $license) {
             return errorResponse(__('license::lang.invalid_licnese'), 404);
         }
@@ -139,10 +139,10 @@ class InstallationController extends Controller
             'product_id' => $license->product_id,
             'user_id' => $license->user_id,
             'installation_ip' => request()->server('REMOTE_ADDR') ?: $request->ip(),
-            'installation_domain' => $request->get('installation_domain'),
-            'installation_date' => $request->get('installation_date') ?: now(),
-            'installation_status' => $request->get('installation_status'),
-            'installation_hash' => $request->get('installation_hash'),
+            'installation_domain' => $request->input('installation_domain'),
+            'installation_date' => $request->input('installation_date') ?: now(),
+            'installation_status' => $request->input('installation_status'),
+            'installation_hash' => $request->input('installation_hash'),
         ]);
 
         return successResponse(__('license::lang.install_added'), $installation, 200);

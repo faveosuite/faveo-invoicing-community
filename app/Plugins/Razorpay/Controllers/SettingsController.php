@@ -43,19 +43,27 @@ class SettingsController extends Controller
     public function updateApiKey(Request $request): JsonResponse
     {
         $request->validate([
-            'rzp_key' => ['required', 'string'],
+            'rzp_key' => ['required', 'string', 'regex:/^rzp_/'],
+            // No fixed prefix on Razorpay's Key Secret to check against (unlike
+            // the Key ID) — Razorpay issues it as a plain random string.
             'rzp_secret' => ['required', 'string'],
-            'webhook_secret' => ['nullable', 'string'],
-            'processing_fee' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'webhook_secret' => ['required', 'string'],
+            'processing_fee' => ['required', 'numeric', 'min:0', 'max:100'],
             'auto_renewal' => ['nullable', 'boolean'],
         ], [
             'rzp_key.required' => __('message.razorpay_key_required'),
+            'rzp_key.regex' => __('message.razorpay_key_invalid'),
             'rzp_secret.required' => __('message.razorpay_secret_required'),
+            'processing_fee.numeric' => __('message.processing_fee_invalid'),
+            'processing_fee.min' => __('message.processing_fee_invalid'),
+            'processing_fee.max' => __('message.processing_fee_invalid'),
         ]);
 
         try {
+            // Format is checked above; this proves the key pair actually authenticates
+            // with Razorpay. Read-only call — no throwaway data created on every save.
             $api = new Api($request->input('rzp_key'), $request->input('rzp_secret'));
-            $api->order->create(['receipt' => 'key-validation', 'amount' => 2000 * 100, 'currency' => 'INR', 'payment_capture' => 1]);
+            $api->order->all(['count' => 1]);
 
             ApiKey::where('id', 1)->update([
                 'rzp_key' => $request->input('rzp_key'),

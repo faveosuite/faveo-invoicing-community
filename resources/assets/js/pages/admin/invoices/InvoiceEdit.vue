@@ -115,7 +115,7 @@ async function fetchInvoice() {
         form.total = data.invoice.grand_total ?? ''
         form.status = data.invoice.status ?? ''
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -130,7 +130,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/invoices'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

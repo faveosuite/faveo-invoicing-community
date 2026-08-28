@@ -174,3 +174,38 @@ const options = reactive({
     },
 })
 </script>
+
+<style scoped>
+/* Genuinely fixed columns. Bootstrap's .table forces width:100%; under the
+   default table-layout:auto, that stretches every dt-* column proportionally
+   to fill the container instead of holding its declared px. table-layout:
+   fixed (+ width:auto to cancel the forced 100%) makes width depend only on
+   these declared values, immune to content and consistent every render. */
+:deep(.VueTables__table) {
+    table-layout: fixed;
+    width: auto;
+}
+:deep(.dt-name)   { width: 180px; }
+:deep(.dt-code)   { width: 120px; }
+:deep(.dt-email)  { width: 220px; }
+:deep(.dt-text)   { width: 250px; }
+:deep(.dt-date)   { width: 160px; }
+:deep(.dt-number) { width: 130px; }
+:deep(.dt-status) { width: 130px; }
+:deep(.dt-action) { width: 200px; }
+
+/* Sort icon: float:right participates in the header's flow, so anything
+   changing the header's content width nudges it. position:absolute takes
+   it out of flow entirely; reserved padding-right keeps it clear of text. */
+:deep(.VueTables__table th.VueTables__sortable) {
+    position: relative;
+    padding-right: 1.75rem;
+}
+:deep(.VueTables__sort-icon) {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    float: none !important;
+    transform: translateY(-50%) !important;
+}
+</style>

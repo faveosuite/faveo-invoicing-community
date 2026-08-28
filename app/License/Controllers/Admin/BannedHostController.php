@@ -63,19 +63,15 @@ class BannedHostController extends Controller
      * @param  $banned_host_ip
      * @param  $comments
      */
-    public function bannedHostUpdate(Request $request): JsonResponse
+    public function bannedHostUpdate(BannedHostRequest $request): JsonResponse
     {
-        $id = $request->get('id');
-        $banned_host_ip = $request->get('banned_host_ip');
-        $comments = $request->get('comments');
+        $id = $request->input('id');
+        $banned_host_ip = $request->input('banned_host_ip');
+        $comments = $request->input('comments');
 
         if (empty($id) || ! LicenseHelper::validateIntegerValue($id) ||
         empty(LicenseBannedHost::where('id', $id)->get()->toArray())) { // invalid record
             return errorResponse(__('lang.banned_host_not_found'), 404);
-        }
-
-        if (empty($banned_host_ip)) {
-            return errorResponse(__('lang.banned_empty'), 400);
         }
 
         $whitelistIpExists = LicenseWhitelistIp::where('whitelist_host_ip', $banned_host_ip)->exists();
@@ -99,7 +95,7 @@ class BannedHostController extends Controller
     public function deleteBannedHost(Request $request): JsonResponse
     {
         $removed_records = 0;
-        $id = $request->get('id');
+        $id = $request->input('id');
         if (! LicenseHelper::validateIntegerValue($id)) {
             return errorResponse(__('lang.banned_empty'), 400);
         }

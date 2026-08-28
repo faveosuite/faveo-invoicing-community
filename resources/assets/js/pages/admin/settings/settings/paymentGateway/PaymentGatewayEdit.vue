@@ -28,6 +28,7 @@
                                     :onChange="(val, name) => { setFieldError(name, undefined); form[name] = val }"
                                     :error="errors[field.name]"
                                     :hint="field.hint ?? ''"
+                                    :required="true"
                                 />
                             </div>
 
@@ -41,9 +42,10 @@
                                 </label>
                                 <div class="input-group">
                                     <input class="form-control" readonly :value="form.webhook_url" />
-                                    <button class="btn btn-outline-secondary" type="button" @click="copyWebhookUrl">
+                                    <span class="input-group-text cursor-pointer" @click="copyWebhookUrl">
                                         <i :class="copied ? 'fas fa-check text-success' : 'fas fa-copy'"></i>
-                                    </button>
+                                        {{ copied ? __('message.copied') : __('message.copy') }}
+                                    </span>
                                 </div>
                                 <div class="form-text">
                                     {{ __('message.webhook_url_hint') }}
@@ -62,6 +64,7 @@
                                     :value="form.webhook_secret"
                                     :onChange="(val, name) => { setFieldError(name, undefined); form[name] = val }"
                                     :error="errors.webhook_secret"
+                                    :required="true"
                                 />
                             </div>
                         </div>
@@ -73,11 +76,7 @@
                                     <div class="fw-semibold">{{ __('message.auto_renewal') }}</div>
                                     <div class="text-muted small">{{ __('message.auto_renewal_hint') }}</div>
                                 </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           :checked="form.auto_renewal"
-                                           @change="form.auto_renewal = $event.target.checked" />
-                                </div>
+                                <Switch name="auto_renewal" :value="form.auto_renewal" :onChange="(val) => form.auto_renewal = val" />
                             </div>
                         </div>
                     </template>
@@ -152,6 +151,7 @@ import { __ } from '@/plugins/i18n'
 import { buildGatewaySchema } from '@/validations/admin/gatewayValidations'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import Tooltip from '@/components/Reusable/Tooltip.vue'
+import Switch from '@/components/Reusable/FormField/Switch.vue'
 import Modal from '@/themes/porto/components/common/Modal.vue'
 
 const COMPONENT = 'payment-gateway-edit'
@@ -180,7 +180,7 @@ const GATEWAY_CONFIGS = {
         fields: [
             { name: 'rzp_key',        label: 'Razorpay Key',        type: 'text'     },
             { name: 'rzp_secret',     label: 'Razorpay Secret',     type: 'password' },
-            { name: 'processing_fee', label: 'Processing Fee (%)', type: 'number',   required: false },
+            { name: 'processing_fee', label: 'Processing Fee (%)', type: 'number'    },
         ],
         fetchUrl: `${baseUrl}/get-razorpay-settings`,
         saveUrl:  `${baseUrl}/update-api-key/payment-gateway/razorpay`,
@@ -196,7 +196,7 @@ const GATEWAY_CONFIGS = {
         fields: [
             { name: 'stripe_key',     label: 'Stripe Publishable Key', type: 'text'     },
             { name: 'stripe_secret',  label: 'Stripe Secret Key',      type: 'password' },
-            { name: 'processing_fee', label: 'Processing Fee (%)',     type: 'number',   required: false },
+            { name: 'processing_fee', label: 'Processing Fee (%)',     type: 'number'    },
         ],
         fetchUrl: `${baseUrl}/get-stripe-settings`,
         saveUrl:  `${baseUrl}/update-api-key/payment-gateway/stripe`,
@@ -233,7 +233,7 @@ onMounted(async () => {
             savedAutoRenewal.value = form.auto_renewal
         }
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -272,7 +272,7 @@ async function performSave() {
         successHandler(res, COMPONENT)
         savedAutoRenewal.value = form.auto_renewal
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

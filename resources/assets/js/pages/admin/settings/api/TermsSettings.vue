@@ -56,7 +56,7 @@ onMounted(async () => {
         const res = await http.get(`/settings/terms`)
         form.terms_url = res.data?.data?.terms_url ?? ''
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -73,7 +73,7 @@ async function save() {
         })
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

@@ -134,7 +134,7 @@ import { useRoute } from 'vue-router'
 import {useForm} from 'vee-validate'
 import http from '@/plugins/axios'
 import {__} from '@/plugins/i18n'
-import {successHandler, errorHandler, applyServerValidation} from '@/helpers/responseHandler.js'
+import {successHandler, errorHandler} from '@/helpers/responseHandler.js'
 import {loginSchema, registerSchema, passwordChecks} from '@/validations/client/authSchemas.js'
 import { validateForm, scrollToFirstError } from '@/helpers/formUtils.js'
 import SocialButtons from './partials/SocialButtons.vue'
@@ -149,14 +149,6 @@ const baseUrl = useBaseUrl()
 // Separate vee-validate instances so the two forms don't share error state.
 const {errors: loginErrors, setErrors: loginSetErrors, setFieldError: loginSetFieldError} = useForm()
 const {errors: regErrors, setErrors: regSetErrors, setFieldError: regSetFieldError} = useForm()
-
-// Visible form fields — server errors for these are shown inline; errors for any
-// other key (e.g. the hidden honeypot) are surfaced in the top alert.
-const LOGIN_FIELDS = ['email_username', 'password1']
-const REGISTER_FIELDS = [
-  'first_name', 'last_name', 'email', 'company', 'address',
-  'country', 'mobile', 'password', 'password_confirmation', 'terms',
-]
 
 const loginForm = reactive({email_username: '', password1: '', remember: false, login: {}})
 const regForm = reactive({
@@ -268,7 +260,7 @@ async function submitLogin() {
       loginCaptchaRef.value?.triggerFallback()
       return
     }
-    applyServerValidation(e, { setErrors: loginSetErrors, fields: LOGIN_FIELDS, component: COMPONENT })
+    errorHandler(e, COMPONENT, { setErrors: loginSetErrors })
   } finally {
     loggingIn.value = false
   }
@@ -324,7 +316,7 @@ async function submitRegister() {
       regCaptchaRef.value?.triggerFallback()
       return
     }
-    applyServerValidation(e, { setErrors: regSetErrors, fields: REGISTER_FIELDS, component: COMPONENT })
+    errorHandler(e, COMPONENT, { setErrors: regSetErrors })
   } finally {
     registering.value = false
   }

@@ -174,7 +174,7 @@ onMounted(async () => {
             s3_endpoint_url: d.s3_endpoint_url ?? '',
             s3_url: d.s3_url ?? '',
         })
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
     finally { loading.value = false }
 
     try {
@@ -184,7 +184,7 @@ onMounted(async () => {
             pdf_driver: d.pdf_driver ?? 'chrome',
             chrome_path: d.chrome_path ?? '',
         })
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
     finally { pdfLoading.value = false }
 })
 
@@ -232,7 +232,7 @@ async function submit() {
         ])
 
         successHandler(storageRes, COMPONENT)
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
     finally { saving.value = false }
 }
 </script>

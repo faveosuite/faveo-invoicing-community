@@ -204,7 +204,7 @@ async function onSubmit() {
         successHandler(res, 'custom-note')
         getInitialValues()
     }).catch(err => {
-        errorHandler(err, 'custom-note')
+        errorHandler(err, 'custom-note', { setErrors })
     }).finally(() => {
         saving.value = false
     })

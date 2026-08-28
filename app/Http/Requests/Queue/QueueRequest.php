@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests\Queue;
 
+use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class QueueRequest extends FormRequest
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
      */

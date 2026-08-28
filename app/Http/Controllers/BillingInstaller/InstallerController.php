@@ -108,16 +108,16 @@ class InstallerController extends Controller
     public function createEnv(bool $api = true): ?JsonResponse
     {
         try {
-            $default = request()->get('default', Session::get('default'));
-            $host = request()->get('host', Session::get('host'));
-            $database = request()->get('databasename', Session::get('databasename'));
-            $dbusername = request()->get('username', Session::get('username'));
-            $dbpassword = request()->get('password', Session::get('password'));
-            $port = request()->get('port', Session::get('port'));
-            $sslKey = request()->get('db_ssl_key', Session::get('db_ssl_key'));
-            $sslCert = request()->get('db_ssl_cert', Session::get('db_ssl_cert'));
-            $sslCa = request()->get('db_ssl_ca', Session::get('db_ssl_ca'));
-            $sslVerify = request()->get('db_ssl_verify', Session::get('db_ssl_verify'));
+            $default = request()->input('default', Session::get('default'));
+            $host = request()->input('host', Session::get('host'));
+            $database = request()->input('databasename', Session::get('databasename'));
+            $dbusername = request()->input('username', Session::get('username'));
+            $dbpassword = request()->input('password', Session::get('password'));
+            $port = request()->input('port', Session::get('port'));
+            $sslKey = request()->input('db_ssl_key', Session::get('db_ssl_key'));
+            $sslCert = request()->input('db_ssl_cert', Session::get('db_ssl_cert'));
+            $sslCa = request()->input('db_ssl_ca', Session::get('db_ssl_ca'));
+            $sslVerify = request()->input('db_ssl_verify', Session::get('db_ssl_verify'));
 
             $this->env($default, $host, $port, $database, $dbusername, $dbpassword, sslKey: $sslKey, sslCert: $sslCert, sslCa: $sslCa, sslVerify: $sslVerify);
         } catch (Exception $exception) {

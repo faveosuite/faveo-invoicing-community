@@ -209,7 +209,7 @@ onMounted(async () => {
     }
     if (form.country) await loadStates(form.country)
   } catch (e) {
-    errorHandler(e, COMPONENT)
+    errorHandler(e, COMPONENT, { setErrors })
   } finally {
     hasDataPopulated.value = true
   }
@@ -275,7 +275,7 @@ async function submitProfile() {
     const res = await http.post(`/my-profile`, data, {headers: {'Content-Type': 'multipart/form-data'}})
     successHandler(res, COMPONENT)
   } catch (e) {
-    errorHandler(e, COMPONENT)
+    errorHandler(e, COMPONENT, { setErrors })
   } finally {
     savingProfile.value = false
   }

@@ -68,8 +68,8 @@ class PlanControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $response = $this->putJson('/plans', []);
 
-        $response->assertStatus(422);
-        $errors = $response->json('errors');
+        $response->assertStatus(412);
+        $errors = $response->json('message');
 
         foreach (['name', 'currency', 'add_price', 'renew_price'] as $field) {
             $this->assertArrayHasKey($field, $errors, "Expected '$field' in plan errors");
@@ -85,8 +85,8 @@ class PlanControllerTest extends DBTestCase
             'product_quantity' => 1,
         ]);
 
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('name', $response->json('errors'));
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('name', $response->json('message'));
     }
 
     public function test_create_negative_add_price_has_add_price_error(): void
@@ -98,9 +98,9 @@ class PlanControllerTest extends DBTestCase
             'product_quantity' => 1,
         ]);
 
-        $response->assertStatus(422);
+        $response->assertStatus(412);
         // add_price.* min:0 violated
-        $errors = $response->json('errors');
+        $errors = $response->json('message');
         $this->assertTrue(
             array_key_exists('add_price.0', $errors) || array_key_exists('add_price', $errors),
             'Expected add_price error for negative value'
@@ -112,7 +112,7 @@ class PlanControllerTest extends DBTestCase
     public function test_update_nonexistent_plan_returns_422(): void
     {
         $this->getLoggedInUser('admin');
-        $this->patchJson('/plan/999999999', ['name' => 'Test'])->assertStatus(422);
+        $this->patchJson('/plan/999999999', ['name' => 'Test'])->assertStatus(412);
     }
 
     // --- DELETE /plans ---

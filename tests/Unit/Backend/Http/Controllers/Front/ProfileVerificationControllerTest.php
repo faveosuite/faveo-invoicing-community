@@ -368,6 +368,6 @@ class ProfileVerificationControllerTest extends DBTestCase
             'email_to_verify' => $newEmail,
             'otp' => $record->token,
             'verify_type' => 'hacked_type',
-        ])->assertStatus(422);
+        ])->assertStatus(412);
     }
 }

@@ -1,5 +1,5 @@
 import { setActivePinia, createPinia } from 'pinia'
-import { errorHandler, successHandler, applyServerValidation } from '@/helpers/responseHandler.js'
+import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
 import { useAlertStore } from '@/core/stores/alert.js'
 
 // jest.setup.js already calls setActivePinia(createPinia()) in beforeEach,
@@ -152,109 +152,70 @@ describe('successHandler', () => {
     })
 })
 
-// ── applyServerValidation ─────────────────────────────────────────────────────
-describe('applyServerValidation', () => {
+// ── errorHandler field-level validation (setErrors) ─────────────────────────────
+// Backend shape: RequestJsonValidation / Handler::invalidJson() send field errors
+// as a 412 with message: { field: "msg" } — no `errors` key at all.
+describe('errorHandler with setErrors', () => {
     let setErrors
 
     beforeEach(() => {
         setErrors = jest.fn()
     })
 
-    it('delegates to errorHandler when no errors key in response', () => {
+    it('falls back to the alert when message is a plain string, not a field map', () => {
         const store = useAlertStore()
         const err = makeErr(500, { message: 'Server error' })
-        applyServerValidation(err, { setErrors, fields: ['name'], component: 'Form' })
+        errorHandler(err, 'Form', { setErrors })
         expect(store.message).toBe('Server error')
         expect(setErrors).not.toHaveBeenCalled()
     })
 
-    it('delegates to errorHandler when err has no response', () => {
-        // no response.data.errors — goes straight to errorHandler; no alert because no status
-        applyServerValidation({}, { setErrors, fields: [] })
+    it('falls back to the alert for a non-412 status even with an object message', () => {
+        const store = useAlertStore()
+        const err = makeErr(400, { message: { name: 'x' } })
+        errorHandler(err, 'Form', { setErrors })
+        expect(store.message).toBe('x')
         expect(setErrors).not.toHaveBeenCalled()
     })
 
-    it('maps known fields to setErrors', () => {
-        const err = makeErr(422, {
-            errors: {
-                name: ['The name field is required.'],
-                email: ['Invalid email.'],
+    it('maps every returned field to setErrors on a 412', () => {
+        const err = makeErr(412, {
+            message: {
+                name: 'The name field is required.',
+                email: 'Invalid email.',
             },
         })
-        applyServerValidation(err, { setErrors, fields: ['name', 'email'] })
+        errorHandler(err, 'Form', { setErrors })
         expect(setErrors).toHaveBeenCalledWith({
             name: 'The name field is required.',
             email: 'Invalid email.',
         })
     })
 
-    it('takes the first error message when errors value is an array', () => {
-        const err = makeErr(422, {
-            errors: { title: ['Required', 'Too short'] },
+    it('takes the first error message when a field value is an array', () => {
+        const err = makeErr(412, {
+            message: { title: ['Required', 'Too short'] },
         })
-        applyServerValidation(err, { setErrors, fields: ['title'] })
+        errorHandler(err, 'Form', { setErrors })
         expect(setErrors).toHaveBeenCalledWith({ title: 'Required' })
     })
 
-    it('passes through a string error message directly (not wrapped in array)', () => {
-        const err = makeErr(422, {
-            errors: { title: 'Required' },
-        })
-        applyServerValidation(err, { setErrors, fields: ['title'] })
-        expect(setErrors).toHaveBeenCalledWith({ title: 'Required' })
-    })
-
-    it('does not call setErrors for fields not in the known fields list', () => {
-        const err = makeErr(422, {
-            errors: { honeypot: ['Spam detected'] },
-        })
-        applyServerValidation(err, { setErrors, fields: ['name'] })
-        expect(setErrors).not.toHaveBeenCalled()
-    })
-
-    it('calls errorHandler for unknown field errors (surfaces them via alert)', () => {
+    it('does not also show the top alert once field errors are mapped', () => {
         const store = useAlertStore()
-        const err = makeErr(422, {
-            message: 'Validation failed',
-            errors: { hidden_token: ['Invalid token'] },
+        const err = makeErr(412, {
+            message: { name: 'Name required' },
         })
-        applyServerValidation(err, { setErrors, fields: ['name'], component: 'Comp' })
-        // unknown field → errorHandler → alert store gets the 422 message
-        expect(store.message).toBe('Validation failed')
-    })
-
-    it('handles a mix of known and unknown fields correctly', () => {
-        const store = useAlertStore()
-        const err = makeErr(422, {
-            message: 'Validation failed',
-            errors: {
-                name: ['Name required'],
-                honeypot: ['Spam'],
-            },
-        })
-        applyServerValidation(err, { setErrors, fields: ['name'], component: 'Comp' })
+        errorHandler(err, 'Comp', { setErrors })
         expect(setErrors).toHaveBeenCalledWith({ name: 'Name required' })
-        // unknown field → also calls errorHandler
-        expect(store.message).toBe('Validation failed')
+        expect(store.message).toBe('')
     })
 
-    it('uses empty array as default for fields option', () => {
-        const err = makeErr(422, {
-            message: 'Err',
-            errors: { name: ['Required'] },
-        })
-        // all fields become unknown → errorHandler called, setErrors not
-        applyServerValidation(err, { setErrors })
-        expect(setErrors).not.toHaveBeenCalled()
-    })
-
-    it('uses empty string as default for component option', () => {
+    it('flattens the object message into the alert when setErrors is not given', () => {
         const store = useAlertStore()
-        const err = makeErr(422, {
-            message: 'Err',
-            errors: { unknown_field: ['Bad'] },
+        const err = makeErr(412, {
+            message: { name: 'Name required', email: 'Email required' },
         })
-        applyServerValidation(err, { setErrors })
-        expect(store.component_name).toBe('')
+        errorHandler(err, 'Comp')
+        expect(store.message).toBe('Name required Email required')
     })
 })

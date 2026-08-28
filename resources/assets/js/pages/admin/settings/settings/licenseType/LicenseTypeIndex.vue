@@ -154,7 +154,7 @@ async function openEdit(id) {
         const d = res.data?.data ?? res.data
         editName.value = d.name ?? ''
     } catch (e) {
-        errorHandler(e, 'license-type-index')
+        errorHandler(e, 'license-type-index', { setErrors })
         closeEdit()
     } finally {
         editLoading.value = false
@@ -184,7 +184,7 @@ async function create() {
         closeCreate()
         dtRef.value?.refresh()
     } catch (e) {
-        errorHandler(e, 'license-type-index')
+        errorHandler(e, 'license-type-index', { setErrors })
     } finally {
         creating.value = false
     }
@@ -199,7 +199,7 @@ async function update() {
         closeEdit()
         dtRef.value?.refresh()
     } catch (e) {
-        errorHandler(e, 'license-type-index')
+        errorHandler(e, 'license-type-index', { setErrors })
     } finally {
         saving.value = false
     }

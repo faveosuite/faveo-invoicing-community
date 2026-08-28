@@ -553,7 +553,7 @@ onMounted(async () => {
             await loadStates(form.country)
         }
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         hasDataPopulated.value = true
     }
@@ -625,7 +625,7 @@ async function submitProfile() {
         })
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         savingProfile.value = false
     }
@@ -644,7 +644,7 @@ async function submitPassword() {
         successHandler(res, COMPONENT)
         pwForm.old_password = pwForm.new_password = pwForm.confirm_password = ''
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         savingPassword.value = false
     }
@@ -701,7 +701,7 @@ async function validatePassword() {
         const res = await http.post(`/2fa-recovery-code`)
         recoveryCodes.value = res.data?.data?.code ?? []
     } catch (e) {
-        errorHandler(e, MODAL_COMPONENT)
+        errorHandler(e, MODAL_COMPONENT, { setErrors })
     } finally {
         verifyingPassword.value = false
         twoFaLoading.value      = false
@@ -737,7 +737,7 @@ async function goToQr() {
         qrSecret.value = res.data?.data?.secret ?? ''
         twoFaStep.value = 'qr'
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         enabling2fa.value = false
     }
@@ -752,7 +752,7 @@ async function verify2fa() {
         successHandler(res, COMPONENT)
         twoFaStep.value = 'done'
     } catch (e) {
-        errorHandler(e, MODAL_COMPONENT)
+        errorHandler(e, MODAL_COMPONENT, { setErrors })
     } finally {
         verifying2fa.value = false
     }
@@ -777,7 +777,7 @@ async function disable2fa() {
         dateSinceEnabled.value = null
         closeDisableModal()
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         disabling2fa.value = false
     }

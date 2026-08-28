@@ -115,7 +115,7 @@ class CallBackController extends Controller
         $error_details = '';
         $action_success = 0;
         $callback_ids_array = $request->call;
-        $isLicense = $request->get('isLicense');
+        $isLicense = $request->input('isLicense');
         if (! empty($callback_ids_array)) {
             foreach ($callback_ids_array as $callback_id) {
                 $removed_records += $this->deleteCallback($callback_id, $isLicense);

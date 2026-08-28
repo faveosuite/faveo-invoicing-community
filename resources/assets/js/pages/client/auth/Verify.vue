@@ -165,7 +165,7 @@ onMounted(async () => {
         sendInitial()
     } catch (e) {
         loading.value = false
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     }
 })
 
@@ -183,7 +183,7 @@ async function sendInitial() {
         await http.post(url, { eid: eid.value })
         startCooldown()
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     }
 }
 
@@ -198,7 +198,7 @@ async function resend(type) {
         successHandler(res, COMPONENT)
         startCooldown()
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     }
 }
 
@@ -230,7 +230,7 @@ async function verify() {
             captchaRef.value?.triggerFallback()
             return
         }
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

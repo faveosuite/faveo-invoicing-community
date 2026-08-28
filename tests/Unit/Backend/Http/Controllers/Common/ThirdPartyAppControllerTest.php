@@ -83,8 +83,8 @@ class ThirdPartyAppControllerTest extends DBTestCase
 
         $response = $this->postJson('/third-party-app-create', $payload);
 
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['app_name', 'app_key', 'app_secret']);
+        $response->assertStatus(412)
+            ->assertJsonValidationErrors(['app_name', 'app_key', 'app_secret'], 'message');
     }
 
     public function test_updates_third_party_app_successfully(): void

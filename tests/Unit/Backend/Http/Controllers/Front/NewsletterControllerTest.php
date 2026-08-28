@@ -21,8 +21,8 @@ class NewsletterControllerTest extends DBTestCase
     public function test_subscribe_missing_email_returns_422(): void
     {
         $response = $this->postJson('/newsletter/subscribe', []);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['newsletterEmail']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['newsletterEmail'], 'message');
     }
 
     public function test_subscribe_invalid_email_format_returns_422(): void
@@ -30,8 +30,8 @@ class NewsletterControllerTest extends DBTestCase
         $response = $this->postJson('/newsletter/subscribe', [
             'newsletterEmail' => 'not-an-email',
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['newsletterEmail']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['newsletterEmail'], 'message');
     }
 
     public function test_subscribe_with_no_providers_returns_400(): void

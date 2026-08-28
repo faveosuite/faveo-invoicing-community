@@ -60,7 +60,8 @@ class RegistrationTest extends DBTestCase
             'password' => $user->password,
             'password_confirmation' => $user->password,
         ]);
-        $response->assertSessionHasErrors('email', 'The email field is required.');
+        $response->assertStatus(412);
+        $this->assertSame('Email is required.', $response->json('message.email'));
     }
 
     #[Group('postRegister')]
@@ -88,7 +89,9 @@ class RegistrationTest extends DBTestCase
             'password_confirmation' => 'adsadsd',
             'terms' => 'on',
         ]);
-        session('errors');
+        // Note: this test does NOT call withoutMiddleware(), so it hits CSRF verification
+        // (no token given) and redirects (302) before ever reaching ProfileRequest validation —
+        // unrelated to the RequestJsonValidation trait.
         $response->assertStatus(302);
         // $this->assertEquals($errors->get('password_confirmation')[0], 'The password confirmation and password must match.');
         $this->mock->disable();
@@ -117,7 +120,8 @@ class RegistrationTest extends DBTestCase
             'password' => $user->password,
             'password_confirmation' => 'santhanu',
         ]);
-        $response->assertSessionHasErrors('password_confirmation');
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('password_confirmation', $response->json('message'));
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postRegister')]
@@ -170,7 +174,8 @@ class RegistrationTest extends DBTestCase
             'password' => $user->password,
             'password_confirmation' => $user->password,
         ]);
-        $response->assertSessionHasErrors('mobile');
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('mobile', $response->json('message'));
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postRegister')]

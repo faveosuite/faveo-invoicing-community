@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Order;
 
+use App\Traits\RequestJsonValidation;
 use App\Http\Requests\Request;
 use Override;
 
 class OrderRequest extends Request
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
      */

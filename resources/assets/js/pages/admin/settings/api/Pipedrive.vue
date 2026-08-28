@@ -236,7 +236,7 @@ onMounted(async () => {
             await loadMappingForGroup(activeGroupId.value)
         }
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -261,7 +261,7 @@ async function connect() {
         }
     } catch (e) {
         connectionStatus.value = 'failed'
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         connecting.value = false
     }
@@ -278,7 +278,7 @@ async function saveSettings() {
         })
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         savingSettings.value = false
     }
@@ -292,7 +292,7 @@ async function loadMappingForGroup(groupId) {
         const res = await http.get(`/pipedrive/mapping/${groupId}`)
         applyMapping(res.data?.data ?? {})
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loadingMapping.value = false
     }
@@ -403,7 +403,7 @@ async function saveMapping() {
         })
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         savingMapping.value = false
     }
@@ -417,7 +417,7 @@ async function syncFields() {
         successHandler(res, COMPONENT)
         await loadMappingForGroup(activeGroupId.value)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         syncing.value = false
     }

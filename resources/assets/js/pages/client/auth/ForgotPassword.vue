@@ -72,7 +72,7 @@ async function submit() {
         if (serverErrors?.email) {
             setErrors({ email: Array.isArray(serverErrors.email) ? serverErrors.email[0] : serverErrors.email })
         } else {
-            errorHandler(e, COMPONENT)
+            errorHandler(e, COMPONENT, { setErrors })
         }
     } finally {
         saving.value = false

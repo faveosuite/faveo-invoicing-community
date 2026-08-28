@@ -63,7 +63,7 @@ async function load() {
         driver.value = res.data?.data?.driver ?? ''
         fields.value.forEach(f => { form[f.name] = f.value ?? '' })
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -78,7 +78,7 @@ async function save() {
         const res = await http.post(`/queue/${id}`, { ...form })
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

@@ -30,7 +30,10 @@ const columns = ['version_number', 'product_title', 'version_date', 'version_ins
 const options = reactive({
     sortable: ['product_title', 'version_date', 'version_install_count', 'callback_count', 'version_status'],
     filterable: ['product_title'],
-    requestAdapter: makeRequestAdapter('id'),
+    requestAdapter: makeRequestAdapter('id', null, {
+        version_date: 'created_at',
+        version_status: 'status',
+    }),
     responseAdapter({ data }) {
         return {
             data: data.data.data.map(data => {

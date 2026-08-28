@@ -331,7 +331,7 @@ onMounted(async () => {
         form.manager            = u.manager            ?? null
         form.account_manager    = u.account_manager    ?? null
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -398,7 +398,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/users'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

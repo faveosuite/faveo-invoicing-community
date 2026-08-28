@@ -52,7 +52,7 @@ import { useForm } from 'vee-validate'
 import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
-import { successHandler, applyServerValidation } from '@/helpers/responseHandler.js'
+import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { resetSchema, passwordChecks } from '@/validations/client/authSchemas.js'
 import AuthLayout from './partials/AuthLayout.vue'
 import Honeypot from '@/components/Reusable/Honeypot.vue'
@@ -135,7 +135,7 @@ async function submit() {
             captchaRef.value?.triggerFallback()
             return
         }
-        applyServerValidation(e, { setErrors, fields: ['password', 'password_confirmation'], component: COMPONENT })
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

@@ -54,7 +54,7 @@ async function submit() {
         const res = await http.post(`/social-media/create`, form)
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/settings/widgets/social-media'), 2000)
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
     finally { saving.value = false }
 }
 </script>

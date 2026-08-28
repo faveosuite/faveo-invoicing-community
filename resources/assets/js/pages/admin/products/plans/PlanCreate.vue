@@ -229,7 +229,7 @@ onMounted(async () => {
         periods.value = pRes.data?.data?.periods ?? []
         currencies.value = cRes.data?.data?.currencies ?? []
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     }
 })
 
@@ -273,7 +273,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/products/plans'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

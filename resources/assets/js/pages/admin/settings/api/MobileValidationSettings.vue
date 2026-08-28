@@ -115,7 +115,7 @@ onMounted(async () => {
             mode:      d.mode       ?? 'basic',
         })
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -137,7 +137,7 @@ async function save() {
         const res = await http.post(`/mobile-settings-save`, payload)
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

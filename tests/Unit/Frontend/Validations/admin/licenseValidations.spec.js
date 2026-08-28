@@ -66,6 +66,14 @@ describe('bannedHostSchema', () => {
     it('fails when banned_host_ip is missing', async () => {
         await expect(bannedHostSchema.validate({})).rejects.toThrow()
     })
+
+    it('passes with a valid IPv6 address', async () => {
+        await expect(bannedHostSchema.validate({ banned_host_ip: '::1' })).resolves.toBeTruthy()
+    })
+
+    it('fails when banned_host_ip is not a valid IP format', async () => {
+        await expect(bannedHostSchema.validate({ banned_host_ip: 'not-an-ip' })).rejects.toThrow()
+    })
 })
 
 describe('whitelistSchema', () => {

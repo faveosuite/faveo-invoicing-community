@@ -158,8 +158,8 @@ class CloudExtraActivities extends Controller
                 return errorResponse(trans('message.invalid_user'));
             }
 
-            $newDomain = $request->get('newDomain');
-            $currentDomain = $request->get('currentDomain');
+            $newDomain = $request->input('newDomain');
+            $currentDomain = $request->input('currentDomain');
 
             if (! filter_var($newDomain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
                 return errorResponse(trans('message.not_allowed_domain'));
@@ -182,7 +182,7 @@ class CloudExtraActivities extends Controller
             $this->cloudApiPost('/changeDomain', [
                 'currentDomain' => $currentDomain,
                 'newDomain' => $newDomain,
-                'lic_code' => $request->get('lic_code'),
+                'lic_code' => $request->input('lic_code'),
                 'product_id' => $request->product_id,
             ]);
 
@@ -877,13 +877,13 @@ class CloudExtraActivities extends Controller
     {
         $request->validate(['cloud_countries' => ['required'], 'cloud_state' => ['required']]);
 
-        $countryName = Country::where('country_code_char2', strtoupper((string) $request->get('cloud_countries')))->value('country_name');
-        $state = $request->get('cloud_state');
-        $city = $request->get('cloud_city');
+        $countryName = Country::where('country_code_char2', strtoupper((string) $request->input('cloud_countries')))->value('country_name');
+        $state = $request->input('cloud_state');
+        $city = $request->input('cloud_city');
         $geo = empty($city)
-            ? $this->getStateCoordinates(strtoupper((string) $request->get('cloud_countries')).'-'.$state)
+            ? $this->getStateCoordinates(strtoupper((string) $request->input('cloud_countries')).'-'.$state)
             : $this->getStateCoordinates($city);
-        $state = State::where('country_code', strtoupper((string) $request->get('cloud_countries')))->where('iso2', $state)->value('state_subdivision_name');
+        $state = State::where('country_code', strtoupper((string) $request->input('cloud_countries')))->where('iso2', $state)->value('state_subdivision_name');
 
         if ($geo !== null && $geo !== []) {
             CloudDataCenters::create([

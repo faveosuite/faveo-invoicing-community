@@ -74,13 +74,35 @@
                         </div>
                         <div class="col-md-4">
                             <TextField
+                                name="postcode"
+                                :label="__('message.postcode')"
+                                :hint="__('message.tt_postcode')"
+                                :value="form.postcode"
+                                :onChange="(val) => form.postcode = val"
+                                placehold="e.g. 600001, 12*, 12000...12999"
+                            />
+                        </div>
+                        <div class="col-md-4">
+                            <TextField
+                                name="city"
+                                :label="__('message.city')"
+                                :hint="__('message.tt_city')"
+                                :value="form.city"
+                                :onChange="(val) => form.city = val"
+                                placehold="comma-separated"
+                            />
+                        </div>
+                        <div class="col-md-4">
+                            <TextField
                                 name="priority"
                                 :label="__('message.priority')"
                                 :hint="__('message.tt_priority')"
+                                :required="true"
                                 type="number"
                                 :value="form.priority"
-                                :onChange="(val) => form.priority = val"
+                                :onChange="(val) => { form.priority = val; setFieldError('priority', undefined) }"
                                 placehold="1"
+                                :error="errors.priority"
                             />
                         </div>
                         <div class="col-md-4">
@@ -105,26 +127,6 @@
                                 :onChange="(val) => form.active = val?.id ?? 1"
                                 :clearable="false"
                                 :searchable="false"
-                            />
-                        </div>
-                        <div class="col-md-6">
-                            <TextField
-                                name="postcode"
-                                :label="__('message.postcode')"
-                                :hint="__('message.tt_postcode')"
-                                :value="form.postcode"
-                                :onChange="(val) => form.postcode = val"
-                                placehold="e.g. 600001, 12*, 12000...12999"
-                            />
-                        </div>
-                        <div class="col-md-6">
-                            <TextField
-                                name="city"
-                                :label="__('message.city')"
-                                :hint="__('message.tt_city')"
-                                :value="form.city"
-                                :onChange="(val) => form.city = val"
-                                placehold="comma-separated"
                             />
                         </div>
                     </div>
@@ -193,7 +195,7 @@ onMounted(async () => {
             form.tax_class = preset
         }
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -208,7 +210,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/settings/common/tax'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

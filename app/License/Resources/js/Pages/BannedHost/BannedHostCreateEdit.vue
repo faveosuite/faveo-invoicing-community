@@ -13,11 +13,12 @@
                 <div class="card-body">
                     <div class="row">
                         <text-field :label="lang('ip_address')" :value="banned_host_ip" :onChange="onChange" name="banned_host_ip"
-                            type="text" classname="col-sm-6" :required="true" :error="errors.banned_host_ip">
+                            type="text" classname="col-sm-6" :required="true" :error="errors.banned_host_ip"
+                            :placeholder="lang('enter_banned_host_ip')">
                         </text-field>
 
                         <text-field :label="lang('comments')" type="text" :value="banned_host_comments" :onChange="onChange"
-                            name="banned_host_comments" classname="col-sm-6">
+                            name="banned_host_comments" classname="col-sm-6" :placeholder="lang('enter_banned_host_comments')">
                         </text-field>
                     </div>
                 </div>
@@ -45,7 +46,7 @@ const router = useRouter()
 
 const { errors, setErrors, setFieldError } = useForm()
 
-const title = ref('add_new_banned_host')
+const title = ref('create_banned_host')
 const isEdit = ref(false)
 const loading = ref(false)
 const saving = ref(false)
@@ -94,7 +95,7 @@ async function onSubmit() {
             setTimeout(() => { router.push('/banned-hosts/list') }, 2000)
         }
     }).catch(err => {
-        errorHandler(err, 'banned-hosts')
+        errorHandler(err, 'banned-hosts', { setErrors })
     }).finally(() => {
         saving.value = false
     })

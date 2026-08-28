@@ -27,7 +27,13 @@
             </template>
             <template #fields>
                 <div v-for="perm in editPerms" :key="perm.id" class="mb-1">
-                    <Checkbox :name="`perm-${perm.id}`" :label="perm.permissions" :value="!!perm.assigned" :onChange="(val) => perm.assigned = val" />
+                    <Checkbox
+                        :name="`perm-${perm.id}`"
+                        :label="perm.permissions"
+                        :value="!!perm.assigned"
+                        :disabled="isDisabled(perm)"
+                        :onChange="(val) => togglePerm(perm, val)"
+                    />
                 </div>
             </template>
             <template #controls>
@@ -60,6 +66,29 @@ function openEdit(license) {
 function closeModal() {
     editLicense.value = null
     editPerms.value = []
+}
+
+const NO_PERMISSIONS = 'No Permissions'
+
+// "No Permissions" is mutually exclusive with every real permission (see
+// LicensePermissionsController::addPermission) — mirror that here so the
+// checkbox state can't lie about what will actually get saved.
+function togglePerm(perm, val) {
+    perm.assigned = val
+    if (!val) return
+    if (perm.permissions === NO_PERMISSIONS) {
+        editPerms.value.forEach(p => { if (p.id !== perm.id) p.assigned = false })
+    } else {
+        const noPerm = editPerms.value.find(p => p.permissions === NO_PERMISSIONS)
+        if (noPerm) noPerm.assigned = false
+    }
+}
+
+function isDisabled(perm) {
+    if (perm.permissions === NO_PERMISSIONS) {
+        return editPerms.value.some(p => p.permissions !== NO_PERMISSIONS && p.assigned)
+    }
+    return editPerms.value.some(p => p.permissions === NO_PERMISSIONS && p.assigned)
 }
 
 async function savePerms() {

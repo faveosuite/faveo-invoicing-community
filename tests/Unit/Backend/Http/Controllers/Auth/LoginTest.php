@@ -213,7 +213,7 @@ class LoginTest extends DBTestCase
             ],
         ]);
 
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     #[Group('postLogin')]
@@ -292,12 +292,15 @@ class LoginTest extends DBTestCase
         ]);
 
         // Attempt login with invalid credentials
+        // Missing the `login` honeypot field fails LoginRequest validation first
+        // (RequestJsonValidation always returns JSON, even for a plain non-JSON POST)
+        // before the controller ever checks the credentials.
         $response = $this->post('/login', [
             'email_username' => 'invaliduser',
             'password1' => 'wrongpassword',
         ]);
 
-        $response->assertStatus(302);
+        $response->assertStatus(412);
     }
 
     #[Group('postLogin')]

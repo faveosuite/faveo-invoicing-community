@@ -268,8 +268,8 @@ class TaxController extends Controller
                 ->where('state', (string) $request->input('state', ''))
                 ->where('tax_class', (string) $request->input('tax_class', ''))
                 ->ignore($ignoreId)],
-            'rate' => 'required|numeric|min:0',
-            'priority' => 'nullable|numeric|min:1',
+            'rate' => 'required|numeric|min:0|max:999.999|decimal:0,3',
+            'priority' => 'required|numeric|min:1',
         ]);
 
         return $validator->fails() ? $validator->errors()->first() : null;

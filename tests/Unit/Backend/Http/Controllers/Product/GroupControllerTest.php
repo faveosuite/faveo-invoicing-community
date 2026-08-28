@@ -70,8 +70,8 @@ class GroupControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $response = $this->putJson('/group', ['pricing_templates_id' => 1]);
 
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('name', $response->json('errors'));
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('name', $response->json('message'));
     }
 
     public function test_create_missing_pricing_template_returns_422_with_template_error(): void
@@ -79,8 +79,8 @@ class GroupControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $response = $this->putJson('/group', ['name' => 'Support']);
 
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('pricing_templates_id', $response->json('errors'));
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('pricing_templates_id', $response->json('message'));
     }
 
     public function test_create_blocked_for_client_returns_302(): void
@@ -94,7 +94,7 @@ class GroupControllerTest extends DBTestCase
     public function test_update_nonexistent_group_returns_422(): void
     {
         $this->getLoggedInUser('admin');
-        $this->patchJson('/group/999999999', ['name' => 'New'])->assertStatus(422);
+        $this->patchJson('/group/999999999', ['name' => 'New'])->assertStatus(412);
     }
 
     // --- DELETE /group ---

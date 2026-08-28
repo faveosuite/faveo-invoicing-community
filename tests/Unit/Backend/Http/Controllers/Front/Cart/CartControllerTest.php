@@ -93,7 +93,7 @@ class CartControllerTest extends DBTestCase
             'product_id' => 999999,
         ]);
 
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     public function test_cart_remove_remove_an_item_from_cart_return_empty_cart(): void

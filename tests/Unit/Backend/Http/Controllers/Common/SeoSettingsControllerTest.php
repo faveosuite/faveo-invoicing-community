@@ -143,7 +143,7 @@ class SeoSettingsControllerTest extends DBTestCase
             'general_og_image' => UploadedFile::fake()->create('doc.pdf', 10, 'application/pdf'),
         ]);
 
-        $response->assertStatus(422)->assertJsonValidationErrors(['general_og_image']);
+        $response->assertStatus(412)->assertJsonValidationErrors(['general_og_image'], 'message');
     }
 
     public function test_update_still_returns_success_even_if_seo_file_regeneration_fails(): void

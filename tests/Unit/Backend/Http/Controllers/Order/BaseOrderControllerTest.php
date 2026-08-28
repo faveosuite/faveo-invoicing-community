@@ -112,7 +112,7 @@ class BaseOrderControllerTest extends DBTestCase
     public function test_edit_update_expiry_validation_error(): void
     {
         $response = $this->postJson('/update-license-details', []);
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     public function test_edit_update_expiry_reports_failure_and_leaves_date_unchanged_when_permission_is_off(): void
@@ -155,7 +155,7 @@ class BaseOrderControllerTest extends DBTestCase
     public function test_edit_license_expiry_validation_error(): void
     {
         $response = $this->postJson('/update-license-details', []);
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     // ========================================================= SUPPORT EXPIRY
@@ -180,7 +180,7 @@ class BaseOrderControllerTest extends DBTestCase
     public function test_edit_support_expiry_validation_error(): void
     {
         $response = $this->postJson('/update-license-details', []);
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     public function test_partial_update_reports_success_but_names_the_field_that_was_not_permitted(): void

@@ -233,7 +233,7 @@ onMounted(async () => {
         logo_admin_agent.value = s.admin_logo  ?? ''
         logo.value             = s.logo        ?? ''
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -266,7 +266,7 @@ async function loadStates() {
         const res = await http.get(`/get-state/${code}`)
         stateOptions.value = (res.data?.data?.states ?? []).map(st => ({ id: stateValue(st), name: stateLabel(st) }))
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     }
 }
 
@@ -325,7 +325,7 @@ async function save() {
         })
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

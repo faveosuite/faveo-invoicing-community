@@ -36,6 +36,7 @@ return [
     'date' => 'The :attribute is not a valid date.',
     'date_equals' => 'The :attribute must be a date equal to :date.',
     'date_format' => 'The :attribute does not match the format :format.',
+    'decimal' => 'The :attribute field must have :decimal decimal places.',
     'declined' => 'The :attribute must be declined.',
     'declined_if' => 'The :attribute must be declined when :other is :value.',
     'different' => 'The :attribute and :other must be different.',
@@ -460,6 +461,12 @@ return [
         'rate' => [
             'required' => 'The rate field is required.',
             'numeric' => 'The rate must be a number.',
+            'decimal' => 'The rate must have at most 3 decimal places.',
+            'max' => 'The rate must not be greater than 999.999.',
+        ],
+        'priority' => [
+            'required' => 'The priority field is required.',
+            'min' => 'The priority must be at least 1.',
         ],
         'level' => [
             'required' => 'The level field is required.',
@@ -724,28 +731,6 @@ return [
         ],
     ],
 
-    // License form
-    'licenses' => [
-        'product' => [
-            'required' => 'The product field is required.',
-        ],
-        'client' => [
-            'required' => 'The client field is required.',
-        ],
-        'license_code' => [
-            'required' => 'The license code field is required.',
-        ],
-        'license_expire_date' => [
-            'required' => 'The license expire date field is required.',
-        ],
-        'license_updates_date' => [
-            'required' => 'The license updates date field is required.',
-        ],
-        'license_support_date' => [
-            'required' => 'The license support date field is required.',
-        ],
-    ],
-
     // LocalizedLicense form
     'domain_form' => [
         'domain' => [
@@ -778,6 +763,7 @@ return [
             'required' => 'The storage path field is required.',
             'string' => 'The path must be a string.',
             'nullable' => 'The path field is optional.',
+            'invalid' => 'The path does not exist or is not writable.',
         ],
     ],
 
@@ -794,6 +780,7 @@ return [
         'chrome_path' => [
             'required' => 'The chrome path field is required.',
             'string' => 'The chrome path must be a valid string.',
+            'invalid' => 'The chrome path does not exist or is not executable.',
         ],
     ],
 
@@ -1019,16 +1006,17 @@ return [
             'required' => 'The license code field is required.',
         ],
         'license_expire_date' => [
-            'required' => 'The license expiry date is required.',
+            'required' => 'The license expiration date field is required.',
         ],
         'license_updates_date' => [
-            'required' => 'The license updates date is required.',
+            'required' => 'The updates expiration date field is required.',
         ],
         'license_support_date' => [
-            'required' => 'The license support date is required.',
+            'required' => 'The support expiration date field is required.',
         ],
         'banned_host_ip' => [
             'required' => 'The banned host IP field is required.',
+            'invalid' => 'Please enter a valid IP address.',
         ],
         'whitelist_host_ip' => [
             'required' => 'The whitelist host IP field is required.',

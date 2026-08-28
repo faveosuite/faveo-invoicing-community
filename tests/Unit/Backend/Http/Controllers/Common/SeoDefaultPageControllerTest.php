@@ -163,7 +163,7 @@ class SeoDefaultPageControllerTest extends DBTestCase
             'og_image' => UploadedFile::fake()->create('doc.pdf', 10, 'application/pdf'),
         ]);
 
-        $response->assertStatus(422)->assertJsonValidationErrors(['og_image']);
+        $response->assertStatus(412)->assertJsonValidationErrors(['og_image'], 'message');
     }
 
     public function test_update_persists_og_same_as_meta_as_a_boolean(): void

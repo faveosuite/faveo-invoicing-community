@@ -476,7 +476,7 @@ class ClientControllerTest extends DBTestCase
         ]);
 
         // 400 = incorrect password caught; 422 = validation failure
-        $this->assertContains($response->status(), [400, 422]);
+        $this->assertContains($response->status(), [400, 412]);
         // success is false on 400, null on 422 (Laravel validation response)
         $this->assertNotTrue($response->json('success'));
     }
@@ -498,6 +498,6 @@ class ClientControllerTest extends DBTestCase
         ]);
 
         // 200 = success; 422 = validation schema mismatch
-        $this->assertContains($response->status(), [200, 422]);
+        $this->assertContains($response->status(), [200, 412]);
     }
 }

@@ -283,7 +283,7 @@ class ClientControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $response = $this->putJson('/users', []);
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     // =========================================================================
@@ -363,7 +363,7 @@ class ClientControllerTest extends DBTestCase
             'email' => $user->email,
             'role' => 'user',
         ]);
-        $this->assertContains($response->status(), [200, 400, 422]);
+        $this->assertContains($response->status(), [200, 400, 412]);
     }
 
     public function test_download_exported_file_returns_404_for_nonexistent(): void
@@ -463,7 +463,7 @@ class ClientControllerTest extends DBTestCase
             'company' => 'Test Co',
         ]);
 
-        $this->assertContains($response->status(), [200, 400, 422]);
+        $this->assertContains($response->status(), [200, 400, 412]);
     }
 
     // =========================================================================

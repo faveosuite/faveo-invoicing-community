@@ -26,7 +26,8 @@ class ClientFooterGeneralTest extends DBTestCase
     {
         $this->withoutMiddleware();
         $response = $this->call('POST', 'demo-request');
-        $response->assertSessionHasErrors('demoname', 'The name field is required');
+        $response->assertStatus(412);
+        $this->assertSame('The name field is required.', $response->json('message.demoname'));
     }
 
     #[Group('demo')]
@@ -43,8 +44,10 @@ class ClientFooterGeneralTest extends DBTestCase
                 'time_field' => encrypt(time() - 10),
             ],
         ]);
-        $response->assertRedirect();
-        $response->assertSessionHasErrors('demo');
+        // The Honeypot rule fails at ContactRequest validation (RequestJsonValidation → 412)
+        // before the controller's own detectSpam()/redirect logic is ever reached.
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('demo', $response->json('message'));
     }
 
     #[Group('demo')]
@@ -60,8 +63,8 @@ class ClientFooterGeneralTest extends DBTestCase
                 'pot_field' => 'ghfhkgj',
                 'time_field' => encrypt(time() - 10),
             ]]);
-        $response->assertRedirect();
-        $response->assertSessionHasErrors('demo');
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('demo', $response->json('message'));
     }
 
     #[Group('trial')]
@@ -78,8 +81,8 @@ class ClientFooterGeneralTest extends DBTestCase
             'product_id' => $product->id,
         ]);
 
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['domain']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['domain'], 'message');
     }
 
     #[Group('trial')]

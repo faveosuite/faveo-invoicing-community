@@ -377,7 +377,7 @@ async function goToConfigure() {
             const res = await http.get(`/get-deploy-versions/${props.orderId}`)
             versions.value = res.data?.data ?? []
         } catch (e) {
-            errorHandler(e, COMPONENT)
+            errorHandler(e, COMPONENT, { setErrors })
         } finally {
             loadingVersions.value = false
         }

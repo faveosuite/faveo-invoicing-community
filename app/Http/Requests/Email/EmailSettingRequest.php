@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Email;
 
+use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Lang;
 use Override;
@@ -9,6 +10,8 @@ use Request;
 
 class EmailSettingRequest extends FormRequest
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
      */

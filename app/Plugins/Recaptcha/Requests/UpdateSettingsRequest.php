@@ -2,12 +2,15 @@
 
 namespace App\Plugins\Recaptcha\Requests;
 
+use App\Traits\RequestJsonValidation;
 use App\Plugins\Recaptcha\Services\RecaptchaVerifier;
 use Illuminate\Foundation\Http\FormRequest;
 use Override;
 
 class UpdateSettingsRequest extends FormRequest
 {
+    use RequestJsonValidation;
+
     public function authorize(): bool
     {
         return true;

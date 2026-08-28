@@ -170,7 +170,7 @@ async function generateKey() {
     try {
         const res = await http.get(`/get-app-key`, { responseType: 'text' })
         form.app_key = res.data
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
     finally { generatingKey.value = false }
 }
 
@@ -212,7 +212,7 @@ async function saveApp() {
         successHandler(res, COMPONENT)
         editId.value ? closeEdit() : closeCreate()
         dtRef.value?.refresh()
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
     finally { saving.value = false }
 }
 

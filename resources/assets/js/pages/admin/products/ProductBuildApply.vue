@@ -149,7 +149,7 @@ import TextArea from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 import UploadStatus from '@/components/Reusable/UploadStatus.vue'
 import { useChunkedFileUpload } from '@/core/composables/useChunkedFileUpload'
-import { successHandler, applyServerValidation } from '@/helpers/responseHandler.js'
+import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
 const router = useRouter()
 const { errors, setErrors, setFieldError } = useForm()
@@ -370,11 +370,7 @@ async function submit() {
         successHandler(res, 'product-build-apply')
         setTimeout(() => router.push('/products'), 2000)
     } catch (err) {
-        applyServerValidation(err, {
-            setErrors,
-            fields: ['description', 'dependencies', 'products'],
-            component: 'product-build-apply',
-        })
+        errorHandler(err, 'product-build-apply', { setErrors })
     } finally {
         saving.value = false
     }

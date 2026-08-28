@@ -160,6 +160,6 @@ class ReportControllerTest extends DBTestCase
             'records' => 5000,
         ]);
 
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 }

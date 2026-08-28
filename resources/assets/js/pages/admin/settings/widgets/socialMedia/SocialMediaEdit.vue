@@ -59,7 +59,7 @@ onMounted(async () => {
         const d = res.data?.data ?? {}
         form.name = d.name ?? ''
         form.link = d.link ?? ''
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
     finally { loading.value = false }
 })
 
@@ -71,7 +71,7 @@ async function submit() {
         const res = await http.patch(`/social-media/update/${mediaId}`, form)
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/settings/widgets/social-media'), 2000)
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
     finally { saving.value = false }
 }
 </script>

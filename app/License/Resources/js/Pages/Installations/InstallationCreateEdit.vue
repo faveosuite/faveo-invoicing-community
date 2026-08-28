@@ -103,7 +103,7 @@ async function onSubmit() {
             setTimeout(() => { router.push('/installations/list') }, 2000)
         }
     }).catch(err => {
-        errorHandler(err, 'installation')
+        errorHandler(err, 'installation', { setErrors })
     }).finally(() => {
         saving.value = false
     })

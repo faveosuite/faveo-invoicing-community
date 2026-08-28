@@ -24,9 +24,9 @@
                        @keypress="keypressEvt($event, name)" @paste="pasteEvt($event, name)"
                        :placeholder="placeholderVal" :maxlength="max || undefined"
                        :required="required" />
-                <button type="button" class="btn btn-secondary" @click="togglePasswordVisibility" tabindex="-1">
+                <span class="input-group-text cursor-pointer" @click="togglePasswordVisibility">
                     <i class="fa" :class="showPassword ? 'fa-eye' : 'fa-eye-slash'"></i>
-                </button>
+                </span>
             </div>
         </div>
         <div v-else-if="suffix" class="input-group">
@@ -115,4 +115,5 @@ function togglePasswordVisibility() {
 
 <style>
 input[type="password"]::-ms-reveal { display: none; }
+.cursor-pointer { cursor: pointer; }
 </style>

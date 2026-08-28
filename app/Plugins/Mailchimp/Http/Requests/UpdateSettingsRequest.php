@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Plugins\Mailchimp\Http\Requests;
 
+use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
 use Override;
 
 class UpdateSettingsRequest extends FormRequest
 {
+    use RequestJsonValidation;
+
     public function authorize(): bool
     {
         return true;

@@ -122,8 +122,8 @@ class InvoiceControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $response = $this->postJson('/generate/invoice', []);
 
-        $response->assertStatus(422);
-        $errors = $response->json('errors');
+        $response->assertStatus(412);
+        $errors = $response->json('message');
 
         // All required fields must appear in errors
         foreach (['user', 'date', 'price', 'product'] as $field) {
@@ -138,10 +138,10 @@ class InvoiceControllerTest extends DBTestCase
             'date' => '2025-01-15', 'price' => 99.99, 'product' => 1,
         ]);
 
-        $response->assertStatus(422);
+        $response->assertStatus(412);
         $this->assertSame(
             'The clients field is required.',
-            $response->json('errors.user.0')
+            $response->json('message.user')
         );
     }
 
@@ -152,8 +152,8 @@ class InvoiceControllerTest extends DBTestCase
             'user' => 1, 'date' => 'not-a-date', 'price' => 99.99, 'product' => 1,
         ]);
 
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('date', $response->json('errors'));
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('date', $response->json('message'));
     }
 
     // =========================================================================
@@ -359,7 +359,7 @@ class InvoiceControllerTest extends DBTestCase
             'plan' => 1,
             'cloud_domain' => '',  // empty cloud domain → triggers errorResponse
         ]);
-        $this->assertContains($response->status(), [400, 422]);
+        $this->assertContains($response->status(), [400, 412]);
         if ($response->json('success') !== null) {
             $this->assertFalse($response->json('success'));
         }

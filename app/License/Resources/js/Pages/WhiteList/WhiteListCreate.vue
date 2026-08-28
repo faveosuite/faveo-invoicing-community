@@ -96,7 +96,7 @@ async function onSubmit() {
             setTimeout(() => { router.push('/whitelist/list') }, 2000)
         }
     }).catch(err => {
-        errorHandler(err, 'whitelist')
+        errorHandler(err, 'whitelist', { setErrors })
     }).finally(() => {
         saving.value = false
     })

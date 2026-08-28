@@ -104,8 +104,8 @@ class TemplateControllerTest extends DBTestCase
             'data' => '<p>content</p>',
             'type' => $type->id,
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['name']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['name'], 'message');
     }
 
     public function test_update_template_missing_data_returns_422(): void
@@ -117,8 +117,8 @@ class TemplateControllerTest extends DBTestCase
             'name' => 'Updated',
             'type' => $type->id,
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['data']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['data'], 'message');
     }
 
     public function test_update_template_with_valid_data_returns_200(): void

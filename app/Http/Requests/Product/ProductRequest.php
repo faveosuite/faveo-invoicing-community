@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Product;
 
+use App\Traits\RequestJsonValidation;
 use App\Http\Requests\Request;
 use Override;
 
 class ProductRequest extends Request
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
      */

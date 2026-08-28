@@ -125,7 +125,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/settings/widgets/analytics'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

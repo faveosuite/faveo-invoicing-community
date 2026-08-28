@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Lang;
 
 /**
  * Contains method `failedValidation` which catches the validation errors before it reaches the actual
@@ -39,20 +40,22 @@ trait RequestJsonValidation
      *
      * @throw HttpResponseException
      */
-    final protected function failedAuthorization(): never
+    final protected function failedAuthorization()
     {
-        throw new HttpResponseException(errorResponse(__('lang.permission_denied_action'), 400));
+        throw new HttpResponseException(errorResponse(Lang::get('message.permission_denied_action'), 400));
     }
 
     /**
-     * Changes validation message.
+     * Changes validation message
+     *
+     * @return array<string, string>
      */
-    public function messages(): array
+    public function messages()
     {
         return [
             '*.required' => 'This field is required',
-            '*.required_if' => 'This field is required',
-            '*.required_unless' => 'This field is required',
+            '*.required_if'=>'This field is required',
+            '*.required_unless'=>'This field is required',
         ];
     }
 }

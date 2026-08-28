@@ -456,7 +456,7 @@ onMounted(async () => {
         if (form.apiKey)  connectionStatus.value = 'connected'
         if (form.listId)  loadMappingData()
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loading.value = false
     }
@@ -480,7 +480,7 @@ async function connect() {
         successHandler(res, COMPONENT)
     } catch (e) {
         connectionStatus.value = 'failed'
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         connecting.value = false
     }
@@ -512,7 +512,7 @@ async function saveConnection() {
         successHandler(res, COMPONENT)
         loadMappingData()
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         savingConnection.value = false
     }
@@ -542,7 +542,7 @@ async function loadMoreLists() {
         listsHasMore.value = d.has_more ?? false
         listsOffset.value  = lists.value.length
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         listsLoading.value = false
     }
@@ -581,7 +581,7 @@ async function loadMappingData() {
             const match = interestGroups.value.find(g => g.category_option_id === d.relation.is_paid_yes)
             isPaidCategoryId.value = match?.category_id ?? null
         }
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
 }
 
 // ── Sync fields ────────────────────────────────────────────────────────────
@@ -593,7 +593,7 @@ async function syncFields() {
         mergeTags.value = Object.entries(fields).map(([tag, name]) => ({ tag, name }))
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         syncingFields.value = false
     }
@@ -621,7 +621,7 @@ async function saveMapping() {
         const res = await http.patch(`/mail-chimp/mapping`, payload)
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         savingMapping.value = false
     }
@@ -636,7 +636,7 @@ async function syncGroups() {
         interestGroups.value     = d.groups     ?? interestGroups.value
         interestCategories.value = d.categories ?? interestCategories.value
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         syncingGroups.value = false
     }
@@ -680,7 +680,7 @@ async function saveInterestGroups() {
 
         successHandler({ data: { message: __('message.updated-successfully') } }, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         savingGroups.value = false
     }

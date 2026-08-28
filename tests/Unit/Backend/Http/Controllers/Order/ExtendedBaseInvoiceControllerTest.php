@@ -28,8 +28,8 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
             'payment_method' => 'cash',
             'totalAmt' => 100,
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['payment_date']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['payment_date'], 'message');
     }
 
     public function test_post_new_multiple_payment_missing_payment_method_returns_422(): void
@@ -40,8 +40,8 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
             'payment_date' => '2025-01-15',
             'totalAmt' => 100,
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['payment_method']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['payment_method'], 'message');
     }
 
     public function test_post_new_multiple_payment_zero_amount_returns_422(): void
@@ -53,8 +53,8 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
             'payment_method' => 'cash',
             'totalAmt' => 0,
         ]);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['totalAmt']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['totalAmt'], 'message');
     }
 
     public function test_post_new_multiple_payment_with_no_invoices_returns_200(): void
@@ -80,7 +80,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user']);
         $response = $this->postJson("/newMultiplePayment/update/{$client->id}", []);
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     // =========================================================================
@@ -569,7 +569,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
             // invoiceChecked missing
         ]);
 
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('invoiceChecked', $response->json('errors'));
+        $response->assertStatus(412);
+        $this->assertArrayHasKey('invoiceChecked', $response->json('message'));
     }
 }

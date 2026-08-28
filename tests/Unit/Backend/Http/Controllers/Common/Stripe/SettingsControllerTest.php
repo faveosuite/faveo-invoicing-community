@@ -293,7 +293,7 @@ class SettingsControllerTest extends DBTestCase
 
         $response = $this->patchJson('/settings/system-data', $payload);
 
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     public function test_it_updates_settings_with_only_required_fields(): void

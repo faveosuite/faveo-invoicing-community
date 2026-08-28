@@ -325,7 +325,7 @@ onMounted(async () => {
         const standard = taxClasses.value.find(c => c.name === 'Standard') ?? taxClasses.value[0]
         if (standard && !form.tax_class_id) form.tax_class_id = standard.id
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         loadingTax.value = false
     }
@@ -367,7 +367,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/products'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false
     }

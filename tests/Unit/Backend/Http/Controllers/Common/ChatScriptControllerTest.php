@@ -90,7 +90,7 @@ class ChatScriptControllerTest extends DBTestCase
     public function test_it_fails_validation_when_required_fields_missing(): void
     {
         $response = $this->postJson('/chat/create', []);
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     public function test_it_returns_single_chat_script(): void

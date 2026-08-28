@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Front;
 
+use App\Traits\RequestJsonValidation;
 use App\Rules\Honeypot;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -11,6 +12,8 @@ use Override;
 
 class ContactRequest extends FormRequest
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
      */

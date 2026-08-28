@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Payment;
 
+use App\Traits\RequestJsonValidation;
 use App\Http\Requests\Request;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
@@ -12,6 +13,8 @@ use Override;
 
 class PromotionRequest extends Request
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
      */

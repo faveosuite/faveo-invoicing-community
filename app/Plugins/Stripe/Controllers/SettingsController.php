@@ -63,19 +63,26 @@ class SettingsController extends Controller
     public function updateApiKey(Request $request): JsonResponse
     {
         $request->validate([
-            'stripe_secret' => ['required', 'string'],
-            'stripe_key' => ['required', 'string'],
-            'webhook_secret' => ['nullable', 'string'],
-            'processing_fee' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'stripe_secret' => ['required', 'string', 'regex:/^[rs]k_/'],
+            'stripe_key' => ['required', 'string', 'regex:/^pk_/'],
+            'webhook_secret' => ['required', 'string'],
+            'processing_fee' => ['required', 'numeric', 'min:0', 'max:100'],
             'auto_renewal' => ['nullable', 'boolean'],
         ], [
             'stripe_secret.required' => __('message.stripe_secret_required'),
+            'stripe_secret.regex' => __('message.stripe_secret_invalid'),
             'stripe_key.required' => __('message.stripe_key_required'),
+            'stripe_key.regex' => __('message.stripe_key_invalid'),
+            'processing_fee.numeric' => __('message.processing_fee_invalid'),
+            'processing_fee.min' => __('message.processing_fee_invalid'),
+            'processing_fee.max' => __('message.processing_fee_invalid'),
         ]);
 
         try {
+            // Format is checked above; this proves the key actually authenticates
+            // with Stripe. Read-only call — no throwaway data created on every save.
             $stripe = new StripeClient($request->input('stripe_secret'));
-            $stripe->customers->create(['description' => 'Test Customer to Validate Secret Key']);
+            $stripe->balance->retrieve();
 
             ApiKey::where('id', 1)->update([
                 'stripe_secret' => $request->input('stripe_secret'),
