@@ -92,13 +92,13 @@ class PromotionControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // PUT /promotionCreate — exact field errors
+    // POST /promotionCreate — exact field errors
     // =========================================================================
 
     public function test_create_empty_body_returns_422_with_all_required_field_errors(): void
     {
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/promotionCreate', []);
+        $response = $this->postJson('/promotionCreate', []);
 
         $response->assertStatus(412);
         $errors = $response->json('message');
@@ -111,7 +111,7 @@ class PromotionControllerTest extends DBTestCase
     public function test_create_missing_code_has_specific_error_message(): void
     {
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/promotionCreate', [
+        $response = $this->postJson('/promotionCreate', [
             'type' => '2', 'applied' => '2025-01-01', 'uses' => 10,
             'start' => '2025-01-01', 'expiry' => '2025-12-31', 'value' => 50,
         ]);
@@ -123,7 +123,7 @@ class PromotionControllerTest extends DBTestCase
     public function test_create_expiry_before_start_has_expiry_error(): void
     {
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/promotionCreate', [
+        $response = $this->postJson('/promotionCreate', [
             'code' => 'PROMO', 'type' => '2', 'applied' => '2025-01-01',
             'uses' => 10, 'start' => '2025-12-31', 'expiry' => '2025-01-01', 'value' => 50,
         ]);
@@ -135,7 +135,7 @@ class PromotionControllerTest extends DBTestCase
     public function test_create_non_numeric_uses_has_uses_error(): void
     {
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/promotionCreate', [
+        $response = $this->postJson('/promotionCreate', [
             'code' => 'TEST', 'type' => '2', 'applied' => '2025-01-01',
             'uses' => 'many', 'start' => '2025-01-01', 'expiry' => '2025-12-31', 'value' => 50,
         ]);
@@ -187,7 +187,7 @@ class PromotionControllerTest extends DBTestCase
     {
         // Covers lines 248-271: promotionCodeCreate
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/promotionCreate', $this->validPromoPayload());
+        $response = $this->postJson('/promotionCreate', $this->validPromoPayload());
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
     }

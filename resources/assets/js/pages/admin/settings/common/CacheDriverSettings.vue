@@ -73,7 +73,7 @@ async function save() {
 
     saving.value = true
     try {
-        const res = await http.post(`/cache-settings/${driver}`, { ...form })
+        const res = await http.patch(`/cache-settings/${driver}`, { ...form })
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT, { setErrors })

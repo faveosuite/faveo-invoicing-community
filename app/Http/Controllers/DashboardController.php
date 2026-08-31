@@ -18,25 +18,6 @@ use Illuminate\Support\Facades\Date;
 class DashboardController extends Controller
 {
     /**
-     * Get all the installations and their percentage that got active in the last 30 days with respect to inactive installation.
-     *
-     * @return array<mixed>
-     */
-    public function getLast30DaysInstallation(): array
-    {
-        $dayUtc = new Carbon('-30 days');
-        $now = Date::now()->subDays(1);
-        $rate = 0;
-        $totalSubscriptionInLast30Days = Subscription::whereBetween('created_at', [$dayUtc, $now])->count();
-        $inactiveInstallation = Subscription::whereColumn('created_at', '=', 'updated_at')->whereBetween('created_at', [$dayUtc, $now])->count();
-        if ($totalSubscriptionInLast30Days) {
-            $rate = (($totalSubscriptionInLast30Days - $inactiveInstallation) / $totalSubscriptionInLast30Days * 100);
-        }
-
-        return ['total_subscription' => $totalSubscriptionInLast30Days, 'inactive_subscription' => $inactiveInstallation, 'rate' => $rate];
-    }
-
-    /**
      * Calculates total sales.
      *
      * @param  $allowedCurrencies  The currency in which total needs to be calculated
@@ -84,41 +65,6 @@ class DashboardController extends Controller
             ->pluck('payment_invoice.amount')->all();
 
         return array_sum($total);
-    }
-
-    /**
-     * Calculates pending payments in the system.
-     *
-     * @param  $allowedCurrencies  Currency in which pending payment need to be calculated
-     */
-    public function getPendingPayments(mixed $allowedCurrencies): float|int
-    {
-        $total = Invoice::where('currency', $allowedCurrencies)
-            ->where('status', '=', 'pending')
-            ->pluck('grand_total')->all();
-
-        return array_sum($total);
-    }
-
-    /**
-     * Get the list of previous month registered users.
-     */
-    public function getAllUsers(): mixed
-    {
-        $dateBefore = Date::now()->subDays(31)->startOfDay()->setTime(12, 0, 0);
-
-        $today = Date::now()->endOfDay();
-        $fromDateStart = $dateBefore->format('Y-m-d').' 00:00:00';
-        $tillDateEnd = $today->format('Y-m-d').' 23:59:59';
-
-        Date::now()->endOfDay()->second(59);
-
-        return User::orderBy('created_at', 'desc')
-            ->where('active', 1)
-            ->where('mobile_verified', 1)
-            ->select('id', 'first_name', 'last_name', 'user_name', 'profile_pic', 'email', 'created_at')
-            ->whereBetween('users.created_at', [$fromDateStart, $tillDateEnd])
-            ->get();
     }
 
     /**
@@ -213,42 +159,6 @@ class DashboardController extends Controller
     }
 
     /**
-     * List of Invoices of past 30 ays.
-     */
-    public function getRecentInvoices(): mixed
-    {
-        $dateBefore = Date::now()->subDays(31)->startOfDay()->setTime(12, 0, 0);
-
-        $today = Date::now()->endOfDay();
-        $fromDateStart = $dateBefore->format('Y-m-d').' 00:00:00';
-        $tillDateEnd = $today->format('Y-m-d').' 23:59:59';
-
-        Date::now()->endOfDay()->second(59);
-
-        return Invoice::with('user:id,first_name,last_name,email,user_name')
-            ->leftJoin('currencies', 'invoices.currency', '=', 'currencies.code')
-            ->leftJoin('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
-            ->select('invoices.id as invoice_id', 'invoices.number as invoice_number', 'invoices.grand_total', 'invoices.status',
-                DB::raw('SUM(payment_invoice.amount) as paid'), 'invoices.user_id', 'currencies.code as currency_code', 'invoices.date')
-            ->whereBetween('invoices.date', [$fromDateStart, $tillDateEnd])
-
-            ->groupBy('invoices.id')
-            ->orderBy('invoices.date', 'desc')
-            ->get()->map(function ($element) {
-                $element->balance = (int) ($element->grand_total - $element->paid); // @phpstan-ignore property.notFound, property.notFound
-                $element->status = getStatusLabel($element->status);
-                $element->grand_total = currencyFormat((int) $element->grand_total, $element->currency_code); // @phpstan-ignore property.notFound
-                $element->paid = currencyFormat((int) $element->paid, $element->currency_code); // @phpstan-ignore property.notFound, property.notFound, property.notFound
-                $element->balance = currencyFormat((int) $element->balance, $element->currency_code); // @phpstan-ignore property.notFound
-                $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->user_id)?->first_name.' '.User::onlyTrashed()->find($element->user_id)?->last_name; // @phpstan-ignore property.notFound
-                $element->client_profile_link = \Config('app.url').'/clients/'.$element->user_id; // @phpstan-ignore property.notFound
-                unset($element->user);
-
-                return $element;
-            });
-    }
-
-    /**
      * @param  array<mixed>  $totals
      * @return array<mixed>
      */
@@ -300,8 +210,9 @@ class DashboardController extends Controller
             ->where('email_verified', 1)
             ->whereBetween('created_at', [
                 Date::now()->subDays($days)->startOfDay(),
-                Date::now()->endOfDay(),
+                Date::now()->subDay()->endOfDay(),
             ])
+            ->orderByDesc('created_at')
             ->get();
     }
 
@@ -322,7 +233,7 @@ class DashboardController extends Controller
             ])
             ->whereBetween('update_ends_at', [
                 Date::now()->subDays($days)->startOfDay(),
-                Date::now()->endOfDay(),
+                Date::now()->subDay()->endOfDay(),
             ])
             ->orderBy('days_expired')
             ->get();
@@ -397,7 +308,7 @@ class DashboardController extends Controller
             ->where('price_override', '>', 0)
             ->whereBetween('created_at', [
                 Date::now()->subDays($days)->startOfDay(),
-                Date::now()->endOfDay(),
+                Date::now()->subDay()->endOfDay(),
             ])
             ->orderBy('id', 'desc')
             ->get();
@@ -416,7 +327,7 @@ class DashboardController extends Controller
     {
         return Invoice::join('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
             ->where('invoices.status', '!=', 'pending')
-            ->whereYear('invoices.created_at', Date::now()->year)
+            ->whereYear('invoices.date', Date::now()->year)
             ->groupBy('invoices.currency')
             ->selectRaw('invoices.currency, SUM(payment_invoice.amount) as total')
             ->pluck('total', 'currency');
@@ -436,7 +347,7 @@ class DashboardController extends Controller
     {
         return DB::table(
             Invoice::leftJoin('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
-                ->where('invoices.status', '!=', 'paid')
+                ->where('invoices.status', '!=', 'success')
                 ->groupBy('invoices.id', 'invoices.currency', 'invoices.grand_total')
                 ->selectRaw('invoices.currency, invoices.grand_total - COALESCE(SUM(payment_invoice.amount), 0) as remaining')
                 ->toBase(),
@@ -479,7 +390,7 @@ class DashboardController extends Controller
     private function getConversionRateByDays(int $days): array
     {
         $startDate = Date::now()->subDays($days)->startOfDay();
-        $endDate = Date::now()->endOfDay();
+        $endDate = Date::now()->subDay()->endOfDay();
 
         // Total orders in the period
         $allOrders = Order::whereBetween('created_at', [$startDate, $endDate])->count();
@@ -501,7 +412,7 @@ class DashboardController extends Controller
     private function getAllRecentInvoices(int $days): mixed
     {
         $fromDate = Date::now()->subDays($days)->startOfDay();
-        $toDate = Date::now()->endOfDay();
+        $toDate = Date::now()->subDay()->endOfDay();
 
         // Fetch invoices with user info and payment sum
         $invoices = Invoice::with([
@@ -543,7 +454,7 @@ class DashboardController extends Controller
     public function getSoldProduct(?int $days = null): mixed
     {
         $fromDate = $days ? Date::now()->subDays($days)->startOfDay() : null;
-        $toDate = Date::now()->endOfDay();
+        $toDate = Date::now()->subDay()->endOfDay();
 
         return Product::select('id', 'name', 'image')
             ->withCount(['order as order_count' => function ($query) use ($fromDate, $toDate): void {

@@ -5,7 +5,7 @@
         <!-- Queue list -->
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">{{ __('message.queue') }}</h4>
+                <h4 class="card-title">{{ __('message.queues') }}</h4>
             </div>
             <div class="card-body">
                 <!-- Cron command – only shown when Database queue is active -->

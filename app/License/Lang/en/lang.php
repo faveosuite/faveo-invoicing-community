@@ -308,7 +308,7 @@ return [
     'version_upgrade_query' => 'Upgrade MYSQL Query',
     'view' => 'View',
     'view_all' => 'ViewAll',
-    'view_banned_hosts' => 'List of Banned Hosts',
+    'view_banned_hosts' => 'All Banned Hosts',
     'view_cracking_reports' => 'View Cracking Reports',
     'view_license_reports' => 'View License Reports',
     'view_system_reports' => 'View System Reports',

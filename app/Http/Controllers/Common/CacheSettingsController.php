@@ -23,6 +23,12 @@ class CacheSettingsController extends Controller
         ['name' => 'DynamoDB',  'short_name' => 'dynamodb'],
     ];
 
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('admin');
+    }
+
     public function getDriverData(): JsonResponse
     {
         $active = CommonSettings::where('option_name', 'cache')

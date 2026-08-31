@@ -10,7 +10,7 @@ export default [
     { path: '/settings/payment-gateway/:id/edit', component: () => import('../../../pages/admin/settings/settings/paymentGateway/PaymentGatewayEdit.vue'), meta: { title: 'Edit Payment Gateway', titleKey: 'message.edit_payment_gateway' } },
     { path: '/settings/system-managers',          component: () => import('../../../pages/admin/settings/settings/SystemManagers.vue'),       meta: { title: 'System Manager Settings', titleKey: 'message.system_manager_settings' } },
     { path: '/settings/third-party-apps',         component: () => import('../../../pages/admin/settings/settings/thirdPartyApps/ThirdPartyAppsIndex.vue'), meta: { title: 'All Third-Party Apps', titleKey: 'message.all_third_party_apps' } },
-    { path: '/settings/cloud-details',            component: () => import('../../../pages/admin/settings/settings/CloudDetails.vue'),         meta: { title: 'Cloud Details',         titleKey: 'message.cloud_details' } },
+    { path: '/settings/cloud-details',            component: () => import('../../../pages/admin/settings/settings/CloudDetails.vue'),         meta: { title: 'Cloud Hub',         titleKey: 'message.cloud_hub' } },
     { path: '/settings/localized-license',        component: () => import('../../../pages/admin/settings/settings/LocalizedLicense.vue'),    meta: { title: 'Localized License',     titleKey: 'message.localized_license' } },
     { path: '/settings/debugging',                component: () => import('../../../pages/admin/settings/settings/DebuggingSettings.vue'),   meta: { title: 'Debugging',             titleKey: 'message.debugging' } },
     { path: '/settings/social-logins',            component: () => import('../../../pages/admin/settings/settings/socialLogins/SocialLoginIndex.vue'),  meta: { title: 'Social Logins',         titleKey: 'message.social_logins' } },
@@ -21,8 +21,8 @@ export default [
     { path: '/settings/contact-options',          component: () => import('../../../pages/admin/settings/settings/ContactOptions.vue'),      meta: { title: 'Contact Options',       titleKey: 'message.contact_options' } },
     { path: '/settings/open-payments',            component: () => import('../../../pages/admin/settings/common/openPayments/OpenPaymentsList.vue'), meta: { title: 'Open Payments' } },
     { path: '/settings/deployment',               component: () => import('../../../pages/admin/settings/settings/DeploymentSettings.vue'),          meta: { title: 'Deployment Settings', titleKey: 'message.deployment_settings' } },
-    { path: '/settings/seo',                      component: () => import('../../../pages/admin/settings/settings/seo/SeoSettingsIndex.vue'),        meta: { title: 'SEO',                   titleKey: 'message.seo' } },
-    { path: '/settings/seo/pages',                component: () => import('../../../pages/admin/settings/settings/seo/SeoPagesIndex.vue'),           meta: { title: 'SEO Pages',             titleKey: 'message.seo' } },
+    { path: '/settings/seo',                      component: () => import('../../../pages/admin/settings/settings/seo/SeoSettingsIndex.vue'),        meta: { title: 'General SEO Settings',  titleKey: 'message.seo_general_settings' } },
+    { path: '/settings/seo/pages',                component: () => import('../../../pages/admin/settings/settings/seo/SeoPagesIndex.vue'),           meta: { title: 'SEO Pages',             titleKey: 'message.seo_pages' } },
     {
         path: '/settings/seo/:pageKey/edit',
         component: () => import('../../../pages/admin/settings/settings/seo/SeoDefaultPageEdit.vue'),
@@ -31,7 +31,7 @@ export default [
             titleKey: 'message.edit_seo',
             breadcrumb: [
                 { title: 'Settings', titleKey: 'message.settings', to: '/settings' },
-                { title: 'Pages', titleKey: 'message.pages', to: '/settings/seo/pages' },
+                { title: 'SEO Pages', titleKey: 'message.seo_pages', to: '/settings/seo/pages' },
                 { title: 'Edit SEO', titleKey: 'message.edit_seo' },
             ],
         },

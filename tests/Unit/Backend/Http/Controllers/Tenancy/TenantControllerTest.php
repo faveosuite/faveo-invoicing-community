@@ -378,7 +378,7 @@ class TenantControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // DeleteCloudInstanceForClient – GET /delete/domain/{orderNumber}/{isDelete}
+    // DeleteCloudInstanceForClient – DELETE /delete/domain/{orderNumber}/{isDelete}
     // =========================================================================
 
     public function test_delete_cloud_instance_returns_error_when_no_app_key(): void
@@ -386,7 +386,7 @@ class TenantControllerTest extends DBTestCase
         ThirdPartyApp::where('app_name', 'faveo_app_key')->delete();
 
         // isDelete=true, no app key in DB → errorResponse 400
-        $response = $this->get('/delete/domain/NONEXISTENT_ORDER/1');
+        $response = $this->delete('/delete/domain/NONEXISTENT_ORDER/1');
 
         $response->assertStatus(400)
             ->assertJson(['success' => false]);
@@ -395,7 +395,7 @@ class TenantControllerTest extends DBTestCase
     public function test_delete_cloud_instance_with_is_delete_false_returns_200(): void
     {
         // isDelete=0 → method returns null → Laravel converts to 200 empty body
-        $response = $this->get('/delete/domain/NONEXISTENT_ORDER/0');
+        $response = $this->delete('/delete/domain/NONEXISTENT_ORDER/0');
 
         $response->assertStatus(200);
     }

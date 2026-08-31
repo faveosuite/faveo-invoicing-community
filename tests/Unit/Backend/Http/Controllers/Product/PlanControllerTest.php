@@ -61,12 +61,12 @@ class PlanControllerTest extends DBTestCase
         $this->assertNotEmpty($response->json('message'));
     }
 
-    // --- PUT /plans — exact validation errors ---
+    // --- POST /plans — exact validation errors ---
 
     public function test_create_empty_body_returns_422_with_required_field_errors(): void
     {
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/plans', []);
+        $response = $this->postJson('/plans', []);
 
         $response->assertStatus(412);
         $errors = $response->json('message');
@@ -79,7 +79,7 @@ class PlanControllerTest extends DBTestCase
     public function test_create_missing_name_has_name_error(): void
     {
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/plans', [
+        $response = $this->postJson('/plans', [
             'product' => 1, 'status' => 1,
             'currency' => ['USD'], 'add_price' => [0], 'renew_price' => [0],
             'product_quantity' => 1,
@@ -92,7 +92,7 @@ class PlanControllerTest extends DBTestCase
     public function test_create_negative_add_price_has_add_price_error(): void
     {
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/plans', [
+        $response = $this->postJson('/plans', [
             'name' => 'Bad Plan', 'product' => 1, 'status' => 1,
             'currency' => ['USD'], 'add_price' => [-10], 'renew_price' => [0],
             'product_quantity' => 1,
@@ -156,7 +156,7 @@ class PlanControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $product = Product::factory()->create();
 
-        $response = $this->putJson('/plans', [
+        $response = $this->postJson('/plans', [
             'name' => 'Monthly Plan',
             'product' => $product->id,
             'days' => 30,

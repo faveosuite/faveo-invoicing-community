@@ -136,7 +136,7 @@ async function submit() {
     saving.value = true
     alertStore.unsetAlert()
     try {
-        await http.put(`/product/upload/${productId}`, {
+        await http.post(`/product/upload/${productId}`, {
             producttitle: form.value.title,
             version: form.value.version,
             filename: uploadedName.value,

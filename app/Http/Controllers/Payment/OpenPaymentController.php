@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Payment\OpenPaymentRequest;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
+use App\Model\Common\StatusSetting;
 use App\Model\Payment\Currency;
 use App\Model\Payment\OpenPaymentOrder;
 use App\Model\Plugin;
@@ -41,6 +42,10 @@ class OpenPaymentController extends Controller
      */
     public function createOrder(OpenPaymentRequest $request): JsonResponse
     {
+        if (! StatusSetting::value('open_payment_status')) {
+            return errorResponse(__('message.open_payment_disabled'));
+        }
+
         try {
             // Lock fee server-side — client cannot manipulate it
             $feeRate = (float) (DB::table(strtolower($request->gateway))->value('processing_fee') ?? 0);
@@ -287,7 +292,12 @@ class OpenPaymentController extends Controller
 
         $appTitle = Setting::find(1)->title ?? config('app.name');
 
-        return successResponse('', ['gateways' => $gateways, 'currencies' => $currencies, 'app_title' => $appTitle]);
+        return successResponse('', [
+            'gateways' => $gateways,
+            'currencies' => $currencies,
+            'app_title' => $appTitle,
+            'enabled' => (bool) StatusSetting::value('open_payment_status'),
+        ]);
     }
 
     /**

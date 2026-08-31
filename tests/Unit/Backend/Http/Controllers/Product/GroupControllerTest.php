@@ -63,12 +63,12 @@ class GroupControllerTest extends DBTestCase
         $this->assertNotEmpty($response->json('message'));
     }
 
-    // --- PUT /group — exact field errors ---
+    // --- POST /group — exact field errors ---
 
     public function test_create_missing_name_returns_422_with_name_error(): void
     {
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/group', ['pricing_templates_id' => 1]);
+        $response = $this->postJson('/group', ['pricing_templates_id' => 1]);
 
         $response->assertStatus(412);
         $this->assertArrayHasKey('name', $response->json('message'));
@@ -77,7 +77,7 @@ class GroupControllerTest extends DBTestCase
     public function test_create_missing_pricing_template_returns_422_with_template_error(): void
     {
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/group', ['name' => 'Support']);
+        $response = $this->postJson('/group', ['name' => 'Support']);
 
         $response->assertStatus(412);
         $this->assertArrayHasKey('pricing_templates_id', $response->json('message'));
@@ -86,7 +86,7 @@ class GroupControllerTest extends DBTestCase
     public function test_create_blocked_for_client_returns_302(): void
     {
         $this->getLoggedInUser('user');
-        $this->putJson('/group', ['name' => 'x', 'pricing_templates_id' => 1])->assertStatus(302);
+        $this->postJson('/group', ['name' => 'x', 'pricing_templates_id' => 1])->assertStatus(302);
     }
 
     // --- PATCH /group/{group_id} ---
@@ -138,7 +138,7 @@ class GroupControllerTest extends DBTestCase
     public function test_create_group_with_valid_data_returns_200(): void
     {
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/group', [
+        $response = $this->postJson('/group', [
             'name' => 'New Group '.uniqid(),
             'pricing_templates_id' => 1,
             'hidden' => 0,
@@ -209,7 +209,7 @@ class GroupControllerTest extends DBTestCase
         $this->app->instance(SeoFileGenerator::class, $generator);
 
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/group', [
+        $response = $this->postJson('/group', [
             'name' => 'SEO Group '.uniqid(),
             'pricing_templates_id' => 1,
             'hidden' => 0,
@@ -235,7 +235,7 @@ class GroupControllerTest extends DBTestCase
         Attach::shouldReceive('put')->once()->andReturn('group-og-abc123.png');
 
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/group', [
+        $response = $this->postJson('/group', [
             'name' => 'Image Group '.uniqid(),
             'pricing_templates_id' => 1,
             'hidden' => 0,
@@ -275,7 +275,7 @@ class GroupControllerTest extends DBTestCase
         $this->app->instance(SeoFileGenerator::class, $generator);
 
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/group', [
+        $response = $this->postJson('/group', [
             'name' => 'Resilient Group '.uniqid(),
             'pricing_templates_id' => 1,
             'hidden' => 0,

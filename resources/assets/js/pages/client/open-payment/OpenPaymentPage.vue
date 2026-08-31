@@ -2,7 +2,18 @@
 
   <div class="op-page">
 
-    <div class="op-wrapper">
+    <!-- Same loading pattern as the rest of the client pages (e.g. client/dashboard) —
+         nothing renders until config resolves, so neither the form nor the disabled
+         message flashes before the real state is known. -->
+    <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
+
+    <div v-else-if="!paymentsEnabled" class="op-wrapper text-center py-5">
+      <i class="fas fa-lock fa-2x text-muted mb-3 d-block mx-auto"></i>
+      <h5 class="fw-bold mb-2">{{ __('message.op_payments_disabled_title') }}</h5>
+      <p class="text-muted mb-0">{{ __('message.op_payments_disabled_body') }}</p>
+    </div>
+
+    <div v-else class="op-wrapper">
 
       <!-- Stepper -->
       <div class="d-flex justify-content-center align-items-start mb-4">
@@ -498,6 +509,8 @@ const form = reactive({
 const appTitle        = ref('')
 const currencyOptions = ref([])
 const enabledGateways = ref([])
+const paymentsEnabled = ref(true)
+const loading          = ref(true)
 const selectedCurrency = computed(() => currencyOptions.value.find(c => c.code === form.currency) ?? null)
 const selectedCurrencySymbol = computed(() => selectedCurrency.value?.symbol ?? '')
 const onCurrencyChange = (val) => { form.currency = val?.code ?? '' }
@@ -849,6 +862,7 @@ onMounted(async () => {
     appTitle.value        = cfg.app_title ?? ''
     currencyOptions.value = (cfg.currencies ?? []).map(c => ({ code: c.code, symbol: c.symbol, name: `${c.name} (${c.code})` }))
     enabledGateways.value = cfg.gateways ?? []
+    paymentsEnabled.value = cfg.enabled !== false
     if (!form.currency && currencyOptions.value.length) form.currency = currencyOptions.value[0].code
     if (!form.gateway  && enabledGateways.value.length)  form.gateway  = enabledGateways.value[0].name
   } catch {
@@ -856,6 +870,8 @@ onMounted(async () => {
     enabledGateways.value = [{ name: 'Razorpay', processing_fee: 0 }, { name: 'Stripe', processing_fee: 0 }]
     form.currency = 'USD'
     form.gateway  = 'Razorpay'
+  } finally {
+    loading.value = false
   }
 
   const params  = new URLSearchParams(globalThis.location.search)

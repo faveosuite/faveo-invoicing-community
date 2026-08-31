@@ -357,7 +357,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.put(`/product/upload-build/apply`, {
+        const res = await http.post(`/product/upload-build/apply`, {
             filename: uploadedName.value,
             description: form.value.description,
             release_type: form.value.release_type,

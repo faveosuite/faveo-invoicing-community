@@ -25,7 +25,7 @@
               </template>
             </div>
             <div class="small-box-icon"><i class="ion ion-stats-bars"></i></div>
-            <router-link :to="`/invoices?status=success&from=${startingDateOfYear}`" class="small-box-footer">{{ __('message.more_info') }} <i class="fas fa-arrow-circle-right"></i></router-link>
+            <router-link :to="`/invoices?status=success&from_date=${startingDateOfYear}&to_date=${today}`" class="small-box-footer">{{ __('message.more_info') }} <i class="fas fa-arrow-circle-right"></i></router-link>
           </div>
         </div>
 
@@ -38,7 +38,7 @@
               </template>
             </div>
             <div class="small-box-icon"><i class="ion ion-pie-graph"></i></div>
-            <router-link :to="`/invoices?status=success&from=${startMonthDate}&till=${endMonthDate}`" class="small-box-footer">{{ __('message.more_info') }} <i class="fas fa-arrow-circle-right"></i></router-link>
+            <router-link :to="`/invoices?status=success&from_date=${startMonthDate}&to_date=${endMonthDate}`" class="small-box-footer">{{ __('message.more_info') }} <i class="fas fa-arrow-circle-right"></i></router-link>
           </div>
         </div>
 
@@ -63,7 +63,7 @@
               <span>{{ __('message.not_installed') }} &nbsp; {{ data.productInstalledRate?.inactive_subscription || 0 }}</span>
             </div>
             <div class="small-box-icon"><i class="ion ion-ios-download-outline"></i></div>
-            <router-link to="/orders?ins_not_ins=not_installed" class="small-box-footer">{{ __('message.more_info') }} <i class="fas fa-arrow-circle-right"></i></router-link>
+            <router-link to="/orders?act_ins=not_installed" class="small-box-footer">{{ __('message.more_info') }} <i class="fas fa-arrow-circle-right"></i></router-link>
           </div>
         </div>
 
@@ -75,7 +75,7 @@
               <span>{{ __('message.paid_orders') }} &nbsp; {{ data.paidOrderRate?.paid_orders || 0 }}</span>
             </div>
             <div class="small-box-icon"><i class="ion ion-ios-cart-outline"></i></div>
-            <router-link to="/orders?p_un=unpaid" class="small-box-footer">{{ __('message.more_info') }} <i class="fas fa-arrow-circle-right"></i></router-link>
+            <router-link to="/orders?product_id=unpaid" class="small-box-footer">{{ __('message.more_info') }} <i class="fas fa-arrow-circle-right"></i></router-link>
           </div>
         </div>
       </div>
@@ -97,16 +97,17 @@
             <div class="card-body direct-chat-messages p-0">
               <ul class="users-list clearfix">
                 <li v-for="user in data.clientWithMobileAndEmailActivation" :key="user.id">
-                  <router-link :to="`/users/${user.id}`" class="text-decoration-none">
-                    <img loading="lazy" :src="user.profile_pic" class="img-size-50 rounded-circle" alt="User Image">
+                  <router-link :to="`/users/${user.id}`" class="text-decoration-none d-flex align-items-center flex-grow-1 min-w-0">
+                    <img v-if="user.profile_pic" loading="lazy" :src="user.profile_pic" class="users-list-avatar" alt="User Image">
+                    <span v-else class="users-list-avatar users-list-initials" :style="{ background: avatarColor(user) }">{{ userInitials(user) }}</span>
+                    <span class="users-list-name text-truncate">{{ user.first_name }} {{ user.last_name }}</span>
                   </router-link>
-                  <router-link :to="`/users/${user.id}`" class="text-decoration-none users-list-name">{{ user.first_name }} {{ user.last_name }}</router-link>
                   <span class="users-list-date">{{ formatDateForUser(user.created_at) }}</span>
                 </li>
               </ul>
             </div>
             <div class="card-footer clearfix">
-              <router-link to="/users" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+              <router-link :to="registeredUsersViewAllUrl" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
             </div>
           </div>
         </div>
@@ -155,7 +156,7 @@
               </table>
             </div>
             <div class="card-footer clearfix">
-              <router-link :to="`/invoices?from_date=${thirtyOneDaysAgo}&to_date=${today}`" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+              <router-link :to="`/invoices?from_date=${thirtyDaysAgo}&to_date=${yesterday}`" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
             </div>
           </div>
         </div>
@@ -308,7 +309,7 @@
               </table>
             </div>
             <div class="card-footer clearfix">
-              <router-link to="/orders?act_ins=paid_inactive_ins" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+              <router-link to="/orders" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
             </div>
           </div>
         </div>
@@ -353,7 +354,7 @@
               </table>
             </div>
             <div class="card-footer clearfix">
-              <router-link :to="`/orders?from=${thirtyDaysAgo}&till=${today}`" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+              <router-link :to="`/orders?product_id=paid&from=${thirtyDaysAgo}&till=${yesterday}`" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
             </div>
           </div>
         </div>
@@ -399,7 +400,7 @@
               </table>
             </div>
             <div class="card-footer clearfix">
-              <router-link :to="`/orders?from=${thirtyDaysAgo}&till=${today}`" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+              <router-link :to="`/orders?from=${thirtyDaysAgo}&till=${yesterday}`" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
             </div>
           </div>
         </div>
@@ -443,7 +444,7 @@
               </table>
             </div>
             <div class="card-footer clearfix">
-              <router-link to="/products?value=totalSoldProduct" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+              <router-link to="/products" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
             </div>
           </div>
         </div>
@@ -484,7 +485,14 @@ const startMonthDate = ref(n.startOf('month').toFormat('yyyy-MM-dd'))
 const endMonthDate = ref(n.endOf('month').toFormat('yyyy-MM-dd'))
 const today = n.toFormat('yyyy-MM-dd')
 const thirtyDaysAgo = n.minus({ days: 30 }).toFormat('yyyy-MM-dd')
-const thirtyOneDaysAgo = n.minus({ days: 31 }).toFormat('yyyy-MM-dd')
+const yesterday = n.minus({ days: 1 }).toFormat('yyyy-MM-dd')
+
+// Built here rather than inline in the template: a literal "&reg_from"
+// inside a template attribute gets HTML-entity-decoded at compile time
+// ("&reg" without a ";" is the legacy ® entity, and "_" isn't alphanumeric
+// so the attribute exception doesn't block it) into "®_from", breaking
+// the query string. Plain JS in <script> isn't parsed as HTML, so it's safe here.
+const registeredUsersViewAllUrl = `/users?mobile_verified=1&email_verified=1&reg_from=${thirtyDaysAgo}&reg_till=${yesterday}`
 
 onMounted(async () => {
   try {
@@ -528,6 +536,17 @@ const isExpired = (dateStr) => {
   if (!dateStr) return false
   return new Date(dateStr) < new Date()
 }
+
+const avatarPalette = ['#2f9e44', '#343a40', '#c77c02', '#3b82c4', '#495057', '#7048e8', '#e8590c', '#0c8599']
+const userInitials = (user) => {
+  return ((user.first_name?.[0] ?? '') + (user.last_name?.[0] ?? '')).toUpperCase() || '?'
+}
+const avatarColor = (user) => {
+  const name = `${user.first_name ?? ''}${user.last_name ?? ''}`
+  let hash = 0
+  for (const c of name) hash = c.charCodeAt(0) + ((hash << 5) - hash)
+  return avatarPalette[Math.abs(hash) % avatarPalette.length]
+}
 </script>
 
 <style scoped>
@@ -536,5 +555,46 @@ const isExpired = (dateStr) => {
 }
 .small-box-footer:hover {
   color: #fff;
+}
+
+.users-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.users-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .75rem 1.25rem;
+  border-bottom: 1px solid var(--bs-border-color, #eee);
+}
+.users-list li:last-child {
+  border-bottom: none;
+}
+.users-list-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+.users-list-initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 600;
+  font-size: .8rem;
+}
+.users-list-name {
+  margin-left: .75rem;
+  font-weight: 600;
+  color: #212529;
+}
+.users-list-date {
+  color: #6c757d;
+  white-space: nowrap;
 }
 </style>

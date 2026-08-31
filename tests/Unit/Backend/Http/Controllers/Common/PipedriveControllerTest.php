@@ -242,14 +242,14 @@ class PipedriveControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // syncFields — GET /syncing/pipedriveFields
+    // syncFields — POST /syncing/pipedriveFields
     // =========================================================================
 
     public function test_sync_fields_returns_response(): void
     {
         $this->withoutMiddleware();
 
-        $response = $this->getJson('/syncing/pipedriveFields');
+        $response = $this->postJson('/syncing/pipedriveFields');
 
         // May succeed (200) or fail (400/500) if Pipedrive API not configured
         $this->assertContains($response->status(), [200, 400, 500]);

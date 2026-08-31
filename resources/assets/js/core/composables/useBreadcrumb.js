@@ -32,10 +32,17 @@ export function useBreadcrumb() {
     const pageTitle = computed(() => _titleOverride.value || translateTitle(route.meta))
 
     const breadcrumbs = computed(() => {
-        // Explicit override via meta.breadcrumb: array of { titleKey?, title, to? }.
+        // Explicit override via meta.breadcrumb: array of { titleKey?, title, to? },
+        // or a function(route) returning that array — used for dynamic parent
+        // crumbs on routes with an :id segment (e.g. linking back to the specific
+        // record's own page, which path-segment derivation can't express).
         // Used where path-segment derivation would be wrong (e.g. nested auth routes).
-        if (Array.isArray(route.meta?.breadcrumb)) {
-            return route.meta.breadcrumb.map((c, i, arr) => ({
+        const override = typeof route.meta?.breadcrumb === 'function'
+            ? route.meta.breadcrumb(route)
+            : route.meta?.breadcrumb
+
+        if (Array.isArray(override)) {
+            return override.map((c, i, arr) => ({
                 title: translateTitle(c),
                 to: c.to ?? route.path,
                 isActive: i === arr.length - 1,

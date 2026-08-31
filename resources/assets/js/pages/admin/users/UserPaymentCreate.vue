@@ -1,6 +1,5 @@
 <template>
     <div>
-        <AppBreadcrumb :items="breadcrumbs" />
         <AppAlert :componentName="COMPONENT" />
 
         <div class="card card-light">
@@ -185,13 +184,6 @@ const symbol = computed(() =>
 const filteredInvoices = computed(() =>
     invoices.value.filter(inv => inv.currency === form.value.currency)
 )
-
-const breadcrumbs = [
-    { label: __('message.home'),       to: '/dashboard' },
-    { label: __('message.all-users'),  to: '/users' },
-    { label: __('message.view_user'),  to: `/users/${userId}` },
-    { label: __('message.new-payment') },
-]
 
 const amountToCredit = computed(() => {
     const total = parseFloat(form.value.amount) || 0

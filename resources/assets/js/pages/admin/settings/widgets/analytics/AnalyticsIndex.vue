@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">{{ __('message.google_analytics_javascript') }}</h4>
+                <h4 class="card-title">{{ __('message.analytics') }}</h4>
                 <div class="card-tools">
                     <RouterLink
                         to="/settings/widgets/analytics/create"

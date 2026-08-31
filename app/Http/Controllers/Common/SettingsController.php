@@ -857,11 +857,12 @@ class SettingsController extends BaseSettingsController
     public function destroyPayment(Request $request): JsonResponse
     {
         try {
-            $ids = $request->input('ids', []);
+            $request->validate([
+                'ids' => 'required|array',
+                'ids.*' => 'integer|exists:payment_logs,id',
+            ]);
 
-            if (empty($ids)) {
-                return errorResponse(__('message.select-a-row'));
-            }
+            $ids = $request->input('ids', []);
 
             Payment_log::whereIn('id', $ids)->delete();
 

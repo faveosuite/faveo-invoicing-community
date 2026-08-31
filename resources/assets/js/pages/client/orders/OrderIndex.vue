@@ -80,10 +80,11 @@
                 <h5>{{ __('message.delete_confirm') }}</h5>
             </template>
             <template #fields>
+                <Alert componentName="order-delete" />
                 <p class="mb-0">{{ __('message.delete_cloud') }}</p>
             </template>
             <template #controls>
-                <action-button action="delete" @click="confirmDelete" />
+                <action-button action="delete" :loading="deleteLoading" @click="confirmDelete" />
             </template>
         </AppModal>
     </div>
@@ -98,6 +99,8 @@ import Alert from '@/components/Reusable/Alert.vue'
 import { useDateTime } from '@/core/composables/useDateTime'
 import { useDownload } from '@/core/composables/useDownload'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import http from '@/plugins/axios'
+import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
 const { formatDate }  = useDateTime()
 const { downloadFile } = useDownload('order-download')
@@ -162,6 +165,7 @@ function openRenewModal(row) {
 // ─── Delete Cloud Modal ──────────────────────────────────────
 const showDeleteModal = ref(false)
 const deleteRow       = ref(null)
+const deleteLoading   = ref(false)
 
 function openDeleteModal(row) {
     deleteRow.value      = row
@@ -172,9 +176,15 @@ function closeDeleteModal() {
     showDeleteModal.value = false
 }
 
-function confirmDelete() {
-    if (deleteRow.value?.number) {
-        globalThis.location.href = `${baseUrl}/delete/domain/${deleteRow.value.number}/1`
-    }
+async function confirmDelete() {
+    if (!deleteRow.value?.number) return
+    deleteLoading.value = true
+    try {
+        const res = await http.delete(`/delete/domain/${deleteRow.value.number}/1`)
+        successHandler(res, 'order-delete')
+        closeDeleteModal()
+        globalThis.emitter?.emit('refreshData')
+    } catch (e) { errorHandler(e, 'order-delete') }
+    finally { deleteLoading.value = false }
 }
 </script>

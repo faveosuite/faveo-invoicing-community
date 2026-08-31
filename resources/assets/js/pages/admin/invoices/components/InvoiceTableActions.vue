@@ -54,6 +54,7 @@ async function execute() {
     try {
         const res = await http.post(`/invoices/${props.invoiceId}/execute`)
         successHandler(res, props.componentName)
+        globalThis.emitter?.emit('refreshData')
     } catch (e) {
         errorHandler(e, props.componentName)
     }

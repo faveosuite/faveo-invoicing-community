@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">{{ __('message.all_currency') }}</h4>
+                <h4 class="card-title">{{ __('message.currency') }}</h4>
             </div>
             <div class="card-body">
                 <DataTable

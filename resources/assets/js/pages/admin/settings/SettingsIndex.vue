@@ -181,8 +181,8 @@ const sections = computed(() => [
             { to: '/settings/debugging',       icon: 'fas fa-bug',          label: __('message.debugging') },
             { to: '/settings/seo',             icon: 'fas fa-magnifying-glass-chart', label: __('message.seo'),
                 children: [
-                    { to: '/settings/seo',                      icon: 'fas fa-sliders-h', label: __('message.settings') },
-                    { to: '/settings/seo/pages',                 icon: 'fas fa-file-alt',  label: __('message.pages') },
+                    { to: '/settings/seo',                      icon: 'fas fa-sliders-h', label: __('message.seo_general_settings') },
+                    { to: '/settings/seo/pages',                 icon: 'fas fa-file-alt',  label: __('message.seo_pages') },
                 ],
             },
         ],
@@ -190,7 +190,7 @@ const sections = computed(() => [
     {
         title: __('message.license_and_access'),
         items: [
-            { to: '/settings/license-type',        icon: 'fas fa-file-lines',      label: __('message.license-type') },
+            { to: '/settings/license-type',        icon: 'fas fa-file-lines',      label: __('message.license_types') },
             { to: '/settings/license-permissions', icon: 'fas fa-diagram-project', label: __('message.license_permission') },
             { to: '/settings/localized-license',   icon: 'fas fa-globe',           label: __('message.localized_license') },
             { to: '/settings/system-managers',     icon: 'fas fa-people-group',    label: __('message.system_manager_settings') },
@@ -199,7 +199,7 @@ const sections = computed(() => [
     {
         title: __('message.billing'),
         items: [
-            { to: '/settings/payment-gateway',   icon: 'fas fa-credit-card',          label: __('message.payment_gateway_integrations') },
+            { to: '/settings/payment-gateway',   icon: 'fas fa-credit-card',          label: __('message.payment_gateways') },
             { to: '/settings/common/currency',   icon: 'fas fa-money-bill-transfer',  label: __('message.currency') },
             { to: '/settings/common/countries',  icon: 'fas fa-globe',                label: __('message.countries') },
             { to: '/settings/common/tax',        icon: 'fas fa-calculator',           label: __('message.tax') },

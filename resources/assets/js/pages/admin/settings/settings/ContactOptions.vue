@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h3 class="card-title">{{ __('message.settings') }}</h3>
+                <h3 class="card-title">{{ __('message.contact_options') }}</h3>
             </div>
 
             <div v-if="loading" class="row justify-content-center py-3"><loader /></div>

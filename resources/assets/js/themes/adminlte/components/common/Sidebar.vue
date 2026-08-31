@@ -41,14 +41,14 @@
                         <a class="nav-link" :class="{ active: isGroupActive('/users') }"
                            @click.prevent="toggleSection('users')">
                             <i class="nav-icon fas fa-user"></i>
-                            <p>{{ __('message.users') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
+                            <p>{{ __('message.contacts') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <RouterLink to="/users" class="nav-link"
                                             :class="{ active: isExact('/users') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all-users') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all-contacts') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
@@ -162,7 +162,7 @@
                                 <RouterLink to="/products/create" class="nav-link"
                                             :class="{ active: isExact('/products/create') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.add_product') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.add-new') }}</p>
                                 </RouterLink>
                             </li>
                             <!-- Plans/Coupons/Groups: active on self AND child routes (e.g. /edit) -->
@@ -184,7 +184,7 @@
                                 <RouterLink to="/products/groups" class="nav-link"
                                             :class="{ active: isGroupActive('/products/groups') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.groups') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.product_groups') }}</p>
                                 </RouterLink>
                             </li>
                         </ul>

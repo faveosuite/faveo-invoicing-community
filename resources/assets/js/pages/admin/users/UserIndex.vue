@@ -3,7 +3,7 @@
         <AppAlert componentName="users-index" />
     <div class="card card-light">
         <div class="card-header">
-            <h4 class="card-title">{{ __('message.users') }}</h4>
+            <h4 class="card-title">{{ __('message.all-contacts') }}</h4>
             <div class="card-tools">
                 <button
                     class="btn btn-tool"
@@ -34,6 +34,7 @@
             <UserFilter
                 :show="showFilter"
                 :baseUrl="baseUrl"
+                :initialValues="activeFilters"
                 @apply="onFilterApply"
                 @reset="onFilterReset"
                 @close="showFilter = false"
@@ -96,8 +97,8 @@
 </template>
 
 <script setup>
-import { h, ref, reactive, withDirectives } from 'vue'
-import { RouterLink } from 'vue-router'
+import { h, ref, reactive, watch, withDirectives } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import { vTooltip } from 'floating-vue'
 
 import http from '@/plugins/axios'
@@ -117,13 +118,28 @@ const COMPONENT = 'users-index'
 
 const baseUrl = useBaseUrl()
 const apiUrl = `/users`
+const route = useRoute()
 
 const dtRef = ref(null)
 const { selected: selectedUsers, allSelected, toggleRow, toggleAll } = useTableSelection(dtRef)
 const showFilter = ref(false)
-const activeFilters = ref({})
+
+const allowedUserFilters = ['company', 'country', 'role', 'position', 'reg_from', 'reg_till', 'actmanager', 'salesmanager', 'mobile_verified', 'email_verified', 'is_2fa_enabled']
+
+function parseUserQuery(query) {
+    const params = {}
+    allowedUserFilters.forEach(k => { if (query[k]) params[k] = query[k] })
+    return params
+}
+
+const activeFilters = ref(parseUserQuery(route.query))
 const exporting = ref(false)
 const pendingBulkDelete = ref(null)
+
+watch(() => route.query, (newQuery) => {
+    activeFilters.value = parseUserQuery(newQuery)
+    dtRef.value?.refresh()
+}, { deep: true })
 
 function onFilterApply(params) {
     activeFilters.value = params

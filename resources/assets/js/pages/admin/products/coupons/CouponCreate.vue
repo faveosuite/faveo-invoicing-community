@@ -147,7 +147,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.put(`/promotionCreate`, {
+        const res = await http.post(`/promotionCreate`, {
             code:   form.code,
             type:   form.type,
             value:  form.value,

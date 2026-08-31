@@ -81,7 +81,7 @@ const pendingBulkDelete = ref(null)
 async function bulkRestore() {
     if (!selected.value.length) return
     try {
-        const promises = selected.value.map(id => http.get(`/user/restore/${id}`))
+        const promises = selected.value.map(id => http.post(`/user/restore/${id}`))
         await Promise.all(promises)
         selected.value = []
         dtRef.value?.refresh()

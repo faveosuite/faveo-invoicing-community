@@ -49,7 +49,7 @@ const showModal = ref(false)
 async function restore() {
     restoring.value = true
     try {
-        const res = await http.get(`${props.baseUrl}/user/restore/${props.userId}`)
+        const res = await http.post(`${props.baseUrl}/user/restore/${props.userId}`)
         successHandler(res, props.componentName)
         emit('restored')
     } catch (e) {

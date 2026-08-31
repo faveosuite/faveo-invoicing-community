@@ -154,7 +154,7 @@ Route::prefix('api/admin')->middleware(['web', 'auth', 'admin'])->group(function
     // SERVER NOTIFICATIONS
     // ========================================================================
     Route::get('/viewNotifications', [NotificationsController::class, 'showLicenseNotifications']);
-    Route::post('/notifications/{notification_id}', [NotificationsController::class, 'updateLicenseNotifications']);
+    Route::patch('/notifications/{notification_id}', [NotificationsController::class, 'updateLicenseNotifications']);
     Route::get('/showUpdateNotifications', [NotificationsController::class, 'showUpdateNotifications']);
-    Route::post('/updateNotifications/{notification_id}', [NotificationsController::class, 'updateUpdateNotifications']);
+    Route::patch('/updateNotifications/{notification_id}', [NotificationsController::class, 'updateUpdateNotifications']);
 });

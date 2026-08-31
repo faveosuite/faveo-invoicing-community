@@ -269,7 +269,7 @@ async function submit() {
             renew_price:       form.prices.map(p => p.renew_price),
             offer_price:       form.prices.map(p => p.offer_price === '' ? null : p.offer_price),
         }
-        const res = await http.put(`/plans`, payload)
+        const res = await http.post(`/plans`, payload)
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/products/plans'), 2000)
     } catch (e) {

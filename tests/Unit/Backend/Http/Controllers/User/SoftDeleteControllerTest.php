@@ -43,17 +43,17 @@ class SoftDeleteControllerTest extends DBTestCase
         $this->assertIsArray($response->json('data.data'));
     }
 
-    // --- GET /user/restore/{id} ---
+    // --- POST /user/restore/{id} ---
 
     public function test_restore_nonexistent_user_returns_404(): void
     {
         $this->getLoggedInUser('admin');
-        $this->getJson('/user/restore/999999999')->assertStatus(404);
+        $this->postJson('/user/restore/999999999')->assertStatus(404);
     }
 
     public function test_restore_unauthenticated_returns_401(): void
     {
-        $this->getJson('/user/restore/1')->assertStatus(401);
+        $this->postJson('/user/restore/1')->assertStatus(401);
     }
 
     // --- DELETE /permanent-delete-client ---

@@ -361,7 +361,7 @@ async function submit() {
         if (form.tax_status === 1 && form.tax_class_id) fd.append('tax_class_id', form.tax_class_id)
         if (selectedImage.value?.file) fd.append('image', selectedImage.value.file, selectedImage.value.name || 'image.jpg')
 
-        const res = await http.put(`/product`, fd, {
+        const res = await http.post(`/product`, fd, {
             headers: { 'Content-Type': 'multipart/form-data' },
         })
         successHandler(res, COMPONENT)

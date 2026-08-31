@@ -291,9 +291,16 @@ Route::middleware('installAgora')->group(function (): void {
             ->middleware('throttle:20,1');
         Route::post('webhook/stripe', [PaymentController::class, 'stripeWebhook'])->name('webhook.stripe');
         Route::post('webhook/razorpay', [PaymentController::class, 'razorpayWebhook'])->name('webhook.razorpay');
-        // Admin-only open-payment views
-        Route::get('list', [OpenPaymentController::class, 'listOrders'])->name('open-payment.list');
     });
+
+    // Admin-only open-payment order list. Deliberately registered OUTSIDE the
+    // 'pay' group above: that group's withoutMiddleware(['auth','web']) strips
+    // those names from every route nested inside it, even ones that re-add them
+    // via ->middleware() — so this had no auth at all and leaked customer
+    // name/email/company/transaction_id to anyone, logged in or not.
+    Route::get('pay/list', [OpenPaymentController::class, 'listOrders'])
+        ->middleware(['auth', 'admin'])
+        ->name('open-payment.list');
 
     // DB-backed shopping cart (Vue SPA)
     // Uses 'my-cart' (not 'cart') so this JSON API doesn't collide with the
@@ -395,7 +402,7 @@ Route::middleware('installAgora')->group(function (): void {
     // RESTful user endpoints
     Route::get('users', [User\ClientController::class, 'getAllUsers']);
     Route::delete('users', [User\ClientController::class, 'deleteBulkUsers']);
-    Route::put('users', [User\ClientController::class, 'userCreate']);
+    Route::post('users', [User\ClientController::class, 'userCreate']);
     Route::get('user/{id}', [User\ClientController::class, 'getEditUser']);
     Route::patch('user/{id}', [User\ClientController::class, 'userUpdate']);
     Route::get('user/{id}/summary', [User\ClientController::class, 'getUserSummary']);
@@ -409,7 +416,7 @@ Route::middleware('installAgora')->group(function (): void {
 
     // Soft-delete / restore
     Route::get('soft-delete', [SoftDeleteController::class, 'softDeletedUsers'])->name('soft-delete');
-    Route::get('user/restore/{id}', [SoftDeleteController::class, 'restoreUser']);
+    Route::post('user/restore/{id}', [SoftDeleteController::class, 'restoreUser']);
     Route::delete('permanent-delete-client', [SoftDeleteController::class, 'permanentDeleteUser']);
 
     Route::post('/save-columns', [User\ClientController::class, 'saveColumns'])->name('save-columns');
@@ -432,7 +439,7 @@ Route::middleware('installAgora')->group(function (): void {
     // RESTful product endpoints
     Route::get('products', [ProductController::class, 'getAllProducts']);
     Route::delete('products', [ProductController::class, 'deleteBulkProducts']);
-    Route::put('product', [ProductController::class, 'productCreate']);
+    Route::post('product', [ProductController::class, 'productCreate']);
     Route::get('product/{productId}', [ProductController::class, 'getProduct']);
     Route::patch('product/{productId}', [ProductController::class, 'updateProduct']);
     Route::get('product/{productId}/plugins', [ProductPluginController::class, 'index']);
@@ -440,8 +447,8 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('product/uploads/{productId}', [ProductController::class, 'getProductUploads']);
     Route::get('product/upload/{productUploadId}', [ProductController::class, 'getProductUpload']);
     Route::patch('product/upload/{productUploadId}', [ProductController::class, 'updateProductUpload']);
-    Route::put('product/upload/{productId}/', [ProductController::class, 'productUploadCreate']);
-    Route::put('product/upload-build/apply', [ProductController::class, 'applyBuildToProducts']);
+    Route::post('product/upload/{productId}/', [ProductController::class, 'productUploadCreate']);
+    Route::post('product/upload-build/apply', [ProductController::class, 'applyBuildToProducts']);
     Route::delete('product/upload', [ProductController::class, 'deleteBulkProductUploads']);
 
     Route::post('get-price', [ProductController::class, 'getPrice']);
@@ -450,7 +457,7 @@ Route::middleware('installAgora')->group(function (): void {
 
     // RESTful plan endpoints
     Route::get('plans', [PlanController::class, 'getAllPlans']);
-    Route::put('plans', [PlanController::class, 'planCreate']);
+    Route::post('plans', [PlanController::class, 'planCreate']);
     Route::get('plan/{planId}', [PlanController::class, 'getPlan']);
     Route::patch('plan/{planId}', [PlanController::class, 'updatePlan']);
     Route::delete('plans', [PlanController::class, 'deleteBulkPlans']);
@@ -459,7 +466,7 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('groups', [GroupController::class, 'getProductGroups']);
     Route::get('group/{group_id}', [GroupController::class, 'getGroup']);
     Route::patch('group/{group_id}', [GroupController::class, 'updateGroup']);
-    Route::put('group', [GroupController::class, 'groupCreate']);
+    Route::post('group', [GroupController::class, 'groupCreate']);
     Route::delete('group', [GroupController::class, 'deleteBulkGroups']);
 
     // --------------------------------------------------------
@@ -556,7 +563,7 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('promotion/{promotionId}', [PromotionController::class, 'getPromotion']);
     Route::get('getPromotionCode', [PromotionController::class, 'getCode']);
     Route::patch('updatePromotion/{promotionId}', [PromotionController::class, 'updatePromotionCode']);
-    Route::put('promotionCreate', [PromotionController::class, 'promotionCodeCreate']);
+    Route::post('promotionCreate', [PromotionController::class, 'promotionCodeCreate']);
     Route::delete('promotions', [PromotionController::class, 'deleteBulkPromotions']);
 
     // --------------------------------------------------------
@@ -641,7 +648,7 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('getPipedriveFields/{group_id}', [PipedriveController::class, 'getLocalFields']);
     Route::get('pipedrive/mapping/{group_id}', [PipedriveController::class, 'getMapFields']);
     Route::post('sync/pipedrive', [PipedriveController::class, 'mappingFields']);
-    Route::get('syncing/pipedriveFields', [PipedriveController::class, 'syncFields']);
+    Route::post('syncing/pipedriveFields', [PipedriveController::class, 'syncFields']);
     Route::post('pipedrive/get-dropdown', [PipedriveController::class, 'getDropdown']);
 
     // MSG91 / mobile settings
@@ -748,7 +755,7 @@ Route::middleware('installAgora')->group(function (): void {
 
     Route::get('get-tenants', [TenantController::class, 'getTenants'])->name('get-tenants')->middleware('admin');
     Route::delete('delete-tenant', [TenantController::class, 'destroyTenant'])->name('delete-tenant')->middleware('admin');
-    Route::get('delete/domain/{orderNumber}/{isDelete}', [TenantController::class, 'DeleteCloudInstanceForClient']);
+    Route::delete('delete/domain/{orderNumber}/{isDelete}', [TenantController::class, 'DeleteCloudInstanceForClient']);
     Route::post('cloud-details', [TenantController::class, 'saveCloudDetails'])->name('cloud-details')->middleware('admin');
     Route::post('cloud-pop-up', [TenantController::class, 'cloudPopUp'])->name('cloud-pop-up')->middleware('admin');
     Route::post('cloud-product-store', [TenantController::class, 'cloudProductStore'])->name('cloud-product-store')->middleware('admin');
@@ -785,13 +792,13 @@ Route::middleware('installAgora')->group(function (): void {
 
     Route::get('queue/list', [QueueController::class, 'getQueueData']);
     Route::get('queue/{id}', [QueueController::class, 'edit'])->name('queue.edit');
-    Route::post('queue/{id}', [QueueController::class, 'update'])->name('queue.update');
+    Route::patch('queue/{id}', [QueueController::class, 'update'])->name('queue.update');
     Route::post('queue/{queue}/activate', [QueueController::class, 'activate']);
     Route::get('queue/{id}/form', [QueueController::class, 'getFormById'])->name('queue.form');
 
     Route::get('cache-settings/list', [CacheSettingsController::class, 'getDriverData']);
     Route::get('cache-settings/{driver}/form', [CacheSettingsController::class, 'getFormByDriver']);
-    Route::post('cache-settings/{driver}', [CacheSettingsController::class, 'update']);
+    Route::patch('cache-settings/{driver}', [CacheSettingsController::class, 'update']);
     Route::post('cache-settings/{driver}/activate', [CacheSettingsController::class, 'activate']);
 
     // --------------------------------------------------------

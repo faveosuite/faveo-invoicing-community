@@ -149,12 +149,13 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
-defineProps({
-    show:    { type: Boolean, default: false },
-    baseUrl: { type: String, default: '' },
+const props = defineProps({
+    show:          { type: Boolean, default: false },
+    baseUrl:       { type: String, default: '' },
+    initialValues: { type: Object, default: () => ({}) },
 })
 
 const emit = defineEmits(['apply', 'reset', 'close'])
@@ -187,7 +188,28 @@ const empty = () => ({
     industry: null,
 })
 
-const form = reactive(empty())
+function resolveForm(values) {
+    return {
+        ...empty(),
+        company:         values.company ?? '',
+        reg_from:        values.reg_from ?? null,
+        reg_till:        values.reg_till ?? null,
+        role:            roleOptions.find(o => o.id === values.role)          ?? null,
+        position:        positionOptions.find(o => o.id === values.position)  ?? null,
+        mobile_verified: verifyOptions.find(o => o.id === values.mobile_verified) ?? null,
+        email_verified:  verifyOptions.find(o => o.id === values.email_verified)  ?? null,
+        is_2fa_enabled:  twoFAOptions.find(o => o.id === values.is_2fa_enabled)   ?? null,
+    }
+}
+
+const form = reactive(resolveForm(props.initialValues))
+
+// The route can navigate /users -> /users?... without remounting this
+// component (RouterView isn't keyed on the route), so the form built once
+// above goes stale on a second "View all" visit unless we re-map it here.
+watch(() => props.initialValues, (values) => {
+    Object.assign(form, resolveForm(values))
+})
 
 function apply() {
     const params = {}

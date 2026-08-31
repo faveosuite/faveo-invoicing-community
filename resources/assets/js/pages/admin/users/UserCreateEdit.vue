@@ -393,7 +393,7 @@ async function submit() {
 
         const res = isEdit
             ? await http.patch(`/user/${userId}`, payload)
-            : await http.put(`/users`, payload)
+            : await http.post(`/users`, payload)
 
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/users'), 2000)

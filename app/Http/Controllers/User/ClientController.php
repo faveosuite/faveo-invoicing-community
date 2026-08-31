@@ -554,6 +554,7 @@ class ClientController extends AdvanceSearchController
             $page = $request->input('page', 1);
             $sortField = $request->input('sort-field', 'date');
             $sortOrder = $request->input('sort-order', 'desc');
+            $searchQuery = $request->input('search-query', '');
 
             $allowedSorts = ['date', 'number', 'grand_total', 'status'];
             if (! in_array($sortField, $allowedSorts, strict: true)) {
@@ -562,6 +563,13 @@ class ClientController extends AdvanceSearchController
 
             $invoices = Invoice::where('user_id', $id)
                 ->withCount('orderRelation')
+                ->when($searchQuery, function ($query, $search): void {
+                    $query->where(function ($q) use ($search): void {
+                        $q->where('number', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('status', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('currency', 'like', sprintf('%%%s%%', $search));
+                    });
+                })
                 ->orderBy($sortField, $sortOrder)
                 ->paginate($limit, ['*'], 'page', $page);
 
@@ -656,6 +664,7 @@ class ClientController extends AdvanceSearchController
             $page = $request->input('page', 1);
             $sortField = $request->input('sort-field', 'created_at');
             $sortOrder = $request->input('sort-order', 'desc');
+            $searchQuery = $request->input('search-query', '');
 
             $allowedSorts = ['created_at', 'amount', 'payment_method', 'payment_status'];
             if (! in_array($sortField, $allowedSorts, strict: true)) {
@@ -664,6 +673,13 @@ class ClientController extends AdvanceSearchController
 
             $payments = Payment::where('user_id', $id)
                 ->with('allocations.invoice:id,number,currency')
+                ->when($searchQuery, function ($query, $search): void {
+                    $query->where(function ($q) use ($search): void {
+                        $q->where('payment_method', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('payment_status', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('amount', 'like', sprintf('%%%s%%', $search));
+                    });
+                })
                 ->orderBy($sortField, $sortOrder)
                 ->paginate($limit, ['*'], 'page', $page);
 

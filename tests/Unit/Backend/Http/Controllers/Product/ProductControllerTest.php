@@ -61,12 +61,12 @@ class ProductControllerTest extends DBTestCase
         $this->assertNotEmpty($response->json('message'));
     }
 
-    // --- PUT /product — every required field produces specific error ---
+    // --- POST /product — every required field produces specific error ---
 
     public function test_create_empty_body_returns_422_with_all_required_field_errors(): void
     {
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/product', []);
+        $response = $this->postJson('/product', []);
 
         $response->assertStatus(412);
         $errors = $response->json('message');
@@ -79,7 +79,7 @@ class ProductControllerTest extends DBTestCase
     public function test_create_missing_name_has_specific_error_message(): void
     {
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/product', [
+        $response = $this->postJson('/product', [
             'type' => '1', 'group' => '1', 'subscription' => '1', 'currency' => 'USD',
             'github_owner' => 'owner', 'github_repository' => 'repo',
         ]);
@@ -91,7 +91,7 @@ class ProductControllerTest extends DBTestCase
     public function test_create_blocked_for_client_returns_302(): void
     {
         $this->getLoggedInUser('user');
-        $this->putJson('/product', ['name' => 'Test'])->assertStatus(302);
+        $this->postJson('/product', ['name' => 'Test'])->assertStatus(302);
     }
 
     // --- PATCH /product/{productId} ---
@@ -163,7 +163,7 @@ class ProductControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
 
         $product = Product::factory()->make();
-        $response = $this->putJson('/product', [
+        $response = $this->postJson('/product', [
             'name' => 'Test Product '.uniqid(),
             'type' => $product->type ?? 1,
             'product_type' => 'independent',
@@ -329,7 +329,7 @@ class ProductControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // productUploadCreate — PUT /product/upload/{productId}
+    // productUploadCreate — POST /product/upload/{productId}
     // =========================================================================
 
     public function test_product_upload_create_with_empty_body_returns_422(): void
@@ -337,7 +337,7 @@ class ProductControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $product = Product::factory()->create();
 
-        $response = $this->putJson("/product/upload/{$product->id}", []);
+        $response = $this->postJson("/product/upload/{$product->id}", []);
 
         $response->assertStatus(412);
         $errors = $response->json('message');
@@ -351,7 +351,7 @@ class ProductControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $product = Product::factory()->create();
 
-        $response = $this->putJson("/product/upload/{$product->id}", [
+        $response = $this->postJson("/product/upload/{$product->id}", [
             'producttitle' => 'Version 2.0 Release',
             'version' => '2.0.0',
             'dependencies' => ['core'],
@@ -367,7 +367,7 @@ class ProductControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $product = Product::factory()->create();
 
-        $response = $this->putJson("/product/upload/{$product->id}", [
+        $response = $this->postJson("/product/upload/{$product->id}", [
             'producttitle' => 'Version 2.0 Release',
             'version' => '2.0.0',
             'filename' => 'product-v2.0.0.zip',
@@ -391,7 +391,7 @@ class ProductControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $response = $this->putJson('/product/upload/999999', [
+        $response = $this->postJson('/product/upload/999999', [
             'producttitle' => 'Test',
             'version' => '1.0.0',
             'filename' => 'test.zip',
@@ -612,7 +612,7 @@ class ProductControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // applyBuildToProducts — PUT /product/upload-build/apply
+    // applyBuildToProducts — POST /product/upload-build/apply
     // =========================================================================
 
     public function test_apply_build_to_products_creates_an_upload_for_each_selected_product(): void
@@ -621,7 +621,7 @@ class ProductControllerTest extends DBTestCase
         $productA = Product::factory()->create();
         $productB = Product::factory()->create();
 
-        $response = $this->putJson('/product/upload-build/apply', [
+        $response = $this->postJson('/product/upload-build/apply', [
             'filename' => 'core-build.zip',
             'dependencies' => ['core'],
             'description' => 'Bulk apply',
@@ -645,7 +645,7 @@ class ProductControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $product = Product::factory()->create();
 
-        $response = $this->putJson('/product/upload-build/apply', [
+        $response = $this->postJson('/product/upload-build/apply', [
             'dependencies' => ['core'],
             'description' => 'Bulk apply',
             'release_type' => 'official',
@@ -706,7 +706,7 @@ class ProductControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $response = $this->putJson('/product', $this->productCreatePayload([
+        $response = $this->postJson('/product', $this->productCreatePayload([
             'config_file_path' => 'storage/faveoconfig.ini',
             'license_file_path' => 'public/script/signature/license.json',
         ]));
@@ -722,7 +722,7 @@ class ProductControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $response = $this->putJson('/product', $this->productCreatePayload([
+        $response = $this->postJson('/product', $this->productCreatePayload([
             'config_file_path' => null,
             'license_file_path' => null,
         ]));

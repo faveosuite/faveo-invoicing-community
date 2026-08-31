@@ -75,15 +75,6 @@ class DashboardControllerTest extends DBTestCase
     }
 
     #[Group('Dashboard')]
-    public function test_get_all_users_get_list_of_recent_users(): void
-    {
-        $user = User::factory()->count(3)->create();
-        $controller = new DashboardController;
-        $controller->getAllUsers();
-        $this->assertCount(1, [$user]);
-    }
-
-    #[Group('Dashboard')]
     public function test_get_recent_orders_gets_recently_sold_product_in_last30_days_with_corresponding_count(): void
     {
         $this->getLoggedInUser('admin');
@@ -233,39 +224,6 @@ class DashboardControllerTest extends DBTestCase
 
         $this->assertEquals($this->user->first_name.' '.$this->user->last_name, $response[0]->client_name);
         $this->assertEquals($this->user->first_name.' '.$this->user->last_name, $response[1]->client_name);
-    }
-
-    #[Group('Dashboard')]
-    public function test_get_pending_payments(): void
-    {
-        $this->withoutMiddleware();
-        $this->getLoggedInUser();
-        $user = $this->user;
-        Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending', 'currency' => 'INR', 'grand_total' => 10000]);
-        $allowedCurrencies2 = 'INR';
-        $response = $this->getPrivateMethod($this->classObject, 'getPendingPayments', [$allowedCurrencies2]);
-        $this->assertEquals(10000, $response);
-    }
-
-    #[Group('Dashboard')]
-    public function test_to_get_recent_invoices(): void
-    {
-        $this->withoutMiddleware();
-        $this->getLoggedInUser();
-        $user = $this->user;
-        $invoice = Invoice::factory()->create(['id' => 22, 'user_id' => $user->id, 'status' => 'Pending', 'date' => Date::now()]);
-        Payment::create(['user_id' => $user->id, 'amount' => '50000', 'currency' => $invoice->currency])
-            ->invoices()->attach($invoice->id, ['amount' => 50000]);
-        $invoice1 = Invoice::factory()->create(['id' => 23, 'user_id' => $user->id, 'status' => 'success', 'date' => Date::now()]);
-        Payment::create(['invoice_id' => $invoice1->id, 'user_id' => $user->id, 'amount' => '20000']);
-        $invoice2 = Invoice::factory()->create(['id' => 24, 'user_id' => $user->id, 'status' => 'Pending', 'date' => Date::now()]);
-        Payment::create(['invoice_id' => $invoice2->id, 'user_id' => $user->id, 'amount' => '80000']);
-        Currency::create(['code' => 'INR', 'symbol' => '₹', 'name' => 'Indian Rupees', 'dashboard_currency=0']);
-        $response = $this->getPrivateMethod($this->classObject, 'getRecentInvoices');
-        $content = $response->toArray();
-        $this->assertEquals($invoice->id, $content[0]['invoice_id']);
-        $this->assertEquals($invoice1->id, $content[1]['invoice_id']);
-        $this->assertEquals($invoice2->id, $content[2]['invoice_id']);
     }
 
     #[Group('Dashboard')]

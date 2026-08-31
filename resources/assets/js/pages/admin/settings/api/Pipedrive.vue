@@ -413,7 +413,7 @@ async function saveMapping() {
 async function syncFields() {
     syncing.value = true
     try {
-        const res = await http.get(`/syncing/pipedriveFields`)
+        const res = await http.post(`/syncing/pipedriveFields`)
         successHandler(res, COMPONENT)
         await loadMappingForGroup(activeGroupId.value)
     } catch (e) {

@@ -36,6 +36,7 @@ trait ApiKeySettings
             'email_validation_status' => ['key' => 'email_validation_status', 'lang' => __('message.email_validation_status')],
             'mobile_validation_status' => ['key' => 'mobile_validation_status', 'lang' => __('message.mobile_validation_status')],
             'whatsapp_status' => ['key' => 'whatsapp_status', 'lang' => 'Whatsapp Status updated successfully'],
+            'open_payment_status' => ['key' => 'open_payment_status', 'lang' => __('message.open_payment_status_updated')],
         ]);
 
         try {

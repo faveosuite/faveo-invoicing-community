@@ -4,6 +4,7 @@ namespace App\Model\Order;
 
 use App\BaseModel;
 use App\License\Models\Installation;
+use App\License\Models\License;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Traits\SystemActivityLogsTrait;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Carbon;
@@ -188,13 +190,26 @@ class Order extends BaseModel
     }
 
     /**
-     * Installations activated against this order's license (license_code = serial_key).
+     * Installations activated against this order's issued license(s).
      *
-     * @return HasMany<Installation, $this>
+     * Goes through License (licenses.license_order_number = orders.number),
+     * not directly against orders.serial_key — Installation rows are created
+     * with license_code copied from a License record
+     * (see InstallationController::installationAdd()), and
+     * orders.serial_key never actually matches installations.license_code.
+     *
+     * @return HasManyThrough<Installation, License, $this>
      */
-    public function licensedInstallations(): HasMany
+    public function licensedInstallations(): HasManyThrough
     {
-        return $this->hasMany(Installation::class, 'license_code', 'serial_key');
+        return $this->hasManyThrough(
+            Installation::class,
+            License::class,
+            'license_order_number', // FK on licenses referencing this order
+            'license_code',         // FK on installations referencing licenses.license_code
+            'number',               // local key on orders
+            'license_code'          // local key on licenses
+        );
     }
 
     /**

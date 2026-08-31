@@ -210,7 +210,7 @@
                             <li v-if="user.manager" class="list-group-item">
                                 <div class="row">
                                     <div class="col-sm-5">
-                                        <label class="text-truncate mb-0" v-tooltip="__('message.account_manager')">{{ __('message.account_manager') }}</label>
+                                        <label class="text-truncate mb-0" v-tooltip="__('message.sales_manager')">{{ __('message.sales_manager') }}</label>
                                     </div>
                                     <div class="col-sm-7 text-end text-truncate" v-tooltip="user.manager?.name">{{ user.manager?.name }}</div>
                                 </div>
@@ -436,7 +436,7 @@
         :title="__('message.Delete')"
         :message="__('message.are_you_sure')"
         :componentName="COMPONENT"
-        @deleted="() => { const id = pendingDelete?.commentId; pendingDelete = null; comments.value = comments.value.filter(c => c.id !== id) }"
+        @deleted="() => { const id = pendingDelete?.commentId; pendingDelete = null; comments = comments.filter(c => c.id !== id) }"
     />
 
     <DeleteModal
@@ -845,7 +845,7 @@ const orderOptions = {
         // ('active', 'pending', ...) that don't exist here, so every real
         // order fell through to the plain gray default.
         order_status: (_, row) => statusBadge(row.order_status, { executed: 'bg-success', terminated: 'bg-danger' }),
-        action:       (_, row) => h(OrderTableActions, { orderId: row.id, showDelete: true, componentName: COMPONENT }),
+        action:       (_, row) => h(OrderTableActions, { orderId: row.id, canRenew: !!row.can_renew, baseUrl: baseUrl, showDelete: true, componentName: COMPONENT }),
     },
     sortable:   ['order_date', 'number', 'order_status'],
     filterable: true,

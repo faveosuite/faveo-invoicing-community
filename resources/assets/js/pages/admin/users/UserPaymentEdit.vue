@@ -1,6 +1,5 @@
 <template>
     <div>
-        <AppBreadcrumb :items="breadcrumbs" />
         <AppAlert :componentName="COMPONENT" />
 
         <div class="card card-light">
@@ -141,13 +140,6 @@ const payment   = ref({})
 const form = ref({
     payment_date: '',
 })
-
-const breadcrumbs = [
-    { label: __('message.home'),       to: '/dashboard' },
-    { label: __('message.all-users'),  to: '/users' },
-    { label: __('message.view_user'),  to: `/users/${userId}` },
-    { label: __('message.apply_payment_to_invoices') },
-]
 
 // Display helper only. The underlying values stay raw numbers so the
 // allocation maths keeps working — a formatted "1,234.50" parses back as 1.

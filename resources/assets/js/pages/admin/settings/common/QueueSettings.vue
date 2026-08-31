@@ -75,7 +75,7 @@ async function save() {
 
     saving.value = true
     try {
-        const res = await http.post(`/queue/${id}`, { ...form })
+        const res = await http.patch(`/queue/${id}`, { ...form })
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT, { setErrors })

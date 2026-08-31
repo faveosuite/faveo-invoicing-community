@@ -45,6 +45,7 @@ function buildRequestAdapter(data) {
         'sort_field': data.orderBy ? data.orderBy : 'id',
         'sort_order': data.ascending ? 'desc' : 'asc',
         'search_query': data.query.trim(),
+        page: data.page,
         perPage: data.limit,
     }
 }

@@ -282,7 +282,7 @@ class ClientControllerTest extends DBTestCase
     public function test_user_create_missing_required_fields_returns_422(): void
     {
         $this->getLoggedInUser('admin');
-        $response = $this->putJson('/users', []);
+        $response = $this->postJson('/users', []);
         $response->assertStatus(412);
     }
 
@@ -454,7 +454,7 @@ class ClientControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $response = $this->putJson('/users', [
+        $response = $this->postJson('/users', [
             'first_name' => 'New',
             'last_name' => 'TestUser',
             'email' => 'newcreate_'.uniqid().'@test.local',

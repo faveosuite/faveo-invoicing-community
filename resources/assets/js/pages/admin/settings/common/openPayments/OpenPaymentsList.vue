@@ -2,18 +2,18 @@
     <div>
         <AppAlert :componentName="COMPONENT" />
 
-        <!-- Public page URL info -->
-        <StaticAlert class="mb-3">
-            <strong>Open Payment Page URL:</strong>
-            <span class="ms-2">{{ openPaymentUrl }}</span>
-            <i :class="copied ? 'fas fa-check text-success' : 'fas fa-copy'"
-               class="ms-2" @click="copyUrl" v-tooltip="copied ? 'Copied!' : 'Copy URL'"></i>
-        </StaticAlert>
-
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Open Payments</h4>
+                <h4 class="card-title">
+                    Open Payments
+                    <span class="badge rounded-pill ms-2" :class="enabled ? 'text-bg-success' : 'text-bg-danger'">
+                        {{ enabled ? 'Enabled' : 'Disabled' }}
+                    </span>
+                </h4>
                 <div class="card-tools">
+                    <button class="btn btn-tool" v-tooltip="'Settings'" @click="openSettingsModal">
+                        <i class="fas fa-gear"></i>
+                    </button>
                     <button class="btn btn-tool" v-tooltip="'Filters'" @click="showFilter = !showFilter">
                         <i class="fas fa-filter"></i>
                     </button>
@@ -154,13 +154,51 @@
                 </div>
             </template>
         </AppModal>
+
+        <!-- Open Payment settings modal -->
+        <AppModal :showModal="showSettingsModal" :onClose="closeSettingsModal" :showCloseBtn="false">
+            <template #title>
+                <h4>Open Payment Settings</h4>
+            </template>
+
+            <template #fields>
+                <DynamicSelect
+                    name="open_payment_status"
+                    label="Open Payment Page"
+                    :elements="statusOptions"
+                    :value="statusOptions.find(o => o.id === draftStatusId) ?? null"
+                    :onChange="(val) => draftStatusId = val?.id ?? 1"
+                    :disabled="savingStatus"
+                    :clearable="false"
+                    :searchable="false"
+                />
+                <div class="mb-3">
+                    <label class="form-label">Page URL</label>
+                    <div class="input-group">
+                        <input class="form-control" readonly :value="openPaymentUrl" />
+                        <span class="input-group-text cursor-pointer" @click="copyUrl">
+                            <i :class="copied ? 'fas fa-check text-success' : 'fas fa-copy'"></i>
+                            {{ copied ? __('message.copied') : __('message.copy') }}
+                        </span>
+                    </div>
+                </div>
+            </template>
+
+            <template #controls>
+                <action-button action="save" type="button" :loading="savingStatus" @click="saveOpenPaymentStatus" />
+            </template>
+        </AppModal>
     </div>
 </template>
 
 <script setup>
-import { h, reactive, ref } from 'vue'
+import { h, reactive, ref, withDirectives, onMounted } from 'vue'
+import { vTooltip } from 'floating-vue'
 import { __ } from '@/plugins/i18n'
+import http from '@/plugins/axios'
+import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import OpenPaymentsFilter from './OpenPaymentsFilter.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 import { useDateTime } from '@/core/composables/useDateTime'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import { makeRequestAdapter } from '@/helpers/tableUtils'
@@ -173,17 +211,54 @@ const apiUrl  = `/pay/list`
 
 const openPaymentUrl = `${baseUrl}/pay`
 
-const dtRef         = ref(null)
-const showFilter    = ref(false)
-const activeFilters = ref({})
-const selectedOrder = ref(null)
-const copied        = ref(false)
+const dtRef             = ref(null)
+const showFilter        = ref(false)
+const showSettingsModal = ref(false)
+const activeFilters     = ref({})
+const selectedOrder     = ref(null)
+const copied            = ref(false)
+const enabled           = ref(true)
+const draftStatusId     = ref(1)
+const savingStatus      = ref(false)
+const statusOptions     = [{ id: 1, name: 'Enabled' }, { id: 0, name: 'Disabled' }]
 
 function copyUrl() {
     navigator.clipboard.writeText(openPaymentUrl).then(() => {
         copied.value = true
         setTimeout(() => { copied.value = false }, 2000)
     })
+}
+
+onMounted(async () => {
+    try {
+        const res = await http.get(`/pay/config`)
+        enabled.value = !!res.data?.data?.enabled
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    }
+})
+
+function openSettingsModal() {
+    draftStatusId.value = enabled.value ? 1 : 0
+    showSettingsModal.value = true
+}
+
+function closeSettingsModal() {
+    showSettingsModal.value = false
+}
+
+async function saveOpenPaymentStatus() {
+    savingStatus.value = true
+    try {
+        const res = await http.post(`/licenseStatus`, { open_payment_status: draftStatusId.value })
+        successHandler(res, COMPONENT)
+        enabled.value = !!draftStatusId.value
+        showSettingsModal.value = false
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        savingStatus.value = false
+    }
 }
 
 function onFilterApply(params) {
@@ -248,11 +323,10 @@ const tableOptions = reactive({
             }],
         }, __(`message.${row.payment_status}`) || row.payment_status),
         created_at:     (f, row) => formatDateTime(row.created_at),
-        action: (f, row) => h('button', {
-            class: 'btn btn-sm btn-light table_btn',
-            title: 'View Details',
+        action: (f, row) => withDirectives(h('button', {
+            class: 'btn btn-light table_btn',
             onClick: () => { selectedOrder.value = row },
-        }, h('i', { class: 'fas fa-eye' })),
+        }, h('i', { class: 'fas fa-eye' })), [[vTooltip, __('message.view')]]),
     },
     sortable: ['name', 'company', 'email', 'amount', 'gateway', 'transaction_id', 'payment_status', 'created_at'],
     filterable: true,

@@ -62,11 +62,11 @@ class CacheSettingsControllerTest extends DBTestCase
         $response->assertJsonPath('data.driver', 'database');
     }
 
-    // POST /cache-settings/{driver} — update
+    // PATCH /cache-settings/{driver} — update
     public function test_update_file_driver_returns_200_as_it_has_no_fields(): void
     {
         // File driver has no form fields → update returns 422 ("no fields to update")
-        $response = $this->postJson('/cache-settings/file', []);
+        $response = $this->patchJson('/cache-settings/file', []);
         $response->assertStatus(422);
         $response->assertJson(['success' => false]);
     }

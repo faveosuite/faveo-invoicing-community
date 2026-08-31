@@ -226,7 +226,7 @@ async function onSubmit() {
     if (!await validateForm(buildNotificationsSchema(fields), data, setErrors)) return
     saving.value = true
 
-    axios.post('/api/admin/updateNotifications/' + notification_id.value, data).then(res => {
+    axios.patch('/api/admin/updateNotifications/' + notification_id.value, data).then(res => {
         successHandler(res, 'custom-update-note')
         getInitialValues()
     }).catch(err => {
