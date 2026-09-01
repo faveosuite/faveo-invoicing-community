@@ -66,7 +66,7 @@
                         </div>
                         <div class="text-end">
                             <p class="text-muted small mb-1">{{ selectedOrder.gateway }} Gateway</p>
-                            <p class="text-muted small mb-0">{{ selectedOrder.created_at }}</p>
+                            <p class="text-muted small mb-0">{{ formatDateTime(selectedOrder.created_at) }}</p>
                         </div>
                     </div>
 
@@ -104,16 +104,8 @@
                         <table class="table table-bordered mb-0">
                             <thead class="visually-hidden"><tr><th>Field</th><th>Value</th></tr></thead>
                             <tbody>
-                                <tr>
-                                    <td class="table-secondary fw-semibold col-label-width">Gateway</td>
-                                    <td>{{ selectedOrder.gateway }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="table-secondary fw-semibold">Currency</td>
-                                    <td>{{ selectedOrder.currency }}</td>
-                                </tr>
                                 <tr v-if="selectedOrder.transaction_id">
-                                    <td class="table-secondary fw-semibold">Transaction ID</td>
+                                    <td class="table-secondary fw-semibold col-label-width">Transaction ID</td>
                                     <td class="text-primary font-monospace small">{{ selectedOrder.transaction_id }}</td>
                                 </tr>
                                 <tr v-if="selectedOrder.description">

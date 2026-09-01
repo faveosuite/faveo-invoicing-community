@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">{{ __('message.edit_social_login') }} — {{ form.type }}</h4>
+                <h4 class="card-title">{{ form.type }} {{ __('message.settings') }}</h4>
             </div>
 
             <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
@@ -14,7 +14,9 @@
                         <div class="col-md-6">
                             <TextField
                                 name="client_id"
-                                :label="form.type === 'Twitter' ? __('message.api_key') : __('message.client_id')"
+                                :label="__('message.client_id')"
+                                :required="true"
+                                :placeholder="__('message.enter_client_id_placeholder')"
                                 :value="form.client_id"
                                 :onChange="(val) => { setFieldError('client_id', undefined); form.client_id = val }"
                                 :error="errors.client_id"
@@ -23,7 +25,9 @@
                         <div class="col-md-6">
                             <TextField
                                 name="client_secret"
-                                :label="form.type === 'Twitter' ? __('message.lic_api_secret') : __('message.client_secret')"
+                                :label="__('message.client_secret')"
+                                :required="true"
+                                :placeholder="__('message.enter_client_secret_placeholder')"
                                 :value="form.client_secret"
                                 :onChange="(val) => { setFieldError('client_secret', undefined); form.client_secret = val }"
                                 :error="errors.client_secret"
@@ -33,6 +37,8 @@
                             <TextField
                                 name="redirect_url"
                                 :label="__('message.redirect_url')"
+                                :required="true"
+                                :placeholder="__('message.enter_redirect_url_placeholder')"
                                 :value="form.redirect_url"
                                 :onChange="(val) => { setFieldError('redirect_url', undefined); form.redirect_url = val }"
                                 :error="errors.redirect_url"
@@ -48,7 +54,7 @@
                 </div>
 
                 <div class="card-footer">
-                    <action-button action="update" :loading="saving" @click="submit" />
+                    <action-button action="save" :loading="saving" @click="submit" />
                 </div>
             </template>
         </div>

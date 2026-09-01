@@ -29,13 +29,16 @@ class CacheSettingsController extends Controller
         $this->middleware('admin');
     }
 
-    public function getDriverData(): JsonResponse
+    public function getDriverData(Request $request): JsonResponse
     {
         $active = CommonSettings::where('option_name', 'cache')
             ->where('optional_field', 'driver')
             ->value('option_value') ?? 'file';
 
-        $drivers = collect(self::DRIVERS)->map(fn ($d): array => [
+        $sortOrder = $request->input('sort-order', 'asc');
+        $sourceDrivers = collect(self::DRIVERS)->sortBy('name', SORT_FLAG_CASE | SORT_STRING, $sortOrder === 'desc');
+
+        $drivers = $sourceDrivers->map(fn ($d): array => [
             'DriverDetails' => [
                 'id' => $d['short_name'],
                 'name' => ['text' => $d['name'], 'link' => $this->hasForm($d['short_name'])],

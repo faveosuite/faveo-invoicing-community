@@ -91,6 +91,30 @@ class CrmTest extends DBTestCase
         Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'Accounts'));
     }
 
+    public function test_it_surfaces_the_real_reason_when_create_fails(): void
+    {
+        Http::fake([
+            '*' => Http::response([
+                'data' => [
+                    [
+                        'code' => 'INVALID_DATA',
+                        'details' => ['expected_data_type' => 'bigint', 'api_name' => 'Owner'],
+                        'message' => 'invalid data',
+                        'status' => 'error',
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        try {
+            $this->crm->create('Contacts', ['Owner' => 'Not A User Id']);
+            $this->fail('Expected a ZohoCrmApiException to be thrown.');
+        } catch (\App\Plugins\Zoho\Integrations\Crm\Controllers\Exceptions\ZohoCrmApiException $exception) {
+            $this->assertSame('INVALID_DATA', $exception->getZohoCode());
+            $this->assertSame('Owner', $exception->getZohoDetails()['api_name'] ?? null);
+        }
+    }
+
     public function test_it_updates_crm_record(): void
     {
         Http::fake([

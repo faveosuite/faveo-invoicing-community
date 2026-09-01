@@ -188,9 +188,6 @@ class NonPublicDependencies extends BaseDependencyController
 
     private function productPlans(): mixed
     {
-        $this->sortField = 'name';
-        $this->sortOrder = 'asc';
-
         $productId = $this->request->input('product_id');
 
         $baseQuery = $this->baseQuery(new Plan)

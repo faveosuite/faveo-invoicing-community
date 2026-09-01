@@ -70,9 +70,10 @@
                                 <label class="form-label fw-bold">{{ __('message.redirect_uri') }}</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control bg-light cursor-default" :value="redirectUri" readonly>
-                                    <button type="button" class="btn btn-light border" :title="__('message.copy')" @click="copyRedirectUri">
-                                        <i class="fa" :class="uriCopied ? 'fa-check text-success' : 'fa-copy'"></i>
-                                    </button>
+                                    <span class="input-group-text cursor-pointer" @click="copyRedirectUri">
+                                        <i :class="uriCopied ? 'fas fa-check text-success' : 'fas fa-copy'"></i>
+                                        {{ uriCopied ? __('message.copied') : __('message.copy') }}
+                                    </span>
                                 </div>
                                 <small class="text-muted">{{ __('message.zoho_redirect_uri_help') }}</small>
                             </div>
@@ -196,7 +197,7 @@ const form = reactive({ client_id: '', client_secret: '', region: 'in' })
 
 const selectedRegion = computed(() => regionOptions.find(o => o.id === form.region) ?? null)
 
-const redirectUri = `/zoho/oauth/callback`
+const redirectUri = `${http.defaults.baseURL}/zoho/oauth/callback`
 
 async function copyRedirectUri() {
     try {

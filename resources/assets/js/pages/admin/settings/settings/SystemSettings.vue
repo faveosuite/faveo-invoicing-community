@@ -11,7 +11,7 @@
             <template v-else>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <DynamicSelect
                                 name="timezone_id"
                                 :label="__('message.timezone')"
@@ -23,7 +23,7 @@
                                 :error="errors.timezone_id"
                             />
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="form-label fw-bold mb-0">{{ __('message.date_format') }}<span class="text-danger ms-1">*</span></label>
                                 <small v-if="datePreview" class="text-muted fst-italic">(e.g {{ datePreview }})</small>
@@ -38,7 +38,9 @@
                                 :error="errors.date_format"
                             />
                         </div>
-                        <div class="col-md-4">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="form-label fw-bold mb-0">{{ __('message.time_format') }}<span class="text-danger ms-1">*</span></label>
                                 <small v-if="timePreview" class="text-muted fst-italic">(e.g {{ timePreview }})</small>
@@ -51,6 +53,18 @@
                                 :value="form.time_format"
                                 :onChange="onChange"
                                 :error="errors.time_format"
+                            />
+                        </div>
+                        <div class="col-md-6">
+                            <DynamicSelect
+                                name="language"
+                                :label="__('message.language')"
+                                :required="true"
+                                :elements="languageOptions"
+                                :value="form.language"
+                                :onChange="onChange"
+                                :searchable="true"
+                                :error="errors.language"
                             />
                         </div>
                     </div>
@@ -83,11 +97,13 @@ const saving  = ref(false)
 const timezoneOptions   = ref([])
 const dateFormatOptions = ref([])
 const timeFormatOptions = ref([])
+const languageOptions   = ref([])
 
 const form = reactive({
     timezone_id:  null,
     date_format:  null,
     time_format:  null,
+    language:     null,
 })
 
 const datePreview = computed(() => {
@@ -110,10 +126,12 @@ onMounted(async () => {
         timezoneOptions.value   = (data.timezones    ?? []).map(t => ({ id: t.id,    name: t.location || t.name }))
         dateFormatOptions.value = (data.date_formats ?? []).map(f => ({ id: f.value, name: f.label }))
         timeFormatOptions.value = (data.time_formats ?? []).map(f => ({ id: f.value, name: f.label }))
+        languageOptions.value   = (data.languages    ?? []).map(l => ({ id: l.locale, name: l.name || l.locale }))
 
         form.timezone_id = timezoneOptions.value.find(t => t.id === s.timezone_id)   ?? null
         form.date_format = dateFormatOptions.value.find(f => f.id === s.date_format) ?? null
         form.time_format = timeFormatOptions.value.find(f => f.id === s.time_format) ?? null
+        form.language    = languageOptions.value.find(l => l.id === s.language)      ?? null
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {
@@ -127,10 +145,11 @@ function onChange(val, name) {
 }
 
 async function save() {
-    if (!form.timezone_id || !form.date_format || !form.time_format) {
-        if (!form.timezone_id) setFieldError('timezone_id', __('message.field_required'))
-        if (!form.date_format) setFieldError('date_format', __('message.field_required'))
-        if (!form.time_format) setFieldError('time_format', __('message.field_required'))
+    if (!form.timezone_id || !form.date_format || !form.time_format || !form.language) {
+        if (!form.timezone_id) setFieldError('timezone_id', __('message.timezone_required'))
+        if (!form.date_format) setFieldError('date_format', __('message.date_format_required'))
+        if (!form.time_format) setFieldError('time_format', __('message.time_format_required'))
+        if (!form.language) setFieldError('language', __('message.language_required'))
         return
     }
 
@@ -140,6 +159,7 @@ async function save() {
         fd.append('timezone_id',  form.timezone_id?.id ?? '')
         fd.append('date_format',  form.date_format?.id ?? '')
         fd.append('time_format',  form.time_format?.id ?? '')
+        fd.append('language',     form.language?.id    ?? '')
         fd.append('_method', 'PATCH')
 
         const res = await http.post(`/settings/datetime-data`, fd, {

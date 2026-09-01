@@ -43,6 +43,33 @@ class ZohoConnectHelperTest extends DBTestCase
         $this->assertEquals('email', $result[0]['type']);
     }
 
+    public function test_get_modules_fields_excludes_read_only_fields(): void
+    {
+        ZohoFields::insert([
+            [
+                'platform' => 'crm',
+                'module' => 'Contacts',
+                'zoho_field_uid' => 'Contacts.Record_Id',
+                'display_name' => 'Record Id',
+                'field_type' => 'number',
+                'raw_metadata' => json_encode(['field_read_only' => true]),
+            ],
+            [
+                'platform' => 'crm',
+                'module' => 'Contacts',
+                'zoho_field_uid' => 'Contacts.First_Name',
+                'display_name' => 'First Name',
+                'field_type' => 'text',
+                'raw_metadata' => json_encode(['field_read_only' => false]),
+            ],
+        ]);
+
+        $result = ZohoConnectHelper::getModulesFields('crm', 'Contacts');
+
+        $this->assertCount(1, $result);
+        $this->assertEquals('First Name', $result[0]['field_name']);
+    }
+
     public function test_get_modules_fields_filters_by_platform_and_module(): void
     {
         ZohoFields::insert([
@@ -93,7 +120,7 @@ class ZohoConnectHelperTest extends DBTestCase
         $this->assertCount(1, $result);
         $this->assertEquals($zohoField->id, $result[0]['zoho_field_id']);
         $this->assertEquals('zoho', $result[0]['selected']['type']);
-        $this->assertEquals('Active', json_decode((string) $result[0]['selected']['value'])->value);
+        $this->assertEquals('Active', $result[0]['selected']['value']);
     }
 
     public function test_get_existing_mappings_returns_local_field_mapping(): void
@@ -344,5 +371,186 @@ class ZohoConnectHelperTest extends DBTestCase
 
         $this->assertNotNull($result);
         $this->assertCount(1, $result);
+    }
+
+    // ── findIncompatibleMapping() ───────────────────────────────────────────
+
+    public function test_find_incompatible_mapping_allows_compatible_text_pairing(): void
+    {
+        $zohoField = ZohoFields::create(['platform' => 'crm', 'module' => 'Contacts', 'field_type' => 'text']);
+        $localField = FaveoLocalFields::whereFieldKey('first_name')->firstOrFail(); // field_type: string
+
+        $result = ZohoConnectHelper::findIncompatibleMapping([
+            ['zoho_field_id' => $zohoField->id, 'selected' => ['type' => 'local', 'value' => $localField->id]],
+        ]);
+
+        $this->assertNull($result);
+    }
+
+    public function test_find_incompatible_mapping_allows_date_to_date(): void
+    {
+        $zohoField = ZohoFields::create(['platform' => 'crm', 'module' => 'Contacts', 'field_type' => 'date']);
+        $localField = FaveoLocalFields::create(['field_key' => 'dob_test', 'field_type' => 'date']);
+
+        $result = ZohoConnectHelper::findIncompatibleMapping([
+            ['zoho_field_id' => $zohoField->id, 'selected' => ['type' => 'local', 'value' => $localField->id]],
+        ]);
+
+        $this->assertNull($result);
+    }
+
+    public function test_find_incompatible_mapping_rejects_date_from_a_string_field(): void
+    {
+        // The exact scenario reported: mapping a date field to something
+        // like "First Name" (field_type=string) — Zoho rejects the whole
+        // record for this (verified live, INVALID_DATA expected_data_type=date).
+        $zohoField = ZohoFields::create(['platform' => 'crm', 'module' => 'Contacts', 'field_type' => 'date']);
+        $localField = FaveoLocalFields::whereFieldKey('first_name')->firstOrFail();
+
+        $result = ZohoConnectHelper::findIncompatibleMapping([
+            ['zoho_field_id' => $zohoField->id, 'selected' => ['type' => 'local', 'value' => $localField->id]],
+        ]);
+
+        $this->assertNotNull($result);
+        $this->assertStringContainsString('date', $result);
+    }
+
+    public function test_find_incompatible_mapping_allows_checkbox_to_boolean(): void
+    {
+        $zohoField = ZohoFields::create(['platform' => 'crm', 'module' => 'Contacts', 'field_type' => 'checkbox']);
+        $localField = FaveoLocalFields::create(['field_key' => 'opt_out_test', 'field_type' => 'boolean']);
+
+        $result = ZohoConnectHelper::findIncompatibleMapping([
+            ['zoho_field_id' => $zohoField->id, 'selected' => ['type' => 'local', 'value' => $localField->id]],
+        ]);
+
+        $this->assertNull($result);
+    }
+
+    public function test_find_incompatible_mapping_rejects_checkbox_from_a_string_field(): void
+    {
+        // Verified live: a checkbox field given a plain string ("1") fails
+        // with INVALID_DATA expected_data_type=boolean, even though a real
+        // PHP boolean for the same field succeeds.
+        $zohoField = ZohoFields::create(['platform' => 'crm', 'module' => 'Contacts', 'field_type' => 'checkbox']);
+        $localField = FaveoLocalFields::whereFieldKey('company')->firstOrFail();
+
+        $result = ZohoConnectHelper::findIncompatibleMapping([
+            ['zoho_field_id' => $zohoField->id, 'selected' => ['type' => 'local', 'value' => $localField->id]],
+        ]);
+
+        $this->assertNotNull($result);
+    }
+
+    public function test_find_incompatible_mapping_allows_decimal_to_number(): void
+    {
+        $zohoField = ZohoFields::create(['platform' => 'crm', 'module' => 'Contacts', 'field_type' => 'decimal']);
+        $localField = FaveoLocalFields::create(['field_key' => 'score_test', 'field_type' => 'number']);
+
+        $result = ZohoConnectHelper::findIncompatibleMapping([
+            ['zoho_field_id' => $zohoField->id, 'selected' => ['type' => 'local', 'value' => $localField->id]],
+        ]);
+
+        $this->assertNull($result);
+    }
+
+    public function test_find_incompatible_mapping_rejects_decimal_from_a_string_field(): void
+    {
+        $zohoField = ZohoFields::create(['platform' => 'crm', 'module' => 'Contacts', 'field_type' => 'decimal']);
+        $localField = FaveoLocalFields::whereFieldKey('company')->firstOrFail();
+
+        $result = ZohoConnectHelper::findIncompatibleMapping([
+            ['zoho_field_id' => $zohoField->id, 'selected' => ['type' => 'local', 'value' => $localField->id]],
+        ]);
+
+        $this->assertNotNull($result);
+    }
+
+    public function test_find_incompatible_mapping_rejects_owner_lookup_image_and_datetime(): void
+    {
+        $localField = FaveoLocalFields::whereFieldKey('first_name')->firstOrFail();
+
+        foreach (['owner', 'lookup', 'image', 'datetime'] as $blockedType) {
+            $zohoField = ZohoFields::create([
+                'platform' => 'crm', 'module' => 'Contacts', 'field_type' => $blockedType,
+                'zoho_field_uid' => $blockedType,
+            ]);
+
+            $result = ZohoConnectHelper::findIncompatibleMapping([
+                ['zoho_field_id' => $zohoField->id, 'selected' => ['type' => 'local', 'value' => $localField->id]],
+            ]);
+
+            $this->assertNotNull($result, "Expected '{$blockedType}' fields to be blocked from local mapping.");
+        }
+    }
+
+    public function test_find_incompatible_mapping_rejects_local_field_for_picklist_with_zoho_options(): void
+    {
+        // CRM-style picklist with real defined choices — there's a safe
+        // 'zoho' option mapping available, so a local field is unnecessary
+        // and risks silently writing an undefined value (verified live:
+        // Zoho accepted and stored an arbitrary out-of-list string as-is).
+        $zohoField = ZohoFields::create([
+            'platform' => 'crm', 'module' => 'Contacts', 'field_type' => 'picklist',
+            'raw_metadata' => [
+                'pick_list_values' => [
+                    ['actual_value' => 'Advertisement', 'display_value' => 'Advertisement'],
+                ],
+            ],
+        ]);
+        $localField = FaveoLocalFields::whereFieldKey('first_name')->firstOrFail();
+
+        $result = ZohoConnectHelper::findIncompatibleMapping([
+            ['zoho_field_id' => $zohoField->id, 'selected' => ['type' => 'local', 'value' => $localField->id]],
+        ]);
+
+        $this->assertNotNull($result);
+    }
+
+    public function test_find_incompatible_mapping_allows_local_field_for_picklist_without_zoho_options(): void
+    {
+        // Campaigns-style picklist with no defined choices exposed — local
+        // field is the only usable mapping (the fallback resolveOptions()
+        // already offers in the UI for this exact case).
+        $zohoField = ZohoFields::create([
+            'platform' => 'campaigns', 'module' => 'Contacts', 'field_type' => 'picklist',
+            'raw_metadata' => ['values' => ''],
+        ]);
+        $localField = FaveoLocalFields::whereFieldKey('first_name')->firstOrFail();
+
+        $result = ZohoConnectHelper::findIncompatibleMapping([
+            ['zoho_field_id' => $zohoField->id, 'selected' => ['type' => 'local', 'value' => $localField->id]],
+        ]);
+
+        $this->assertNull($result);
+    }
+
+    public function test_find_incompatible_mapping_skips_zoho_type_selections(): void
+    {
+        // Only 'local' selections carry a type-mismatch risk; a 'zoho'
+        // static-option selection is always safe and shouldn't be checked.
+        $zohoField = ZohoFields::create(['platform' => 'crm', 'module' => 'Contacts', 'field_type' => 'date']);
+
+        $result = ZohoConnectHelper::findIncompatibleMapping([
+            ['zoho_field_id' => $zohoField->id, 'selected' => ['type' => 'zoho', 'value' => 'Advertisement']],
+        ]);
+
+        $this->assertNull($result);
+    }
+
+    public function test_find_incompatible_mapping_applies_to_campaigns_fields_too(): void
+    {
+        // updateMapping() is one shared endpoint for both platforms — this
+        // guard isn't CRM-specific, it applies to Campaigns mappings
+        // identically (verified live against a real connected account).
+        $zohoField = ZohoFields::create(['platform' => 'campaigns', 'module' => 'Contacts', 'field_type' => 'email']);
+        $datetimeField = FaveoLocalFields::whereFieldKey('created_at')->firstOrFail(); // field_type: datetime
+
+        $result = ZohoConnectHelper::findIncompatibleMapping([
+            ['zoho_field_id' => $zohoField->id, 'selected' => ['type' => 'local', 'value' => $datetimeField->id]],
+        ]);
+
+        $this->assertNotNull($result);
+        $this->assertStringContainsString('date and time', $result);
     }
 }

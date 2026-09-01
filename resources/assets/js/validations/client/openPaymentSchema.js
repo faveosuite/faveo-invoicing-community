@@ -14,5 +14,6 @@ export const openPaymentSchema = yup.object({
     amount:  yup.number()
         .typeError(() => __('message.open_payment.amount_invalid'))
         .required(() => __('message.open_payment.amount_required'))
-        .min(1, () => __('message.open_payment.amount_min')),
+        .min(1, () => __('message.open_payment.amount_min'))
+        .max(50000000, () => __('message.open_payment.amount_max')),
 })

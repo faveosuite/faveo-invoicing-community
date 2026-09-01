@@ -45,6 +45,12 @@ class ZohoBaseController extends Controller
             'mappings.*.selected.value' => ['required'],
         ]);
 
+        $incompatibility = ZohoConnectHelper::findIncompatibleMapping((array) $request->mappings);
+
+        if ($incompatibility !== null) {
+            return errorResponse($incompatibility);
+        }
+
         DB::transaction(function () use ($request): void {
             $incomingIds = collect((array) $request->mappings)
                 ->pluck('zoho_field_id')

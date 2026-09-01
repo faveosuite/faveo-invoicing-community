@@ -16,7 +16,7 @@ use App\Services\Payment\OpenPaymentService;
 use App\Services\Payment\PaymentService;
 use DB;
 use Exception;
-use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -73,19 +73,32 @@ class OpenPaymentController extends Controller
                 'payment_status' => 'pending',
             ]);
 
-            $currency = $order->currency;
-
             return successResponse('Order created successfully', [
-                'order' => array_merge($order->toArray(), [
-                    'amount' => currencyFormat($order->amount, $currency, includeSymbol: false),
-                    'base_amount' => currencyFormat($order->base_amount, $currency, includeSymbol: false),
-                    'processing_fee' => currencyFormat($order->processing_fee, $currency, includeSymbol: false),
-                    'processing_fee_rate' => $order->processing_fee_rate,
-                ]),
+                'order' => $this->formatOrder($order),
             ]);
         } catch (Exception $exception) {
             return errorResponse('Failed to create order: '.$exception->getMessage());
         }
+    }
+
+    /**
+     * Format an order for the client — raw model attributes are unformatted
+     * DB decimals (no thousand separators, precision from the column, not the
+     * currency). Every endpoint that hands an order's amount to the frontend
+     * must go through here, or the same order shows a different-looking
+     * amount depending which step rendered it (e.g. the review step read
+     * this formatting, but a raw model on the success page didn't).
+     */
+    private function formatOrder(OpenPaymentOrder $order): array
+    {
+        $currency = $order->currency;
+
+        return array_merge($order->toArray(), [
+            'amount' => currencyFormat($order->amount, $currency, includeSymbol: false),
+            'base_amount' => currencyFormat($order->base_amount, $currency, includeSymbol: false),
+            'processing_fee' => currencyFormat($order->processing_fee, $currency, includeSymbol: false),
+            'processing_fee_rate' => $order->processing_fee_rate,
+        ]);
     }
 
     /**
@@ -103,7 +116,7 @@ class OpenPaymentController extends Controller
             }
 
             return successResponse('', [
-                'order' => $order,
+                'order' => $this->formatOrder($order),
                 'rzp_key' => $apiKeys->rzp_key,
                 'stripe_key' => $this->payments->publishableKey(),
             ]);
@@ -190,7 +203,7 @@ class OpenPaymentController extends Controller
             ]));
 
             return $paid
-                ? successResponse('Payment successful!', ['order' => $order->fresh()])
+                ? successResponse('Payment successful!', ['order' => $this->formatOrder($order->fresh())])
                 : errorResponse('Payment verification failed.', 400);
         } catch (SignatureVerificationException) {
             return errorResponse('Payment verification failed: Invalid signature.', 400);
@@ -216,7 +229,7 @@ class OpenPaymentController extends Controller
             $paid = $this->payments->confirm($order, ['payment_intent' => $request->payment_intent_id]);
 
             return $paid
-                ? successResponse('Payment successful!', ['order' => $order->fresh()])
+                ? successResponse('Payment successful!', ['order' => $this->formatOrder($order->fresh())])
                 : errorResponse('Payment not completed.', 400);
         } catch (Exception $exception) {
             return errorResponse('Payment verification failed: '.$exception->getMessage(), 500);
@@ -309,49 +322,46 @@ class OpenPaymentController extends Controller
     public function listOrders(Request $request): JsonResponse
     {
         try {
-            $query = OpenPaymentOrder::query();
-
             $search = $request->input('search-query') ?: $request->input('search');
-            if ($search) {
-                $query->where(function (Builder $q) use ($search): void {
-                    $q->where('name', 'like', sprintf('%%%s%%', $search))
-                        ->orWhere('email', 'like', sprintf('%%%s%%', $search))
-                        ->orWhere('company', 'like', sprintf('%%%s%%', $search))
-                        ->orWhere('transaction_id', 'like', sprintf('%%%s%%', $search));
-                });
-            }
+            $status = $request->input('status');
+            $gateway = $request->input('gateway');
+            $currency = $request->input('currency');
+            $fromDate = $request->input('from_date');
+            $toDate = $request->input('to_date');
 
-            if (($status = $request->input('status')) && $status !== 'all') {
-                $query->where('payment_status', $status);
-            }
-
-            if (($gateway = $request->input('gateway')) && $gateway !== 'all') {
-                $query->where('gateway', $gateway);
-            }
-
-            if ($from = $request->input('from_date')) {
-                $query->where('created_at', '>=', Date::parse($from)->startOfDay());
-            }
-
-            if ($to = $request->input('to_date')) {
-                $query->where('created_at', '<=', Date::parse($to)->endOfDay());
-            }
-
-            $allowed = ['name', 'email', 'amount', 'currency', 'gateway', 'payment_status', 'created_at'];
+            $allowedSortFields = ['name', 'email', 'company', 'transaction_id', 'amount', 'currency', 'gateway', 'payment_status', 'created_at'];
             $sortField = $request->input('sort-field', 'created_at');
-            $sortOrder = $request->input('sort-order', 'desc');
-            if (! in_array($sortField, $allowed)) {
-                $sortField = 'created_at';
-            }
+            $sortField = in_array($sortField, $allowedSortFields, true) ? $sortField : 'created_at';
+            $sortOrder = $request->input('sort-order') === 'asc' ? 'asc' : 'desc';
 
             $perPage = (int) ($request->input('limit') ?: $request->input('per_page', 10));
 
-            $orders = $query
-                ->select('open_payment_orders.*')
-                ->leftJoin('currencies', 'open_payment_orders.currency', '=', 'currencies.code')
-                ->addSelect('currencies.symbol as currency_symbol')
-                ->orderBy('open_payment_orders.'.$sortField, $sortOrder === 'asc' ? 'asc' : 'desc')
+            $orders = OpenPaymentOrder::query()
+                ->with('currencyInfo')
+                ->when($search, fn (Builder $query) => $query->whereAny([
+                    'name',
+                    'email',
+                    'company',
+                    'mobile',
+                    'amount',
+                    'gateway',
+                    'payment_status',
+                    'transaction_id',
+                ], 'like', "%{$search}%"))
+                ->when($status && $status !== 'all', fn (Builder $query) => $query->where('payment_status', $status))
+                ->when($gateway && $gateway !== 'all', fn (Builder $query) => $query->where('gateway', $gateway))
+                ->when($currency && $currency !== 'all', fn (Builder $query) => $query->where('currency', $currency))
+                ->when($fromDate, fn (Builder $query) => $query->where('created_at', '>=', Date::parse($fromDate)->startOfDay()))
+                ->when($toDate, fn (Builder $query) => $query->where('created_at', '<=', Date::parse($toDate)->endOfDay()))
+                ->orderBy($sortField, $sortOrder)
                 ->paginate($perPage);
+
+            // currency_symbol is flattened onto each row for the frontend table;
+            // currencyInfo is eager-loaded above so this doesn't N+1.
+            $orders->getCollection()->transform(fn (OpenPaymentOrder $order) => [
+                ...$order->makeHidden('currencyInfo')->toArray(),
+                'currency_symbol' => $order->currencyInfo?->symbol,
+            ]);
 
             return successResponse('', $orders);
         } catch (Exception $exception) {

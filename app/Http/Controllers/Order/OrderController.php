@@ -129,8 +129,19 @@ class OrderController extends BaseOrderController
             $query = $orderSearch->advanceOrderSearch($request);
             $query = $orderSearch->applyOrdersSearch($query, $searchQuery);
 
-            $paginated = $query->orderBy($sortField, $sortOrder)
-                ->paginate($limit);
+            // 'update_ends_at' lives on subscriptions, not orders — sort via a correlated subquery.
+            if ($sortField === 'update_ends_at') {
+                $query->orderBy(
+                    Subscription::select('update_ends_at')
+                        ->whereColumn('subscriptions.order_id', 'orders.id')
+                        ->limit(1),
+                    $sortOrder
+                );
+            } else {
+                $query->orderBy($sortField, $sortOrder);
+            }
+
+            $paginated = $query->paginate($limit);
 
             $paginated->getCollection()->transform(function (Order $order): array {
                 $user = $order->user;

@@ -27,6 +27,15 @@ class ReportController extends Controller
         $sortField = $request->input('sort-field', 'created_at');
         $limit = $request->input('limit', 10);
 
+        // 'format' and 'type' are PHP-computed below (from 'file' and 'name'), not real columns —
+        // sort by their source column instead.
+        $columnMap = ['format' => 'file', 'type' => 'name'];
+        $allowed = ['file', 'format', 'type', 'created_at'];
+        if (! in_array($sortField, $allowed, true)) {
+            $sortField = 'created_at';
+        }
+        $sortField = $columnMap[$sortField] ?? $sortField;
+
         $reports = ExportDetail::with(['user:id,first_name,last_name'])
             ->where('user_id', auth()->id())
             ->when($searchQuery, function ($query) use ($searchQuery): void {

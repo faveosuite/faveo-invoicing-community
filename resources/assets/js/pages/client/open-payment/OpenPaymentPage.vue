@@ -37,7 +37,7 @@
         <div v-if="step === 'form'" key="form" class="card shadow border-0 rounded-3">
 
           <div class="card-header bg-white border-bottom px-4 py-3">
-            <h5 class="fw-bold mb-0">{{ __('message.op_payment_details') }}</h5>
+            <h5 class="op-card-title mb-0">{{ __('message.op_payment_details') }}</h5>
             <p class="text-muted mb-0 mt-1">{{ __('message.op_pay_for', { app: appTitle }) }}</p>
           </div>
 
@@ -165,7 +165,7 @@
         <div v-if="step === 'summary'" key="summary" class="card shadow border-0 rounded-3">
 
           <div class="card-header bg-white border-bottom px-4 py-3">
-            <h5 class="fw-bold mb-0">{{ __('message.op_review_order') }}</h5>
+            <h5 class="op-card-title mb-0">{{ __('message.op_review_order') }}</h5>
             <p class="text-muted mb-0 mt-1">{{ __('message.op_confirm_details') }}</p>
           </div>
 
@@ -188,36 +188,41 @@
                 <div class="row g-4 mb-4">
                   <div class="col-6">
                     <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.mobile') }}</div>
-                    <div class="fw-semibold text-dark">{{ form.mobile_code ? `+${form.mobile_code} ${form.mobile}` : form.mobile }}</div>
+                    <div class="text-dark">{{ form.mobile_code ? `+${form.mobile_code} ${form.mobile}` : form.mobile }}</div>
                   </div>
                   <div class="col-6">
                     <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.company') }}</div>
-                    <div class="fw-semibold text-dark">{{ form.company }}</div>
+                    <div class="text-dark">{{ form.company }}</div>
                   </div>
                 </div>
 
-                <!-- Billing address -->
+                <!-- Billing address — stacked label-above-value (not side-by-side) so
+                     scanning doesn't require jumping across the row, and a long
+                     street address wraps under its own full-width line instead of
+                     being squeezed into a narrow right-hand column. -->
                 <div class="border-top pt-4">
                   <div class="op-detail-label text-uppercase fw-semibold text-muted mb-3">{{ __('message.billing_address') }}</div>
-                  <div class="d-flex justify-content-between py-2 border-bottom">
-                    <span class="text-muted">{{ __('message.op_street_address') }}</span>
-                    <span class="fw-semibold text-end">{{ form.address }}</span>
-                  </div>
-                  <div class="d-flex justify-content-between py-2 border-bottom">
-                    <span class="text-muted">{{ __('message.city') }}</span>
-                    <span class="fw-semibold">{{ form.city }}</span>
-                  </div>
-                  <div v-if="form.state" class="d-flex justify-content-between py-2 border-bottom">
-                    <span class="text-muted">{{ __('message.state') }}</span>
-                    <span class="fw-semibold">{{ form.state }}</span>
-                  </div>
-                  <div class="d-flex justify-content-between py-2 border-bottom">
-                    <span class="text-muted">{{ __('message.op_zip_code') }}</span>
-                    <span class="fw-semibold">{{ form.zip }}</span>
-                  </div>
-                  <div class="d-flex justify-content-between py-2">
-                    <span class="text-muted">{{ __('message.country') }}</span>
-                    <span class="fw-semibold">{{ selectedCountryObj?.name || form.country }}</span>
+                  <div class="row g-3">
+                    <div class="col-12">
+                      <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.op_street_address') }}</div>
+                      <div class="text-dark">{{ form.address }}</div>
+                    </div>
+                    <div class="col-6">
+                      <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.city') }}</div>
+                      <div class="text-dark">{{ form.city }}</div>
+                    </div>
+                    <div v-if="form.state" class="col-6">
+                      <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.state') }}</div>
+                      <div class="text-dark">{{ form.state }}</div>
+                    </div>
+                    <div class="col-6">
+                      <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.op_zip_code') }}</div>
+                      <div class="text-dark">{{ form.zip }}</div>
+                    </div>
+                    <div class="col-6">
+                      <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.country') }}</div>
+                      <div class="text-dark">{{ selectedCountryObj?.name || form.country }}</div>
+                    </div>
                   </div>
                 </div>
 
@@ -226,16 +231,16 @@
               <!-- RIGHT: Payment summary -->
               <div class="col-md-5 p-5 d-flex flex-column op-right-bg">
 
-                <div class="fw-bold mb-3">{{ __('message.op_payment_summary') }}</div>
+                <div class="op-card-title mb-3">{{ __('message.op_payment_summary') }}</div>
 
                 <!-- Gateway / Currency / Note -->
                 <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
                   <span class="text-muted">{{ __('message.op_gateway') }}</span>
-                  <span class="fw-semibold">{{ form.gateway }}</span>
+                  <span class="text-dark">{{ form.gateway }}</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
                   <span class="text-muted">{{ __('message.currency') }}</span>
-                  <span class="fw-semibold">{{ selectedCurrency?.name ?? form.currency }}</span>
+                  <span class="text-dark">{{ selectedCurrency?.name ?? form.currency }}</span>
                 </div>
                 <div v-if="form.description" class="py-2 border-bottom">
                   <div class="text-muted small mb-1">{{ __('message.op_note') }}</div>
@@ -249,16 +254,16 @@
                   </div>
                   <template v-else>
                     <div class="d-flex justify-content-between py-2">
-                      <span class="text-muted">{{ __('message.amount_due') }}</span>
-                      <span class="fw-semibold">{{ selectedCurrencySymbol }} {{ calculation.base_amount }}</span>
+                      <span class="text-muted">{{ __('message.amount') }}</span>
+                      <span class="text-dark">{{ selectedCurrencySymbol }}{{ calculation.base_amount }}</span>
                     </div>
                     <div v-if="calculation.processing_fee_rate > 0" class="d-flex justify-content-between py-2">
                       <span class="text-muted">{{ __('message.processing_fee') }} ({{ calculation.processing_fee_rate }}%)</span>
-                      <span class="fw-semibold">{{ selectedCurrencySymbol }} {{ calculation.processing_fee }}</span>
+                      <span class="text-dark">{{ selectedCurrencySymbol }}{{ calculation.processing_fee }}</span>
                     </div>
                     <div class="d-flex justify-content-between py-2 mt-1 border-top">
                       <span class="fw-bold">{{ __('message.op_total_due') }}</span>
-                      <span class="fw-bold">{{ selectedCurrencySymbol }} {{ calculation.total }}</span>
+                      <span class="fw-bold">{{ selectedCurrencySymbol }}{{ calculation.total }}</span>
                     </div>
                   </template>
                 </div>
@@ -272,7 +277,7 @@
                     </button>
                     <button v-if="showPayBtn" class="btn btn-dark fw-semibold w-100 py-3" @click="payNow" :disabled="paying">
                       <span v-if="paying"><i class="fas fa-circle-notch fa-spin me-2"></i>{{ __('message.op_processing') }}</span>
-                      <span v-else><i class="fas fa-lock me-2"></i>{{ __('message.op_pay') }} {{ selectedCurrencySymbol }} {{ calculation.total }}</span>
+                      <span v-else><i class="fas fa-lock me-2"></i>{{ __('message.op_pay') }} {{ selectedCurrencySymbol }}{{ calculation.total }}</span>
                     </button>
                   </div>
                 </div>
@@ -295,7 +300,7 @@
             <div class="card border-width-3 border-radius-0 border-color-success mb-0">
               <div class="card-body text-center">
                 <p class="text-color-dark font-weight-bold text-4-5 mb-0">
-                  <i class="fas fa-check text-color-success me-1"></i> {{ __('message.thanks_order_received') }}
+                  <i class="fas fa-check text-color-success me-1"></i> {{ __('message.op_payment_successful') }}
                 </p>
               </div>
             </div>
@@ -304,7 +309,7 @@
             <div class="d-flex flex-column flex-md-row justify-content-between py-3 px-4 my-4">
               <div class="text-center">
                 <span><strong class="text-color-dark">{{ __('message.op_transaction_id') }}</strong><br>
-                  <span class="font-monospace small">{{ result.transactionId || '—' }}</span>
+                  <span class="font-monospace">{{ result.transactionId || '—' }}</span>
                 </span>
               </div>
               <div class="text-center mt-4 mt-md-0">
@@ -314,29 +319,26 @@
                 <span><strong class="text-color-dark">{{ __('message.payment-method') }}</strong><br>{{ result.gateway }}</span>
               </div>
               <div class="text-center mt-4 mt-md-0">
-                <span><strong class="text-color-dark">{{ __('message.total') }}</strong><br>{{ result.currency }} {{ result.amount }}</span>
+                <span><strong class="text-color-dark">{{ __('message.total') }}</strong><br>{{ resultCurrencySymbol }}{{ result.amount }}</span>
               </div>
             </div>
 
-            <!-- Details card -->
+            <!-- Details card — Payment Method is already shown in the summary row
+                 above, so this receipt only needs Description + Amount Paid. -->
             <div class="card border-width-3 border-radius-0 mb-4">
               <div class="card-body">
                 <h4 class="font-weight-bold text-uppercase text-4 mb-3">{{ __('message.op_payment_details') }}</h4>
                 <table class="shop_table cart-totals mb-0">
-                  <thead class="visually-hidden"><tr><th>{{ __("message.op_description_optional") }}</th><th>{{ __("message.value") }}</th></tr></thead>
+                  <thead class="visually-hidden"><tr><th>{{ __("message.description") }}</th><th>{{ __("message.value") }}</th></tr></thead>
                   <tbody>
                     <tr>
-                      <td class="border-top-0"><strong class="text-color-dark">{{ __('message.op_description_optional') }}</strong></td>
-                      <td class="border-top-0 text-end text-color-grey">{{ result.description || '—' }}</td>
-                    </tr>
-                    <tr>
-                      <td><strong class="text-color-dark">{{ __('message.op_gateway') }}</strong></td>
-                      <td class="text-end text-color-grey">{{ result.gateway }}</td>
+                      <td class="border-top-0"><strong class="text-color-dark">{{ __('message.description') }}</strong></td>
+                      <td class="border-top-0 text-end text-color-dark">{{ result.description || '—' }}</td>
                     </tr>
                     <tr class="total">
                       <td><strong class="text-color-dark text-3-5">{{ __('message.op_amount_paid') }}</strong></td>
                       <td class="text-end">
-                        <strong class="text-color-dark"><span class="amount text-color-dark text-5">{{ result.currency }} {{ result.amount }}</span></strong>
+                        <strong class="text-color-dark"><span class="amount text-color-dark text-5">{{ resultCurrencySymbol }}{{ result.amount }}</span></strong>
                       </td>
                     </tr>
                   </tbody>
@@ -382,13 +384,8 @@
     classname="modal-md"
   >
     <template #title>
-      <div class="d-flex align-items-center gap-2">
-        <div class="op-brand-lock op-brand-lock-sm">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          </svg>
-        </div>
-        <span class="fw-bold">{{ __('message.card_details') }}</span>
+      <div class="d-flex align-items-center justify-content-between w-100 me-3">
+        <span class="fw-bold fs-5">{{ __('message.enter_card_details') }}</span>
       </div>
     </template>
     <template #fields>
@@ -403,36 +400,35 @@
 
         <template v-else>
           <!-- Card Number -->
-          <div class="mb-3">
-            <label class="form-label text-muted small mb-1">{{ __('message.card_number') }}</label>
+          <div class="mb-4">
+            <label class="form-label text-color-grey mb-1">{{ __('message.card_number') }}</label>
             <div id="card-number" class="form-control h-auto py-3" :class="{ 'is-invalid': cardErrors.number }"></div>
             <div v-if="cardErrors.number" class="invalid-feedback d-block">{{ cardErrors.number }}</div>
           </div>
 
           <!-- Expiry + CVC -->
-          <div class="row g-3 mb-3">
+          <div class="row g-3 mb-4">
             <div class="col-6">
-              <label class="form-label text-muted small mb-1">{{ __('message.expiry_date') }}</label>
+              <label class="form-label text-color-grey mb-1">{{ __('message.expiry_date') }}</label>
               <div id="card-expiry" class="form-control h-auto py-3" :class="{ 'is-invalid': cardErrors.expiry }"></div>
               <div v-if="cardErrors.expiry" class="invalid-feedback d-block">{{ cardErrors.expiry }}</div>
             </div>
             <div class="col-6">
-              <label class="form-label text-muted small mb-1">{{ __('message.cvc') }}</label>
+              <label class="form-label text-color-grey mb-1">{{ __('message.cvc') }}</label>
               <div id="card-cvc" class="form-control h-auto py-3" :class="{ 'is-invalid': cardErrors.cvc }"></div>
               <div v-if="cardErrors.cvc" class="invalid-feedback d-block">{{ cardErrors.cvc }}</div>
             </div>
           </div>
 
           <!-- Total row -->
-          <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2 mb-3 bg-light">
-            <span class="fw-semibold small text-muted">{{ __('message.op_total_due') }}</span>
-            <span class="fw-bold">{{ order?.currency }} {{ order?.amount }}</span>
+          <div class="d-flex justify-content-between align-items-center border rounded px-2 py-2 mb-3">
+            <span class="fw-bold text-color-dark">{{ __('message.total') }}</span>
+            <span class="fw-bold text-color-dark">{{ selectedCurrencySymbol }}{{ order?.amount }}</span>
           </div>
 
           <!-- Pay button -->
-          <button class="btn btn-success w-100 py-2 fw-semibold" :disabled="stripeSubmitting" @click="payStripe">
-            <span v-if="stripeSubmitting"><i class="fas fa-circle-notch fa-spin me-2"></i>{{ __('message.op_processing') }}</span>
-            <span v-else><i class="fas fa-lock me-2"></i>{{ __('message.op_pay') }} {{ order?.currency }} {{ order?.amount }}</span>
+          <button class="btn btn-primary w-100 py-2 fw-bold text-uppercase" :disabled="stripeSubmitting" @click="payStripe">
+            {{ stripeSubmitting ? __('message.please_wait') : __('message.pay_now') }}
           </button>
 
         </template>
@@ -499,11 +495,13 @@ let   stripeInstance   = null
 let   cardNumberEl     = null
 let   clientSecret     = null
 
-const form = reactive({
+const blankForm = () => ({
   name: '', email: '', mobile: '', mobile_code: '', company: '',
   address: '', city: '', state: '', zip: '', country: '',
   amount: '', currency: '', gateway: '', description: '',
 })
+
+const form = reactive(blankForm())
 
 // ── Currency ────────────────────────────────────────────────────────
 const appTitle        = ref('')
@@ -513,6 +511,10 @@ const paymentsEnabled = ref(true)
 const loading          = ref(true)
 const selectedCurrency = computed(() => currencyOptions.value.find(c => c.code === form.currency) ?? null)
 const selectedCurrencySymbol = computed(() => selectedCurrency.value?.symbol ?? '')
+// Success page shows the paid order's currency as a symbol (e.g. "₹"), same as
+// every other amount on this page — falls back to the code itself if the
+// currency isn't in the active list for some reason, so it never renders blank.
+const resultCurrencySymbol = computed(() => currencyOptions.value.find(c => c.code === result.currency)?.symbol ?? result.currency)
 const onCurrencyChange = (val) => { form.currency = val?.code ?? '' }
 
 const onLogoError = (event, name) => {
@@ -530,7 +532,7 @@ const fetchCalculation = async () => {
   if (!form.amount || !form.gateway) return
   calcLoading.value = true
   try {
-    const { data } = await http.get(`${API}/calculate`, { params: { amount: form.amount, gateway: form.gateway } })
+    const { data } = await http.get(`${API}/calculate`, { params: { amount: form.amount, gateway: form.gateway, currency: form.currency } })
     Object.assign(calculation, data.data)
   } catch {
     // fallback: keep zeros, user will see correct values after retry
@@ -575,6 +577,17 @@ const reset = () => {
   clientSecret   = null
   selectedCountryObj.value = null
   selectedStateObj.value = null
+  // "Make Another Payment" starts a fresh payment, not a continuation — carrying
+  // the previous payer's name/address/card-amount over is the actual bug being
+  // fixed here, so wipe every field the payer typed/picked back to blank.
+  Object.assign(form, blankForm())
+  Object.assign(calculation, { base_amount: '0.00', processing_fee: '0.00', processing_fee_rate: 0, total: '0.00' })
+  setErrors({})
+  // Re-apply the same defaults a fresh page load gets, instead of leaving
+  // currency/gateway blank and country undetected.
+  if (currencyOptions.value.length) form.currency = currencyOptions.value[0].code
+  if (enabledGateways.value.length) form.gateway  = enabledGateways.value[0].name
+  autoDetectCountry()
   Object.assign(result, { success: false, message: '', transactionId: '', currency: '', amount: '', gateway: '', description: '' })
   alertStore.unsetAlert()
 }
@@ -632,12 +645,18 @@ const payNow = async () => {
       try {
         await createOrder()
         // If the server-confirmed total differs from the frontend estimate
-        // (rate changed between config load and Pay click), alert the user
-        const confirmedTotal = parseFloat(order.value?.amount)
-        const estimatedTotal = parseFloat(calculation.total)
+        // (rate changed between config load and Pay click), alert the user.
+        // order.amount/calculation.total are backend-formatted display strings
+        // (comma grouping, e.g. "102,499,999.99") — plain parseFloat stops at
+        // the first comma and silently returns garbage (parseFloat of that
+        // string is 102, not ~102.5 million), which falsely fired this alert
+        // on every order past four digits. Strip the grouping first.
+        const parseAmount = (str) => parseFloat(String(str ?? '').replace(/,/g, ''))
+        const confirmedTotal = parseAmount(order.value?.amount)
+        const estimatedTotal = parseAmount(calculation.total)
         if (!Number.isNaN(confirmedTotal) && Math.abs(confirmedTotal - estimatedTotal) > 0.01) {
           alertStore.setAlert({
-            message: `The total has been updated to ${selectedCurrencySymbol.value} ${confirmedTotal} due to a fee rate change.`,
+            message: `The total has been updated to ${selectedCurrencySymbol.value}${order.value.amount} due to a fee rate change.`,
             type: 'warning',
             component_name: 'open-payment-review',
           })
@@ -897,6 +916,20 @@ onMounted(async () => {
 
 <style scoped>
 /* ── Shared layout ──────────────────────────────────────────────── */
+
+/* Field labels are inconsistently weighted because they come from different
+   shared components: ClientField's <label> has no weight utility at all,
+   while PhoneField/DynamicSelect use fw-bold — so "Full Name"/"Email"/etc.
+   look regular while "Mobile"/"Country"/"State"/"Currency" look heavier
+   right next to them. :deep() overrides those child components' own
+   markup from here, scoped to this page, rather than editing the shared
+   components (used 60+ places app-wide) or their global default. */
+.op-page :deep(.form-label) { font-weight: 600 !important; }
+
+/* Card / modal titles were plain body text — bump weight and darken so
+   they read as headings rather than blending into the body copy. */
+.op-card-title { font-weight: 700; color: #111827; }
+
 .op-right-bg     { background: #f8f9ff; }
 .op-section-label { font-size: 0.7rem; letter-spacing: 0.08em; }
 .op-detail-label  { font-size: 0.65rem; letter-spacing: 0.08em; }
@@ -907,7 +940,6 @@ onMounted(async () => {
 .op-result-msg    { max-width: 400px; margin-inline: auto; }
 .op-txn-box       { background: var(--primary-rgba-10); border: 1.5px solid var(--primary-rgba-30); }
 .op-txn-id        { font-family: monospace; font-size: 0.95rem; letter-spacing: 0.05em; color: var(--primary); }
-.op-brand-lock-sm { width: 26px; height: 26px; flex-shrink: 0; }
 
 /* ── Page ───────────────────────────────────────────────────────── */
 .op-page {
@@ -922,17 +954,6 @@ onMounted(async () => {
   max-width: 980px;
   position: relative;
   z-index: 1;
-}
-
-/* ── Brand lock (Stripe modal icon) ─────────────────────────────── */
-.op-brand-lock {
-  width: 28px; height: 28px;
-  background: var(--primary);
-  color: white;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* ── Stepper (matches Verify page) ──────────────────────────────── */

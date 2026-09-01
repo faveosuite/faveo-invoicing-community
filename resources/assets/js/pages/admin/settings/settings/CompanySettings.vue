@@ -12,50 +12,47 @@
                 <div class="card-body">
 
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <TextField name="company" :label="__('message.company')" :required="true" :value="form.company" :onChange="onChange" :error="errors.company" />
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <TextField name="company_email" type="email" :label="__('message.company-email')" :required="true" :value="form.company_email" :onChange="onChange" :error="errors.company_email" />
-                        </div>
-                        <div class="col-md-4">
-                            <TextField name="website" :label="__('message.website')" :required="true" :value="form.website" :onChange="onChange" placeholder="https://example.com" :error="errors.website" />
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
+                            <TextField name="website" :label="__('message.website')" :required="true" :value="form.website" :onChange="onChange" placeholder="https://example.com" :error="errors.website" />
+                        </div>
+                        <div class="col-md-6">
                             <TextField name="title" :label="__('message.title')" :value="form.title" :onChange="onChange" />
                         </div>
-                        <div class="col-md-4">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
                             <TextField name="favicon_title" :label="__('message.meta_title_admin')" :value="form.favicon_title" :onChange="onChange" />
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <TextField name="favicon_title_client" :label="__('message.meta_title_client')" :value="form.favicon_title_client" :onChange="onChange" />
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <PhoneField name="phone" :label="__('message.phone')" :required="true" :value="form.phone" :onChange="onChange" :initialCountry="form.phone_country_iso ? form.phone_country_iso.toLowerCase() : 'auto'" :error="errors.phone" @countryChange="onPhoneCountryChange" />
                         </div>
-                        <div class="col-md-4">
-                            <DynamicSelect name="language" :label="__('message.language')" :elements="languageOptions" :value="form.language" :onChange="onChange" :searchable="true" />
-                        </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <TextField name="knowledge_base_url" :label="__('message.knowledge_base_url')" :value="form.knowledge_base_url" :onChange="onChange" />
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <DynamicSelect name="default_currency" :label="__('message.default-currency')" :required="true" :elements="currencyOptions" :value="form.default_currency" :onChange="onChange" :searchable="true" :error="errors.default_currency" />
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <TextField name="cin_no" :label="__('message.cin')" :value="form.cin_no" :onChange="onChange" />
-                        </div>
-                        <div class="col-md-4">
-                            <TextField name="gstin" :label="__('message.gstin')" :value="form.gstin" :onChange="onChange" :error="errors.gstin" />
                         </div>
                     </div>
 
@@ -66,13 +63,19 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
+                            <TextField name="gstin" :label="__('message.gstin')" :value="form.gstin" :onChange="onChange" :error="errors.gstin" />
+                        </div>
+                        <div class="col-md-6">
                             <TextField name="city" :label="__('message.city')" :value="form.city" :onChange="onChange" />
                         </div>
-                        <div class="col-md-4">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
                             <DynamicSelect name="country" :label="__('message.country')" :required="true" :elements="countryOptions" :value="form.country" :onChange="onCountryChange" :searchable="true" :error="errors.country" />
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <DynamicSelect name="state" :label="__('message.state')" :required="true" :elements="stateOptions" :value="form.state" :onChange="onChange" :searchable="true" :error="errors.state" />
                         </div>
                     </div>
@@ -155,7 +158,6 @@ const saving  = ref(false)
 const countryOptions  = ref([])
 const stateOptions    = ref([])
 const currencyOptions = ref([])
-const languageOptions = ref([])
 
 const icon             = ref('')
 const logo_admin_agent = ref('')
@@ -191,7 +193,6 @@ const form = reactive({
     cin_no: '',
     gstin: '',
     default_currency: null,
-    language: null,
     knowledge_base_url: '',
     autorenewal_status: false,
 })
@@ -222,12 +223,10 @@ onMounted(async () => {
         countryOptions.value  = (data.countries  ?? []).map(c  => ({ id: c.country_code_char2, name: c.country_name }))
         stateOptions.value    = (data.states      ?? []).map(st => ({ id: stateValue(st),       name: stateLabel(st) }))
         currencyOptions.value = (data.currencies  ?? []).map(c  => ({ id: c.code,               name: `${c.name} (${c.code})` }))
-        languageOptions.value = (data.languages   ?? []).map(l  => ({ id: l.locale,             name: l.name || l.locale }))
 
         form.country          = countryOptions.value.find(c  => c.id  === s.country)          ?? null
         form.state            = stateOptions.value.find(st   => st.id === s.state)             ?? null
         form.default_currency = currencyOptions.value.find(c => c.id  === s.default_currency) ?? null
-        form.language         = languageOptions.value.find(l => l.id  === s.language)          ?? null
 
         icon.value             = s.fav_icon    ?? ''
         logo_admin_agent.value = s.admin_logo  ?? ''
@@ -306,7 +305,6 @@ async function save() {
         fd.append('country',              form.country?.id          ?? '')
         fd.append('state',                form.state?.id            ?? '')
         fd.append('default_currency',     form.default_currency?.id ?? '')
-        fd.append('language',             form.language?.id         ?? '')
         fd.append('defaulticon',          defaulticon.value      ? 1 : 0)
         fd.append('defaultlogo',          defaultlogo.value      ? 1 : 0)
         fd.append('defaultclientlogo',    defaultclientlogo.value ? 1 : 0)

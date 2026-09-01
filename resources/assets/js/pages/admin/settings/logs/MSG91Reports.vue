@@ -134,7 +134,7 @@ const tableOptions = reactive({
     },
     sortable: ['mobile_number', 'status', 'created_at', 'delivery_date'],
     filterable: true,
-    requestAdapter: makeRequestAdapter('created_at', activeFilters),
+    requestAdapter: makeRequestAdapter('created_at', activeFilters, { delivery_date: 'date' }),
     orderBy: { column: 'created_at', ascending: false },
 })
 </script>

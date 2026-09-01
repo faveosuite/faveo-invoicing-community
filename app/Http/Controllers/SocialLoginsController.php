@@ -44,17 +44,14 @@ class SocialLoginsController extends Controller
 
     public function updateSocialLogin(Request $request): JsonResponse
     {
-        // Real credentials are only needed to actually turn the login ON —
-        // saving blank is always allowed while it stays Inactive, so admins
-        // can clear a mistaken value back out (see QA bug #33).
-        $isTogglingActive = (int) $request->input('optradio') === 1;
+        $isTwitter = $request->input('type') === 'Twitter';
 
         $request->validate([
-            'client_id' => [Rule::requiredIf($isTogglingActive && in_array($request->input('type'), ['Google', 'Github', 'Linkedin'], true))],
-            'client_secret' => [Rule::requiredIf($isTogglingActive && in_array($request->input('type'), ['Google', 'Github', 'Linkedin'], true))],
-            'api_key' => [Rule::requiredIf($isTogglingActive && $request->input('type') === 'Twitter')],
-            'api_secret' => [Rule::requiredIf($isTogglingActive && $request->input('type') === 'Twitter')],
-            'redirect_url' => [Rule::requiredIf($isTogglingActive)],
+            'client_id' => [Rule::requiredIf(! $isTwitter)],
+            'client_secret' => [Rule::requiredIf(! $isTwitter)],
+            'api_key' => [Rule::requiredIf($isTwitter)],
+            'api_secret' => [Rule::requiredIf($isTwitter)],
+            'redirect_url' => ['required', 'url'],
         ],
             [
                 // Rule::requiredIf() compiles down to the plain "required" rule at
@@ -64,6 +61,7 @@ class SocialLoginsController extends Controller
                 'api_key.required' => __('validation.social_login.api_key_required'),
                 'api_secret.required' => __('validation.social_login.api_secret_required'),
                 'redirect_url.required' => __('validation.social_login.redirect_url_required'),
+                'redirect_url.url' => __('message.invalid_url'),
             ]);
 
         try {

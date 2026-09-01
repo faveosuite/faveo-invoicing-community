@@ -5,6 +5,7 @@ namespace App\Model\Payment;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Override;
 use Str;
@@ -115,6 +116,21 @@ class OpenPaymentOrder extends Model
     public static function generateTransactionId(): string
     {
         return 'txn_'.strtolower(Str::ulid());
+    }
+
+    /**
+     * The currency this order was charged in. Named `currencyInfo`, not
+     * `currency` — `currency` is already the raw code column, and an
+     * Eloquent relation sharing a column's name is never reachable via
+     * magic property access (the attribute always wins), so `->currency`
+     * would keep returning the code string even with this relation eager
+     * loaded.
+     *
+     * @return BelongsTo<Currency, $this>
+     */
+    public function currencyInfo(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class, 'currency', 'code');
     }
 
     /**

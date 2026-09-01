@@ -455,7 +455,7 @@ class ClientController extends BaseClientController
         }
     }
 
-    public function getInvoicesByOrderId(mixed $orderid, mixed $userid, mixed $admin = null): JsonResponse
+    public function getInvoicesByOrderId(Request $request, mixed $orderid, mixed $userid, mixed $admin = null): JsonResponse
     {
         try {
             if (! authorizeOwnership((int) $userid, allowAdmin: true)) {
@@ -466,9 +466,13 @@ class ClientController extends BaseClientController
 
             $invoiceIds = $order->invoices()->pluck('invoices.id');
 
+            $allowed = ['number', 'date'];
+            $sortCol = in_array($request->input('sort-field'), $allowed, true) ? $request->input('sort-field') : 'date';
+            $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+
             $paginated = Invoice::whereIn('id', $invoiceIds)
                 ->select('id', 'number', 'date', 'grand_total', 'currency', 'status', 'is_renewed')
-                ->orderBy('date', 'desc')
+                ->orderBy($sortCol, $sortDir)
                 ->paginate(10);
 
             $paginated->getCollection()->transform(fn ($model): array => [
@@ -602,6 +606,12 @@ class ClientController extends BaseClientController
                 'download_url' => $downloadUrl,
             ]);
         }
+
+        $allowed = ['version', 'name', 'created_at'];
+        $sortField = $request->input('sort-field', 'created_at');
+        $sortField = in_array($sortField, $allowed, true) ? $sortField : 'created_at';
+        $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+        $items = $sortDir === 'asc' ? $items->sortBy($sortField) : $items->sortByDesc($sortField);
 
         $page = (int) $request->input('page', 1);
         $perPage = (int) $request->input('limit', 10);
@@ -776,7 +786,7 @@ class ClientController extends BaseClientController
      *
      * @throws Exception
      */
-    public function getPaymentByOrderIdClient(int $orderid, int $userid): JsonResponse
+    public function getPaymentByOrderIdClient(Request $request, int $orderid, int $userid): JsonResponse
     {
         try {
             if (! authorizeOwnership($userid, allowAdmin: true)) {
@@ -787,10 +797,14 @@ class ClientController extends BaseClientController
 
             $invoiceIds = $order->invoices()->pluck('invoices.id')->toArray();
 
+            $allowed = ['payment_status', 'created_at'];
+            $sortCol = in_array($request->input('sort-field'), $allowed, true) ? $request->input('sort-field') : 'created_at';
+            $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+
             $paginated = $this->payment::query()
                 ->with(['invoices:id,number,currency'])
                 ->whereHas('invoices', fn ($q) => $q->whereIn('invoices.id', $invoiceIds))
-                ->latest()
+                ->orderBy($sortCol, $sortDir)
                 ->paginate(10);
 
             $paginated->getCollection()->transform(fn ($payment): array => [

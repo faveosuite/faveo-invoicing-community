@@ -60,6 +60,28 @@ function zohoMappedFields(
 }
 
 /**
+ * Zoho's own defined choices for a picklist field, if any (excludes the
+ * `-None-` placeholder). `pick_list_values` is CRM's metadata shape only —
+ * Zoho Campaigns picklist fields (e.g. Lead Source) don't carry it, so this
+ * comes back empty for those. Shared by resolveOptions() (what to offer in
+ * the mapping UI) and ZohoConnectHelper's field-type compatibility check
+ * (whether a local-field mapping is safe to allow).
+ *
+ * @return Collection<int, array{type: string, value: mixed, label: mixed}>
+ */
+function zohoPicklistOptions(mixed $zohoField): Collection
+{
+    return collect((array) ($zohoField->raw_metadata['pick_list_values'] ?? []))
+        ->reject(fn ($opt): bool => ($opt['actual_value'] ?? null) === '-None-')
+        ->map(fn ($opt): array => [
+            'type' => 'zoho',
+            'value' => $opt['actual_value'],
+            'label' => $opt['display_value'],
+        ])
+        ->values();
+}
+
+/**
  * Resolve selectable options for a Zoho field.
  *
  * @param  Collection<int|string, mixed>  $localFields
@@ -71,15 +93,14 @@ function zohoMappedFields(
 function resolveOptions(mixed $zohoField, Collection $localFields): array
 {
     if ($zohoField->field_type === 'picklist') {
-        return collect((array) ($zohoField->raw_metadata['pick_list_values'] ?? []))
-            ->reject(fn ($opt): bool => ($opt['actual_value'] ?? null) === '-None-')
-            ->map(fn ($opt): array => [
-                'type' => 'zoho',
-                'value' => $opt['actual_value'],
-                'label' => $opt['display_value'],
-            ])
-            ->values()
-            ->all();
+        $zohoOptions = zohoPicklistOptions($zohoField);
+
+        // ponytail: falling back to local fields keeps a no-options picklist
+        // (e.g. Campaigns) mappable at all; wire up Campaigns' real choice
+        // format here if/when needed.
+        if ($zohoOptions->isNotEmpty()) {
+            return $zohoOptions->all();
+        }
     }
 
     return $localFields->map(fn ($local): array => [

@@ -42,7 +42,7 @@ const tableOptions = reactive({
         status:    (f, row) => h('span', {
             class: row.status ? 'badge bg-success' : 'badge bg-danger',
         }, row.status ? __('message.active') : __('message.inactive')),
-        action:    (f, row) => h(RouterLink, { to: `/settings/social-logins/${row.id}/edit`, class: 'btn btn-light table_btn', title: __('message.edit') }, () => h('i', { class: 'fas fa-edit' })),
+        action:    (f, row) => h(RouterLink, { to: `/settings/social-logins/${row.id}/edit`, class: 'btn btn-light table_btn', title: __('message.settings') }, () => h('i', { class: 'fas fa-gear' })),
     },
     sortable: ['type', 'status'],
     filterable: true,

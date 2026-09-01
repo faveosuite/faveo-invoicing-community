@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Payment;
 
+use App\Model\Payment\Currency;
 use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Override;
 
 class OpenPaymentRequest extends FormRequest
@@ -37,8 +39,20 @@ class OpenPaymentRequest extends FormRequest
             'zip' => ['required', 'string', 'max:15'],
             'country' => ['required', 'string'],
             'company' => ['required', 'string'],
-            'amount' => ['required', 'numeric', 'min:1'],
-            'currency' => ['required', 'in:INR,USD'],
+            // Column is decimal(10,2) — 99999999.99 is the hard ceiling, and the
+            // stored total is base+fee, not just base. Capping base at half that
+            // leaves room for the fee (a small admin-configured %, currently
+            // 2-2.5%, but not itself bounded) to never push the total over.
+            // Without this cap, MySQL's non-strict sql_mode here silently clamps
+            // an out-of-range decimal to the column max instead of erroring, so
+            // base_amount/amount end up wrong while the separately-computed
+            // processing_fee (still in range) stays correct — a breakdown that
+            // doesn't add up.
+            'amount' => ['required', 'numeric', 'min:1', 'max:50000000'],
+            // Must match whatever /pay/config actually offers the frontend
+            // (every admin-enabled currency), not a fixed pair — otherwise a
+            // currency the dropdown lets you pick gets rejected here.
+            'currency' => ['required', Rule::in(Currency::where('status', 1)->pluck('code'))],
             'gateway' => ['required', 'in:Razorpay,Stripe'],
             'description' => ['nullable', 'string'],
         ];
@@ -68,8 +82,9 @@ class OpenPaymentRequest extends FormRequest
             'amount.required' => 'Please enter the payment amount.',
             'amount.numeric' => 'Amount must be a valid number.',
             'amount.min' => 'Amount must be at least 1.',
+            'amount.max' => 'Amount cannot exceed 50,000,000.',
             'currency.required' => 'Please select a currency.',
-            'currency.in' => 'Currency must be either INR or USD.',
+            'currency.in' => 'Please select a supported currency.',
             'gateway.required' => 'Please select a payment gateway.',
             'gateway.in' => 'Gateway must be either Razorpay or Stripe.',
         ];

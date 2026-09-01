@@ -31,7 +31,12 @@
             @close="onClose"
         >
             <template #option="option">
-                <slot name="option" v-bind="option">{{ option[optionLabel] }}</slot>
+                <slot name="option" v-bind="option">
+                    <span :title="option[optionLabel]">{{ subString(option[optionLabel]) }}</span>
+                </slot>
+            </template>
+            <template #selected-option="option">
+                <span :title="option[optionLabel]">{{ subString(option[optionLabel]) }}</span>
             </template>
             <template #list-footer>
                 <ul style="list-style:none;margin:0;padding:0"><li v-show="hasNextPage" ref="loaderRef" class="vs__load-trigger" /></ul>
@@ -62,6 +67,7 @@ import 'vue-select/dist/vue-select.css'
 import http from '@/plugins/axios'
 import { debounce } from 'lodash'
 import ToolTip from '@/components/Reusable/Tooltip.vue'
+import { getSubStringValue } from '@/helpers/extraLogics'
 
 const props = defineProps({
     name:          { type: String, required: true },
@@ -86,9 +92,19 @@ const props = defineProps({
     dataKey:       { type: String, default: null },
     required:      { type: Boolean, default: false },
     error:         { type: String, default: undefined },
+    // Same fix favMer's DynamicSelect uses: truncate the label text itself
+    // (title attribute carries the full value on hover). This is a
+    // defensive ceiling on the DOM text, not the real visual truncation —
+    // the CSS ellipsis on .vs__selected handles clipping precisely to
+    // whatever width the field actually has, so keep this generous.
+    strlength:     { type: [Number, String], default: 60 },
 })
 
 const fieldError = computed(() => props.error ?? '')
+
+function subString(value) {
+    return getSubStringValue(value, parseInt(props.strlength))
+}
 
 const vsRef         = ref(null)
 const loaderRef     = ref(null)
@@ -263,17 +279,54 @@ watch(
 
 .faveo-dynamic-select .vs__selected {
     margin: 3px;
-}
-
-.faveo-dynamic-select .vs__selected .selected {
+    /* The #selected-option slot truncates the label by character count
+       (see subString() in the script) only as a defensive ceiling — the
+       real, pixel-precise truncation is this ellipsis, which fills
+       whatever width the chip actually gets and clips exactly at the
+       edge. That's why the char cap (DynamicSelect's `strlength` prop)
+       should stay generous: too tight and it cuts the text short of the
+       clear icon before the ellipsis ever gets a chance to run.
+       min-width:0 + flex-basis:0 (via `flex: ... 0%`) matter too: a flex
+       item's default min-width:auto keeps it at its content width even
+       with overflow:hidden set, and flex-wrap lines break using each
+       item's *unshrunk* hypothetical size (content-width when
+       flex-basis:auto) — so without both, the search input next to it still
+       gets forced onto its own line, growing the field.
+       flex-grow is deliberately lopsided (20 vs. the search input's
+       default 1): without it the two split the row ~50/50, leaving the
+       text stopping halfway across the field with empty space before the
+       clear icon instead of running up to it. Pushing the ratio higher
+       than ~20 buys almost nothing more — the remaining sliver is the
+       search input's own padding/margin (its click target), not flex
+       share left to claim. */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 400px;
+    min-width: 0;
+    flex: 20 1 0%;
+}
+
+.faveo-dynamic-select .vs__selected span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
 }
 
 .faveo-dynamic-select .vs__dropdown-menu {
     max-height: 200px;
+}
+
+/* Same reasoning as .vs__selected above: subString()'s char-count cap is a
+   defensive ceiling, not the real fit — this option row has no flex fight
+   to win, but a generous strlength (needed so the *selected* chip isn't
+   cut short) means an option's untruncated text can still be wider than
+   this narrow menu, forcing back the horizontal scrollbar. Ellipsis clips
+   it to the row's actual pixel width regardless of the char count. */
+.faveo-dynamic-select .vs__dropdown-option {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .faveo-dynamic-select .vs__dropdown-menu::-webkit-scrollbar-track {
@@ -293,6 +346,10 @@ watch(
 
 .faveo-dynamic-select .vs__selected-options {
     padding: 0;
+    /* See .vs__selected above: flex items default to min-width:auto, so
+       without this the chip's content width pushes this container — and
+       the field — wider/taller than the toggle's border. */
+    min-width: 0;
 }
 
 .faveo-dynamic-select .vs__actions {

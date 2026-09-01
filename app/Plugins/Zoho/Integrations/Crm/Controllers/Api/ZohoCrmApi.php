@@ -73,7 +73,7 @@ class ZohoCrmApi extends ZohoBaseApi
             ->json();
 
         if (($response['data'][0]['status'] ?? '') !== 'success') {
-            throw ZohoCrmApiException::fromResponse($response);
+            throw ZohoCrmApiException::fromResponse($response['data'][0] ?? $response);
         }
     }
 
@@ -93,7 +93,7 @@ class ZohoCrmApi extends ZohoBaseApi
             ->json();
 
         if (($response['data'][0]['status'] ?? '') !== 'success') {
-            throw ZohoCrmApiException::fromResponse($response);
+            throw ZohoCrmApiException::fromResponse($response['data'][0] ?? $response);
         }
     }
 
@@ -109,7 +109,7 @@ class ZohoCrmApi extends ZohoBaseApi
             ->json();
 
         if (($response['data'][0]['status'] ?? '') !== 'success') {
-            throw ZohoCrmApiException::fromResponse($response);
+            throw ZohoCrmApiException::fromResponse($response['data'][0] ?? $response);
         }
     }
 

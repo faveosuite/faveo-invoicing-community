@@ -40,6 +40,7 @@
                         label="From Date"
                         :value="form.from_date"
                         :clearable="true"
+                        :disabledDate="isFutureDate"
                         :onChange="(val) => form.from_date = val"
                         :placeholder="__('message.select_date')"
                     />
@@ -50,6 +51,7 @@
                         label="To Date"
                         :value="form.to_date"
                         :clearable="true"
+                        :disabledDate="isFutureDate"
                         :onChange="(val) => form.to_date = val"
                         :placeholder="__('message.select_date')"
                     />
@@ -65,7 +67,9 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
+import http from '@/plugins/axios'
+import { errorHandler } from '@/helpers/responseHandler.js'
 
 defineProps({
     show:    { type: Boolean, default: false },
@@ -85,10 +89,22 @@ const gatewayOptions = [
     { id: 'Stripe',   name: 'Stripe'   },
 ]
 
-const currencyOptions = [
-    { id: 'USD', name: 'USD' },
-    { id: 'INR', name: 'INR' },
-]
+// Orders don't exist yet in the future — nothing past today should be selectable.
+const isFutureDate = (date) => date > new Date()
+
+// Sourced from /pay/config (same active-currency list offered to payers) —
+// hardcoding this to USD/INR meant orders in any other currency could never
+// be filtered.
+const currencyOptions = ref([])
+
+onMounted(async () => {
+    try {
+        const res = await http.get('/pay/config')
+        currencyOptions.value = (res.data?.data?.currencies ?? []).map(c => ({ id: c.code, name: c.code }))
+    } catch (e) {
+        errorHandler(e, 'open-payments-filter')
+    }
+})
 
 const empty = () => ({
     status:    null,

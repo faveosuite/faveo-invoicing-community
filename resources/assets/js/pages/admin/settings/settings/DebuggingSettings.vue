@@ -15,40 +15,42 @@
 
                         <!-- Application Debugging -->
                         <div class="col-md-6">
-                            <div class="border rounded h-100">
-                                <div class="d-flex align-items-center gap-3 p-3 border-bottom">
-                                    <i class="fas fa-bug fa-lg text-primary"></i>
+                            <div class="card border rounded-3 shadow-sm h-100">
+                                <div class="card-header bg-light d-flex align-items-center gap-3 p-3">
+                                    <div class="d-flex align-items-center justify-content-center rounded-3 p-1">
+                                        <i class="fas fa-bug fs-1 text-primary"></i>
+                                    </div>
                                     <div>
-                                        <div class="fw-semibold">{{ __('message.application_debugging') }}</div>
+                                        <h5 class="mb-0 fs-6 fw-bold">{{ __('message.application_debugging') }}</h5>
                                         <small class="text-muted">{{ __('message.application_debugging_desc') }}</small>
                                     </div>
                                 </div>
 
-                                <div class="p-3">
-                                    <p class="text-uppercase text-muted small fw-semibold mb-3 section-label">
+                                <div class="card-body p-3">
+                                    <p class="text-uppercase text-muted small fw-bold mb-3">
                                         {{ __('message.debugging_options') }}
                                     </p>
 
-                                    <div class="d-flex align-items-center justify-content-between py-3 border-bottom">
-                                        <div>
-                                            <div class="fw-semibold">{{ __('message.debug_mode') }}</div>
-                                            <small class="text-muted">{{ __('message.debug_mode_description') }}</small>
+                                    <div class="border rounded-2 p-3 mb-2 d-flex align-items-center justify-content-between">
+                                        <div class="pe-3">
+                                            <strong>{{ __('message.debug_mode') }}</strong>
+                                            <p class="text-muted small mb-0 mt-1">{{ __('message.debug_mode_description') }}</p>
                                         </div>
                                         <Switch name="debug" :value="form.debug" :onChange="(val) => form.debug = val" />
                                     </div>
 
-                                    <div class="d-flex align-items-center justify-content-between py-3 border-bottom">
-                                        <div>
-                                            <div class="fw-semibold">{{ __('message.pulse_monitoring') }}</div>
-                                            <small class="text-muted">{{ __('message.pulse_monitoring_desc') }}</small>
+                                    <div class="border rounded-2 p-3 mb-2 d-flex align-items-center justify-content-between">
+                                        <div class="pe-3">
+                                            <strong>{{ __('message.pulse_monitoring') }}</strong>
+                                            <p class="text-muted small mb-0 mt-1">{{ __('message.pulse_monitoring_desc') }}</p>
                                         </div>
                                         <Switch name="pulse_enabled" :value="form.pulse_enabled" :onChange="(val) => form.pulse_enabled = val" />
                                     </div>
 
-                                    <div class="d-flex align-items-center justify-content-between py-3">
-                                        <div>
-                                            <div class="fw-semibold">{{ __('message.clockwork_debugging') }}</div>
-                                            <small class="text-muted">{{ __('message.clockwork_debugging_desc') }}</small>
+                                    <div class="border rounded-2 p-3 d-flex align-items-center justify-content-between">
+                                        <div class="pe-3">
+                                            <strong>{{ __('message.clockwork_debugging') }}</strong>
+                                            <p class="text-muted small mb-0 mt-1">{{ __('message.clockwork_debugging_desc') }}</p>
                                         </div>
                                         <Switch name="clockwork_enable" :value="form.clockwork_enable" :onChange="(val) => form.clockwork_enable = val" />
                                     </div>
@@ -58,38 +60,36 @@
 
                         <!-- Application Monitoring -->
                         <div class="col-md-6">
-                            <div class="border rounded h-100">
-                                <div class="d-flex align-items-center gap-3 p-3 border-bottom">
-                                    <i class="fas fa-satellite-dish fa-lg text-primary"></i>
+                            <div class="card border rounded-3 shadow-sm h-100">
+                                <div class="card-header bg-light d-flex align-items-center gap-3 p-3">
+                                    <div class="d-flex align-items-center justify-content-center rounded-3 p-1">
+                                        <i class="fas fa-satellite-dish fs-1 text-primary"></i>
+                                    </div>
                                     <div>
-                                        <div class="fw-semibold">{{ __('message.application_monitoring') }}</div>
+                                        <h5 class="mb-0 fs-6 fw-bold">{{ __('message.application_monitoring') }}</h5>
                                         <small class="text-muted">{{ __('message.application_monitoring_desc') }}</small>
                                     </div>
                                 </div>
 
-                                <div class="p-3">
-                                    <p class="text-uppercase text-muted small fw-semibold mb-3 section-label">
+                                <div class="card-body p-3">
+                                    <p class="text-uppercase text-muted small fw-bold mb-3">
                                         {{ __('message.monitoring_options') }}
                                     </p>
 
-                                    <div class="d-flex align-items-center justify-content-between py-3 border-bottom">
-                                        <div>
-                                            <div class="fw-semibold d-flex align-items-center gap-1">
-                                                {{ __('message.sentry_crash_reporting') }}
-                                                <Tooltip :message="__('message.sentry_crash_reporting_tooltip')" />
-                                            </div>
-                                            <small class="text-muted">{{ __('message.sentry_crash_reporting_desc') }}</small>
+                                    <div class="border rounded-2 p-3 mb-2 d-flex align-items-center justify-content-between">
+                                        <div class="pe-3">
+                                            <strong>{{ __('message.sentry_crash_reporting') }}</strong>
+                                            <Tooltip :message="__('message.sentry_crash_reporting_tooltip')" />
+                                            <p class="text-muted small mb-0 mt-1">{{ __('message.sentry_crash_reporting_desc') }}</p>
                                         </div>
                                         <Switch name="sentry_reporting" :value="form.sentry_reporting" :onChange="(val) => form.sentry_reporting = val" />
                                     </div>
 
-                                    <div class="d-flex align-items-center justify-content-between py-3">
-                                        <div>
-                                            <div class="fw-semibold d-flex align-items-center gap-1">
-                                                {{ __('message.sentry_performance') }}
-                                                <Tooltip :message="__('message.sentry_performance_tooltip')" />
-                                            </div>
-                                            <small class="text-muted">{{ __('message.sentry_performance_desc') }}</small>
+                                    <div class="border rounded-2 p-3 d-flex align-items-center justify-content-between">
+                                        <div class="pe-3">
+                                            <strong>{{ __('message.sentry_performance') }}</strong>
+                                            <Tooltip :message="__('message.sentry_performance_tooltip')" />
+                                            <p class="text-muted small mb-0 mt-1">{{ __('message.sentry_performance_desc') }}</p>
                                         </div>
                                         <Switch name="sentry_performance" :value="form.sentry_performance" :onChange="(val) => form.sentry_performance = val" />
                                     </div>
@@ -151,7 +151,3 @@ async function submit() {
     }
 }
 </script>
-
-<style scoped>
-.section-label { letter-spacing: .06em; }
-</style>

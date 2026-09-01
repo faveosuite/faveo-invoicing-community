@@ -267,7 +267,6 @@ class SettingsController extends BaseSettingsController
             }
 
             $setting->default_symbol = Currency::where('code', $request->input('default_currency'))->value('symbol');
-            $setting->content = $request->input('language');
             $setting->fill($input)->save();
 
             return successResponse($this->langStr('message.updated-successfully'));
@@ -282,10 +281,17 @@ class SettingsController extends BaseSettingsController
             'timezone_id' => ['required', 'integer', 'exists:timezone,id'],
             'date_format' => ['required', 'string', 'max:20'],
             'time_format' => ['required', 'string', 'max:20'],
+            'language' => ['required', 'string', 'max:20'],
+        ], [
+            'timezone_id.required' => __('message.timezone_required'),
+            'date_format.required' => __('message.date_format_required'),
+            'time_format.required' => __('message.time_format_required'),
+            'language.required' => __('message.language_required'),
         ]);
 
         try {
             $setting = $settings->find(1) ?: $settings->create(['company' => '']);
+            $setting->content = $request->input('language');
             $setting->fill($request->only(['timezone_id', 'date_format', 'time_format']))->save();
 
             Cache::forget('system_datetime_format');
@@ -817,7 +823,7 @@ class SettingsController extends BaseSettingsController
                 ->setTracesSampleRate($tracesRate ?: null);
         }
 
-        return successResponse($this->langStr('message.updated-successfully'));
+        return successResponse(__('message.debugging_settings_saved_message'));
     }
 
     /**
