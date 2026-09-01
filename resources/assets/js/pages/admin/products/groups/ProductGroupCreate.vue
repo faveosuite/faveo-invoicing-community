@@ -144,7 +144,6 @@ async function submit() {
         if (selectedOgImage.value) {
             fd.append('og_image', selectedOgImage.value, selectedOgImageName.value)
         }
-        fd.append('_method', 'PUT')
 
         const res = await http.post(`/group`, fd, {
             headers: { 'Content-Type': 'multipart/form-data' },
@@ -152,7 +151,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/products/groups'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT, { setErrors })
+        errorHandler(e, COMPONENT, { setErrors, excludeFields: ['og_image'] })
     } finally {
         saving.value = false
     }

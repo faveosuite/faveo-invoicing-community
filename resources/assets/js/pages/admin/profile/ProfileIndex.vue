@@ -625,7 +625,7 @@ async function submitProfile() {
         })
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT, { setErrors })
+        errorHandler(e, COMPONENT, { setErrors, excludeFields: ['profile_pic'] })
     } finally {
         savingProfile.value = false
     }

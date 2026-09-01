@@ -49,6 +49,8 @@ class GroupRequest extends Request
     {
         return [
             'name.unique' => __('validation.group.name.unique'),
+            'og_image.mimes' => __('validation.og_image.mimes'),
+            'og_image.max' => __('validation.og_image.max'),
         ];
     }
 }

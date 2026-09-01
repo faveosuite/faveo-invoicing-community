@@ -206,7 +206,9 @@
                 />
             </Teleport>
             <Teleport v-else-if="showV2InvisiblePreview" to="#v2_response">
-                <RecaptchaV2Invisible ref="invisiblePreviewRef" :badge="form.badge_position" @error="onInvisibleError" />
+                <!-- Preview always renders inline: bottomright/bottomleft float to the
+                     viewport corner, leaving the preview box empty. -->
+                <RecaptchaV2Invisible ref="invisiblePreviewRef" badge="inline" @error="onInvisibleError" />
             </Teleport>
         </RecaptchaProvider>
 
@@ -218,9 +220,23 @@
             :enabled="true"
             mode="v3"
             :v3-site-key="form.v3_site_key"
+            :v2-site-key="form.v2_site_key"
             :badge="form.badge_position"
         >
             <RecaptchaV3 ref="v3Ref" action="settings_save" />
+            <!-- v3 failover: same provider/script load as v3 (one grecaptcha
+                 script only supports one `render` param at a time), the
+                 checkbox just renders explicitly on top of it. -->
+            <Teleport v-if="showV3FailoverCheckboxPreview" to="#v2_response">
+                <RecaptchaCheckbox
+                    ref="checkboxRef"
+                    :theme="form.theme"
+                    :size="form.size"
+                    @verify="onCheckboxVerify"
+                    @expired="onCheckboxExpired"
+                    @error="onCheckboxError"
+                />
+            </Teleport>
         </RecaptchaProvider>
     </div>
 </template>
@@ -283,7 +299,7 @@ const failoverOptions = [
     { id: 'none',        name: __('message.none') },
     { id: 'v2_checkbox', name: __('message.fallback_v2_checkbox') },
 ]
-const badgeOptions = [
+const baseBadgeOptions = [
     { id: 'bottomright', name: __('message.badge_bottomright') },
     { id: 'bottomleft',  name: __('message.badge_bottomleft') },
 ]
@@ -294,8 +310,16 @@ const isV2Invisible  = computed(() => form.captcha_version === 'v2_invisible')
 const isV2           = computed(() => isV2Checkbox.value || isV2Invisible.value)
 const showBadge      = computed(() => isV3.value || isV2Invisible.value)
 
+// v3's badge is a floating corner element only — "inline" needs a widget
+// container to render into, which only the v2 invisible widget has.
+const badgeOptions = computed(() => isV2Invisible.value
+    ? [...baseBadgeOptions, { id: 'inline', name: __('message.badge_inline') }]
+    : baseBadgeOptions
+)
+
 const showV2CheckboxPreview  = computed(() => form.captcha_version === 'v2_checkbox' && form.v2_site_key.trim() !== '')
 const showV2InvisiblePreview = computed(() => isV2Invisible.value && form.v2_site_key.trim() !== '')
+const showV3FailoverCheckboxPreview = computed(() => isV3.value && form.failover_action === 'v2_checkbox' && form.v2_site_key.trim() !== '')
 
 // The preview only renders interactive v2 widgets (v3 has no widget — just the
 // native floating badge), so the provider always loads an explicit-mode script.
@@ -304,7 +328,7 @@ const previewMode = computed(() => isV2Invisible.value ? 'v2-invisible' : 'v2')
 
 const selectedVersion  = computed(() => versionOptions.find(o => o.id === form.captcha_version) ?? null)
 const selectedFailover = computed(() => failoverOptions.find(o => o.id === form.failover_action) ?? null)
-const selectedBadge    = computed(() => badgeOptions.find(o => o.id === form.badge_position) ?? null)
+const selectedBadge    = computed(() => badgeOptions.value.find(o => o.id === form.badge_position) ?? null)
 
 onMounted(async () => {
     try {
@@ -334,6 +358,11 @@ watch(
     () => [form.v3_site_key, form.v2_site_key, form.captcha_version, form.failover_action, form.theme, form.size],
     bumpPreview
 )
+
+// "inline" only exists as an option for v2 invisible — drop it if the version changes away.
+watch(isV2Invisible, invisible => {
+    if (!invisible && form.badge_position === 'inline') form.badge_position = 'bottomright'
+})
 
 // Validate v3 site key the moment the provider finishes loading the reCAPTCHA script.
 // This fires both on page-load (saved keys) and whenever the site key changes (provider remounts).
@@ -425,12 +454,19 @@ async function save() {
             }
         }
 
-        if (form.captcha_version === 'v2_checkbox') {
+        if (isV2Checkbox.value) {
             payload.v2_g_recaptcha_response = v2CheckboxToken.value ?? ''
         }
 
         const res = await http.patch(`/recaptcha-settings`, payload)
         successHandler(res, COMPONENT)
+
+        // Checkbox tokens are single-use — reset so a second save without
+        // re-checking the box doesn't resend an already-consumed token.
+        if (isV2Checkbox.value) {
+            checkboxRef.value?.reset()
+            v2CheckboxToken.value = ''
+        }
     } catch (e) {
         if (e.response?.status === 422) {
             const errs = e.response.data?.errors ?? {}

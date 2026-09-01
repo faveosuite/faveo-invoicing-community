@@ -323,7 +323,7 @@ async function save() {
         })
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT, { setErrors })
+        errorHandler(e, COMPONENT, { setErrors, excludeFields: ['fav-icon', 'admin-logo', 'logo'] })
     } finally {
         saving.value = false
     }

@@ -41,6 +41,8 @@ class SeoDefaultPageRequest extends Request
     public function messages()
     {
         return [
+            'og_image.mimes' => __('validation.og_image.mimes'),
+            'og_image.max' => __('validation.og_image.max'),
         ];
     }
 }

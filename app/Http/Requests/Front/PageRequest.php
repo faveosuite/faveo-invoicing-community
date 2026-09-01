@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Front;
 
 use App\Http\Requests\Request;
+use App\Model\Front\FrontendPage;
 use App\Traits\RequestJsonValidation;
 use Illuminate\Validation\Rule;
 use Override;
@@ -39,7 +40,33 @@ class PageRequest extends Request
             'url' => ['nullable', 'string'],
             'type' => ['nullable', 'string'],
             'publish' => ['nullable', 'boolean'],
-            'parent_page_id' => ['nullable', 'integer'],
+            // The public nav only ever renders two levels (top-level page + its direct
+            // children — see Navbar.vue's topLevelPages/childPages), so the parent
+            // itself must be a top-level page or a deeper sub-page silently never shows.
+            'parent_page_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('frontend_pages', 'id'),
+                function ($attribute, $value, $fail): void {
+                    if (! $value) {
+                        return;
+                    }
+                    if ((int) $value === (int) $this->route('id')) {
+                        $fail(__('validation.frontend_pages.parent_page_id.self'));
+
+                        return;
+                    }
+                    // whereNotIn(..., [null, 0]) would silently never match — SQL's
+                    // `NOT IN` with a NULL in the list evaluates to NULL, not true.
+                    $parentHasParent = FrontendPage::whereKey($value)
+                        ->whereNotNull('parent_page_id')
+                        ->where('parent_page_id', '!=', 0)
+                        ->exists();
+                    if ($parentHasParent) {
+                        $fail(__('validation.frontend_pages.parent_page_id.nested'));
+                    }
+                },
+            ],
             'content' => [$requiredRule, 'string'],
             'meta_title' => ['nullable', 'string'],
             'meta_description' => ['nullable', 'string'],
@@ -59,6 +86,9 @@ class PageRequest extends Request
             'slug.required' => __('validation.frontend_pages.slug.required'),
             'slug.unique' => __('validation.frontend_pages.slug.unique'),
             'content.required' => __('validation.frontend_pages.content.required'),
+            'parent_page_id.exists' => __('validation.frontend_pages.parent_page_id.exists'),
+            'og_image.mimes' => __('validation.og_image.mimes'),
+            'og_image.max' => __('validation.og_image.max'),
         ];
     }
 }

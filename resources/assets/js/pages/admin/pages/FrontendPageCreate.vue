@@ -38,6 +38,7 @@
                             name="parent_page_id"
                             :label="__('message.parent-page')"
                             :apiEndpoint="`${baseUrl}/pages`"
+                            :apiParams="{ 'top-level-only': 1 }"
                             dataKey="data"
                             :value="form.parentObj"
                             :onChange="onChange"
@@ -170,7 +171,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/pages'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT, { setErrors })
+        errorHandler(e, COMPONENT, { setErrors, excludeFields: ['og_image'] })
     } finally {
         saving.value = false
     }

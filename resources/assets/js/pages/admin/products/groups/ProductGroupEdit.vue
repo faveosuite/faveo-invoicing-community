@@ -185,7 +185,7 @@ async function submit() {
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/products/groups'), 2000)
     } catch (e) {
-        errorHandler(e, COMPONENT, { setErrors })
+        errorHandler(e, COMPONENT, { setErrors, excludeFields: ['og_image'] })
     } finally {
         saving.value = false
     }

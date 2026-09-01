@@ -27,11 +27,11 @@ return [
     'og_image' => 'Open Graph Image',
     'og_image_hint' => 'The preview image shown on the share card. Falls back to the site-wide default image (Settings → SEO) if left blank.',
     'seo_same_as_meta' => 'Same as meta title and description.',
-    'seo_general_description' => 'General Description',
+    'seo_general_description' => 'Description',
     'seo_general_description_hint' => 'Used for authenticated/admin pages that don\'t have their own description, instead of a generic default.',
-    'seo_general_og_title' => 'General Open Graph Title',
-    'seo_general_og_description' => 'General Open Graph Description',
-    'seo_general_og_image' => 'General Open Graph Image',
+    'seo_general_og_title' => 'Open Graph Title',
+    'seo_general_og_description' => 'Open Graph Description',
+    'seo_general_og_image' => 'Open Graph Image',
     'seo_general_og_image_hint' => 'Shown as the preview image when an authenticated/admin page is shared on social media or messaging apps. Falls back to your site logo if not set.',
 
     /*

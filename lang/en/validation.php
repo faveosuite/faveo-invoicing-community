@@ -271,6 +271,13 @@ return [
         ],
     ],
 
+    // Shared og_image rule across GroupRequest, PageRequest and SeoDefaultPageRequest —
+    // Laravel's default file "max" message is in kilobytes, this reads better as MB.
+    'og_image' => [
+        'mimes' => 'The OG image must be a file of type: jpeg, png, jpg, webp.',
+        'max' => 'The OG image may not be greater than 2MB.',
+    ],
+
     'social_media_form' => [
         'name' => [
             'required' => 'The name field is required.',
@@ -386,6 +393,13 @@ return [
         ],
         'created_at' => [
             'required' => 'The created at field is required.',
+        ],
+        // The public nav only renders two levels (top-level page + its direct
+        // children), so a parent page can't itself have a parent.
+        'parent_page_id' => [
+            'exists' => 'The selected parent page does not exist.',
+            'self' => 'A page cannot be its own parent.',
+            'nested' => 'The selected page is already a sub-page and cannot be used as a parent.',
         ],
     ],
 

@@ -403,6 +403,14 @@ class PageController extends Controller
                         ->orWhere('url', 'like', sprintf('%%%s%%', $searchQuery));
                 });
             })
+            // Editing a page: keep it out of its own "parent page" options.
+            ->when($request->input('exclude'), fn ($query, $excludeId) => $query->whereKeyNot($excludeId))
+            // "Parent page" picker: the nav only renders two levels, so a page
+            // that already has a parent can't be offered as a parent itself.
+            ->when(
+                $request->boolean('top-level-only'),
+                fn ($query) => $query->where(fn ($q) => $q->whereNull('parent_page_id')->orWhere('parent_page_id', 0))
+            )
             ->orderBy($sortField, $sortOrder)
             ->paginate($limit);
 

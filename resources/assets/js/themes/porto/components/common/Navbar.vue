@@ -78,21 +78,31 @@
 
                         <!-- CMS Pages (published) -->
                         <template v-for="page in topLevelPages" :key="page.id">
-                          <!-- Page with children -> dropdown -->
-                          <li v-if="childPages(page.id).length" class="dropdown" :class="{ open: openDropdownKey === page.id }">
-                            <a class="nav-link dropdown-toggle" href="javascript:;"
+                          <!-- Page with children -> the page itself is still a real link;
+                               a separate caret toggles the dropdown of its sub-pages. -->
+                          <li v-if="childPages(page.id).length" class="dropdown page-dropdown-item" :class="{ open: openDropdownKey === page.id }">
+                            <RouterLink :to="pageLink(page)" class="nav-link pe-0">&nbsp;{{ ucfirst(page.name) }}</RouterLink>
+                            <!-- Desktop (>=992px): theme draws its own arrow via CSS (li > a.dropdown-toggle:after)
+                                 and hides this icon. Mobile (<992px): theme shows/positions this icon instead
+                                 and disables the CSS arrow — so the icon still has to be here for mobile.
+                                 ps-0: this is a separate <a> from the label above, so the theme's own 1rem
+                                 left padding would otherwise stack on top of the label's right padding.
+                                 page-dropdown-caret: see scoped style below — Bootstrap's .nav-link is
+                                 display:block, so on mobile (no Porto override there) this and the label
+                                 above stack as two full-width rows instead of sitting on one line. -->
+                            <a class="nav-link dropdown-toggle page-dropdown-caret ps-0" href="javascript:;"
                                :aria-expanded="openDropdownKey === page.id" @click="toggleDropdown(page.id, $event)">
-                              &nbsp;{{ ucfirst(page.name) }}&nbsp;
+                              <i class="fas fa-chevron-down"></i>
                             </a>
                             <ul class="dropdown-menu border-light mt-n1">
                               <li v-for="child in childPages(page.id)" :key="child.id">
-                                <RouterLink :to="child.type === 'contactus' ? '/contact-us' : '/pages/' + child.slug" class="dropdown-item">{{ ucfirst(child.name) }}</RouterLink>
+                                <RouterLink :to="pageLink(child)" class="dropdown-item">{{ ucfirst(child.name) }}</RouterLink>
                               </li>
                             </ul>
                           </li>
                           <!-- Simple page -->
                           <li v-else>
-                            <RouterLink :to="page.type === 'contactus' ? '/contact-us' : '/pages/' + page.slug" class="nav-link">&nbsp;{{ ucfirst(page.name) }}&nbsp;</RouterLink>
+                            <RouterLink :to="pageLink(page)" class="nav-link">&nbsp;{{ ucfirst(page.name) }}&nbsp;</RouterLink>
                           </li>
                         </template>
 
@@ -173,7 +183,11 @@
                                                 </span>
                       </a>
 
-                      <div class="header-nav-features-dropdown" :class="{ 'show': showCartDropdown }"
+                      <!-- Default panel is absolute-positioned with min-width:300px, anchored off the
+                           cart icon — on a narrow phone that runs off the left edge of the screen.
+                           header-nav-features-dropdown-mobile-fixed is Porto's own opt-in variant
+                           (theme.css, @media max-width:440px) that centers it as a fixed overlay instead. -->
+                      <div class="header-nav-features-dropdown header-nav-features-dropdown-mobile-fixed" :class="{ 'show': showCartDropdown }"
                            id="headerTopCartDropdown">
                         <!-- Empty cart -->
                         <div v-if="!cartItems.length">
@@ -237,7 +251,7 @@
                         <span :class="`fi fi-${flagCodeFor(currentLocale)}`"></span>
                         <span class="text-dark opacity-8 font-weight-bold text-2 d-none d-md-inline">{{ currentLocale.toUpperCase() }}</span>
                       </a>
-                      <div class="header-nav-features-dropdown right-15 lang-dropdown" id="language-dropdown">
+                      <div class="header-nav-features-dropdown header-nav-features-dropdown-mobile-fixed right-15 lang-dropdown" id="language-dropdown">
                         <ul class="list-unstyled m-0">
                           <li v-for="lang in languages" :key="lang.locale">
                             <a href="javascript:;" class="lang-item d-flex align-items-center gap-2"
@@ -336,8 +350,16 @@ function toggleCartDropdown() {
 // has class "open" (accordion-style, no hover on touch) — Bootstrap's own
 // dropdown JS only ever toggles "show" on the menu itself, which Porto's
 // mobile stylesheet doesn't key off, so it never becomes visible on mobile.
+//
+// Desktop (>=992px) already reveals it on hover via theme.css's own
+// `li.dropdown:hover > .dropdown-menu` — untouched, still there — so the
+// click-toggle only needs to run below that breakpoint, same as Porto's own
+// theme.js (`if ($window.width() < 992) { ... toggleClass('open') ... }`).
+// Without this, a stray desktop click could set the "open" class and leave
+// the menu stuck open after the mouse moves away.
 function toggleDropdown(key, event) {
   event?.preventDefault()
+  if (globalThis.innerWidth >= 992) return
   openDropdownKey.value = openDropdownKey.value === key ? null : key
 }
 
@@ -365,6 +387,19 @@ function onClickOutside(e) {
     openDropdownKey.value = null
   }
 }
+
+// The hamburger's mobile menu is a real Bootstrap .collapse, opened only by its
+// own data-bs-toggle button — Bootstrap has no idea a RouterLink click just
+// changed the page, so without this it stays open (and any expanded dropdown
+// inside it stays expanded) covering the new page's content after navigating.
+const stopCloseMobileNav = router.afterEach(() => {
+  openDropdownKey.value = null
+  const collapseEl = document.querySelector('.header-nav-main nav')
+  if (collapseEl?.classList.contains('show')) {
+    globalThis.bootstrap?.Collapse?.getOrCreateInstance(collapseEl, { toggle: false }).hide()
+  }
+})
+onUnmounted(stopCloseMobileNav)
 
 const el        = document.getElementById('app-client')
 const authStore = useAuthStore()
@@ -437,6 +472,7 @@ const topLevelPages = computed(() =>
 )
 const childPages = (parentId) =>
     publishedPages.value.filter(p => p.parent_page_id === parentId)
+const pageLink = (page) => page.type === 'contactus' ? '/contact-us' : '/pages/' + page.slug
 
 onMounted(() => {
   document.addEventListener('click', onClickOutside)
@@ -463,9 +499,51 @@ onUnmounted(() => {
   padding: 10px 16px;
 }
 
+/* The fixed 250x150 box above was sized for a desktop-width header — on a
+   phone-width viewport it alone eats well over half the screen, pushing the
+   cart/language/hamburger group past the right edge. Same compact size the
+   scrolled state already uses (a size this file already treats as "small"). */
+@media (max-width: 991px) {
+  .navbar-logo-wrapper {
+    width: 150px;
+    height: 70px;
+    padding: 10px 16px;
+  }
+}
+
 .navbar-logo-img {
   max-height: 90px;
   transition: max-height 0.3s ease;
+}
+
+/* .header-nav-links (wraps the collapsible nav + cart + language + hamburger)
+   is never actually display:flex in Porto's CSS for this header combination —
+   its "justify-content-end" class is dead weight, and the hamburger's
+   float:right (set at desktop, never reset here) fights the cart/language
+   divs' normal block flow, which is what produces the sandwiched-in-the-middle
+   order. Establishing a real flex row lets that existing justify-content-end
+   class finally do its job (push the icon group to the right edge), with the
+   collapsible menu forced onto its own full-width line below when opened. */
+@media (max-width: 991px) {
+  .header-nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .header-nav-links > .header-nav-main {
+    flex-basis: 100%;
+    order: 3;
+  }
+
+  .header-nav-links > .header-nav-features {
+    order: 1;
+  }
+
+  .header-btn-collapse-nav {
+    float: none !important;
+    order: 2;
+  }
 }
 
 .navbar-scrolled .navbar-logo-img {
@@ -481,6 +559,55 @@ onUnmounted(() => {
 .navbar-scrolled .navbar-info-bar {
   max-height: 0;
   opacity: 0;
+}
+
+/* A CMS page with children is a real link (label) + a separate toggle for its
+   dropdown. Both carry Bootstrap's .nav-link, which is display:block — fine on
+   desktop where Porto's own CSS (>=992px) overrides it back to inline-flex, but
+   there's no such override below 992px, so the two stack as separate full-width
+   rows instead of sitting on one line. Taking the toggle out of flow (pinned to
+   the row's right edge, same spot Porto's own real mobile icon would sit) fixes
+   it without touching Store/My Account's single-anchor toggles, which don't have
+   this second-element problem. */
+@media (max-width: 991px) {
+  .page-dropdown-item {
+    position: relative;
+  }
+
+  .page-dropdown-item > .page-dropdown-caret {
+    position: absolute !important;
+    top: 0;
+    right: 0;
+    width: 44px;
+    /* NOT height:100% — .page-dropdown-item (the <li>) grows once the dropdown-menu
+       opens below, and 100% would grow with it, stretching this hit zone down over
+       Perumal/New pag's own rows and stealing clicks meant for them. Fixed to just
+       the "Contact Us" row's own height instead (matches its padding: 7px 8px +
+       line-height: 20px, ~36px, measured against the label RouterLink's actual row). */
+    height: 36px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Porto's own header-nav-features-dropdown-mobile-fixed (theme.css, @media
+   max-width:440px) only overrides left/right/transform for horizontal centering
+   — it leaves `top` as the base rule's `auto`, which for position:fixed doesn't
+   resolve to "center of viewport", it resolves to wherever the element would've
+   statically flowed (deep inside the header markup) — nowhere sensible. Centering
+   vertically too, and capping height so a long cart list scrolls instead of
+   running off-screen. */
+@media (max-width: 440px) {
+  .header-nav-features-dropdown.header-nav-features-dropdown-mobile-fixed.show {
+    top: 50% !important;
+    transform: translate3d(-50%, -50%, 0) !important;
+    margin-top: 0 !important;
+    max-height: 80vh;
+    overflow-y: auto;
+    width: 90vw;
+    max-width: 360px;
+  }
 }
 
 /* Language dropdown */

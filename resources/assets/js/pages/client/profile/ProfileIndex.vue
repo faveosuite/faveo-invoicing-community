@@ -275,7 +275,7 @@ async function submitProfile() {
     const res = await http.post(`/my-profile`, data, {headers: {'Content-Type': 'multipart/form-data'}})
     successHandler(res, COMPONENT)
   } catch (e) {
-    errorHandler(e, COMPONENT, { setErrors })
+    errorHandler(e, COMPONENT, { setErrors, excludeFields: ['profile_pic'] })
   } finally {
     savingProfile.value = false
   }
