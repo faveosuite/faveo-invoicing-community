@@ -1,8 +1,12 @@
+import { ref } from 'vue'
 import { useAlertStore } from '@/core/stores/alert'
 import { __ } from '@/plugins/i18n'
 
 export function useDownload(componentName) {
     const alertStore = useAlertStore()
+    // Holds the URL currently downloading (not just a boolean) so a caller
+    // rendering one button per row can tell which row's spinner to show.
+    const downloadingUrl = ref(null)
 
     const showError = (message) => {
         alertStore.setAlert({
@@ -13,6 +17,7 @@ export function useDownload(componentName) {
     }
 
     const downloadFile = async (url) => {
+        downloadingUrl.value = url
         try {
             const response = await fetch(url)
 
@@ -34,8 +39,10 @@ export function useDownload(componentName) {
             URL.revokeObjectURL(a.href)
         } catch {
             showError(__('message.file_not_exist'))
+        } finally {
+            downloadingUrl.value = null
         }
     }
 
-    return { downloadFile }
+    return { downloadFile, downloadingUrl }
 }

@@ -34,6 +34,7 @@ import { h, reactive, ref } from 'vue'
 import MSG91Filter from './MSG91Filter.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import { makeRequestAdapter } from '@/helpers/tableUtils'
+import { formatAction } from './msg91ActionLabel'
 
 const COMPONENT = 'msg91-reports'
 const baseUrl = useBaseUrl()
@@ -56,20 +57,6 @@ function onFilterReset() {
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────
-const ordinals = ['First', 'Second', 'Third', 'Fourth', 'Fifth']
-
-function formatAction(action) {
-    if (!action) return '—'
-    if (action === 'send') return 'First OTP sent'
-    const retryMatch = action.match(/^retry_(\d+)$/)
-    if (retryMatch) {
-        const n = parseInt(retryMatch[1], 10)
-        const ord = ordinals[n - 1] ?? `${n}th`
-        return `${ord} retry`
-    }
-    return action.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-}
-
 const STATUS_BADGE = {
     0:  'badge bg-warning',   // Pending
     1:  'badge bg-success',   // Delivered

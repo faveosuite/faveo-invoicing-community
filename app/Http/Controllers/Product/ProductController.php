@@ -24,6 +24,7 @@ use DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class ProductController extends BaseProductController
@@ -580,6 +581,12 @@ class ProductController extends BaseProductController
 
                 // Tax status: Taxable (1) / None (0)
                 $data['tax_apply'] = $request->boolean('tax_status') ? 1 : 0;
+
+                // Shared secret an installed copy of this product echoes back on
+                // every AFU/AFL callback (see ProductBundleStampingService, which
+                // refuses to stamp a build with no key). Never comes from the
+                // request — set here, same as the sibling apl_salt secret.
+                $data['product_key'] = Str::random(16);
 
                 // Create Product
                 $product = Product::create($data);

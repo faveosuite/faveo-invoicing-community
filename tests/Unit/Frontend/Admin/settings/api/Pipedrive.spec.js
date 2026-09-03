@@ -1,3 +1,4 @@
+jest.mock('@vueform/toggle', () => ({ __esModule: true, default: { name: 'Toggle', template: '<button />', props: ['modelValue', 'disabled'], emits: ['update:modelValue'] } }))
 jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: jest.fn(() => 0) }))
 jest.mock('@/helpers/responseHandler', () => ({ successHandler: jest.fn(), errorHandler: jest.fn() }))
 jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)), scrollToFirstError: jest.fn() }))
@@ -31,7 +32,7 @@ describe('Pipedrive.vue', () => {
                 groups: {},
             },
         })
-        globalThis.mockHttp.onPost(/\/updatepipedriveDetails/).reply(200, { data: { message: 'Connected' } })
+        globalThis.mockHttp.onPatch(/\/settings\/pipedrive/).reply(200, { data: { message: 'Connected' } })
         wrapper = mount(Pipedrive, {
             global: {
                 plugins: [createTestingPinia()],
@@ -55,34 +56,9 @@ describe('Pipedrive.vue', () => {
         expect(wrapper.vm.form.apiKey).toBe('pd-key')
     })
 
-    it('connectionStatus is connected after mount when a key is present', async () => {
+    it('connected is true after mount when a key is present', async () => {
         await flushPromises()
-        expect(wrapper.vm.connectionStatus).toBe('connected')
-    })
-
-    it('sends POST /updatepipedriveDetails on connect()', async () => {
-        await flushPromises()
-        await wrapper.vm.connect()
-        await flushPromises()
-        const postCalls = globalThis.mockHttp.history.post.filter(r => /\/updatepipedriveDetails/.test(r.url))
-        expect(postCalls.length).toBeGreaterThan(0)
-    })
-
-    it('calls successHandler after successful connect', async () => {
-        await flushPromises()
-        await wrapper.vm.connect()
-        await flushPromises()
-        expect(successHandler).toHaveBeenCalled()
-    })
-
-    it('calls errorHandler on connect failure', async () => {
-        globalThis.mockHttp.reset()
-        globalThis.mockHttp.onGet(/\/settings\/pipedrive/).reply(200, { data: {} })
-        globalThis.mockHttp.onPost(/\/updatepipedriveDetails/).reply(500)
-        await flushPromises()
-        await wrapper.vm.connect()
-        await flushPromises()
-        expect(errorHandler).toHaveBeenCalled()
+        expect(wrapper.vm.connected).toBe(true)
     })
 
     it('loading is false after mount completes', async () => {
@@ -125,6 +101,15 @@ describe('Pipedrive.vue', () => {
         await flushPromises()
         globalThis.mockHttp.onPatch(/\/settings\/pipedrive/).reply(500)
         await expect(wrapper.vm.saveSettings()).resolves.not.toThrow()
+    })
+
+    it('saveSettings calls errorHandler on failure', async () => {
+        await flushPromises()
+        globalThis.mockHttp.onPatch(/\/settings\/pipedrive/).reply(500)
+        errorHandler.mockClear()
+        await wrapper.vm.saveSettings()
+        await flushPromises()
+        expect(errorHandler).toHaveBeenCalled()
     })
 
     it('saveSettings sets savingSettings to false after completion', async () => {
@@ -328,23 +313,14 @@ describe('Pipedrive.vue', () => {
         expect(wrapper.vm.rows[0].isFaveoField).toBe(true)
     })
 
-    // ── connect validation guard ───────────────────────────────────────────
-    it('connect does not POST when apiKey validation fails', async () => {
+    // ── saveSettings validation guard ──────────────────────────────────────
+    it('saveSettings does not PATCH when apiKey validation fails', async () => {
         const { apiKeySchema } = require('@/validations/admin/pipedriveValidations')
         apiKeySchema.validate.mockRejectedValueOnce(new Error('API key required'))
         await flushPromises()
         globalThis.mockHttp.reset()
-        await wrapper.vm.connect()
+        await wrapper.vm.saveSettings()
         await flushPromises()
-        expect(globalThis.mockHttp.history.post.length).toBe(0)
-    })
-
-    // ── connect sets connectionStatus to failed on error ───────────────────
-    it('connect sets connectionStatus to failed on 500 error', async () => {
-        await flushPromises()
-        globalThis.mockHttp.onPost(/\/updatepipedriveDetails/).reply(500)
-        await wrapper.vm.connect()
-        await flushPromises()
-        expect(wrapper.vm.connectionStatus).toBe('failed')
+        expect(globalThis.mockHttp.history.patch.length).toBe(0)
     })
 })

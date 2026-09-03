@@ -26,7 +26,7 @@
 
                     <div class="col-md-4">
                         <label class="form-label fw-bold d-block">{{ __('message.file') }}</label>
-                        <input type="file" class="form-control" accept=".zip" :disabled="uploading" @change="onFile" />
+                        <input type="file" class="form-control" :class="{ 'is-invalid': fileError }" accept=".zip" :disabled="uploading" @change="onFile" />
                         <UploadStatus v-if="file" :uploading="uploading" :progress="uploadProgress" :error="fileError" :uploadedName="uploadedName" />
                         <small v-else-if="form.file" class="text-muted d-block mt-1">{{ form.file }}</small>
                     </div>

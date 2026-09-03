@@ -484,10 +484,11 @@ const releaseTypeBadges = {
     beta:         { label: __('message.beta'),         class: 'badge bg-info text-dark' },
 }
 
-const versionColumns = ['select', 'version', 'description', 'release_type', 'file', 'action']
+const versionColumns = ['select', 'title', 'version', 'description', 'release_type', 'file', 'action']
 const versionTableOptions = reactive({
     headings: {
         select:       () => h('div',{}, [h('input', { type: 'checkbox', checked: allVersionsSelected.value, onChange: toggleAllVersions })]),
+        title:        __('message.title'),
         version:      __('message.version'),
         description:  __('message.description'),
         release_type: __('message.release_type'),
@@ -495,11 +496,12 @@ const versionTableOptions = reactive({
         action:       __('message.actions'),
     },
     columnsClasses: {
-        select: 'dt-select', version: 'dt-code', description: 'dt-name',
+        select: 'dt-select', title: 'dt-name', version: 'dt-code', description: 'dt-name',
         release_type: 'dt-name', file: 'dt-name', action: 'dt-action',
     },
     templates: {
         select:       (f, row) => h('div', {}, [h('input', { type: 'checkbox', checked: selectedVersions.value.includes(row.id), onChange: () => toggleVersion(row.id) })]),
+        title:        (f, row) => row.title || '—',
         version:      (f, row) => row.version || '—',
         description:  (f, row) => h('span', { innerHTML: row.description || '—' }),
         release_type: (f, row) => row.release_type
@@ -508,7 +510,7 @@ const versionTableOptions = reactive({
         file:         (f, row) => row.file || '—',
         action:       (f, row) => h(VersionTableActions, { productId: route.params.id, versionId: row.id, baseUrl, onDeleted: () => dtVersionRef.value?.refresh() }),
     },
-    sortable: ['version', 'release_type'],
+    sortable: ['title', 'version', 'release_type'],
     filterable: true,
     requestAdapter: makeRequestAdapter('created_at'),
     responseAdapter({ data }) {

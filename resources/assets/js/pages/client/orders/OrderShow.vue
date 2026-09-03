@@ -614,7 +614,14 @@
         <!-- ── Stripe card modal for renewal ──────────────────── -->
         <Modal :showModal="showStripeRenewalModal" :onClose="closeStripeRenewalModal" :showCloseBtn="true" :showControls="false" classname="modal-md">
             <template #title>
-                <h5 class="modal-title fw-bold">{{ __('message.enter_card_details') }}</h5>
+                <div class="d-flex align-items-center justify-content-between w-100 me-3">
+                    <h5 class="modal-title fw-bold mb-0">{{ __('message.enter_card_details') }}</h5>
+                    <div class="d-flex gap-1">
+                        <img :src="`${baseUrl}/images/logo/cards/visa.svg`" alt="Visa" height="20">
+                        <img :src="`${baseUrl}/images/logo/cards/mastercard.svg`" alt="Mastercard" height="20">
+                        <img :src="`${baseUrl}/images/logo/cards/amex.svg`" alt="American Express" height="20">
+                    </div>
+                </div>
             </template>
             <template #fields>
                 <div class="px-2 pb-3">
@@ -1214,7 +1221,10 @@ const pluginLicenses   = ref([])
 const pendingDownloadProductId = ref(null)
 
 function isLicenseBound() {
-    return !!(order.value?.license_domain && order.value?.license_machine_id)
+    // Binding stores either a domain OR an IP (LicenseService::parseIpAndDomain
+    // puts an IP address in license_ip, not license_domain) — a domain-only
+    // check wrongly says "not bound" for anyone who bound with an IP.
+    return !!((order.value?.license_domain || order.value?.license_ip) && order.value?.license_machine_id)
 }
 
 function triggerDownload(productId = null) {
@@ -1228,7 +1238,7 @@ function requestDownload(productId = null) {
         return
     }
     pendingDownloadProductId.value = productId
-    bindingForm.domain    = order.value?.license_domain ?? ''
+    bindingForm.domain    = order.value?.license_domain || order.value?.license_ip || ''
     bindingForm.machineId = order.value?.license_machine_id ?? ''
     alertStore.unsetAlert()
     showBindingModal.value = true

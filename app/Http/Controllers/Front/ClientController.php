@@ -221,7 +221,7 @@ class ClientController extends BaseClientController
             return errorResponse('Unauthorized', 401);
         }
 
-        $license = License::where('license_order_number', $order->number)->first(['license_domain', 'license_machine_id']);
+        $license = License::where('license_order_number', $order->number)->first(['license_domain', 'license_ip', 'license_machine_id']);
 
         // A plan/agent change terminates the old order and creates a new one
         // (see terminated_order_upgrade, written by CloudExtraActivities).
@@ -246,6 +246,7 @@ class ClientController extends BaseClientController
             'serial_key' => $order->serial_key,
             'license_mode' => $order->license_mode,
             'license_domain' => $license?->license_domain,
+            'license_ip' => $license?->license_ip,
             'license_machine_id' => $license?->license_machine_id,
             'invoice_id' => $latestInvoice?->id,
             'invoice_number' => $latestInvoice?->number,

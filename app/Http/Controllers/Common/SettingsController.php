@@ -26,7 +26,6 @@ use App\Model\Mailjob\Condition;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Mailjob\QueueService;
 use App\Model\Payment\Currency;
-use App\Model\Payment\Plan;
 use App\Model\Plugin;
 use App\Model\Product\Product;
 use App\Payment_log;
@@ -357,6 +356,35 @@ class SettingsController extends BaseSettingsController
         }
     }
 
+    public function updatePipedriveSettings(Request $request): JsonResponse
+    {
+        try {
+            $pipedriveKey = $request->input('pipedrive_key');
+
+            $response = Http::get('https://api.pipedrive.com/v1/users/me', [
+                'api_token' => $pipedriveKey,
+            ]);
+            if (! $response->successful()) {
+                return errorResponse(__('message.pipedrive_error'));
+            }
+
+            $result = json_decode($response, associative: true);
+            if (isset($result['success']) && $result['success'] !== true) {
+                return errorResponse(__('message.pipedrive_error'));
+            }
+
+            StatusSetting::findOrFail(1)->update(['pipedrive_status' => $request->boolean('status')]);
+            ApiKey::findOrFail(1)->update([
+                'pipedrive_api_key' => $pipedriveKey,
+                'require_pipedrive_user_verification' => $request->boolean('require_pipedrive_user_verification'),
+            ]);
+
+            return successResponse($this->langStr('message.pipedrive_setting'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
     public function getPipedriveSettings(): JsonResponse
     {
         try {
@@ -373,21 +401,6 @@ class SettingsController extends BaseSettingsController
                     'dealId' => $groups['Deal'] ?? null,
                 ],
             ]);
-        } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
-        }
-    }
-
-    public function updatePipedriveSettings(Request $request): JsonResponse
-    {
-        try {
-            StatusSetting::findOrFail(1)->update(['pipedrive_status' => $request->boolean('status')]);
-            ApiKey::findOrFail(1)->update([
-                'pipedrive_api_key' => $request->input('pipedrive_key'),
-                'require_pipedrive_user_verification' => $request->boolean('require_pipedrive_user_verification'),
-            ]);
-
-            return successResponse($this->langStr('message.pipedrive_setting'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
@@ -524,9 +537,6 @@ class SettingsController extends BaseSettingsController
             $products = Product::orderBy('name')->get(['id', 'name'])
                 ->map(fn ($p): array => ['id' => $p->id, 'name' => $p->name]);
 
-            $plans = Plan::orderBy('name')->get(['id', 'name'])
-                ->map(fn ($p): array => ['id' => $p->id, 'name' => $p->name]);
-
             $countries = Country::where('country_name', '!=', '')
                 ->orderBy('country_name')
                 ->get(['country_code_char2', 'country_name'])
@@ -555,7 +565,6 @@ class SettingsController extends BaseSettingsController
                 'cloud_label_field' => $cloudPopUp->cloud_label_field ?? '',
                 'cloud_label_radio' => $cloudPopUp->cloud_label_radio ?? '',
                 'products' => $products,
-                'plans' => $plans,
                 'countries' => $countries,
                 'regions' => $regions,
             ]);

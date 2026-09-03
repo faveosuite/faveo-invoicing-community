@@ -1,3 +1,4 @@
+jest.mock('@vueform/toggle', () => ({ __esModule: true, default: { name: 'Toggle', template: '<button />', props: ['modelValue', 'disabled'], emits: ['update:modelValue'] } }))
 jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: jest.fn(() => 0) }))
 jest.mock('@/helpers/responseHandler', () => ({ successHandler: jest.fn(), errorHandler: jest.fn() }))
 jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)), scrollToFirstError: jest.fn() }))
@@ -58,9 +59,9 @@ describe('MailchimpSettings.vue', () => {
         expect(getCalls.length).toBeGreaterThan(0)
     })
 
-    it('connectionStatus initialises as idle', async () => {
+    it('connected is false initially', async () => {
         await flushPromises()
-        expect(wrapper.vm.connectionStatus).toBe('idle')
+        expect(wrapper.vm.connected).toBe(false)
     })
 
     it('calls POST /updateMailchimpDetails on connect()', async () => {
@@ -72,15 +73,16 @@ describe('MailchimpSettings.vue', () => {
         expect(postCalls.length).toBeGreaterThan(0)
     })
 
-    it('calls successHandler after successful connect', async () => {
+    it('connect sets connected to true and calls successHandler on success', async () => {
         await flushPromises()
         wrapper.vm.form.apiKey = 'test-key-us1'
         await wrapper.vm.connect()
         await flushPromises()
+        expect(wrapper.vm.connected).toBe(true)
         expect(successHandler).toHaveBeenCalled()
     })
 
-    it('calls errorHandler on connect failure', async () => {
+    it('connect calls errorHandler when the key is rejected', async () => {
         globalThis.mockHttp.reset()
         globalThis.mockHttp.onGet(/\/settings\/mailchimp/).reply(200, { data: {} })
         globalThis.mockHttp.onPost(/\/updateMailchimpDetails/).reply(500)
@@ -91,25 +93,15 @@ describe('MailchimpSettings.vue', () => {
         expect(errorHandler).toHaveBeenCalled()
     })
 
-    it('calls PATCH /mailchimp on saveConnection()', async () => {
+    it('calls PATCH /mailchimp on saveConnection() once connected with a list selected', async () => {
         await flushPromises()
-        wrapper.vm.connectionStatus = 'connected'
+        wrapper.vm.connected = true
         wrapper.vm.form.listId = 'list-123'
         wrapper.vm.form.subscribeStatus = 'subscribed'
         await wrapper.vm.saveConnection()
         await flushPromises()
         const patchCalls = globalThis.mockHttp.history.patch.filter(r => /\/mailchimp$/.test(r.url))
         expect(patchCalls.length).toBeGreaterThan(0)
-    })
-
-    it('calls successHandler after successful saveConnection', async () => {
-        await flushPromises()
-        wrapper.vm.connectionStatus = 'connected'
-        wrapper.vm.form.listId = 'list-123'
-        wrapper.vm.form.subscribeStatus = 'subscribed'
-        await wrapper.vm.saveConnection()
-        await flushPromises()
-        expect(successHandler).toHaveBeenCalled()
     })
 
     // ── addFieldRow / removeFieldRow ──────────────────────────────────────────

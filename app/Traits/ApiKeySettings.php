@@ -189,35 +189,6 @@ trait ApiKeySettings
         return ['message' => 'success', 'update' => Lang::get('message.twitter_setting')];
     }
 
-    public function updatepipedriveDetails(Request $request): JsonResponse
-    {
-        try {
-            $pipedriveKey = $request->input('pipedrive_key');
-            $status = $request->input('status');
-            $verificationStatus = (bool) $request->input('require_pipedrive_user_verification');
-
-            $response = Http::get('https://api.pipedrive.com/v1/users/me', [
-                'api_token' => $pipedriveKey,
-            ]);
-            if (! $response->successful()) {
-                return errorResponse(__('message.pipedrive_error'));
-            }
-
-            $result = json_decode($response, associative: true);
-            if (isset($result['success']) && $result['success'] !== true) {
-                return errorResponse(__('message.pipedrive_error'));
-            }
-
-            StatusSetting::where('id', 1)->update(['pipedrive_status' => $status]);
-            ApiKey::where('id', 1)->update(['pipedrive_api_key' => $pipedriveKey]);
-            ApiKey::where('id', 1)->update(['require_pipedrive_user_verification' => $verificationStatus]);
-
-            return successResponse(__('message.pipedrive_setting'));
-        } catch (Exception) {
-            return errorResponse(__('message.pipedrive_error'));
-        }
-    }
-
     /**
      * @return array<mixed>
      */
@@ -475,8 +446,8 @@ trait ApiKeySettings
     {
         $request->validate([
             'deployment_enabled' => 'required|boolean',
-            'install_script_url' => 'required|url|max:500',
-            'manual_install_guide_url' => 'required|url|max:500',
+            'install_script_url' => 'required_if:deployment_enabled,1|nullable|url|max:500',
+            'manual_install_guide_url' => 'required_if:deployment_enabled,1|nullable|url|max:500',
         ]);
 
         try {

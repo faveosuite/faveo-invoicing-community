@@ -212,7 +212,7 @@ class MSG91Controller extends Controller
     public function getMsgFilters(): JsonResponse
     {
         try {
-            $statuses = Msg91Status::orderBy('status_label')->pluck('status_label')->filter()->values();
+            $statuses = Msg91Status::orderBy('status_label')->pluck('status_label')->filter()->unique()->values();
             $sources = MsgDeliveryReports::whereNotNull('source')->where('source', '!=', '')
                 ->distinct()->orderBy('source')->pluck('source');
             $actions = MsgDeliveryReports::whereNotNull('action')->where('action', '!=', '')

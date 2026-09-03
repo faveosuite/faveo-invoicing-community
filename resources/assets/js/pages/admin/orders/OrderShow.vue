@@ -296,6 +296,7 @@
         <!-- ── License Details Edit Modal ─────────────────────────────── -->
         <AppModal :showModal="licenseEditModal.show" :onClose="() => licenseEditModal.show = false" :showCloseBtn="false">
             <template #title><h4>{{ __('message.license_details') }}</h4></template>
+            <template #alert><AppAlert :componentName="MODAL_COMPONENT" /></template>
             <template #fields>
                 <div class="mb-3">
                     <label class="form-label fw-bold">{{ __('message.installation_limit') }}</label>
@@ -344,6 +345,7 @@
         <!-- ── Bind license (domain + machine ID) before first download ── -->
         <AppModal :showModal="showBindingModal" :onClose="closeBindingModal" :showCloseBtn="false">
             <template #title><h4>{{ __('message.localized_license') }}</h4></template>
+            <template #alert><AppAlert :componentName="MODAL_COMPONENT" /></template>
             <template #fields>
                 <p class="text-muted mb-3">{{ __('message.machine_id_tooltip') }}</p>
                 <div class="mb-3">
@@ -367,6 +369,7 @@
         <!-- ── Pick which license file to download (main product + entitled add-ons) ── -->
         <AppModal :showModal="showDownloadModal" :onClose="closeDownloadModal" modalBodyClass="download-modal-body">
             <template #title><h4>{{ __('message.localized_license') }}</h4></template>
+            <template #alert><AppAlert :componentName="MODAL_COMPONENT" /></template>
             <template #fields>
                 <div class="download-section-label">{{ __('message.product') }}</div>
                 <ul class="list-group mb-3">
@@ -425,6 +428,9 @@ const { formatDate, formatDateTime } = useDateTime()
 const { errors, setErrors, resetForm } = useForm()
 
 const COMPONENT = 'orders-show'
+// Separate name for the three modals below — keeps their alerts from also
+// firing the page-level AppAlert (same store, matched by name) at the same time.
+const MODAL_COMPONENT = 'orders-show-modal'
 
 const baseUrl = useBaseUrl()
 
@@ -573,7 +579,10 @@ const bindingForm      = reactive({ domain: '', machineId: '' })
 const pendingDownloadProductId = ref(null)
 
 function isLicenseBound() {
-    return !!(licenseDetails.value?.license_domain && licenseDetails.value?.license_machine_id)
+    // Binding stores either a domain OR an IP (LicenseService::parseIpAndDomain
+    // puts an IP address in license_ip, not license_domain) — a domain-only
+    // check wrongly says "not bound" for anyone who bound with an IP.
+    return !!((licenseDetails.value?.license_domain || licenseDetails.value?.license_ip) && licenseDetails.value?.license_machine_id)
 }
 
 function triggerDownload(productId = null) {
@@ -587,7 +596,7 @@ function requestDownload(productId = null) {
         return
     }
     pendingDownloadProductId.value = productId
-    bindingForm.domain    = licenseDetails.value?.license_domain ?? ''
+    bindingForm.domain    = licenseDetails.value?.license_domain || licenseDetails.value?.license_ip || ''
     bindingForm.machineId = licenseDetails.value?.license_machine_id ?? ''
     showBindingModal.value = true
 }
@@ -630,12 +639,12 @@ async function submitBinding() {
         })
         licenseDetails.value.license_domain     = bindingForm.domain
         licenseDetails.value.license_machine_id = bindingForm.machineId
-        successHandler(res, COMPONENT)
+        successHandler(res, MODAL_COMPONENT)
         closeBindingModal()
         triggerDownload(pendingDownloadProductId.value)
         showDownloadModal.value = true
     } catch (e) {
-        errorHandler(e, COMPONENT, { setErrors })
+        errorHandler(e, MODAL_COMPONENT, { setErrors })
     } finally {
         bindingBusy.value = false
     }
@@ -669,7 +678,7 @@ async function saveLicenseEdit() {
         successHandler(res, COMPONENT)
         await reload()
     } catch (e) {
-        errorHandler(e, COMPONENT, { setErrors })
+        errorHandler(e, MODAL_COMPONENT, { setErrors })
     } finally {
         saving.licenseEdit = false
     }

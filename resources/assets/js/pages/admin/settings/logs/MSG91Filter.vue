@@ -85,6 +85,7 @@
                         :clearable="true"
                         :onChange="(val) => form.dateFrom = val"
                         :placeholder="__('message.select_date')"
+                        :disabledDate="isFutureDate"
                     />
                 </div>
                 <div class="col-md-4">
@@ -95,6 +96,7 @@
                         :clearable="true"
                         :onChange="(val) => form.dateTo = val"
                         :placeholder="__('message.select_date')"
+                        :disabledDate="isFutureDate"
                     />
                 </div>
             </div>
@@ -111,6 +113,7 @@
 import { reactive, ref, onMounted } from 'vue'
 import http from '@/plugins/axios'
 import { errorHandler } from '@/helpers/responseHandler.js'
+import { formatAction } from './msg91ActionLabel'
 
 const props = defineProps({
     show:    { type: Boolean, default: false },
@@ -130,7 +133,7 @@ async function loadOptions() {
         const data = res.data?.data ?? {}
         statusOptions.value = (data.statuses ?? []).map(s => ({ id: s, name: s }))
         sourceOptions.value = (data.sources  ?? []).map(s => ({ id: s, name: s }))
-        actionOptions.value = (data.actions  ?? []).map(a => ({ id: a, name: a }))
+        actionOptions.value = (data.actions  ?? []).map(a => ({ id: a, name: formatAction(a) }))
     } catch (e) {
         errorHandler(e, 'msg91-filter')
     }
@@ -166,6 +169,8 @@ function apply() {
     if (form.dateTo)               params.date_to        = form.dateTo
     emit('apply', params)
 }
+
+const isFutureDate = (date) => date > new Date()
 
 function reset() {
     Object.assign(form, empty())

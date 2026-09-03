@@ -80,7 +80,7 @@ class SettingsController extends Controller
         }
 
         try {
-            MailchimpSetting::firstOrNew(['id' => 1])->fill(['api_key' => $apiKey])->save();
+            MailchimpSetting::firstOrNew([])->fill(['api_key' => $apiKey])->save();
             StatusSetting::where('id', 1)->update(['mailchimp_status' => $status]);
 
             app()->forgetInstance(MailchimpService::class);
@@ -103,7 +103,7 @@ class SettingsController extends Controller
         $request->validate(['list_id' => ['required', 'string']]);
 
         try {
-            MailchimpSetting::firstOrNew(['id' => 1])->fill([
+            MailchimpSetting::firstOrNew()->fill([
                 'list_id' => $request->input('list_id'),
                 'subscribe_status' => $request->input('subscribe_status', 'subscribed'),
             ])->save();
@@ -191,7 +191,7 @@ class SettingsController extends Controller
     public function saveFieldMapping(Request $request): JsonResponse
     {
         try {
-            MailchimpFieldAgoraRelation::firstOrNew(['id' => 1])->fill($request->all())->save();
+            MailchimpFieldAgoraRelation::firstOrNew()->fill($request->all())->save();
 
             return successResponse(__('message.updated-successfully'));
         } catch (Throwable $throwable) {

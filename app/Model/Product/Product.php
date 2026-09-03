@@ -211,7 +211,7 @@ class Product extends BaseModel
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
         'deny_after_subscription', 'version', 'parent', 'subscription', 'product_sku', 'perpetual_license', 'product_description', 'invoice_hidden',
-        'status', 'whatsapp_integration', 'apl_salt', 'product_type', 'config_file_path', 'license_file_path',
+        'status', 'whatsapp_integration', 'apl_salt', 'product_key', 'product_type', 'config_file_path', 'license_file_path',
         'highlight', 'add_to_contact',
     ];
 

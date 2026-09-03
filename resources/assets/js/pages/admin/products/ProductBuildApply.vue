@@ -21,7 +21,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold d-block">{{ __('message.file') }}<span class="text-danger ms-1">*</span></label>
-                        <input type="file" class="form-control" accept=".zip" :disabled="uploading" @change="onFile" />
+                        <input type="file" class="form-control" :class="{ 'is-invalid': fileError }" accept=".zip" :disabled="uploading" @change="onFile" />
                         <UploadStatus :uploading="uploading" :progress="uploadProgress" :error="fileError" :uploadedName="uploadedName" />
                     </div>
 
@@ -182,10 +182,7 @@ const allProductsFlat = computed(() =>
     rawGroups.value.flatMap(g => g.products.map(p => ({ id: p.id, name: p.name, groupName: g.groupName, licenseType: p.license_type })))
 )
 
-const searchPlaceholder = computed(() => {
-    const total = allProductsFlat.value.length
-    return total ? `${__('message.search') || 'Search'} all ${total} products` : (__('message.search') || 'Search')
-})
+const searchPlaceholder = computed(() => __('message.search') || 'Search')
 
 // Three mutually exclusive ways to browse: one active group at a time,
 // everything currently selected (regardless of group), or a live search
@@ -328,7 +325,7 @@ function parseDependencies() {
 // this just checks it actually succeeded.
 function validateSlot() {
     if (!file.value) {
-        fileError.value = __('message.file')
+        fileError.value = __('message.file_required')
     } else if (uploading.value) {
         fileError.value = __('message.please_wait')
     } else if (uploadedForFile.value !== file.value && !fileError.value) {
@@ -341,7 +338,7 @@ async function submit() {
 
     const errs = {}
     if (!selectedProductIds.value.length) {
-        errs.products = __('message.select-a-row') || 'Select at least one product.'
+        errs.products = __('message.select_at_least_one_product') || 'Select at least one product.'
     } else if (selectedProductIds.value.some(id => !productVersions.value[id]?.trim())) {
         errs.products = __('message.version_required_per_product') || 'Every selected product needs a version.'
     }

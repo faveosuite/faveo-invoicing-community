@@ -135,6 +135,7 @@ async function postVerify(url, payload, captchaRef) {
         if (redirect) {
             globalThis.location.href = redirect
         } else {
+            captchaRef?.value?.reset()
             successHandler(res, COMPONENT)
         }
     } catch (e) {
@@ -142,6 +143,7 @@ async function postVerify(url, payload, captchaRef) {
             captchaRef?.value?.triggerFallback()
             return
         }
+        captchaRef?.value?.reset()
         errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false

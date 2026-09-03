@@ -160,6 +160,7 @@ async function subscribeNewsletter() {
             newsletterCaptchaRef.value?.triggerFallback()
             return
         }
+        newsletterCaptchaRef.value?.reset()
         alertStore.setAlert({
             message: e?.response?.data?.message ?? __('message.something_went_wrong'),
             type: 'danger',

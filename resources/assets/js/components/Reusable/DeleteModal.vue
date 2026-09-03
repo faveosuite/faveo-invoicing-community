@@ -24,11 +24,14 @@
                             <button type="button" class="btn btn-secondary" :disabled="loading" @click="onClose">
                                 Cancel
                             </button>
-                            <button type="button" :class="`btn btn-${btnVariant}`" :disabled="loading" @click="onSubmit">
-                                <spinner-loader v-if="loading" :size="18" />
-                                <i v-else :class="`fas ${btnIcon} me-1`"></i>
-                                {{ btnLabel }}
-                            </button>
+                            <ActionButton
+                                type="button"
+                                :variant="btnVariant"
+                                :icon="`fas ${btnIcon}`"
+                                :label="btnLabel"
+                                :loading="loading"
+                                @click="onSubmit"
+                            />
                         </div>
 
                     </div>
@@ -42,6 +45,7 @@
 import { ref, computed } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import ActionButton from './ActionButton.vue'
 
 const props = defineProps({
     showModal:     { type: Boolean, default: false },

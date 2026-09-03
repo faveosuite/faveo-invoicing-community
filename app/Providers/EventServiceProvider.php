@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Events\Event;
 use App\Events\UserRegisteredEvent;
 use App\Listeners\MergeGuestCartOnLogin;
 use App\Listeners\SyncUserToPipedrive;
@@ -18,9 +17,6 @@ class EventServiceProvider extends ServiceProvider
      * The event listener mappings for the application.
      */
     protected $listen = [
-        Event::class => [
-            'App\Listeners\EventListener',
-        ],
         Login::class => [
             MergeGuestCartOnLogin::class,
         ],

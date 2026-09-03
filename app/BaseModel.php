@@ -27,6 +27,9 @@ class BaseModel extends Model
     /**
      * @var array<mixed>
      */
+    protected $fillable = [
+        'api_key',
+    ];
     protected array $purifyExcept = [
         'short_description',
         'description',

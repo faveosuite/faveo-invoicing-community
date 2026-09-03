@@ -119,6 +119,11 @@
     <template #title>
       <div class="d-flex align-items-center justify-content-between w-100 me-3">
         <span class="fw-bold fs-5">{{ __('message.enter_card_details') }}</span>
+        <div class="d-flex gap-1">
+          <img :src="`${baseUrl}/images/logo/cards/visa.svg`" alt="Visa" height="20">
+          <img :src="`${baseUrl}/images/logo/cards/mastercard.svg`" alt="Mastercard" height="20">
+          <img :src="`${baseUrl}/images/logo/cards/amex.svg`" alt="American Express" height="20">
+        </div>
       </div>
     </template>
 
@@ -171,8 +176,10 @@ import { useAlertStore } from '@/core/stores/alert'
 import { useLoaderStore } from '@/core/stores/loader'
 import http, { parseErrorMessage } from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const route = useRoute()
+const baseUrl = useBaseUrl()
 const router = useRouter()
 // Reactive (not a one-time snapshot) because the SPA reuses this component
 // instance when navigating from one invoice's pay page straight to another's

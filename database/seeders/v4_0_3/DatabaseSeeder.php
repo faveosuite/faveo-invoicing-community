@@ -27,6 +27,27 @@ class DatabaseSeeder extends Seeder
         $this->seedLicensesReportColumns();
         $this->seedSeoDefaultPages();
         $this->razorpayAutoRenewSetupEmailTemplate();
+        $this->removeDeadEmailEventTemplateTypes();
+    }
+
+    /**
+     * download_mail, card_failed, Free_trail_expired and Free_trail_gonna_expired
+     * were seeded (v2_0_0/v2_0_2/v3_0_2) but never wired to any mail-sending
+     * code in this app — confirmed no call site anywhere references them.
+     * Cleaned up here instead of editing those historical seeders directly.
+     */
+    public function removeDeadEmailEventTemplateTypes(): void
+    {
+        $deadNames = ['download_mail', 'card_failed', 'Free_trail_expired', 'Free_trail_gonna_expired'];
+
+        $deadTypeIds = DB::table('template_types')->whereIn('name', $deadNames)->pluck('id');
+
+        if ($deadTypeIds->isEmpty()) {
+            return;
+        }
+
+        DB::table('templates')->whereIn('type', $deadTypeIds)->delete();
+        DB::table('template_types')->whereIn('id', $deadTypeIds)->delete();
     }
 
     /**

@@ -36,6 +36,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Logger;
 use Throwable;
 
@@ -599,6 +600,9 @@ class TenantController extends Controller
     private function googleChat(string $text): void
     {
         $url = config('custom.google_chat');
+        if (empty($url)) { // ponytail: webhook is optional; skip instead of letting Guzzle blow up and mask the real error
+            return;
+        }
         $message = [
             'text' => $text,
         ];
@@ -649,13 +653,18 @@ class TenantController extends Controller
     {
         $request->validate(
             [
-                'cloud_product' => ['required'],
-                'cloud_free_plan' => ['required'],
+                'cloud_product' => ['required', Rule::unique('cloud_products', 'cloud_product')],
+                'cloud_free_plan' => [
+                    'required',
+                    Rule::exists('plans', 'id')->where('product', $request->input('cloud_product')),
+                ],
                 'cloud_product_key' => ['required'],
             ],
             [
                 'cloud_product.required' => __('validation.cloud_tenant.cloud_product_required'),
+                'cloud_product.unique' => __('validation.cloud_tenant.cloud_product_unique'),
                 'cloud_free_plan.required' => __('validation.cloud_tenant.cloud_free_plan_required'),
+                'cloud_free_plan.exists' => __('validation.cloud_tenant.cloud_free_plan_invalid'),
                 'cloud_product_key.required' => __('validation.cloud_tenant.cloud_product_key_required'),
             ]
         );

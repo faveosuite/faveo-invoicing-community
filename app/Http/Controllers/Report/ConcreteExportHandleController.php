@@ -656,7 +656,7 @@ class ConcreteExportHandleController extends ExportHandleController
                         if (empty($subscription_date)) {
                             $tenantData['Deletion day'] = null;
                         } else {
-                            $days = DB::table('expiry_mail_days')->where('cloud_days', '!=', null)->value('cloud_days');
+                            $days = (int) DB::table('expiry_mail_days')->where('cloud_days', '!=', null)->value('cloud_days');
                             $originalDate = Date::parse($subscription_date)->addDays($days);
                             $formattedDate = Date::parse($originalDate)->format('d M Y');
                             $tenantData['Deletion day'] = $formattedDate;

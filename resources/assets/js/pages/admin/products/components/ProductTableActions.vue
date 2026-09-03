@@ -6,8 +6,9 @@
         <button v-if="downloadUrl"
                 class="btn btn-light table_btn"
                 v-tooltip="__('message.download')"
+                :disabled="downloadingUrl === downloadUrl"
                 @click="downloadFile(downloadUrl)">
-            <i class="fas fa-download"></i>
+            <i :class="downloadingUrl === downloadUrl ? 'fas fa-circle-notch fa-spin' : 'fas fa-download'"></i>
         </button>
     </div>
 </template>
@@ -21,5 +22,5 @@ defineProps({
     downloadUrl: { type: String, default: null },
 })
 
-const { downloadFile } = useDownload('products-index')
+const { downloadFile, downloadingUrl } = useDownload('products-index')
 </script>

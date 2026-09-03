@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Deployment Settings</h4>
+                <h4 class="card-title">Configuration</h4>
             </div>
 
             <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
@@ -13,7 +13,7 @@
                     <div class="row align-items-start">
 
                         <!-- Enable / disable toggle -->
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="form-group mb-3">
                                 <label class="form-label">
                                     Client Deployments
@@ -25,17 +25,21 @@
                                         :value="form.deployment_enabled"
                                         :onChange="(val) => form.deployment_enabled = val"
                                     />
-                                    <span class="text-muted small">{{ form.deployment_enabled ? 'Enabled' : 'Disabled' }}</span>
                                 </div>
                             </div>
                         </div>
 
+                    </div>
+
+                    <div class="row align-items-start">
+
                         <!-- Install Script URL -->
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <TextField
                                 name="install_script_url"
                                 :label="__('message.install_script_url_label')"
                                 :required="true"
+                                :disabled="!form.deployment_enabled"
                                 :hint="__('message.install_script_url_tooltip')"
                                 :value="form.install_script_url"
                                 placeholder="https://example.com/install.sh"
@@ -45,11 +49,12 @@
                         </div>
 
                         <!-- Manual Install Guide URL -->
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <TextField
                                 name="manual_install_guide_url"
                                 :label="__('message.manual_install_guide_url')"
                                 :required="true"
+                                :disabled="!form.deployment_enabled"
                                 :hint="__('message.manual_install_guide_url_tooltip')"
                                 :value="form.manual_install_guide_url"
                                 placeholder="https://docs.example.com/install"

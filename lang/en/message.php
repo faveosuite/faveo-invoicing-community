@@ -101,6 +101,7 @@ return [
     'yes' => 'Yes',
     'no' => 'No',
     'select-a-row' => 'Select a row',
+    'select_at_least_one_product' => 'Select at least one product.',
     'no-record' => 'No records found',
     'create' => 'Create',
     'name' => 'Subject',
@@ -302,6 +303,7 @@ return [
     'related-services' => 'Related Services',
     'related-addons' => 'Related Addons',
     'file' => 'File',
+    'file_required' => 'Please select a file to upload.',
     'image' => 'Image',
     'group' => 'Group',
     'welcome_email' => 'Welcome Email',
@@ -1811,7 +1813,7 @@ return [
     'select_atleast_one_option' => 'Please select at least one option.',
     'select_option' => 'Please select an option.',
     'other' => 'Other',
-    'mailchimp_setting' => 'Mailchimp Setting',
+    'mailchimp_setting' => 'Mailchimp connected successfully',
     'mailchimp_mapping' => 'Mailchimp Mapping',
     'select_a_group' => 'Select A Group',
     'map_paid_group' => 'Map Is Paid Group',
@@ -3673,10 +3675,10 @@ return [
     'deploy_invalid_private_key' => 'Invalid private key: :error',
 
     // Deployment settings validation
-    'enter_install_script_url' => 'Please enter the install script URL.',
-    'valid_install_script_url' => 'Please enter a valid URL for the install script (e.g. https://example.com/install.sh).',
-    'enter_manual_install_guide_url' => 'Please enter the manual install guide URL.',
-    'valid_manual_install_guide_url' => 'Please enter a valid URL for the manual install guide (e.g. https://docs.example.com/install).',
+    'enter_install_script_url' => 'Please enter the script URL.',
+    'valid_install_script_url' => 'Please enter a valid URL for the script (e.g. https://example.com/install.sh).',
+    'enter_manual_install_guide_url' => 'Please enter the guide URL.',
+    'valid_manual_install_guide_url' => 'Please enter a valid URL for the guide (e.g. https://docs.example.com/install).',
 
     // Deploy wizard form validation
     'deploy_host_required' => 'Server host address is required.',

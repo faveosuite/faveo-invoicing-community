@@ -37,42 +37,24 @@
                     <!-- ── Tab 1: Connection ─────────────────────────────── -->
                     <div v-show="activeTab === 'connection'">
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label fw-bold">
                                     {{ __('message.mailchimp_key') }}<span class="text-danger ms-1">*</span>
                                 </label>
-                                <div class="input-group">
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        :class="{ 'is-invalid': errors.apiKey || connectionStatus === 'failed' }"
-                                        :value="form.apiKey"
-                                        placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-us21"
-                                        @input="e => { form.apiKey = e.target.value; connectionStatus.value = 'idle'; setFieldError('apiKey', undefined) }"
-                                        @keyup.enter="connect"
-                                    />
-                                    <button
-                                        class="btn"
-                                        :class="connectionStatus === 'connected' ? 'btn-success' : 'btn-outline-secondary'"
-                                        :disabled="connecting || !form.apiKey.trim()"
-                                        @click="connect"
-                                    >
-                                        <span v-if="connecting" class="spinner-border spinner-border-sm me-1"></span>
-                                        <i v-else-if="connectionStatus === 'connected'" class="fas fa-check me-1"></i>
-                                        <i v-else class="fas fa-plug me-1"></i>
-                                        {{ connectionStatus === 'connected' ? __('message.connected') : __('message.connect') }}
-                                    </button>
-                                </div>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    :class="{ 'is-invalid': errors.apiKey }"
+                                    :value="form.apiKey"
+                                    placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-us21"
+                                    @input="e => { form.apiKey = e.target.value; setFieldError('apiKey', undefined) }"
+                                    @keyup.enter="connect"
+                                />
                                 <div v-if="errors.apiKey" class="text-danger small mt-1">{{ errors.apiKey }}</div>
-                                <div v-else-if="connectionStatus === 'failed'" class="text-danger small mt-1">
-                                    {{ __('message.mailchimp_apikey_error') }}
-                                </div>
                             </div>
-                        </div>
 
-                        <template v-if="connectionStatus === 'connected'">
-                            <div class="row">
-                                <div class="col-md-5 mb-3">
+                            <template v-if="connected">
+                                <div class="col-md-4">
                                     <label class="form-label fw-bold">
                                         {{ __('message.list_id') }}<span class="text-danger ms-1">*</span>
                                     </label>
@@ -109,7 +91,7 @@
                                     <div v-if="errors.listId" class="text-danger small mt-1">{{ errors.listId }}</div>
                                 </div>
 
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-4">
                                     <DynamicSelect
                                         name="subscribe_status"
                                         :label="__('message.subscribe_status')"
@@ -122,10 +104,18 @@
                                         :error="errors.subscribeStatus"
                                     />
                                 </div>
-                            </div>
+                            </template>
+                        </div>
 
-                            <action-button action="save" :loading="savingConnection" @click="saveConnection" />
-                        </template>
+                        <action-button
+                            v-if="!connected"
+                            icon="fas fa-plug"
+                            variant="primary"
+                            :label="__('message.connect')"
+                            :loading="connecting"
+                            @click="connect"
+                        />
+                        <action-button v-else action="save" :loading="savingConnection" @click="saveConnection" />
                     </div>
 
                     <!-- ── Tab 2: Field Mapping ──────────────────────────── -->
@@ -203,9 +193,8 @@
                                         <h6 class="fw-bold mb-1">{{ __('message.map_is_paid_group') }}</h6>
                                         <p class="text-muted small mb-0">{{ __('message.map_is_paid_hint') }}</p>
                                     </div>
-                                    <div class="form-check form-switch mb-0 flex-shrink-0">
-                                        <input class="form-check-input clickable" type="checkbox" role="switch"
-                                            v-model="isPaidStatus" />
+                                    <div class="flex-shrink-0">
+                                        <Switch name="isPaidStatus" :value="isPaidStatus" :onChange="val => isPaidStatus = val" />
                                     </div>
                                 </div>
 
@@ -235,9 +224,8 @@
                                         <h6 class="fw-bold mb-1">{{ __('message.group_fields_mapping') }}</h6>
                                         <p class="text-muted small mb-0">{{ __('message.group_fields_mapping_hint') }}</p>
                                     </div>
-                                    <div class="form-check form-switch mb-0 flex-shrink-0">
-                                        <input class="form-check-input clickable" type="checkbox" role="switch"
-                                            v-model="productStatus" />
+                                    <div class="flex-shrink-0">
+                                        <Switch name="productStatus" :value="productStatus" :onChange="val => productStatus = val" />
                                     </div>
                                 </div>
 
@@ -326,6 +314,7 @@ import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
+import Switch from '@/components/Reusable/FormField/Switch.vue'
 import { connectionSchema, listSchema } from '@/validations/admin/mailchimpValidations'
 
 const COMPONENT = 'mailchimp-settings'
@@ -360,7 +349,7 @@ const savingMapping    = ref(false)
 const savingGroups     = ref(false)
 const syncingFields    = ref(false)
 const syncingGroups    = ref(false)
-const connectionStatus = ref('idle')   // 'idle' | 'connected' | 'failed'
+const connected        = ref(false)   // has a validated key been saved
 
 // ── Lists (infinite scroll) ────────────────────────────────────────────────
 const lists           = ref([])
@@ -453,7 +442,7 @@ onMounted(async () => {
         listsHasMore.value    = d.lists_has_more   ?? false
         listsOffset.value     = lists.value.length
 
-        if (form.apiKey)  connectionStatus.value = 'connected'
+        if (form.apiKey)  connected.value = true
         if (form.listId)  loadMappingData()
     } catch (e) {
         errorHandler(e, COMPONENT, { setErrors })
@@ -462,10 +451,11 @@ onMounted(async () => {
     }
 })
 
-// ── Connect ────────────────────────────────────────────────────────────────
+// ── Connect (validate + save key, fetch lists) ──────────────────────────────
 async function connect() {
     try { await connectionSchema.validate({ apiKey: form.apiKey }) }
     catch (err) { setErrors({ apiKey: err.message }); return }
+
     connecting.value = true
     try {
         const res = await http.post(`/updateMailchimpDetails`, {
@@ -476,22 +466,17 @@ async function connect() {
         lists.value        = d.lists          ?? []
         listsHasMore.value = d.lists_has_more ?? false
         listsOffset.value  = lists.value.length
-        connectionStatus.value = 'connected'
+        connected.value = true
         successHandler(res, COMPONENT)
     } catch (e) {
-        connectionStatus.value = 'failed'
         errorHandler(e, COMPONENT, { setErrors })
     } finally {
         connecting.value = false
     }
 }
 
-// ── Save connection ────────────────────────────────────────────────────────
+// ── Save list settings (once connected) ─────────────────────────────────────
 async function saveConnection() {
-    if (connectionStatus.value !== 'connected') {
-        setErrors({ apiKey: __('message.enter_mailchimp_key') })
-        return
-    }
     try {
         await listSchema.validate(
             { listId: form.listId, subscribeStatus: form.subscribeStatus },
@@ -503,6 +488,7 @@ async function saveConnection() {
         setErrors(map)
         return
     }
+
     savingConnection.value = true
     try {
         const res = await http.patch(`/mailchimp`, {
@@ -686,7 +672,3 @@ async function saveInterestGroups() {
     }
 }
 </script>
-
-<style scoped>
-.clickable { cursor: pointer; }
-</style>

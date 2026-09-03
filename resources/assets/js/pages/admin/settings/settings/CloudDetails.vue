@@ -3,10 +3,6 @@
         <AppAlert :componentName="COMPONENT" />
 
         <div class="card card-light">
-            <div class="card-header">
-                <h4 class="card-title">{{ __('message.cloud_hub') }}</h4>
-            </div>
-
             <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
@@ -28,7 +24,7 @@
                     <div v-show="activeTab === 'settings'">
                         <div class="card card-light">
                             <div class="card-header">
-                                <h4 class="card-title">{{ __('message.cloud_hub') }}</h4>
+                                <h4 class="card-title">{{ __('message.cloud_settings') }}</h4>
                             </div>
                             <div class="card-body">
                                 <p class="text-muted fw-bold mb-2">{{ __('message.cloud_server') }}</p>
@@ -214,14 +210,17 @@
                 :label="__('message.cloud_product')"
                 :elements="products"
                 :value="productForm.cloud_product"
-                :onChange="v => { setFieldError('cloud_product', undefined); productForm.cloud_product = v }"
+                :onChange="v => { setFieldError('cloud_product', undefined); productForm.cloud_product = v; productForm.cloud_free_plan = null }"
                 :searchable="true"
                 :error="errors.cloud_product"
             />
+            <!-- Plan choices are scoped to the selected product's own plans -->
             <DynamicSelect
+                v-if="productForm.cloud_product"
                 name="cloud_free_plan"
                 :label="__('message.cloud_free_plan')"
-                :elements="plans"
+                :apiEndpoint="`${baseUrl}/dependency/product-plans?product_id=${productForm.cloud_product.id}`"
+                dataKey="plans"
                 :value="productForm.cloud_free_plan"
                 :onChange="v => { setFieldError('cloud_free_plan', undefined); productForm.cloud_free_plan = v }"
                 :searchable="true"
@@ -351,7 +350,6 @@ const productForm = reactive({ cloud_product: null, cloud_free_plan: null, cloud
 const dcForm      = reactive({ cloud_countries: null, cloud_state: null, cloud_city: '' })
 
 const products    = ref([])
-const plans       = ref([])
 const countries   = ref([])
 const states      = ref([])
 const regions     = ref([])
@@ -402,7 +400,6 @@ onMounted(async () => {
             cloud_label_radio: data.cloud_label_radio ?? '',
         })
         products.value  = data.products  ?? []
-        plans.value     = data.plans     ?? []
         countries.value = data.countries ?? []
         regions.value   = data.regions   ?? []
     } catch (e) {

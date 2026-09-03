@@ -231,6 +231,7 @@ class OrderController extends BaseOrderController
                 'expiry_dates' => $expiryDates,
                 'installation_limit' => $license?->license_limit,
                 'license_domain' => $license?->license_domain,
+                'license_ip' => $license?->license_ip,
                 'license_machine_id' => $license?->license_machine_id,
             ],
             // Lets the edit-license-details UI hide/disable date fields this

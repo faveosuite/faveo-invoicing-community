@@ -820,10 +820,22 @@ class CloudExtraActivities extends Controller
     public function fetchData(Request $request): JsonResponse
     {
         try {
-            $productPlanData = CloudProducts::with(['product', 'plan'])
-                ->when($request->input('search-query'), fn ($q, string $s) => $q->whereHas('product', fn (Builder $q2) => $q2->where('name', 'like', sprintf('%%%s%%', $s))))
-                ->orderBy($request->input('sort-field', 'updated_at'), $request->input('sort-order', 'desc'))
-                ->paginate((int) $request->input('limit', 10));
+            $sortField = $request->input('sort-field', 'updated_at');
+            $sortOrder = $request->input('sort-order', 'desc');
+
+            $query = CloudProducts::with(['product', 'plan'])
+                ->when($request->input('search-query'), fn ($q, string $s) => $q->whereHas('product', fn (Builder $q2) => $q2->where('name', 'like', sprintf('%%%s%%', $s))));
+
+            // cloud_product/cloud_free_plan display the related name (see transform
+            // below), not the raw FK — sort by that same name via a correlated
+            // subquery instead of ordering by the meaningless FK id.
+            match ($sortField) {
+                'cloud_product' => $query->orderBy(Product::select('name')->whereColumn('id', 'cloud_products.cloud_product'), $sortOrder),
+                'cloud_free_plan' => $query->orderBy(Plan::select('name')->whereColumn('id', 'cloud_products.cloud_free_plan'), $sortOrder),
+                default => $query->orderBy($sortField, $sortOrder),
+            };
+
+            $productPlanData = $query->paginate((int) $request->input('limit', 10));
 
             $productPlanData->getCollection()->transform(fn ($model): array => [
                 'id' => $model->id,

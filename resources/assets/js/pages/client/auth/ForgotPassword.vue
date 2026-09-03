@@ -68,6 +68,7 @@ async function submit() {
             captchaRef.value?.triggerFallback()
             return
         }
+        captchaRef.value?.reset()
         const serverErrors = e?.response?.data?.errors
         if (serverErrors?.email) {
             setErrors({ email: Array.isArray(serverErrors.email) ? serverErrors.email[0] : serverErrors.email })

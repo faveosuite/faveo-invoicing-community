@@ -230,6 +230,7 @@ async function verify() {
             captchaRef.value?.triggerFallback()
             return
         }
+        captchaRef.value?.reset()
         errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false

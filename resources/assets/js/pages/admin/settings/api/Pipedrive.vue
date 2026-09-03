@@ -6,7 +6,7 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.pipedrive_settings') }}</h4>
                 <div class="card-tools">
-                    <button v-if="activeTab === 'field-mapping' && connectionStatus === 'connected'"
+                    <button v-if="activeTab === 'field-mapping' && connected"
                         class="btn btn-tool" v-tooltip="__('message.click_pipedrive_sync')"
                         :disabled="syncing" @click="syncFields">
                         <i class="fas fa-sync" :class="{ 'fa-spin': syncing }"></i>
@@ -36,60 +36,32 @@
                                 <label class="form-label fw-bold">
                                     {{ __('message.pipedrive_key') }}<span class="text-danger ms-1">*</span>
                                 </label>
-                                <div class="input-group">
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        :class="{ 'is-invalid': errors.apiKey || connectionStatus === 'failed' }"
-                                        :value="form.apiKey"
-                                        :placeholder="__('message.enter_pipedrive_api')"
-                                        @input="e => { form.apiKey = e.target.value; connectionStatus = 'idle'; setFieldError('apiKey', undefined) }"
-                                        @keyup.enter="connect"
-                                    />
-                                    <button
-                                        class="btn"
-                                        :class="connectionStatus === 'connected' ? 'btn-success' : 'btn-outline-secondary'"
-                                        :disabled="connecting || !form.apiKey.trim()"
-                                        @click="connect"
-                                    >
-                                        <span v-if="connecting" class="spinner-border spinner-border-sm me-1"></span>
-                                        <i v-else-if="connectionStatus === 'connected'" class="fas fa-check me-1"></i>
-                                        <i v-else class="fas fa-plug me-1"></i>
-                                        {{ connectionStatus === 'connected' ? __('message.connected') : __('message.connect') }}
-                                    </button>
-                                </div>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    :class="{ 'is-invalid': errors.apiKey }"
+                                    :value="form.apiKey"
+                                    :placeholder="__('message.enter_pipedrive_api')"
+                                    @input="e => { form.apiKey = e.target.value; setFieldError('apiKey', undefined) }"
+                                    @keyup.enter="saveSettings"
+                                />
                                 <div v-if="errors.apiKey" class="text-danger small mt-1">{{ errors.apiKey }}</div>
-                                <div v-else-if="connectionStatus === 'failed'" class="text-danger small mt-1">
-                                    {{ __('message.pipedrive_error') }}
-                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold d-block">
+                                    {{ __('message.user_verification') }}
+                                    <ToolTip :message="__('message.pipedrive_user_verification_tooltip')" size="small" />
+                                </label>
+                                <Switch name="requireVerification" :value="form.requireVerification" :onChange="(val) => form.requireVerification = val" />
                             </div>
                         </div>
 
-                        <template v-if="connectionStatus === 'connected'">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <div class="form-check form-switch">
-                                        <input
-                                            class="form-check-input clickable"
-                                            type="checkbox"
-                                            role="switch"
-                                            id="requireVerification"
-                                            v-model="form.requireVerification"
-                                        />
-                                        <label class="form-check-label" for="requireVerification" v-tooltip="__('message.pipedrive_user_verification_tooltip')">
-                                            {{ __('message.user_verification') }}
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <action-button action="save" :loading="savingSettings" @click="saveSettings" />
-                        </template>
+                        <action-button action="save" :loading="savingSettings" @click="saveSettings" />
                     </div>
 
                     <!-- ── Tab 2: Field Mapping ─────────────────────────── -->
                     <div v-show="activeTab === 'field-mapping'">
-                        <div v-if="connectionStatus !== 'connected'" class="alert alert-warning py-2 mb-3">
+                        <div v-if="!connected" class="alert alert-warning py-2 mb-3">
                             <i class="fas fa-exclamation-triangle me-1"></i>
                             {{ __('message.pipedrive_config_info') }}
                         </div>
@@ -176,6 +148,8 @@ import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
+import Switch from '@/components/Reusable/FormField/Switch.vue'
+import ToolTip from '@/components/Reusable/Tooltip.vue'
 import { apiKeySchema } from '@/validations/admin/pipedriveValidations'
 
 const COMPONENT = 'pipedrive-settings'
@@ -183,14 +157,13 @@ const COMPONENT = 'pipedrive-settings'
 const { errors, setErrors, setFieldError } = useForm()
 
 const loading        = ref(true)
-const connecting     = ref(false)
 const savingSettings = ref(false)
 const loadingMapping = ref(false)
 const savingMapping  = ref(false)
 const syncing        = ref(false)
 
-const connectionStatus = ref('idle')   // 'idle' | 'connected' | 'failed'
-const activeTab        = ref('connection')
+const connected = ref(false)   // has a validated key been saved
+const activeTab = ref('connection')
 
 const tabs = [
     { key: 'connection',   icon: 'fas fa-plug',    label: __('message.connection')    },
@@ -207,7 +180,7 @@ const localOptions        = ref([])
 const rows                = ref([])
 
 watch(activeTab, async tab => {
-    if (tab === 'field-mapping' && connectionStatus.value === 'connected' && activeGroupId.value && !rows.value.length) {
+    if (tab === 'field-mapping' && connected.value && activeGroupId.value && !rows.value.length) {
         await loadMappingForGroup(activeGroupId.value)
     }
 })
@@ -232,7 +205,7 @@ onMounted(async () => {
         }
 
         if (form.apiKey) {
-            connectionStatus.value = 'connected'
+            connected.value = true
             await loadMappingForGroup(activeGroupId.value)
         }
     } catch (e) {
@@ -242,41 +215,23 @@ onMounted(async () => {
     }
 })
 
-// ── Connect ────────────────────────────────────────────────────────────────
-async function connect() {
+// ── Save settings (key + verification toggle, validates against Pipedrive) ─
+async function saveSettings() {
     try { await apiKeySchema.validate({ apiKey: form.apiKey }) }
     catch (err) { setErrors({ apiKey: err.message }); return }
 
-    connecting.value = true
-    try {
-        const res = await http.post(`/updatepipedriveDetails`, {
-            pipedrive_key:                      form.apiKey,
-            require_pipedrive_user_verification: form.requireVerification,
-            status: 1,
-        })
-        connectionStatus.value = 'connected'
-        successHandler(res, COMPONENT)
-        if (activeGroupId.value && !rows.value.length) {
-            await loadMappingForGroup(activeGroupId.value)
-        }
-    } catch (e) {
-        connectionStatus.value = 'failed'
-        errorHandler(e, COMPONENT, { setErrors })
-    } finally {
-        connecting.value = false
-    }
-}
-
-// ── Save settings (verification toggle) ───────────────────────────────────
-async function saveSettings() {
     savingSettings.value = true
     try {
         const res = await http.patch(`/settings/pipedrive`, {
             pipedrive_key:                      form.apiKey,
             require_pipedrive_user_verification: form.requireVerification,
-            status: true,
+            status: 1,
         })
+        connected.value = true
         successHandler(res, COMPONENT)
+        if (activeGroupId.value && !rows.value.length) {
+            await loadMappingForGroup(activeGroupId.value)
+        }
     } catch (e) {
         errorHandler(e, COMPONENT, { setErrors })
     } finally {
@@ -423,7 +378,3 @@ async function syncFields() {
     }
 }
 </script>
-
-<style scoped>
-.clickable { cursor: pointer; }
-</style>

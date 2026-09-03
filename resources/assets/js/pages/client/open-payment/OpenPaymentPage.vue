@@ -386,6 +386,11 @@
     <template #title>
       <div class="d-flex align-items-center justify-content-between w-100 me-3">
         <span class="fw-bold fs-5">{{ __('message.enter_card_details') }}</span>
+        <div class="d-flex gap-1">
+          <img :src="`${baseUrl}/images/logo/cards/visa.svg`" alt="Visa" height="20">
+          <img :src="`${baseUrl}/images/logo/cards/mastercard.svg`" alt="Mastercard" height="20">
+          <img :src="`${baseUrl}/images/logo/cards/amex.svg`" alt="American Express" height="20">
+        </div>
       </div>
     </template>
     <template #fields>
@@ -672,7 +677,11 @@ const payNow = async () => {
         if (res?.data?.show_v2_recaptcha) {
           captchaRef.value?.triggerFallback()
           alertStore.setAlert({ message: 'Please complete the reCAPTCHA and try again.', type: 'warning', component_name: 'open-payment-review' })
-        } else if ((err.response?.status === 422 || err.response?.status === 412) && res?.errors) {
+          paying.value = false
+          return
+        }
+        captchaRef.value?.reset()
+        if ((err.response?.status === 422 || err.response?.status === 412) && res?.errors) {
           const map = Object.fromEntries(Object.entries(res.errors).map(([k, v]) => [k, v[0]]))
           setErrors(map)
           step.value = 'form'

@@ -22,6 +22,12 @@ export async function scrollToFirstError() {
 export async function validateForm(schema, form, setErrors) {
     try {
         schema.validateSync(form, { abortEarly: false })
+        // vee-validate's setErrors only clears keys present in the object passed in,
+        // so `setErrors({})` is a no-op — explicitly null out every schema field to
+        // clear stale errors left over from a previous failed attempt.
+        const clear = {}
+        Object.keys(schema.fields || {}).forEach(key => { clear[key] = undefined })
+        setErrors(clear)
         return true
     } catch (err) {
         const errMap = {}

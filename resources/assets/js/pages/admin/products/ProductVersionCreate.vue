@@ -25,7 +25,7 @@
 
                     <div class="col-md-4">
                         <label class="form-label fw-bold d-block">{{ __('message.file') }}<span class="text-danger ms-1">*</span></label>
-                        <input type="file" class="form-control" accept=".zip" :disabled="uploading" @change="onFile" />
+                        <input type="file" class="form-control" :class="{ 'is-invalid': fileError }" accept=".zip" :disabled="uploading" @change="onFile" />
                         <UploadStatus :uploading="uploading" :progress="uploadProgress" :error="fileError" :uploadedName="uploadedName" />
                     </div>
 

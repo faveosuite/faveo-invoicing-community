@@ -260,6 +260,7 @@ async function submitLogin() {
       loginCaptchaRef.value?.triggerFallback()
       return
     }
+    loginCaptchaRef.value?.reset()
     errorHandler(e, COMPONENT, { setErrors: loginSetErrors })
   } finally {
     loggingIn.value = false
@@ -316,6 +317,7 @@ async function submitRegister() {
       regCaptchaRef.value?.triggerFallback()
       return
     }
+    regCaptchaRef.value?.reset()
     errorHandler(e, COMPONENT, { setErrors: regSetErrors })
   } finally {
     registering.value = false

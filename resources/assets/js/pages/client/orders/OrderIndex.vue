@@ -56,8 +56,9 @@
                     <template #action="{ row }">
                         <button v-if="row.can_download && row.download_url"
                                 class="btn btn-sm btn-primary"
+                                :disabled="downloadingUrl === row.download_url"
                                 @click="downloadFile(row.download_url)">
-                            <i class="fas fa-download me-1"></i>{{ __('message.download') }}
+                            <i :class="downloadingUrl === row.download_url ? 'fas fa-circle-notch fa-spin' : 'fas fa-download'" class="me-1"></i>{{ __('message.download') }}
                         </button>
                         <button v-else class="btn btn-sm btn-danger disabled">
                             {{ __('message.please_renew') }}
@@ -103,7 +104,7 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
 const { formatDate }  = useDateTime()
-const { downloadFile } = useDownload('order-download')
+const { downloadFile, downloadingUrl } = useDownload('order-download')
 
 const baseUrl = useBaseUrl()
 const route   = useRoute()

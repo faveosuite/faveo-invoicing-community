@@ -102,11 +102,6 @@ class SystemManagerController extends Controller
     public function updateManagerSettings(SystemManagerSettingsRequest $request): JsonResponse
     {
         try {
-            $warning = $this->smtpBatchWarning($request);
-            if ($warning) {
-                return errorResponse($warning);
-            }
-
             $this->updateManager('account_manager', $request->existingAccManager, $request->newAccManager);
             $this->updateManager('manager', $request->existingSaleManager, $request->newSaleManager);
 
@@ -125,31 +120,6 @@ class SystemManagerController extends Controller
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
-    }
-
-    private function smtpBatchWarning(SystemManagerSettingsRequest $request): ?string
-    {
-        $isSyncQueue = config('queue.default') === 'sync';
-        $isSmtp = \App\Model\Common\Setting::value('driver') === 'smtp';
-
-        if (! $isSyncQueue && ! $isSmtp) {
-            return null;
-        }
-
-        $counts = [];
-        if ($request->existingAccManager) {
-            $counts['account'] = User::where('account_manager', $request->existingAccManager)->count();
-        }
-        if ($request->existingSaleManager) {
-            $counts['sales'] = User::where('manager', $request->existingSaleManager)->count();
-        }
-
-        $affectedCount = array_sum($counts);
-        if ($affectedCount <= 200) {
-            return null;
-        }
-
-        return __('message.smtp_driver_warning');
     }
 
     private function updateManager(string $managerColumn, ?int $oldManagerId, ?int $newManagerId): void

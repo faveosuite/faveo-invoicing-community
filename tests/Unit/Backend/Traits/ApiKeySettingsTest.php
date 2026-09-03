@@ -102,23 +102,6 @@ class ApiKeySettingsTest extends DBTestCase
     }
 
     // =========================================================================
-    // POST /updatepipedriveDetails — ApiKeySettings::updatepipedriveDetails
-    // Makes live Pipedrive HTTP call — returns 400 with invalid key in test env
-    // =========================================================================
-
-    public function test_update_pipedrive_details_with_invalid_key_returns_400(): void
-    {
-        ApiKey::factory()->create();
-        $response = $this->postJson('/updatepipedriveDetails', [
-            'pipedrive_key' => 'invalid-test-key',
-            'status' => 0,
-        ]);
-        // Pipedrive API rejects invalid key → errorResponse 400
-        $response->assertStatus(400);
-        $response->assertJson(['success' => false]);
-    }
-
-    // =========================================================================
     // POST /updateTermsDetails — ApiKeySettings::updateTermsDetails
     // =========================================================================
 
