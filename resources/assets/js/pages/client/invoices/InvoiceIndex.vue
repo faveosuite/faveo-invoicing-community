@@ -131,6 +131,16 @@ const tableOptions = reactive({
     status: () => __('message.status'),
     action: () => __('message.actions'),
   },
+  columnsClasses: {
+    number: 'dt-number',
+    date: 'dt-date',
+    orders: 'dt-name',
+    grand_total: 'dt-amount',
+    paid: 'dt-amount',
+    balance: 'dt-amount',
+    status: 'dt-status',
+    action: 'dt-action',
+  },
   sortable: ['number', 'date', 'grand_total'],
   filterable: true,
 })

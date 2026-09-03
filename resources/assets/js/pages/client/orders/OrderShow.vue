@@ -794,6 +794,12 @@ const installOptions = reactive({
         version:           () => __('message.version'),
         last_active:       () => __('message.last_active'),
     },
+    columnsClasses: {
+        installation_path: 'dt-text',
+        installation_ip:   'dt-code',
+        version:            'dt-code',
+        last_active:        'dt-date',
+    },
     sortable:   ['installation_path', 'installation_ip', 'last_active'],
     filterable: true,
 })
@@ -807,6 +813,13 @@ const invoiceOptions = reactive({
         status:      () => __('message.status'),
         action:      () => __('message.actions'),
     },
+    columnsClasses: {
+        number:      'dt-number',
+        date:        'dt-date',
+        grand_total: 'dt-amount',
+        status:      'dt-status',
+        action:      'dt-action',
+    },
     sortable:   ['number', 'date'],
     filterable: true,
 })
@@ -819,6 +832,13 @@ const paymentOptions = reactive({
         payment_method: () => __('message.method'),
         payment_status: () => __('message.status'),
         created_at:     () => __('message.payment_date'),
+    },
+    columnsClasses: {
+        invoice_number: 'dt-number',
+        amount:         'dt-amount',
+        payment_method: 'dt-code',
+        payment_status: 'dt-status',
+        created_at:     'dt-date',
     },
     sortable:   ['payment_status', 'created_at'],
     filterable: true,

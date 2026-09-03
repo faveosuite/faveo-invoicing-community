@@ -122,6 +122,14 @@ const tableOptions = reactive({
         update_ends_at: () => __('message.expiry_date'),
         action:         () => __('message.actions'),
     },
+    columnsClasses: {
+        product_name:   'dt-name',
+        order_date:     'dt-date',
+        number:         'dt-number',
+        agents:         'dt-code',
+        update_ends_at: 'dt-date',
+        action:         'dt-action',
+    },
     sortable:   ['number', 'order_date', 'update_ends_at'],
     filterable: true,
 })
@@ -139,6 +147,12 @@ const versionOptions = reactive({
         name:        () => __('message.title'),
         description: () => __('message.description'),
         action:      () => __('message.file'),
+    },
+    columnsClasses: {
+        version:     'dt-code',
+        name:        'dt-name',
+        description: 'dt-text',
+        action:      'dt-action',
     },
     sortable:   ['version', 'name'],
     filterable: true,

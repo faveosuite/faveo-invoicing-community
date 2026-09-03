@@ -126,6 +126,14 @@ const options    = reactive({
         created_at:      () => __('message.create_at'),
         action:          () => __('message.action'),
     },
+    columnsClasses: {
+        phone_number:    'dt-mobile',
+        waba_id:         'dt-code',
+        phone_number_id: 'dt-code',
+        business_id:     'dt-code',
+        created_at:      'dt-date',
+        action:          'dt-action',
+    },
     sortable:   ['phone_number', 'waba_id', 'business_id', 'created_at'],
     filterable: true,
 })
