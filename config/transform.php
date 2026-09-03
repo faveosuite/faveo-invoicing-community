@@ -1,6 +1,8 @@
 <?php
 
-return[
+declare(strict_types=1);
+
+return [
     /*
      * Cart page
      */
@@ -242,6 +244,21 @@ return[
         'date' => '{{date}}',
     ],
 
+    'razorpay_autorenew_setup' => [
+        'name' => '{{name}}',
+        'product' => '{{product}}',
+        'total' => '{{total}}',
+        'contact' => '{{contact}}',
+        'logo' => '{{logo}}',
+        'expiry_date' => '{{expiry_date}}',
+        'reply_email' => '{{reply_email}}',
+        'application_title' => '{{application_title}}',
+        'company_title' => '{{company_title}}',
+        'url' => '{{url}}',
+        'number' => '{{number}}',
+        'date' => '{{date}}',
+    ],
+
     'registration_mail' => [
         'name' => '{{name}}',
         'username' => '{{username}}',
@@ -277,5 +294,53 @@ return[
         'app_name' => '{{app_name}}',
         'contact' => '{{contact}}',
         'contact_url' => '{{contact_url}}',
+    ],
+
+    'open_payment_success' => [
+        'name' => '{{name}}',
+        'transaction_id' => '{{transaction_id}}',
+        'currency' => '{{currency}}',
+        'amount' => '{{amount}}',
+        'gateway' => '{{gateway}}',
+        'date' => '{{date}}',
+        'logo' => '{{logo}}',
+        'contact' => '{{contact}}',
+    ],
+
+    'open_payment_failed' => [
+        'name' => '{{name}}',
+        'currency' => '{{currency}}',
+        'amount' => '{{amount}}',
+        'gateway' => '{{gateway}}',
+        'logo' => '{{logo}}',
+        'contact' => '{{contact}}',
+    ],
+
+    'open_payment_admin_success' => [
+        'name' => '{{name}}',
+        'company' => '{{company}}',
+        'email' => '{{email}}',
+        'currency' => '{{currency}}',
+        'base_amount' => '{{base_amount}}',
+        'processing_fee' => '{{processing_fee}}',
+        'fee_rate' => '{{fee_rate}}',
+        'amount' => '{{amount}}',
+        'gateway' => '{{gateway}}',
+        'transaction_id' => '{{transaction_id}}',
+        'date' => '{{date}}',
+        'logo' => '{{logo}}',
+        'contact' => '{{contact}}',
+    ],
+
+    'open_payment_admin_failed' => [
+        'name' => '{{name}}',
+        'company' => '{{company}}',
+        'email' => '{{email}}',
+        'currency' => '{{currency}}',
+        'amount' => '{{amount}}',
+        'gateway' => '{{gateway}}',
+        'date' => '{{date}}',
+        'logo' => '{{logo}}',
+        'contact' => '{{contact}}',
     ],
 ];

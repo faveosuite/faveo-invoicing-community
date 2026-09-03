@@ -1,10 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Model\Common;
 
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
+/**
+ * @property int $id
+ * @property string $manager_role
+ * @property int $auto_assign
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting whereAutoAssign($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting whereManagerRole($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class ManagerSetting extends Model
 {
     use SystemActivityLogsTrait;
@@ -14,24 +39,33 @@ class ManagerSetting extends Model
         'auto_assign',
     ];
 
-    protected $logName = 'system_manager';
+    protected string $logName = 'system_manager';
 
-    protected $logNameColumn = 'Settings';
+    protected string $logNameColumn = 'Settings';
 
-    protected $logAttributes = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logAttributes = [
         'manager_role',
         'auto_assign',
     ];
 
-    protected $logUrl = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logUrl = [
         'segments' => ['system-managers'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
             'manager_role' => ['Manager Role', fn ($value) => $value],
-            'auto_assign' => ["{$this->manager_role} manager assign status", fn ($value) => $value ? __('message.active') : __('message.inactive')],
+            'auto_assign' => [$this->manager_role.' manager assign status', fn ($value): array|string => $value ? __('message.active') : __('message.inactive')],
         ];
     }
 }

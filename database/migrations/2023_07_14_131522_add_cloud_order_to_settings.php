@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        if (! Schema::hasColumn('cloud_order', 'cloud_deleted', 'from_name')) {
-            Schema::table('settings', function (Blueprint $table) {
+        if (! Schema::hasColumn('cloud_order', 'cloud_deleted')) {
+            Schema::table('settings', function (Blueprint $table): void {
                 $table->string('cloud_order')->nullable();
                 $table->string('cloud_deleted')->nullable();
                 $table->string('from_name')->nullable();
@@ -24,12 +22,10 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('settings', function (Blueprint $table): void {
             $table->dropColumn('cloud_order');
             $table->dropColumn('cloud_deleted');
             $table->dropColumn('from_name');

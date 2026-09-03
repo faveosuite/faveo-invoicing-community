@@ -2,7 +2,7 @@
 /**
  * InstallmentRequestBody
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -207,7 +207,7 @@ class InstallmentRequestBody implements ModelInterface, ArrayAccess, JsonSeriali
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['description'] = $data['description'] ?? null;
         $this->container['amount'] = $data['amount'] ?? null;
@@ -301,7 +301,7 @@ class InstallmentRequestBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets billing_date
      *
-     * @param string|null $billing_date The date which the installment will be charged. Must be in the format YYYY-MM-DD.
+     * @param string|null $billing_date The date on which the installment will be charged. Must be in the format YYYY-MM-DD.
      *
      * @return self
      */

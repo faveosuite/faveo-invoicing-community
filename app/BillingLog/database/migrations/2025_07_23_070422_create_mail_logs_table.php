@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mail_logs', function (Blueprint $table) {
+        Schema::create('mail_logs', function (Blueprint $table): void {
             $table->id();
 
             $table->unsignedInteger('log_category_id')->index();

@@ -6,12 +6,19 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Requests\ValidateSecretRequest;
 use App\Rules\Honeypot;
 use App\User;
+use App\UserBackupCodes;
+use Auth;
+use Exception;
+use Hash;
 use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Crypt;
 use ParagonIE\ConstantTime\Base32;
 use PragmaRX\Google2FAQRCode\Google2FA;
 use RateLimiter;
+use Session;
 
 class Google2FAController extends Controller
 {
@@ -19,37 +26,33 @@ class Google2FAController extends Controller
 
     /**
      * Create a new authentication controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
         $this->middleware('web');
-        $this->middleware('auth', ['only' => ['enableTwoFactor', 'disableTwoFactor', 'generateRecoveryCode', 'getRecoveryCode', 'showRecoveryCode', 'postSetupValidateToken']]);
+        $this->middleware('auth', ['only' => ['enableTwoFactor', 'disableTwoFactor', 'generateRecoveryCode']]);
         $this->middleware('recaptcha:login_2fa')->only('postLoginValidateToken');
         $this->middleware('recaptcha:login_recovery')->only('verifyRecoveryCode');
     }
 
-    public function verify2fa()
+    public function verify2fa(): JsonResponse
     {
-        if (\Session::has('2fa:user:id')) {
-            return view('themes.default1.front.enableTwoFactor');
+        if (Session::has('2fa:user:id')) {
+            return successResponse('Redirect to 2fa');
         } else {
-            return redirect('login');
+            return successResponse('Login page', ['redirect' => url('login')]);
         }
     }
 
-    /**
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function enableTwoFactor(Request $request)
+    public function enableTwoFactor(Request $request): JsonResponse
     {
+        /** @var User $user */
         $user = $request->user();
-        $google2fa = new Google2FA();
+        $google2fa = new Google2FA;
         $secret = $this->generateSecret();
         $user->google2fa_secret = Crypt::encrypt($secret);
         $user->save();
+
         $imageDataUri = $google2fa->getQRCodeInline(
             $request->getHttpHost(),
             $user->email,
@@ -60,7 +63,7 @@ class Google2FAController extends Controller
         return successResponse('', ['image' => $imageDataUri, 'secret' => $secret]);
     }
 
-    private function generateSecret()
+    private function generateSecret(): string
     {
         $randomBytes = random_bytes(10);
 
@@ -68,114 +71,130 @@ class Google2FAController extends Controller
     }
 
     /**
-     * @param  App\Http\Requests\ValidateSecretRequest  $request
-     * @return \Illuminate\Http\Response
+     * Verifies the code entered during initial 2FA setup (after enableTwoFactor
+     * generated the QR/secret) and, on success, actually flips the account over
+     * to 2FA-enabled. Mirrors disableTwoFactor's field-setting in reverse.
      */
-    public function postLoginValidateToken(ValidateSecretRequest $request)
+    public function postSetupValidateToken(ValidateSecretRequest $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $secret = Crypt::decrypt((string) $user->google2fa_secret);
+
+        if (! new Google2FA()->verifyKey($secret, $request->totp)) {
+            return errorResponse(__('message.invalid_passcode'));
+        }
+
+        $user->is_2fa_enabled = 1;
+        $user->google2fa_activation_date = now();
+        $user->save();
+
+        return successResponse(__('message.2fa_enabled'));
+    }
+
+    public function postLoginValidateToken(ValidateSecretRequest $request): JsonResponse
     {
         try {
             $session = $request->session();
             $userId = $session->get('2fa:user:id');
+            /** @var User $user */
             $user = User::findOrFail($userId);
 
-            return $this->handleTwoFactorLogin($request, $user, '2fa-code', function ($user, $request) {
-                $secret = Crypt::decrypt($user->google2fa_secret);
-                $isValid = (new Google2FA())->verifyKey($secret, $request->totp);
+            return $this->handleTwoFactorLogin($request, $user, '2fa-code', function ($user, $request): void {
+                $secret = Crypt::decrypt((string) $user->google2fa_secret);
+                $isValid = new Google2FA()->verifyKey($secret, $request->totp);
 
                 if (! $isValid) {
-                    throw new \Exception(__('message.invalid_passcode'));
+                    // MUST throw — handleTwoFactorLogin proceeds to Auth::login unless
+                    // validation aborts. A returned response here would be ignored.
+                    throw new Exception(__('message.invalid_passcode'));
                 }
             });
-        } catch (\Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function verifyPassword(Request $request)
+    public function showVerifyPassword(): JsonResponse
+    {
+        return successResponse('password_confirmation_not_required');
+    }
+
+    public function verifyPassword(Request $request): JsonResponse
     {
         if (! $request->user_password && $request->login_type == 'social') {
+            Session::put('auth.password_confirmed_at', time());
+
             return successResponse('password_verified');
-        } else {
-            $user = \Auth::user();
-            if (\Hash::check($request->input('user_password'), $user->getAuthPassword())) {
-                return successResponse('password_verified');
-            } else {
-                return errorResponse('password_incorrect');
-            }
-        }
-    }
-
-    public function postSetupValidateToken(Request $request)
-    {
-        $user = $request->user();
-        $google2fa = new Google2FA();
-        $secret = Crypt::decrypt($user->google2fa_secret);
-
-        $valid = $google2fa->verifyKey($secret, $request->totp);
-
-        if ($valid == true) {
-            $user->is_2fa_enabled = 1;
-            $user->google2fa_activation_date = \Carbon\Carbon::now();
-            $user->save();
-
-            return successResponse(\Lang::get('message.valid_passcode'));
         }
 
-        return errorResponse(\Lang::get('message.invalid_code_2fa'));
+        /** @var User $user */
+        $user = Auth::user();
+        if (Hash::check($request->input('user_password'), $user->getAuthPassword())) {
+            Session::put('auth.password_confirmed_at', time());
+
+            return successResponse('password_verified');
+        }
+
+        return errorResponse(__('message.password_incorrect'));
     }
 
     /**
      * Disables 2FA for a user/agent, wipes out all the details related to 2FA from the Database.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return json \Illuminate\Http\Response
      */
-    public function disableTwoFactor(Request $request)
+    public function disableTwoFactor(Request $request): JsonResponse
     {
-        $user = $request->userId ? User::where('id', $request->userId)->first() : $request->user();
-        if (\Auth::user()->role != 'admin' && $user->id != \Auth::user()->id) {
+        /** @var User $user */
+        $user = $request->userId ? User::where('id', $request->userId)->firstOrFail() : $request->user();
+        /** @var User $authUser */
+        $authUser = Auth::user();
+        if ($authUser->role != 'admin' && $user->id != $authUser->id) {
             return errorResponse(__('message.cannot_disable_2fa'));
         }
-        //make secret column blank
+
         $user->google2fa_secret = null;
         $user->google2fa_activation_date = null;
         $user->is_2fa_enabled = 0;
-        $user->backup_code = null;
-        $user->code_usage_count = 0;
         $user->save();
 
-        return successResponse(\Lang::get('message.2fa_disabled'));
+        UserBackupCodes::where('user_id', $user->id)->delete();
+
+        return successResponse(__('message.2fa_disabled'));
     }
 
-    public function generateRecoveryCode()
+    public function generateRecoveryCode(): JsonResponse
     {
-        $code = str_random(20);
-        User::where('id', \Auth::user()->id)->update(['backup_code' => $code, 'code_usage_count' => 0]);
+        $codes = $this->createCodes();
+        /** @var User $authUser */
+        $authUser = Auth::user();
+        $userId = $authUser->id;
 
-        return successResponse(['code' => $code]);
-    }
-
-    public function getRecoveryCode()
-    {
-        $code = User::find(\Auth::user()->id)->backup_code;
-
-        return successResponse(['code' => $code]);
-    }
-
-    public function showRecoveryCode()
-    {
-        if (session('2fa:user:id')) {
-            return view('themes.default1.front.recoveryCode');
+        UserBackupCodes::where('user_id', $userId)->delete();
+        foreach ($codes as $code) {
+            UserBackupCodes::create(['user_id' => $userId, 'backup_codes' => $code]);
         }
 
-        return redirect('login');
+        return successResponse('', ['code' => $codes]);
     }
 
-    public function verifyRecoveryCode(Request $request)
+    /**
+     * @return array<mixed>
+     */
+    private function createCodes(): array
+    {
+        $codes = [];
+        for ($i = 0; $i < 10; $i++) {
+            $codes[] = bin2hex(random_bytes(10));
+        }
+
+        return $codes;
+    }
+
+    public function verifyRecoveryCode(Request $request): JsonResponse
     {
         $this->validate($request, [
             'rec_code' => 'required',
-            'recovery_code' => [new Honeypot()],
+            'recovery_code' => [new Honeypot],
         ], [
             'rec_code.required' => __('validation.please_enter_recovery_code'),
         ]);
@@ -183,57 +202,55 @@ class Google2FAController extends Controller
         try {
             $session = $request->session();
             $userId = $session->get('2fa:user:id');
+            /** @var User $user */
             $user = User::findOrFail($userId);
 
-            return $this->handleTwoFactorLogin($request, $user, 'recovery-code', function ($user, $request) {
-                if ($user->code_usage_count == 1) {
-                    throw new \Exception(__('message.code_authenticator_disable_2fa'));
+            return $this->handleTwoFactorLogin($request, $user, 'recovery-code', function ($user, $request): void {
+                $code = UserBackupCodes::where('user_id', $user->id)
+                    ->where('backup_codes', $request->rec_code)
+                    ->first();
+
+                if (! $code) {
+                    throw new Exception(__('message.invalid_recovery_code'));
                 }
 
-                if ($request->rec_code !== $user->backup_code) {
-                    throw new \Exception(__('message.invalid_recovery_code'));
-                }
-
-                $user->code_usage_count = 1;
-                $user->save();
+                $code->delete();
             });
-        } catch (\Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    private function handleTwoFactorLogin(Request $request, User $user, string $rateLimiterKey, callable $validator)
+    private function handleTwoFactorLogin(Request $request, User $user, string $rateLimiterKey, callable $validator): JsonResponse
     {
         // Rate limit for 6 hours
-        RateLimiter::hit("{$rateLimiterKey}:{$user->id}");
+        RateLimiter::hit(sprintf('%s:%s', $rateLimiterKey, $user->id));
 
-        // Run the type-specific validation logic
+        // Run the type-specific validation logic. Validators MUST throw on a failed
+        // check (the caller's try/catch turns it into an error response); control
+        // only reaches Auth::login below when validation passed.
         $validator($user, $request);
 
         // Clear session identifiers
         $session = $request->session();
-        $remember = $session->get('remember:user:id', false);
+        $remember = $session->get('remember:user:id', default: false);
         $session->forget(['2fa:user:id', 'remember:user:id']);
 
         // If it's part of password reset flow
         if ($token = $session->get('reset_token')) {
-            $session->put('2fa_verified', true);
+            $session->put('2fa_verified', value: true);
 
             return successResponse('', ['redirect' => route('password.reset', ['token' => $token])]);
         }
 
         // Normal login flow
-        \Auth::login($user, $remember);
+        $request->session()->regenerate();
+        Auth::login($user, $remember);
 
-        $loginController = new LoginController();
+        $loginController = new LoginController;
         $loginController->logActivityLogin($user);
-        $loginController->convertCart();
+        $loginController->convertCart(); // @phpstan-ignore method.notFound
 
-        return successResponse('', ['redirect' => (new LoginController())->redirectPath()]);
-    }
-
-    public function verifySession()
-    {
-        return successResponse('active');
+        return successResponse('', ['redirect' => $loginController->redirectPath()]);
     }
 }

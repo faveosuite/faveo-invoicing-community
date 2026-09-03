@@ -119,6 +119,52 @@ In this case, the following object will be sent to Postmark as metadata.
 }
 ```
 
+## Capture Postmark MessageID
+
+The Postmark API returns a message ID which can be used to query message delivery status 
+
+To capture this data setup an event listener 
+
+app/Listeners/MessageSentListener.php
+```php
+<?php
+
+namespace App\Listeners;
+
+use Illuminate\Mail\Events\MessageSent;
+
+class HandleMessageSent
+{
+    public function handle(MessageSent $message)
+    {
+        $messageId = $event->sent->getSymfonySentMessage()->getMessageId();
+
+        // ...
+    }
+}
+```
+
+Either  shouldDiscoverEvents should return true or the event listener must be registered
+
+app/Providers/EventServiceProvider.php 
+```php
+<?php
+
+namespace App\Providers;
+
+use App\Listeners\HandleMessageSent;
+use Illuminate\Mail\Events\MessageSent;
+
+class EventServiceProvider extends ServiceProvider
+{
+    protected $listen = [
+        MessageSent::class => [
+            HandleMessageSent::class,
+        ],
+    ];
+}
+```
+
 ## Postmark Servers
 
 Out of the box, we determine the Postmark server you send to using a configuration variable set within the environment you have deployed to. This works for most use cases, but if you have the need or desire to determine the Postmark server at runtime, you can supply a header during the sending process.

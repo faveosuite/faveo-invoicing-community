@@ -181,7 +181,6 @@ return [
     'token_secret' => 'Twitter 访问令牌密文',
     'rzp_key' => 'Razorpay 密钥',
     'rzp_secret' => 'Razorpay 密钥',
-    'apilayer_key' => 'ApiLayer 访问密钥（用于汇率转换）',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Mailchimp API 密钥',
     'terms_url' => '条款链接',
@@ -447,7 +446,6 @@ return [
          */
     'rzp_key' => 'Razorpay 密钥',
     'rzp_secret' => 'Razorpay 秘钥',
-    'apilayer' => 'ApiLayer 访问密钥',
     'zoho_key' => 'Zoho 密钥',
     'key' => 'API 密钥',
     'msg91key' => 'Msg91 认证密钥',
@@ -685,10 +683,10 @@ return [
     'cloud_field_label' => '输入您想要的云域名',
     'cloud_price' => '每个代理的价格',
 
-    //Delete message
+    // Delete message
     'confirm' => '您确定要删除此项吗？',
 
-    //Delete message
+    // Delete message
     'cloud_domain_change' => '好消息！您的云域名已成功更改。请注意，应用这些更改时会有大约5分钟的短暂停机时间。感谢您的耐心等待！',
     'limit_is_up' => '我们注意到您已经超过了免费试用的限制，请删除现有实例后继续。',
     'too_long' => '域名似乎太长了，请尝试使用较少的字符进行创建。',
@@ -744,7 +742,7 @@ return [
     'user_suspend' => '此用户已被系统暂停。恢复用户以查看详细信息',
     'country_notfound' => '未找到国家',
 
-    //Strong Password
+    // Strong Password
     'strong_password' => '密码必须包含至少8个字符，一个大写字母，一个小写字母，一个数字和一个特殊字符。',
 
     'password_requirements' => '您的密码必须包含：',
@@ -764,7 +762,7 @@ return [
     'new_password_different' => '新密码必须与旧密码不同。',
     'reset_link_expired' => '您的重置密码链接已过期或找不到。请重新尝试重置密码。',
 
-    //file storage
+    // file storage
 
     'file_storage' => '文件存储',
     'set_file_storage' => '设置文件存储路径',
@@ -856,7 +854,7 @@ return [
     'required_stripe_secret' => '请输入Stripe密钥密码',
     'max_stripe_secret' => 'Stripe密钥密码不能超过200个字符',
 
-    //email templates
+    // email templates
 
     'choose_password' => '点击这里重置您的密码：',
     'email_username' => '用户名：',
@@ -864,7 +862,7 @@ return [
     'email_click_here' => '点击这里',
     'activate_account' => '激活您的账户：',
 
-    //error template
+    // error template
     'page_not_found' => '页面未找到',
     'sorry' => '抱歉，您访问的页面不存在。',
     'useful_links' => '以下是一些有用的链接',
@@ -873,7 +871,7 @@ return [
     'my_profile' => '我的个人资料',
     'contact_us' => '联系我们',
 
-    //login-register template
+    // login-register template
     'login_lr' => '登录 | 注册',
     'sign_lr' => '登录或注册',
     'or' => '或',
@@ -907,7 +905,7 @@ return [
     'error_occurred' => '发生了一个错误。请再试一次。',
     'error_one_country' => '请选择一个国家',
 
-    //contact template
+    // contact template
     'feel_free' => '请随时询问详情，不要保留任何问题！',
     'contact_name' => '姓名',
     'contact_error_name' => '请输入您的姓名。',
@@ -920,7 +918,7 @@ return [
     'contact_send_msg' => '发送消息',
     'our_office' => '我们的办公室',
 
-    //password template
+    // password template
     'forgot_password' => '忘记密码？现在重置！',
     'lost_password' => '忘记了密码？',
     'know_password' => '我知道我的密码',
@@ -930,7 +928,7 @@ return [
     'error_occurs' => '发生了一个错误。',
     'reset_password' => '重置密码',
 
-    //front-client template
+    // front-client template
     'change_faveo' => '您想更改现有的Faveo云域名吗？',
     'current_domain' => '请输入当前域名',
     'enter_domain' => '请输入新域名',
@@ -1092,7 +1090,7 @@ return [
     'subscriptions_table' => '订阅表',
     'invalid_format' => '格式无效',
 
-    //front-page template
+    // front-page template
     'all_pages' => '所有页面',
     'create_new_page' => '创建新页面',
     'edit_page' => '编辑页面',
@@ -1102,14 +1100,14 @@ return [
     'select_checkbox' => '请至少选择一个复选框',
     'search_result' => '搜索结果',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => '所有小部件',
     'create_widget' => '创建小部件',
     'configure_mailchimp' => '在设置中配置您的Mailchimp以访问',
     'configure_tweet' => '在设置中配置您的推文以访问',
     'edit_widget' => '编辑小部件',
 
-    //front outer template
+    // front outer template
     'remove_product' => '移除产品',
     'cart_totals' => '购物车总计',
     'clear_cart' => '清空购物车',
@@ -1121,6 +1119,7 @@ return [
     'clear_my_cart' => '清空我的购物车',
     'proceed_checkout' => '继续结账',
     'checkout' => '结账',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => '您的购物车为空',
     'your_order' => '您的订单',
     'cart_subtotal' => '购物车小计',
@@ -1165,11 +1164,11 @@ return [
     'go_back' => '返回',
     'be_right_back' => '马上回来。',
 
-    //category template
+    // category template
     'all_categories' => '所有类别',
     'category_name' => '名称',
 
-    //common template
+    // common template
     'create_script_code' => '创建脚本代码',
     'create_script' => '创建脚本',
     'edit_script_code' => '编辑脚本代码',
@@ -1207,7 +1206,6 @@ return [
     'company_details' => '公司详情',
     'url_installation' => '该 URL 提供安装的详细帮助',
     'delete_logo' => '删除 logo。',
-    'template_settings' => '模板设置',
     'template_list' => '模板列表',
     'invoice_mail_template' => '选择发票邮件模板',
     'purchase_confirmation' => '购买确认',
@@ -1232,7 +1230,6 @@ return [
     'register_mail' => '注册邮件',
     'choose_register_mail_template' => '选择注册邮件模板',
     'create_new_social_media' => '创建新社交媒体',
-    'edit_social_media' => '编辑社交媒体',
     'social_media' => '社交媒体',
     'edit_template' => '编辑模板',
     'shortcode_information' => '短代码信息',
@@ -1254,7 +1251,6 @@ return [
     'cloud_hub' => '云中心',
     'debug' => '调试',
     'clockwork' => '时钟工作',
-    'social_logins' => '社交登录',
     'err_log' => '错误日志',
     'email_log' => '电子邮件日志',
     'payment_log' => '支付日志',
@@ -1263,6 +1259,10 @@ return [
     'api' => '应用程序编程接口',
     'mail_chimp' => 'Mail Chimp',
     'common' => '常见',
+    'license_and_access' => 'License & Access',
+    'integrations' => 'Integrations',
+    'communication' => 'Communication',
+    'logs_and_monitoring' => 'Logs & Monitoring',
     'country_list' => '国家列表',
     'footer' => '页脚',
     'analytics_custom_code' => '分析/自定义代码',
@@ -1331,14 +1331,14 @@ return [
     'deactivate' => '停用',
     'provider' => '提供者',
 
-    //github template
+    // github template
     'github_setting' => 'Github 设置',
     'enter_github_username' => '请输入Github用户名',
     'enter_github_password' => '请输入Github密码',
     'enter_github_clientid' => '请输入客户端ID',
     'enter_github_client_secret_key' => '请输入客户端密钥',
 
-    //invoice template
+    // invoice template
     'edit_invoice' => '编辑发票',
     'view_user' => '查看用户',
     'pending' => '待处理',
@@ -1379,7 +1379,7 @@ return [
     'no_tax_rates' => '没有税率',
     'store' => '商店',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => '管理员仪表盘',
     'my_account' => '我的账户',
     'start_free_trial' => '开始免费试用',
@@ -1420,7 +1420,7 @@ return [
     'enter_domain_license' => '输入域名并下载许可证文件',
     'installation_details' => '安装详情',
 
-    //payment panel
+    // payment panel
     'payment_date' => '付款日期',
     'auto_renewal_subscription' => '未来订阅自动续订',
     'subscription_start_date' => '订阅开始日期',
@@ -1446,13 +1446,12 @@ return [
     'coupon' => '优惠券',
     'actions' => '操作',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => '创建税收',
     'caps_others' => '其他',
     'others' => '其他',
     'all_states' => '所有州',
     'edit_tax_class' => '编辑税收类别',
-    'edit_tax' => '编辑税收',
     'create_tax_option_class' => '创建税种和税类',
     'caps_enabled' => '启用',
     'caps_disabled' => '禁用',
@@ -1485,7 +1484,7 @@ return [
     'show_cart_page' => '显示在购物车页面',
     'select_taxes' => '选择税收',
 
-    //Product panel
+    // Product panel
     'all_product_details' => '添加产品详情',
     'enter_json_format' => '输入 JSON 格式。',
     'upload' => '上传',
@@ -1514,22 +1513,21 @@ return [
     'all_types' => '所有类型',
     'configure_queue' => '配置队列',
 
-    //renew panel
+    // renew panel
     'renew_product' => '确保购物车为空，以续订您的产品',
     'click_renew' => '点击此处续订',
     'renew_your_order' => '续订您的订单',
     'renew_order' => '续订订单',
     'renewal_price_per_agent' => '每位代理的续订价格：',
 
-    //report panel
+    // report panel
     'file_name' => '文件名',
     'format' => '格式',
     'contact' => '联系方式',
     'report_settings' => '报告设置',
     'report_limit' => '每张表单最多添加记录。最大限制为3000。',
 
-    //tenanat panel
-    'cloud_details' => '云详情',
+    // tenanat panel
     'cloud_server' => '云服务器',
     'customise_cloud_popup' => '自定义云弹窗',
     'cloud_product_configuration' => '云产品配置',
@@ -1556,7 +1554,7 @@ return [
     'app_key' => '应用密钥',
     'app_secret' => '应用密钥',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => '创建新用户',
     'create_user' => '创建用户',
     'position' => '职位',
@@ -1830,7 +1828,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => '请输入有效的Razorpay密钥。',
         'rzp_secret' => '请输入有效的Razorpay密钥密码。',
-        'apilayer_key' => '请输入有效的访问密钥。',
     ],
 
     'sys_manager' => [
@@ -2025,7 +2022,6 @@ return [
     'month' => '月',
     'year' => '年',
     'all_time' => '所有时间',
-    'license_types' => '许可证类型',
     'caps_go' => '前往',
     'invoice_due' => '到期',
     'subscription-error-message' => '请选择一个有效的订阅计划',
@@ -2291,7 +2287,6 @@ return [
     'till' => '至',
     'cannot_disable_language' => '无法禁用默认语言',
     'langugae_toggle' => '该切换项允许启用或禁用语言下拉列表。',
-    'payment_logs' => '付款日志',
     'deactive' => '停用',
     'forgot_password_faveo_helpdesk' => '忘记密码 | Faveo 服务台',
     'reset_password_faveo_helpdesk' => '重置密码 | Faveo 服务台',
@@ -2313,7 +2308,6 @@ return [
     'activity_logs' => '活动日志',
     'payment_gateway_integrations' => '支付网关集成',
     'third_party_integrations' => '第三方集成',
-    'contact_options' => '联系方式选项',
     'msg91_reports' => 'MSG91 报告',
     'queue_monitoring' => '队列监控',
     'pulse' => '脉搏',
@@ -2521,7 +2515,6 @@ return [
     'zoom_out' => '缩小',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => '重新&nbsp;发放许可证',
-    'api_layer_access_key' => 'ApiLayer访问密钥（用于汇率转换）',
     'download_logs' => '下载日志',
     'delete_logs' => '删除日志',
     'type_here_search' => '在此输入以搜索',
@@ -2791,7 +2784,6 @@ return [
     'login_password_validation' => '请输入您的密码。',
     'whatsapp_product_explanation' => '启用此选项可在客户订单页面为所选产品显示嵌入式 WhatsApp 注册流程。',
     'whatsapp_product_heading' => '嵌入式注册流程',
-    'whatsapp_users' => 'WhatsApp 用户',
     'phone_number' => '电话号码',
     'waba_id' => 'WABA ID',
     'phone_number_id' => '电话号码 ID',
@@ -2866,4 +2858,256 @@ return [
     'not_found_title' => '糟糕！找不到页面。',
     'not_found_message' => '我们找不到您要查找的页面。',
     'not_found_return_prefix' => '同时，您可以 ',
+
+    /*
+     * Vue i18n keys — added for Vue page translations
+     */
+    'back' => 'Back',
+    'back_to_invoices' => 'Back to Invoices',
+    'back_to_orders' => 'Back to Orders',
+    'back_to_products' => 'Back to Products',
+    'back_to_users' => 'Back to Users',
+    'back_to_pages' => 'Back to Pages',
+    'choose_country_first' => 'Choose a country first',
+    'select_user' => 'Select User',
+    'select_product' => 'Select Product',
+    'select_plan' => 'Select Plan',
+    'invoice_date' => 'Invoice Date',
+    'cloud_domain_label' => 'Cloud Domain',
+    'order_no' => 'Order No',
+    'qty' => 'Qty',
+    'no_items_found' => 'No items found',
+    'unlimited' => 'Unlimited',
+    'download_pdf' => 'Download PDF',
+    'invoice_no_col' => 'Invoice No',
+    'edit_updates_expiry' => 'Edit Updates Expiry Date',
+    'edit_license_expiry' => 'Edit License Expiry Date',
+    'edit_support_expiry' => 'Edit Support Expiry Date',
+    'product_image' => 'Product Image',
+    'image_help' => 'JPEG, PNG, JPG — max 2MB',
+    'show_agent' => 'Show Agent',
+    'add_to_contact' => 'Add to Contact',
+    'can_modify_agent' => 'Can Modify Agent',
+    'can_modify_quantity' => 'Can Modify Quantity',
+    'hidden_pricing_page' => 'Hidden (Pricing Page)',
+    'hidden_admin_dropdown' => 'Hidden (Admin Dropdown)',
+    'whatsapp_signup_flow' => 'WhatsApp Signup Flow',
+    'select_tax_classes_text' => 'Select the tax classes that apply to this product.',
+    'no_tax_classes' => 'No tax classes found.',
+    'select_license_type' => 'Select license type',
+    'select_group' => 'Select group',
+    'select_parent' => 'Select parent',
+    'product_sku' => 'Product SKU',
+    'public_company' => 'Public Company',
+    'self_employed' => 'Self Employed',
+    'non_profit' => 'Non Profit',
+    'privately_held' => 'Privately Held',
+    'partnership' => 'Partnership',
+    'myself_only' => 'Myself only',
+    'filter' => 'Filter',
+    'bulk_action' => 'Bulk Action',
+    'create_invoice_btn' => 'Create Invoice',
+    'payment_method_label' => 'Payment Method',
+    'set_as_default_page' => 'Set as Default Page',
+    'custom' => 'Custom',
+    'page_url' => 'URL',
+    'select_type' => 'Select type',
+    'suspend' => 'Suspend',
+    'all_users' => 'All Users',
+    'zip_postal_code' => 'Zip/Postal Code',
+    'payments_section' => 'Payments',
+    'mobile_label' => 'Mobile',
+    'email_label' => 'Email',
+    'name_label' => 'Name',
+    'country_label' => 'Country',
+
+    // New keys for Vue i18n updates
+    'no_of_agents' => 'No. of Agents',
+    'design_template' => 'Design Template',
+    'hidden_group' => 'Hidden Group',
+    'check_hidden_group' => 'Check this if this is a hidden group',
+    'add_currency' => 'Add Currency',
+    'no_payment_gateways' => 'No payment gateways found.',
+    'gateway_settings' => 'Settings',
+    'list_of_available_shortcodes' => 'List of Available Shortcodes',
+    'from_email' => 'From Email',
+    'mail_driver' => 'Mail Driver',
+    'smtp_host' => 'SMTP Host',
+    'smtp_port' => 'SMTP Port',
+    'add_app' => 'Add App',
+    'edit_app' => 'Edit App',
+    'add_license_type_btn' => 'Add License Type',
+    'add_permissions_btn' => 'Add Permissions',
+    'no_permissions_selected' => 'No Permissions Selected',
+    'make_default' => 'Make Default',
+    'cannot_disable_default_language' => 'Cannot disable the default language',
+    'native_name' => 'Native Name',
+    'iso_code' => 'ISO Code',
+    'system_default' => 'System Default',
+    'configure_gateway' => 'Configure detailed settings for this payment gateway at:',
+    'no_additional_settings' => 'No additional settings available.',
+    'payment_gateway_not_found' => 'Payment gateway not found.',
+    'copy_shortcode_info' => 'Copy a shortcode and paste it into the template content where you want the value to appear.',
+    'edit_social_login' => 'Edit Social Login',
+    'create_product_plan' => 'Create Plan',
+    'edit_product_plan' => 'Edit Plan',
+    'create_coupon_title' => 'Create Coupon',
+    'edit_coupon_title' => 'Edit Coupon',
+    'secret_key_label' => 'Secret Key',
+    'two_step_verification_on_since' => '2-Step Verification is ON since',
+    'mailgun_domain' => 'Domain',
+    'ses_key' => 'Key',
+    'email_templates' => 'Email Templates',
+    'template_settings' => 'Template Settings',
+    'edit_template' => 'Edit Template',
+    'reply_email' => 'Reply Email',
+    'content' => 'Content',
+    'account_info' => 'Account Info',
+    'export_selected_records' => 'Export Selected Records',
+    'search_by_company' => 'Search by company',
+    'verified' => 'Verified',
+    'not_verified' => 'Not Verified',
+    'enabled' => 'Enabled',
+    'disabled' => 'Disabled',
+    'admin' => 'Admin',
+    'exact_order_number' => 'Exact order number',
+    'new_date' => 'New Date',
+    'select_parent_page' => 'Select parent page',
+    'publishing_date' => 'Publishing Date',
+
+    // New keys for i18n update - settings/api, settings/common, logs, settings/settings, widgets, reports
+    'recaptcha_configuration' => 'reCAPTCHA Configuration',
+    'recaptcha_version' => 'reCAPTCHA Version',
+    'general' => 'General',
+    'preview' => 'Preview',
+    'appearance' => 'Appearance',
+    'verify_v3_key' => 'Verify v3 key',
+    'v3_key_valid' => 'v3 key valid',
+    'cannot_disable_dashboard_currency' => 'Cannot disable a dashboard currency',
+    'set_as_default_currency' => 'Set as Default Currency',
+    'set_as_dashboard_currency' => 'Set as Dashboard Currency',
+    'payment_failed_exception' => 'Payment Failed — Exception',
+    'debug_mode' => 'Debug Mode',
+    'debug_mode_description' => 'Enables APP_DEBUG, Pulse, and Clockwork.',
+    'system_local' => 'System (Local)',
+    'amazon_s3' => 'Amazon S3',
+    'auto_assign_account_managers' => 'Enable Auto Assignment for Account Managers',
+    'auto_assign_account_managers_desc' => 'Automatically assign an account manager to new clients upon creation.',
+    'auto_assign_sales_managers' => 'Enable Auto Assignment for Sales Managers',
+    'auto_assign_sales_managers_desc' => 'Automatically assign a sales manager to new clients upon creation.',
+    'select_replacement_account_manager' => 'Select Replacement Account Manager',
+    'enter_whatsapp_app_id' => 'Enter your WhatsApp App ID',
+    'enter_whatsapp_app_secret' => 'Enter your WhatsApp App Secret',
+    'enter_whatsapp_config_id' => 'Enter your WhatsApp Config ID',
+    'enter_whatsapp_verify_token' => 'Enter your WhatsApp Verify Token',
+    'edit_webhook_url' => 'Edit Webhook URL',
+    'enter_webhook_url' => 'Enter webhook URL',
+    'copy_phone_number_id' => 'Copy Phone Number ID',
+    'add_social_media' => 'Add Social Media',
+    'records_per_export_desc' => 'Maximum number of records to include in each export (1–3000).',
+    'every_minute' => 'Every Minute',
+    'every_five_minutes' => 'Every Five Minutes',
+    'every_ten_minutes' => 'Every Ten Minutes',
+    'every_thirty_minutes' => 'Every Thirty Minutes',
+    'hourly' => 'Hourly',
+    'daily' => 'Daily',
+    'daily_at' => 'Daily At',
+    'weekly' => 'Weekly',
+    'cloud_mail_days' => 'Cloud Mail Days',
+    'invoice_deletion_days' => 'Invoice Deletion Days',
+    'msg91_report_days' => 'MSG91 Report Days',
+    'reoon_log_days' => 'Reoon Log Days',
+    'system_log_days' => 'System Log Days',
+    'installation_log_days' => 'Installation Log Days',
+    'license_reports_days' => 'License Reports Days',
+    'license_callbacks_days' => 'License Callbacks Days',
+    'license_crack_days' => 'License Crack Days',
+    'license_system_days' => 'License System Days',
+    'license_versions_days' => 'License Versions Days',
+    'activity_log_days' => 'Activity Log Days',
+    'delete_all_reports' => 'Delete All Reports',
+    'delete_all_logs' => 'Delete All Logs',
+    'cron_days' => 'Cron Days',
+    'expiry_mail_days' => 'Expiry Mail Days',
+    'auto_renewal_days' => 'Auto Renewal Days',
+    'post_expiry_days' => 'Post Expiry Days',
+    'select_an_option' => 'Select an option',
+    'verify_and_copy_command' => 'Verify and copy command',
+    'specify_php_executable' => 'Specify PHP executable path',
+    'please_select_date' => 'Please select a date.',
+    'delete_whatsapp_user_confirm' => 'Delete WhatsApp user',
+    'delete_selected_reports_confirm' => 'Delete :count selected report(s)? This cannot be undone.',
+    'select_date' => 'Select date',
+    'installed_at_least_once' => 'Installed (at least once)',
+    'not_installed' => 'Not Installed',
+    'active_installation' => 'Active Installation',
+    'inactive_installation' => 'Inactive Installation',
+    'active_subscription_label' => 'Active',
+    'expiring_subscription' => 'Expiring (within 30 days)',
+    'expired_subscription' => 'Expired',
+    'unpaid' => 'Unpaid',
+    'partially_paid' => 'Partially Paid',
+    'paid' => 'Paid',
+    'select_a_template' => 'Select a template',
+    'select_a_type' => 'Select a type',
+    'admin_logo' => 'Admin Panel Logo',
+    'client_logo' => 'Client Panel Logo',
+    'company_email' => 'Company Email',
+    'default_currency' => 'System Default Currency',
+    'favicon' => 'Favicon',
+    'meta_title_admin' => 'Meta Title (Admin Panel)',
+    'meta_title_client' => 'Meta Title (Client Panel)',
+    'invoice_total' => 'Invoice Total',
+    'logo_and_favicon' => 'Logo and Favicon',
+    'use_default' => 'Use Default',
+    'use_logo' => 'Use Logo',
+    'autorenewal' => 'Auto Renewal',
+    'cannot_disable_default_currency' => 'Cannot disable the default currency',
+    'days' => 'days',
+    'sales' => 'Sales',
+    'sold' => 'Sold',
+    'subscribe' => 'Subscribe',
+    'unsubscribe' => 'Unsubscribe',
+    'manager' => 'Account Manager',
+    'payments' => 'Payments',
+    'order_id' => 'Order No',
+    'email_not_verified' => 'Email not verified',
+    'mobile_not_verified' => 'Mobile not verified',
+    'social-logins' => 'Social Logins',
+
+    // ── Open Payment Page ──────────────────────────────────────────
+    'op_secure_checkout' => 'Secure Checkout',
+    'op_payment_details' => 'Payment Details',
+    'op_fill_info' => 'Fill in your information to proceed with payment',
+    'op_personal_info' => 'Personal Information',
+    'op_street_address' => 'Street Address',
+    'op_zip_code' => 'ZIP / Postal Code',
+    'op_payment_info' => 'Payment Information',
+    'op_description_optional' => 'Description (optional)',
+    'op_payment_gateway' => 'Payment Gateway',
+    'op_continue_to_review' => 'Continue to Review',
+    'op_review_order' => 'Review Order',
+    'op_confirm_details' => 'Confirm your details before paying',
+    'op_paying_as' => 'Paying As',
+    'op_payment_summary' => 'Payment Summary',
+    'op_total_due' => 'Total Due',
+    'op_gateway' => 'Gateway',
+    'op_note' => 'Note',
+    'op_processing' => 'Processing…',
+    'op_pay' => 'Pay',
+    'op_payment_successful' => 'Payment Successful',
+    'op_payment_failed' => 'Payment Failed',
+    'op_success_msg' => 'Your transaction was completed successfully. A confirmation will be sent to your email.',
+    'op_transaction_id' => 'Transaction ID',
+    'op_amount_paid' => 'Amount Paid',
+    'op_make_another' => 'Make Another Payment',
+    'op_try_again' => 'Try Again',
+    'op_step_details' => 'Details',
+    'op_step_review' => 'Review',
+    'op_step_done' => 'Done',
+    'op_razorpay_methods' => 'Cards · UPI · Net Banking · Wallets',
+    'op_stripe_methods' => 'Cards',
+    'op_what_payment_for' => 'What is this payment for?',
+    'op_something_went_wrong' => 'Something went wrong. Please try again.',
+    'cvc' => 'CVC',
 ];

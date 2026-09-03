@@ -16,7 +16,7 @@ Method | HTTP request | Description
 ## `addFilter()`
 
 ```php
-addFilter($add_filter_request): \Pipedrive\versions\v1\Model\FiltersPostResponse
+addFilter($include_field_code, $add_filter_request): \Pipedrive\versions\v1\Model\FiltersPostResponse
 ```
 
 Add a new filter
@@ -45,10 +45,11 @@ $apiInstance = new Pipedrive\versions\v1\Api\FiltersApi(
     new GuzzleHttp\Client(),
     $config
 );
+$include_field_code = True; // bool | If set to `true`, each condition in the response includes a `field_code` field identifying the field by its code name
 $add_filter_request = new \Pipedrive\versions\v1\Model\AddFilterRequest(); // \Pipedrive\versions\v1\Model\AddFilterRequest
 
 try {
-    $result = $apiInstance->addFilter($add_filter_request);
+    $result = $apiInstance->addFilter($include_field_code, $add_filter_request);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling FiltersApi->addFilter: ', $e->getMessage(), PHP_EOL;
@@ -59,6 +60,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **include_field_code** | **bool**| If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name | [optional]
  **add_filter_request** | [**\Pipedrive\versions\v1\Model\AddFilterRequest**](../Model/AddFilterRequest.md)|  | [optional]
 
 ### Return type
@@ -211,7 +213,7 @@ Name | Type | Description  | Notes
 ## `getFilter()`
 
 ```php
-getFilter($id): \Pipedrive\versions\v1\Model\FiltersGetResponse
+getFilter($id, $include_field_code): \Pipedrive\versions\v1\Model\FiltersGetResponse
 ```
 
 Get one filter
@@ -241,9 +243,10 @@ $apiInstance = new Pipedrive\versions\v1\Api\FiltersApi(
     $config
 );
 $id = 56; // int | The ID of the filter
+$include_field_code = True; // bool | If set to `true`, each condition in the response includes a `field_code` field identifying the field by its code name
 
 try {
-    $result = $apiInstance->getFilter($id);
+    $result = $apiInstance->getFilter($id, $include_field_code);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling FiltersApi->getFilter: ', $e->getMessage(), PHP_EOL;
@@ -255,6 +258,7 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **int**| The ID of the filter |
+ **include_field_code** | **bool**| If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name | [optional]
 
 ### Return type
 
@@ -403,7 +407,7 @@ Name | Type | Description  | Notes
 ## `updateFilter()`
 
 ```php
-updateFilter($id, $update_filter_request): \Pipedrive\versions\v1\Model\FiltersPostResponse
+updateFilter($id, $include_field_code, $update_filter_request): \Pipedrive\versions\v1\Model\FiltersPostResponse
 ```
 
 Update filter
@@ -433,10 +437,11 @@ $apiInstance = new Pipedrive\versions\v1\Api\FiltersApi(
     $config
 );
 $id = 56; // int | The ID of the filter
+$include_field_code = True; // bool | If set to `true`, each condition in the response includes a `field_code` field identifying the field by its code name
 $update_filter_request = new \Pipedrive\versions\v1\Model\UpdateFilterRequest(); // \Pipedrive\versions\v1\Model\UpdateFilterRequest
 
 try {
-    $result = $apiInstance->updateFilter($id, $update_filter_request);
+    $result = $apiInstance->updateFilter($id, $include_field_code, $update_filter_request);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling FiltersApi->updateFilter: ', $e->getMessage(), PHP_EOL;
@@ -448,6 +453,7 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **int**| The ID of the filter |
+ **include_field_code** | **bool**| If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name | [optional]
  **update_filter_request** | [**\Pipedrive\versions\v1\Model\UpdateFilterRequest**](../Model/UpdateFilterRequest.md)|  | [optional]
 
 ### Return type

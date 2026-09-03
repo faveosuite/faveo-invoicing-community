@@ -1,13 +1,12 @@
 <?php
 
-namespace Barryvdh\Debugbar\DataCollector;
+declare(strict_types=1);
+
+namespace Fruitcake\LaravelDebugbar\DataCollector;
 
 use DebugBar\DataCollector\DataCollector;
 use DebugBar\DataCollector\Renderable;
-use Illuminate\Auth\Recaller;
-use Illuminate\Auth\SessionGuard;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Support\Str;
 use Illuminate\Contracts\Support\Arrayable;
 
@@ -16,11 +15,7 @@ use Illuminate\Contracts\Support\Arrayable;
  */
 class MultiAuthCollector extends DataCollector implements Renderable
 {
-    /** @var array $guards */
-    protected $guards;
-
-    /** @var \Illuminate\Auth\AuthManager */
-    protected $auth;
+    protected array $guards = [];
 
     /** @var bool */
     protected $showName = false;
@@ -28,38 +23,31 @@ class MultiAuthCollector extends DataCollector implements Renderable
     /** @var bool */
     protected $showGuardsData = true;
 
-    /**
-     * @param \Illuminate\Auth\AuthManager $auth
-     * @param array $guards
-     */
-    public function __construct($auth, $guards)
+    public function __construct(array $guards = [])
     {
-        $this->auth = $auth;
         $this->guards = $guards;
     }
 
     /**
      * Set to show the users name/email
-     * @param bool $showName
      */
-    public function setShowName($showName)
+    public function setShowName(bool $showName): void
     {
-        $this->showName = (bool) $showName;
+        $this->showName = $showName;
     }
 
     /**
      * Set to hide the guards tab, and show only name
-     * @param bool $showGuardsData
      */
-    public function setShowGuardsData($showGuardsData)
+    public function setShowGuardsData(bool $showGuardsData): void
     {
-        $this->showGuardsData = (bool) $showGuardsData;
+        $this->showGuardsData = $showGuardsData;
     }
 
     /**
      * @{inheritDoc}
      */
-    public function collect()
+    public function collect(): array
     {
         $data = [
             'guards' => [],
@@ -68,8 +56,8 @@ class MultiAuthCollector extends DataCollector implements Renderable
 
         foreach ($this->guards as $guardName => $config) {
             try {
-                $guard = $this->auth->guard($guardName);
-                if ($this->hasUser($guard)) {
+                $guard = auth()->guard($guardName);
+                if ($guard->hasUser()) {
                     $user = $guard->user();
 
                     if (!is_null($user)) {
@@ -85,9 +73,7 @@ class MultiAuthCollector extends DataCollector implements Renderable
         }
 
         foreach ($data['guards'] as $key => $var) {
-            if (!is_string($data['guards'][$key])) {
-                $data['guards'][$key] = $this->formatVar($var);
-            }
+            $data['guards'][$key] = $this->getDataFormatter()->formatVar($var);
         }
 
         $data['names'] = rtrim($names, ', ');
@@ -98,21 +84,10 @@ class MultiAuthCollector extends DataCollector implements Renderable
         return $data;
     }
 
-    private function hasUser(Guard $guard)
-    {
-        if (method_exists($guard, 'hasUser')) {
-            return $guard->hasUser();
-        }
-
-        return false;
-    }
-
     /**
      * Get displayed user information
-     * @param \Illuminate\Auth\UserInterface $user
-     * @return array
      */
-    protected function getUserInformation($user = null)
+    protected function getUserInformation(mixed $user = null): array
     {
         // Defaults
         if (is_null($user)) {
@@ -147,7 +122,7 @@ class MultiAuthCollector extends DataCollector implements Renderable
     /**
      * @{inheritDoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'auth';
     }
@@ -155,14 +130,19 @@ class MultiAuthCollector extends DataCollector implements Renderable
     /**
      * @{inheritDoc}
      */
-    public function getWidgets()
+    public function getWidgets(): array
     {
         $widgets = [];
 
         if ($this->showGuardsData) {
+            $widget = match (true) {
+                $this->isJsonVarDumperUsed() => "PhpDebugBar.Widgets.JsonVariableListWidget",
+                $this->isHtmlVarDumperUsed() => "PhpDebugBar.Widgets.HtmlVariableListWidget",
+                default => "PhpDebugBar.Widgets.VariableListWidget",
+            };
             $widgets["auth"] = [
                 "icon" => "lock",
-                "widget" => "PhpDebugBar.Widgets.VariableListWidget",
+                "widget" => $widget,
                 "map" => "auth.guards",
                 "default" => "{}",
             ];

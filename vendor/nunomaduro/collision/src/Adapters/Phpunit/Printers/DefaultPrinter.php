@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace NunoMaduro\Collision\Adapters\Phpunit\Printers;
 
+use Closure;
 use NunoMaduro\Collision\Adapters\Phpunit\ConfigureIO;
 use NunoMaduro\Collision\Adapters\Phpunit\State;
 use NunoMaduro\Collision\Adapters\Phpunit\Style;
@@ -11,9 +12,12 @@ use NunoMaduro\Collision\Adapters\Phpunit\Support\ResultReflection;
 use NunoMaduro\Collision\Adapters\Phpunit\TestResult;
 use NunoMaduro\Collision\Exceptions\ShouldNotHappen;
 use NunoMaduro\Collision\Exceptions\TestOutcome;
+use Pest\Collision\Events;
 use Pest\Result;
+use PHPUnit\Event\Code\Test;
 use PHPUnit\Event\Code\TestMethod;
 use PHPUnit\Event\Code\ThrowableBuilder;
+use PHPUnit\Event\Telemetry\Info;
 use PHPUnit\Event\Test\BeforeFirstTestMethodErrored;
 use PHPUnit\Event\Test\ConsideredRisky;
 use PHPUnit\Event\Test\DeprecationTriggered;
@@ -92,6 +96,13 @@ final class DefaultPrinter
     private static bool $verbose = false;
 
     /**
+     * Closures that contribute extra output to the recap line.
+     *
+     * @var array<int, Closure(State, Info, \PHPUnit\TestRunner\TestResult\TestResult): string>
+     */
+    private static array $recapCallbacks = [];
+
+    /**
      * Creates a new Printer instance.
      */
     public function __construct(bool $colors)
@@ -100,7 +111,7 @@ final class DefaultPrinter
 
         ConfigureIO::of(new ArgvInput, $this->output);
 
-        class_exists(\Pest\Collision\Events::class) && \Pest\Collision\Events::setOutput($this->output);
+        class_exists(Events::class) && Events::setOutput($this->output);
 
         self::$verbose = $this->output->isVerbose();
 
@@ -131,6 +142,32 @@ final class DefaultPrinter
         }
 
         return self::$profile;
+    }
+
+    /**
+     * Registers a closure that appends output to the recap's assertions line.
+     *
+     * @param  Closure(State, Info, \PHPUnit\TestRunner\TestResult\TestResult): string  $callback
+     */
+    public static function addRecap(Closure $callback): void
+    {
+        self::$recapCallbacks[] = $callback;
+    }
+
+    /**
+     * @return array<int, Closure(State, Info, \PHPUnit\TestRunner\TestResult\TestResult): string>
+     */
+    public static function recapCallbacks(): array
+    {
+        return self::$recapCallbacks;
+    }
+
+    /**
+     * Removes all registered recap callbacks.
+     */
+    public static function flushRecapCallbacks(): void
+    {
+        self::$recapCallbacks = [];
     }
 
     /**
@@ -199,6 +236,22 @@ final class DefaultPrinter
 
         if (! $test instanceof TestMethod) {
             throw new ShouldNotHappen;
+        }
+
+        $this->ensureCaseBoundary($test);
+    }
+
+    /**
+     * Flush the previous test case summary if the given test belongs to a new case.
+     *
+     * Some PHPUnit events (e.g. deprecation triggers from class autoloading) fire
+     * for a test before its `testPreparationStarted`. Without flushing here, the
+     * previous case's tests would be silently merged under the new case's header.
+     */
+    private function ensureCaseBoundary(Test $test): void
+    {
+        if (! $test instanceof TestMethod) {
+            return;
         }
 
         if ($this->state->testCaseHasChanged($test)) {
@@ -277,6 +330,7 @@ final class DefaultPrinter
     {
         $throwable = ThrowableBuilder::from(new TestOutcome($event->message()));
 
+        $this->ensureCaseBoundary($event->test());
         $this->state->add(TestResult::fromTestCase($event->test(), TestResult::DEPRECATED, $throwable));
     }
 
@@ -287,6 +341,7 @@ final class DefaultPrinter
     {
         $throwable = ThrowableBuilder::from(new TestOutcome($event->message()));
 
+        $this->ensureCaseBoundary($event->test());
         $this->state->add(TestResult::fromTestCase($event->test(), TestResult::NOTICE, $throwable));
     }
 
@@ -297,6 +352,7 @@ final class DefaultPrinter
     {
         $throwable = ThrowableBuilder::from(new TestOutcome($event->message()));
 
+        $this->ensureCaseBoundary($event->test());
         $this->state->add(TestResult::fromTestCase($event->test(), TestResult::WARN, $throwable));
     }
 
@@ -307,6 +363,7 @@ final class DefaultPrinter
     {
         $throwable = ThrowableBuilder::from(new TestOutcome($event->message()));
 
+        $this->ensureCaseBoundary($event->test());
         $this->state->add(TestResult::fromTestCase($event->test(), TestResult::WARN, $throwable));
     }
 
@@ -317,6 +374,7 @@ final class DefaultPrinter
     {
         $throwable = ThrowableBuilder::from(new TestOutcome($event->message()));
 
+        $this->ensureCaseBoundary($event->test());
         $this->state->add(TestResult::fromTestCase($event->test(), TestResult::DEPRECATED, $throwable));
     }
 
@@ -327,6 +385,7 @@ final class DefaultPrinter
     {
         $throwable = ThrowableBuilder::from(new TestOutcome($event->message()));
 
+        $this->ensureCaseBoundary($event->test());
         $this->state->add(TestResult::fromTestCase($event->test(), TestResult::DEPRECATED, $throwable));
     }
 
@@ -347,6 +406,7 @@ final class DefaultPrinter
     {
         $throwable = ThrowableBuilder::from(new TestOutcome($event->message()));
 
+        $this->ensureCaseBoundary($event->test());
         $this->state->add(TestResult::fromTestCase($event->test(), TestResult::NOTICE, $throwable));
     }
 
@@ -357,6 +417,7 @@ final class DefaultPrinter
     {
         $throwable = ThrowableBuilder::from(new TestOutcome($event->message()));
 
+        $this->ensureCaseBoundary($event->test());
         $this->state->add(TestResult::fromTestCase($event->test(), TestResult::WARN, $throwable));
     }
 

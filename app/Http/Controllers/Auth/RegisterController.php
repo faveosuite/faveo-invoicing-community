@@ -3,57 +3,40 @@
 namespace App\Http\Controllers\Auth;
 
 use App\EmailValidationResults;
+use App\Events\UserRegisteredEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;
-use App\Jobs\AddUserToExternalService;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\ManagerSetting;
-use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Rules\Honeypot;
 use App\User;
 use Exception;
 use Facades\Spatie\Referer\Referer;
+use Hash;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
-use Symfony\Component\Mime\Email;
+use Log;
+use Logger;
+use Session;
 
 class RegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
     use RegistersUsers;
 
-    /**
-     * Where to redirect users after registration.
-     *
-     * @var string
-     */
-    protected $redirectTo = '/';
+    protected string $redirectTo = '/';
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('guest');
         $this->middleware('recaptcha:register')->only('postRegister');
     }
 
-    public function emailVerification($email)
+    /**
+     * @return array<mixed>
+     */
+    public function emailVerification(mixed $email): array
     {
         try {
             $map = [
@@ -68,10 +51,11 @@ class RegisterController extends Controller
                 'spamtrap' => 256,
             ];
 
-            ['api_key' => $apikey, 'mode' => $mode, 'accepted_output' => $accepted_output] = EmailMobileValidationProviders::where('provider', 'reoon')
+            /** @var EmailMobileValidationProviders $reoonProvider */
+            $reoonProvider = EmailMobileValidationProviders::where('provider', 'reoon')
                 ->select('api_key', 'mode', 'accepted_output')
-                ->first()
-                ->toArray();
+                ->firstOrFail();
+            ['api_key' => $apikey, 'mode' => $mode, 'accepted_output' => $accepted_output] = $reoonProvider->toArray();
 
             $response = Http::get('https://emailverifier.reoon.com/api/v1/verify', [
                 'email' => $email,
@@ -87,16 +71,19 @@ class RegisterController extends Controller
             }
 
             return ['status' => false, 'id' => $emailResult->id];
-        } catch (\Exception $exception) {
-            \Log::error($exception->getMessage());
+        } catch (Exception $exception) {
+            Log::error($exception->getMessage());
+
+            // Fail open: if the verifier is unreachable, let the user proceed
+            return ['status' => true, 'id' => null];
         }
     }
 
-    private function vonagePhoneVerification($provider, $phone)
+    private function vonagePhoneVerification(mixed $provider, string $phone): bool
     {
         ['api_key' => $apikey, 'mode' => $mode,'api_secret' => $apisecret] = EmailMobileValidationProviders::where('provider', $provider)
             ->select('api_key', 'mode', 'api_secret')
-            ->first()
+            ->firstOrFail()
             ->toArray();
 
         $response = Http::get('https://api.nexmo.com/ni/'.$mode.'/json', [
@@ -104,14 +91,14 @@ class RegisterController extends Controller
             'api_secret' => $apisecret,
             'number' => $phone,
         ]);
-        if ($response->successful() && $response->json('status_message') == 'Success' || $response->json('status_message') == 'Partner quota exceeded') {
+        if ($response->successful() && $response->json('status_message') == 'Success') {
             return true;
         }
 
-        return false;
+        return $response->json('status_message') == 'Partner quota exceeded';
     }
 
-    private function abstractPhoneVerification($provider, $phone)
+    private function abstractPhoneVerification(mixed $provider, string $phone): bool
     {
         $apikey = EmailMobileValidationProviders::where('provider', $provider)->value('api_key');
 
@@ -120,234 +107,143 @@ class RegisterController extends Controller
             'phone' => $phone,
         ]);
 
-        if ($response->successful() && $response->json('valid')) {
-            return true;
-        }
-
-        return false;
+        return $response->successful() && $response->json('valid');
     }
 
-    private function phoneVerification($phone)
+    private function phoneVerification(string $phone): bool
     {
         $provider = EmailMobileValidationProviders::where('type', 'mobile')
             ->where('to_use', 1)
             ->value('provider');
 
         if ($provider == 'vonage') {
-            $response = $this->vonagePhoneVerification($provider, $phone);
-        } else {
-            $response = $this->abstractPhoneVerification($provider, $phone);
+            return $this->vonagePhoneVerification($provider, $phone);
         }
 
-        return $response;
+        return $this->abstractPhoneVerification($provider, $phone);
     }
 
-    /**
-     * This function performs post registration operations(creating user,add user to pipedrive,mailchimp).
-     *
-     * @param  ProfileRequest  $request
-     * @param  User  $user
-     * @return \HTTP|JsonResponse
-     *
-     * @throws ValidationException
-     */
-    public function postRegister(ProfileRequest $request, User $user)
+    public function postRegister(ProfileRequest $request, User $user): JsonResponse
     {
         $this->validate($request, [
-            'registerForm' => [new Honeypot()],
+            'registerForm' => [new Honeypot],
         ]);
         try {
-            [$emailValidationStatus, $mobileValidationStatus] = array_values(StatusSetting::select('email_validation_status', 'mobile_validation_status')->first()->toArray());
+            /** @var StatusSetting $status */
+            $status = StatusSetting::select(
+                'email_validation_status',
+                'mobile_validation_status',
+                'emailverification_status',
+                'msg91_status'
+            )->first();
 
-            if ($emailValidationStatus) {
+            if ($status->email_validation_status) {
                 $emailVerifier = $this->emailVerification($request->input('email'));
                 if (! $emailVerifier['status']) {
                     $user = $this->getUserDetails($request);
                     EmailValidationResults::where('id', $emailVerifier['id'])->update($user);
 
-                    return errorResponse(\Lang::get('message.email_provided_wrong'));
+                    return errorResponse(__('message.email_provided_wrong'));
                 }
             }
 
-            if ($mobileValidationStatus) {
+            if ($status->mobile_validation_status) {
                 $mobileVerifier = $this->phoneVerification($request->input('mobile_code').$request->input('mobile'));
                 if (! $mobileVerifier) {
-                    return errorResponse(\Lang::get('message.mobile_provided_wrong'));
+                    return errorResponse(__('message.mobile_provided_wrong'));
                 }
             }
 
             $location = getLocation();
 
-            $accountManagerStatus = ManagerSetting::whereManagerRole('account')->value('auto_assign');
-            $salesManagerStatus = ManagerSetting::whereManagerRole('sales')->value('auto_assign');
+            $managerSettings = ManagerSetting::whereIn('manager_role', ['account', 'sales'])
+                ->pluck('auto_assign', 'manager_role');
 
             $state = getStateByCode($location['iso_code'], $location['state']);
 
             $user->state = $state['id'];
             $user->town = $location['city'];
-            $user->password = \Hash::make($request->input('password'));
+            $user->password = Hash::make($request->input('password'));
             $user->profile_pic = '';
             $user->mobile_verified = 0;
             $user->email_verified = 0;
-            $user->mobile = ltrim($request->input('mobile'), '0');
+            $user->mobile = ltrim((string) $request->input('mobile'), '0');
             $user->mobile_code = $request->input('mobile_code');
             $user->mobile_country_iso = $request->input('mobile_country_iso');
             $user->country = $request->input('country');
-            $user->company = strip_tags($request->input('company'));
-            $user->address = strip_tags($request->input('address'));
-            $user->email = strip_tags($request->input('email'));
-            $user->user_name = strip_tags($request->input('email'));
-            $user->first_name = strip_tags($request->input('first_name'));
-            $user->last_name = strip_tags($request->input('last_name'));
+            $user->company = strip_tags((string) $request->input('company'));
+            $user->address = strip_tags((string) $request->input('address'));
+            $user->email = strip_tags((string) $request->input('email'));
+            $user->user_name = strip_tags((string) $request->input('email'));
+            $user->first_name = strip_tags((string) $request->input('first_name'));
+            $user->last_name = strip_tags((string) $request->input('last_name'));
             $user->ip = $location['ip'];
-            $user->timezone_id = getTimezoneByName($location['timezone']);
+            $user->timezone_id = (int) getTimezoneByName($location['timezone']);
             $user->referrer = Referer::get();
             $user->active = 1;
             $user->role = 'user';
-            $user->account_manager = $accountManagerStatus ? $user->assignManagerByPosition('account_manager') : null;
-            $user->manager = $salesManagerStatus ? $user->assignManagerByPosition('manager') : null;
+            $user->account_manager = $managerSettings->get('account') ? (string) $user->assignManagerByPosition('account_manager') : null;
+            $user->manager = $managerSettings->get('sales') ? $user->assignManagerByPosition('manager') : null;
             $user->save();
 
-            $need_verify = $this->getEmailMobileStatusResponse();
+            $need_verify = ($status->emailverification_status || $status->msg91_status) ? 1 : 0;
 
-            AddUserToExternalService::dispatch($user, 'register');
+            event(new UserRegisteredEvent($user, 'register'));
 
-            \Session::put([
+            Session::put([
                 'justStarted' => true,
                 'verification_user_id' => $user->id,
             ]);
 
             $this->logActivityRegister($user);
 
-            \Session::flash('user', $user);
+            Session::flash('user', $user);
 
             return successResponse(__('message.registration_complete'), ['need_verify' => $need_verify]);
-        } catch (Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
             return errorResponse(__('message.something_wrong'));
         }
     }
 
-    public function getUserDetails($request)
+    /**
+     * @return array<mixed>
+     */
+    public function getUserDetails(mixed $request): array
     {
         $location = getLocation();
 
         $state = getStateByCode($location['iso_code'], $location['state']);
 
-        $user = [
+        return [
             'state' => $state['id'],
             'town' => $location['city'],
-            'mobile' => ltrim($request->input('mobile'), '0'),
+            'mobile' => ltrim((string) $request->input('mobile'), '0'),
             'mobile_code' => $request->input('mobile_code'),
             'mobile_country_iso' => $request->input('mobile_country_iso'),
             'country' => $request->input('country'),
-            'company' => strip_tags($request->input('company')),
-            'address' => strip_tags($request->input('address')),
-            'email' => strip_tags($request->input('email')),
-            'first_name' => strip_tags($request->input('first_name')),
-            'last_name' => strip_tags($request->input('last_name')),
+            'company' => strip_tags((string) $request->input('company')),
+            'address' => strip_tags((string) $request->input('address')),
+            'email' => strip_tags((string) $request->input('email')),
+            'first_name' => strip_tags((string) $request->input('first_name')),
+            'last_name' => strip_tags((string) $request->input('last_name')),
             'registration' => 'Not Completed',
             'ip' => $location['ip'],
             'timezone_id' => getTimezoneByName($location['timezone']),
         ];
-
-        return $user;
     }
 
-    /**
-     * This function returns the email and msg91 status this helps in verifying users email and mobile number.
-     *
-     * @param
-     * @param
-     * @return int
-     *
-     * @throws
-     */
-    protected function getEmailMobileStatusResponse()
-    {
-        $response = StatusSetting::first(['emailverification_status', 'msg91_status']);
-
-        return ($response->emailverification_status || $response->msg91_status) ? 1 : 0;
-    }
-
-    /**
-     * This function returns the default currency.
-     *
-     * @param
-     * @param
-     * @return int
-     *
-     * @throws
-     */
-    protected function getUserCurrency($userCountry)
-    {
-        $currency = Setting::find(1)->default_currency;
-        if ($userCountry->currency->status) {
-            return $userCountry->currency->code;
-        }
-
-        return $currency;
-    }
-
-    /**
-     * This function returns the default currency symbol.
-     *
-     * @param
-     * @return int
-     *
-     * @throws
-     */
-    protected function getUserCurrencySymbol($userCountry)
-    {
-        $currency_symbol = Setting::find(1)->default_symbol;
-        if ($userCountry->currency->status) {
-            return $userCountry->currency->symbol;
-        }
-
-        return $currency_symbol;
-    }
-
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    protected function validator(array $data)
-    {
-        // return Validator::make($data, [
-        //     'name' => 'required|string|max:255',
-        //     'email' => 'required|string|email|max:255|unique:users',
-        //     'password' => 'required|string|min:6|confirmed',
-        // ]);
-    }
-
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return \App\User
-     */
-    protected function create(array $data)
-    {
-        // return User::create([
-        //     'name' => $data['name'],
-        //     'email' => $data['email'],
-        //     'password' => bcrypt($data['password']),
-        // ]);
-    }
-
-    public function logActivityRegister($user): void
+    public function logActivityRegister(mixed $user): void
     {
         if (! $user) {
             return;
         }
 
-        $userUrl = url("clients/{$user->id}");
+        $userUrl = url('clients/'.$user->id);
 
         $name = e($user->first_name.' '.$user->last_name);
-        $message = "User <a href='{$userUrl}'><strong>{$name}</strong></a> was created.";
+        $message = sprintf("User <a href='%s'><strong>%s</strong></a> was created.", $userUrl, $name);
 
         logActivity(
             $message,

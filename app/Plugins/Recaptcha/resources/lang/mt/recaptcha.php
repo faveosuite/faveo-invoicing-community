@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     /*
     * Recaptcha Settings Page
@@ -11,7 +13,7 @@ return [
     'recaptcha_v2_invisible' => 'reCAPTCHA v2 Inviżibbli',
     'recaptcha_v2_checkbox' => 'Kaxxa tal-Kontroll tal-reCAPTCHA v2',
     'select_captcha_type' => 'Agħżel liema verżjoni tal-reCAPTCHA tuża',
-    'failover_action' => 'Azzjoni ta\' Failover',
+    'failover_action' => "Azzjoni ta' Failover",
     'none' => 'Xejn',
     'fallback_v2_checkbox' => 'Fallback għall-Kaxxa tal-Kontroll tal-reCAPTCHA v2',
     'action_if_captcha_fails' => 'Azzjoni li għandha tittieħed jekk il-reCAPTCHA tfalli',
@@ -49,8 +51,8 @@ return [
     'size_normal' => 'Normali',
     'size_compact' => 'Kumpatt',
     'badge_position' => 'Pożizzjoni tal-Badge',
-    'badge_bottomright' => 'Lemin t\'isfel',
-    'badge_bottomleft' => 'Xellug t\'isfel',
+    'badge_bottomright' => "Lemin t'isfel",
+    'badge_bottomleft' => "Xellug t'isfel",
     'badge_inline' => 'Inline',
 
     /*

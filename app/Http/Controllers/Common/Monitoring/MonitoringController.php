@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Common\Monitoring;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MonitoringController extends Controller
@@ -15,16 +16,16 @@ class MonitoringController extends Controller
     /**
      * API endpoint: returns JSON indicating whether Pulse/Horizon is accessible.
      */
-    public function checkPulseHorizon(Request $request)
+    public function checkPulseHorizon(Request $request): JsonResponse
     {
-        $type = strtolower((string) $request->get('type', ''));
+        $type = strtolower((string) $request->input('type', ''));
 
-        if (! in_array($type, ['pulse', 'horizon', 'clockwork'], true)) {
+        if (! in_array($type, ['pulse', 'horizon', 'clockwork'], strict: true)) {
             return errorResponse('Invalid monitoring type', 400);
         }
 
-        $basePath = trim(parse_url(url('/'), PHP_URL_PATH) ?? '', '/');
-        $installedInSubdirectory = ! empty($basePath);
+        $basePath = trim((string) (parse_url(url('/'), PHP_URL_PATH) ?? ''), '/');
+        $installedInSubdirectory = $basePath !== '' && $basePath !== '0';
 
         $titleKeys = [
             'pulse' => 'message.pulse_could_not_load',

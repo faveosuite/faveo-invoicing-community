@@ -3,107 +3,56 @@
 namespace App\Http\Controllers\Tenancy;
 
 use App\CloudPopUp;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\License\LicenseController;
 use App\Jobs\ReportExport;
-use App\Model\CloudDataCenters;
+use App\License\Services\InstallationService;
+use App\License\Services\LicenseService;
 use App\Model\Common\Country;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
+use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
+use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Mailjob\QueueService;
+use App\Model\Order\InstallationDetail;
 use App\Model\Order\Order;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
+use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\ThirdPartyApp;
 use App\User;
-use Carbon\Carbon;
+use Auth;
+use Crypt;
+use DB;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Logger;
+use Throwable;
 
 class TenantController extends Controller
 {
-    private $cloud;
+    private mixed $cloud = null;
 
     public function __construct(Client $client, FaveoCloud $cloud)
     {
-        $this->client = $client;
+        $this->client = $client; // @phpstan-ignore property.notFound
         $this->cloud = $cloud->first();
 
         $this->middleware('auth', ['except' => ['verifyThirdPartyToken']]);
     }
 
-    public function viewTenant()
-    {
-        try {
-            if ($this->cloud && $this->cloud->cloud_central_domain) {
-                $app_key = null;
-                $cloud = $this->cloud;
-                $cloudPopUp = CloudPopUp::find(1);
-                $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-
-                throw_if($keys && ! $keys->app_key, new Exception(Lang::get('message.cloud_invalid_message')));
-
-                $app_key = optional($keys)->app_key;
-
-                if ($response = $this->client->request(
-                    'GET',
-                    $this->cloud->cloud_central_domain.'/tenants',
-                    [
-                        'query' => [
-                            'key' => $app_key,
-                        ],
-                    ]
-                )) {
-                    $responseBody = (string) $response->getBody();
-                    $responseData = json_decode($responseBody, true);
-                    $de = collect($responseData['message'])->paginate(5);
-                }
-            } else {
-                $de = null;
-                $cloudButton = null;
-                $cloud = null;
-                $cloudPopUp = null;
-            }
-            $cloudButton = StatusSetting::value('cloud_button');
-            $cloudDataCenters = CloudDataCenters::all();
-
-            // Format the results as per the specified format
-            $regions = $cloudDataCenters->map(function ($center) {
-                return [
-                    'name' => ! empty($center->cloud_city) ? $center->cloud_city.', '.$center->cloud_countries : $center->cloud_state.', '.$center->cloud_countries,
-                    'latitude' => $center->latitude,
-                    'longitude' => $center->longitude,
-                ];
-            });
-
-            return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'));
-        } catch (\Exception $e) {
-            \Logger::exception($e);
-            $cloud = $this->cloud;
-            $cloudPopUp = CloudPopUp::find(1);
-            $cloudButton = StatusSetting::value('cloud_button');
-            $cloudDataCenters = CloudDataCenters::all();
-
-            // Format the results as per the specified format
-            $regions = $cloudDataCenters->map(function ($center) {
-                return [
-                    'name' => ! empty($center->cloud_city) ? $center->cloud_city.', '.$center->cloud_countries : $center->cloud_state.', '.$center->cloud_countries,
-                    'latitude' => $center->latitude,
-                    'longitude' => $center->longitude,
-                ];
-            });
-
-            $de = null;
-
-            return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'))->withErrors(Lang::get('message.cloud_error_message'));
-        }
-    }
-
-    public function enableCloud(Request $request)
+    public function enableCloud(Request $request): JsonResponse
     {
         try {
             $statusSetting = StatusSetting::findOrFail(1);
@@ -111,259 +60,138 @@ class TenantController extends Controller
                 'cloud_button' => $request->debug == 'true' ? '1' : '0',
             ]);
 
-            return redirect()->back()->with('success', __('message.updated-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return successResponse(__('message.updated-successfully'));
+        } catch (Exception) {
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
-    public function getTenants(Request $request)
+    public function getTenants(Request $request): JsonResponse
     {
         try {
-            $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
+            $searchQuery = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = (int) $request->input('limit', 10);
+            $page = (int) $request->input('page', 1);
 
-            if (! $keys->app_key) {//Valdidate if the app key to be sent is valid or not
-                throw new Exception(__('message.cloud_invalid_message'));
+            $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')
+                ->select('app_key', 'app_secret')
+                ->first();
+
+            if (! $keys || empty($keys->app_key)) {
+                return errorResponse(__('message.cloud_invalid_message'));
             }
-            $response = $this->client->request(
-                'GET',
+
+            $response = $this->client->request('GET', // @phpstan-ignore property.notFound
                 $this->cloud->cloud_central_domain.'/tenants',
-                [
-                    'query' => [
-                        'key' => $keys->app_key,
-                    ],
-                ]
+                ['query' => ['key' => $keys->app_key]]
             );
 
-            $responseBody = (string) $response->getBody();
-            $responseData = json_decode($responseBody);
+            $data = json_decode((string) $response->getBody(), associative: true);
 
-            $collection = collect($responseData->message)->reject(function ($item) {
-                return $item === null;
+            $tenants = collect((array) ($data['message'] ?? []))->reject(fn ($t): bool => $t === null);
+
+            $tenantList = $tenants->map(function (array $model): array {
+                $order_id = $this->getOrderId($model['domain']);
+                $order_number = $order_id ? Order::select('id', 'number')->find($order_id)?->number : null;
+                $userData = $this->getUserData($order_id);
+                $subData = $this->getSubscriptionDataForCloud($order_id);
+
+                return [
+                    'tenant_id' => $model['id'] ?? null,
+                    'domain' => $model['domain'] ?? null,
+
+                    'database' => [
+                        'name' => $model['database_name'] ?? null,
+                        'username' => $model['database_user_name'] ?? null,
+                    ],
+
+                    'order' => [
+                        'order_id' => $order_id,
+                        'order_number' => $order_number,
+                        'subscription' => $subData['plan'] ?? null,
+                    ],
+
+                    'user' => $userData,
+                    'dates' => $subData,
+
+                    'links' => [
+                        'tenant_domain' => $model['domain'] ? 'http://'.$model['domain'] : null,
+                    ],
+
+                    'action' => [
+                        'delete' => [
+                            'tenant_id' => $model['id'],
+                            'order_number' => $order_number,
+                            'delete_url' => url(sprintf('tenants/%s/delete', $model['id'])),
+                        ],
+                    ],
+                ];
             });
 
-            return \DataTables::collection($collection)
-                ->addColumn('Order', function ($model) {
-                    $order_id = \DB::table('installation_details')->where('installation_path', $model->domain)->latest()->value('order_id');
-                    $order_number = \DB::table('orders')->where('id', $order_id)->value('number');
-                    if (empty($order_id) || empty($order_number)) {
-                        return '--';
-                    }
-                    $badge = 'badge';
-                    $plan_id = Subscription::where('order_id', $order_id)->latest()->value('plan_id');
-                    $price = PlanPrice::where('plan_id', $plan_id)->latest()->value('add_price');
-                    $message = ($price) ? 'Paid Subscription' : 'Free Trial';
-                    $badgeclass = ($price) ? 'badge-success' : 'badge-info';
+            if ($searchQuery) {
+                $tenantList = $tenantList->filter(fn ($item): bool => isset($item['user']['name']) &&
+                    str_contains(strtolower($item['user']['name']), strtolower((string) $searchQuery)));
+            }
 
-                    return "<p><a href='".url('/orders/'.$order_id)."'>$order_number</a> <span class='".$badge.' '.$badgeclass."'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top'>
+            $tenantList = $tenantList->sortBy($sortField, SORT_REGULAR, $sortOrder)->values();
 
-                         </label>".
-                        $message.'</span></p>';
-                })
-                ->addColumn('name', function ($model) {
-                    $order_id = \DB::table('installation_details')
-                        ->where('installation_path', $model->domain)
-                        ->latest()
-                        ->value('order_id');
+            $total = $tenantList->count();
+            $offset = ($page - 1) * $limit;
+            $items = $tenantList->slice($offset, $limit)->values();
 
-                    if (! $order_id) {
-                        return '--';
-                    }
+            $paginator = new LengthAwarePaginator($items, $total, $limit, $page, [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]);
 
-                    $userId = Order::where('id', $order_id)->value('client');
-                    if (! $userId) {
-                        return '--';
-                    }
-
-                    $user = User::find($userId);
-                    if (! $user) {
-                        return '--';
-                    }
-
-                    return '<a href="'.url('clients/'.$user->id).'">'.e(ucfirst($user->first_name)).' '.e(ucfirst($user->last_name)).'</a>';
-                })
-                ->addColumn('email', function ($model) {
-                    $order_id = \DB::table('installation_details')
-                        ->where('installation_path', $model->domain)
-                        ->latest()
-                        ->value('order_id');
-
-                    if (! $order_id) {
-                        return '--';
-                    }
-
-                    $userId = Order::where('id', $order_id)->value('client');
-                    if (! $userId) {
-                        return '--';
-                    }
-
-                    $user = User::find($userId);
-                    if (! $user) {
-                        return '--';
-                    }
-
-                    return $user->email ?? '';
-                })
-                   ->addColumn('mobile', function ($model) {
-                       $order_id = \DB::table('installation_details')
-                           ->where('installation_path', $model->domain)
-                           ->latest()
-                           ->value('order_id');
-
-                       if (! $order_id) {
-                           return '--';
-                       }
-
-                       $userId = Order::where('id', $order_id)->value('client');
-                       if (! $userId) {
-                           return '--';
-                       }
-
-                       $user = User::find($userId);
-                       if (! $user) {
-                           return '--';
-                       }
-
-                       return isset($user->mobile_code) && isset($user->mobile) ? '+'.$user->mobile_code.' '.$user->mobile : '--';
-                   })
-
-                   ->addColumn('country', function ($model) {
-                       $order_id = \DB::table('installation_details')
-                           ->where('installation_path', $model->domain)
-                           ->latest()
-                           ->value('order_id');
-
-                       if (! $order_id) {
-                           return '--';
-                       }
-
-                       $userId = Order::where('id', $order_id)->value('client');
-                       if (! $userId) {
-                           return '--';
-                       }
-
-                       $user = User::find($userId);
-                       if (! $user) {
-                           return '--';
-                       }
-                       $country = Country::where('country_code_char2', $user->country)->value('country_name');
-
-                       return $country ?? '';
-                   })
-
-                   ->addColumn('Expiry day', function ($model) {
-                       $order_id = \DB::table('installation_details')->where('installation_path', $model->domain)->latest()->value('order_id');
-                       $subscription_date = Subscription::where('order_id', $order_id)->value('ends_at');
-                       if (empty($subscription_date)) {
-                           return '--';
-                       }
-
-                       return getDateHtml($subscription_date);
-                   })
-
-                ->addColumn('Deletion day', function ($model) {
-                    $order_id = \DB::table('installation_details')->where('installation_path', $model->domain)->latest()->value('order_id');
-                    $subscription_date = Subscription::where('order_id', $order_id)->value('ends_at');
-                    if (empty($subscription_date)) {
-                        return '--';
-                    }
-                    $days = (int) \DB::table('expiry_mail_days')->where('cloud_days', '!=', null)->value('cloud_days');
-                    $originalDate = Carbon::parse($subscription_date)->addDays($days);
-                    $formattedDate = Carbon::parse($originalDate)->format('d M Y');
-
-                    return $formattedDate;
-                })
-
-               ->addColumn('plan', function ($model) {
-                   $order_id = \DB::table('installation_details')->where('installation_path', $model->domain)->latest()->value('order_id');
-                   if (empty($order_id)) {
-                       return '--';
-                   }
-
-                   $plan_id = Subscription::where('order_id', $order_id)->latest()->value('plan_id');
-                   $price = PlanPrice::where('plan_id', $plan_id)->latest()->value('add_price');
-                   $message = ($price) ? 'Paid Subscription' : 'Free Trial';
-
-                   return $message;
-               })
-
-                ->addColumn('tenants', function ($model) {
-                    return $model->id ?? '';
-                })
-                ->addColumn('domain', function ($model) {
-                    return '<a href="http://'.$model->domain.'" target="_blank">'.$model->domain.'</a>';
-                })
-                ->addColumn('db_name', function ($model) {
-                    return $model->database_name ?? '';
-                })
-                ->addColumn('db_username', function ($model) {
-                    return $model->database_user_name ?? '';
-                })
-                ->addColumn('action', function ($model) {
-                    $order_id = \DB::table('installation_details')->where('installation_path', $model->domain)->latest()->value('order_id');
-                    $order_number = \DB::table('orders')->where('id', $order_id)->value('number');
-
-                    if (empty($order_id) || empty($order_number)) {
-                        return "<p><button data-toggle='modal'
-                data-id=".$model->id." data-name= '' onclick=deleteTenant('".$model->id."') id='delten".$model->id."'
-                class='btn btn-sm btn-dark btn-xs delTenant'".tooltip(__('message.delete'))."<i class='fa fa-trash'
-                style='color:white;'> </i></button>&nbsp;</p>";
-                    }
-
-                    return "<p><button data-toggle='modal'
-                data-id='".$model->id."' data-name='' onclick=\"deleteTenant('".$model->id."','".$order_id."')\" id='delten".$model->id."'
-                class='btn btn-sm btn-dark btn-xs delTenant' ".tooltip(__('message.delete'))."<i class='fa fa-trash'
-                style='color:white;'> </i></button>&nbsp;</p>";
-                })
-                ->rawColumns(['Order', 'Deletion day', 'tenants', 'domain', 'db_name', 'db_username', 'action', 'name', 'email', 'mobile', 'country', 'Expiry day', 'plan'])
-                ->make(true);
-        } catch (ConnectException|Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return successResponse(__('message.tenants_fetched_successfully'), $paginator);
+        } catch (Throwable) {
+            return errorResponse(__('message.something_went_wrong'), 500);
         }
-    }
-
-    private function postCurl($post_url, $post_info)
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $post_url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_info);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        return $result;
     }
 
     /**
      * Logic for creating new tenant is handled here.
      */
-    public function createTenant(Request $request)
+    public function createTenant(Request $request): JsonResponse
     {
-        $order = Order::wherenumber($request->orderNo)->get();
-        $product = CloudProducts::where('cloud_product', $order[0]->product()->value('id'))->value('cloud_product_key');
+        $order = Order::where('number', $request->orderNo)->first();
+        if (! $order) {
+            return errorResponse(__('message.something_went_wrong'));
+        }
+        $product = CloudProducts::where('cloud_product', $order->productRelation()->value('id'))->value('cloud_product_key');
 
         $this->validate($request,
             [
                 'orderNo' => 'required',
-                'domain' => 'required||regex:/^[a-zA-Z0-9]+$/u',
+                // Matches the frontend's already-correct cloudTrialValidations.js rule
+                // (letters/digits, hyphens allowed but not at the start/end) — this used
+                // to be stricter and rejected valid hyphenated domains after the customer
+                // had already been charged (see QA bug #41).
+                'domain' => 'required|regex:/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$/',
             ],
             [
                 'domain.regex' => 'Special characters are not allowed in domain name',
             ]);
 
         $settings = Setting::find(1);
-        $userInformation = $request->has('userInfo') ? User::find($request->input('userInfo')) : \Auth::user();
+        if (! $settings) {
+            return errorResponse(trans('message.something_bad'));
+        }
+        $userInformation = $request->has('userInfo') ? User::find($request->input('userInfo')) : $this->authUser();
+        if (! $userInformation instanceof User) {
+            $userInformation = $this->authUser();
+        }
 
         $userEmail = $userInformation->email;
         $userFirstName = $userInformation->first_name;
         $userLastName = $userInformation->last_name;
         $userId = $userInformation->id;
 
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController;
+        $faveoCloud = '';
 
         try {
             $company = (string) $request->input('domain');
@@ -375,25 +203,22 @@ class TenantController extends Controller
             $faveoCloud = strtolower($company).'.'.cloudSubDomain();
 
             $dns_record = dns_get_record($faveoCloud, DNS_CNAME);
-            if (! strpos($faveoCloud, cloudSubDomain())) {
-                if (empty($dns_record) || ! in_array(cloudSubDomain(), array_column($dns_record, 'target'))) {
-                    return ['status' => 'false', 'message' => trans('message.cname')];
-                }
+            if (! strpos($faveoCloud, (string) cloudSubDomain()) && ($dns_record === [] || $dns_record === false || ! in_array(cloudSubDomain(), array_column($dns_record, 'target')))) {
+                return errorResponse(trans('message.cname'));
             }
 
-            $licCode = Order::where('number', $request->input('orderNo'))->first()->serial_key;
+            $licCode = $order->serial_key;
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-            if (! optional($keys)->app_key) {//Validate if the app key to be sent is valid or not
-                return ['status' => 'false', 'message' => trans('message.something_bad')];
+            if (! $keys?->app_key) {// Validate if the app key to be sent is valid or not
+                return errorResponse(trans('message.something_bad'));
             }
 
-            $token = str_random(32);
-            \DB::table('third_party_tokens')->insert(['user_id' => $userId, 'token' => $token]);
-            $client = new Client([]);
-            $data = ['domain' => $faveoCloud, 'app_key' => $keys->app_key, 'token' => $token, 'lic_code' => $licCode, 'username' => $userEmail, 'userId' => $userId, 'timestamp' => time(), 'product' => $product, 'product_id' => $order[0]->product()->value('id')];
+            $token = Str::random(32);
+            DB::table('third_party_tokens')->insert(['user_id' => $userId, 'token' => $token]);
+            $data = ['domain' => $faveoCloud, 'app_key' => $keys->app_key, 'token' => $token, 'lic_code' => $licCode, 'username' => $userEmail, 'userId' => $userId, 'timestamp' => time(), 'product' => $product, 'product_id' => $order->product];
             $encodedData = http_build_query($data);
-            $hashedSignature = hash_hmac('sha256', $encodedData, $keys->app_secret);
-            $response = $client->request(
+            $hashedSignature = hash_hmac('sha256', $encodedData, (string) $keys->app_secret);
+            $response = $this->client->request( // @phpstan-ignore property.notFound
                 'POST',
                 $this->cloud->cloud_central_domain.'/tenants', ['form_params' => $data, 'headers' => ['signature' => $hashedSignature]]
             );
@@ -401,10 +226,13 @@ class TenantController extends Controller
 
             $response = '{'.$response[1];
 
-            $result = json_decode($response);
-            if ($result->status == 'fails') {
-                if ($result->message == 'Domain already taken. Please select a different domain') {
-                    $toDisplay = preg_replace('/\s+/', '', $product);
+            $result = json_decode($response, true);
+            if (! is_array($result)) {
+                return errorResponse(trans('message.something_bad'));
+            }
+            if (($result['status'] ?? null) == 'fails') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
+                if (($result['message'] ?? null) == 'Domain already taken. Please select a different domain') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
+                    $toDisplay = preg_replace('/\s+/', '', (string) $product);
                     $newRandomDomain = substr($toDisplay.str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 28);
 
                     return $this->createTenantWithRandomDomain($newRandomDomain, $request);
@@ -412,47 +240,44 @@ class TenantController extends Controller
 
                 $this->prepareMessages($faveoCloud, $userEmail);
 
-                $this->googleChat($result->message);
+                $this->googleChat($result['message'] ?? '');
 
-                return ['status' => 'false', 'message' => trans('message.something_bad')];
-            } elseif ($result->status == 'validationFailure') {
+                return errorResponse(trans('message.something_bad'));
+            } elseif (($result['status'] ?? null) == 'validationFailure') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                 $this->prepareMessages($faveoCloud, $userEmail);
 
-                $this->googleChat($result->message);
+                $this->googleChat($result['message'] ?? '');
 
-                return ['status' => 'validationFailure', 'message' => $result->message];
+                return errorResponse($result['message'] ?? '');
             } else {
-                $client->request('GET', env('CLOUD_JOB_URL_NORMAL'), [
-                    'auth' => [env('CLOUD_USER'), env('CLOUD_AUTH')],
+                $this->client->request('GET', config('custom.cloud_job_url_normal'), [ // @phpstan-ignore property.notFound
+                    'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
                     'query' => [
-                        'token' => env('CLOUD_OAUTH_TOKEN'),
+                        'token' => config('custom.cloud_oauth_token'),
                         'domain' => $faveoCloud,
                     ],
                 ]);
 
-                //template
-                $template = new \App\Model\Common\Template();
-                $temp_type_id = \DB::table('template_types')->where('name', 'cloud_created')->value('id');
-                $template = $template->where('type', $temp_type_id)->first();
+                // template
+                $template = TemplateType::getSelectedTemplate('cloud_created');
                 $contact = getContactData();
 
-                $type = '';
-                if ($template) {
-                    $type_id = $template->type;
-                    $temp_type = new \App\Model\Common\TemplateType();
-                    $type = $temp_type->where('id', $type_id)->first()->name;
-                }
-                $subject = 'Your '.$order[0]->product()->value('name').' is now ready for use. Get started!';
-                $message = (isset($result->reason) && $result->reason != '') ? __('message.'.$result->message, ['installationUrl' => $result->installationUrl, 'reason' => $result->reason]) :
-                                        __('message.'.$result->message, ['installationUrl' => $result->installationUrl]);
+                $productName = Product::find($order->product)->name ?? '';
+                $type = $template?->type()->value('name') ?? '';
+                $subject = 'Your '.$productName.' is now ready for use. Get started!';
+                $resultMessage = $result['message'] ?? '';
+                $resultInstallationUrl = $result['installationUrl'] ?? '';
+                $resultReason = $result['reason'] ?? '';
+                $message = ($resultReason != '') ? __('message.'.$resultMessage, ['installationUrl' => $resultInstallationUrl, 'reason' => $resultReason]) : // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
+                                        __('message.'.$resultMessage, ['installationUrl' => $resultInstallationUrl]);
 
-                $message = str_replace('website', strtolower($product), $message);
+                $message = str_replace('website', strtolower((string) $product), (string) $message);
                 $message = str_replace('. You will receive password on your registered email', '', $message);
-                $userData = $message.'<br><br> Email:'.' '.$userEmail.'<br>'.'Password:'.' '.$result->password;
+                $userData = $message.'<br><br> Email:'.' '.$userEmail.'<br>'.'Password:'.' '.($result['password'] ?? '');
 
                 $replace = [
                     'message' => $userData,
-                    'product' => $order[0]->product()->value('name'),
+                    'product' => $productName,
                     'name' => $userFirstName.' '.$userLastName,
                     'contact' => $contact['contact'],
                     'logo' => $contact['logo'],
@@ -463,82 +288,100 @@ class TenantController extends Controller
                 ];
 
                 logActivity(
-                    "Cloud instance <b><a href='http://{$faveoCloud}' target='_blank'>{$faveoCloud}</a></b> created successfully for user <b><a href='".url("clients/{$userId}")."'><strong>{$userFirstName} {$userLastName}</strong></a></b>",
+                    sprintf("Cloud instance <b><a href='http://%s' target='_blank'>%s</a></b> created successfully for user <b><a href='", $faveoCloud, $faveoCloud).url('clients/'.$userId).sprintf("'><strong>%s %s</strong></a></b>", $userFirstName, $userLastName),
                     'created',
                     'Cloud'
                 );
 
-                $this->prepareMessages($faveoCloud, $userEmail, true);
-                $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $template->type()->value('name'), $replace, $type);
-                if (isset($result->reason) && $result->reason != '') {
-                    return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason, 'Free_trial_domain' => $faveoCloud];
+                $this->prepareMessages($faveoCloud, $userEmail, success: true);
+                if ($template instanceof Template) {
+                    $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $template->type()->value('name'), $replace, $type);
                 }
 
-                return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'Free_trial_domain' => $faveoCloud];
+                if ($resultReason != '') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
+                    $data = ['status' => $result['status'] ?? '', 'message' => ($result['message'] ?? '').trans('message.cloud_created_successfully'), 'installationUrl' => $result['installationUrl'] ?? '', 'reason' => $result['reason'] ?? '', 'Free_trial_domain' => $faveoCloud];
+
+                    return successResponse('', $data);
+                }
+
+                $data = ['status' => $result['status'] ?? '', 'message' => ($result['message'] ?? '').trans('message.cloud_created_successfully'), 'installationUrl' => $result['installationUrl'] ?? '', 'Free_trial_domain' => $faveoCloud];
+
+                return successResponse('', $data);
             }
-        } catch (Exception $e) {
-            \Logger::exception($e);
-            $message = $e->getMessage().' Domain: '.$faveoCloud.' Email: '.$userEmail;
+        } catch (Exception $exception) {
+            Logger::exception($exception);
+            $message = $exception->getMessage().' Domain: '.$faveoCloud.' Email: '.$userEmail;
             $this->googleChat($message);
 
-            return ['status' => 'false', 'message' => trans('message.something_bad')];
+            return errorResponse(trans('message.something_bad'));
         }
     }
 
-    public function verifyThirdPartyToken(Request $request)
+    /**
+     * @return array<mixed>
+     */
+    public function verifyThirdPartyToken(Request $request): array
     {
         try {
             $token = $request->input('token');
             $userId = $request->input('userId');
-            $faveoToken = \DB::table('third_party_tokens')->where('user_id', $userId)->value('token');
+            $faveoToken = DB::table('third_party_tokens')->where('user_id', $userId)->value('token');
             if ($faveoToken && $token == $faveoToken) {
-                \DB::table('third_party_tokens')->where('user_id', $userId)->delete();
-                //delete third party token here
-                $response = ['status' => 'success', 'message' => 'Valid token'];
-            } else {
-                $response = ['status' => 'fails', 'message' => 'Invalid token'];
+                DB::table('third_party_tokens')->where('user_id', $userId)->delete();
+
+                // delete third party token here
+                return ['status' => 'success', 'message' => 'Valid token'];
             }
 
-            return $response;
-        } catch (Exception $e) {
-            $error = ['status' => 'fails', 'message' => $e->getMessage()];
-
-            return $error;
+            return ['status' => 'fails', 'message' => 'Invalid token'];
+        } catch (Exception $exception) {
+            return ['status' => 'fails', 'message' => $exception->getMessage()];
         }
     }
 
-    public function destroyTenant(Request $request)
+    public function destroyTenant(Request $request): JsonResponse
     {
         try {
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-            $token = str_random(32);
+            if (! $keys) {
+                return errorResponse(__('message.something_went_wrong_try_again'));
+            }
+            $token = Str::random(32);
             $data = ['id' => $request->input('id'), 'app_key' => $keys->app_key, 'deleteTenant' => true, 'token' => $token, 'timestamp' => time()];
             $encodedData = http_build_query($data);
-            $hashedSignature = hash_hmac('sha256', $encodedData, $keys->app_secret);
-            $client = new Client([]);
-            $response = $client->request(
+            $hashedSignature = hash_hmac('sha256', $encodedData, (string) $keys->app_secret);
+            $response = $this->client->request( // @phpstan-ignore property.notFound
                 'DELETE',
                 $this->cloud->cloud_central_domain.'/tenants', ['form_params' => $data, 'headers' => ['signature' => $hashedSignature]]
             );
             $responseBody = (string) $response->getBody();
-            $response = json_decode($responseBody);
-            $user = optional(\Auth::user())->email ?? 'Auto deletion';
+            $responseArray = json_decode($responseBody, true);
+            if (! is_array($responseArray)) {
+                return errorResponse(__('message.cloud_deleted_failed'));
+            }
+            $user = $this->authUser()->email ?? 'Auto deletion';
 
-            if ($response->status == 'success') {
+            if (($responseArray['status'] ?? null) == 'success') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                 $this->deleteCronForTenant($request->input('id'));
-                \DB::table('free_trial_allowed')->where('domain', $request->input('id'))->delete();
+                DB::table('free_trial_allowed')->where('domain', $request->input('id'))->delete();
                 if (! empty($request->orderId)) {
                     $this->statusChange($request->orderId);
                 }
-//                (empty($request->orderId)) ?: Order::where('number', $request->get('orderId'))->delete();
-                (new LicenseController())->reissueDomain($request->input('id'));
 
-                $loggingUser = \Auth::check()
-                    ? "<a href='".url('clients/'.\Auth::id())."'>".\Auth::user()->first_name.' '.\Auth::user()->last_name.'</a>'
+                if (! empty($request->orderId)) {
+                    $encryptedKey = Order::where('number', $request->input('orderId'))->value('serial_key');
+                    if ($encryptedKey) {
+                        resolve(LicenseService::class)
+                            ->reissueLicenseCloud(Crypt::decrypt($encryptedKey));
+                    }
+                }
+
+                $loggingUser = Auth::check()
+                    ? "<a href='".url('clients/'.Auth::id())."'>".$this->authUser()->first_name.' '.$this->authUser()->last_name.'</a>'
                     : 'Auto deletion';
 
                 logActivity(
-                    "Cloud instance <b>{$request->input('id')}</b> deleted by <b>{$loggingUser}</b>",
+                    sprintf('Cloud instance <b>%s</b> deleted by <b>%s</b>', $request->input('id'), $loggingUser),
                     'deleted',
                     'Cloud'
                 );
@@ -546,52 +389,54 @@ class TenantController extends Controller
                 $this->googleChat('Hello, it has come to my notice that '.$user.' has deleted this cloud instance '.$request->input('id'));
 
                 return successResponse(__('message.cloud_deleted_successfully'));
-            } else {
-                if ($response->message == 'tenant_not_found' && ! empty($request->orderId)) {
-                    $this->statusChange($request->orderId);
-                }
-
-                $this->googleChat('Tenant deletion failed for '.$user.'. Reason: '.$responseBody);
-
-                return errorResponse(__('message.cloud_deleted_failed'));
             }
-        } catch (Exception $e) {
-            \Logger::exception($e);
-            $message = 'Tenant deletion error, Request '.json_encode($request->all()).'. Reason: '.$e->getMessage();
+
+            if (($responseArray['message'] ?? null) == 'tenant_not_found' && ! empty($request->orderId)) { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
+                $this->statusChange($request->orderId);
+            }
+
+            $this->googleChat('Tenant deletion failed for '.$user.'. Reason: '.$responseBody);
+
+            return errorResponse(__('message.cloud_deleted_failed'));
+        } catch (Exception $exception) {
+            Logger::exception($exception);
+            $message = 'Tenant deletion error, Request '.json_encode($request->all()).'. Reason: '.$exception->getMessage();
             $this->googleChat($message);
 
-            return errorResponse($e->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function statusChange($order_id)
+    public function statusChange(int $order_id): void
     {
-        Order::where('id', $order_id)->first()->subscription()->update(['is_deleted' => 1]);
+        $order = Order::where('id', $order_id)->first();
+        if ($order) {
+            $order->subscription()->update(['is_deleted' => 1]);
+        }
     }
 
-    private function deleteCronForTenant($tenantId)
+    private function deleteCronForTenant(string $tenantId): void
     {
-        $client = new Client();
-        if (strpos($tenantId, cloudSubDomain())) {
-            $client->request('GET', env('CLOUD__DELETE_JOB_URL_NORMAL'), [
-                'auth' => [env('CLOUD_USER'), env('CLOUD_AUTH')],
+        if (strpos($tenantId, (string) cloudSubDomain())) {
+            $this->client->request('GET', config('custom.cloud_delete_job_url_normal'), [ // @phpstan-ignore property.notFound
+                'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
                 'query' => [
-                    'token' => env('CLOUD_OAUTH_TOKEN'),
+                    'token' => config('custom.cloud_oauth_token'),
                     'domain' => $tenantId,
                 ],
             ]);
         } else {
-            $client->request('GET', env('CLOUD__DELETE_JOB_URL_CUSTOM'), [
-                'auth' => [env('CLOUD_USER'), env('CLOUD_AUTH')],
+            $this->client->request('GET', config('custom.cloud_delete_job_url_custom'), [ // @phpstan-ignore property.notFound
+                'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
                 'query' => [
-                    'token' => env('CLOUD_OAUTH_TOKEN'),
+                    'token' => config('custom.cloud_oauth_token'),
                     'domain' => $tenantId,
                 ],
             ]);
         }
     }
 
-    public function saveCloudDetails(Request $request)
+    public function saveCloudDetails(Request $request): JsonResponse
     {
         $this->validate($request, [
             'cloud_central_domain' => 'required',
@@ -602,24 +447,47 @@ class TenantController extends Controller
         ]);
 
         try {
-            $cloud = new FaveoCloud;
-            $cloud->updateOrCreate(['id' => 1], ['cloud_central_domain' => $request->input('cloud_central_domain'), 'cloud_cname' => $request->input('cloud_cname')]);
+            $data = [
+                'cloud_central_domain' => $request->input('cloud_central_domain'),
+                'cloud_cname' => $request->input('cloud_cname'),
+                'cloud_job_url' => $request->input('cloud_job_url'),
+                'cloud_job_url_normal' => $request->input('cloud_job_url_normal'),
+                'cloud_user' => $request->input('cloud_user'),
+                'cloud_delete_job_url_normal' => $request->input('cloud_delete_job_url_normal'),
+                'cloud_delete_job_url_custom' => $request->input('cloud_delete_job_url_custom'),
+            ];
 
-            // $cloud->first()->fill($request->all())->save();
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            if (filled($request->input('cloud_auth'))) {
+                $data['cloud_auth'] = $request->input('cloud_auth');
+            }
+
+            if (filled($request->input('cloud_oauth_token'))) {
+                $data['cloud_oauth_token'] = $request->input('cloud_oauth_token');
+            }
+
+            if (filled($request->input('google_chat_webhook'))) {
+                $data['google_chat_webhook'] = $request->input('google_chat_webhook');
+            }
+
+            (new FaveoCloud)->updateOrCreate(['id' => 1], $data);
+
+            return successResponse(__('message.updated-successfully'));
+        } catch (Exception) {
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
-    public function DeleteCloudInstanceForClient($orderNumber, $isDelete)
+    public function DeleteCloudInstanceForClient(string $orderNumber, bool $isDelete): RedirectResponse|JsonResponse|null
     {
         if ($isDelete) {
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-            $token = str_random(32);
-            $order_id = Order::where('number', $orderNumber)->where('client', \Auth::user()->id)->value('id');
-            $installation_path = \DB::table('installation_details')->where('order_id', $order_id)->where('installation_path', '!=', cloudCentralDomain())->value('installation_path');
-            $response = $this->client->request(
+            if (! $keys) {
+                return errorResponse(__('message.something_went_wrong_try_again'));
+            }
+            $token = Str::random(32);
+            $order_id = Order::where('number', $orderNumber)->where('client', $this->authUser()->id)->value('id');
+            $installation_path = DB::table('installation_details')->where('order_id', $order_id)->where('installation_path', '!=', cloudCentralDomain())->value('installation_path');
+            $response = $this->client->request( // @phpstan-ignore property.notFound
                 'GET',
                 $this->cloud->cloud_central_domain.'/tenants', [
                     'query' => [
@@ -630,78 +498,97 @@ class TenantController extends Controller
             $responseBody = (string) $response->getBody();
             $response = json_decode($responseBody);
             $domainArray = $response->message;
-            for ($i = 0; $i < count($domainArray); $i++) {
-                if (! is_null($domainArray[$i])) {
-                    if ($domainArray[$i]->domain == $installation_path) {
-                        $data = ['id' => $domainArray[$i]->id, 'app_key' => $keys->app_key, 'deleteTenant' => true, 'token' => $token, 'timestamp' => time()];
-                        $encodedData = http_build_query($data);
-                        $hashedSignature = hash_hmac('sha256', $encodedData, $keys->app_secret);
-                        $client = new Client([]);
-                        $response = $client->request(
-                            'DELETE',
-                            $this->cloud->cloud_central_domain.'/tenants', ['form_params' => $data, 'headers' => ['signature' => $hashedSignature]]
+            $counter = count($domainArray);
+            for ($i = 0; $i < $counter; $i++) {
+                if (! is_null($domainArray[$i]) && $domainArray[$i]->domain == $installation_path) {
+                    $data = ['id' => $domainArray[$i]->id, 'app_key' => $keys->app_key, 'deleteTenant' => true, 'token' => $token, 'timestamp' => time()];
+                    $encodedData = http_build_query($data);
+                    $hashedSignature = hash_hmac('sha256', $encodedData, (string) $keys->app_secret);
+                    $response = $this->client->request( // @phpstan-ignore property.notFound
+                        'DELETE',
+                        $this->cloud->cloud_central_domain.'/tenants', ['form_params' => $data, 'headers' => ['signature' => $hashedSignature]]
+                    );
+                    $responseBody = (string) $response->getBody();
+                    $response = json_decode($responseBody);
+                    $user = $this->authUser()->email ?? 'Auto deletion';
+                    if ($response->status == 'success') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
+                        $this->deleteCronForTenant($domainArray[$i]->id);
+                        $this->reissueCloudLicense($order_id);
+                        Order::where('number', $orderNumber)->where('client', $this->authUser()->id)->delete();
+                        DB::table('free_trial_allowed')->where('domain', $installation_path)->delete();
+
+                        $loggingUser = Auth::check()
+                            ? "<a href='".url('clients/'.Auth::id())."'>".$this->authUser()->first_name.' '.$this->authUser()->last_name.'</a>'
+                            : 'Auto deletion';
+
+                        logActivity(
+                            sprintf('Cloud instance <b>%s</b> deleted by <b>%s</b>', $installation_path, $loggingUser),
+                            'deleted',
+                            'Cloud'
                         );
-                        $responseBody = (string) $response->getBody();
-                        $response = json_decode($responseBody);
-                        $user = optional(\Auth::user())->email ?? 'Auto deletion';
-                        if ($response->status == 'success') {
-                            $this->deleteCronForTenant($domainArray[$i]->id);
-                            $this->reissueCloudLicense($order_id);
-                            Order::where('number', $orderNumber)->where('client', \Auth::user()->id)->delete();
-                            \DB::table('free_trial_allowed')->where('domain', $installation_path)->delete();
 
-                            $loggingUser = \Auth::check()
-                                ? "<a href='".url('clients/'.\Auth::id())."'>".\Auth::user()->first_name.' '.\Auth::user()->last_name.'</a>'
-                                : 'Auto deletion';
+                        $this->googleChat('Hello, it has come to my notice that '.$user.' has deleted this cloud instance '.$installation_path);
 
-                            logActivity(
-                                "Cloud instance <b>{$installation_path}</b> deleted by <b>{$loggingUser}</b>",
-                                'deleted',
-                                'Cloud'
-                            );
-
-                            $this->googleChat('Hello, it has come to my notice that '.$user.' has deleted this cloud instance '.$installation_path);
-
-                            return redirect()->back()->with('success', __('message.cloud_deleted_successfully'));
-                        } else {
-                            \Logger::exception(new Exception($response->message));
-
-                            $this->googleChat('Tenant deletion failed for '.$user.'. Reason: '.$responseBody);
-
-                            return redirect()->back()->with('fails', __('message.cloud_deleted_failed   '));
-                        }
+                        return successResponse(__('message.cloud_deleted_successfully'));
                     }
+
+                    Logger::exception(new Exception($response->message));
+                    $this->googleChat('Tenant deletion failed for '.$user.'. Reason: '.$responseBody);
+
+                    return errorResponse(__('message.cloud_deleted_failed   '));
                 }
             }
 
-            return redirect()->back()->with('fails', __('message.something_wrong_cloud_instance'));
+            return errorResponse(__('message.something_wrong_cloud_instance'));
         }
+
+        return null;
     }
 
-    protected function reissueCloudLicense($order_id)
+    /**
+     * @return array<mixed>
+     */
+    protected function reissueCloudLicense(int $order_id): JsonResponse|array
     {
         $order = Order::findorFail($order_id);
-        if (\Auth::user()->role != 'admin' && $order->client != \Auth::user()->id) {
+        if ($this->authUser()->role != 'admin' && $order->client != $this->authUser()->id) {
             return errorResponse(__('message.cannot_remove_license_installation'));
         }
+
         $order->domain = '';
         $licenseCode = $order->serial_key;
         $order->save();
-        $licenseStatus = \DB::table('status_settings')->pluck('license_status')->first();
-        if ($licenseStatus == 1) {
-            $licenseExpiry = $order->subscription->ends_at;
-            $updatesExpiry = $order->subscription->update_ends_at;
-            $supportExpiry = $order->subscription->support_ends_at;
-            $cont = new \App\Http\Controllers\License\LicenseController();
-            $updateLicensedDomain = $cont->updateLicensedDomain($licenseCode, $order->domain, $order->product, $licenseExpiry, $updatesExpiry, $supportExpiry, $order->number);
-            //Now make Installation status as inactive
-            $updateInstallStatus = $cont->updateInstalledDomain($licenseCode, $order->product);
+        $licenseExpiry = $order->subscription ? $order->subscription->ends_at : null;
+        $updatesExpiry = $order->subscription ? $order->subscription->update_ends_at : null;
+        $supportExpiry = $order->subscription ? $order->subscription->support_ends_at : null;
+        $ipAndDomain = LicenseService::parseIpAndDomain($order->domain);
+        $l_expiry_time = strtotime((string) $licenseExpiry);
+        $u_expiry_time = strtotime((string) $updatesExpiry);
+        $s_expiry_time = strtotime((string) $supportExpiry);
+        $l_expiry = ($l_expiry_time !== false && $l_expiry_time > 1) ? date('Y-m-d', $l_expiry_time) : '';
+        $u_expiry = ($u_expiry_time !== false && $u_expiry_time > 1) ? date('Y-m-d', $u_expiry_time) : '';
+        $s_expiry = ($s_expiry_time !== false && $s_expiry_time > 1) ? date('Y-m-d', $s_expiry_time) : '';
+        $licenseService = resolve(LicenseService::class);
+        $existingLicense = $licenseService->findByCode($licenseCode);
+        if ($existingLicense) {
+            $licenseService->update($existingLicense->id, [
+                'license_order_number' => $order->number,
+                'license_require_domain' => $ipAndDomain['requireDomain'],
+                'license_expire_date' => $l_expiry ?: $existingLicense->license_expire_date,
+                'license_updates_date' => $u_expiry ?: $existingLicense->license_updates_date,
+                'license_support_date' => $s_expiry ?: $existingLicense->license_support_date,
+                'license_domain' => $ipAndDomain['domain'],
+                'license_ip' => $ipAndDomain['ip'],
+            ]);
         }
+
+        // Remove installations so the install slots are freed
+        resolve(InstallationService::class)->deleteByLicenseCode($licenseCode);
 
         return ['message' => 'success', 'update' => __('message.license_installations_removed')];
     }
 
-    private function prepareMessages($domain, $user, $success = false)
+    private function prepareMessages(string $domain, string $user, bool $success = false): void
     {
         if ($success) {
             $this->googleChat('Hello, It has come to my notice that this domain has been created successfully Domain name:'.$domain.' and this is their email: '.$user."\u{2705}\u{2705}\u{2705}");
@@ -710,23 +597,25 @@ class TenantController extends Controller
         }
     }
 
-    private function googleChat($text)
+    private function googleChat(string $text): void
     {
-        $url = env('GOOGLE_CHAT');
+        $url = config('custom.google_chat');
+        if (empty($url)) { // ponytail: webhook is optional; skip instead of letting Guzzle blow up and mask the real error
+            return;
+        }
         $message = [
             'text' => $text,
         ];
         $message_headers = [
             'Content-Type' => 'application/json; charset=UTF-8',
         ];
-        $client = new Client();
-        $client->post($url, [
+        $this->client->post($url, [ // @phpstan-ignore property.notFound
             'headers' => $message_headers,
             'body' => json_encode($message),
         ]);
     }
 
-    private function createTenantWithRandomDomain($randomDomain, Request $request)
+    private function createTenantWithRandomDomain(string $randomDomain, Request $request): JsonResponse
     {
         // Modify the request with the new random domain
         $request->merge(['domain' => $randomDomain]);
@@ -735,7 +624,7 @@ class TenantController extends Controller
         return $this->createTenant($request);
     }
 
-    public function cloudPopUp(Request $request)
+    public function cloudPopUp(Request $request): JsonResponse
     {
         $this->validate($request, [
             'cloud_top_message' => 'required',
@@ -754,56 +643,136 @@ class TenantController extends Controller
                 'cloud_label_field' => $request->input('cloud_label_field'),
                 'cloud_label_radio' => $request->input('cloud_label_radio')]);
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return successResponse(__('message.updated-successfully'));
+        } catch (Exception) {
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
-    public function cloudProductStore(Request $request)
+    public function cloudProductStore(Request $request): JsonResponse
     {
         $request->validate(
             [
-                'cloud_product' => 'required',
-                'cloud_free_plan' => 'required',
-                'cloud_product_key' => 'required',
+                'cloud_product' => ['required', Rule::unique('cloud_products', 'cloud_product')],
+                'cloud_free_plan' => [
+                    'required',
+                    Rule::exists('plans', 'id')->where('product', $request->input('cloud_product')),
+                ],
+                'cloud_product_key' => ['required'],
             ],
             [
                 'cloud_product.required' => __('validation.cloud_tenant.cloud_product_required'),
+                'cloud_product.unique' => __('validation.cloud_tenant.cloud_product_unique'),
                 'cloud_free_plan.required' => __('validation.cloud_tenant.cloud_free_plan_required'),
+                'cloud_free_plan.exists' => __('validation.cloud_tenant.cloud_free_plan_invalid'),
                 'cloud_product_key.required' => __('validation.cloud_tenant.cloud_product_key_required'),
             ]
         );
         try {
             CloudProducts::create($request->all());
 
-            return redirect()->back()->with('success', trans('message.saved_products'));
-        } catch(\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return successResponse(__('message.saved_products'));
+        } catch (Exception) {
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
-    public function exportTenats(Request $request)
+    public function exportTenats(Request $request): JsonResponse
     {
         try {
             ini_set('memory_limit', '-1');
             $selectedColumns = $request->input('selected_columns', []);
             $searchParams = $request->input('search_params', []);
-            $email = \Auth::user()->email;
-            $driver = QueueService::where('status', '1')->first();
+            $email = $this->authUser()->email;
 
-            if ($driver->name != 'Sync') {
-                app('queue')->setDefaultDriver($driver->short_name);
-                ReportExport::dispatch('tenats', $selectedColumns, $searchParams, $email)->onQueue('reports');
+            /** @var QueueService $driver */
+            $driver = QueueService::where('status', '1')->firstOrFail();
 
-                return response()->json(['message' => __('message.report_generation_in_progress')], 200);
-            } else {
-                return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
+            if ($driver->name === 'Sync') {
+                return errorResponse(__('message.cannot_sync_queue_driver'));
             }
-        } catch (\Exception $e) {
-            \Logger::exception($e);
 
-            return response()->json(['message' => $e->getMessage()], 500);
+            resolve('queue')->setDefaultDriver($driver->short_name);
+            dispatch(new ReportExport('tenats', $selectedColumns, $searchParams, $email))->onQueue('reports');
+
+            return successResponse(__('message.system_generating_report'));
+        } catch (Exception $exception) {
+            Logger::exception($exception);
+
+            return errorResponse($exception->getMessage());
         }
+    }
+
+    private function getOrderId(string $domain): ?int
+    {
+        return InstallationDetail::where('installation_path', $domain)->latest()->value('order_id');
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function getUserData(?int $order_id): ?array
+    {
+        if (! $order_id) {
+            return null;
+        }
+
+        $userId = Order::where('id', $order_id)->value('client');
+        $user = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country')->find($userId);
+
+        if (! $user instanceof User) {
+            return null;
+        }
+
+        return [
+            'id' => $user->id,
+            'name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
+            'email' => $user->email,
+            'mobile' => ($user->mobile_code && $user->mobile)
+                ? '+'.$user->mobile_code.' '.$user->mobile
+                : null,
+            'country' => Country::where('country_code_char2', $user->country)->value('country_name'),
+            'profile' => url('clients/'.$user->id),
+        ];
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function getSubscriptionDataForCloud(?int $order_id): ?array
+    {
+        if (! $order_id) {
+            return null;
+        }
+
+        $subscription = Subscription::select('id', 'order_id', 'plan_id', 'ends_at')->where('order_id', $order_id)->first();
+
+        if (! $subscription) {
+            return null;
+        }
+
+        $plan_id = $subscription->plan_id;
+        $price = PlanPrice::where('plan_id', $plan_id)->latest()->value('add_price');
+        $plan = $price ? 'Paid Subscription' : 'Free Trial';
+
+        $expiry = Date::parse($subscription->ends_at)->format('d M Y');
+        $cloud_days = (int) ExpiryMailDay::whereNotNull('cloud_days')->value('cloud_days');
+        $deletion_date = $cloud_days !== 0 ? Date::parse($expiry)->addDays($cloud_days)->format('d M Y') : null;
+
+        return [
+            'subscription_expiry' => $expiry,
+            'deletion_date' => $deletion_date,
+            'plan' => $plan,
+        ];
+    }
+
+    private function authUser(): User
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if (! $user instanceof User) {
+            throw new Exception('Unauthorized');
+        }
+
+        return $user;
     }
 }

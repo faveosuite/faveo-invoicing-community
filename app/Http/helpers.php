@@ -1,63 +1,75 @@
 <?php
 
 use App\FileSystemSettings;
+use App\Http\Controllers\Common\PaymentSettingsController;
+use App\License\Models\Installation;
+use App\Model\Common\CommonSettings;
 use App\Model\Common\Country;
+use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
-use App\Model\Order\InstallationDetail;
+use App\Model\Common\State;
+use App\Model\Common\Timezone;
 use App\Model\Payment\Currency;
-use App\Model\Payment\Plan;
-use App\Model\Payment\TaxByState;
+use App\Model\Payment\PlanPrice;
+use App\Model\Payment\TaxOption;
+use App\Model\Product\CloudProducts;
+use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
-use App\Traits\TaxCalculation;
 use App\User;
 use Carbon\Carbon;
+use Carbon\CarbonInterval;
 use GuzzleHttp\Client;
+use Illuminate\Cache\ArrayStore;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Mail\MailServiceProvider;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\RateLimiter;
-use Spatie\Activitylog\ActivityLogger;
-use Spatie\Activitylog\ActivityLogStatus;
+use Illuminate\Support\Sleep;
+use Spatie\Activitylog\Support\ActivityLogger;
+use Spatie\Activitylog\Support\ActivityLogStatus;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
-function getLocation($ip = null)
+function getLocation(?string $ip = null): mixed
 {
     try {
-        $location = \GeoIP::getLocation($ip);
+        return GeoIP::getLocation($ip);
+    } catch (Exception $exception) {
+        Logger::exception($exception);
 
-        return $location;
-    } catch (Exception $ex) {
-        \Logger::exception($ex);
-        $location = \Config::get('geoip.default_location');
-
-        return $location;
+        return Config::get('geoip.default_location');
     }
 }
 
-function checkArray($key, $array)
+/**
+ * @param  array<mixed>  $array
+ */
+function checkArray(string $key, array $array): mixed
 {
-    $value = '';
-    if (is_array($array) && array_key_exists($key, $array)) {
-        $value = $array[$key];
+    if (array_key_exists($key, $array)) {
+        return $array[$key];
     }
 
-    return $value;
+    return '';
 }
 
-function mime($type)
+function mime(string $type): ?string
 {
-    if ($type == 'jpg' ||
-        $type == 'png' ||
-        $type == 'jpeg' ||
-        $type == 'gif' ||
-        starts_with($type, 'image')) {
+    if (in_array($type, ['jpg', 'png', 'jpeg', 'gif'], strict: true) ||
+        Illuminate\Support\Str::startsWith($type, 'image')) {
         return 'image';
     }
+
+    return null;
 }
 
-function isInstall()
+function isInstall(): bool
 {
     $check = false;
     $env = base_path('.env');
-    if (\File::exists($env) && env('DB_INSTALL') == 1) {
-        $check = true;
+    if (File::exists($env) && config('custom.db_install') == 1) {
+        return true;
     }
 
     return $check;
@@ -67,11 +79,10 @@ function isInstall()
 /**
  * Format the error message into json error response.
  *
- * @param  string|array  $message  Error message
- * @param  int  $statusCode
- * @return \Illuminate\Http\JsonResponse json response
+ * @param  string|array<mixed>  $message  Error message
+ * @return JsonResponse json response
  */
-function errorResponse($message, $statusCode = 400)
+function errorResponse(string|array $message, int $statusCode = 400): JsonResponse
 {
     return response()->json(['success' => false, 'message' => $message], $statusCode);
 }
@@ -80,16 +91,14 @@ function errorResponse($message, $statusCode = 400)
  * Format success message/data into json success response.
  *
  * @param  string  $message  Success message
- * @param  array|string  $data  Data of the response
- * @param  int  $statusCode
- * @return HTTP json response
+ * @param  mixed  $data  Data of the response
  */
-function successResponse($message = '', $data = '', $statusCode = 200)
+function successResponse(string $message = '', mixed $data = '', int $statusCode = 200): JsonResponse
 {
     $response = ['success' => true];
 
     // if message given
-    if (! empty($message)) {
+    if ($message !== '' && $message !== '0') {
         $response['message'] = $message;
     }
 
@@ -103,12 +112,8 @@ function successResponse($message = '', $data = '', $statusCode = 200)
 
 /**
  * Gets time in logged in user's timezone.
- *
- * @param  string  $dateTimeString
- * @param  string  $format
- * @return string
  */
-function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = 'M j, Y, g:i a')
+function getTimeInLoggedInUserTimeZone(string $dateTimeString, ?string $format = null): string
 {
     try {
         $date = new DateTime($dateTimeString, new DateTimeZone('UTC'));
@@ -119,222 +124,203 @@ function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = 'M j, Y
         $tz = Cache::remember(
             $cacheKey,
             5,
-            fn () => $user->timezone->name ?? 'UTC'
+            fn () => $user->timezone->name ?? systemTimezone() // nosemgrep: php.lang.security.exec-use.exec-use
         );
 
         try {
             $timezone = new DateTimeZone($tz);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $timezone = new DateTimeZone('UTC');
         }
 
-        return $date->setTimezone($timezone)->format($format);
-    } catch (Exception $e) {
+        return $date->setTimezone($timezone)->format($format ?? systemDateTimeFormat()); // nosemgrep: php.lang.security.exec-use.exec-use
+    } catch (Exception) {
         return $dateTimeString;
     }
 }
 
 /**
- * Gets date in a formatted HTML.
- *
- * @param  string|null  $dateTimeString
- * @return string
+ * Returns the system-level date+time format string from settings (cached).
  */
-function getDateHtml(?string $dateTimeString = null)
+function systemDateTimeFormat(): string
 {
-    try {
-        if (! $dateTimeString) {
-            return '--';
-        }
-        $date = getTimeInLoggedInUserTimeZone($dateTimeString, 'M j, Y');
-        $dateTime = getTimeInLoggedInUserTimeZone($dateTimeString);
+    return Cache::remember('system_datetime_format', 60, function (): string {
+        $setting = Setting::select('date_format', 'time_format')->first();
 
-        return "<label data-toggle='tooltip'style='font-weight:500; margin: 0px' data-placement='top' title='".$dateTime."'>".$date.'</label>';
-    } catch (Exception $e) {
-        return '--';
-    }
-}
-function getDateHtmlcopy(?string $dateTimeString = null)
-{
-    try {
-        if (! $dateTimeString) {
-            return '--';
-        }
-        $date = getTimeInLoggedInUserTimeZone($dateTimeString, 'M j, Y');
-        $dateTime = getTimeInLoggedInUserTimeZone($dateTimeString);
-
-        return "<label data-toggle='tooltip' style='font-weight:500; margin: 0px' data-placement='top' title='".$dateTimeString."'>".$date.'</label>';
-    } catch (Exception $e) {
-        return '--';
-    }
-}
-function getExpiryLabel($expiryDate, $badge = 'badge')
-{
-    if (empty($expiryDate)) {
-        return '--';
-    }
-
-    try {
-        $expiry = Carbon::parse($expiryDate);
-    } catch (Exception $e) {
-        return '--';
-    }
-
-    $dateHtml = getDateHtml($expiryDate);
-
-    if ($expiry->isPast()) {
-        return $dateHtml.
-            '&nbsp;<span class="'.$badge.' '.$badge.'-danger">
-                <label data-toggle="tooltip"
-                       style="font-weight:500;"
-                       data-placement="top"
-                       title="'.__('validation.order_has_Expired').'">
-                </label>'.
-            __('message.expired').
-            '</span>';
-    }
-
-    return $dateHtml;
-}
-
-function getVersionAndLabel($productVersion, $productId, $badge = 'label', $path = null)
-{
-    $latestVersion = \Cache::remember('latest_'.$productId, 10, function () use ($productId) {
-        return ProductUpload::where('product_id', $productId)->latest()->value('version');
+        return ($setting->date_format ?? 'd/m/Y').' '.($setting->time_format ?? 'H:i');
     });
+}
+
+/**
+ * Returns the system-level timezone name from settings (cached).
+ */
+function systemTimezone(): string
+{
+    return Cache::remember('system_timezone', 60, function () {
+        $setting = Setting::with('timezone:id,name')->select('timezone_id')->first();
+
+        return $setting->timezone->name ?? 'UTC';
+    });
+}
+
+/**
+ * Gets date in a formatted HTML.
+ */
+function getDateHtml(?string $dateTimeString = null): string
+{
+    try {
+        if (! $dateTimeString) {
+            return '--';
+        }
+
+        return getTimeInLoggedInUserTimeZone($dateTimeString, 'M j, Y');
+    } catch (Exception) {
+        return '--';
+    }
+}
+
+/**
+ * @return array<mixed>
+ */
+function getExpiryLabel(string $expiryDate): array
+{
+    $expiry = Date::parse($expiryDate);
+    $now = Date::now();
+
+    return [
+        'date' => $expiry,
+        'status' => $expiry->lt($now) ? __('message.expired') : null,
+    ];
+}
+
+function getVersionAndLabel(mixed $productVersion, string $productId, ?string $path = null): mixed
+{
+    // Get latest version from cache
+    $latestVersion = Cache::remember('latest_'.$productId, 10, fn () => ProductUpload::where('product_id', $productId)->latest()->value('version'));
+
+    // Fallback to installation detail if version not provided
     if (! $productVersion && $path) {
-        $installationDetail = InstallationDetail::where('installation_path', 'like', '%'.$path.'%')->orderBy('id', 'desc')->first();
+        $installationDetail = Installation::where('installation_path', 'like', '%'.$path.'%')->latest('id')->first();
         $productVersion = $installationDetail ? $installationDetail->version : $latestVersion;
     }
-    $status = $productVersion ? ($productVersion < $latestVersion ? 'warning' : 'success') : '';
 
-    return '<span class="'.$badge.' '.$badge.'-'.$status.'"><label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.($productVersion ? ($status == 'warning' ? 'Outdated Version' : 'Latest Version') : '').'"></label>'.($productVersion ? $productVersion : '--').'</span>';
+    // Return version value or '--' if not available
+    return $productVersion ?? $latestVersion ?? null;
 }
 
-function getInstallationDetail($ip)
+/**
+ * @return array<mixed>
+ */
+function getStatusLabel(mixed $status): string|array
 {
-    return InstallationDetail::where('installation_path', 'like', '%'.$ip.'%')->first();
+    return match ($status) {
+        'Success' => __('message.paid'),
+        'Pending' => __('message.unpaid'),
+        'renewed' => __('message.renewed'),
+        default => __('message.partially_paid'),
+    };
 }
 
-function tooltip($tootipText = '')
-{
-    return '<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title='.$tootipText.'>
-             </label>';
-}
-
-function getStatusLabel($status, $badge = 'badge')
-{
-    switch ($status) {
-        case 'Success':
-            return '<span class='.'"'.$badge.' '.$badge.'-success">'.__('message.amount_received').'</span>';
-
-        case 'Pending':
-            return '<span class='.'"'.$badge.' '.$badge.'-danger">'.__('message.unpaid').'</span>';
-
-        case 'renewed':
-            return '<span class='.'"'.$badge.' '.$badge.'-primary">'.__('message.renewed').'</span>';
-
-        default:
-            return '<span class='.'"'.$badge.' '.$badge.'-warning">'.__('message.partially_paid').'</span>';
-    }
-}
-
-function getCountryByCode($code)
+function getCountryByCode(string $code): ?string
 {
     try {
-        $country = \App\Model\Common\Country::where('country_code_char2', $code)->first();
+        $country = Country::where('country_code_char2', $code)->first();
         if ($country) {
             return $country->country_name;
         }
-    } catch (Exception $ex) {
-        throw new Exception($ex->getMessage());
+    } catch (Exception $exception) {
+        throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
     }
+
+    return null;
 }
 
-function findCountryByGeoip($iso)
+function findCountryByGeoip(string $iso): string
 {
     try {
-        $country = \App\Model\Common\Country::where('country_code_char2', $iso)->first();
+        $country = Country::where('country_code_char2', $iso)->first();
         if ($country) {
-            return $country->country_code_char2;
-        } else {
-            return '';
+            return (string) $country->country_code_char2;
         }
-    } catch (Exception $ex) {
-        throw new Exception($ex->getMessage());
+
+        return '';
+    } catch (Exception $exception) {
+        throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
     }
 }
 
-function findStateByRegionId($iso)
+/**
+ * @return array<mixed>
+ */
+function findStateByRegionId(string $iso): array
 {
     try {
-        $states = \App\Model\Common\State::where('country_code', $iso)
+        return State::where('country_code', $iso)
             ->pluck('state_subdivision_name', 'iso2')->toArray();
-
-        return $states;
-    } catch (Exception $ex) {
-        throw new Exception($ex->getMessage());
+    } catch (Exception $exception) {
+        throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
     }
 }
 
-function getTimezoneByName($name)
+function getTimezoneByName(string $name): string
 {
     try {
-        $timezone = \App\Model\Common\Timezone::where('name', $name)->first();
+        $timezone = Timezone::where('name', $name)->first();
         if ($timezone) {
-            $timezone = $timezone->id;
-        } else {
-            $timezone = '114';
+            return (string) $timezone->id;
         }
 
-        return $timezone;
-    } catch (Exception $ex) {
-        throw new Exception($ex->getMessage());
+        return '114';
+    } catch (Exception $exception) {
+        throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
     }
 }
 
-function checkPlanSession()
+function checkPlanSession(): bool
 {
     try {
-        if (Session::has('plan')) {
-            return true;
-        }
-
-        return false;
-    } catch (Exception $ex) {
-        throw new Exception($ex->getMessage());
+        return (bool) Session::has('plan');
+    } catch (Exception $exception) {
+        throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
     }
 }
 
-function getStateByCode($country, $state)
+/**
+ * @return array<mixed>
+ */
+function getStateByCode(string $country, string $state): array
 {
     try {
         $result = ['id' => '', 'name' => ''];
 
-        $subregion = \App\Model\Common\State::where('country_code', $country)
+        $subregion = State::where('country_code', $country)
             ->where('iso2', $state)
             ->first();
 
         if ($subregion) {
-            $result = [
+            return [
                 'id' => $subregion->iso2,
                 'name' => $subregion->state_subdivision_name,
             ];
         }
 
         return $result;
-    } catch (Exception $ex) {
-        throw new Exception($ex->getMessage());
+    } catch (Exception $exception) {
+        throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
     }
 }
 
-function userCurrencyAndPrice($userid, $plan, $productid = '')
+/**
+ * @return array<mixed>
+ */
+function userCurrencyAndPrice(mixed $userid, mixed $plan): array
 {
     try {
         $country = getCountry($userid);
 
         if (! $country) {
-            throw new Exception(Lang::get('message.country_notfound'));
+            $msg = Lang::get('message.country_notfound');
+            throw new Exception(is_array($msg) ? implode(', ', $msg) : (string) $msg);
         }
 
         $currencyAndSymbol = getCurrencySymbolAndPriceForPlans($country, $plan);
@@ -344,24 +330,28 @@ function userCurrencyAndPrice($userid, $plan, $productid = '')
             'symbol' => $currencyAndSymbol['currency_symbol'],
             'plan' => $currencyAndSymbol['userPlan'],
         ];
-    } catch (Exception $ex) {
-        return redirect()->back()->with('fails', $ex->getMessage());
+    } catch (Exception) {
+        return [
+            'currency' => '',
+            'symbol' => '',
+            'plan' => '',
+        ];
     }
 }
 
-function getCountry($userid)
+function getCountry(mixed $userid): mixed
 {
     if (Auth::check() && empty($userid)) {
-        return Auth::user()->country;
+        $user = Auth::user();
+
+        return $user ? $user->country : null;
     }
 
     if ($userid) {
         return User::where('id', $userid)->value('country');
     }
 
-    $location = cache()->remember('user_location', 60, function () {
-        return getLocation();
-    });
+    $location = cache()->remember('user_location', 60, fn (): mixed => getLocation());
 
     return $location['iso_code'] ? findCountryByGeoip($location['iso_code']) : null;
 }
@@ -371,14 +361,14 @@ function getCountry($userid)
  * that price will be displayed in the respective currency of that country else the default price for that plan will be displayed along with the default currency.
  *
  * @param  string  $countryCode  Code of the country
- * @param  obj  $plan  Plan for which price is to be fetched
- * @return array Currency, symbol and plan details
+ * @param  mixed  $plan  Plan for which price is to be fetched
+ * @return array<mixed> Currency, symbol and plan details
  */
-function getCurrencySymbolAndPriceForPlans($countryCode, $plan)
+function getCurrencySymbolAndPriceForPlans(string $countryCode, mixed $plan): array
 {
     $userCurrency = getCurrencyForClient($countryCode);
 
-    $userPlan = $plan->planPrice->firstWhere('currency', $userCurrency);
+    $userPlan = $plan?->planPrice->firstWhere('currency', $userCurrency);
 
     $currency = $userCurrency;
     $currencySymbol = Currency::where('code', $currency)->value('symbol');
@@ -396,44 +386,47 @@ function getCurrencySymbolAndPriceForPlans($countryCode, $plan)
  * @param  string  $countryCode  The country code('IN','US')
  * @return string The currency code('INR','USD')
  */
-function getCurrencyForClient($countryCode)
+function getCurrencyForClient(string $countryCode): mixed
 {
-    $country = Country::with(['currency' => function ($query) {
+    $country = Country::with(['currency' => function ($query): void {
         $query->where('status', 1);
     }])->where('country_code_char2', $countryCode)->first();
 
     return $country && isset($country->currency) ? $country->currency->code : Setting::value('default_currency');
 }
 
-function currencyFormat($amount = null, $currency = null, $includeSymbol = true, $shouldRound = false)
+function currencyFormat(mixed $amount = null, ?string $currency = null, bool $includeSymbol = true, bool $shouldRound = false): mixed
 {
     try {
-        if ($shouldRound) {
-            $amount = rounding($amount);
+        if ($currency === null) {
+            $currency = (string) Setting::value('default_currency');
         }
 
         $locale = getLocalesByCurrency($currency);
         $precision = getCurrencyPrecision($currency);
+        $amount = $shouldRound
+            ? rounding((float) $amount, $currency)
+            : round((float) $amount, $precision);
 
         if (! $includeSymbol) {
-            return Number::format(
-                $amount,
-                precision: $precision,
-                locale: $locale
-            );
+            return Number::format($amount, precision: $precision, locale: $locale);
         }
 
         return Number::currency($amount, $currency, $locale);
-    } catch (\Throwable $e) {
+    } catch (Throwable) {
         return $amount;
     }
 }
 
-function getLocalesByCurrency(string $currencyCode)
+function getLocalesByCurrency(string $currencyCode): string
 {
-    return cache()->rememberForever("currency_locale_{$currencyCode}", function () use ($currencyCode) {
+    return cache()->rememberForever('currency_locale_'.$currencyCode, function () use ($currencyCode) {
         $firstMatch = null;
-        foreach (\ResourceBundle::getLocales('') as $locale) {
+        $locales = ResourceBundle::getLocales('');
+        if (! is_array($locales)) {
+            $locales = [];
+        }
+        foreach ($locales as $locale) {
             try {
                 $fmt = new NumberFormatter($locale, NumberFormatter::CURRENCY);
                 $defaultCurrency = $fmt->getTextAttribute(NumberFormatter::CURRENCY_CODE);
@@ -441,19 +434,21 @@ function getLocalesByCurrency(string $currencyCode)
                     if ($firstMatch === null) {
                         $firstMatch = $locale;
                     }
+
                     if (str_starts_with($locale, 'en_')) {
                         return $locale;
                     }
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable) {
             }
         }
 
-        return $firstMatch ?? 'en';
+        // No en_ locale found — fall back to 'en' so callers always get Western digits.
+        return 'en';
     });
 }
 
-function getCurrencyPrecision($currency)
+function getCurrencyPrecision(string $currency): int
 {
     $formatter = new NumberFormatter('en', NumberFormatter::CURRENCY);
     $formatter->setTextAttribute(NumberFormatter::CURRENCY_CODE, $currency);
@@ -461,210 +456,160 @@ function getCurrencyPrecision($currency)
     return $formatter->getAttribute(NumberFormatter::FRACTION_DIGITS);
 }
 
-function rounding($price)
+function rounding(mixed $price, ?string $currency = null): float
 {
     try {
-        $tax_rule = new \App\Model\Payment\TaxOption();
+        $tax_rule = new TaxOption;
         $rule = $tax_rule->findOrFail(1);
-        $rounding = $rule->rounding;
-        if ($rounding) {
-            return round($price);
-        } else {
-            return round($price, 2);
+        if ($rule->rounding) {
+            return round((float) $price);
         }
-    } catch (Exception $ex) {
+
+        $decimals = $currency !== null ? getCurrencyPrecision($currency) : 2;
+
+        return round((float) $price, $decimals);
+    } catch (Exception) {
     }
+
+    return round((float) $price, 2);
 }
 
-function userCountryId()
+function userCountryId(): mixed
 {
-    if (\Auth::check()) {
-        $country = Country::where('country_code_char2', \Auth::user()->country)->first()->country_id;
-    } else {
-        $location = getLocation();
-        $country = Country::where('country_code_char2', $location['iso_code'])->first()->country_id;
-    }
+    if (Auth::check()) {
+        $user = Auth::user();
+        if ($user) {
+            $country = Country::where('country_code_char2', $user->country)->first();
 
-    return $country;
-}
-
-//function getIndianCurrencySymbol($currency)
-//{
-//    return \DB::table('format_currencies')->where('code', $currency)->value('symbol');
-//}
-
-function getIndianCurrencyFormat($number)
-{
-    $explrestunits = '';
-    $number = explode('.', $number);
-    $num = $number[0];
-    if (strlen($num) > 3) {
-        $lastthree = substr($num, strlen($num) - 3, strlen($num));
-        $restunits = substr($num, 0, strlen($num) - 3); // extracts the last three digits
-        $restunits = (strlen($restunits) % 2 == 1) ? '0'.$restunits : $restunits; // explodes the remaining digits in 2's formats, adds a zero in the beginning to maintain the 2's grouping.
-        $expunit = str_split($restunits, 2);
-        for ($i = 0; $i < count($expunit); $i++) {
-            // creates each of the 2's group and adds a comma to the end
-            if ($i == 0) {
-                $explrestunits .= (int) $expunit[$i].','; // if is first value , convert into integer
-            } else {
-                $explrestunits .= $expunit[$i].',';
-            }
+            return $country ? $country->country_id : null;
         }
-        $thecash = $explrestunits.$lastthree;
-    } else {
-        $thecash = $num;
     }
-    if (! empty($number[1])) {
-        if (strlen($number[1]) == 1) {
-            return $thecash.'.'.$number[1].'0';
-        } elseif (strlen($number[1]) == 2) {
-            return $thecash.'.'.$number[1];
-        } else {
-            return 'cannot handle decimal values more than two digits...';
-        }
-    } else {
-        return $thecash;
+
+    $location = getLocation();
+    if (! empty($location['iso_code'])) {
+        $country = Country::where('country_code_char2', $location['iso_code'])->first();
+
+        return $country ? $country->country_id : null;
     }
-}
 
-function bifurcateTax($taxName, $taxValue, $currency, $state, $price = '')
-{
-    if (\Auth::user()->country == 'IN') {
-        $gst = TaxByState::where('state_code', $state)->select('c_gst', 's_gst', 'ut_gst')->first();
-        if ($taxName == 'CGST+SGST') {
-            $html = 'CGST@'.$gst->c_gst.'%<br>SGST@'.$gst->s_gst.'%';
-
-            $cgst_value = currencyFormat(TaxCalculation::taxValue($gst->c_gst, $price), $currency);
-
-            $sgst_value = currencyFormat(TaxCalculation::taxValue($gst->s_gst, $price), $currency);
-
-            return ['html' => $html, 'tax' => $cgst_value.'<br>'.$sgst_value];
-        } elseif ($taxName == 'CGST+UTGST') {
-            $html = 'CGST@'.$gst->c_gst.'%<br>UTGST@'.$gst->ut_gst.'%';
-
-            $cgst_value = currencyFormat(TaxCalculation::taxValue($gst->c_gst, $price), $currency);
-            $utgst_value = currencyFormat(TaxCalculation::taxValue($gst->ut_gst, $price), $currency);
-
-            return ['html' => $html, 'tax' => $cgst_value.'<br>'.$utgst_value];
-        } else {
-            $html = $taxName.'@'.$taxValue;
-            $tax_value = currencyFormat(TaxCalculation::taxValue($taxValue, $price), $currency);
-
-            return ['html' => $html, 'tax' => $tax_value];
-        }
-    } else {
-        $html = $taxName.'@'.$taxValue;
-        $tax_value = currencyFormat(TaxCalculation::taxValue($taxValue, $price), $currency);
-
-        return ['html' => $html, 'tax' => $tax_value];
-    }
+    return null;
 }
 
 /**
  * sets mail config and reloads the config into the container
  * NOTE: this is getting used outside the class to set service config.
- *
- * @return void
  */
-function setServiceConfig($emailConfig)
+function setServiceConfig(object $emailConfig): void
 {
-    $sendingProtocol = $emailConfig->driver;
+    $sendingProtocol = isset($emailConfig->driver) ? (string) $emailConfig->driver : null;
     if ($sendingProtocol && $sendingProtocol != 'smtp' && $sendingProtocol != 'mail') {
-        $services = \Config::get("services.$sendingProtocol");
+        $services = Config::get('services.'.$sendingProtocol);
+        if (! is_array($services)) {
+            $services = [];
+        }
         $dynamicServiceConfig = [];
 
-        //loop over it and assign according to the keys given by user
+        // loop over it and assign according to the keys given by user
         foreach ($services as $key => $value) {
-            $dynamicServiceConfig[$key] = isset($emailConfig[$key]) ? $emailConfig[$key] : $value;
+            $dynamicServiceConfig[$key] = $emailConfig->$key ?? $value;
         }
 
-        //setting that service configuration
-        \Config::set("services.$sendingProtocol", $dynamicServiceConfig);
+        // setting that service configuration
+        Config::set('services.'.$sendingProtocol, $dynamicServiceConfig);
     } else {
-        \Config::set('mail.sendmail', '/usr/sbin/sendmail -t -i -f'.$emailConfig['email']);
+        $email = isset($emailConfig->email) ? (string) $emailConfig->email : '';
+        Config::set('mail.sendmail', '/usr/sbin/sendmail -t -i -f'.$email);
 
-        \Config::set('mail.host', $emailConfig['host']);
-        \Config::set('mail.port', $emailConfig['port']);
-        \Config::set('mail.password', $emailConfig['password']);
-        \Config::set('mail.security', $emailConfig['encryption']);
+        Config::set('mail.host', isset($emailConfig->host) ? $emailConfig->host : null);
+        Config::set('mail.port', isset($emailConfig->port) ? $emailConfig->port : null);
+        Config::set('mail.password', isset($emailConfig->password) ? $emailConfig->password : null);
+        Config::set('mail.security', isset($emailConfig->encryption) ? $emailConfig->encryption : null);
     }
 
-    //setting mail driver as $sending protocol
-    \Config::set('mail.driver', $sendingProtocol);
-    \Config::set('mail.from.address', $emailConfig['email']);
-    \Config::set('mail.from.name', $emailConfig['company']);
-    \Config::set('mail.username', $emailConfig['email']);
+    // setting mail driver as $sending protocol
+    Config::set('mail.driver', $sendingProtocol);
+    Config::set('mail.from.address', isset($emailConfig->email) ? (string) $emailConfig->email : '');
+    Config::set('mail.from.name', isset($emailConfig->company) ? (string) $emailConfig->company : '');
+    Config::set('mail.username', isset($emailConfig->email) ? (string) $emailConfig->email : '');
 
-    //setting the config again in the service container
-    new \Illuminate\Mail\MailServiceProvider(app())->register();
+    // setting the config again in the service container
+    new MailServiceProvider(app())->register();
 }
 
-function persistentCache($key, Closure $closure, $noOfSeconds = 30, array $variables = [])
+/**
+ * @param  array<mixed>  $variables
+ * @param  Closure(): mixed  $closure
+ */
+function persistentCache(string $key, Closure $closure, int $noOfSeconds = 30, array $variables = []): mixed
 {
     $keySalt = json_encode($variables);
 
     return Cache::remember($key.$keySalt, $noOfSeconds, $closure);
 }
 
-function emailSendingStatus()
+function emailSendingStatus(): bool
 {
-    $status = false;
-    if (Setting::value('sending_status')) {
-        $status = true;
-    }
-
-    return $status;
+    return (bool) Setting::value('sending_status');
 }
 
-function installationStatusLabel($installedPath)
+function installationStatusLabel(mixed $installedPath): string
 {
     return $installedPath ? "&nbsp;<span class='badge badge-primary' style='background-color:darkcyan !important;' <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='".__('message.installation_is_active')."'>
                      </label>".__('message.active').'</span>' : "&nbsp;<span class='badge badge-info' <label data-toggle='tooltip' style='font-weight:500;background-color:crimson;' data-placement='top' title='".__('message.installation_is_inactive')."'>
                     </label>".__('message.inactive').'</span>';
 }
 
-//return root url from long url (http://www.domain.com/path/file.php?aa=xx becomes http://www.domain.com/path/), remove scheme, www. and last slash if needed
-function getRootUrl($url, $remove_scheme, $remove_www, $remove_path, $remove_last_slash)
+// return root url from long url (http://www.domain.com/path/file.php?aa=xx becomes http://www.domain.com/path/), remove scheme, www. and last slash if needed
+function getRootUrl(mixed $url, int $remove_scheme, int $remove_www, int $remove_path, int $remove_last_slash): string
 {
     if (filter_var($url, FILTER_VALIDATE_URL)) {
-        $url_array = parse_url($url); //parse URL into arrays like $url_array['scheme'], $url_array['host'], etc
+        $url_array = parse_url((string) $url); // parse URL into arrays like $url_array['scheme'], $url_array['host'], etc
+        if (! is_array($url_array)) {
+            return '';
+        }
+        $scheme = isset($url_array['scheme']) ? $url_array['scheme'] : '';
 
-        $url = str_ireplace($url_array['scheme'].'://', '', $url); //make URL without scheme, so no :// is included when searching for first or last /
+        $url = str_ireplace($scheme.'://', '', $url); // make URL without scheme, so no :// is included when searching for first or last /
 
-        if ($remove_path == 1) { //remove everything after FIRST / in URL, so it becomes "real" root URL
-            $first_slash_position = stripos($url, '/'); //find FIRST slash - the end of root URL
-            if ($first_slash_position > 0) { //cut URL up to FIRST slash
+        if ($remove_path === 1) { // remove everything after FIRST / in URL, so it becomes "real" root URL
+            $first_slash_position = stripos($url, '/'); // find FIRST slash - the end of root URL
+            if ($first_slash_position > 0) { // cut URL up to FIRST slash
                 $url = substr($url, 0, $first_slash_position + 1);
             }
-        } else { //remove everything after LAST / in URL, so it becomes "normal" root URL
-            $last_slash_position = strripos($url, '/'); //find LAST slash - the end of root URL
-            if ($last_slash_position > 0) { //cut URL up to LAST slash
+        } else { // remove everything after LAST / in URL, so it becomes "normal" root URL
+            $last_slash_position = strripos($url, '/'); // find LAST slash - the end of root URL
+            if ($last_slash_position > 0) { // cut URL up to LAST slash
                 $url = substr($url, 0, $last_slash_position + 1);
             }
         }
 
-        if ($remove_scheme != 1) { //scheme was already removed, add it again
-            $url = $url_array['scheme'].'://'.$url;
+        if ($remove_scheme !== 1) { // scheme was already removed, add it again
+            $url = $scheme.'://'.$url;
         }
 
-        if ($remove_www == 1) { //remove www.
+        if ($remove_www === 1) { // remove www.
             $url = str_ireplace('www.', '', $url);
         }
 
-        if ($remove_last_slash == 1) { //remove / from the end of URL if it exists
-            while (substr($url, -1) == '/') { //use cycle in case URL already contained multiple // at the end
+        if ($remove_last_slash === 1) { // remove / from the end of URL if it exists
+            while (str_ends_with($url, '/')) { // use cycle in case URL already contained multiple // at the end
                 $url = substr($url, 0, -1);
             }
         }
     }
 
-    return trim($url);
+    return trim((string) $url);
 }
 
-function getContactData()
+/**
+ * @return array<mixed>
+ */
+function getContactData(): array
 {
     $setting = Setting::first();
+    if (! $setting) {
+        return ['logo' => '', 'contact' => ''];
+    }
     $countryCode = Country::where('country_code_char2', $setting->country)->value('phonecode');
     $logo = '<img style="max-width: 20%;height: auto;" src="'.$setting->logo.'" />';
     $billingContact = '
@@ -685,74 +630,69 @@ function getContactData()
     return ['logo' => $logo, 'contact' => $billingContact];
 }
 
-function cloudSubDomain()
+function cloudSubDomain(): ?string
 {
-    $cloudSubDomain = \App\Model\Common\FaveoCloud::find(1);
+    $cloudSubDomain = FaveoCloud::find(1);
 
-    return optional($cloudSubDomain)->cloud_cname;
+    return $cloudSubDomain?->cloud_cname;
 }
 
-function cloudCentralDomain()
+function cloudCentralDomain(): string
 {
-    $cloudSubDomain = \App\Model\Common\FaveoCloud::find(1);
+    $cloudSubDomain = FaveoCloud::find(1);
 
-    return str_replace('https://', '', optional($cloudSubDomain)->cloud_central_domain);
+    return str_replace('https://', '', (string) ($cloudSubDomain ? $cloudSubDomain->cloud_central_domain : ''));
 }
 
-function cloudPopUpDetails()
+/**
+ * @return array<mixed>
+ */
+function cloudPopupProducts(): array
 {
-    $cloudPop = \App\CloudPopUp::find(1);
-
-    return $cloudPop;
+    return CloudProducts::pluck('cloud_product')->toArray();
 }
 
-function cloudPopupProducts()
+function getPreReleaseStatusLabel(mixed $status): ?string
 {
-    return \App\Model\Product\CloudProducts::pluck('cloud_product')->toArray();
-}
-
-function getPreReleaseStatusLabel($status, $badge = 'badge')
-{
-    switch ($status) {
-        case 'official':
-            return '<span class='.'"'.$badge.' '.$badge.'-success">'.__('message.official_release').'</span>';
-
-        case 'pre_release':
-            return '<span class='.'"'.$badge.' '.$badge.'-warning">'.__('message.pre_release').'</span>';
-
-        case 'beta':
-            return '<span class='.'"'.$badge.' '.$badge.'-info">'.__('message.beta').'</span>';
-    }
+    return match ($status) {
+        'official' => 'official',
+        'pre_release' => 'pre_release',
+        'beta' => 'beta',
+        default => null,
+    };
 }
 
 /**
  * Creates an empty DB with given name.
  *
  * @param  string  $dbName  name of the DB
- * @return null
  */
-function createDB(string $dbName)
+function createDB(string $dbName): mixed
 {
     try {
-        \DB::purge('mysql');
+        DB::purge('mysql');
         // removing old db
-        \DB::connection('mysql')->getPdo()->exec("DROP DATABASE IF EXISTS `{$dbName}`");
+        DB::connection('mysql')->getPdo()->exec(sprintf('DROP DATABASE IF EXISTS `%s`', $dbName));
 
         // Creating testing_db
-        \DB::connection('mysql')->getPdo()->exec("CREATE DATABASE `{$dbName}`");
-        //disconnecting it will remove database config from the memory so that new database name can be
+        DB::connection('mysql')->getPdo()->exec(sprintf('CREATE DATABASE `%s`', $dbName));
+        // disconnecting it will remove database config from the memory so that new database name can be
         // populated
-        \DB::disconnect('mysql');
-    } catch (Exception $e) {
-        return redirect()->back()->with('fails', $e->getMessage());
+        DB::disconnect('mysql');
+    } catch (Exception $exception) {
+        Logger::exception($exception);
+
+        return null;
     }
+
+    return null;
 }
 
-function isS3Enabled()
+function isS3Enabled(): bool
 {
     $fileSettings = FileSystemSettings::select('disk')->first();
 
-    return $fileSettings->disk === 's3';
+    return $fileSettings?->disk === 's3';
 }
 
 /**
@@ -761,25 +701,27 @@ function isS3Enabled()
  * This function reads the current environment file, updates existing keys,
  * or appends new ones if they do not exist.
  *
- * @param  array  $data  An associative array where the key is the environment
- *                       variable name, and the value is the new value to set.
- * @return void
+ * @param  array<mixed>  $data  An associative array where the key is the environment
+ *                              variable name, and the value is the new value to set.
  *
- * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException If the .env file is not found.
+ * @throws FileNotFoundException If the .env file is not found.
  */
-function setEnvValue(array $data)
+function setEnvValue(array $data): void
 {
     $envFile = app()->environmentFilePath();
-    $content = File::get($envFile);
+    $content = (string) File::get($envFile);
 
     foreach ($data as $key => $value) {
         // Check if the key exists in the .env file
-        if (preg_match("/^{$key}=.*/m", $content)) {
+        if (preg_match(sprintf('/^%s=.*/m', $key), $content)) {
             // Update existing key
-            $content = preg_replace("/^{$key}=.*/m", "{$key}={$value}", $content);
+            $replaced = preg_replace(sprintf('/^%s=.*/m', $key), sprintf('%s=%s', $key, $value), $content);
+            if (is_string($replaced)) {
+                $content = $replaced;
+            }
         } else {
             // Append new key-value pair
-            $content .= "\n{$key}={$value}";
+            $content .= sprintf('%s%s=%s', PHP_EOL, $key, $value);
         }
     }
 
@@ -787,12 +729,12 @@ function setEnvValue(array $data)
     File::put($envFile, $content);
 }
 
-function downloadExternalFile($url, $filename)
+function downloadExternalFile(string $url, string $filename): StreamedResponse
 {
-    $client = new Client();
+    $client = new Client;
     $response = $client->get($url, ['stream' => true]);
 
-    return response()->stream(function () use ($response) {
+    return response()->stream(function () use ($response): void {
         $stream = $response->getBody();
         while (! $stream->eof()) {
             echo $stream->read(1024);
@@ -812,20 +754,20 @@ function downloadExternalFile($url, $filename)
  * @param  int  $maxAttempts  Maximum number of allowed attempts.
  * @param  int  $decayMinutes  Time (in minutes) before the rate limit resets.
  * @param  string  $ip  The IP address of the client.
- * @return array Returns an array with rate limit status and remaining time.
+ * @return array<mixed> Returns an array with rate limit status and remaining time.
  */
-function rateLimitForKeyIp($key, $maxAttempts, $decayMinutes, $ip)
+function rateLimitForKeyIp(string $key, int $maxAttempts, int $decayMinutes, string $ip): array
 {
     $IpKey = $key.':'.$ip;
     $decaySeconds = $decayMinutes * 60;
 
     // Command 1: Check and handle non-persistent cache.
-    if (Cache::getStore() instanceof Illuminate\Cache\ArrayStore) {
+    if (Cache::getStore() instanceof ArrayStore) {
         return handleArrayStoreRateLimit($IpKey, $maxAttempts, $decaySeconds);
     }
 
     // Command 2: Handle persistent cache using RateLimiter.
-    if (! RateLimiter::attempt($IpKey, $maxAttempts, function () {
+    if (! RateLimiter::attempt($IpKey, $maxAttempts, function (): void {
     }, $decaySeconds)) {
         $remainingTime = RateLimiter::availableIn($IpKey);
 
@@ -841,9 +783,9 @@ function rateLimitForKeyIp($key, $maxAttempts, $decayMinutes, $ip)
  * @param  string  $IpKey  The unique key for rate limiting.
  * @param  int  $maxAttempts  Maximum number of allowed attempts.
  * @param  int  $decaySeconds  Time (in seconds) before the rate limit resets.
- * @return array Returns an array with rate limit status and remaining time.
+ * @return array<mixed> Returns an array with rate limit status and remaining time.
  */
-function handleArrayStoreRateLimit($IpKey, $maxAttempts, $decaySeconds)
+function handleArrayStoreRateLimit(string $IpKey, int $maxAttempts, int $decaySeconds): array
 {
     $attempts = session()->get($IpKey, 0);
     $lastAttemptTime = session()->get($IpKey.'_time', 0);
@@ -881,7 +823,7 @@ function handleArrayStoreRateLimit($IpKey, $maxAttempts, $decaySeconds)
  */
 function formatDuration(int $seconds): string
 {
-    return \Carbon\CarbonInterval::seconds($seconds)
+    return CarbonInterval::seconds($seconds)
         ->cascade()
         ->forHumans([
             'short' => false,
@@ -889,18 +831,25 @@ function formatDuration(int $seconds): string
         ]);
 }
 
-function isJson($string)
+function isJson(mixed $string): bool
 {
-    json_decode($string);
+    json_decode((string) $string);
 
     return json_last_error() === JSON_ERROR_NONE;
 }
 
-function getUrl()
+function getUrl(): string
 {
-    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'];
-    $path = dirname($_SERVER['SCRIPT_NAME']);
+    $protocol = (isset($_SERVER['HTTPS']) && Illuminate\Support\Facades\Request::server('HTTPS') === 'on') ? 'https' : 'http';
+    $host = Illuminate\Support\Facades\Request::server('HTTP_HOST');
+    if (! is_string($host)) {
+        $host = '';
+    }
+    $scriptName = Illuminate\Support\Facades\Request::server('SCRIPT_NAME');
+    if (! is_string($scriptName)) {
+        $scriptName = '';
+    }
+    $path = dirname($scriptName);
 
     return $protocol.'://'.$host.$path;
 }
@@ -910,10 +859,27 @@ function getUrl()
  *
  * @return bool True if the locale is RTL, false otherwise.
  */
-function isRtlForLang()
+function isRtlForLang(): bool
 {
     return in_array(app()->getLocale(), ['ar', 'he']);
 }
+
+/**
+ * Honeypot field metadata for JS/SPA clients. Mirrors honeypotField() but returns
+ * the parts as data so a Vue component can render the hidden field and submit the
+ * expected { pXxx: '', tYyy: <encrypted time> } shape validated by App\Rules\Honeypot.
+ *
+ * @return array{pot:string,time:string,token:string}
+ */
+function honeypotData(): array
+{
+    return [
+        'pot' => 'p'.Str::random(),
+        'time' => 't'.Str::random(),
+        'token' => Crypt::encrypt(time()),
+    ];
+}
+
 function honeypotField(string $name = 'honeypot'): string
 {
     $potFieldName = 'p'.Str::random();
@@ -942,9 +908,10 @@ function createUrl(string $path): string
 
     return rtrim($baseUrl, '/').'/'.ltrim($path, '/');
 }
-function isAgentAllowed($productId, $planId): bool
+
+function isAgentAllowed(mixed $productId, mixed $planId): bool
 {
-    $planAgents = \App\Model\Payment\PlanPrice::where('plan_id', $planId)
+    $planAgents = PlanPrice::where('plan_id', $planId)
         ->value('no_of_agents');
 
     // No agents configured → immediately false
@@ -953,21 +920,29 @@ function isAgentAllowed($productId, $planId): bool
     }
 
     // Cloud popup products are always allowed
-    if (in_array($productId, cloudPopupProducts(), true)) {
+    if (in_array($productId, cloudPopupProducts(), strict: true)) {
         return true;
     }
 
-    return (bool) \App\Model\Product\Product::find($productId)
-        ->value('can_modify_agent');
+    $product = Product::find($productId);
+    if ($product instanceof Product) {
+        return (bool) $product->can_modify_agent;
+    }
+
+    return false;
 }
+
+/**
+ * @param  array<mixed>  $paymentMethods
+ */
 function isCurrencySupportedForPayments(string $currency, array|string $paymentMethods): bool
 {
     $currency = strtoupper($currency);
     $methods = is_array($paymentMethods) ? $paymentMethods : [$paymentMethods];
-    $pluginMap = (new \App\Http\Controllers\Common\PaymentSettingsController)->getPaymentPluginMap();
+    $pluginMap = (new PaymentSettingsController)->getPaymentPluginMap();
 
     foreach ($methods as $method) {
-        $method = strtolower($method);
+        $method = strtolower((string) $method);
         if (! isset($pluginMap[$method]) || ! array_key_exists($currency, $pluginMap[$method]['supported_currencies'])) {
             return false;
         }
@@ -976,34 +951,20 @@ function isCurrencySupportedForPayments(string $currency, array|string $paymentM
     return true;
 }
 
-function getMinimumAmountForPayments(string $currency, string $paymentMethod): float|int
+function getMinimumAmountForPayments(string $currency, string $paymentMethod): float
 {
     $method = strtolower($paymentMethod);
 
     if (! isCurrencySupportedForPayments($currency, $method)) {
-        throw new \InvalidArgumentException('Currency not supported for payments');
+        throw new InvalidArgumentException('Currency not supported for payments');
     }
 
-    $pluginMap = (new \App\Http\Controllers\Common\PaymentSettingsController())->getPaymentPluginMap();
+    $pluginMap = new PaymentSettingsController()->getPaymentPluginMap();
 
-    switch ($method) {
-        case 'razorpay':
-            $amount = calculateUnitCost($currency, $pluginMap[$method]['supported_currencies'][$currency]);
-            break;
-
-        case 'stripe':
-            $amount = $pluginMap[$method]['supported_currencies'][$currency] ?? 1;
-            break;
-
-        default:
-            $amount = 1;
-            break;
-    }
-
-    return $amount;
+    return (float) ($pluginMap[$method]['supported_currencies'][$currency] ?? 1);
 }
 
-function calculateUnitCost($currency, $cost)
+function calculateUnitCost(string $currency, int|float $cost): int
 {
     $decimalPlaces = [
         // 0 decimal places
@@ -1024,19 +985,7 @@ function calculateUnitCost($currency, $cost)
     // Default to 2 decimals if currency not listed
     $decimals = $decimalPlaces[$currency] ?? 2;
 
-    return ($decimals === 0) ? (int) round($cost) : (int) round($cost * pow(10, $decimals));
-}
-/**
- * log the actions in log files.
- *
- * @param  string  $context
- * @param  string  $message
- * @param  string  $level
- * @param  array  $array
- */
-function loging($context, $message, $level = 'error', $array = [])
-{
-    \Log::$level($message.':-:-:-'.$context, $array);
+    return ($decimals === 0) ? (int) round($cost) : (int) round($cost * 10 ** $decimals);
 }
 
 /**
@@ -1048,12 +997,11 @@ function loging($context, $message, $level = 'error', $array = [])
  *
  * @param  int  $userId  The ID of the user whose sessions are to be deleted.
  * @param  string  $password  The user's password for authentication.
- * @return void
  */
 function deleteUserSessions(int $userId, string $password): void
 {
     if (config('session.driver') !== 'file') {
-        \Auth::logoutOtherDevices($password);
+        Auth::logoutOtherDevices($password);
 
         return;
     }
@@ -1062,7 +1010,7 @@ function deleteUserSessions(int $userId, string $password): void
     $currentSessionId = session()->getId();
 
     // Find sessions to keep (not belonging to user + current session)
-    $sessionsToKeep = File::filterFiles($sessionPath, function ($file) use ($userId, $currentSessionId) {
+    $sessionsToKeep = File::filterFiles($sessionPath, function ($file) use ($userId, $currentSessionId): bool {
         $fileName = $file->getFilename();
 
         // Always keep current session
@@ -1092,12 +1040,49 @@ function deleteUserSessions(int $userId, string $password): void
 }
 
 /**
+ * Format a given datetime string to UTC timezone.
+ *
+ * @param  string|null  $datetime  The datetime string to format.
+ * @return Carbon|null The formatted datetime in UTC or null if input is invalid.
+ */
+function toFormatDateAndTime(?string $datetime): ?Carbon
+{
+    if (! $datetime) {
+        return null;
+    }
+
+    // Decode if URL encoded
+    $datetime = urldecode($datetime);
+
+    // Parse using app timezone
+    $carbon = Date::parse($datetime, config('app.timezone'));
+
+    // Return in UTC
+    return $carbon->clone()->setTimezone('UTC');
+}
+
+/**
+ * Convert days to human-readable format using match.
+ */
+function formatDays(int $days): ?string
+{
+    return match (true) {
+        $days <= 0 => null,
+        $days < 30 => $days.' Days',
+        $days < 365 => intval($days / 30).(intval($days / 30) > 1 ? ' Months' : ' Month'),
+        default => intval($days / 365).(intval($days / 365) > 1 ? ' Years' : ' Year'),
+    };
+}
+
+function hyperLinkGenerator(string $href): string
+{
+    return url($href);
+}
+
+/**
  * Log activity in a standard format across the system.
  *
- * @param  string  $event
- * @param  string  $message
- * @param  array  $properties
- * @return void
+ * @param  array<mixed>  $properties
  */
 function logActivity(
     string $message,
@@ -1107,11 +1092,11 @@ function logActivity(
     array $properties = []
 ): void {
     $defaultLogName = config('activitylog.default_log_name');
-    $logStatus = app(ActivityLogStatus::class);
+    $logStatus = resolve(ActivityLogStatus::class);
 
     $actor = $user ?? (Auth::check() ? Auth::user() : null);
 
-    $log = app(ActivityLogger::class)
+    $log = resolve(ActivityLogger::class)
         ->useLog($module ?? $defaultLogName)
         ->setLogStatus($logStatus)
         ->event($event)
@@ -1122,35 +1107,35 @@ function logActivity(
     $log->log($message);
 }
 
-function getUserStateWithCountry($country = null, $state = null)
-{
-    $user = auth()->user();
-
-    $country = $country ?? $user->country ?? '';
-    $state = $state ?? $user->state ?? '';
-
-    return trim("{$country}-{$state}", '-');
-}
-
 /**
  *Get Supported Countries for IntlInput Plugins.
+ *
+ * @return array<mixed>
  */
-function getSupportedCountriesForIntlInput()
+function getSupportedCountriesForIntlInput(): array
 {
     $countries = Country::pluck('country_name', 'country_code_char2')->toArray();
 
     $unsupportedIso = ['BV', 'PN', 'GS', 'UM', 'HM'];
 
-    return collect($countries)->reject(function ($name, $iso) use ($unsupportedIso) {
-        return in_array(strtoupper($iso), $unsupportedIso);
-    })->toArray();
+    return collect($countries)->reject(fn ($name, $iso): bool => in_array(strtoupper((string) $iso), $unsupportedIso, strict: true))->toArray();
+}
+
+/**
+ * Checks if the request is coming from api or web.
+ */
+function isV3Api(): bool
+{
+    return str_contains(str_replace(Request::root().'/', '', URL::current()), 'v3/');
 }
 
 function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds = 60, bool $perSite = true): void
 {
+    $host = parse_url($url, PHP_URL_HOST);
+    $path = parse_url($url, PHP_URL_PATH);
     $identifier = $perSite
-        ? parse_url($url, PHP_URL_HOST)
-        : parse_url($url, PHP_URL_HOST).parse_url($url, PHP_URL_PATH);
+        ? (string) $host
+        : ((string) $host).((string) $path);
 
     $key = 'api_rate_next_allowed_'.md5($identifier);
 
@@ -1159,11 +1144,11 @@ function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds 
     $waitSeconds = 0;
 
     try {
-        \Cache::lock($key.'_lock', 5)->block(3, function () use ($key, $interval, &$waitSeconds) {
-            $now = microtime(true);
+        Cache::lock($key.'_lock', 5)->block(3, function () use ($key, $interval, &$waitSeconds): void {
+            $now = microtime(as_float: true);
 
             // next allowed execution time
-            $nextAllowed = \Cache::get($key, $now);
+            $nextAllowed = Cache::get($key, $now);
 
             // if previous requests already reserved future slots
             if ($nextAllowed > $now) {
@@ -1174,25 +1159,23 @@ function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds 
             }
 
             // reserve next slot
-            \Cache::put($key, $nextAllowed, 300);
+            Cache::put($key, $nextAllowed, 300);
         });
-    } catch (\Throwable $e) {
+    } catch (Throwable) {
         // NEVER fail API because limiter failed
         return;
     }
 
     // each request waits its OWN turn
     if ($waitSeconds > 0) {
-        usleep((int) ($waitSeconds * 1_000_000));
+        Sleep::usleep((int) ($waitSeconds * 1_000_000));
     }
 }
 
 /**
  * Check if the authenticated user owns the resource.
  *
- * @param  int  $userID
  * @param  bool  $allowAdmin  If true, admin users can access the resource.
- * @return bool
  */
 function authorizeOwnership(int $userID, bool $allowAdmin = false): bool
 {
@@ -1207,9 +1190,9 @@ function authorizeOwnership(int $userID, bool $allowAdmin = false): bool
  * Format exception response with exception details.
  *
  * @param  Exception  $exception  Exception instance
- * @return \Illuminate\Http\JsonResponse json response
+ * @return JsonResponse json response
  */
-function exceptionResponse(Throwable $exception): \Illuminate\Http\JsonResponse
+function exceptionResponse(Throwable $exception): JsonResponse
 {
     return response()->json(
         [
@@ -1220,4 +1203,20 @@ function exceptionResponse(Throwable $exception): \Illuminate\Http\JsonResponse
         ],
         500
     );
+}
+
+/**
+ * This function returns an asset link based on link.php settings.
+ */
+function assetLink(string $type, string $key): string
+{
+    // if request is language, it should append & language to it
+    return asset(Config::get('link.'.$type.'.'.$key));
+}
+
+function commonSettings(string $option, string $optionField, string $returnColumn = 'option_value'): mixed
+{
+    return CommonSettings::where('option_name', $option)
+        ->where('optional_field', $optionField)
+        ->value($returnColumn);
 }

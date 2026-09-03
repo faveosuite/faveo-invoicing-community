@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasColumn('amount', 'payment_type')) {
-            Schema::table('payment_logs', function (Blueprint $table) {
+            Schema::table('payment_logs', function (Blueprint $table): void {
                 $table->string('amount')->nullable();
                 $table->string('payment_type')->nullable();
             });
@@ -23,12 +21,10 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('payment_logs', function (Blueprint $table) {
+        Schema::table('payment_logs', function (Blueprint $table): void {
             $table->dropColumn(['amount', 'payment_type']);
         });
     }

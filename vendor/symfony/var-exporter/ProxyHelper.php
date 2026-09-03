@@ -12,7 +12,6 @@
 namespace Symfony\Component\VarExporter;
 
 use Symfony\Component\VarExporter\Exception\LogicException;
-use Symfony\Component\VarExporter\Internal\Hydrator;
 use Symfony\Component\VarExporter\Internal\LazyDecoratorTrait;
 use Symfony\Component\VarExporter\Internal\LazyObjectRegistry;
 
@@ -48,7 +47,7 @@ final class ProxyHelper
             }
         }
 
-        $propertyScopes = $class ? Hydrator::$propertyScopes[$class->name] ??= Hydrator::getPropertyScopes($class->name) : [];
+        $propertyScopes = $class ? LazyObjectRegistry::$propertyScopes[$class->name] ??= LazyObjectRegistry::getPropertyScopes($class->name) : [];
         $abstractProperties = [];
         $hookedProperties = [];
         foreach ($propertyScopes as $key => [$scope, $name, , $access]) {
@@ -60,12 +59,12 @@ final class ProxyHelper
             }
 
             if ($flags & \ReflectionProperty::IS_ABSTRACT) {
-                $abstractProperties[$name] = $propertyScopes[$k][4] ?? Hydrator::$propertyScopes[$class->name][$k][4] = new \ReflectionProperty($scope, $name);
+                $abstractProperties[$name] = $propertyScopes[$k][4] ?? LazyObjectRegistry::$propertyScopes[$class->name][$k][4] = new \ReflectionProperty($scope, $name);
                 continue;
             }
             $abstractProperties[$name] = false;
 
-            if (!($access & Hydrator::PROPERTY_HAS_HOOKS)) {
+            if (!($access & LazyObjectRegistry::PROPERTY_HAS_HOOKS)) {
                 continue;
             }
 
@@ -73,7 +72,7 @@ final class ProxyHelper
                 throw new LogicException(\sprintf('Cannot generate lazy proxy: property "%s::$%s" is final.', $class->name, $name));
             }
 
-            $p = $propertyScopes[$k][4] ?? Hydrator::$propertyScopes[$class->name][$k][4] = new \ReflectionProperty($scope, $name);
+            $p = $propertyScopes[$k][4] ?? LazyObjectRegistry::$propertyScopes[$class->name][$k][4] = new \ReflectionProperty($scope, $name);
             $hookedProperties[$name] = [$p, $p->getHooks()];
         }
 
@@ -148,7 +147,6 @@ final class ProxyHelper
             $body = \array_slice(file($trait->getFileName()), $trait->getStartLine() - 1, $trait->getEndLine() - $trait->getStartLine());
             $body[0] = str_replace('): mixed', '): '.$type, $body[0]);
             $methods['__get'] = strtr(implode('', $body).'    }', [
-                'Hydrator' => '\\'.Hydrator::class,
                 'Registry' => '\\'.LazyObjectRegistry::class,
             ]);
             break;
@@ -264,7 +262,6 @@ final class ProxyHelper
             {$hooks}{$body}}
 
             // Help opcache.preload discover always-needed symbols
-            class_exists(\Symfony\Component\VarExporter\Internal\Hydrator::class);
             class_exists(\Symfony\Component\VarExporter\Internal\LazyObjectRegistry::class);
 
             EOPHP;
@@ -415,7 +412,7 @@ final class ProxyHelper
 
         $regexp = '/([\[\( ]|^)([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*+(?:\\\\[a-zA-Z0-9_\x7f-\xff]++)*+)(\(?)(?!: )/';
         $callback = (false !== strpbrk($default, "\\:('") && $class = $param->getDeclaringClass())
-            ? fn ($m) => $m[1].match ($m[2]) {
+            ? static fn ($m) => $m[1].match ($m[2]) {
                 'new', 'false', 'true', 'null' => $m[2],
                 'NULL' => 'null',
                 'self' => '\\'.$class->name,
@@ -423,13 +420,13 @@ final class ProxyHelper
                 'parent' => ($parent = $class->getParentClass()) ? '\\'.$parent->name : 'parent',
                 default => self::exportSymbol($m[2], '(' !== $m[3], $namespace),
             }.$m[3]
-            : fn ($m) => $m[1].match ($m[2]) {
+            : static fn ($m) => $m[1].match ($m[2]) {
                 'new', 'false', 'true', 'null', 'self', 'parent' => $m[2],
                 'NULL' => 'null',
                 default => self::exportSymbol($m[2], '(' !== $m[3], $namespace),
             }.$m[3];
 
-        return implode('', array_map(fn ($part) => match ($part[0]) {
+        return implode('', array_map(static fn ($part) => match ($part[0]) {
             '"' => $part, // for internal classes only
             "'" => false !== strpbrk($part, "\\\0\r\n") ? '"'.substr(str_replace(['$', "\0", "\r", "\n"], ['\$', '\0', '\r', '\n'], $part), 1, -1).'"' : $part,
             default => preg_replace_callback($regexp, $callback, $part),

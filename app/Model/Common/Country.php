@@ -1,10 +1,62 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Model\Common;
 
 use App\BaseModel;
+use App\Model\Payment\Currency;
+use App\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
+use Override;
 
+/**
+ * @property int $country_id
+ * @property string|null $country_code_char2
+ * @property string|null $country_code_char3
+ * @property string $country_name
+ * @property string|null $numcode
+ * @property string|null $phonecode
+ * @property string|null $capital
+ * @property numeric|null $latitude
+ * @property numeric|null $longitude
+ * @property string|null $emoji
+ * @property string|null $emojiU
+ * @property int $currency_id
+ * @property int $status
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Currency $currency
+ * @property-read Collection<int, State> $states
+ * @property-read int|null $states_count
+ * @property-read Collection<int, User> $users
+ * @property-read int|null $users_count
+ *
+ * @method static Builder<static>|Country newModelQuery()
+ * @method static Builder<static>|Country newQuery()
+ * @method static Builder<static>|Country query()
+ * @method static Builder<static>|Country whereCapital($value)
+ * @method static Builder<static>|Country whereCountryCodeChar2($value)
+ * @method static Builder<static>|Country whereCountryCodeChar3($value)
+ * @method static Builder<static>|Country whereCountryId($value)
+ * @method static Builder<static>|Country whereCountryName($value)
+ * @method static Builder<static>|Country whereCreatedAt($value)
+ * @method static Builder<static>|Country whereCurrencyId($value)
+ * @method static Builder<static>|Country whereEmoji($value)
+ * @method static Builder<static>|Country whereEmojiU($value)
+ * @method static Builder<static>|Country whereLatitude($value)
+ * @method static Builder<static>|Country whereLongitude($value)
+ * @method static Builder<static>|Country whereNumcode($value)
+ * @method static Builder<static>|Country wherePhonecode($value)
+ * @method static Builder<static>|Country whereStatus($value)
+ * @method static Builder<static>|Country whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class Country extends BaseModel
 {
     protected $table = 'countries';
@@ -16,20 +68,35 @@ class Country extends BaseModel
         'status',
     ];
 
+    #[Override]
     protected static function booted(): void
     {
-        static::addGlobalScope('status', function (Builder $builder) {
-            $builder->where('status', true);
+        static::addGlobalScope('status', function (Builder $builder): void {
+            $builder->where('status', operator: true);
         });
     }
 
-    public function currency()
+    /**
+     * @return BelongsTo<Currency, $this>
+     */
+    public function currency(): BelongsTo
     {
-        return $this->belongsTo(\App\Model\Payment\Currency::class);
+        return $this->belongsTo(Currency::class);
     }
 
-    public function users()
+    /**
+     * @return HasMany<User, $this>
+     */
+    public function users(): HasMany
     {
-        return $this->hasMany(\App\User::class, 'country', 'country_code_char2');
+        return $this->hasMany(User::class, 'country', 'country_code_char2');
+    }
+
+    /**
+     * @return HasMany<State, $this>
+     */
+    public function states(): HasMany
+    {
+        return $this->hasMany(State::class, 'country_id', 'country_id');
     }
 }

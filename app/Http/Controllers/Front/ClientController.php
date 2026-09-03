@@ -2,1477 +2,898 @@
 
 namespace App\Http\Controllers\Front;
 
-use App\ApiKey;
-use App\Auto_renewal;
+use App\Http\Controllers\Common\SettingsController;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
-use App\Http\Controllers\Order\RenewController;
-use App\Model\Common\CreditActivity;
-use App\Model\Common\Setting;
+use App\Http\Controllers\User\AdvanceSearchController;
+use App\License\Models\Installation;
+use App\License\Models\License;
 use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
+use App\Model\Order\CreditTransaction;
 use App\Model\Order\Invoice;
-use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
-use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
-use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
-use App\Model\Plugin;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\Payment_log;
-use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
 use App\WhatsappIntegration;
+use Auth;
 use Exception;
-use GuzzleHttp\Client;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Razorpay\Api\Api;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Logger;
 
 class ClientController extends BaseClientController
 {
+    /**
+     * @var User
+     */
     public $user;
 
+    /**
+     * @var Invoice
+     */
     public $invoice;
 
+    /**
+     * @var Order
+     */
     public $order;
 
+    /**
+     * @var Subscription
+     */
     public $subscription;
 
+    /**
+     * @var Payment
+     */
     public $payment;
 
     public function __construct()
     {
         $this->middleware('auth');
-        $user = new User();
+        $user = new User;
         $this->user = $user;
 
-        $invoice = new Invoice();
+        $invoice = new Invoice;
         $this->invoice = $invoice;
 
-        $order = new Order();
+        $order = new Order;
         $this->order = $order;
 
-        $subscription = new Subscription();
+        $subscription = new Subscription;
         $this->subscription = $subscription;
 
-        $payment = new Payment();
+        $payment = new Payment;
         $this->payment = $payment;
 
-        $product_upload = new ProductUpload();
-        $this->product_upload = $product_upload;
+        $product_upload = new ProductUpload;
+        $this->product_upload = $product_upload; // @phpstan-ignore property.notFound
 
-        $product = new Product();
-        $this->product = $product;
+        $product = new Product;
+        $this->product = $product; // @phpstan-ignore property.notFound
 
-        $github_controller = new GithubApiController();
-        $this->github_api = $github_controller;
+        $github_controller = new GithubApiController;
+        $this->github_api = $github_controller; // @phpstan-ignore property.notFound
 
-        $model = new Github();
-        $this->github = $model->firstOrFail();
+        $model = new Github;
+        $this->github = $model->firstOrFail(); // @phpstan-ignore property.notFound
 
-        $this->client_id = $this->github->client_id;
-        $this->client_secret = $this->github->client_secret;
-    }
-
-    /**
-     * Create new Auto renewal and update auto-renewal status.
-     *
-     * @param  Request  $request
-     * @return array{type:string,message:string}|JsonResponse
-     */
-    public function enableAutorenewalStatus(Request $request)
-    {
-        try {
-            $currency = getCurrencyForClient(\Auth::user()->country);
-            $amount = getMinimumAmountForPayments($currency, 'stripe');
-            $orderid = $request->get('order_id');
-
-            $order = Order::findOrFail($orderid);
-
-            if (! authorizeOwnership($order->client)) {
-                return errorResponse(__('message.unauthorized_action'), 403);
-            }
-
-            $url = url('my-order/'.$orderid.'#auto-renew');
-            $controller = new SettingsController();
-            $confirm = $controller->handlePayment($request, $amount, $currency, $url);
-
-            $paymentIntent = \Stripe\PaymentIntent::retrieve($confirm['id']);
-            $subscription = Subscription::where('order_id', $orderid)->first();
-            if ($confirm->status == 'requires_action') {
-                $redirectUrl = $paymentIntent->next_action->redirect_to_url->url;
-
-                return $redirectUrl;
-            } elseif ($confirm->status === 'succeeded') {
-                $refund = \Stripe\Refund::create([
-                    'payment_intent' => $confirm['id'],
-                    'amount' => $confirm['amount'],
-                ]);
-                $invoice_id = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-                $number = Invoice::where($paymentIntent->customerid)->value('number');
-                $customer_details = [
-                    'user_id' => \Auth::user()->id,
-                    'customer_id' => $paymentIntent->customer,
-                    'payment_method' => 'stripe',
-                    'order_id' => $orderid,
-                    'payment_intent_id' => $paymentIntent->payment_method,
-                ];
-                Auto_renewal::create($customer_details);
-                Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'autoRenew_status' => '1']);
-                $mail = new \App\Http\Controllers\Common\PhpMailController();
-
-                $mail->payment_log(\Auth::user()->email, 'stripe', 'success', Order::where('id', $orderid)->value('number'), null, $amount, 'Payment method updated');
-
-                $response = ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
-
-                return ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
-            }
-        } catch(\Exception $ex) {
-            $result = $ex->getMessage();
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
-            $mail->payment_log(\Auth::user()->email, 'stripe', 'failed', Order::where('id', $orderid)->value('number'), $result, $amount, 'Payment method updated');
-            $errorMessage = __('message.something_different_payment');
-
-            return response()->json(['error' => $errorMessage], 500);
-        }
-    }
-
-    /**
-     *  Delete Auto renewal and update auto-renewal status.
-     *
-     * @param  Request  $request
-     * @return JsonResponse
-     */
-    public function disableAutorenewalStatus(Request $request)
-    {
-        try {
-            $orderid = $request->get('order_id');
-            $userid = Subscription::where('order_id', $orderid)->value('user_id');
-            User::findOrfail($userid);
-
-            if (! authorizeOwnership($userid)) {
-                return errorResponse(__('message.unauthorized_action'), 403);
-            }
-
-            $subscription = Subscription::where('order_id', $orderid)->first();
-            $this->autoRenewalSubOps($subscription, $orderid);
-            $response = ['type' => 'success', 'message' => __('message.auto_subscription_disabled')];
-
-            return response()->json($response);
-        } catch(\Exception $ex) {
-            $result = $ex->getMessage();
-
-            return response()->json(compact('result'), 500);
-        }
-    }
-
-    private function autoRenewalSubOps($subscription, $orderid)
-    {
-        if ($subscription->rzp_subscription && $subscription->is_subscribed && $subscription->subscribe_id) {
-            $rzp_key = ApiKey::where('id', 1)->value('rzp_key');
-            $rzp_secret = ApiKey::where('id', 1)->value('rzp_secret');
-            $api = new Api($rzp_key, $rzp_secret);
-            $pause = $api->subscription->fetch($subscription->subscribe_id)->cancel();
-            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'rzp_subscription' => '0']);
-        } elseif ($subscription->autoRenew_status && $subscription->is_subscribed && $subscription->subscribe_id) {
-            $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
-            $stripe = new \Stripe\StripeClient($stripeSecretKey);
-            \Stripe\Stripe::setApiKey($stripeSecretKey);
-            $pause = $stripe->subscriptions->cancel($subscription->subscribe_id, []);
-            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'autoRenew_status' => '0']);
-        } else {
-            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'autoRenew_status' => '0', 'rzp_subscription' => '0']);
-        }
-    }
-
-    /**
-     *  Setup razorpay , create auto renewal and update auto renewal status.
-     *
-     * @param  Request  $request
-     * @return RedirectResponse
-     */
-    public function enableRzpStatus(Request $request)
-    {
-        try {
-            $currency = getCurrencyForClient(\Auth::user()->country);
-            $amount = currencyFormat('1', $currency);
-            $orderid = $request->route('orderid');
-            $subscription = Subscription::where('order_id', $orderid)->first();
-
-            User::findOrfail($subscription->user_id);
-
-            if (! authorizeOwnership($subscription->user_id)) {
-                return redirect()->back()->with('fails', __('message.unauthorized_action'));
-            }
-
-            $input = $request->all();
-            $error = 'Payment Failed';
-            $rzp_key = ApiKey::where('id', 1)->value('rzp_key');
-            $rzp_secret = ApiKey::where('id', 1)->value('rzp_secret');
-            $api = new Api($rzp_key, $rzp_secret);
-
-            $payment = $api->payment->fetch($input['razorpay_payment_id']);
-            $response = $api->payment->fetch($input['razorpay_payment_id']);
-            $capture = $api->payment->fetch($response->id)->capture(['amount' => $response->amount]);
-            $refund = $api->payment->fetch($response->id)->refund(['amount' => $response->amount, 'speed' => 'normal']);
-
-            $invoice_id = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-            $number = Invoice::where('id', $invoice_id)->value('number');
-
-            $customer_details = [
-                'user_id' => \Auth::user()->id,
-                'customer_id' => $response['id'],
-                'payment_method' => 'razorpay',
-                'order_id' => $orderid,
-            ];
-            Auto_renewal::create($customer_details);
-
-            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'rzp_subscription' => '1']);
-
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
-            $mail->payment_log(\Auth::user()->email, 'Razorpay', 'success', Order::where('id', $orderid)->value('number'), null, $amount, 'Payment method updated');
-
-            return redirect()->back()->with('success', __('message.card_updated_successfully'));
-        } catch(\Exception $ex) {
-            $result = $ex->getMessage();
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
-            $mail->payment_log(\Auth::user()->email, 'stripe', 'failed', Order::where('id', $orderid)->value('number'), $result, $amount, 'Payment method updated');
-
-            return redirect()->back()->with('fails', __('message.payment_declined', ['msg' => $ex->getMessage()]));
-        }
-    }
-
-    /**
-     *  Auto-renew by id and redirect to paynow page.
-     *
-     * @param
-     * @return RedirectResponse
-     */
-    public function autoRenewbyid()
-    {
-        try {
-            $id = request()->route('id');
-            $order_id = \DB::table('order_invoice_relations')->where('invoice_id', $id)->value('order_id');
-            $sub = Subscription::where('order_id', $order_id)->first();
-            $planid = $sub->plan_id;
-            $plan = Plan::find($planid);
-            $planDetails = userCurrencyAndPrice($sub->user_id, $plan);
-            if (is_null($planDetails['plan'])) {
-                throw new \Exception(__('message.no_available_plans_currency'));
-            }
-            $cost = $planDetails['plan']->renew_price;
-            $currency = $planDetails['currency'];
-            $controller = new RenewController();
-            $items = InvoiceItem::where('invoice_id', $id)->first();
-            $invoiceid = $items->invoice_id;
-            // $this->setSession($id, $planid);
-
-            return redirect('paynow/'.$id);
-        } catch(\Exception $ex) {
-            return redirect('my-orders')->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     *  Show the invoice to the client.
-     *
-     * @param  request  $request
-     * @return \Illuminate\Contracts\View\View|RedirectResponse
-     */
-    public function invoices(Request $request)
-    {
-        try {
-            $amt = Payment::where('user_id', \Auth::user()->id)->where('payment_method', 'Credit Balance')->where('payment_status', 'success')->value('amt_to_credit');
-            $formattedValue = currencyFormat($amt, getCurrencyForClient(\Auth::user()->country), true);
-            $payment_id = Payment::where('user_id', \Auth::user()->id)->where('payment_method', 'Credit Balance')->where('payment_status', 'success')->value('id');
-            $payment_activity = CreditActivity::where('payment_id', $payment_id)->where('role', 'user')->orderBy('created_at', 'desc')->get();
-
-            return view('themes.default1.front.clients.invoice', compact('request', 'formattedValue', 'payment_activity'));
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
+        $this->client_id = $this->github->client_id; // @phpstan-ignore property.notFound
+        $this->client_secret = $this->github->client_secret; // @phpstan-ignore property.notFound
     }
 
     /**
      *  Get all the invoices in data table.
      *
-     * @param  request  $request
-     * @return \Yajra\DataTables\DataTableAbstract
      *
      * @throws Exception
      */
-    public function getInvoices(Request $request)
+    public function getInvoices(Request $request): JsonResponse
     {
-        $status = $request->input('status');
-        $invoices = Invoice::leftJoin('order_invoice_relations', 'invoices.id', '=', 'order_invoice_relations.invoice_id')
-        ->leftJoin('orders', 'order_invoice_relations.order_id', '=', 'orders.id')
-        ->select('orders.number')
-        ->select('invoices.id', 'invoices.user_id', 'invoices.date', 'invoices.number', 'invoices.grand_total', 'order_invoice_relations.order_id as orderNo', 'invoices.is_renewed', 'invoices.status', 'invoices.currency')
-        ->groupBy('invoices.number')
-        ->where('invoices.user_id', '=', \Auth::user()->id);
+        $query = Invoice::with([
+            'orders:id,number',
+            'allocations.payment:id,payment_status',
+        ])
+            ->select('id', 'number', 'date', 'grand_total', 'billing_pay', 'status', 'currency', 'is_renewed')
+            ->where('user_id', Auth::id());
+        $search = trim((string) $request->input('search-query', ''));
 
-        if ($status == 'pending') {
-            $invoices->where('invoices.status', '=', 'pending');
+        if ($search !== '' && $search !== '0') {
+            $query->where(function (Builder $q) use ($search): void {
+                $q->where('number', 'like', sprintf('%%%s%%', $search))
+                    ->orWhere('status', 'like', sprintf('%%%s%%', $search));
+            });
         }
 
-        return \DataTables::of($invoices)
-                    ->orderColumn('number', '-invoices.date $1')
-                    ->orderColumn('orderNo', '-invoices.date $1')
-                    ->orderColumn('date', '-invoices.date $1')
-                    ->orderColumn('total', '-invoices.date $1')
-                    ->orderColumn('paid', '-invoices.date $1')
-                    ->orderColumn('balance', '-invoices.date $1')
-                    ->orderColumn('status', '-invoices.date $1')
-                    ->orderColumn('date', '-invoices.date $1')
+        $allowed = ['number' => 'number', 'date' => 'date', 'grand_total' => 'grand_total'];
+        $sortCol = $allowed[$request->input('sort-field', 'date')] ?? 'date';
+        $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+        $query->orderBy($sortCol, $sortDir);
 
-                    ->addColumn('number', function ($model) {
-                        if ($model->is_renewed) {
-                            return '<a href='.url('my-invoice/'.$model->id).'>'.$model->number.'</a>&nbsp;'.getStatusLabel('renewed', 'badge');
-                        } else {
-                            return '<a href='.url('my-invoice/'.$model->id).'>'.$model->number.'</a>';
-                        }
-                    })
-                        ->addColumn('orderNo', function ($model) {
-                            if ($model->is_renewed) {
-                                $orderLinks = $model->orderRelation
-                                    ->map(function ($relation) {
-                                        $order = Order::find($relation->order_id);
+        $paginated = $query->paginate((int) $request->input('limit', 10));
 
-                                        return $order?->getOrderLink($order->id, 'my-order');
-                                    })
-                                    ->filter()
-                                    ->implode(', ');
+        $paginated->getCollection()->transform(function ($invoice): array {
+            // The allocated amounts, not the payments' own totals — one payment
+            // can be spread over several invoices.
+            $paymentTotal = $invoice->allocations
+                ->filter(fn ($a): bool => $a->payment?->payment_status === 'success')
+                ->sum(fn ($a): float => (float) $a->amount);
+            $paid = floatval($invoice->billing_pay ?? 0) + floatval($paymentTotal);
+            $balance = max(0, floatval($invoice->grand_total) - $paid);
+            $isPaid = strtolower($invoice->status ?? '') === 'success';
 
-                                return $orderLinks ?: '--';
-                            }
+            return [
+                'id' => $invoice->id,
+                'number' => $invoice->number,
+                'date' => $invoice->date,
+                'is_renewed' => (bool) $invoice->is_renewed,
+                'orders' => $invoice->orders->map(fn ($o): array => ['id' => $o->id, 'number' => $o->number])->values(),
+                'grand_total' => currencyFormat($invoice->grand_total, $invoice->currency),
+                'paid' => currencyFormat($paid, $invoice->currency),
+                'balance' => currencyFormat($balance, $invoice->currency),
+                'status' => $isPaid ? 'Paid' : 'Unpaid',
+                'show_pay' => ! $isPaid && floatval($invoice->grand_total) > 0,
+                'show_delete' => ! $isPaid && $invoice->orders->isEmpty(),
+            ];
+        });
 
-                            $orderLinks = $model->order
-                                ->map(fn ($order) => $order->getOrderLink($order->id, 'my-order'))
-                                ->implode(', ');
-
-                            return $orderLinks ?: '--';
-                        })
-                    ->addColumn('date', function ($model) {
-                        return getDateHtml($model->date);
-                    })
-                    ->addColumn('total', function ($model) {
-                        return  currencyFormat($model->grand_total, $code = $model->currency);
-                    })
-                    ->addColumn('paid', function ($model) {
-                        $payment = \App\Model\Order\Payment::where('invoice_id', $model->id)->select('amount')->get();
-                        $c = count($payment);
-                        $sum = 0;
-
-                        for ($i = 0; $i <= $c - 1; $i++) {
-                            $sum = $sum + $payment[$i]->amount;
-                        }
-
-                        return currencyFormat($sum, $code = $model->currency);
-                    })
-                     ->addColumn('balance', function ($model) {
-                         $payment = \App\Model\Order\Payment::where('invoice_id', $model->id)->select('amount')->get();
-                         $c = count($payment);
-                         $sum = 0;
-
-                         for ($i = 0; $i <= $c - 1; $i++) {
-                             $sum = $sum + $payment[$i]->amount;
-                         }
-                         $pendingAmount = $model->grand_total - $sum;
-
-                         if ($pendingAmount < 0) {
-                             $pendingAmount = 0;
-                         }
-
-                         return currencyFormat($pendingAmount, $code = $model->currency);
-                     })
-                     ->addColumn('status', function ($model) {
-                         return  getStatusLabel($model->status, 'badge');
-                     })
-                    ->addColumn('Action', function ($model) {
-                        $status = $model->status;
-                        $deleteButton = '';
-                        $payNowButton = '';
-                        $payment = '';
-                        $viewButton = '<a href="'.url('my-invoice/'.$model->id).'" class="btn btn-light-scale-2 btn-sm text-dark" id="iconStyle" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"><i class="fa fa-eye"></i></a>';
-
-                        if ($status != 'Success' && $model->grand_total > 0) {
-                            $payNowButton = '<a href="'.url('paynow/'.$model->id).'" class="btn btn-light-scale-2 btn-sm text-dark" id="iconStyle" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_pay').'"><i class="fa fa-credit-card"></i></a>';
-
-                            if (! $model->orderRelation()->exists()) {
-                                $deleteButton = '<a class="btn btn-light-scale-2 btn-sm text-dark delete-btn" id="iconStyle" data-id="'.$model->id.'" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_delete').'"><i class="fa fa-trash"></i></a>';
-                            }
-
-                            return $payNowButton.' '.$deleteButton.' '.$viewButton;
-                        }
-
-                        return $viewButton.$payment;
-                    })
-
-                     ->filterColumn('number', function ($query, $keyword) {
-                         $sql = 'invoices.number like ?';
-                         $query->whereRaw($sql, ["%{$keyword}%"]);
-                     })
-                    ->filterColumn('status', function ($query, $keyword) {
-                        if ($keyword == 'Paid' || $keyword == 'paid') {
-                            $sql = 'status like ?';
-                            $sql2 = 'success';
-                            $query->whereRaw($sql, ["%{$sql2}%"]);
-                        } elseif ($keyword == 'Unpaid' || $keyword == 'unpaid') {
-                            $sql = 'status like ?';
-                            $sql2 = 'pending';
-                            $query->whereRaw($sql, ["%{$sql2}%"]);
-                        } elseif ($keyword == 'Partiallypaid' || $keyword == 'Partially' || $keyword == 'partially') {
-                            $sql = 'status like ?';
-                            $sql2 = 'partially paid';
-                            $query->whereRaw($sql, ["%{$sql2}%"]);
-                        }
-                    })
-                    ->filterColumn('orderNo', function ($query, $keyword) {
-                        $sql = 'orders.number like ?';
-                        $query->whereRaw($sql, ["%{$keyword}%"]);
-                    })
-
-                    ->rawColumns(['number', 'orderNo', 'date', 'total', 'status', 'Action'])
-                    // ->orderColumns('number', 'created_at', 'total')
-                    ->make(true);
+        return successResponse('', $paginated);
     }
 
     /**
-     *  Show the invoice to the client.
-     *
-     * @param  $id
-     * @return \Illuminate\Contracts\View\View|RedirectResponse
-     *
-     * @throws \Exception
+     * Client's credit balance, summed across all currencies, and the history
+     * behind it read straight from the ledger. The old `credit_activity` table
+     * is no longer consulted: it stopped gaining rows when credit moved to the
+     * ledger, so it left the client staring at a balance with no explanation.
      */
-    public function getInvoice($id)
+    public function getCreditBalance(): JsonResponse
     {
         try {
-            $invoice = $this->invoice->find($id);
-            if (! $invoice) {
-                throw new \Exception(__('message.invoice_not_found'));
+            $user = Auth::user();
+            if (! $user instanceof User) {
+                return errorResponse('Unauthorized', 401);
             }
 
-            if ($invoice->user_id != \Auth::id()) {
-                throw new \Exception(__('message.invalid_invoice_modification'));
-            }
+            $balance = new AdvanceSearchController()->getExtraAmt($user->id);
 
-            $data = $this->prepareInvoiceData($invoice);
+            $transactions = CreditTransaction::where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->orderByDesc('id') // same-second rows would otherwise order arbitrarily
+                ->limit(50)
+                ->get();
 
-            return view('themes.default1.front.clients.show-invoice', array_merge(['invoice' => $invoice], $data));
-        } catch (\Exception $ex) {
-            return redirect()->route('my-invoices')->with('fails', $ex->getMessage());
+            $invoiceNumbers = Invoice::whereIn('id', $transactions->pluck('invoice_id')->filter())
+                ->pluck('number', 'id');
+
+            return successResponse('', [
+                'balance' => currencyFormat($balance, getCurrencyForClient($user->country), true),
+                'activity' => $transactions->map(fn ($transaction): array => [
+                    'text' => $this->creditActivityText($transaction, $invoiceNumbers[$transaction->invoice_id] ?? null),
+                    'created_at' => $transaction->created_at,
+                ])->values(),
+            ]);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
+
+            return errorResponse(__('message.something_bad'));
         }
     }
 
-    public function prepareInvoiceData($invoice, $user = null)
+    /**
+     * One ledger row as a sentence for the client. Plain text on purpose — the
+     * note half of it is written by an admin, and this is rendered in the
+     * client's browser.
+     */
+    private function creditActivityText(CreditTransaction $transaction, ?string $invoiceNumber): string
     {
-        $payments = $invoice->payment;
-        $user = $user ?? \Auth::user();
-        $items = $invoice->invoiceItem()->get();
+        $amount = currencyFormat(abs((float) $transaction->amount), $transaction->currency, true);
 
-        $orderIDs = $invoice->orderRelation()->pluck('order_id')->toArray();
+        $text = $transaction->type === CreditTransaction::TYPE_APPLIED_TO_INVOICE
+            ? __('message.credit_history_applied', ['amount' => $amount, 'number' => $invoiceNumber ?? '—'])
+            : __('message.credit_history_added', ['amount' => $amount]);
 
-        $items->each(function ($item) use ($orderIDs) {
-            $order = Order::whereIn('id', $orderIDs)
-                ->where('product', $item->product_id)
-                ->first();
+        return $transaction->note ? $text.' '.$transaction->note : $text;
+    }
 
-            $item->order = $order;
-        });
-        $order = $this->order->getOrderLink($invoice->orderRelation()->value('order_id'), 'my-order');
-        $set = Setting::find(1);
-        $date = getDateHtml($invoice->date);
-        $symbol = $invoice->currency;
-
-        switch ($invoice->status) {
-            case 'Success':
-                $statusClass = 'text-success';
-                $statusText = 'PAID';
-                break;
-            case 'partially paid':
-                $statusClass = 'text-warning';
-                $statusText = 'Partially paid';
-                break;
-            default:
-                $statusClass = 'text-fail';
-                $statusText = 'Unpaid';
+    /**
+     * Single order's full detail (license, autorenew, WhatsApp, deploy info,
+     * etc.) — split out from getClientOrder() below, which is list-only.
+     */
+    public function getClientOrderDetail(int $id): JsonResponse
+    {
+        $order = $this->getClientPanelOrdersData()->where('id', $id)->first();
+        if (! $order) {
+            return errorResponse(__('message.no_records_found'), 404);
         }
 
-        // ==== CALCULATIONS ====
+        $latestInvoice = $order->invoices->first();
+        $user = Auth::user();
+        if (! $user instanceof User) {
+            return errorResponse('Unauthorized', 401);
+        }
 
-        $itemsSubtotal = 0;
-        $taxAmt = 0;
-        $taxName = [];
+        $license = License::where('license_order_number', $order->number)->first(['license_domain', 'license_ip', 'license_machine_id']);
 
-        foreach ($items as $item) {
-            $itemsSubtotal += floatval($item->subtotal);
+        // A plan/agent change terminates the old order and creates a new one
+        // (see terminated_order_upgrade, written by CloudExtraActivities).
+        // Surface that link both ways so the client isn't left looking at a
+        // dead order with no explanation, or a new one they don't remember
+        // creating themselves.
+        $replacementOrderId = \DB::table('terminated_order_upgrade')->where('terminated_order_id', $order->id)->value('upgraded_order_id');
+        $predecessorOrderId = \DB::table('terminated_order_upgrade')->where('upgraded_order_id', $order->id)->value('terminated_order_id');
+        $replacementOrder = $replacementOrderId ? \App\Model\Order\Order::where('client', $order->client)->find((int) $replacementOrderId) : null;
+        $predecessorOrder = $predecessorOrderId ? \App\Model\Order\Order::where('client', $order->client)->find((int) $predecessorOrderId) : null;
 
-            if ($item->tax_name != 'null') {
-                $taxAmt += floatval($item->subtotal);
+        return successResponse('', [
+            'id' => $order->id,
+            'number' => $order->number,
+            'product_name' => $order->productRelation?->name,
+            'product_id' => $order->productRelation?->id,
+            'version' => $order->subscription?->version,
+            'status' => $order->order_status,
+            'order_date' => $order->created_at,
+            'update_ends_at' => $order->subscription?->update_ends_at,
+            'license_ends_at' => $order->subscription?->ends_at,
+            'serial_key' => $order->serial_key,
+            'license_mode' => $order->license_mode,
+            'license_domain' => $license?->license_domain,
+            'license_ip' => $license?->license_ip,
+            'license_machine_id' => $license?->license_machine_id,
+            'invoice_id' => $latestInvoice?->id,
+            'invoice_number' => $latestInvoice?->number,
+            'sub_id' => $order->subscription?->id,
+            'agents' => $order->invoiceItem?->agents,
+            'current_plan' => $order->subscription?->plan?->name,
+            'client_id' => $order->client,
+            'is_cloud' => in_array($order->productRelation?->id, cloudPopupProducts()),
+            'autorenew_status' => (bool) $order->subscription?->autoRenew_status,
+            'is_subscribed' => (bool) $order->subscription?->is_subscribed,
+            'auto_renew_state' => $order->subscription?->autoRenewState() ?? 'inactive',
+            'autorenew_log' => Payment_log::where('order', $order->number)
+                ->where('payment_type', 'Payment method updated')
+                ->orderByDesc('id')
+                ->first(['payment_method', 'date']),
+            'available_gateways' => $this->autoRenewalGateways($user->country),
+            'autorenewal_enabled' => $this->autoRenewalGateways($user->country) !== [],
+            'whatsapp_enabled' => (bool) $order->productRelation?->whatsapp_integration,
+            'whatsapp_signup_enabled' => (bool) StatusSetting::value('whatsapp_status'),
+            'whatsapp_app_id' => WhatsappIntegration::first()?->app_id,
+            'whatsapp_config_id' => WhatsappIntegration::first()?->config_id,
+            'user' => [
+                'name' => ucfirst($user->first_name ?? '').' '.ucfirst($user->last_name ?? ''),
+                'email' => $user->email,
+                'mobile' => ($user->mobile_code ? '(+'.$user->mobile_code.') ' : '').($user->mobile ?? ''),
+                'address' => $user->address ?? '',
+            ],
+            'has_deployable_uploads' => ProductUpload::where('product_id', $order->productRelation?->id)
+                ->where('is_private', 0)
+                ->whereNotNull('file')
+                ->where('file', '!=', '')
+                ->exists(),
+            'manual_install_guide_url' => \App\Model\Common\Setting::where('id', 1)->value('help_docs_url'),
+            'deploy_enabled' => (bool) \App\Model\Common\Setting::where('id', 1)->value('deployment_enabled'),
+            'replacement_order' => $replacementOrder ? ['id' => $replacementOrder->id, 'number' => $replacementOrder->number] : null,
+            'predecessor_order' => $predecessorOrder ? ['id' => $predecessorOrder->id, 'number' => $predecessorOrder->number] : null,
+        ]);
+    }
+
+    /**
+     * Paginated order list for the client's My Orders page.
+     */
+    public function getClientOrder(Request $request): JsonResponse
+    {
+        $query = $this->getClientPanelOrdersData();
+
+        $search = trim((string) $request->input('search-query', ''));
+
+        if ($search !== '' && $search !== '0') {
+            $query->where(function (Builder $q) use ($search): void {
+                $q->where('number', 'like', sprintf('%%%s%%', $search))
+                    ->orWhereHas('productRelation', fn (Builder $pq) => $pq->where('name', 'like', sprintf('%%%s%%', $search)));
+            });
+        }
+
+        // Dashboard's "Order Renewals" widget links here with this flag — same
+        // criteria as its own count in clientDetails().
+        if ($request->boolean('renewal')) {
+            $query->whereHas('subscription', fn (Builder $q) => $q->where('update_ends_at', '<', now()));
+        }
+
+        $sortField = $request->input('sort-field', 'order_date');
+        $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+
+        match ($sortField) {
+            'number' => $query->orderBy('number', $sortDir),
+            'update_ends_at' => $query->orderBy(
+                Subscription::select('update_ends_at')->whereColumn('order_id', 'orders.id')->limit(1),
+                $sortDir
+            ),
+            default => $query->orderBy('created_at', $sortDir),
+        };
+
+        $paginated = $query->paginate((int) $request->input('limit', 10));
+
+        $productIds = $paginated->getCollection()->pluck('productRelation.id')->unique()->filter()->values()->toArray();
+        $downloadPerms = [];
+        foreach ($productIds as $pid) {
+            $perms = LicensePermissionsController::getPermissionsForProduct((int) $pid);
+            $downloadPerms[$pid] = $perms['downloadPermission'] == 1;
+        }
+
+        $paginated->getCollection()->transform(function ($order) use ($downloadPerms): array {
+            $hasDownload = $downloadPerms[$order->productRelation?->id] ?? false;
+            $latestInvoice = $order->invoices->first();
+
+            return [
+                'id' => $order->id,
+                'number' => $order->number,
+                'product_name' => $order->productRelation?->name,
+                'version' => $order->subscription?->version,
+                'status' => $order->order_status,
+                'order_date' => $order->created_at,
+                'update_ends_at' => $order->subscription?->update_ends_at,
+                'agents' => $order->invoiceItem?->agents,
+                'current_plan' => $order->subscription?->plan?->name,
+                'product_id' => $order->productRelation?->id,
+                'client_id' => $order->client,
+                'invoice_number' => $latestInvoice?->number,
+                'sub_id' => $order->subscription?->id,
+                'show_download' => $hasDownload,
+                'show_cloud_delete' => ! $hasDownload,
+                'is_terminated' => $order->order_status === 'Terminated',
+            ];
+        });
+
+        return successResponse('', $paginated);
+    }
+
+    /**
+     * Cloud settings data for the client order view (Vue cloud-settings tab).
+     * Returns the current domain, agent count, plan, expiry and the plan list
+     * used by the change-domain / change-agents / upgrade-downgrade modals.
+     */
+    public function getCloudSettings(int $orderId): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            if (! $user instanceof User) {
+                return errorResponse('Unauthorized', 401);
+            }
+            $order = $this->getClientPanelOrdersData()->where('id', $orderId)->first();
+            $product = $order?->productRelation;
+
+            if (! $order || ! $product || ! in_array($product->id, cloudPopupProducts())) {
+                return errorResponse(__('message.no_records_found'));
             }
 
-            $taxName[] = $item->tax_name.'@'.$item->tax_percentage;
+            $currency = getCurrencyForClient($user->country);
+            $subscription = $order->subscription;
+
+            $installation_path = Installation::where('license_code', $order->serial_key)
+                ->where('installation_path', '!=', cloudCentralDomain())
+                ->latest('updated_at')->value('installation_path');
+
+            $currentAgents = ltrim(substr($order->serial_key, 12), '0');
+
+            $planIdOld = $subscription?->plan_id;
+            $planName = Plan::where('id', $planIdOld)->value('name');
+            $pricePerAgent = PlanPrice::where('plan_id', $planIdOld)
+                ->where('currency', $currency)->latest()->value('add_price');
+
+            // Plans available for upgrade/downgrade (other cloud products' plans, free excluded).
+            $plans = $this->planPriceProductRelation($product);
+            $planIds = array_keys($plans);
+            $plans = $this->planDetails($planIds, $user->country, $plans, $product);
+            $planOptions = [];
+            foreach ($plans as $pid => $pname) {
+                $planOptions[] = ['id' => $pid, 'name' => $pname];
+            }
+
+            return successResponse('', [
+                'order_id' => $order->id,
+                'product_id' => $product->id,
+                'sub_id' => $subscription?->id,
+                'serial_key' => $order->serial_key,
+                'installation_path' => $installation_path,
+                'current_agents' => $currentAgents,
+                'current_plan_id' => $planIdOld,
+                'current_plan_name' => $planName,
+                'is_free_plan' => $planName && stripos((string) $planName, 'free') !== false,
+                'plan_expiry' => $subscription?->ends_at,
+                'price_per_agent' => currencyFormat($pricePerAgent, $currency, includeSymbol: true),
+                'plans' => $planOptions,
+            ]);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
+
+            return errorResponse(__('message.something_bad'));
+        }
+    }
+
+    public function renewPopupVue(Request $request, int $productid): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            if (! $user instanceof User) {
+                return errorResponse('Unauthorized', 401);
+            }
+            $currency = getCurrencyForClient($user->country);
+
+            $plans = Plan::where('product', $productid)
+                ->where('status', 1)
+                ->where('days', '!=', 14)
+                ->with([
+                    'planPrice' => fn ($q) => $q->where('currency', $currency)
+                        ->where('renew_price', '!=', '0')])
+                ->get()
+                ->filter(fn ($plan) => $plan->planPrice->isNotEmpty());
+
+            $planOptions = $plans->map(function ($plan) use ($currency): array {
+                $planPrice = $plan->planPrice->first();
+                $renewPrice = $planPrice instanceof PlanPrice ? $planPrice->renew_price : 0;
+
+                return [
+                    'id' => $plan->id,
+                    'name' => $plan->name.' (Renewal price: '.currencyFormat($renewPrice, $currency, includeSymbol: true).')',
+                ];
+            })->values();
+
+            return successResponse('', [
+                'plans' => $planOptions,
+                'user_id' => $user->id,
+            ]);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function getInvoicesByOrderId(Request $request, mixed $orderid, mixed $userid, mixed $admin = null): JsonResponse
+    {
+        try {
+            if (! authorizeOwnership((int) $userid, allowAdmin: true)) {
+                return errorResponse(__('message.unauthorized_action'), 403);
+            }
+
+            $order = Order::where('id', $orderid)->where('client', $userid)->firstOrFail();
+
+            $invoiceIds = $order->invoices()->pluck('invoices.id');
+
+            $allowed = ['number', 'date'];
+            $sortCol = in_array($request->input('sort-field'), $allowed, true) ? $request->input('sort-field') : 'date';
+            $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+
+            $paginated = Invoice::whereIn('id', $invoiceIds)
+                ->select('id', 'number', 'date', 'grand_total', 'currency', 'status', 'is_renewed')
+                ->orderBy($sortCol, $sortDir)
+                ->paginate(10);
+
+            $paginated->getCollection()->transform(fn ($model): array => [
+                'id' => $model->id,
+                'number' => $model->number,
+                'date' => $model->date,
+                'grand_total' => currencyFormat($model->grand_total, $model->currency),
+                'status' => $model->status,
+                'is_renewed' => (bool) $model->is_renewed,
+            ]);
+
+            return successResponse('', $paginated);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    /**
+     * Get list of all the versions from Filesystem.
+     */
+    public function getVersionList(Request $request, int $orderid): JsonResponse
+    {
+        try {
+            $order = Order::with([
+                'productRelation:id,github_owner,github_repository',
+                'subscription:id,order_id,product_id,update_ends_at',
+                'invoices' => fn ($q) => $q->select('invoices.id', 'invoices.number')->latest('invoices.id'),
+            ])->where('id', $orderid)->where('client', Auth::id())->first();
+
+            if (! $order) {
+                return errorResponse(__('message.unauthorized_action'), 403);
+            }
+
+            $product = $order->productRelation;
+            if (! $product instanceof Product) {
+                return errorResponse('Product relation not found.', 404);
+            }
+            $subscription = $order->subscription;
+
+            if ($product->github_owner && $product->github_repository) {
+                return $this->githubVersions($request, $product, $subscription);
+            }
+
+            return $this->uploadVersions($request, $order, $product, $subscription);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage(), 500);
+        }
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function autoRenewalGateways(string $country): array
+    {
+        $currency = getCurrencyForClient($country);
+        $active = SettingsController::checkPaymentGateway($currency);
+        if (! is_array($active)) {
+            $active = [];
+        }
+        $active = array_map(strtolower(...), $active);
+
+        $enabled = [];
+        if (StatusSetting::autoRenewalEnabledFor('stripe') && in_array('stripe', $active)) {
+            $enabled[] = 'Stripe';
         }
 
-        $taxName = array_unique($taxName);
+        if (StatusSetting::autoRenewalEnabledFor('razorpay') && in_array('razorpay', $active)) {
+            $enabled[] = 'Razorpay';
+        }
 
-        $gstSplit = [];
+        return $enabled;
+    }
 
-        foreach ($taxName as $tax) {
-            [$name, $percentage] = explode('@', $tax);
-            if ($name == 'null') {
+    private function githubVersions(Request $request, Product $product, ?Subscription $subscription): JsonResponse
+    {
+        $allReleases = array_slice(
+            $this->github_api->releases($product->github_owner, $product->github_repository), // @phpstan-ignore property.notFound
+            0, 3, preserve_keys: true
+        );
+
+        $downloadPermission = LicensePermissionsController::getPermissionsForProduct((int) $product->id);
+        $allowTillExpiry = $downloadPermission['allowDownloadTillExpiry'] == 1;
+        $countVersions = count($allReleases);
+        $countExpiry = 0;
+
+        if ($subscription instanceof Subscription) {
+            foreach ($allReleases as $release) {
+                if (! $subscription->update_ends_at
+                    || $subscription->update_ends_at == '0000-00-00 00:00:00'
+                    || strtotime((string) $release['created_at']) < strtotime((string) $subscription->update_ends_at)) {
+                    $countExpiry++;
+                }
+            }
+        }
+
+        $search = trim((string) $request->input('search-query', ''));
+        $items = collect();
+
+        foreach ($allReleases as $release) {
+            if ($search && stripos($release['tag_name'].$release['name'], $search) === false) {
                 continue;
             }
 
-            $split = bifurcateTax($name, $percentage, $invoice->currency, $user->state, $taxAmt);
+            $canDownload = false;
+            $downloadUrl = null;
 
-            $gstSplit[] = [
-                'name' => $name,
-                'percentage' => $percentage,
-                'labels' => explode('<br>', $split['html']),
-                'values' => explode('<br>', $split['tax']),
-            ];
-        }
-
-        $values = array_column($gstSplit, 'values');
-
-        $taxDeducted = array_sum(
-            array_map(
-                fn ($v) => (float) preg_replace('/[^0-9.\-]/', '', $v),
-                array_merge(...$values)
-            )
-        );
-
-        $processingFeeAmount = 0;
-
-        if ($invoice->processing_fee && $invoice->processing_fee != '0%') {
-            $percent = floatval(filter_var(
-                $invoice->processing_fee,
-                FILTER_SANITIZE_NUMBER_FLOAT,
-                FILTER_FLAG_ALLOW_FRACTION
-            ));
-
-            $processingFeeAmount = ($percent / 100) * ($itemsSubtotal + $taxDeducted);
-        }
-        $base64 = '';
-        if ($set->logo) {
-            $type = pathinfo($set->logo, PATHINFO_EXTENSION);
-            $data = file_get_contents($set->logo);
-            $base64 = 'data:image/'.$type.';base64,'.base64_encode($data);
-        }
-
-        return compact(
-            'payments',
-            'user',
-            'items',
-            'order',
-            'set',
-            'date',
-            'symbol',
-            'statusClass',
-            'statusText',
-            'itemsSubtotal',
-            'taxAmt',
-            'gstSplit',
-            'processingFeeAmount',
-            'base64'
-        );
-    }
-
-    /**
-     * Get list of all the versions from Filesystem.
-     *
-     * @param  type  $productid
-     * @param  type  $clientid
-     * @param  type  $invoiceid
-     *
-     * Get list of all the versions from Filesystem.
-     * @param  type  $productid
-     * @param  type  $clientid
-     * @param  type  $invoiceid
-     * @return type
-     */
-    public function getVersionList(Request $request, $productid, $clientid, $invoiceid)
-    {
-        try {
-            if (! authorizeOwnership((int) $clientid)) {
-                return errorResponse(__('message.unauthorized_action'), 403);
+            if (! $subscription instanceof Subscription) {
+                $canDownload = true;
+            } elseif ($allowTillExpiry) {
+                $canDownload = ! $subscription->update_ends_at
+                    || $subscription->update_ends_at == '0000-00-00 00:00:00'
+                    || strtotime((string) $release['created_at']) < strtotime((string) $subscription->update_ends_at);
+            } else {
+                $canDownload = $countExpiry === $countVersions;
             }
 
-            $searchValue = $request->input('search.value');
-            $invoice_id = Invoice::where('number', $invoiceid)->where('user_id', $clientid)->pluck('id')->first();
-
-            $orders = OrderInvoiceRelation::where('invoice_id', $invoice_id)->get([
-                'order_id',
-            ])->toArray();
-
-            $order = Order::whereIn('id', $orders)->where('product', $productid)->where('client', $clientid)->firstOrFail();
-
-            $order_id = $order->id;
-
-            $versions = ProductUpload::where('product_id', $productid)->where('is_private', 0)
-                ->select(
-                    'id',
-                    'product_id',
-                    'version',
-                    'title',
-                    'description',
-                    'file',
-                    'created_at',
-                    'release_type'
-                )
-                ->latest();
-            if ($searchValue) {
-                $versions->where(function ($query) use ($searchValue) {
-                    $query->where('version', 'LIKE', '%'.$searchValue.'%')
-                        ->orWhere('title', 'LIKE', '%'.$searchValue.'%')
-                        ->orWhere('description', 'LIKE', '%'.$searchValue.'%');
-                });
-            }
-
-            $updatesEndDate = Subscription::select('update_ends_at')
-                ->where('product_id', $productid)
-                ->where('order_id', $order_id)
-                ->first();
-
-            $downloadPermission = LicensePermissionsController::getPermissionsForProduct($productid);
-
-            return \DataTables::of($versions)
-                ->addColumn('id', function ($version) {
-                    return ucfirst($version->id);
-                })
-                ->addColumn('version', function ($version) {
-                    return ucfirst($version->version).' '.getPreReleaseStatusLabel($version->release_type);
-                })
-                ->addColumn('title', function ($version) {
-                    return ucfirst($version->title);
-                })
-                ->addColumn('description', function ($version) {
-                    return ucfirst($version->description);
-                })
-                ->addColumn('file', function ($version) use ($downloadPermission, $updatesEndDate, $productid, $clientid, $invoiceid) {
-                    if ($updatesEndDate) {
-                        if ($downloadPermission['allowDownloadTillExpiry'] == 1) {
-                            return $this->whenDownloadTillExpiry($updatesEndDate, $productid, $version, $clientid, $invoiceid);
-                        } elseif ($downloadPermission['allowDownloadTillExpiry'] == 0) {
-                            return $this->whenDownloadExpiresAfterExpiry($updatesEndDate, $productid, $version, $clientid, $invoiceid);
-                        }
-                    }
-                })
-                ->rawColumns(['version', 'title', 'description', 'file'])
-                ->make(true);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
-        }
-    }
-
-    /**
-     * Get list of all the versions from Github.
-     *
-     * @param  type  $productid
-     * @param  type  $clientid
-     * @param  type  $invoiceid
-     */
-    public function getGithubVersionList($productid, $clientid, $invoiceid)
-    {
-        try {
-            if (! authorizeOwnership((int) $clientid)) {
-                return errorResponse(__('message.unauthorized_action'), 403);
-            }
-            $products = $this->product::where('id', $productid)
-            ->select('name', 'version', 'github_owner', 'github_repository')->get();
-            $owner = '';
-            $repo = '';
-            foreach ($products as $product) {
-                $owner = $product->github_owner;
-                $repo = $product->github_repository;
-            }
-            $url = "https://api.github.com/repos/$owner/$repo/releases";
-            $countExpiry = 0;
-            $link = $this->github_api->getCurl1($url);
-            $link = $link['body'];
-            $countVersions = 3; //because we are taking only the first 10 versions
-            $link = array_slice($link, 0, 3, true);
-            $order = Order::where('invoice_id', '=', $invoiceid)->first();
-            $order_id = $order->id;
-            $orderEndDate = Subscription::select('update_ends_at')
-                        ->where('product_id', $productid)->where('order_id', $order_id)->first();
-            if ($orderEndDate) {
-                foreach ($link as $lin) {
-                    if (strtotime($lin['created_at']) < strtotime($orderEndDate->update_ends_at) || $orderEndDate->update_ends_at == '0000-00-00 00:00:00') {
-                        $countExpiry = $countExpiry + 1;
-                    }
+            if ($canDownload) {
+                try {
+                    $downloadUrl = $this->github_api->resolveDownloadUrl($release['zipball_url']); // @phpstan-ignore property.notFound
+                } catch (Exception) {
+                    $downloadUrl = null;
                 }
             }
 
-            return \DataTables::of($link)
-                            ->addColumn('version', function ($link) {
-                                return ucfirst($link['tag_name']);
-                            })
-                            ->addColumn('name', function ($link) {
-                                return ucfirst($link['name']);
-                            })
-                            ->addColumn('description', function ($link) {
-                                $markdown = Str::markdown(ucfirst($link['body']));
-
-                                return '<div class="markdown-output">'.$markdown.'</div>';
-                            })
-                            ->addColumn('file', function ($link) use ($countExpiry, $countVersions, $invoiceid, $productid) {
-                                $order = Order::where('invoice_id', '=', $invoiceid)->first();
-                                $order_id = $order->id;
-                                $orderEndDate = Subscription::select('update_ends_at')
-                                ->where('product_id', $productid)->where('order_id', $order_id)->first();
-                                if ($orderEndDate) {
-                                    $actionButton = $this->getActionButton($countExpiry, $countVersions, $link, $orderEndDate, $productid);
-
-                                    return $actionButton;
-                                } elseif (! $orderEndDate) {
-                                    $link = $this->github_api->getCurl1($link['zipball_url']);
-
-                                    return '<p><a href="'.$link['header']['Location'].'" class="btn btn-sm btn-primary">'
-                                        .__('message.download').
-                                        '</a>&nbsp;</p>';
-                                }
-                            })
-                            ->rawColumns(['version', 'name', 'description', 'file'])
-                            ->make(true);
-        } catch (Exception $ex) {
-            echo $ex->getMessage();
+            $items->push([
+                'version' => ucfirst((string) $release['tag_name']),
+                'name' => ucfirst((string) $release['name']),
+                'description' => $release['body'] ?? '',
+                'created_at' => $release['created_at'],
+                'can_download' => $canDownload,
+                'download_url' => $downloadUrl,
+            ]);
         }
+
+        $allowed = ['version', 'name', 'created_at'];
+        $sortField = $request->input('sort-field', 'created_at');
+        $sortField = in_array($sortField, $allowed, true) ? $sortField : 'created_at';
+        $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+        $items = $sortDir === 'asc' ? $items->sortBy($sortField) : $items->sortByDesc($sortField);
+
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('limit', 10);
+        $paginator = new LengthAwarePaginator(
+            $items->forPage($page, $perPage)->values(),
+            $items->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return successResponse('', $paginator);
     }
 
-    /**
-     *  Get all the orders in data table.
-     *
-     * @param  request  $request
-     * @return \Yajra\DataTables\DataTableAbstract
-     *
-     * @throws Exception
-     */
-    public function getOrders(Request $request)
+    private function uploadVersions(Request $request, Order $order, Product $product, ?Subscription $subscription): JsonResponse
     {
-        try {
-            $updated_ends_at = $request->input('updated_ends_at');
-            $orders = $this->getClientPanelOrdersData();
-            if ($updated_ends_at == 'expired') {
-                $orders = $this->getClientPanelOrdersData()->where('update_ends_at', '<', now());
+        $search = trim((string) $request->input('search-query', ''));
+        $order->invoices->first()?->number;
+
+        $base = ProductUpload::where('product_id', $product->id)
+            ->where('is_private', 0)
+            ->select('id', 'product_id', 'version', 'title', 'description', 'created_at', 'release_type');
+
+        if ($search !== '' && $search !== '0') {
+            $base->where(function ($q) use ($search): void {
+                $q->where('version', 'LIKE', sprintf('%%%s%%', $search))
+                    ->orWhere('title', 'LIKE', sprintf('%%%s%%', $search))
+                    ->orWhere('description', 'LIKE', sprintf('%%%s%%', $search));
+            });
+        }
+
+        $allowed = ['version' => 'version', 'name' => 'title', 'created_at' => 'created_at'];
+        $sortCol = $allowed[$request->input('sort-field', 'created_at')] ?? 'created_at';
+        $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+        $base->orderBy($sortCol, $sortDir);
+
+        $downloadPermission = LicensePermissionsController::getPermissionsForProduct((int) $product->id);
+        $allowTillExpiry = $downloadPermission['allowDownloadTillExpiry'] == 1;
+
+        $countVersions = (clone $base)->count();
+        $countExpiry = 0;
+
+        if ($subscription && ! $allowTillExpiry) {
+            $countExpiry = ! $subscription->update_ends_at || $subscription->update_ends_at == '0000-00-00 00:00:00'
+                ? $countVersions
+                : (clone $base)->where('created_at', '<', $subscription->update_ends_at)->count();
+        }
+
+        $paginator = $base->paginate((int) $request->input('limit', 10));
+
+        $paginator->getCollection()->transform(function ($version) use ($allowTillExpiry, $countExpiry, $countVersions, $subscription, $order): array {
+            $canDownload = false;
+
+            if (! $subscription instanceof Subscription) {
+                $canDownload = true;
+            } elseif ($allowTillExpiry) {
+                $createdAt = $version->created_at;
+                $noExpiry = ! $subscription->update_ends_at || $subscription->update_ends_at == '0000-00-00 00:00:00';
+                $canDownload = $noExpiry || ($createdAt && $createdAt->toDateTimeString() < $subscription->update_ends_at);
+            } else {
+                $canDownload = $countExpiry == $countVersions;
             }
 
-            return \DataTables::of($orders)
-                        ->orderColumn('product_name', 'products.name $1')
-                        ->orderColumn('date', 'orders.created_at $1')
-                        ->orderColumn('number', 'orders.number $1')
-                        ->orderColumn('agents', '-orders.id $1')
-                        ->orderColumn('expiry', 'subscriptions.update_ends_at $1')
-                        ->orderColumn('id', 'orders.id $1')
+            return [
+                'version' => ucfirst((string) $version->version),
+                'release_type' => getPreReleaseStatusLabel($version->release_type),
+                'name' => ucfirst((string) $version->title),
+                'description' => ucfirst($version->description ?? ''),
+                'created_at' => $version->created_at,
+                'can_download' => $canDownload,
+                'download_url' => $canDownload
+                    ? url(sprintf('download/%s/%s', $order->id, $version->id))
+                    : null,
+            ];
+        });
 
-                            ->addColumn('id', function ($model) {
-                                return $model->id;
-                            })
-                            ->addColumn('date', function ($model) {
-                                return getDateHtml($model->date);
-                            })
-                            ->addColumn('product_name', function ($model) {
-                                return $model->product_name;
-                            })
-                            ->addColumn('number', function ($model) {
-                                if ($model->order_status != 'Terminated') {
-                                    return '<a href='.url('my-order/'.$model->id).'>'.$model->number.'</a>';
-                                } else {
-                                    $badge = 'badge';
-
-                                    return '<a href='.url('my-order/'.$model->id).'>'.$model->number.'</a>'.'&nbsp;<span class="'.$badge.' '.$badge.'-danger"  <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('message.order_has_been_terminated').'">
-
-                         </label>
-            Terminated</span>';
-                                }
-                            })
-
-                            ->addColumn('agents', function ($model) {
-                                $license = substr($model->serial_key, 12, 16);
-                                if ($license == '0000') {
-                                    return 'Unlimited';
-                                }
-
-                                return intval($license, 10);
-                            })
-                            ->addColumn('expiry', function ($model) {
-                                return getExpiryLabel($model->update_ends_at, 'badge');
-                            })
-
-                            ->addColumn('Action', function ($model) {
-                                if ($model->order_status == 'Terminated') {
-                                    return '<a href="'.url('my-order/'.$model->id).'" 
-                                     class="btn btn-light-scale-2 btn-sm text-dark" style="margin-right:5px;">
-                                     <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"></i>
-                                     </a>';
-                                }
-                                $plan = Plan::where('product', $model->product_id)
-                                    ->where('days', '!=', 14) // here we exclude the free plan but this is not an right approach to define free trial, we need select the free trial based on the cloud product free trial section
-                                    ->whereHas('planPrice', function ($query) {
-                                        $query->where('currency', getCurrencyForClient(\Auth::user()->country));
-                                    })
-                                    ->value('id');
-                                $whatIsSub = Subscription::where('order_id', $model->id)->value('plan_id');
-                                $planName = Plan::where('id', $whatIsSub)->value('name');
-                                $price = PlanPrice::where('plan_id', $plan)->where('currency', getCurrencyForClient(\Auth::user()->country))->value('renew_price');
-                                $order_cont = new \App\Http\Controllers\Order\OrderController();
-                                $status = $order_cont->checkInvoiceStatusByOrderId($model->id);
-                                $url = '';
-                                $deleteCloud = '';
-                                $listUrl = '';
-                                if ($status == 'success' && $model->price != '0' && $model->type == '4') {
-                                    $deleteCloud = $this->getCloudDeletePopup($model, $model->product_id);
-                                    $listUrl = $this->getPopup($model, $model->product_id);
-                                } elseif ($status == 'success' && $model->price == '0' && $model->type != '4') {
-                                    $listUrl = $this->getPopup($model, $model->product_id);
-                                }
-                                if (! in_array($model->product_id, cloudPopupProducts())) {
-                                    $listUrl = $this->getPopup($model, $model->product_id);
-                                }
-                                $deleteCloud = $this->getCloudDeletePopup($model, $model->product_id);
-
-                                $agents = substr($model->serial_key, 12, 16);
-                                if ($agents == '0000') {
-                                    $agents = 'Unlimited';
-                                } else {
-                                    $agents = intval($agents, 10);
-                                }
-
-                                $url = $this->renewPopup($model->sub_id, $model->product_id, $agents, $planName, $price);
-
-                                $changeDomain = $this->changeDomain($model, $model->product_id); // Need to add this if the client requirement intensifies.
-
-                                return '<a href="'.url('my-order/'.$model->id).'" 
-                                class="btn btn-light-scale-2 btn-sm text-dark" style="margin-right:5px;">
-                                <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"></i>&nbsp; '
-                                    .$listUrl.' '.$url.' '.$deleteCloud.' </a>';
-                            })
-                            ->filterColumn('product_name', function ($query, $keyword) {
-                                $sql = 'product.name like ?';
-                                $query->whereRaw($sql, ["%{$keyword}%"]);
-                            })
-                             ->filterColumn('number', function ($query, $keyword) {
-                                 $sql = 'orders.number like ?';
-                                 $query->whereRaw($sql, ["%{$keyword}%"]);
-                             })
-                            ->rawColumns(['id', 'product_name', 'date', 'number', 'agents', 'expiry', 'Action'])
-                            ->make(true);
-        } catch (Exception $ex) {
-            \Logger::exception($ex);
-            echo $ex->getMessage();
-        }
+        return successResponse('', $paginator);
     }
 
     /**
      *  Gets all the order details for a particular user.
      *
-     * @param
-     * @return \Illuminate\Database\Eloquent\Builder
-     *
-     * @throws
+     * @return \Illuminate\Database\Eloquent\Builder<Order>
      */
-    public function getClientPanelOrdersData()
+    public function getClientPanelOrdersData(): \Illuminate\Database\Eloquent\Builder
     {
-        return Order::leftJoin('products', 'products.id', '=', 'orders.product')
-            ->leftJoin('subscriptions', 'orders.id', '=', 'subscriptions.order_id')
-            ->leftJoin('invoices', 'orders.invoice_id', 'invoices.id')
-            ->select('products.name as product_name', 'products.github_owner', 'products.github_repository', 'products.type', 'products.id as product_id',
-                'orders.id', 'orders.number', 'orders.client', 'subscriptions.id as sub_id', 'subscriptions.version', 'subscriptions.update_ends_at', 'products.name',
-                'orders.client', 'invoices.id as invoice_id', 'invoices.number as invoice_number', 'orders.created_at as date', 'orders.price_override as price',
-                'orders.serial_key', 'orders.order_status')
-            ->where('orders.client', \Auth::user()->id);
+        return Order::with([
+            'productRelation:id,name,github_owner,github_repository,type,whatsapp_integration',
+            'subscription:id,order_id,plan_id,version,update_ends_at,ends_at,is_subscribed,autoRenew_status,rzp_subscription',
+            'subscription.plan:id,name',
+            'invoiceItem:id,agents',
+            'invoices' => fn ($q) => $q->select('invoices.id', 'invoices.number')->latest('invoices.id'),
+        ])
+            ->where('client', Auth::id());
     }
 
     /**
      *  Returns to client profile page with needed variables.
      *
-     * @param
-     * @return \Illuminate\Contracts\View\View|RedirectResponse
-     *
      * @throws Exception
      */
-    public function profile()
+    public function profile(Request $request): JsonResponse
     {
         try {
-            $user = $this->user->where('id', \Auth::user()->id)->first();
-            $is2faEnabled = $user->is_2fa_enabled;
-            $dateSinceEnabled = $user->google2fa_activation_date;
-            $timezonesList = \App\Model\Common\Timezone::get();
-            foreach ($timezonesList as $timezone) {
-                $location = $timezone->location;
-                if ($location) {
-                    $start = strpos($location, '(');
-                    $end = strpos($location, ')', $start + 1);
-                    $length = $end - $start;
-                    $result = substr($location, $start + 1, $length - 1);
-                    $display[] = ['id' => $timezone->id, 'name' => '('.$result.')'.' '.$timezone->name];
-                }
-            }
-            //for display
-            $timezones = array_column($display, 'name', 'id');
-            $state = getStateByCode($user->country, $user->state);
-            $states = findStateByRegionId($user->country);
-            $bussinesses = \App\Model\Common\Bussiness::pluck('name', 'short')->toArray();
-            $selectedIndustry = \App\Model\Common\Bussiness::where('name', $user->bussiness)
-            ->pluck('name', 'short')->toArray();
-            $selectedCompany = \DB::table('company_types')->where('name', $user->company_type)
-            ->pluck('name', 'short')->toArray();
-            $selectedCompanySize = \DB::table('company_sizes')->where('short', $user->company_size)
-            ->pluck('name', 'short')->toArray();
+            $user = $this->user->where('id', Auth::id())->first();
 
-            $selectedCountry = \DB::table('countries')->where('country_code_char2', $user->country)
-            ->value('country_name');
-
-            return view(
-                'themes.default1.front.clients.profile',
-                compact('user', 'timezones', 'state', 'states', 'bussinesses', 'is2faEnabled', 'dateSinceEnabled', 'selectedIndustry', 'selectedCompany', 'selectedCompanySize', 'selectedCountry')
-            );
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return successResponse('', ['user' => $user]);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
-    }
-
-    public function generateMerchantRandomString($length = 10)
-    {
-        return substr(bin2hex(random_bytes($length)), 0, $length);
-    }
-
-    /**
-     *  Returns to individual order page.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Contracts\View\View|RedirectResponse
-     *
-     * @throws Exception
-     */
-    public function getOrder($id)
-    {
-        try {
-            $user = \Auth::user();
-            $order = $this->order->findOrFail($id);
-            if ($order->client != $user->id) {
-                throw new \Exception(trans('message.order_error_modification'));
-            }
-            $invoice = $order->invoice()->first();
-            $items = $order->invoice()->first()->invoiceItem()->get();
-            $subscription = $order->subscription()->first();
-            $date = '--';
-            $licdate = '--';
-            $versionLabel = '--';
-            if ($subscription) {
-                $date = strtotime($subscription->update_ends_at) > 1 ? getExpiryLabel($subscription->update_ends_at, 'badge') : '--';
-                $licdate = strtotime($subscription->ends_at) > 1 ? getExpiryLabel($subscription->ends_at, 'badge') : '--';
-            }
-            $product = $order->product()->first();
-            $price = $product->price()->first();
-
-            [$allowDomainStatus,$licenseStatus] = array_values(StatusSetting::select('domain_check', 'license_status')->first()->toArray());
-            $installationDetails = [];
-
-            $cont = app(\App\Http\Controllers\License\LicenseController::class);
-            $installationDetails = $cont->searchInstallationPath($order->serial_key, $order->product);
-
-            $statusAutorenewal = Subscription::where('order_id', $id)->value('is_subscribed');
-
-            $status = Subscription::where('order_id', $id)->value('autoRenew_status');
-            $currency = getCurrencyForClient(\Auth::user()->country);
-            $amount = currencyFormat(1, $currency);
-            $payment_log = Payment_log::where('order', $order->number)
-            ->where('amount', $amount)
-            ->where('payment_type', 'Payment method updated')
-            ->orderBy('id', 'desc')
-            ->first();
-
-            $relation = $order->invoiceRelation()->pluck('invoice_id')->toArray();
-            if (count($relation) > 0) {
-                $invoices = $relation;
-            } else {
-                $invoices = $order->invoice()->pluck('id')->toArray();
-            }
-
-            $recentPayment = $this->payment->whereIn('invoice_id', $invoices)
-                ->select('id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at')
-                ->orderByDesc('created_at')
-                ->first();
-
-            $merchant_orderid = $this->generateMerchantRandomString();
-
-            [$rzp_key, $rzp_secret,$apilayer_key,$stripe_key] = array_values(ApiKey::select('rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key')->first()->toArray());
-            $api = new Api($rzp_key, $rzp_secret);
-            $userCountry = \Auth::user()->country;
-            $displayCurrency = getCurrencyForClient($userCountry);
-
-            if (
-                Plugin::whereStatus(1)->where('name', 'razorpay')->exists()
-                && ! isCurrencySupportedForPayments($displayCurrency, 'razorpay')
-            ) {
-                throw new \Exception(__('message.unsupported_country'));
-            }
-
-            $exchangeRate = '';
-            $orderData = [
-                'receipt' => '3456',
-                'amount' => getMinimumAmountForPayments($currency, 'razorpay'),
-                'currency' => $displayCurrency,
-                'payment_capture' => 0, // auto capture
-            ];
-
-            $razorpayOrder = ($rzp_key && $rzp_secret) ? $api->order->create($orderData) : '';
-
-            $razorpayOrderId = ($razorpayOrder != null) ? $razorpayOrder['id'] : '';
-            \Session::put('razorpay_order_id', $razorpayOrderId);
-            $displayAmount = $amount = $orderData['amount'];
-
-            $json = $this->dataToOrder($user, $rzp_key, $invoice, $userCountry, $exchangeRate, $merchant_orderid, $razorpayOrderId, $displayCurrency);
-            $currency = $user->currency;
-            $gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($displayCurrency);
-            $planid = \App\Model\Payment\Plan::where('product', $product->id)->value('id');
-            $price = $order->price_override;
-
-            $installation_path = \App\Model\Order\InstallationDetail::where('order_id', $id)
-                ->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
-            $latestAgents = ltrim(substr($order->serial_key, 12), '0');
-            $terminatedOrderId = \DB::table('terminated_order_upgrade')->where('upgraded_order_id', $order->id)->value('terminated_order_id');
-            $terminatedOrderNumber = \App\Model\Order\Order::where('id', $terminatedOrderId)->value('number');
-            if ($statusAutorenewal == 1 && $payment_log == null && ! empty($terminatedOrderId)) {
-                $payment_log = $this->paymentLogGet($terminatedOrderNumber);
-            }
-
-            $plans = $this->planPriceProductRelation($product);
-            $planIds = array_keys($plans);
-            $countryids = \App\Model\Common\Country::where('country_code_char2', $userCountry)->first();
-            $plans = $this->planDetails($planIds, $countryids, $userCountry, $plans, $product);
-
-            $planIdOld = \App\Model\Product\Subscription::where('order_id', $id)->value('plan_id');
-            $planNameReal = \App\Model\Payment\Plan::where('id', $planIdOld)->value('name');
-            $autorenewal_status = Setting::where('id', 1)->value('autorenewal_status');
-
-            $whatsappStatus = $product->whatsapp_integration;
-            [$app_id, $config_id] =
-                array_values(WhatsappIntegration::first()?->only(['app_id', 'config_id']) ?? [null, null]);
-            $actualWhatsappStatus = StatusSetting::pluck('whatsapp_status')->first();
-
-            return view(
-                'themes.default1.front.clients.show-order',
-                compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date',
-                    'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment', 'stripe_key', 'json', 'gateways',
-                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal', 'whatsappStatus', 'app_id', 'config_id', 'autorenewal_status', 'actualWhatsappStatus',
-                )
-            );
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * Get payment log for the order terminated.
-     *
-     * @param  $terminatedOrderNumber
-     * @return array
-     */
-    private function paymentLogGet($terminatedOrderNumber)
-    {
-        $payment_log = \App\Payment_log::where('order', $terminatedOrderNumber)
-            ->where('payment_type', 'Payment method updated')
-            ->orderBy('id', 'desc')
-            ->first();
-        if (! $payment_log) {
-            $payment_log = \App\Payment_log::where('order', $terminatedOrderNumber)
-                ->orderBy('id', 'desc')
-                ->first();
-        }
-
-        return $payment_log;
     }
 
     /**
      * Get plan name and id ,options for upgrading or downgrading the cloud plan.
      *
-     * @param  $product
-     * @return array
+     * @return array<mixed>
      */
-    private function planPriceProductRelation($product)
+    private function planPriceProductRelation(Product $product): array
     {
-        $plans = Plan::where('product', '!=', $product->id)
-            ->whereHas('product', function ($query) {
+        return Plan::where('product', '!=', $product->id)
+            ->whereHas('productRelation', function ($query): void {
                 $query->where('type', 4)
-                      ->where('can_modify_agent', 1);
+                    ->where('can_modify_agent', 1);
             })
-            ->whereHas('planPrice', function ($query) {
+            ->whereHas('planPrice', function ($query): void {
                 $query->where('renew_price', '!=', 0);
             })
             ->pluck('name', 'id')
             ->toArray();
-
-        return $plans;
     }
 
     /**
      * Get renewal price for related plans.
      *
-     * @param  $product
-     * @param  $planIds
-     * @param  $countryids
-     * @param  $userCountry
-     * @param  $plans
-     * @return array
+     * @param  array<mixed>  $planIds
+     * @param  array<mixed>  $plans
+     * @return array<mixed>
      */
-    private function planDetails($planIds, $countryids, $userCountry, $plans, $product)
+    private function planDetails(array $planIds, string $userCountry, array $plans, Product $product): array
     {
         $currency = getCurrencyForClient($userCountry);
 
-        $renewalPrices = \App\Model\Payment\PlanPrice::whereIn('plan_id', $planIds)
+        $renewalPrices = PlanPrice::whereIn('plan_id', $planIds)
             ->where('currency', $currency)
             ->latest()
             ->pluck('renew_price', 'plan_id')
             ->toArray();
 
-        foreach ($plans as $planId => $planName) {
-            if (isset($renewalPrices[$planId])) {
-                if (in_array($product->id, cloudPopupProducts())) {
-                    $plans[$planId] .= ' (Plan price-per agent: '.currencyFormat($renewalPrices[$planId], $currency, true).')';
-                }
+        foreach (array_keys($plans) as $planId) {
+            if (! isset($renewalPrices[$planId])) {
+                continue;
             }
+
+            if (! in_array($product->id, cloudPopupProducts())) {
+                continue;
+            }
+
+            $plans[$planId] .= ' (Plan price-per agent: '.currencyFormat($renewalPrices[$planId], $currency, includeSymbol: true).')';
         }
+
         // Add more cloud IDs until we have a generic way to differentiate
         if (in_array($product->id, cloudPopupProducts())) {
-            $plans = array_filter($plans, function ($value) {
-                return stripos($value, 'free') === false;
-            });
+            return array_filter($plans, fn ($value): bool => stripos((string) $value, 'free') === false);
         }
 
         return $plans;
     }
 
     /**
-     * It returns the user details.
-     *
-     * @param  $user
-     * @param  $rzp_key
-     * @param  $invoice
-     * @param  $userCountry
-     * @param  $exchangeRate
-     * @param  $merchant_orderid
-     * @param  $razorpayOrderId
-     * @param  $displayCurrency
-     * @return string
-     */
-    private function dataToOrder($user, $rzp_key, $invoice, $userCountry, $exchangeRate, $merchant_orderid, $razorpayOrderId, $displayCurrency)
-    {
-        $data = [
-            'key' => $rzp_key,
-            'name' => 'Faveo Helpdesk',
-            'currency' => 'INR',
-            'prefill' => [
-                'contact' => $user->mobile_code.$user->mobile,
-                'email' => $user->email,
-            ],
-            'description' => 'Order for Invoice No'.-$invoice->number,
-            'notes' => [
-                'First Name' => $user->first_name,
-                'Last Name' => $user->last_name,
-                'Company Name' => $user->company,
-                'Address' => $user->address,
-                'Email' => $user->email,
-                'Country' => $userCountry,
-                'State' => $user->state,
-                'City' => $user->town,
-                'Zip' => $user->zip,
-                'Currency' => $user->currency,
-                'Amount Paid' => '1',
-                'Exchange Rate' => $exchangeRate,
-                'merchant_order_id' => $merchant_orderid,
-            ],
-            'theme' => [
-                'color' => '#F37254',
-            ],
-            'order_id' => $razorpayOrderId,
-        ];
-        if ($displayCurrency !== 'INR') {
-            $data['display_currency'] = 'USD';
-            $data['display_amount'] = '1';
-        }
-
-        return json_encode($data);
-    }
-
-    /**
-     *  Returns to admin individual orders with payment details as datatable.
-     *
-     * @param  $orderid
-     * @param  $userid
-     * @return \Yajra\DataTables\DataTableAbstract|RedirectResponse
-     *
-     * @throws Exception
-     */
-    public function getPaymentByOrderId($orderid, $userid)
-    {
-        try {
-            if (! authorizeOwnership($userid, true)) {
-                return redirect()->back()->with('fails', __('messages.unauthorized_action'));
-            }
-
-            $order = $this->order->where('id', $orderid)->where('client', $userid)->first();
-            // dd($order);
-            $relation = $order->invoiceRelation()->pluck('invoice_id')->toArray();
-            if (count($relation) > 0) {
-                $invoices = $relation;
-            } else {
-                $invoices = $order->invoice()->pluck('id')->toArray();
-            }
-            $payments = $this->payment->whereIn('invoice_id', $invoices)
-                    ->select('id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at');
-
-            return \DataTables::of($payments)
-                            ->addColumn('checkbox', function ($model) {
-                                return "<input type='checkbox' class='payment_checkbox'
-                                    value=".$model->id.' name=select[] id=check>';
-                            })
-                            ->addColumn('number', function ($model) {
-                                return $model->invoice()->first()->number;
-                            })
-                            ->addColumn('amount', function ($model) {
-                                $currency = $model->invoice()->first()->currency;
-                                $total = currencyFormat($model->amount, $code = $currency);
-
-                                return $total;
-                            })
-                            ->addColumn('payment_method', function ($model) {
-                                return $model->payment_method;
-                            })
-                             ->addColumn('payment_status', function ($model) {
-                                 return $model->payment_status;
-                             })
-                            ->addColumn('created_at', function ($model) {
-                                return getDateHtml($model->created_at);
-                            })
-                            ->rawColumns(['checkbox', 'number', 'amount',
-                                'payment_method', 'payment_status', 'created_at', ])
-                            ->make(true);
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
      *  Returns to client individual orders with payment details as datatable.
      *
-     * @param  $orderid
-     * @param  $userid
-     * @return \Yajra\DataTables\DataTableAbstract|RedirectResponse
      *
      * @throws Exception
      */
-    public function getPaymentByOrderIdClient($orderid, $userid)
+    public function getPaymentByOrderIdClient(Request $request, int $orderid, int $userid): JsonResponse
     {
         try {
-            if (! authorizeOwnership($userid, true)) {
-                return redirect()->back()->with('fails', __('messages.unauthorized_action'));
+            if (! authorizeOwnership($userid, allowAdmin: true)) {
+                return errorResponse(__('message.unauthorized_action'), 403);
             }
 
             $order = $this->order->where('id', $orderid)->where('client', $userid)->firstOrFail();
-            // dd($order);
-            $relation = $order->invoiceRelation()->pluck('invoice_id')->toArray();
-            if (count($relation) > 0) {
-                $invoices = $relation;
-            } else {
-                $invoices = $order->invoice()->pluck('id')->toArray();
-            }
-//             $payments = Payment::leftJoin('invoices', 'payments.invoice_id', '=', 'invoices.id')
-//             ->select('payments.id', 'payments.invoice_id', 'payments.user_id', 'payments.payment_method', 'payments.payment_status', 'payments.created_at', 'payments.amount', 'invoices.id as invoice_id', 'invoices.number as invoice_number','invoices.currency as invoice_currency')
-//             ->where('invoices.id', $invoices)
-//             ->get();
-            // $payments = $this->payment->whereIn('invoice_id', $invoices)->with('invoice:id,number')
-            //         ->select('id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at');
 
-            $payments = $this->payment::query()
-                    ->with(['invoice' => function ($query) {
-                        $query->select('id', 'number');
-                    }])->whereIn('invoice_id', $invoices);
+            $invoiceIds = $order->invoices()->pluck('invoices.id')->toArray();
 
-            return \DataTables::of($payments)
-                        ->orderColumn('number', '-created_at $1')
-                        ->orderColumn('total', '-created_at $1')
-                        ->orderColumn('payment_method', '-created_at $1')
-                        ->orderColumn('payment_status', '-created_at $1')
-                        ->orderColumn('created_at', '-created_at $1')
+            $allowed = ['payment_status', 'created_at'];
+            $sortCol = in_array($request->input('sort-field'), $allowed, true) ? $request->input('sort-field') : 'created_at';
+            $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
 
-                            ->addColumn('number', function ($payments) {
-                                return '<a href='.url('my-invoice/'.$payments->invoice()->first()->id).'>'.$payments->invoice()->first()->number.'</a>';
-                            })
-                              ->addColumn('total', function ($payments) {
-                                  // return $payments->amount;
-                                  return currencyFormat($payments->amount, $code = $payments->currency);
-                              })
-                               ->addColumn('payment_method', function ($payments) {
-                                   return $payments->payment_method;
-                               })
-                                ->addColumn('payment_status', function ($payments) {
-                                    return $payments->payment_status;
-                                })
-                               ->addColumn('created_at', function ($payments) {
-                                   return  getDateHtml($payments->created_at);
-                               })
+            $paginated = $this->payment::query()
+                ->with(['invoices:id,number,currency'])
+                ->whereHas('invoices', fn ($q) => $q->whereIn('invoices.id', $invoiceIds))
+                ->orderBy($sortCol, $sortDir)
+                ->paginate(10);
 
-                            ->filterColumn('number', function ($query, $keyword) {
-                                $sql = 'number like ?';
-                                $query->whereRaw($sql, ["%{$keyword}%"]);
-                            })
+            $paginated->getCollection()->transform(fn ($payment): array => [
+                'id' => $payment->id,
+                'invoice_id' => $payment->invoices->first()?->id,
+                'invoice_number' => $payment->invoices->pluck('number')->implode(', ') ?: '—',
+                'amount' => currencyFormat($payment->amount, $payment->currency ?: ($payment->invoices->first()->currency ?? '')),
+                'payment_method' => $payment->payment_method,
+                'payment_status' => $payment->payment_status,
+                'created_at' => $payment->created_at,
+            ]);
 
-                            ->rawColumns(['number', 'total', 'payment_method', 'payment_status', 'created_at'])
-                            ->make(true);
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return successResponse('', $paginated);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    /**
-     *  Returns to client dashboard.
-     *
-     * @param
-     * @return \Illuminate\Contracts\View\View
-     *
-     * @throws
-     */
-    public function index()
-    {
-        $user = auth()->user();
-        $pendingInvoicesCount = $user->invoice()->where('status', 'pending')->count();
-        $ordersCount = $user->order()->count();
-        $renewalCount = $user->order()
-        ->whereHas('subscription', function ($query) {
-            $query->where('update_ends_at', '<', now());
-        })
-        ->count();
-
-        return view('themes.default1.front.clients.index', compact('pendingInvoicesCount', 'ordersCount', 'renewalCount'));
-    }
-
-    /**
-     * Delete an invoice and its related records based on specific conditions.
-     *
-     * @param  int  $id  The ID of the invoice to be deleted.
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function invoiceDelete($id)
-    {
-        $invoice = Invoice::find($id);
-
-        if (! $invoice) {
-            return response()->json(['error' => 'Invoice not found'], 404);
-        }
-
-        if (! authorizeOwnership($invoice->user_id)) {
-            return errorResponse(__('message.unauthorized_action'), 403);
-        }
-
-        if ($this->canDeleteInvoice($invoice)) {
-            $this->deleteInvoice($invoice);
-
-            return response()->json(['message' => __('message.invoice_deleted_successfully')]);
-        }
-
-        return response()->json(['error' => __('message.cannot_delete_invoice')], 400);
-    }
-
-    /**
-     *  Checks if Invoice can be deleted or not.
-     *
-     * @param  $invoice
-     * @return bool
-     *
-     * @throws
-     */
-    private function canDeleteInvoice($invoice)
-    {
-        return (
-            $invoice->is_renewed == 0 &&
-            ! $invoice->orderRelation()->exists() &&
-            $invoice->invoiceItem()->exists()
-        ) || (
-            $invoice->is_renewed != 0 &&
-            $invoice->orderRelation()->exists() &&
-            $invoice->invoiceItem()->exists()
-        );
-    }
-
-    /**
-     *  Deletes the invoice.
-     *
-     * @param  $invoice
-     * @return
-     *
-     * @throws
-     */
-    private function deleteInvoice($invoice)
-    {
-        $invoice->invoiceItem()->delete();
-
-        if ($invoice->is_renewed != 0 && $invoice->orderRelation()->exists()) {
-            $invoice->orderRelation()->delete();
-        }
-
-        $invoice->delete();
-        \Session::forget('invoice');
-    }
-
-    public function stripeUpdatePayment(Request $request)
+    public function getOrderInstallations(Request $request, int $orderid): JsonResponse
     {
         try {
-            $currency = getCurrencyForClient(\Auth::user()->country);
-            $amount = currencyFormat(1, $currency);
-            $orderid = $request->input('orderId');
-            $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
-            $stripe = new \Stripe\StripeClient($stripeSecretKey);
-            $paymentIntent = $stripe->paymentIntents->retrieve($request->input('payment_intent'));
-            if ($paymentIntent->status === 'succeeded') {
-                $response = $this->stripePaymentUpdateSub($stripe, $paymentIntent, $orderid);
+            $order = Order::where('id', $orderid)->where('client', Auth::id())->firstOrFail();
 
-                return response()->json($response);
-            } else {
-                $response = ['type' => 'fails', 'message' => __('message.something_wrong')];
+            $query = Installation::where('license_code', $order->serial_key)
+                ->where('product_id', $order->product);
+            $search = trim((string) $request->input('search-query', ''));
 
-                return response()->json(compact('response'), 500);
+            if ($search !== '' && $search !== '0') {
+                $query->where(function ($q) use ($search): void {
+                    $q->where('installation_domain', 'like', sprintf('%%%s%%', $search))
+                        ->orWhere('installation_ip', 'like', sprintf('%%%s%%', $search));
+                });
             }
-        } catch(\Exception $ex) {
-            $result = $ex->getMessage();
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
-            $mail->payment_log(\Auth::user()->email, 'stripe', 'failed', Order::where('id', $orderid)->value('number'), $result, $amount, 'Payment method updated');
-            $errorMessage = __('message.something_wrong');
 
-            return response()->json(['error' => $errorMessage], 500);
+            $allowed = ['installation_path' => 'installation_domain', 'installation_ip' => 'installation_ip', 'last_active' => 'installation_date'];
+            $sortCol = $allowed[$request->input('sort-field', 'last_active')] ?? 'installation_date';
+            $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+            $query->orderBy($sortCol, $sortDir);
+
+            $paginated = $query->paginate((int) $request->input('limit', 10));
+
+            $paginated->getCollection()->transform(fn ($inst): array => [
+                'installation_path' => $inst->installation_domain,
+                'installation_ip' => $inst->installation_ip,
+                'version' => $inst->version,
+                'last_active' => $inst->installation_date,
+            ]);
+
+            return successResponse('', $paginated);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    private function stripePaymentUpdateSub($stripe, $paymentIntent, $orderid)
+    public function deleteInvoice(int $id): JsonResponse
     {
-        $refund = $stripe->refunds->create([
-            'payment_intent' => $paymentIntent->id,
-            'amount' => $paymentIntent->amount,
-        ]);
-        $invoice_id = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-        $number = Invoice::where('id', $invoice_id)->value('number');
-        $customer_details = [
-            'user_id' => \Auth::user()->id,
-            'customer_id' => $paymentIntent->customer,
-            'payment_method' => 'stripe',
-            'order_id' => $orderid,
-            'payment_intent_id' => $paymentIntent->payment_method,
-        ];
-        Auto_renewal::create($customer_details);
-        Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'autoRenew_status' => '1']);
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->payment_log(\Auth::user()->email, 'stripe', 'success', Order::where('id', $orderid)->value('number'), null, $amount, 'Payment method updated');
+        try {
+            $invoice = Invoice::with('orders')->where('user_id', Auth::id())->findOrFail($id);
 
-        return ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
+            if (strtolower($invoice->status) === 'success') {
+                return errorResponse(__('message.cannot_delete_paid_invoice'));
+            }
+
+            if ($invoice->orders->isNotEmpty()) {
+                return errorResponse(__('message.cannot_delete_invoice_with_order'));
+            }
+
+            $invoice->delete();
+
+            return successResponse(__('message.deleted-successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function clientDetails(): JsonResponse
+    {
+        $user = Auth::user();
+        if (! $user instanceof User) {
+            return errorResponse('Unauthenticated.', 401);
+        }
+
+        return successResponse('', [
+            'pending_invoices_count' => $user->invoice()->where('status', 'pending')->count(),
+            'total_orders_count' => $user->order()->count(),
+            'order_renewals_count' => $user->order()
+                ->whereHas('subscription', fn ($q) => $q->where('update_ends_at', '<', now()))
+                ->count(),
+        ]);
     }
 }

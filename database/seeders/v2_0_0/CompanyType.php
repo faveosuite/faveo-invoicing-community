@@ -1,18 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders\v2_0_0;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CompanyType extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('company_types')->truncate();
@@ -20,7 +21,7 @@ class CompanyType extends Seeder
         $types = ['Public Company', 'Self Employed', 'Non Profit', 'Privately Held', 'Partnership'];
         foreach ($types as $type) {
             DB::table('company_types')->insert([
-                'short' => str_slug($type),
+                'short' => Str::slug($type),
                 'name' => $type,
             ]);
         }

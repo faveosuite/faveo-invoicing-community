@@ -2,7 +2,7 @@
 /**
  * RelationshipOrganizationInfoItemWithActiveFlag
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -71,6 +71,7 @@ class RelationshipOrganizationInfoItemWithActiveFlag implements ModelInterface, 
         'owner_id' => 'int',
         'address' => 'string',
         'cc_email' => 'string',
+        'label_ids' => 'int[]',
         'value' => 'int',
         'active_flag' => 'bool'
     ];
@@ -88,6 +89,7 @@ class RelationshipOrganizationInfoItemWithActiveFlag implements ModelInterface, 
         'owner_id' => null,
         'address' => null,
         'cc_email' => null,
+        'label_ids' => null,
         'value' => null,
         'active_flag' => null
     ];
@@ -128,6 +130,7 @@ class RelationshipOrganizationInfoItemWithActiveFlag implements ModelInterface, 
         'owner_id' => 'owner_id',
         'address' => 'address',
         'cc_email' => 'cc_email',
+        'label_ids' => 'label_ids',
         'value' => 'value',
         'active_flag' => 'active_flag'
     ];
@@ -143,6 +146,7 @@ class RelationshipOrganizationInfoItemWithActiveFlag implements ModelInterface, 
         'owner_id' => 'setOwnerId',
         'address' => 'setAddress',
         'cc_email' => 'setCcEmail',
+        'label_ids' => 'setLabelIds',
         'value' => 'setValue',
         'active_flag' => 'setActiveFlag'
     ];
@@ -158,6 +162,7 @@ class RelationshipOrganizationInfoItemWithActiveFlag implements ModelInterface, 
         'owner_id' => 'getOwnerId',
         'address' => 'getAddress',
         'cc_email' => 'getCcEmail',
+        'label_ids' => 'getLabelIds',
         'value' => 'getValue',
         'active_flag' => 'getActiveFlag'
     ];
@@ -227,13 +232,14 @@ class RelationshipOrganizationInfoItemWithActiveFlag implements ModelInterface, 
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['name'] = $data['name'] ?? null;
         $this->container['people_count'] = $data['people_count'] ?? null;
         $this->container['owner_id'] = $data['owner_id'] ?? null;
         $this->container['address'] = $data['address'] ?? null;
         $this->container['cc_email'] = $data['cc_email'] ?? null;
+        $this->container['label_ids'] = $data['label_ids'] ?? null;
         $this->container['value'] = $data['value'] ?? null;
         $this->container['active_flag'] = $data['active_flag'] ?? null;
     }
@@ -380,6 +386,30 @@ class RelationshipOrganizationInfoItemWithActiveFlag implements ModelInterface, 
     public function setCcEmail($cc_email): self
     {
         $this->container['cc_email'] = $cc_email;
+
+        return $this;
+    }
+
+    /**
+     * Gets label_ids
+     *
+     * @return int[]|null
+     */
+    public function getLabelIds()
+    {
+        return $this->container['label_ids'];
+    }
+
+    /**
+     * Sets label_ids
+     *
+     * @param int[]|null $label_ids The IDs of labels assigned to the organization
+     *
+     * @return self
+     */
+    public function setLabelIds($label_ids): self
+    {
+        $this->container['label_ids'] = $label_ids;
 
         return $this;
     }

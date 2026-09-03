@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Artisan;
 
 @section('content')
     <?php
-    if (isset($_GET['flush']) && $_GET['flush'] == 'true') {
+    if (\Illuminate\Support\Facades\Request::query('flush') !== null && \Illuminate\Support\Facades\Request::query('flush') == 'true') {
         Cache::flush();
         Session::flush();
         \Artisan::call('optimize:clear');
@@ -38,7 +38,7 @@ use Illuminate\Support\Facades\Artisan;
     ?>
     <div class="card">
         <div class="card-body">
-            <p class="text-center lead text-bold">{{ trans('installer_messages.final_setup') }}!</p>
+            <p class="text-center lead fw-bold">{{ trans('installer_messages.final_setup') }}!</p>
             <div class="row">
                 <div class="col-6">
                     <p class="lead">{{ trans('installer_messages.learn_more') }}</p>

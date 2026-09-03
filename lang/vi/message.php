@@ -195,7 +195,6 @@ return [
     'token_secret' => 'Twitter Access Token Secret',
     'rzp_key' => 'Razorpay Key',
     'rzp_secret' => 'Razorpay Secret',
-    'apilayer_key' => 'ApiLayer Access Key (Cho Chuyển Đổi Tỷ Giá)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Mailchimp Api Key',
     'terms_url' => 'Terms Url',
@@ -463,7 +462,6 @@ return [
          */
     'rzp_key' => 'Khóa Razorpay',
     'rzp_secret' => 'Mật khẩu Razorpay',
-    'apilayer' => 'Khóa truy cập ApiLayer',
     'zoho_key' => 'Khóa Zoho',
     'key' => 'Khóa API',
     'msg91key' => 'Khóa xác thực Msg91',
@@ -873,7 +871,7 @@ return [
     'required_stripe_secret' => 'Vui lòng nhập bí mật Stripe',
     'max_stripe_secret' => 'Bí mật Stripe không thể dài hơn 200 ký tự',
 
-    //email templates
+    // email templates
 
     'choose_password' => 'Nhấp vào đây để đặt lại mật khẩu của bạn: ',
     'email_username' => 'Tên người dùng: ',
@@ -881,7 +879,7 @@ return [
     'email_click_here' => 'Nhấp vào đây',
     'activate_account' => 'Để kích hoạt tài khoản của bạn:',
 
-    //error template
+    // error template
     'page_not_found' => 'Trang không tìm thấy',
     'sorry' => 'Xin lỗi, nhưng trang bạn tìm không tồn tại.',
     'useful_links' => 'Dưới đây là một số liên kết hữu ích',
@@ -890,7 +888,7 @@ return [
     'my_profile' => 'Hồ sơ của tôi',
     'contact_us' => 'Liên hệ với chúng tôi',
 
-    //login-register template
+    // login-register template
     'login_lr' => 'Đăng nhập | Đăng ký',
     'sign_lr' => 'Đăng nhập hoặc Đăng ký',
     'or' => 'Hoặc',
@@ -924,7 +922,7 @@ return [
     'error_occurred' => 'Đã xảy ra lỗi. Vui lòng thử lại.',
     'error_one_country' => 'Vui lòng chọn một quốc gia',
 
-    //contact template
+    // contact template
     'feel_free' => 'Cảm ơn bạn đã liên hệ, đừng ngần ngại hỏi bất kỳ câu hỏi nào!',
     'contact_name' => 'Tên',
     'contact_error_name' => 'Vui lòng nhập tên của bạn.',
@@ -937,7 +935,7 @@ return [
     'contact_send_msg' => 'Gửi tin nhắn',
     'our_office' => 'Văn phòng của chúng tôi',
 
-    //password template
+    // password template
     'forgot_password' => 'Quên mật khẩu? Đặt lại ngay!',
     'lost_password' => 'Quên mật khẩu?',
     'know_password' => 'Tôi biết mật khẩu của mình',
@@ -947,7 +945,7 @@ return [
     'error_occurs' => 'Đã xảy ra lỗi.',
     'reset_password' => 'Đặt lại mật khẩu',
 
-    //front-client template
+    // front-client template
     'change_faveo' => 'Bạn có muốn thay đổi tên miền Faveo hiện tại không?',
     'current_domain' => 'Nhập tên miền hiện tại',
     'enter_domain' => 'Nhập tên miền mới',
@@ -1109,7 +1107,7 @@ return [
     'subscriptions_table' => 'Bảng đăng ký',
     'invalid_format' => 'Định dạng không hợp lệ.',
 
-    //front-page template
+    // front-page template
     'all_pages' => 'Tất cả các trang',
     'create_new_page' => 'Tạo trang mới',
     'edit_page' => 'Chỉnh sửa trang',
@@ -1119,14 +1117,14 @@ return [
     'select_checkbox' => 'Vui lòng chọn ít nhất một ô kiểm',
     'search_result' => 'Kết quả tìm kiếm',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => 'Tất cả các tiện ích',
     'create_widget' => 'Tạo tiện ích',
     'configure_mailchimp' => 'Cấu hình Mailchimp của bạn trong cài đặt để truy cập',
     'configure_tweet' => 'Cấu hình tweet của bạn trong cài đặt để truy cập',
     'edit_widget' => 'Chỉnh sửa tiện ích',
 
-    //front outer template
+    // front outer template
     'remove_product' => 'Xóa sản phẩm',
     'cart_totals' => 'Tổng giỏ hàng',
     'clear_cart' => 'Xóa giỏ hàng',
@@ -1138,6 +1136,7 @@ return [
     'clear_my_cart' => 'Xóa giỏ hàng của tôi',
     'proceed_checkout' => 'Tiến hành thanh toán',
     'checkout' => 'Thanh toán',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'Giỏ hàng của bạn đang trống',
     'your_order' => 'Đơn hàng của bạn',
     'cart_subtotal' => 'Tổng phụ giỏ hàng',
@@ -1182,11 +1181,11 @@ return [
     'go_back' => 'Quay lại',
     'be_right_back' => 'Sẽ quay lại ngay.',
 
-    //category template
+    // category template
     'all_categories' => 'Tất cả các danh mục',
     'category_name' => 'Tên',
 
-    //common template
+    // common template
     'create_script_code' => 'Tạo mã script',
     'create_script' => 'Tạo script',
     'edit_script_code' => 'Chỉnh sửa mã script',
@@ -1224,7 +1223,6 @@ return [
     'company_details' => 'Thông tin công ty',
     'url_installation' => 'URL cung cấp hỗ trợ chi tiết cho cài đặt',
     'delete_logo' => 'Xóa logo.',
-    'template_settings' => 'Cài đặt mẫu',
     'template_list' => 'Danh sách mẫu',
     'invoice_mail_template' => 'Chọn mẫu Email hóa đơn',
     'purchase_confirmation' => 'Xác nhận mua hàng',
@@ -1249,7 +1247,6 @@ return [
     'register_mail' => 'Mẫu Email Đăng Ký',
     'choose_register_mail_template' => 'Chọn Mẫu Email Đăng Ký',
     'create_new_social_media' => 'Tạo Mới Mạng Xã Hội',
-    'edit_social_media' => 'Chỉnh Sửa Mạng Xã Hội',
     'social_media' => 'Mạng Xã Hội',
     'edit_template' => 'Chỉnh Sửa Mẫu',
     'shortcode_information' => 'Thông Tin Shortcode',
@@ -1271,7 +1268,6 @@ return [
     'cloud_hub' => 'Trung Tâm Cloud',
     'debug' => 'Gỡ Lỗi',
     'clockwork' => 'ClockWork',
-    'social_logins' => 'Đăng Nhập Mạng Xã Hội',
     'err_log' => 'Nhật Ký Lỗi',
     'email_log' => 'Nhật Ký Email',
     'payment_log' => 'Nhật Ký Thanh Toán',
@@ -1280,6 +1276,10 @@ return [
     'api' => 'API',
     'mail_chimp' => 'Mail Chimp',
     'common' => 'Thông Dụng',
+    'license_and_access' => 'License & Access',
+    'integrations' => 'Integrations',
+    'communication' => 'Communication',
+    'logs_and_monitoring' => 'Logs & Monitoring',
     'country_list' => 'Danh Sách Quốc Gia',
     'footer' => 'Chân Trang',
     'analytics_custom_code' => 'Mã Tùy Chỉnh/Phân Tích',
@@ -1348,14 +1348,14 @@ return [
     'deactivate' => 'Vô Hiệu Hóa',
     'provider' => 'Nhà Cung Cấp',
 
-    //github template
+    // github template
     'github_setting' => 'Cài Đặt Github',
     'enter_github_username' => 'Vui Lòng Nhập Tên Người Dùng Github',
     'enter_github_password' => 'Vui Lòng Nhập Mật Khẩu Github',
     'enter_github_clientid' => 'Vui Lòng Nhập Client Id',
     'enter_github_client_secret_key' => 'Vui Lòng Nhập Client Secret Key',
 
-    //invoice template
+    // invoice template
     'edit_invoice' => 'Chỉnh Sửa Hóa Đơn',
     'view_user' => 'Xem Người Dùng',
     'pending' => 'Đang Chờ',
@@ -1396,7 +1396,7 @@ return [
     'no_tax_rates' => 'Không có mức thuế',
     'store' => 'Cửa hàng',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => 'Bảng điều khiển quản trị',
     'my_account' => 'Tài khoản của tôi',
     'start_free_trial' => 'BẮT ĐẦU DÙNG THỬ MIỄN PHÍ',
@@ -1437,7 +1437,7 @@ return [
     'enter_domain_license' => 'Nhập tên miền & tải tệp giấy phép',
     'installation_details' => 'Chi tiết cài đặt',
 
-    //payement panel
+    // payement panel
     'payment_date' => 'Ngày thanh toán',
     'auto_renewal_subscription' => 'Gia hạn tự động cho đăng ký tương lai',
     'subscription_start_date' => 'Ngày bắt đầu đăng ký',
@@ -1463,13 +1463,12 @@ return [
     'coupon' => 'Mã giảm giá',
     'actions' => 'Hành động',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => 'Tạo thuế',
     'caps_others' => 'KHÁC',
     'others' => 'Khác',
     'all_states' => 'Tất cả các bang',
     'edit_tax_class' => 'Chỉnh sửa lớp thuế',
-    'edit_tax' => 'Chỉnh sửa thuế',
     'create_tax_option_class' => 'Tạo tùy chọn thuế và các lớp thuế',
     'caps_enabled' => 'KÍCH HOẠT',
     'caps_disabled' => 'TẮT',
@@ -1502,7 +1501,7 @@ return [
     'show_cart_page' => 'Hiển thị trên trang giỏ hàng',
     'select_taxes' => 'Chọn thuế',
 
-    //Product panel
+    // Product panel
     'all_product_details' => 'Thêm chi tiết sản phẩm',
     'enter_json_format' => 'Nhập định dạng JSON.',
     'upload' => 'Tải lên',
@@ -1531,22 +1530,21 @@ return [
     'all_types' => 'Tất cả Loại',
     'configure_queue' => 'Cấu hình Hàng đợi',
 
-    //renew panel
+    // renew panel
     'renew_product' => 'Hãy chắc chắn rằng giỏ hàng trống để gia hạn sản phẩm của bạn',
     'click_renew' => 'Nhấp vào đây để gia hạn',
     'renew_your_order' => 'Gia hạn đơn hàng của bạn',
     'renew_order' => 'Gia hạn Đơn hàng',
     'renewal_price_per_agent' => 'Giá gia hạn cho mỗi đại lý: ',
 
-    //report panel
+    // report panel
     'file_name' => 'Tên tệp',
     'format' => 'Định dạng',
     'contact' => 'Liên hệ',
     'report_settings' => 'Cài đặt báo cáo',
     'report_limit' => 'Thêm bản ghi cho mỗi trang tính. Giới hạn tối đa là 3000.',
 
-    //tenant panel
-    'cloud_details' => 'Chi tiết Dịch vụ Đám mây',
+    // tenant panel
     'cloud_server' => 'Máy chủ Đám mây',
     'customise_cloud_popup' => 'Tùy chỉnh Cửa sổ pop-up Dịch vụ Đám mây',
     'cloud_product_configuration' => 'Cấu hình Sản phẩm Đám mây',
@@ -1573,7 +1571,7 @@ return [
     'app_key' => 'Khóa ứng dụng',
     'app_secret' => 'Mã bí mật ứng dụng',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'Tạo Người dùng Mới',
     'create_user' => 'Tạo Người dùng',
     'position' => 'Vị trí',
@@ -1688,7 +1686,7 @@ return [
     'error_logs' => 'Nhật ký lỗi',
     'view_logs' => 'Xem nhật ký',
 
-    //visitstats
+    // visitstats
     'request' => 'Yêu cầu',
     'visitor' => 'Khách truy cập',
     'browser' => 'Trình duyệt',
@@ -1847,7 +1845,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'Vui lòng nhập khóa Razorpay hợp lệ.',
         'rzp_secret' => 'Vui lòng nhập mật khẩu bí mật Razorpay hợp lệ.',
-        'apilayer_key' => 'Vui lòng nhập khóa truy cập hợp lệ.',
     ],
 
     'sys_manager' => [
@@ -2040,14 +2037,13 @@ return [
     'month' => 'tháng',
     'year' => 'năm',
     'all_time' => 'Tất cả thời gian',
-    'license_types' => 'Loại Giấy Phép',
     'caps_go' => 'Đi',
     'invoice_due' => 'Hạn Thanh Toán',
     'subscription-error-message' => 'Vui lòng chọn một gói đăng ký hợp lệ',
     'no_tax' => 'Không có thuế',
     'null' => 'Không có',
     'choose_one_payment_gateway' => 'Chọn một cổng thanh toán',
-    //Controller keys and values
+    // Controller keys and values
     'product_uploaded_successfully' => 'Sản phẩm đã được tải lên thành công',
     'token_mismatch_account_not_activated' => 'Mã token không khớp. Tài khoản không thể được kích hoạt.',
     'email_verification_success' => 'Xác minh email thành công. Vui lòng đăng nhập để truy cập tài khoản của bạn !!',
@@ -2295,7 +2291,6 @@ return [
     'till' => 'Đến',
     'cannot_disable_language' => 'Không thể tắt ngôn ngữ mặc định',
     'langugae_toggle' => 'Công tắc này cho phép bạn bật hoặc tắt các dropdowns cho các ngôn ngữ có sẵn.',
-    'payment_logs' => 'Nhật ký thanh toán',
     'deactive' => 'Vô hiệu hóa',
     'forgot_password_faveo_helpdesk' => 'Quên mật khẩu | Faveo Helpdesk',
     'reset_password_faveo_helpdesk' => 'Đặt lại mật khẩu | Faveo Helpdesk',
@@ -2317,7 +2312,6 @@ return [
     'activity_logs' => 'Nhật ký hoạt động',
     'payment_gateway_integrations' => 'Tích hợp cổng thanh toán',
     'third_party_integrations' => 'Tích hợp bên thứ ba',
-    'contact_options' => 'Tùy chọn liên hệ',
     'msg91_reports' => 'Báo cáo MSG91',
     'queue_monitoring' => 'Giám sát hàng đợi',
     'pulse' => 'Mạch đập',
@@ -2525,7 +2519,6 @@ return [
     'zoom_out' => 'Thu nhỏ',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => 'Cấp lại&nbsp;Giấy phép',
-    'api_layer_access_key' => 'Khóa truy cập ApiLayer (Dùng để chuyển đổi tỷ giá)',
     'download_logs' => 'Tải nhật ký',
     'delete_logs' => 'Xóa nhật ký',
     'type_here_search' => 'Gõ ở đây để tìm kiếm',
@@ -2797,7 +2790,6 @@ return [
     'login_password_validation' => 'Vui lòng nhập mật khẩu của bạn.',
     'whatsapp_product_explanation' => 'Bật tùy chọn này để hiển thị quy trình đăng ký WhatsApp tích hợp cho sản phẩm đã chọn trên trang đặt hàng của khách hàng.',
     'whatsapp_product_heading' => 'Quy Trình Đăng Ký Tích Hợp',
-    'whatsapp_users' => 'Người dùng WhatsApp',
     'phone_number' => 'Số Điện Thoại',
     'waba_id' => 'Waba ID',
     'phone_number_id' => 'ID Số Điện Thoại',
@@ -2872,4 +2864,256 @@ return [
     'not_found_title' => 'Rất tiếc! Không tìm thấy trang.',
     'not_found_message' => 'Chúng tôi không thể tìm thấy trang bạn đang tìm kiếm.',
     'not_found_return_prefix' => 'Trong khi đó, bạn có thể ',
+
+    /*
+     * Vue i18n keys — added for Vue page translations
+     */
+    'back' => 'Back',
+    'back_to_invoices' => 'Back to Invoices',
+    'back_to_orders' => 'Back to Orders',
+    'back_to_products' => 'Back to Products',
+    'back_to_users' => 'Back to Users',
+    'back_to_pages' => 'Back to Pages',
+    'choose_country_first' => 'Choose a country first',
+    'select_user' => 'Select User',
+    'select_product' => 'Select Product',
+    'select_plan' => 'Select Plan',
+    'invoice_date' => 'Invoice Date',
+    'cloud_domain_label' => 'Cloud Domain',
+    'order_no' => 'Order No',
+    'qty' => 'Qty',
+    'no_items_found' => 'No items found',
+    'unlimited' => 'Unlimited',
+    'download_pdf' => 'Download PDF',
+    'invoice_no_col' => 'Invoice No',
+    'edit_updates_expiry' => 'Edit Updates Expiry Date',
+    'edit_license_expiry' => 'Edit License Expiry Date',
+    'edit_support_expiry' => 'Edit Support Expiry Date',
+    'product_image' => 'Product Image',
+    'image_help' => 'JPEG, PNG, JPG — max 2MB',
+    'show_agent' => 'Show Agent',
+    'add_to_contact' => 'Add to Contact',
+    'can_modify_agent' => 'Can Modify Agent',
+    'can_modify_quantity' => 'Can Modify Quantity',
+    'hidden_pricing_page' => 'Hidden (Pricing Page)',
+    'hidden_admin_dropdown' => 'Hidden (Admin Dropdown)',
+    'whatsapp_signup_flow' => 'WhatsApp Signup Flow',
+    'select_tax_classes_text' => 'Select the tax classes that apply to this product.',
+    'no_tax_classes' => 'No tax classes found.',
+    'select_license_type' => 'Select license type',
+    'select_group' => 'Select group',
+    'select_parent' => 'Select parent',
+    'product_sku' => 'Product SKU',
+    'public_company' => 'Public Company',
+    'self_employed' => 'Self Employed',
+    'non_profit' => 'Non Profit',
+    'privately_held' => 'Privately Held',
+    'partnership' => 'Partnership',
+    'myself_only' => 'Myself only',
+    'filter' => 'Filter',
+    'bulk_action' => 'Bulk Action',
+    'create_invoice_btn' => 'Create Invoice',
+    'payment_method_label' => 'Payment Method',
+    'set_as_default_page' => 'Set as Default Page',
+    'custom' => 'Custom',
+    'page_url' => 'URL',
+    'select_type' => 'Select type',
+    'suspend' => 'Suspend',
+    'all_users' => 'All Users',
+    'zip_postal_code' => 'Zip/Postal Code',
+    'payments_section' => 'Payments',
+    'mobile_label' => 'Mobile',
+    'email_label' => 'Email',
+    'name_label' => 'Name',
+    'country_label' => 'Country',
+
+    // New keys for Vue i18n updates
+    'no_of_agents' => 'No. of Agents',
+    'design_template' => 'Design Template',
+    'hidden_group' => 'Hidden Group',
+    'check_hidden_group' => 'Check this if this is a hidden group',
+    'add_currency' => 'Add Currency',
+    'no_payment_gateways' => 'No payment gateways found.',
+    'gateway_settings' => 'Settings',
+    'list_of_available_shortcodes' => 'List of Available Shortcodes',
+    'from_email' => 'From Email',
+    'mail_driver' => 'Mail Driver',
+    'smtp_host' => 'SMTP Host',
+    'smtp_port' => 'SMTP Port',
+    'add_app' => 'Add App',
+    'edit_app' => 'Edit App',
+    'add_license_type_btn' => 'Add License Type',
+    'add_permissions_btn' => 'Add Permissions',
+    'no_permissions_selected' => 'No Permissions Selected',
+    'make_default' => 'Make Default',
+    'cannot_disable_default_language' => 'Cannot disable the default language',
+    'native_name' => 'Native Name',
+    'iso_code' => 'ISO Code',
+    'system_default' => 'System Default',
+    'configure_gateway' => 'Configure detailed settings for this payment gateway at:',
+    'no_additional_settings' => 'No additional settings available.',
+    'payment_gateway_not_found' => 'Payment gateway not found.',
+    'copy_shortcode_info' => 'Copy a shortcode and paste it into the template content where you want the value to appear.',
+    'edit_social_login' => 'Edit Social Login',
+    'create_product_plan' => 'Create Plan',
+    'edit_product_plan' => 'Edit Plan',
+    'create_coupon_title' => 'Create Coupon',
+    'edit_coupon_title' => 'Edit Coupon',
+    'secret_key_label' => 'Secret Key',
+    'two_step_verification_on_since' => '2-Step Verification is ON since',
+    'mailgun_domain' => 'Domain',
+    'ses_key' => 'Key',
+    'email_templates' => 'Email Templates',
+    'template_settings' => 'Template Settings',
+    'edit_template' => 'Edit Template',
+    'reply_email' => 'Reply Email',
+    'content' => 'Content',
+    'account_info' => 'Account Info',
+    'export_selected_records' => 'Export Selected Records',
+    'search_by_company' => 'Search by company',
+    'verified' => 'Verified',
+    'not_verified' => 'Not Verified',
+    'enabled' => 'Enabled',
+    'disabled' => 'Disabled',
+    'admin' => 'Admin',
+    'exact_order_number' => 'Exact order number',
+    'new_date' => 'New Date',
+    'select_parent_page' => 'Select parent page',
+    'publishing_date' => 'Publishing Date',
+
+    // New keys for i18n update - settings/api, settings/common, logs, settings/settings, widgets, reports
+    'recaptcha_configuration' => 'reCAPTCHA Configuration',
+    'recaptcha_version' => 'reCAPTCHA Version',
+    'general' => 'General',
+    'preview' => 'Preview',
+    'appearance' => 'Appearance',
+    'verify_v3_key' => 'Verify v3 key',
+    'v3_key_valid' => 'v3 key valid',
+    'cannot_disable_dashboard_currency' => 'Cannot disable a dashboard currency',
+    'set_as_default_currency' => 'Set as Default Currency',
+    'set_as_dashboard_currency' => 'Set as Dashboard Currency',
+    'payment_failed_exception' => 'Payment Failed — Exception',
+    'debug_mode' => 'Debug Mode',
+    'debug_mode_description' => 'Enables APP_DEBUG, Pulse, and Clockwork.',
+    'system_local' => 'System (Local)',
+    'amazon_s3' => 'Amazon S3',
+    'auto_assign_account_managers' => 'Enable Auto Assignment for Account Managers',
+    'auto_assign_account_managers_desc' => 'Automatically assign an account manager to new clients upon creation.',
+    'auto_assign_sales_managers' => 'Enable Auto Assignment for Sales Managers',
+    'auto_assign_sales_managers_desc' => 'Automatically assign a sales manager to new clients upon creation.',
+    'select_replacement_account_manager' => 'Select Replacement Account Manager',
+    'enter_whatsapp_app_id' => 'Enter your WhatsApp App ID',
+    'enter_whatsapp_app_secret' => 'Enter your WhatsApp App Secret',
+    'enter_whatsapp_config_id' => 'Enter your WhatsApp Config ID',
+    'enter_whatsapp_verify_token' => 'Enter your WhatsApp Verify Token',
+    'edit_webhook_url' => 'Edit Webhook URL',
+    'enter_webhook_url' => 'Enter webhook URL',
+    'copy_phone_number_id' => 'Copy Phone Number ID',
+    'add_social_media' => 'Add Social Media',
+    'records_per_export_desc' => 'Maximum number of records to include in each export (1–3000).',
+    'every_minute' => 'Every Minute',
+    'every_five_minutes' => 'Every Five Minutes',
+    'every_ten_minutes' => 'Every Ten Minutes',
+    'every_thirty_minutes' => 'Every Thirty Minutes',
+    'hourly' => 'Hourly',
+    'daily' => 'Daily',
+    'daily_at' => 'Daily At',
+    'weekly' => 'Weekly',
+    'cloud_mail_days' => 'Cloud Mail Days',
+    'invoice_deletion_days' => 'Invoice Deletion Days',
+    'msg91_report_days' => 'MSG91 Report Days',
+    'reoon_log_days' => 'Reoon Log Days',
+    'system_log_days' => 'System Log Days',
+    'installation_log_days' => 'Installation Log Days',
+    'license_reports_days' => 'License Reports Days',
+    'license_callbacks_days' => 'License Callbacks Days',
+    'license_crack_days' => 'License Crack Days',
+    'license_system_days' => 'License System Days',
+    'license_versions_days' => 'License Versions Days',
+    'activity_log_days' => 'Activity Log Days',
+    'delete_all_reports' => 'Delete All Reports',
+    'delete_all_logs' => 'Delete All Logs',
+    'cron_days' => 'Cron Days',
+    'expiry_mail_days' => 'Expiry Mail Days',
+    'auto_renewal_days' => 'Auto Renewal Days',
+    'post_expiry_days' => 'Post Expiry Days',
+    'select_an_option' => 'Select an option',
+    'verify_and_copy_command' => 'Verify and copy command',
+    'specify_php_executable' => 'Specify PHP executable path',
+    'please_select_date' => 'Please select a date.',
+    'delete_whatsapp_user_confirm' => 'Delete WhatsApp user',
+    'delete_selected_reports_confirm' => 'Delete :count selected report(s)? This cannot be undone.',
+    'select_date' => 'Select date',
+    'installed_at_least_once' => 'Installed (at least once)',
+    'not_installed' => 'Not Installed',
+    'active_installation' => 'Active Installation',
+    'inactive_installation' => 'Inactive Installation',
+    'active_subscription_label' => 'Active',
+    'expiring_subscription' => 'Expiring (within 30 days)',
+    'expired_subscription' => 'Expired',
+    'unpaid' => 'Unpaid',
+    'partially_paid' => 'Partially Paid',
+    'paid' => 'Paid',
+    'select_a_template' => 'Select a template',
+    'select_a_type' => 'Select a type',
+    'admin_logo' => 'Admin Panel Logo',
+    'client_logo' => 'Client Panel Logo',
+    'company_email' => 'Company Email',
+    'default_currency' => 'System Default Currency',
+    'favicon' => 'Favicon',
+    'meta_title_admin' => 'Meta Title (Admin Panel)',
+    'meta_title_client' => 'Meta Title (Client Panel)',
+    'invoice_total' => 'Invoice Total',
+    'logo_and_favicon' => 'Logo and Favicon',
+    'use_default' => 'Use Default',
+    'use_logo' => 'Use Logo',
+    'autorenewal' => 'Auto Renewal',
+    'cannot_disable_default_currency' => 'Cannot disable the default currency',
+    'days' => 'days',
+    'sales' => 'Sales',
+    'sold' => 'Sold',
+    'subscribe' => 'Subscribe',
+    'unsubscribe' => 'Unsubscribe',
+    'manager' => 'Account Manager',
+    'payments' => 'Payments',
+    'order_id' => 'Order No',
+    'email_not_verified' => 'Email not verified',
+    'mobile_not_verified' => 'Mobile not verified',
+    'social-logins' => 'Social Logins',
+
+    // ── Open Payment Page ──────────────────────────────────────────
+    'op_secure_checkout' => 'Secure Checkout',
+    'op_payment_details' => 'Payment Details',
+    'op_fill_info' => 'Fill in your information to proceed with payment',
+    'op_personal_info' => 'Personal Information',
+    'op_street_address' => 'Street Address',
+    'op_zip_code' => 'ZIP / Postal Code',
+    'op_payment_info' => 'Payment Information',
+    'op_description_optional' => 'Description (optional)',
+    'op_payment_gateway' => 'Payment Gateway',
+    'op_continue_to_review' => 'Continue to Review',
+    'op_review_order' => 'Review Order',
+    'op_confirm_details' => 'Confirm your details before paying',
+    'op_paying_as' => 'Paying As',
+    'op_payment_summary' => 'Payment Summary',
+    'op_total_due' => 'Total Due',
+    'op_gateway' => 'Gateway',
+    'op_note' => 'Note',
+    'op_processing' => 'Processing…',
+    'op_pay' => 'Pay',
+    'op_payment_successful' => 'Payment Successful',
+    'op_payment_failed' => 'Payment Failed',
+    'op_success_msg' => 'Your transaction was completed successfully. A confirmation will be sent to your email.',
+    'op_transaction_id' => 'Transaction ID',
+    'op_amount_paid' => 'Amount Paid',
+    'op_make_another' => 'Make Another Payment',
+    'op_try_again' => 'Try Again',
+    'op_step_details' => 'Details',
+    'op_step_review' => 'Review',
+    'op_step_done' => 'Done',
+    'op_razorpay_methods' => 'Cards · UPI · Net Banking · Wallets',
+    'op_stripe_methods' => 'Cards',
+    'op_what_payment_for' => 'What is this payment for?',
+    'op_something_went_wrong' => 'Something went wrong. Please try again.',
+    'cvc' => 'CVC',
 ];

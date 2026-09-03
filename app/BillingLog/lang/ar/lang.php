@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => 'الافتراضي',
     'cloud-instance-created' => 'تم إنشاء مثيل سحابي',

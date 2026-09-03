@@ -2,73 +2,62 @@
 
 namespace App\Http\Controllers\Order;
 
+use App\Http\Controllers\Common\PhpMailController;
+use App\Http\Controllers\Payment\PromotionController;
+use App\Model\Common\Setting;
+use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Order\Invoice;
-use App\Model\Order\Order;
 use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
+use App\Services\Payment\UnappliedPaymentService;
 use App\User;
+use Exception;
+use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Http\JsonResponse;
+use Lang;
 
 class TaxRatesAndCodeExpiryController extends BaseInvoiceController
 {
     /**
      * Get Grandtotal.
+     *
+     * @return array<mixed>
      **/
-    public function getGrandTotal($code, $total, $cost, $productid, $currency, $user_id = '')
+    public function getGrandTotal(?string $code, float|int $total, float|int|null $cost, int $productid, string $currency, string $user_id = ''): array
     {
         if (! $total) {
             return ['total' => $total, 'code' => '', 'value' => '', 'mode' => ''];
         }
+
         if ($code) {
-            $cont = new \App\Http\Controllers\Payment\PromotionController();
+            $cont = new PromotionController;
             $promo = $cont->getPromotionDetails($code);
             $total = $cont->findCostAfterDiscount($promo->id, $productid, $user_id);
 
             return ['total' => $total, 'code' => $promo->code, 'value' => $promo->value, 'mode' => 'coupon'];
-        } else {
-            return ['total' => $total, 'code' => '', 'value' => '', 'mode' => ''];
         }
+
+        return ['total' => $total, 'code' => '', 'value' => '', 'mode' => ''];
     }
 
     /**
      * Get Message on Invoice Generation.
+     *
+     * @return array<mixed>
      **/
-    public function getMessage($items, $user_id)
+    public function getMessage(mixed $items, int $user_id): array
     {
         if ($items) {
-            // $this->sendmailClientAgent($user_id, $items->invoice_id);
-            $result = ['success' => \Lang::get('message.invoice-generated-successfully')];
-        } else {
-            $result = ['fails' => \Lang::get('message.can-not-generate-invoice')];
+            return ['success' => Lang::get('message.invoice-generated-successfully')];
         }
 
-        return $result;
+        return ['fails' => Lang::get('message.can-not-generate-invoice')];
     }
 
-    public function checkExecution($invoiceid)
+    public function invoiceContent(int $invoiceid): string
     {
-        try {
-            $response = false;
-            $invoice = Invoice::find($invoiceid);
-
-            $order = Order::where('invoice_id', $invoiceid);
-            $order_invoice_relation = $invoice->orderRelation()->first();
-
-            if ($order_invoice_relation) {
-                $response = true;
-            } elseif ($order->get()->count() > 0) {
-                $response = true;
-            }
-
-            return $response;
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
-        }
-    }
-
-    public function invoiceContent($invoiceid)
-    {
-        $invoice = $this->invoice->find($invoiceid);
+        $invoice = $this->invoice->find($invoiceid); // @phpstan-ignore property.notFound
         $items = $invoice->invoiceItem()->get();
         $content = '';
         if ($items->count() > 0) {
@@ -91,45 +80,46 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         return $content;
     }
 
-    public function currency($invoiceid)
+    public function currency(int $invoiceid): string
     {
         $invoice = Invoice::find($invoiceid);
-        $currency_code = $invoice->currency;
+        $currency_code = $invoice->currency ?? '';
 
         $cur = ' ';
-        if ($invoice->grand_total == 0) {
+        if (($invoice->grand_total ?? 0) == 0) {
             return $cur;
         }
+
         $currency = Currency::where('code', $currency_code)->first();
         if ($currency) {
-            $cur = $currency->symbol;
+            $cur = $currency->symbol ?? '';
             if (! $cur) {
-                $cur = $currency->code;
+                $cur = $currency->code ?? '';
             }
         }
 
-        return $cur;
+        return (string) $cur;
     }
 
-    public function sendInvoiceMail($userid, $number, $total, $invoiceid)
+    public function sendInvoiceMail(int $userid, string $number, float|int $total, int $invoiceid): void
     {
         $contact = getContactData();
-        //user
-        $users = new User();
+        // user
+        $users = new User;
         $user = $users->find($userid);
-        //check in the settings
-        $settings = new \App\Model\Common\Setting();
+        // check in the settings
+        $settings = new Setting;
+        /** @var Setting $setting */
         $setting = $settings::find(1);
         $invoiceurl = $this->invoiceUrl($invoiceid);
-        //template
-        $templates = new \App\Model\Common\Template();
-        $temp_id = TemplateType::where('name', 'invoice_mail')->value('id');
-        $template = $templates->where('type', $temp_id)->first();
+        // template
+        /** @var Template $template */
+        $template = TemplateType::getSelectedTemplate('invoice_mail');
         $type = '';
         $replace = [
-            'name' => $user->first_name.' '.$user->last_name,
+            'name' => ($user->first_name ?? '').' '.($user->last_name ?? ''),
             'number' => $number,
-            'address' => $user->address,
+            'address' => $user->address ?? '',
             'invoiceurl' => $invoiceurl,
             'content' => $this->invoiceContent($invoiceid),
             'currency' => $this->currency($invoiceid),
@@ -137,68 +127,64 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
             'logo' => $contact['logo'],
             'reply_email' => $setting->company_email,
         ];
-        if ($template) {
-            $type_id = $template->type;
-            $temp_type = new \App\Model\Common\TemplateType();
-            $type = $temp_type->where('id', $type_id)->first()->name;
-        }
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
+        $type = $template->type()->value('name') ?? '';
+        $mail = new PhpMailController;
+        $mail->SendEmail($setting->email, $user->email ?? '', $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
-    public function invoiceUrl($invoiceid)
+    public function invoiceUrl(int $invoiceid): UrlGenerator|string
     {
-        $url = url('my-invoice/'.$invoiceid);
-
-        return $url;
+        return url('my-invoice/'.$invoiceid);
     }
 
-    public function paymentDeleleById($id)
+    public function paymentEditById(int $id): JsonResponse
     {
         try {
-            $invoice_no = '';
-            $payment = Payment::find($id);
-            if ($payment) {
-                $invoice_id = $payment->invoice_id;
-                $invoice = Invoice::find($invoice_id);
-                if ($invoice) {
-                    $invoice_no = $invoice->number;
-                }
-                $payment->delete();
-            } else {
-                return redirect()->back()->with('fails', __('message.cannot_delete'));
-            }
+            $payment = Payment::findOrFail($id);
+            $clientid = (int) $payment->user_id;
+            $this->user->where('id', $clientid)->firstOrFail(); // @phpstan-ignore property.notFound
 
-            return redirect()->back()->with('success', __('message.payment_deleted_successfully', ['invoice_no' => $invoice_no]));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
-        }
-    }
+            // This screen exists for ONE payment: money the client sent that was
+            // never tied to an invoice. What can be allocated is what is left on
+            // that payment — not the client's credit balance, which is a
+            // different pool entirely (see UnappliedPaymentService).
+            $currency = (string) $payment->currency;
+            $unapplied = app(UnappliedPaymentService::class)->unappliedOn($clientid, (int) $payment->id);
+            $symbol = Currency::where('code', $currency)->value('symbol');
 
-    public function paymentEditById($id)
-    {
-        try {
-            $cltCont = new \App\Http\Controllers\User\ClientController();
-            $payment = Payment::find($id);
-            $clientid = $payment->user_id;
-            $invoice = new Invoice();
-            $order = new Order();
-            $invoices = $invoice->where('user_id', $clientid)->where('status', '=', 'pending')
-            ->orderBy('created_at', 'desc')->get();
-            $cltCont = new \App\Http\Controllers\User\ClientController();
-            $invoiceSum = $cltCont->getTotalInvoice($invoices);
-            $amountReceived = $cltCont->getExtraAmt($clientid);
-            $pendingAmount = $invoiceSum - $amountReceived;
-            $client = $this->user->where('id', $clientid)->first();
-            $currency = $client->currency;
-            $symbol = Currency::where('code', $currency)->pluck('symbol')->first();
-            $orders = $order->where('client', $clientid)->get();
+            // Only invoices this money could actually pay: same client, still
+            // owing, and in the payment's own currency.
+            $invoices = Invoice::where('user_id', $clientid)
+                ->where('currency', $currency)
+                ->whereNotIn('status', ['success', 'Success'])
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(fn ($inv): array => [
+                    'id' => $inv->id,
+                    'number' => $inv->number,
+                    'date' => $inv->date,
+                    'grand_total' => $inv->grand_total,
+                    'pending' => $inv->outstanding(),
+                    'status' => $inv->status,
+                ])
+                ->filter(fn ($inv): bool => $inv['pending'] > 0)
+                ->values();
 
-            return view('themes.default1.invoice.editPayment',
-                compact('amountReceived', 'clientid', 'client', 'invoices', 'orders',
-                    'invoiceSum', 'amountReceived', 'pendingAmount', 'currency', 'symbol'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return successResponse('', [
+                'payment' => [
+                    'id' => $payment->id,
+                    'payment_method' => $payment->payment_method,
+                    'amount' => (float) $payment->amount,
+                    'date' => $payment->created_at,
+                ],
+                'clientid' => $clientid,
+                'unapplied' => $unapplied,
+                'invoices' => $invoices,
+                'symbol' => $symbol,
+                'currency' => $currency,
+            ]);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

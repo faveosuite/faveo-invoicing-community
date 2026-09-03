@@ -10,8 +10,8 @@ use App\BillingLog\Model\MailLog;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Date;
 use Mail;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -21,7 +21,7 @@ class AutomationControllerTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -30,7 +30,7 @@ class AutomationControllerTest extends TestCase
 
     #[Test]
     #[Group('validation')]
-    public function test_validation_fails_when_required_fields_missing()
+    public function test_validation_fails_when_required_fields_missing(): void
     {
         $response = $this->getJson('/log-category-list');
 
@@ -40,7 +40,7 @@ class AutomationControllerTest extends TestCase
 
     #[Test]
     #[Group('validation')]
-    public function test_validation_fails_when_invalid_log_type()
+    public function test_validation_fails_when_invalid_log_type(): void
     {
         $response = $this->getJson('/log-category-list?date=2023-01-01&log_type=invalid');
 
@@ -50,7 +50,7 @@ class AutomationControllerTest extends TestCase
 
     #[Test]
     #[Group('cron')]
-    public function test_get_cron_commands_success()
+    public function test_get_cron_commands_success(): void
     {
         $date = '2023-01-01';
         $command = 'TestCommand';
@@ -58,12 +58,13 @@ class AutomationControllerTest extends TestCase
         CronLog::create([
             'command' => $command,
             'status' => 'success',
-            'created_at' => Carbon::parse($date)->startOfDay(),
+            'created_at' => Date::parse($date)->startOfDay(),
         ]);
 
-        $response = $this->getJson("/log-category-list?date={$date}&log_type=cron");
+        $response = $this->getJson(sprintf('/log-category-list?date=%s&log_type=cron', $date));
 
         $response->assertStatus(200);
+
         $data = $response->json('data')[0];
 
         $this->assertEquals($command, $data['command']);
@@ -72,13 +73,13 @@ class AutomationControllerTest extends TestCase
 
     #[Test]
     #[Group('mail')]
-    public function test_get_mail_category_log_success()
+    public function test_get_mail_category_log_success(): void
     {
         $date = '2023-01-01';
 
         $category = LogCategory::create(['name' => 'test_category']);
 
-        $type = new TemplateType();
+        $type = new TemplateType;
         $type->name = $category->name;
         $type->save();
 
@@ -90,12 +91,13 @@ class AutomationControllerTest extends TestCase
         MailLog::create([
             'log_category_id' => $category->id,
             'status' => 'sent',
-            'created_at' => Carbon::parse($date)->startOfDay(),
+            'created_at' => Date::parse($date)->startOfDay(),
         ]);
 
-        $response = $this->getJson("/log-category-list?date={$date}&log_type=mail");
+        $response = $this->getJson(sprintf('/log-category-list?date=%s&log_type=mail', $date));
 
         $response->assertStatus(200);
+
         $data = $response->json('data')[0];
 
         $this->assertEquals($category->id, $data['id']);
@@ -105,7 +107,7 @@ class AutomationControllerTest extends TestCase
 
     #[Test]
     #[Group('exception')]
-    public function test_get_exception_category_log_success()
+    public function test_get_exception_category_log_success(): void
     {
         $date = '2023-01-01';
 
@@ -113,12 +115,13 @@ class AutomationControllerTest extends TestCase
 
         ExceptionLog::create([
             'log_category_id' => $category->id,
-            'created_at' => Carbon::parse($date)->startOfDay(),
+            'created_at' => Date::parse($date)->startOfDay(),
         ]);
 
-        $response = $this->getJson("/log-category-list?date={$date}&log_type=exception");
+        $response = $this->getJson(sprintf('/log-category-list?date=%s&log_type=exception', $date));
 
         $response->assertStatus(200);
+
         $data = $response->json('data')[0];
 
         $this->assertEquals($category->id, $data['id']);
@@ -128,11 +131,11 @@ class AutomationControllerTest extends TestCase
 
     #[Test]
     #[Group('mail-dispatch')]
-    public function test_dispatch_payload_success()
+    public function test_dispatch_payload_success(): void
     {
         Mail::fake();
 
-        $controller = new PhpMailController();
+        $controller = new PhpMailController;
         $controller->sendEmail(
             from: 'test@example.com',
             to: 'user@example.com',
@@ -141,8 +144,8 @@ class AutomationControllerTest extends TestCase
             categoryName: 'test_category'
         );
 
-        $mailLog = MailLog::latest()->first();
-        $response = $this->getJson("retry/mail-log/{$mailLog->id}");
+        $mailLog = MailLog::latest()->firstOrFail();
+        $response = $this->getJson('retry/mail-log/'.$mailLog->id);
 
         // Assert response structure
         $response->assertStatus(200);
@@ -159,14 +162,13 @@ class AutomationControllerTest extends TestCase
         );
 
         // Assert database record exists and payload is not null
-        $this->assertNotNull($mailLog);
         $this->assertNotNull($mailLog->job_payload);
-        $this->assertEquals('test_category', $mailLog->category->name);
+        $this->assertEquals('test_category', $mailLog->category?->name);
     }
 
     #[Test]
     #[Group('mail-dispatch')]
-    public function test_dispatch_payload_not_found()
+    public function test_dispatch_payload_not_found(): void
     {
         $response = $this->getJson('retry/mail-log/999999'); // Non-existent ID
 
@@ -176,25 +178,25 @@ class AutomationControllerTest extends TestCase
 
     #[Test]
     #[Group('controller-methods')]
-    public function test_attempts_returns_default_value()
+    public function test_attempts_returns_default_value(): void
     {
-        $controller = new AutomationController();
+        $controller = new AutomationController;
         $this->assertEquals(5, $controller->attempts());
     }
 
     #[Test]
     #[Group('controller-methods')]
-    public function test_get_job_id_returns_null()
+    public function test_get_job_id_returns_null(): void
     {
-        $controller = new AutomationController();
+        $controller = new AutomationController;
         $this->assertNull($controller->getJobId());
     }
 
     #[Test]
     #[Group('controller-methods')]
-    public function test_get_raw_body_returns_set_value()
+    public function test_get_raw_body_returns_set_value(): void
     {
-        $controller = new AutomationController();
+        $controller = new AutomationController;
         $controller->rawBody = 'test raw body';
         $this->assertEquals('test raw body', $controller->getRawBody());
     }

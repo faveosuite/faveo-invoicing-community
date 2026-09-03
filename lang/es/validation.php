@@ -666,7 +666,7 @@ Request file custom validation messages
             'url' => 'El dominio debe ser una URL válida.',
         ],
     ],
-    //Product Renewal form
+    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'El campo de dominio es obligatorio.',
@@ -674,13 +674,13 @@ Request file custom validation messages
         ],
     ],
 
-    //Language form
+    // Language form
     'language' => [
         'required' => 'El campo de idioma es obligatorio.',
         'invalid' => 'El idioma seleccionado no es válido.',
     ],
 
-    //UpdateSroragePathRequest form
+    // UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'El campo de disco de almacenamiento es obligatorio.',
@@ -692,7 +692,7 @@ Request file custom validation messages
         ],
     ],
 
-    //ValidateSecretRequest form
+    // ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'Por favor, introduce el código',
@@ -700,7 +700,7 @@ Request file custom validation messages
         ],
     ],
 
-    //VerifyOtp form
+    // VerifyOtp form
     'verify_email' => [
         'required' => 'El campo de correo electrónico es obligatorio.',
         'email' => 'El correo electrónico debe ser una dirección válida.',
@@ -725,7 +725,7 @@ Request file custom validation messages
         'invalid' => 'Contraseña inválida.',
     ],
 
-    //AuthController file
+    // AuthController file
     'auth_controller' => [
         'name_required' => 'El nombre es obligatorio.',
         'name_max' => 'El nombre no puede tener más de 255 caracteres.',

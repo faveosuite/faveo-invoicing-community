@@ -1,0 +1,147 @@
+<template>
+    <div>
+        <AppAlert :componentName="COMPONENT" />
+        <div class="card card-light">
+            <div class="card-header">
+                <h4 class="card-title">{{ __('message.license_permission') }}</h4>
+            </div>
+            <div class="card-body">
+                <DataTable
+                    ref="dtRef"
+                    :url="apiUrl"
+                    :dataColumns="columns"
+                    :option="tableOptions"
+                />
+            </div>
+        </div>
+
+        <!-- Add/Edit Permissions Modal -->
+        <AppModal
+            v-if="editLicense"
+            :showModal="!!editLicense"
+            :onClose="closeModal"
+            :showCloseBtn="false"
+        >
+            <template #title>
+                <h4>{{ editLicense.name }}</h4>
+            </template>
+            <template #fields>
+                <div v-for="perm in editPerms" :key="perm.id" class="mb-1">
+                    <Checkbox
+                        :name="`perm-${perm.id}`"
+                        :label="perm.permissions"
+                        :value="!!perm.assigned"
+                        :disabled="isDisabled(perm)"
+                        :onChange="(val) => togglePerm(perm, val)"
+                    />
+                </div>
+            </template>
+            <template #controls>
+                <action-button action="save" type="button" :loading="saving" @click="savePerms" />
+            </template>
+        </AppModal>
+    </div>
+</template>
+
+<script setup>
+import { h, ref, reactive } from 'vue'
+import Checkbox from '@/components/Reusable/FormField/Checkbox.vue'
+import http from '@/plugins/axios'
+import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
+
+const COMPONENT = 'license-permissions'
+const apiUrl = `/get-license-permission`
+
+const dtRef = ref(null)
+const editLicense = ref(null)
+const editPerms = ref([])
+const saving = ref(false)
+
+function openEdit(license) {
+    editLicense.value = license
+    editPerms.value = (license.all_permissions ?? []).map(p => ({ ...p }))
+}
+
+function closeModal() {
+    editLicense.value = null
+    editPerms.value = []
+}
+
+const NO_PERMISSIONS = 'No Permissions'
+
+// "No Permissions" is mutually exclusive with every real permission (see
+// LicensePermissionsController::addPermission) — mirror that here so the
+// checkbox state can't lie about what will actually get saved.
+function togglePerm(perm, val) {
+    perm.assigned = val
+    if (!val) return
+    if (perm.permissions === NO_PERMISSIONS) {
+        editPerms.value.forEach(p => { if (p.id !== perm.id) p.assigned = false })
+    } else {
+        const noPerm = editPerms.value.find(p => p.permissions === NO_PERMISSIONS)
+        if (noPerm) noPerm.assigned = false
+    }
+}
+
+function isDisabled(perm) {
+    if (perm.permissions === NO_PERMISSIONS) {
+        return editPerms.value.some(p => p.permissions !== NO_PERMISSIONS && p.assigned)
+    }
+    return editPerms.value.some(p => p.permissions === NO_PERMISSIONS && p.assigned)
+}
+
+async function savePerms() {
+    saving.value = true
+    const permissionid = editPerms.value.filter(p => p.assigned).map(p => p.id)
+    try {
+        const res = await http.post(`/add-permission`, {
+            licenseId: editLicense.value.id, permissionid,
+        })
+        successHandler(res, COMPONENT)
+        closeModal()
+        dtRef.value?.refresh()
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        saving.value = false
+    }
+}
+
+const columns = ['name', 'permissions', 'action']
+
+const tableOptions = reactive({
+    headings: {
+        name:        __('message.license-type'),
+        permissions: __('message.license_permission'),
+        action:      __('message.action'),
+    },
+    columnsClasses: {
+        name: 'dt-name',
+        permissions: 'dt-text',
+        action: 'dt-action',
+    },
+    templates: {
+        name: (f, row) => row.name || '—',
+        permissions: (f, row) => {
+            const perms = row.permissions ?? []
+            if (!perms.length) return h('span', { class: 'text-muted fst-italic' }, __('message.no_permissions_selected'))
+            return h('ul', { class: 'mb-0 ps-3' }, perms.map(p => h('li', { class: 'fw-bold' }, p)))
+        },
+        action: (f, row) => h('button', {
+            class: 'btn btn-secondary btn-sm',
+            onClick: () => openEdit(row),
+        }, [h('i', { class: 'fas fa-plus me-1' }), __('message.add-permissions')]),
+    },
+    sortable: ['name'],
+    filterable: true,
+    requestAdapter: makeRequestAdapter('name'),
+    responseAdapter({ data }) {
+        return {
+            data:  data?.data?.data  ?? [],
+            count: data?.data?.total ?? 0,
+        }
+    },
+    orderBy: { column: 'name', ascending: true },
+})
+</script>

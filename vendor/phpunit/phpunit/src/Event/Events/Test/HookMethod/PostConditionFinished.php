@@ -30,6 +30,9 @@ final readonly class PostConditionFinished implements Event
      */
     private array $calledMethods;
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(Telemetry\Info $telemetryInfo, Code\TestMethod $test, Code\ClassMethod ...$calledMethods)
     {
         $this->telemetryInfo = $telemetryInfo;
@@ -45,16 +48,6 @@ final readonly class PostConditionFinished implements Event
     public function test(): Code\TestMethod
     {
         return $this->test;
-    }
-
-    /**
-     * @return class-string
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
-     */
-    public function testClassName(): string
-    {
-        return $this->test->className();
     }
 
     /**

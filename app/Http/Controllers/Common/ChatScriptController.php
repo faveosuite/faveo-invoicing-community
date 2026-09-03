@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
 use App\Model\Common\ChatScript;
-use Bugsnag;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Log;
+use Logger;
 
 class ChatScriptController extends Controller
 {
@@ -14,87 +17,63 @@ class ChatScriptController extends Controller
         $this->middleware('auth');
         $this->middleware('admin');
 
-        $script = new ChatScript();
-        $this->script = $script;
+        $script = new ChatScript;
+        $this->script = $script; // @phpstan-ignore property.notFound
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        return view('themes.default1.common.chat.index');
-    }
-
-    public function getScript()
+    public function getScriptList(Request $request): JsonResponse
     {
         try {
-            return \DataTables::of($this->script->select('id', 'name'))
-                        ->addColumn('checkbox', function ($model) {
-                            return "<input type='checkbox' class='chat_checkbox' 
-                            value=".$model->id.' name=select[] id=check>';
-                        })
-                        ->orderColumn('name', '-created_at $1')
-                         ->addColumn('name', function ($model) {
-                             return $model->name;
-                         })
+            $searchString = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = $request->input('limit', 10);
 
-                        ->addColumn('action', function ($model) {
-                            return '<a href='.url('chat/'.$model->id.'/edit').
-                            " class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit'
-                                 style='color:white;'> </i></a>";
-                        })
-                             ->filterColumn('name', function ($query, $keyword) {
-                                 $sql = 'name like ?';
-                                 $query->whereRaw($sql, ["%{$keyword}%"]);
-                             })
-                        ->rawColumns(['checkbox', 'name',  'action'])
-                        ->make(true);
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            $scripts = $this->script // @phpstan-ignore property.notFound
+                ->select('id', 'name')
+                ->when($searchString, function ($query) use ($searchString): void {
+                    $query->where('name', 'like', sprintf('%%%s%%', $searchString));
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->paginate($limit);
+
+            $scripts->getCollection()->transform(fn ($script): array => [
+                'id' => $script->id,
+                'name' => $script->name,
+                'checkbox' => $script->id,
+                'action' => hyperLinkGenerator('chat/show/'.$script->id),
+            ]);
+
+            return successResponse(__('message.scripts_fetched'), $scripts);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        return view('themes.default1.common.chat.create');
-    }
-
-    /**
      * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function createScript(Request $request): JsonResponse
     {
-        $this->validate($request, [
-            'name' => 'required|max:50',
-            'script' => 'required',
-            'google_analytics_tag' => 'required_if:google_analytics,1',
-
+        $request->validate([
+            'name' => ['required', 'max:50'],
+            'script' => ['required'],
+            'google_analytics_tag' => ['required_if:google_analytics,1'],
         ], [
+            'name.required' => __('validation.widget.name_required'),
             'script.required' => __('message.script_required'),
             'google_analytics_tag.required_if' => __('message.google_analytics_tag_required_if'),
         ]);
-
         try {
             $request['on_every_page'] = $request->on_registration ? 0 : 1;
-            $this->script->fill($request->input())->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
-        } catch (Exception $ex) {
-            Bugsnag::notifyException($ex);
-            \Logger::exception($ex);
+            $this->script->fill($request->all())->save(); // @phpstan-ignore property.notFound
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return successResponse(__('message.saved-successfully'));
+        } catch (Exception $exception) {
+            Logger::exception($exception);
+
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -102,95 +81,88 @@ class ChatScriptController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function getScript($id): JsonResponse
     {
-        $chat = $this->script->where('id', $id)->first();
+        try {
+            $chat = $this->script->find($id); // @phpstan-ignore property.notFound
 
-        return view('themes.default1.common.chat.edit', compact('chat'));
+            if (! $chat) {
+                return errorResponse(__('message.no-record'), 404);
+            }
+
+            return successResponse(__('message.chat_fetched'), $chat);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function updateScript(Request $request, $id): JsonResponse
     {
-        $this->validate($request, [
-            'name' => 'required|max:50',
-            'script' => 'required',
-            'google_analytics_tag' => 'required_if:google_analytics,1',
-
+        $request->validate([
+            'name' => ['required', 'max:50'],
+            'script' => ['required'],
+            'google_analytics_tag' => ['required_if:google_analytics,1'],
         ], [
             'script.required' => __('message.script_required'),
             'google_analytics_tag.required_if' => __('message.google_analytics_tag_required_if'),
         ]);
 
         try {
-            $script = $this->script->where('id', $id)->first();
-            $script->on_every_page = $request->on_registration ? 0 : 1;
-            $script->fill($request->input())->save();
+            $script = $this->script->find($id); // @phpstan-ignore property.notFound
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            if (! $script) {
+                return errorResponse(__('message.record_not_found'), 404);
+            }
+
+            // Set on_every_page value
+            $script->on_every_page = $request->on_registration ? 0 : 1;
+
+            $script->fill($request->all());
+            $script->save();
+
+            return successResponse(__('message.updated-successfully'), $script);
+        } catch (Exception $exception) {
+            Log::error($exception->getMessage());
+
+            return errorResponse($exception->getMessage(), 500);
         }
     }
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function deleteScript(Request $request): JsonResponse
     {
         try {
-            $ids = $request->input('select');
-            if (! empty($ids)) {
-                foreach ($ids as $id) {
-                    $script = $this->script->where('id', $id)->first();
-                    if ($script) {
-                        $script->delete();
-                    } else {
-                        echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
-                </div>';
-                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
-                    }
-                }
-                echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').
-                    '!</b> './* @scrutinizer ignore-type */\Lang::get('message.success').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
-                </div>';
-            } else {
-                echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
-                </div>';
+            $ids = $request->input('select', []);
+
+            $ids = array_filter(array_unique(array_map(intval(...), array_map(trim(...), $ids))));
+
+            if ($ids === []) {
+                return errorResponse(__('message.select-a-row'), 400);
             }
-        } catch (\Exception $e) {
-            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$e->getMessage().'
-                </div>';
+
+            $scriptIds = $this->script->whereIn('id', $ids)->get(); // @phpstan-ignore property.notFound
+
+            if ($scriptIds->isEmpty()) {
+                return errorResponse(__('message.no-record'), 404);
+            }
+
+            foreach ($scriptIds as $script) {
+                $script->delete();
+            }
+
+            $this->script->whereIn('id', $ids)->delete(); // @phpstan-ignore property.notFound
+
+            return successResponse(__('message.deleted-successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage(), 500);
         }
     }
 }

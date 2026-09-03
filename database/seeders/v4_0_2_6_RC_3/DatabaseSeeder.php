@@ -2,13 +2,7 @@
 
 namespace Database\Seeders\v4_0_2_6_RC_3;
 
-use App\Model\Common\FaveoCloud;
-use App\Model\Order\InstallationDetail;
-use App\Model\Product\Subscription;
 use App\ReportColumn;
-use App\ThirdPartyApp;
-use File;
-use GuzzleHttp\Client;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder

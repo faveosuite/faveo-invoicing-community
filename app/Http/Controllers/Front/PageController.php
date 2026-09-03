@@ -5,435 +5,111 @@ namespace App\Http\Controllers\Front;
 use App\ApiKey;
 use App\DefaultPage;
 use App\Demo_page;
-use App\Http\Controllers\Common\TemplateController;
+use App\Facades\Attach;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Front\ContactRequest;
 use App\Http\Requests\Front\PageRequest;
 use App\Model\Common\Country;
-use App\Model\Common\PricingTemplate;
+use App\Model\Common\Setting;
 use App\Model\Common\State;
 use App\Model\Common\StatusSetting;
-use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Front\FrontendPage;
 use App\Model\Payment\Plan;
-use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
-use App\Model\Product\ProductGroup;
+use App\Services\Seo\SeoFileGenerator;
+use App\Services\Seo\SeoTemplateFormatter;
+use Config;
+use DateTime;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
+use Logger;
+use Throwable;
 
 class PageController extends Controller
 {
+    /**
+     * @var FrontendPage
+     */
     public $page;
 
     public function __construct()
     {
-        $this->middleware(['auth', 'admin'], ['except' => ['pageTemplates', 'contactUs', 'postDemoReq', 'postContactUs']]);
+        $this->middleware(['auth', 'admin'], ['except' => ['postDemoReq', 'postContactUs', 'pageBySlug', 'contactUsInfo']]);
         $this->middleware('recaptcha:contact')->only('postContactUs');
         $this->middleware('recaptcha:demo')->only('postDemoReq');
-        $page = new FrontendPage();
+        $page = new FrontendPage;
         $this->page = $page;
     }
 
-    public function index()
+    /**
+     * Public: fetch a single published page by slug for the SPA page view.
+     * Returns null data (200) when not found so the client can show a
+     * "page not found" state instead of being redirected.
+     */
+    public function pageBySlug(string $slug, SeoTemplateFormatter $formatter): JsonResponse
     {
         try {
-            $pages_count = count($this->page->all());
+            $page = FrontendPage::where('slug', $slug)
+                ->where('publish', 1)
+                ->select('id', 'name', 'slug', 'content', 'type', 'meta_title', 'meta_description', 'og_title', 'og_description')
+                ->first();
 
-            return view('themes.default1.front.page.index', compact('pages_count'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function getPages()
-    {
-        return \DataTables::of($this->page->select('id', 'name', 'url', 'created_at'))
-                        ->orderColumn('name', '-id $1')
-                        ->orderColumn('url', '-id $1')
-                        ->orderColumn('created_at', '-id $1')
-                        ->addColumn('checkbox', function ($model) {
-                            return "<input type='checkbox' class='page_checkbox' 
-                            value=".$model->id.' name=select[] id=check>';
-                        })
-                        ->addColumn('name', function ($model) {
-                            return ucfirst($model->name);
-                        })
-                        ->addColumn('url', function ($model) {
-                            return $model->url;
-                        })
-                        ->addColumn('created_at', function ($model) {
-                            return getDateHtml($model->created_at);
-                        })
-
-                        ->addColumn('action', function ($model) {
-                            return '<a href='.url('pages/'.$model->id.'/edit')
-                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit'
-                                 style='color:white;'> </i></a>";
-                        })
-                          ->filterColumn('name', function ($query, $keyword) {
-                              $sql = 'name like ?';
-                              $query->whereRaw($sql, ["%{$keyword}%"]);
-                          })
-                            ->filterColumn('url', function ($query, $keyword) {
-                                $sql = 'url like ?';
-                                $query->whereRaw($sql, ["%{$keyword}%"]);
-                            })
-
-                          ->rawColumns(['checkbox', 'name', 'url',  'created_at', 'action'])
-                        ->make(true);
-        // ->searchColumns('name', 'content')
-        // ->orderColumns('name')
-        // ->make();
-    }
-
-    public function create()
-    {
-        try {
-            $parents = $this->page->pluck('name', 'id')->toArray();
-
-            return view('themes.default1.front.page.create', compact('parents'));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function edit($id)
-    {
-        try {
-            $page = $this->page->where('id', $id)->first();
-            $parents = $this->page->where('id', '!=', $id)->pluck('name', 'id')->toArray();
-            $selectedDefault = DefaultPage::value('page_id');
-            $date = $this->page->where('id', $id)->pluck('created_at')->first();
-            $publishingDate = date('m/d/Y', strtotime($date));
-            $selectedParent = $this->page->where('id', $id)->pluck('parent_page_id')->toArray();
-            $parentName = $this->page->where('id', $selectedParent)->pluck('name', 'id')->toArray();
-
-            return view('themes.default1.front.page.edit', compact('parents', 'page', 'selectedDefault', 'publishingDate', 'selectedParent',
-                'parentName'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function store(PageRequest $request)
-    {
-        try {
-            $pages_count = count($this->page->all());
-            $url = $request->input('url');
-            if ($request->input('type') == 'contactus') {
-                $url = url('/contact-us');
-            }
-            $this->page->name = $request->input('name');
-            $this->page->publish = $request->input('publish');
-            $this->page->slug = $request->input('slug');
-            $this->page->url = $url;
-            $this->page->parent_page_id = $request->input('parent_page_id');
-            $this->page->type = $request->input('type');
-            $this->page->content = $request->input('content');
-            if ($pages_count <= 2) {
-                $this->page->save();
-
-                return redirect()->back()->with('success', trans('message.saved-successfully'));
-            } else {
-                return redirect()->back()->with('fails', trans('message.limit_exceed'));
-            }
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function update($id, PageRequest $request)
-    {
-        try {
-            $page = $this->page->findOrFail($id);
-
-            $page->fill($request->except('created_at'));
-
-            if ($request->filled('created_at')) {
-                $page->created_at = \Carbon\Carbon::createFromFormat(
-                    'm/d/Y',
-                    $request->input('created_at')
-                );
+            if ($page) {
+                $page->meta_title = $formatter->resolveShortcodes($page->meta_title, $page->name) ?: $formatter->title($page->name);
+                $page->meta_description = $formatter->resolveShortcodes($page->meta_description, $page->name) ?: $formatter->description($page->name);
+                $page->og_title = $formatter->resolveShortcodes($page->og_title, $page->name) ?: ($formatter->generalOgTitle() ?: $page->meta_title);
+                $page->og_description = $formatter->resolveShortcodes($page->og_description, $page->name) ?: ($formatter->generalOgDescription() ?: $page->meta_description);
             }
 
-            $page->save();
-
-            if ($request->filled('default_page_id')) {
-                $defaultUrl = $this->page
-                    ->where('id', $request->input('default_page_id'))
-                    ->value('url');
-
-                DefaultPage::findOrFail(1)->update([
-                    'page_id' => $request->input('default_page_id'),
-                    'page_url' => $defaultUrl,
-                ]);
-            } else {
-                DefaultPage::findOrFail(1)->update([
-                    'page_id' => 1,
-                    'page_url' => url('my-invoices'),
-                ]);
-            }
-
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function getPageUrl($slug)
-    {
-        $productController = new \App\Http\Controllers\Product\ProductController();
-        //  $url = url('/');
-        //  $segment = $this->addSegment(['public/pages']);
-        $url = url('/');
-
-        $slug = str_slug($slug, '-');
-        echo $url.'/pages'.'/'.$slug;
-    }
-
-    public function getSlug($slug)
-    {
-        $slug = str_slug($slug, '-');
-        echo $slug;
-    }
-
-    public function addSegment($segments = [])
-    {
-        $segment = '';
-        foreach ($segments as $seg) {
-            $segment .= '/'.$seg;
-        }
-
-        return $segment;
-    }
-
-    public function generate(Request $request)
-    {
-        if ($request->has('slug')) {
-            $slug = $request->input('slug');
-
-            return $this->getSlug($slug);
-        }
-        if ($request->has('url')) {
-            $slug = $request->input('url');
-
-            return $this->getPageUrl($slug);
-        }
-    }
-
-    public function show($slug)
-    {
-        try {
-            $page = $this->page->where('slug', $slug)->where('publish', 1)->first();
-            if ($page && $page->type == 'cart') {
-                return $this->cart();
-            }
-
-            return view('themes.default1.front.page.show', compact('page'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return successResponse('', $page);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Response
+     * Public: company address/contact details for the Contact Us page.
      */
-    public function destroy(Request $request)
+    public function contactUsInfo(): JsonResponse
     {
         try {
-            $ids = $request->input('select');
-            $defaultPageId = DefaultPage::pluck('page_id')->first();
-            if (! empty($ids)) {
-                foreach ($ids as $id) {
-                    if ($id != $defaultPageId) {
-                        $page = $this->page->where('id', $id)->first();
-                        if ($page) {
-                            $page->delete();
-                        } else {
-                            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */
-                    \Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
-                </div>';
-                            //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
-                        }
-                        echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
+            $set = Setting::findOrFail(1);
+            $address = preg_replace("/^\R+|\R+\z/", '', (string) $set->address);
+            $state = State::where('country_code', $set->country)->where('iso2', $set->state)->value('state_subdivision_name');
+            $country = Country::where('country_code_char2', $set->country)->value('country_name');
+            $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck')->first();
+            $status = StatusSetting::select('msg91_status')->first();
 
-                    <b>"./* @scrutinizer ignore-type */ \Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */
-                    \Lang::get('message.success').'
-
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
-                </div>';
-                    } else {
-                        echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */ \Lang::get('message.can-not-delete-default-page').'
-                </div>';
-                    }
-                }
-            } else {
-                echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
-                </div>';
-                //echo \Lang::get('message.select-a-row');
-            }
-        } catch (\Exception $e) {
-            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$e->getMessage().'
-                </div>';
+            return successResponse('', [
+                'address' => $address,
+                'city' => $set->city,
+                'state' => $state,
+                'country' => $country,
+                'zip' => $set->zip,
+                'phone_code' => $set->phone_code,
+                'phone' => $set->phone,
+                'company_email' => $set->company_email,
+                'recaptcha_key' => $apiKeys->nocaptcha_sitekey ?? null,
+                'msg91_status' => (bool) ($status->msg91_status ?? false),
+            ]);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function getstrikePriceYear($id)
+    public function transform(string $type, string $data, array $trasform = []): string // @phpstan-ignore missingType.iterableValue
     {
-        $countryCheck = true;
-        try {
-            $cost[0] = 'Free';
-            $plans = Plan::where('product', $id)->where('status', 1)->get();
-            $product = Product::find($id);
-            $prices = [];
-            if ($plans->count() > 0) {
-                foreach ($plans as $plan) {
-                    if ($product->status) {
-                        if ($plan->days == 365 || $plan->days == 366) {
-                            $currency = userCurrencyAndPrice('', $plan);
-                            $offerprice = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
-                            $planDetails = userCurrencyAndPrice('', $plan);
-
-                            $prices[$plan->id][] = ($product->status) ? ($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
-                            $prices[$plan->id][] .= $planDetails['symbol'];
-                            $prices[$plan->id][] .= $planDetails['currency'];
-                            $prices[$plan->id][] .= $plan->id;
-                        }
-                    } else {
-                        $currency = userCurrencyAndPrice('', $plan);
-                        $offerprice = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
-                        $planDetails = userCurrencyAndPrice('', $plan);
-                        $prices[$plan->id][] = $planDetails['plan']->add_price;
-                        $prices[$plan->id][] .= $planDetails['symbol'];
-                        $prices[$plan->id][] .= $planDetails['currency'];
-                        $prices[$plan->id][] .= $plan->id;
-                    }
-
-                    if (isset($prices[$plan->id]) && ! empty($prices[$plan->id])) {
-                        if (isset($offerprice) && $offerprice != '' && $offerprice != null) {
-                            $prices[$plan->id][0] = $prices[$plan->id][0] - (($offerprice / 100) * $prices[$plan->id][0]);
-                        }
-                        $format = currencyFormat(min([$prices[$plan->id][0]]), $code = $prices[$plan->id][2]);
-                        $finalPrice = str_replace($prices[$plan->id][1], '', $format);
-                        $cost[$plan->id] = '<span class="price-unit striked hide_custom" id="'.$prices[$plan->id][3].'">'.$prices[$plan->id][1].$finalPrice.'</span>';
-                    }
-                }
-            }
-            if (sizeof($cost) > 1) {
-                unset($cost[0]);
-            }
-
-            return $cost;
-        } catch (\Exception $ex) {
-            throw $ex;
-        }
-    }
-
-    public function transformTemplate($type, $data, $trasform = [])
-    {
-        $config = \Config::get("transform.$type");
-        $result = '';
-
-        // Iterate using the original transform array to preserve product IDs as keys
-        foreach ($trasform as $productId => $trans) {
-            $mappedArray = $this->checkConfigKey($config, $trans);
-            $array1 = $this->keyArray($mappedArray);
-            $array2 = $this->valueArray($mappedArray);
-
-            // Use product ID directly instead of looking up by name
-            $id = $productId;
-            $product = Product::find($id);
-            $data = $product->highlight ? PricingTemplate::findorFail(1)->data : PricingTemplate::findorFail(2)->data;
-            $offerprice = $this->getOfferprice($id);
-            $description = self::getPriceDescription($id);
-            $month_offer_price = $offerprice['30_days'] ?? null;
-            $year_offer_price = $offerprice['365_days'] ?? null;
-
-            if ($product->add_to_contact == 1) {
-                $data = str_replace('{{strike-price}}', '', $data);
-                $data = str_replace('{{strike-priceyear}}', '', $data);
-                $data = str_replace('{{price}}', 'Custom Pricing', $data);
-                $data = str_replace('{{price-year}}', 'Custom Pricing', $data);
-            }
-            if ($month_offer_price === '' || $month_offer_price === null) {
-                $data = str_replace('{{strike-price}}', '', $data);
-            }
-
-            if (! $product->status) {
-                if (empty($month_offer_price) && empty($year_offer_price)) {
-                    $data = str_replace('{{strike-priceyear}}', '', $data);
-                }
-            } elseif (empty($year_offer_price)) {
-                $data = str_replace('{{strike-priceyear}}', '', $data);
-            }
-            if ($year_offer_price !== '' && $year_offer_price !== null) {
-                $offerprice = $this->getPayingprice($id);
-                $offerpriceYear = $this->getstrikePriceYear($id);
-                $offerpriceyearKeys = array_keys($offerpriceYear);
-                $strikePrice = $this->YearlyAmountForOffer($id);
-                $strikePriceKeys = array_keys($strikePrice);
-                $data = str_replace('{{price}}', $offerprice, $data);
-                if ($month_offer_price !== '' && $month_offer_price !== null) {
-                    $data = str_replace('{{strike-price}}', $array2[1] ?? '', $data);
-                }
-                if (sizeof($offerpriceyearKeys) > 1) {
-                    $data = str_replace('{{price-year}}', implode(' ', $offerpriceYear), $data);
-                } else {
-                    $data = str_replace('{{price-year}}', $offerpriceYear[$offerpriceyearKeys[0]], $data);
-                }
-                if ($year_offer_price !== '' && $year_offer_price !== null) {
-                    if (sizeof($strikePriceKeys) > 1) {
-                        $data = str_replace('{{strike-priceyear}}', implode(' ', $strikePrice), $data);
-                    } else {
-                        $data = str_replace('{{strike-priceyear}}', $strikePrice[$strikePriceKeys[0]], $data);
-                    }
-                }
-            }
-            $result .= str_replace($array1, $array2, $data);
-        }
-
-        return $result;
-    }
-
-    public function transform($type, $data, $trasform = [])
-    {
-        $config = \Config::get("transform.$type");
+        $config = Config::get('transform.'.$type);
         $result = '';
         $array = [];
         foreach ($trasform as $trans) {
             $array[] = $this->checkConfigKey($config, $trans);
         }
+
         $c = count($array);
         for ($i = 0; $i < $c; $i++) {
             $array1 = $this->keyArray($array[$i]);
@@ -444,493 +120,28 @@ class PageController extends Controller
         return $result;
     }
 
-    public function getPayingprice($id)
-    {
-        $countryCheck = true;
-        try {
-            $cost = 'Free';
-            $plans = Plan::where('product', $id)->where('status', 1)->get();
-
-            $prices = [];
-            if ($plans->count() > 0) {
-                foreach ($plans as $plan) {
-                    if ($plan->days == 30 || $plan->days == 31) {
-                        $currency = userCurrencyAndPrice('', $plan);
-                        $offerprice = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
-                        $planDetails = userCurrencyAndPrice('', $plan);
-                        $price = $planDetails['plan']->add_price;
-                        $symbol = $planDetails['symbol'];
-                        $currency = $planDetails['currency'];
-                        if (isset($offerprice) && $offerprice != '' && $offerprice != null) {
-                            $price = $price - (($offerprice / 100) * $price);
-                        }
-
-                        $prices[] = $price;
-                        $prices[] .= $symbol;
-                        $prices[] .= $currency;
-                    }
-                }
-
-                if (! empty($prices)) {
-                    $format = currencyFormat(min([$prices[0]]), $code = $prices[2]);
-                    $finalPrice = str_replace($prices[1], '', $format);
-                    $cost = '<span class="price-unit">'.$prices[1].'</span>'.$finalPrice;
-                }
-            }
-
-            return $cost;
-        } catch (\Exception $ex) {
-            throw $ex;
-        }
-    }
-
-    /**
-     * Get Page Template when Group in Store Dropdown is
-     * selected on the basis of Group id.
-     *
-     * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
-     *
-     * @date   2019-01-10T01:20:52+0530
-     *
-     * @param  int  $groupid  Group id
-     * @param  int  $templateid  Id of the Template
-     * @return
-     */
-    public function pageTemplates(?int $templateid = null, int $group)
-    {
-        $group = ProductGroup::findOrFail($group);
-        try {
-            $headline = $group->headline;
-            $tagline = $group->tagline;
-            $currencyAndSymbol = '';
-            if (! \Auth::user()) {
-                $location = getLocation();
-                $country = findCountryByGeoip($location['iso_code']);
-                $currencyAndSymbol = getCurrencyForClient($country);
-            }
-            if (\Auth::user()) {
-                $country = \DB::table('users')->where('id', \Auth::user()->id)->value('country');
-                $currencyAndSymbol = getCurrencyForClient($country);
-            }
-            $productsRelatedToGroup = Product::with([
-                'planRelation' => function ($query) use ($currencyAndSymbol) {
-                    $query->where('days', '!=', 14)
-                    ->with(['planPrice' => function ($priceQuery) use ($currencyAndSymbol) {
-                        $priceQuery->where('currency', $currencyAndSymbol);
-                    }]);
-                },
-            ])
-                ->where('group', $group->id)
-                ->where('hidden', '!=', 1)
-                ->whereHas('planRelation', function ($query) use ($currencyAndSymbol) {
-                    $query->where('days', '!=', 14)
-                    ->whereHas('planPrice', function ($priceQuery) use ($currencyAndSymbol) {
-                        $priceQuery->where('currency', $currencyAndSymbol);
-                    });
-                })
-            ->where(function ($query) use ($currencyAndSymbol) {
-                $query->where('status', '!=', 1)
-                    ->orWhere(function ($activeQuery) use ($currencyAndSymbol) {
-                        $activeQuery->where('status', 1)
-                            ->whereHas('planRelation', function ($q) use ($currencyAndSymbol) {
-                                $q->whereIn('days', [30, 31])
-                                    ->whereHas('planPrice', fn ($pq) => $pq->where('currency', $currencyAndSymbol));
-                            })
-                            ->whereHas('planRelation', function ($q) use ($currencyAndSymbol) {
-                                $q->whereIn('days', [365, 366])
-                                    ->whereHas('planPrice', fn ($pq) => $pq->where('currency', $currencyAndSymbol));
-                            });
-                    });
-            })
-                ->orderBy('id')
-                ->get();
-
-            $productsRelatedToGroup = $productsRelatedToGroup->sortBy(function ($product) {
-                return $product->planRelation
-                    ->flatMap(fn ($plan) => $plan->planPrice)
-                    ->pluck('add_price')
-                    ->filter(fn ($v) => $v !== null)
-                    ->min() ?? PHP_INT_MAX;
-            })->values();
-
-            $trasform = [];
-            $templates = $this->getTemplateOne($productsRelatedToGroup, $trasform);
-            if (empty($templates)) {
-                $templates = \Lang::get('message.empty_group');
-            }
-            $products = Product::all();
-            $plan = '';
-            $description = '';
-            $status = null;
-            foreach ($productsRelatedToGroup as $product) {
-                $plan = Product::find($product->id)->plan();
-                $description = self::getPriceDescription($product->id);
-                $status = Product::find($product->id);
-            }
-
-            return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * This function returns to the contact us page.
-     *
-     * @param
-     * @param
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
-     *
-     * @throws
-     */
-    public function contactUs()
-    {
-        try {
-            $status = StatusSetting::select('msg91_status', 'emailverification_status', 'terms')->first();
-            $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
-            $set = new \App\Model\Common\Setting();
-            $set = $set->findOrFail(1);
-            $address = preg_replace("/^\R+|\R+\z/", '', $set->address);
-            $state = State::where('country_code', $set->country)->where('iso2', $set->state)->value('state_subdivision_name');
-            $country = Country::where('country_code_char2', $set->country)->value('country_name');
-
-            return view('themes.default1.front.contact', compact('status', 'apiKeys', 'set', 'state', 'country', 'address'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * Get  Template For Products.
-     *
-     * @param  $helpdesk_products
-     * @param  $data
-     * @param  $trasform
-     * @return string
-     */
-    public function getTemplateOne($helpdesk_products, &$trasform)
-    {
-        try {
-            if ($helpdesk_products->isEmpty()) {
-                return '';
-            }
-
-            $temp_controller = new TemplateController();
-            $highlightedProducts = Product::whereIn('id', $helpdesk_products->pluck('id'))
-                ->pluck('highlight', 'id')
-                ->toArray();
-            foreach ($helpdesk_products as $product) {
-                $productId = $product->id;
-                $productName = $product->name;
-                $highlight = $highlightedProducts[$productId] ?? false;
-                $orderButton = $highlight ? 'btn-primary' : 'btn-dark';
-
-                $trasform[$productId] = [
-                    'id' => $productId,
-                    'price' => $temp_controller->leastAmount($productId),
-                    'price-year' => $this->YearlyAmount($productId),
-                    'price-description' => $this->getPriceDescription($productId),
-                    'pricemonth-description' => $this->getmonthPriceDescription($productId),
-                    'strike-price' => $temp_controller->leastAmount($productId),
-                    'strike-priceyear' => $this->YearlyAmount($productId),
-                    'name' => $productName,
-                    'feature' => $product->description,
-                    'product_description' => $product->short_description,
-                    'subscription' => $product->type == 4 ? '' : $temp_controller->plans($product->shoping_cart_link, $productId),
-                    'url' => $this->generateProductUrl($product, $orderButton, $highlight),
-                ];
-            }
-            $data = PricingTemplate::findOrFail(1)->data;
-
-            return $this->transformTemplate('cart', $data, $trasform);
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    private function generateProductUrl($product, $orderButton, $highlight)
-    {
-        if ($product->add_to_contact != 1) {
-            if (in_array($product->id, cloudPopupProducts())) {
-                return '<button class="btn '.$orderButton.' btn-modern buttonsale" data-toggle="modal" data-target="#tenancy" data-mydata="'.$product->id.'">
-                                <span style="white-space: nowrap;">'.__('message.order_now').'</span>
-                            </button>';
-            } elseif ($product->status) {
-                return '
-    <button type="button"
-        class="btn '.$orderButton.' btn-modern buttonsale api-order-btn"
-        data-product="'.$product->id.'">
-        '.__('message.order_now').'
-    </button>
-';
-            } else {
-                return '<input type="submit" value="Order Now" class="btn '.$orderButton.' btn-modern buttonsale"></form>';
-            }
-        } else {
-            return '<a class="btn '.$orderButton.' btn-modern sales buttonsale" href="https://www.faveohelpdesk.com/contact-us/">'.__('message.contact_sales').'</a>';
-        }
-    }
-
-    public function plansYear($url, $id)
-    {
-        try {
-            $plan = new Plan();
-            $plan_form = 'Free'; //No Subscription
-            $plans = $plan->where('product', '=', $id)->pluck('name', 'id')->toArray();
-            $product = Product::find($id);
-            $type = Product::find($id);
-            $planid = Plan::where('product', $id)->where('status', 1)->value('id');
-            $price = PlanPrice::where('plan_id', $planid)->value('renew_price');
-
-            $plans = $this->prices($id);
-            if ($plans) {
-                $plan_form = \Form::select('subscription', ['Plans' => $plans], null);
-            }
-            $form = \Form::open(['method' => 'get', 'url' => $url]).
-            $plan_form.
-            \Form::hidden('id', $id);
-
-            return $product['add_to_contact'] == 1 ? '' : $form;
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function getPrice($months, $price, $priceDescription, $value, $cost, $currency, $offer, $product)
-    {
-        $cost = $cost * 12;
-        if (isset($offer) && $offer !== '' && $offer !== null) {
-            $cost = $cost - ($offer / 100 * $cost);
-        }
-        $price1 = currencyFormat($cost, $code = $currency);
-        $price[$value->id] = $months.'  '.$price1.' '.$priceDescription;
-
-        return $price;
-    }
-
-    public function prices($id)
-    {
-        try {
-            $plans = Plan::where('product', $id)->where('status', 1)->orderBy('id', 'desc')->get();
-            $price = [];
-            foreach ($plans as $value) {
-                $offer = PlanPrice::where('plan_id', $value->id)->value('offer_price');
-                $product = Product::find($value->product);
-                $currencyAndSymbol = userCurrencyAndPrice('', $value);
-                $currency = $currencyAndSymbol['currency'];
-                $symbol = $currencyAndSymbol['symbol'];
-                $cost = $currencyAndSymbol['plan']->add_price;
-                $priceDescription = 'Per Year';
-                $cost = rounding($cost);
-                $duration = $value->periods;
-                $months = count($duration) > 0 ? $duration->first()->name : '';
-                if (! in_array($product->id, cloudPopupProducts())) {
-                    $price = $this->getPrice($months, $price, $priceDescription, $value, $cost, $currency, $offer, $product);
-                } elseif ($cost != '0' && in_array($product->id, cloudPopupProducts())) {
-                    $price = $this->getPrice($months, $price, $priceDescription, $value, $cost, $currency, $offer, $product);
-                }
-                // $price = currencyFormat($cost, $code = $currency);
-            }
-
-            return $price;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function getOfferprice(int $productid)
-    {
-        $plans = Plan::with(['planPrice'])->where('product', $productid)->get();
-
-        $offerprices = [
-            '30_days' => null,
-            '365_days' => null,
-        ];
-
-        foreach ($plans as $plan) {
-            $currency = userCurrencyAndPrice('', $plan);
-
-            if (! $currency || ! $plan->planPrice) {
-                continue;
-            }
-
-            // Get offer_price directly from relation for matching currency
-            $offer_price = $plan->planPrice
-                ->where('currency', $currency['currency'])
-                ->pluck('offer_price')
-                ->first();
-
-            if (! $offer_price) {
-                continue;
-            }
-
-            if (in_array((int) $plan->days, [30, 31])) {
-                $offerprices['30_days'] = $offer_price;
-            } elseif (in_array((int) $plan->days, [365, 366])) {
-                $offerprices['365_days'] = $offer_price;
-            }
-        }
-
-        return $offerprices;
-    }
-
-    public function YearlyAmount($id)
-    {
-        try {
-            $product = Product::find($id);
-            $plans = Plan::where('product', $id)->where('status', 1)->get();
-
-            $cost = 'Free';
-            $currency = '';
-
-            $priceList = [];
-
-            foreach ($plans as $plan) {
-                $planDetails = userCurrencyAndPrice('', $plan);
-
-                if (! $planDetails || ($planDetails['plan']->add_price ?? 0) <= 0) {
-                    continue;
-                }
-
-                if (in_array($plan->days, [365, 366])) {
-                    $price = ($product->status)
-                        ? ($planDetails['plan']->add_price / 12)
-                        : $planDetails['plan']->add_price;
-
-                    $priceList[] = [
-                        'price' => $price,
-                        'plan_id' => $plan->id,
-                        'currency' => $planDetails['currency'],
-                    ];
-                } elseif (! $product->status && ! in_array($product->id, cloudPopupProducts())) {
-                    $priceList[] = [
-                        'price' => $planDetails['plan']->add_price,
-                        'plan_id' => $plan->id,
-                        'currency' => $planDetails['currency'],
-                    ];
-                }
-            }
-
-            if (! empty($priceList)) {
-                usort($priceList, fn ($a, $b) => $a['price'] <=> $b['price']);
-                $min = $priceList[0];
-                $cost = $this->currencyFormatWithSpan($min['price'], $min['currency'], $min['plan_id']);
-            }
-
-            return $cost;
-        } catch (\Exception $ex) {
-            throw $ex;
-        }
-    }
-
-    public function YearlyAmountForOffer($id)
-    {
-        $countryCheck = true;
-        try {
-            $cost[] = 'Free';
-            $plans = Plan::where('product', $id)->get();
-            $product = Product::find($id);
-            $prices = [];
-
-            foreach ($plans as $plan) {
-                if ($plan->days == 365 || $plan->days == 366) {
-                    $planDetails = userCurrencyAndPrice('', $plan);
-                    $prices[$plan->id][] = ($product->status) ? ($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
-                    $prices[$plan->id][] .= $planDetails['symbol'];
-                    $prices[$plan->id][] .= $planDetails['currency'];
-                } elseif (! $product->status && ! in_array($product->id, cloudPopupProducts())) {
-                    $planDetails = userCurrencyAndPrice('', $plan);
-                    $prices[$plan->id][] = $planDetails['plan']->add_price;
-                    $prices[$plan->id][] .= $planDetails['symbol'];
-                    $prices[$plan->id][] .= $planDetails['currency'];
-                }
-
-                if (isset($prices[$plan->id]) && ! empty($prices)) {
-                    $format = currencyFormat(min([$prices[$plan->id][0]]), $code = $prices[$plan->id][2]);
-                    $finalPrice = str_replace($prices[$plan->id][1], '', $format);
-                    $cost[$plan->id] = '<span class="price-unit strike-amount hide_custom" id="'.$plan->id.'">'.$prices[$plan->id][1].$finalPrice.'</span>';
-                }
-            }
-            if (sizeof($cost) > 1) {
-                unset($cost[0]);
-            }
-
-            return $cost;
-        } catch (\Exception $ex) {
-            throw $ex;
-        }
-    }
-
-    public function getmonthPriceDescription(int $productid)
-    {
-        try {
-            $product = Product::find($productid);
-
-            if ($product['add_to_contact'] == 1) {
-                return '';
-            }
-
-            $priceDescription = '';
-
-            $plans = Plan::where('product', $productid)->where('status', 1)->get();
-
-            if ($plans) {
-                foreach ($plans as $plan) {
-                    if ($plan->days == 30 || $plan->days == 31) {
-                        $description = $plan->planPrice->first();
-
-                        if (is_null($description->add_price) || $description->add_price === '' || $description->add_price == 0) {
-                            $priceDescription = 'free';
-                        } else {
-                            $priceDescription = $description->no_of_agents ? 'per month for <strong>'.' '.$description->no_of_agents.' '.'agent</strong>' : 'per month';
-                        }
-
-                        break;
-                    }
-                }
-            }
-
-            return $priceDescription;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * Get Price Description(eg: Per Year,Per Month ,One-Time) for a Product.
-     *
-     * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
-     *
-     * @date   2019-01-09T00:20:09+0530
-     *
-     * @param  int  $productid  Id of the Product
-     * @return string $priceDescription        The Description of the Price
-     */
-    public function getPriceDescription(int $productId)
+    public function getPriceDescription(int $productId): string
     {
         try {
             $product = Product::find($productId);
+            if (! $product instanceof Product) {
+                return '';
+            }
 
             if ($product->add_to_contact == 1) {
                 return '';
             }
 
             $plans = Plan::where('product', $productId)
-                        ->where('status', 1)
-                        ->with('planPrice')
-                        ->cursor();
+                ->where('status', 1)
+                ->with('planPrice')
+                ->cursor();
 
             foreach ($plans as $plan) {
                 if (in_array($plan->days, [365, 366])) {
                     $description = $plan->planPrice->first();
                     if ($description) {
-                        if (is_null($description->add_price) || $description->add_price === '' || $description->add_price == 0) {
+                        if (is_null($description->add_price) || $description->add_price === '' || $description->add_price == 0) { // @phpstan-ignore function.impossibleType
                             return 'free';
                         }
 
@@ -940,7 +151,7 @@ class PageController extends Controller
                                 : 'per month';
                         }
 
-                        return $description->price_description;
+                        return (string) $description->price_description;
                     }
                 }
             }
@@ -948,19 +159,23 @@ class PageController extends Controller
             if (! $product->status) {
                 $plan = $plans->first();
                 if ($plan && $plan->planPrice->isNotEmpty()) {
-                    return $plan->planPrice->first()->price_description;
+                    return (string) $plan->planPrice->first()->price_description;
                 }
             }
 
             return '';
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
             return '';
         }
     }
 
-    public function checkConfigKey($config, $transform)
+    /**
+     * @param  array<mixed>  $transform
+     * @return mixed[]
+     */
+    public function checkConfigKey(mixed $config, array $transform): array
     {
         $result = [];
         if ($config) {
@@ -974,7 +189,10 @@ class PageController extends Controller
         return $result;
     }
 
-    public function keyArray($array)
+    /**
+     * @return mixed[]
+     */
+    public function keyArray(mixed $array): array
     {
         $result = [];
         foreach ($array as $key => $value) {
@@ -984,31 +202,37 @@ class PageController extends Controller
         return $result;
     }
 
-    public function valueArray($array)
+    /**
+     * @return mixed[]
+     */
+    public function valueArray(mixed $array): array
     {
         $result = [];
-        foreach ($array as $key => $value) {
+        foreach ($array as $value) {
             $result[] = $value;
         }
 
         return $result;
     }
 
-    public function postContactUs(ContactRequest $request)
+    public function postContactUs(ContactRequest $request): JsonResponse
     {
         try {
             $contact = getContactData();
 
-            $isSpam = $this->detectSpam($request->input('email'), $request->input('message'));
+            $isSpam = $this->detectSpam($request->input('conmessage'));
 
             if ($isSpam) {
-                return response()->json(['error' => 'Spam detected.'], 403);
+                return errorResponse(__('message.spam_detected'));
             }
-            $set = new \App\Model\Common\Setting();
+
+            $set = new Setting;
             $set = $set->findOrFail(1);
 
-            $template_type = TemplateType::where('name', 'contact_us')->value('id');
-            $template = Template::where('type', $template_type)->first();
+            $template = TemplateType::getSelectedTemplate('contact_us');
+            if (! $template) {
+                throw new Exception('Template not found');
+            }
             $replace = [
                 'name' => $request->input('conName'),
                 'email' => $request->input('email'),
@@ -1022,40 +246,38 @@ class PageController extends Controller
                 'reply_email' => $request->input('email'),
 
             ];
-            $type = '';
-
-            if ($template) {
-                $type_id = $template->type;
-                $temp_type = new \App\Model\Common\TemplateType();
-                $type = $temp_type->where('id', $type_id)->first()->name;
-            }
+            $type = (string) ($template->type()->value('name') ?? '');
 
             if (emailSendingStatus()) {
-                $mail = new \App\Http\Controllers\Common\PhpMailController();
-                $mail->SendEmail($set->email, $set->company_email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
+                $mail = new PhpMailController;
+                $mail->SendEmail((string) $set->email, (string) $set->company_email, (string) $template->data, (string) $template->name, $type, $replace, $type);
             }
 
-            return response()->json(['message' => __('message.message_sent_successfully_400')], 200);
-        } catch (\Exception $ex) {
-            return response()->json(['error' => $ex->getMessage()], 500);
+            return successResponse(__('message.message_sent_successfully_400'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    private function detectSpam($email, $message)
+    private function detectSpam(string $message): bool
     {
-        if ($this->containsExcessivePunctuation($message) || $this->containsExcessiveCaps($message) || $this->containsSpamKeywords($message)) {
+        if ($this->containsExcessivePunctuation($message)) {
             return true;
         }
 
-        return false;
+        if ($this->containsExcessiveCaps($message)) {
+            return true;
+        }
+
+        return $this->containsSpamKeywords($message);
     }
 
-    private function containsExcessivePunctuation($text)
+    private function containsExcessivePunctuation(string $text): bool
     {
         return (bool) preg_match('/!{5,}/', $text);
     }
 
-    private function containsExcessiveCaps($text)
+    private function containsExcessiveCaps(string $text): bool
     {
         $uppercaseCount = preg_match_all('/[A-Z]/', $text);
         $lowercaseCount = preg_match_all('/[a-z]/', $text);
@@ -1070,45 +292,30 @@ class PageController extends Controller
         return false;
     }
 
-    private function containsSpamKeywords($text)
+    private function containsSpamKeywords(string $text): bool
     {
         $spamKeywords = ['viagra', 'casino', 'lottery', 'free money', 'enlargement', 'promotions'];
-        foreach ($spamKeywords as $keyword) {
-            if (stripos($text, $keyword) !== false) {
-                return true;
-            }
-        }
 
-        return false;
+        return array_any($spamKeywords, fn ($keyword): bool => stripos($text, (string) $keyword) !== false);
     }
 
-    public function viewDemoReq()
-    {
-        try {
-            $status = StatusSetting::select('recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
-            $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
-
-            return view('themes.default1.front.demoForm', compact('status', 'apiKeys'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function postDemoReq(ContactRequest $request)
+    public function postDemoReq(ContactRequest $request): JsonResponse
     {
         try {
             $contact = getContactData();
-            $isSpam = $this->detectSpam($request->input('demoemail'), $request->input('demomessage'));
+            $isSpam = $this->detectSpam($request->input('demomessage'));
 
             if ($isSpam) {
-                return response()->json(['error' => 'Spam detected.'], 403);
+                return errorResponse(__('message.spam_detected'));
             }
 
-            $set = new \App\Model\Common\Setting();
+            $set = new Setting;
             $set = $set->findOrFail(1);
 
-            $template_type = TemplateType::where('name', 'demo_request')->value('id');
-            $template = Template::where('type', $template_type)->first();
+            $template = TemplateType::getSelectedTemplate('demo_request');
+            if (! $template) {
+                throw new Exception('Template not found');
+            }
             $replace = [
                 'name' => $request->input('demoname'),
                 'email' => $request->input('demoemail'),
@@ -1122,59 +329,128 @@ class PageController extends Controller
                 'reply_email' => $request->input('demoemail'),
 
             ];
-            $type = '';
-
-            if ($template) {
-                $type_id = $template->type;
-                $temp_type = new \App\Model\Common\TemplateType();
-                $type = $temp_type->where('id', $type_id)->first()->name;
-            }
+            $type = (string) ($template->type()->value('name') ?? '');
             $product = $request->input('product') != 'online' ? $request->input('product') : 'our product ';
-            $templatename = $template->name.' '.'for'.' '.$product;
+            $templatename = (string) $template->name.' '.'for'.' '.$product;
 
             if (emailSendingStatus()) {
-                $mail = new \App\Http\Controllers\Common\PhpMailController();
-                $mail->SendEmail($set->email, $set->company_email, $template->data, $templatename, $template->type()->value('name'), $replace, $type);
+                $mail = new PhpMailController;
+                $mail->SendEmail((string) $set->email, (string) $set->company_email, (string) $template->data, $templatename, $type, $replace, $type);
             }
 
             return successResponse(__('message.message_sent_successfully_400'));
-        } catch (\Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function VewDemoPage()
+    public function getPageSettings(): JsonResponse
+    {
+        $demo = Demo_page::first();
+        $defaultPageId = DefaultPage::value('page_id');
+
+        // page_id used to be written as 1 (instead of a real "nothing
+        // selected" value) whenever no custom page was picked, which
+        // collides with an actual page once one exists with id 1. Only
+        // report a default_page_id that still resolves to a real page.
+        if ($defaultPageId && ! FrontendPage::where('id', $defaultPageId)->exists()) {
+            $defaultPageId = null;
+        }
+
+        return successResponse('', [
+            'status' => $demo && (bool) $demo->status,
+            'default_page_id' => $defaultPageId,
+        ]);
+    }
+
+    public function savePageSettings(Request $request): JsonResponse
+    {
+        $request->validate([
+            'status' => ['required', 'boolean'],
+            'default_page_id' => ['nullable', 'integer', 'exists:frontend_pages,id'],
+        ]);
+
+        Demo_page::updateOrCreate([],
+            ['status' => $request->boolean('status')]
+        );
+
+        $defaultPageId = $request->input('default_page_id');
+        $defaultUrl = $defaultPageId
+            ? FrontendPage::where('id', $defaultPageId)->value('url')
+            : url('my-invoices');
+
+        DefaultPage::findOrFail(1)->update([
+            // 0 is never a real frontend_pages id, unlike 1 — safe sentinel
+            // for "no custom page selected, fall back to my-invoices".
+            'page_id' => $defaultPageId ?? 0,
+            'page_url' => $defaultUrl,
+        ]);
+
+        return successResponse(__('message.data_updated_successfully'));
+    }
+
+    public function getAllPages(Request $request): JsonResponse
+    {
+        $searchQuery = $request->input('search-query', '');
+        $sortOrder = $request->input('sort-order', 'asc');
+        $sortField = $request->input('sort-field', 'created_at');
+        $limit = $request->input('limit', 10);
+
+        $pages = FrontendPage::select('id', 'name', 'url', 'created_at')
+            ->when($searchQuery, function ($query) use ($searchQuery): void {
+                $query->where(function ($q) use ($searchQuery): void {
+                    $q->where('name', 'like', sprintf('%%%s%%', $searchQuery))
+                        ->orWhere('url', 'like', sprintf('%%%s%%', $searchQuery));
+                });
+            })
+            // Editing a page: keep it out of its own "parent page" options.
+            ->when($request->input('exclude'), fn ($query, $excludeId) => $query->whereKeyNot($excludeId))
+            // "Parent page" picker: the nav only renders two levels, so a page
+            // that already has a parent can't be offered as a parent itself.
+            ->when(
+                $request->boolean('top-level-only'),
+                fn ($query) => $query->where(fn ($q) => $q->whereNull('parent_page_id')->orWhere('parent_page_id', 0))
+            )
+            ->orderBy($sortField, $sortOrder)
+            ->paginate($limit);
+
+        return successResponse('', $pages);
+    }
+
+    public function deleteBulkPages(Request $request): JsonResponse
+    {
+        $ids = $request->input('page_ids', []);
+
+        $defaultPageId = DefaultPage::value('page_id');
+
+        if (empty($ids)) {
+            return errorResponse(__('message.select-a-row'));
+        }
+
+        if (in_array($defaultPageId, $ids)) {
+            return errorResponse(__('message.can-not-delete-default-page'));
+        }
+
+        FrontendPage::whereIn('id', $ids)->where('id', '!=', $defaultPageId)->delete();
+
+        $this->regenerateSeoFiles();
+
+        return successResponse(__('message.deleted-successfully'));
+    }
+
+    private function regenerateSeoFiles(): void
     {
         try {
-            $Demo_page = Demo_page::first();
-
-            return view('themes.default1.common.setting.demo-page', compact('Demo_page'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            app(SeoFileGenerator::class)->generateAll();
+        } catch (Throwable $throwable) {
+            report($throwable);
         }
     }
 
-    public function saveDemoPage(Request $request)
-    {
-        $data = $request->validate([
-            'status' => 'required',
-        ]);
-        $data = [
-            'status' => $request->input('status') === 'true' ? 1 : 0,
-        ];
-
-        $existingData = Demo_page::first();
-        $existingData ? $existingData->update($data) : Demo_page::create($data);
-
-        $message = $existingData ? __('message.data_updated_successfully') : __('message.data_created_successfully');
-
-        return redirect()->back()->with('success', $message);
-    }
-
-    public function currencyFormatWithSpan($amount, $currency, $id = null)
+    public function currencyFormatWithSpan(float|int $amount, string $currency, ?int $id = null): string
     {
         // number only
-        $formatted = currencyFormat($amount, $currency, false);
+        $formatted = currencyFormat($amount, $currency, includeSymbol: false);
 
         // formatted with symbol (actual placement)
         $withSymbol = currencyFormat($amount, $currency);
@@ -1186,12 +462,102 @@ class PageController extends Controller
         $span = '<span class="price-unit"'.($id ? ' id="'.$id.'"' : '').'>'.$symbol.'</span>';
 
         // rebuild keeping correct placement
-        if (strpos($withSymbol, $symbol) === 0) {
+        if (str_starts_with((string) $withSymbol, $symbol)) {
             // symbol is in front
             return $span.$formatted;
         }
 
         // symbol at the end
         return $formatted.$span;
+    }
+
+    public function createPage(PageRequest $request): JsonResponse
+    {
+        try {
+            $pagesCount = FrontendPage::count();
+            if ($pagesCount >= 3) {
+                return errorResponse(__('message.limit_exceed'));
+            }
+
+            $url = $request->validated('url');
+            if ($request->validated('type') === 'contactus') {
+                $url = url('/contact-us');
+            }
+
+            $ogImage = null;
+            if ($request->hasFile('og_image')) {
+                $ogImage = basename((string) Attach::put('images', $request->file('og_image'), null, true));
+            }
+
+            $page = FrontendPage::create([
+                'name' => $request->validated('name'),
+                'publish' => $request->validated('publish') ?? 0,
+                'slug' => $request->validated('slug'),
+                'url' => $url,
+                'parent_page_id' => $request->validated('parent_page_id') ?? 0,
+                'type' => $request->validated('type'),
+                'content' => $request->validated('content'),
+                'meta_title' => $request->validated('meta_title'),
+                'meta_description' => $request->validated('meta_description'),
+                'og_title' => $request->validated('og_title'),
+                'og_description' => $request->validated('og_description'),
+                'og_image' => $ogImage,
+                'og_same_as_meta' => $request->boolean('og_same_as_meta'),
+            ]);
+
+            $this->regenerateSeoFiles();
+
+            return successResponse(__('message.saved-successfully'), $page);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function getPage(Request $request, int $pageId): JsonResponse
+    {
+        try {
+            $page = FrontendPage::with('parent:id,name')->findOrFail($pageId);
+            $data = $page->toArray();
+            $data['og_image'] = $page->og_image ? Attach::getUrlPath('images/'.$page->og_image) : null;
+
+            return successResponse('', $data);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function updatePage(PageRequest $request, int $pageId): JsonResponse
+    {
+        try {
+            $page = FrontendPage::findOrFail($pageId);
+
+            // Fill except created_at/og_image (og_image is an uploaded file, not a mass-assignable string)
+            $page->fill($request->safe()->except(['created_at', 'og_image']));
+
+            // parent_page_id is NOT NULL in the schema; default to 0 (no parent)
+            if ($page->parent_page_id === null) { // @phpstan-ignore identical.alwaysFalse
+                $page->parent_page_id = 0;
+            }
+
+            if ($request->hasFile('og_image')) {
+                $page->og_image = basename((string) Attach::put('images', $request->file('og_image'), null, true));
+            }
+
+            // Handle created_at if provided and valid
+            if ($request->filled('created_at')) {
+                $date = DateTime::createFromFormat('m/d/Y', $request->input('created_at'));
+                if ($date) {
+                    $page->created_at = Date::instance($date);
+                }
+            }
+
+            $page->save();
+
+            $this->regenerateSeoFiles();
+
+            return successResponse(__('message.updated-successfully'), $page);
+        } catch (Throwable $throwable) {
+            return errorResponse($throwable->getMessage());
+        }
     }
 }

@@ -8,12 +8,10 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('free_trial_allowed', function (Blueprint $table) {
+        Schema::create('free_trial_allowed', function (Blueprint $table): void {
             $table->id();
             $table->integer('user_id');
             $table->integer('product_id');
@@ -24,10 +22,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('free_trial_allowed');
     }

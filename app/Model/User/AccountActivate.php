@@ -1,9 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Model\User;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $email
+ * @property string $token
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AccountActivate newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AccountActivate newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AccountActivate query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AccountActivate whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AccountActivate whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AccountActivate whereToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AccountActivate whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class AccountActivate extends Model
 {
     protected $table = 'account_activates';

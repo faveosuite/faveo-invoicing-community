@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('expiry_mail_days', function (Blueprint $table) {
+        Schema::table('expiry_mail_days', function (Blueprint $table): void {
             $table->integer('system_logs_days')->nullable()->after('msg91_days');
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('expiry_mail_days', function (Blueprint $table) {
+        Schema::table('expiry_mail_days', function (Blueprint $table): void {
             $table->dropColumn('system_logs_days');
         });
     }

@@ -4,27 +4,23 @@ namespace App\Providers;
 
 use App\Helper\ImageUploadHelper;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class ImageUploadHelperServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
-     *
-     * @return void
      */
-    public function register()
+    #[Override]
+    public function register(): void
     {
-        $this->app->bind('ImageUpload-helper', function () {
-            return new ImageUploadHelper();
-        });
+        $this->app->bind('ImageUpload-helper', fn (): ImageUploadHelper => new ImageUploadHelper);
     }
 
     /**
      * Bootstrap services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         //
     }

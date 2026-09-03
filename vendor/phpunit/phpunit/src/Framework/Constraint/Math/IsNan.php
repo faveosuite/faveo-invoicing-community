@@ -9,7 +9,12 @@
  */
 namespace PHPUnit\Framework\Constraint;
 
+use function is_array;
+use function is_float;
+use function is_int;
 use function is_nan;
+use function is_object;
+use PHPUnit\Util\Exporter;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -25,11 +30,40 @@ final class IsNan extends Constraint
     }
 
     /**
+     * Returns the negated description when this constraint is wrapped in a
+     * LogicalNot operator. The guard ensures that LogicalAnd, LogicalOr, and
+     * LogicalXor keep using the affirmative toString().
+     */
+    protected function toStringInContext(Operator $operator, mixed $role): string
+    {
+        if (!$operator instanceof LogicalNot) {
+            return '';
+        }
+
+        return 'is not nan';
+    }
+
+    /**
      * Evaluates the constraint for parameter $other. Returns true if the
      * constraint is met, false otherwise.
      */
     protected function matches(mixed $other): bool
     {
+        if (!is_float($other) && !is_int($other)) {
+            return false;
+        }
+
         return is_nan($other);
+    }
+
+    protected function failureDescription(mixed $other): string
+    {
+        if (is_array($other) || is_object($other)) {
+            // @codeCoverageIgnoreStart
+            return $this->valueToTypeStringFragment($other) . $this->toString();
+            // @codeCoverageIgnoreEnd
+        }
+
+        return Exporter::export($other) . ' ' . $this->toString();
     }
 }

@@ -3,16 +3,23 @@
 namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
+use App\Model\Common\State;
+use App\Rules\PhoneNumber;
 use App\Rules\StrongPassword;
+use App\Traits\RequestJsonValidation;
+use App\User;
+use Auth;
+use Illuminate\Validation\Rule;
+use Override;
 
 class ProfileRequest extends Request
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -20,73 +27,83 @@ class ProfileRequest extends Request
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         if ($this->segment(1) == 'profile') {
-            $userid = \Auth::user()->id;
+            /** @var User $authUser */
+            $authUser = Auth::user();
+            $userid = $authUser->id;
 
             return [
-                'first_name' => 'required',
-                'last_name' => 'required',
-                'company' => 'required|max:50',
-                'email' => 'required|unique:settings,email|unique:settings,company_email',
-                'mobile' => 'required',
-                'address' => 'required',
+                'first_name' => ['required'],
+                'last_name' => ['required'],
+                'company' => ['required', 'max:50'],
+                'email' => ['required'],
+                'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
+                'address' => ['required'],
                 'user_name' => 'required|unique:users,user_name,'.$userid.'|unique:settings,email|unique:settings,company_email',
-                'timezone_id' => 'required',
-                'profile_pic' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-                'country' => 'required',
+                'timezone_id' => ['required'],
+                'profile_pic' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
+                'country' => ['required'],
+                'state' => [Rule::requiredIf(fn () => State::where('country_code', $this->country)->exists())],
+                'gstin' => ['nullable', 'regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/'],
             ];
         }
 
         if ($this->segment(1) == 'my-profile') {
-            $userid = \Auth::user()->id;
+            /** @var User $authUser2 */
+            $authUser2 = Auth::user();
+            $userid = $authUser2->id;
 
             return [
-                'first_name' => 'required|min:3|max:30',
-                'last_name' => 'required|max:30',
-                'mobile' => 'required|regex:/[0-9]/|min:5|max:20',
-                'email' => 'required|email|unique:users,email,'.$userid.'|unique:settings,email|unique:settings,company_email',
-                'company' => 'required|max:50',
-                'address' => 'required',
-                'country' => 'required|exists:countries,country_code_char2',
-                'profile_pic' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
+                'first_name' => ['required', 'min:3', 'max:30'],
+                'last_name' => ['required', 'max:30'],
+                'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
+                'email' => 'required|email|unique:users,email,'.$userid,
+                'company' => ['required', 'max:50'],
+                'address' => ['required'],
+                'country' => ['required', 'exists:countries,country_code_char2'],
+                'profile_pic' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
 
             ];
         }
+
         if ($this->segment(1) == 'password' || $this->segment(1) == 'my-password') {
             return [
-                'old_password' => 'required|min:6',
+                'old_password' => ['required', 'min:6'],
                 'new_password' => [
                     'required',
-                    new StrongPassword(),
+                    new StrongPassword,
                     'different:old_password',
                 ],
-                'confirm_password' => 'required|same:new_password',
+                'confirm_password' => ['required', 'same:new_password'],
             ];
         }
 
         if ($this->segment(1) == 'auth') {
             return [
-                'first_name' => 'required|min:2|max:30',
-                'last_name' => 'required|max:30',
-                'email' => 'required|email|unique:users|unique:settings,email|unique:settings,company_email',
-                'company' => 'required|max:50',
-                'mobile' => 'required|unique:users',
-                'address' => 'required|string|regex:/^[^<>]*$/',
-                'terms' => 'sometimes',
+                'first_name' => ['required', 'min:2', 'max:30'],
+                'last_name' => ['required', 'max:30'],
+                'email' => ['required', 'email', 'unique:users', 'unique:settings,email', 'unique:settings,company_email'],
+                'company' => ['required', 'max:50'],
+                'mobile' => ['required', 'unique:users', new PhoneNumber($this->mobile_country_iso)],
+                'address' => ['required', 'string', 'regex:/^[^<>]*$/'],
+                'terms' => ['sometimes'],
                 'password' => [
                     'required',
-                    new StrongPassword(),
+                    new StrongPassword,
                 ],
-                'password_confirmation' => 'required|same:password',
+                'password_confirmation' => ['required', 'same:password'],
                 // 'country'               => 'required|exists:countries,country_code_char2',
             ];
         }
+
+        return [];
     }
 
+    #[Override]
     public function messages()
     {
         return [
@@ -119,7 +136,8 @@ class ProfileRequest extends Request
             'country.required' => __('validation.profile_form.country.required'),
             'country.exists' => __('validation.profile_form.country.exists'),
 
-            'state.required_if' => __('validation.profile_form.state.required_if'),
+            'state.required' => __('validation.profile_form.state.required_if'),
+            'gstin.regex' => __('validation.profile_form.gstin.regex'),
 
             'old_password.required' => __('validation.profile_form.old_password.required'),
             'old_password.min' => __('validation.profile_form.old_password.min'),
@@ -137,7 +155,7 @@ class ProfileRequest extends Request
             'password_confirmation.same' => __('validation.profile_form.password_confirmation.same'),
 
             'mobile.unique' => __('message.mobile_unique'),
-            'profile_pic.mimes' => __('message.image_allowed'),
+            'profile_pic.mimes' => __('message.image_invalid_message'),
             'profile_pic.max' => __('message.image_max'),
 
             'mobile_code.required' => __('validation.profile_form.mobile_code.required'),

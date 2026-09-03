@@ -2,7 +2,7 @@
 /**
  * FiltersGetResponseAllOf
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -66,7 +66,7 @@ class FiltersGetResponseAllOf implements ModelInterface, ArrayAccess, JsonSerial
       * @phpsalm-var array<string, string>
       */
     protected static array $openAPITypes = [
-        'data' => '\Pipedrive\versions\v1\Model\FilterGetItem'
+        'data' => '\Pipedrive\versions\v1\Model\FilterGetItemWithConditions'
     ];
 
     /**
@@ -197,7 +197,7 @@ class FiltersGetResponseAllOf implements ModelInterface, ArrayAccess, JsonSerial
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['data'] = $data['data'] ?? null;
     }
@@ -231,7 +231,7 @@ class FiltersGetResponseAllOf implements ModelInterface, ArrayAccess, JsonSerial
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\FilterGetItem|null
+     * @return \Pipedrive\versions\v1\Model\FilterGetItemWithConditions|null
      */
     public function getData()
     {
@@ -241,7 +241,7 @@ class FiltersGetResponseAllOf implements ModelInterface, ArrayAccess, JsonSerial
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\FilterGetItem|null $data data
+     * @param \Pipedrive\versions\v1\Model\FilterGetItemWithConditions|null $data data
      *
      * @return self
      */

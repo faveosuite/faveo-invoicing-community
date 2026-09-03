@@ -1,0 +1,109 @@
+/* ── Sidebar active states ─────────────────────────────────────────────────── */
+
+.sidebar-wrapper .sidebar-menu>.nav-item>.nav-link.active {
+    background-color: #6c757d !important;
+    color: #fff !important;
+}
+
+.sidebar-wrapper .nav-treeview>.nav-item>.nav-link.active, .sidebar-wrapper .nav-treeview>.nav-item>.nav-link.active:focus, .sidebar-wrapper .nav-treeview>.nav-item>.nav-link.active:hover {
+    background-color: #ffffffe6;
+    color: #343a40;
+}
+
+.sidebar-wrapper a {
+    color: #c2c7d0;
+}
+
+
+/* ── User profile dropdown ─────────────────────────────────────────────────── */
+.navbar .user-image {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+}
+
+.user-dropdown {
+    background-color: #4b5563;
+    border: none;
+    min-width: 160px;
+    padding: 0.25rem 0;
+}
+.user-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: 12px;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 7px solid #4b5563;
+}
+.user-dropdown .dropdown-item {
+    color: #d1d5db;
+    padding: 0.6rem 1.25rem;
+}
+.user-dropdown .dropdown-item:hover,
+.user-dropdown .dropdown-item:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* ── License module form validation ────────────────────────────────────────── */
+
+.is-danger,
+.faveo-danger { color: #d73925; }
+
+.faveo-trash  { color: #d73925; cursor: pointer; font-size: 18px; }
+.faveo-add    { color: green;   cursor: pointer; }
+
+.faveo-danger-text { color: #d73925; font-size: 14px; }
+
+.faveo-header-title { font-size: 18px; font-weight: 500; text-transform: capitalize; }
+
+.faveo-field-danger { border-color: #d73925; }
+
+.has-error .form-control,
+.has-error .dropdown-toggle,
+.is-danger > .dropdown-toggle,
+.field-danger > .dropdown-toggle,
+.field-danger,
+.has-error { border-color: #d73925 !important; }
+
+.error-block { color: #d73925; font-size: 0.85em; margin-top: 0.25rem; }
+
+.form-field-template .form-control { margin-bottom: 0 !important; }
+
+.relate { position: relative; }
+
+.pull-right { float: right; }
+
+.bg-gb { background: gainsboro !important; }
+
+.form-control { font-size: inherit !important; }
+
+/* ── Remove Bootstrap validation icon inside inputs ────────────────────────── */
+.form-control.is-invalid,
+.form-select.is-invalid {
+    background-image: none;
+    padding-right: 0.75rem;
+}
+
+.is-invalid {
+    scroll-margin-top: 80px;
+}
+
+/* ── Tooltip indicator (matches TinyMCE content_style preview) ─────────────── */
+.has-tooltip {
+    text-decoration: underline dotted #aaa;
+    cursor: pointer;
+}
+
+/* ── Alert slide transition ────────────────────────────────────────────────── */
+.alert-slide-enter-active,
+.alert-slide-leave-active {
+    transition: all 0.25s ease;
+}
+.alert-slide-enter-from,
+.alert-slide-leave-to {
+    opacity: 0;
+    transform: translateY(-8px);
+}

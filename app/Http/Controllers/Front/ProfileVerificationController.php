@@ -11,7 +11,11 @@ use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\User\AccountActivate;
 use App\User;
+use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Log;
 use RateLimiter;
 
 class ProfileVerificationController extends BaseAuthController
@@ -26,10 +30,10 @@ class ProfileVerificationController extends BaseAuthController
      * Send verification code for email change.
      * Handles: initial submission (with new_email), sending OTP to old/new email, and resend.
      */
-    public function sendEmailOtp(Request $request, $method = 'POST')
+    public function sendEmailOtp(Request $request, mixed $method = 'POST'): JsonResponse
     {
         $request->validate([
-            'email_to_verify' => 'required|email',
+            'email_to_verify' => ['required', 'email'],
         ], [
             'email_to_verify.required' => __('message.login_validation.email_required'),
             'email_to_verify.email' => __('message.login_validation.email_regex'),
@@ -37,11 +41,12 @@ class ProfileVerificationController extends BaseAuthController
 
         try {
             $email = $request->email_to_verify;
+            /** @var User $user */
             $user = auth()->user();
 
             // Initial email change submission — check existence, then update or send OTP
             if ($request->has('new_email') && $method === 'POST') {
-                $request->validate(['new_email' => 'required|email']);
+                $request->validate(['new_email' => ['required', 'email']]);
 
                 return $this->handleInitialEmailChange($user, $request->input('new_email'));
             }
@@ -49,15 +54,15 @@ class ProfileVerificationController extends BaseAuthController
             // Send OTP to current email (old email verification or mobile confirmation)
             if ($email === $user->email) {
                 $mode = $request->is_mobile ? 'mobile' : 'old_email';
-                RateLimiter::hit("email-otp-old:{$user->id}", 600);
-                $this->sendActivationOtp($user, $email, $method, $mode);
+                RateLimiter::hit('email-otp-old:'.$user->id, 600);
+                $this->sendActivationOtp($email, $method, $mode);
 
                 return successResponse(__('message.otp_code_sent_exist'));
             }
 
             // Send OTP to new email (after old email verified)
             return $this->dispatchNewEmailOtp($user, $email, $method);
-        } catch (\Exception $exception) {
+        } catch (Exception) {
             return errorResponse(__('message.email_verification.send_failure'));
         }
     }
@@ -65,12 +70,12 @@ class ProfileVerificationController extends BaseAuthController
     /**
      * Verify email OTP and apply the profile update (email or mobile).
      */
-    public function verifyEmailOtp(Request $request)
+    public function verifyEmailOtp(Request $request): JsonResponse
     {
         $request->validate([
-            'email_to_verify' => 'required|email',
-            'otp' => 'required|string|size:6',
-            'verify_type' => 'sometimes|string|in:new_email,mobile_email,old_email',
+            'email_to_verify' => ['required', 'email'],
+            'otp' => ['required', 'string', 'size:6'],
+            'verify_type' => ['sometimes', 'string', 'in:new_email,mobile_email,old_email'],
         ], [
             'email_to_verify.required' => __('message.login_validation.email_required'),
             'email_to_verify.email' => __('message.login_validation.email_regex'),
@@ -91,7 +96,7 @@ class ProfileVerificationController extends BaseAuthController
                 return errorResponse(__('message.email_verification.invalid_token'));
             }
 
-            if ($account->updated_at->addMinutes(10)->isPast()) {
+            if ($account->updated_at?->addMinutes(10)->isPast()) {
                 $this->hitVerifyRateLimit($verifyType);
 
                 return errorResponse(__('message.email_verification.token_expired'));
@@ -122,7 +127,7 @@ class ProfileVerificationController extends BaseAuthController
             }
 
             return successResponse(__('message.email_verification.email_verified'));
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.email_verification.invalid_token'));
         }
     }
@@ -130,12 +135,12 @@ class ProfileVerificationController extends BaseAuthController
     /**
      * Send or resend OTP to new mobile number.
      */
-    public function sendMobileOtp(Request $request, $method = 'POST')
+    public function sendMobileOtp(Request $request, mixed $method = 'POST'): JsonResponse
     {
         $request->validate([
-            'mobile_to_verify' => 'required|string',
-            'dial_code' => 'required|string',
-            'country_iso' => 'required|string',
+            'mobile_to_verify' => ['required', 'string'],
+            'dial_code' => ['required', 'string'],
+            'country_iso' => ['required', 'string'],
         ], [
             'mobile_to_verify.required' => __('validation.profile_form.mobile.required'),
             'mobile_to_verify.string' => __('validation.profile_form.mobile.regex'),
@@ -144,11 +149,12 @@ class ProfileVerificationController extends BaseAuthController
         ]);
 
         try {
-            $dialCode = $request->dial_code;
-            $mobileNo = $request->mobile_to_verify;
-            $countryIso = strtoupper($request->country_iso);
+            $dialCode = (string) $request->dial_code;
+            $mobileNo = (string) $request->mobile_to_verify;
+            $countryIso = strtoupper((string) $request->country_iso);
             $cleanMobile = preg_replace('/\D/', '', $mobileNo);
-            $fullMobile = preg_replace('/\D/', '', $dialCode.$mobileNo);
+            $fullMobile = (string) preg_replace('/\D/', '', $dialCode.$mobileNo);
+            $cleanMobile = (string) $cleanMobile;
             $emailVerificationRequired = false;
 
             // Initial submission — check existence and verification settings
@@ -167,13 +173,13 @@ class ProfileVerificationController extends BaseAuthController
 
             // Send or resend OTP via MSG91
             $mobileInfo = ['country_iso' => $countryIso, 'mobile' => $mobileNo, 'mobile_code' => $dialCode];
-            $sms = app(SmsOtpController::class);
+            $sms = resolve(SmsOtpController::class);
 
             RateLimiter::hit('mobile-otp:'.auth()->id(), 600);
 
             $otpResponse = $method === 'GET'
-                ? $sms->sendForReOtp($fullMobile, $request->input('retry_type', 'text'), auth()->id(), 'profile-update', $mobileInfo)
-                : $sms->sendOtp($fullMobile, auth()->id(), 'profile-update', $mobileInfo);
+                ? $sms->sendForReOtp($fullMobile, $request->input('retry_type', 'text'), (int) auth()->id(), 'profile-update', $mobileInfo)
+                : $sms->sendOtp($fullMobile, (int) auth()->id(), 'profile-update', $mobileInfo);
 
             if ($otpResponse['type'] === 'error') {
                 return errorResponse($otpResponse['message']);
@@ -187,8 +193,8 @@ class ProfileVerificationController extends BaseAuthController
                 ? ['email_verification_required' => $emailVerificationRequired]
                 : []
             );
-        } catch (\Exception $e) {
-            \Log::error('OTP sending failed: '.$e->getMessage());
+        } catch (Exception $exception) {
+            Log::error('OTP sending failed: '.$exception->getMessage());
 
             return errorResponse(__('message.otp_verification.send_failure'));
         }
@@ -197,14 +203,14 @@ class ProfileVerificationController extends BaseAuthController
     /**
      * Verify mobile OTP and update mobile if no email verification required.
      */
-    public function verifyMobileOtp(Request $request)
+    public function verifyMobileOtp(Request $request): JsonResponse
     {
         $request->validate([
-            'mobile_to_verify' => 'required|string',
-            'otp' => 'required|numeric|digits:6',
-            'new_mobile' => 'required|string',
-            'dial_code' => 'required|string',
-            'country_iso' => 'required|string',
+            'mobile_to_verify' => ['required', 'string'],
+            'otp' => ['required', 'numeric', 'digits:6'],
+            'new_mobile' => ['required', 'string'],
+            'dial_code' => ['required', 'string'],
+            'country_iso' => ['required', 'string'],
         ], [
             'mobile_to_verify.required' => __('validation.profile_form.mobile.required'),
             'mobile_to_verify.string' => __('validation.profile_form.mobile.regex'),
@@ -216,22 +222,22 @@ class ProfileVerificationController extends BaseAuthController
         ]);
 
         try {
-            $response = app(SmsOtpController::class)->sendVerifyOTP(
+            $response = resolve(SmsOtpController::class)->sendVerifyOTP(
                 $request->otp,
                 $request->mobile_to_verify,
                 auth()->id(),
                 'profile-update'
             );
 
-            if (($response['type'] ?? null) !== 'success') {
+            if ($response['type'] !== 'success') {
                 RateLimiter::hit('mobile-verify:'.auth()->id(), 600);
 
-                return errorResponse($response['message'] ?? __('message.otp_invalid'));
+                return errorResponse($response['message']);
             }
 
-            $cleanMobile = preg_replace('/\D/', '', $request->input('new_mobile'));
-            $dialCode = $request->input('dial_code');
-            $countryIso = $request->input('country_iso');
+            $cleanMobile = (string) preg_replace('/\D/', '', (string) $request->input('new_mobile'));
+            $dialCode = (string) $request->input('dial_code');
+            $countryIso = (string) $request->input('country_iso');
 
             $settings = $this->getVerificationSettings();
 
@@ -249,7 +255,7 @@ class ProfileVerificationController extends BaseAuthController
             return successResponse(__('message.otp_verified'), [
                 'email_verification_required' => true,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.error_occurred_while_verify'));
         }
     }
@@ -257,7 +263,7 @@ class ProfileVerificationController extends BaseAuthController
     /**
      * Resend OTP for email or mobile verification.
      */
-    public function resendOtp(Request $request)
+    public function resendOtp(Request $request): JsonResponse
     {
         return match ($request->input('type')) {
             'email' => $this->sendEmailOtp($request, 'GET'),
@@ -268,7 +274,7 @@ class ProfileVerificationController extends BaseAuthController
 
     // ─── Private Helpers ─────────────────────────────────────────────────
 
-    private function handleInitialEmailChange($user, string $newEmail)
+    private function handleInitialEmailChange(mixed $user, string $newEmail): JsonResponse
     {
         if (User::where('email', $newEmail)->exists()) {
             return errorResponse(__('message.email_already_used'));
@@ -280,28 +286,28 @@ class ProfileVerificationController extends BaseAuthController
             return $this->updateUserEmail($newEmail);
         }
 
-        RateLimiter::hit("email-otp-old:{$user->id}", 600);
-        $this->sendActivationOtp($user, $user->email, 'POST', 'old_email');
+        RateLimiter::hit('email-otp-old:'.$user->id, 600);
+        $this->sendActivationOtp($user->email, 'POST', 'old_email');
 
         return successResponse(__('message.otp_code_sent_exist'), [
             'email_verification_required' => true,
         ]);
     }
 
-    private function dispatchNewEmailOtp($user, string $email, string $method)
+    private function dispatchNewEmailOtp(mixed $user, string $email, string $method): JsonResponse
     {
         if ($method !== 'GET') {
             $existing = AccountActivate::where('email', $email)->first();
 
-            if ($existing && ! $existing->updated_at->addMinutes(10)->isPast()) {
+            if ($existing && ! $existing->updated_at?->addMinutes(10)->isPast()) {
                 return successResponse(__('message.email_verification.already_sent'), '', 208);
             }
 
             $existing?->delete();
         }
 
-        RateLimiter::hit("email-otp-new:{$user->id}", 600);
-        $this->sendActivationOtp($user, $email, $method, 'new_email');
+        RateLimiter::hit('email-otp-new:'.$user->id, 600);
+        $this->sendActivationOtp($email, $method, 'new_email');
 
         return successResponse(
             $method === 'GET'
@@ -310,7 +316,7 @@ class ProfileVerificationController extends BaseAuthController
         );
     }
 
-    private function sendActivationOtp($user, string $email, string $method, string $mode): void
+    private function sendActivationOtp(string $email, string $method, string $mode): void
     {
         $token = random_int(100000, 999999);
 
@@ -327,12 +333,13 @@ class ProfileVerificationController extends BaseAuthController
             default => null,
         };
 
-        $template = Template::whereHas('type', fn ($q) => $q->where('name', $templateName))->first();
+        $template = Template::whereHas('type', fn (Builder $q) => $q->where('name', $templateName))->first();
 
         if (! $template) {
-            throw new \Exception(__('message.something_wrong'));
+            throw new Exception(__('message.something_wrong'));
         }
 
+        /** @var Setting $settings */
         $settings = Setting::find(1);
         $contact = getContactData();
 
@@ -348,7 +355,7 @@ class ProfileVerificationController extends BaseAuthController
         $type = TemplateType::where('id', $template->type)->first()->name ?? '';
 
         new PhpMailController()->SendEmail(
-            $settings->email, $email, $template->data, $template->name, $templateName, $replace, $type
+            $settings->email, $email, $template->data, $template->name, (string) $templateName, $replace, $type
         );
     }
 
@@ -360,15 +367,16 @@ class ProfileVerificationController extends BaseAuthController
             default => 'email-verify-new',
         };
 
-        RateLimiter::hit("{$key}:".auth()->id(), 600);
+        RateLimiter::hit($key.':'.auth()->id(), 600);
     }
 
-    private function updateUserEmail(string $email)
+    private function updateUserEmail(string $email): JsonResponse
     {
         if (User::where('email', $email)->where('id', '!=', auth()->id())->exists()) {
             return errorResponse(__('message.email_already_used'));
         }
 
+        /** @var User $user */
         $user = auth()->user();
         $user->email = $email;
         $user->user_name = $email;
@@ -381,12 +389,13 @@ class ProfileVerificationController extends BaseAuthController
         ]);
     }
 
-    private function updateUserMobile(string $mobile, string $dialCode, string $countryIso)
+    private function updateUserMobile(string $mobile, string $dialCode, string $countryIso): JsonResponse
     {
         if (User::where('mobile', $mobile)->where('id', '!=', auth()->id())->exists()) {
             return errorResponse(__('message.mobile_no_already_used'));
         }
 
+        /** @var User $user */
         $user = auth()->user();
         $user->mobile = $mobile;
         $user->mobile_code = $dialCode;
@@ -400,13 +409,16 @@ class ProfileVerificationController extends BaseAuthController
         ]);
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function getVerificationSettings(): array
     {
         $status = StatusSetting::query()->first();
 
         return [
-            'email' => (bool) ($status?->emailverification_status ?? false),
-            'mobile' => (bool) ($status?->msg91_status ?? false),
+            'email' => (bool) ($status->emailverification_status ?? false),
+            'mobile' => (bool) ($status->msg91_status ?? false),
         ];
     }
 }

@@ -193,7 +193,6 @@ return [
     'token_secret' => 'Rahasia Token Akses Twitter',
     'rzp_key' => 'Kunci Razorpay',
     'rzp_secret' => 'Rahasia Razorpay',
-    'apilayer_key' => 'Kunci Akses ApiLayer (Untuk Konversi Nilai Tukar)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Kunci API Mailchimp',
     'terms_url' => 'URL Syarat',
@@ -462,7 +461,6 @@ return [
          */
     'rzp_key' => 'Kunci Razorpay',
     'rzp_secret' => 'Razorpay Secret',
-    'apilayer' => 'Kunci Akses ApiLayer',
     'zoho_key' => 'Kunci Zoho',
     'key' => 'Kunci API',
     'msg91key' => 'Kunci Otorisasi Msg91',
@@ -701,10 +699,10 @@ return [
     'cloud_field_label' => 'Masukkan nama domain cloud yang Anda inginkan',
     'cloud_price' => 'Harga per agen',
 
-    //Delete message
+    // Delete message
     'confirm' => 'Apakah Anda yakin ingin menghapus ini?',
 
-    //Delete message
+    // Delete message
     'cloud_domain_change' => 'Berita baik! Domain Cloud Anda telah berhasil diubah. Harap diperhatikan bahwa akan ada sedikit waktu henti sekitar 5 menit untuk menerapkan perubahan ini. Terima kasih atas kesabaran Anda!',
     'limit_is_up' => 'Kami perhatikan bahwa Anda telah melewati batas uji coba gratis, harap hapus instansi yang ada untuk melanjutkan.',
     'too_long' => 'Sepertinya domain ini terlalu panjang, silakan coba membuat dengan jumlah karakter yang lebih sedikit.',
@@ -759,7 +757,7 @@ return [
     'user_suspend' => 'Pengguna ini disuspensi dari sistem. Pulihkan pengguna untuk melihat detailnya',
     'country_notfound' => 'Negara tidak dapat ditentukan',
 
-    //Strong Password
+    // Strong Password
     'strong_password' => 'Kata sandi harus mengandung setidaknya 8 karakter, satu huruf kapital, satu huruf kecil, satu angka, dan satu karakter khusus.',
 
     'password_requirements' => 'Kata sandi Anda harus memiliki:',
@@ -779,7 +777,7 @@ return [
     'new_password_different' => 'Kata sandi baru harus berbeda dari kata sandi lama.',
     'reset_link_expired' => 'Tautan reset kata sandi Anda telah kedaluwarsa atau tidak ditemukan. Silakan coba reset kata sandi lagi.',
 
-    //file storage
+    // file storage
 
     'file_storage' => 'Penyimpanan File',
     'set_file_storage' => 'Setel jalur penyimpanan file',
@@ -870,7 +868,7 @@ return [
     'required_stripe_secret' => 'Harap masukkan Secret Stripe',
     'max_stripe_secret' => 'Secret Stripe tidak boleh melebihi 200 karakter',
 
-    //email templates
+    // email templates
 
     'choose_password' => 'Klik di sini untuk mengatur ulang kata sandi Anda: ',
     'email_username' => 'Nama Pengguna: ',
@@ -878,7 +876,7 @@ return [
     'email_click_here' => 'Klik Di Sini',
     'activate_account' => 'Untuk mengaktifkan akun Anda:',
 
-    //error template
+    // error template
     'page_not_found' => 'Halaman Tidak Ditemukan',
     'sorry' => 'Maaf, tetapi halaman yang Anda cari tidak ada.',
     'useful_links' => 'Berikut beberapa tautan berguna',
@@ -887,7 +885,7 @@ return [
     'my_profile' => 'Profil Saya',
     'contact_us' => 'Hubungi Kami',
 
-    //login-register template
+    // login-register template
     'login_lr' => 'Masuk | Daftar',
     'sign_lr' => 'Masuk atau Daftar',
     'or' => 'Atau',
@@ -921,7 +919,7 @@ return [
     'error_occurred' => 'Terjadi kesalahan. Silakan coba lagi.',
     'error_one_country' => 'Harap pilih satu negara ',
 
-    //contact template
+    // contact template
     'feel_free' => 'Jangan ragu untuk menanyakan rincian, jangan simpan pertanyaan!',
     'contact_name' => 'Nama',
     'contact_error_name' => 'Harap masukkan nama Anda.',
@@ -934,7 +932,7 @@ return [
     'contact_send_msg' => 'Kirim Pesan',
     'our_office' => 'Kantor Kami',
 
-    //password template
+    // password template
     'forgot_password' => 'Lupa Kata Sandi? Atur Ulang Sekarang!',
     'lost_password' => 'Kehilangan kata sandi Anda?',
     'know_password' => 'Saya tahu kata sandi saya',
@@ -943,7 +941,7 @@ return [
     'sending' => 'Mengirim...',
     'error_occurs' => 'Terjadi kesalahan.',
     'reset_password' => 'Atur Ulang Kata Sandi',
-    //front-client template
+    // front-client template
     'change_faveo' => 'Apakah Anda ingin mengubah domain cloud Faveo Anda yang ada?',
     'current_domain' => 'Masukkan domain saat ini',
     'enter_domain' => 'Masukkan domain baru',
@@ -1105,7 +1103,7 @@ return [
     'subscriptions_table' => 'Tabel Langganan',
     'invalid_format' => 'Format tidak valid.',
 
-    //front-page template
+    // front-page template
     'all_pages' => 'Semua Halaman',
     'create_new_page' => 'Buat Halaman Baru',
     'edit_page' => 'Edit Halaman',
@@ -1115,14 +1113,14 @@ return [
     'select_checkbox' => 'Harap pilih setidaknya satu checkbox',
     'search_result' => 'Hasil Pencarian',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => 'Semua Widget',
     'create_widget' => 'Buat Widget',
     'configure_mailchimp' => 'Konfigurasi mailchimp Anda di pengaturan untuk mengakses',
     'configure_tweet' => 'Konfigurasi tweet Anda di pengaturan untuk mengakses',
     'edit_widget' => 'Edit Widget',
 
-    //front outer template
+    // front outer template
     'remove_product' => 'Hapus Produk',
     'cart_totals' => 'Total Keranjang',
     'clear_cart' => 'Kosongkan Keranjang',
@@ -1134,6 +1132,7 @@ return [
     'clear_my_cart' => 'Kosongkan Keranjang Saya',
     'proceed_checkout' => 'Lanjutkan ke Pembayaran',
     'checkout' => 'Pembayaran',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'Keranjang Anda kosong',
     'your_order' => 'Pesanan Anda',
     'cart_subtotal' => 'Subtotal Keranjang',
@@ -1178,11 +1177,11 @@ return [
     'go_back' => 'Kembali',
     'be_right_back' => 'Akan segera kembali.',
 
-    //category template
+    // category template
     'all_categories' => 'Semua Kategori',
     'category_name' => 'Nama',
 
-    //common template
+    // common template
     'create_script_code' => 'Buat Kode Skrip',
     'create_script' => 'Buat Skrip',
     'edit_script_code' => 'Edit Kode Skrip',
@@ -1220,7 +1219,6 @@ return [
     'company_details' => 'Detail Perusahaan',
     'url_installation' => 'URL ini memberikan bantuan rinci untuk instalasi',
     'delete_logo' => 'Hapus logo.',
-    'template_settings' => 'Pengaturan Template',
     'template_list' => 'Daftar Template',
     'invoice_mail_template' => 'Pilih Template Email Faktur',
     'purchase_confirmation' => 'Konfirmasi Pembelian',
@@ -1245,7 +1243,6 @@ return [
     'register_mail' => 'Email Pendaftaran',
     'choose_register_mail_template' => 'Pilih Template Email Pendaftaran',
     'create_new_social_media' => 'Buat Media Sosial Baru',
-    'edit_social_media' => 'Edit Media Sosial',
     'social_media' => 'Media Sosial',
     'edit_template' => 'Edit Template',
     'shortcode_information' => 'Informasi Shortcode',
@@ -1267,7 +1264,6 @@ return [
     'cloud_hub' => 'Cloud Hub',
     'debug' => 'Debug',
     'clockwork' => 'Mesin jam',
-    'social_logins' => 'Login Sosial',
     'err_log' => 'Log Kesalahan',
     'email_log' => 'Log Email',
     'payment_log' => 'Log Pembayaran',
@@ -1276,6 +1272,10 @@ return [
     'api' => 'API',
     'mail_chimp' => 'Mail Chimp',
     'common' => 'Umum',
+    'license_and_access' => 'License & Access',
+    'integrations' => 'Integrations',
+    'communication' => 'Communication',
+    'logs_and_monitoring' => 'Logs & Monitoring',
     'country_list' => 'Daftar Negara',
     'footer' => 'Footer',
     'analytics_custom_code' => 'Analytics/Kode Kustom',
@@ -1344,14 +1344,14 @@ return [
     'deactivate' => 'Nonaktifkan',
     'provider' => 'Penyedia',
 
-    //github template
+    // github template
     'github_setting' => 'Pengaturan Github',
     'enter_github_username' => 'Harap Masukkan Username Github',
     'enter_github_password' => 'Harap Masukkan Password Github',
     'enter_github_clientid' => 'Harap Masukkan Client Id',
     'enter_github_client_secret_key' => 'Harap Masukkan Client Secret Key',
 
-    //invoice template
+    // invoice template
     'edit_invoice' => 'Edit Faktur',
     'view_user' => 'Lihat Pengguna',
     'pending' => 'Tertunda',
@@ -1392,7 +1392,7 @@ return [
     'no_tax_rates' => 'Tidak Ada Tarif Pajak',
     'store' => 'Toko',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => 'Dasbor Admin',
     'my_account' => 'Akun Saya',
     'start_free_trial' => 'MULAI UJI COBA GRATIS',
@@ -1433,7 +1433,7 @@ return [
     'enter_domain_license' => 'Masukkan Domain & Unduh File Lisensi',
     'installation_details' => 'Detail Pemasangan',
 
-    //Payment panel
+    // Payment panel
     'payment_date' => 'Tanggal Pembayaran',
     'auto_renewal_subscription' => 'Pembaruan Otomatis untuk Langganan Mendatang',
     'subscription_start_date' => 'Tanggal Mulai Langganan',
@@ -1459,13 +1459,12 @@ return [
     'coupon' => 'Kupon',
     'actions' => 'Tindakan',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => 'Buat Pajak',
     'caps_others' => 'LAINNYA',
     'others' => 'Lainnya',
     'all_states' => 'Semua Negara Bagian',
     'edit_tax_class' => 'Edit Kelas Pajak',
-    'edit_tax' => 'Edit Pajak',
     'create_tax_option_class' => 'Buat Opsi Pajak dan Kelas Pajak',
     'caps_enabled' => 'DIENABLED',
     'caps_disabled' => 'DINONAKTIFKAN',
@@ -1498,7 +1497,7 @@ return [
     'show_cart_page' => 'Tampilkan di Halaman Keranjang',
     'select_taxes' => 'Pilih Pajak',
 
-    //Product panel
+    // Product panel
     'all_product_details' => 'Tambahkan Detail Produk',
     'enter_json_format' => 'Masukkan format JSON.',
     'upload' => 'Unggah',
@@ -1527,22 +1526,21 @@ return [
     'all_types' => 'Semua Jenis',
     'configure_queue' => 'Konfigurasi Antrian',
 
-    //renew panel
+    // renew panel
     'renew_product' => 'Pastikan keranjang kosong untuk memperbarui produk Anda',
     'click_renew' => 'Klik di sini untuk memperbarui',
     'renew_your_order' => 'Perbarui pesanan Anda',
     'renew_order' => 'Perbarui Pesanan',
     'renewal_price_per_agent' => 'Harga pembaruan per agen:',
 
-    //report panel
+    // report panel
     'file_name' => 'Nama Berkas',
     'format' => 'Format',
     'contact' => 'Kontak',
     'report_settings' => 'Pengaturan Laporan',
     'report_limit' => 'Tambahkan catatan per lembar. Batas maksimum adalah 3000.',
 
-    //tenant panel
-    'cloud_details' => 'Rincian Cloud',
+    // tenant panel
     'cloud_server' => 'Server Cloud',
     'customise_cloud_popup' => 'Kustomisasi Pop-up Cloud',
     'cloud_product_configuration' => 'Konfigurasi Produk Cloud',
@@ -1569,7 +1567,7 @@ return [
     'app_key' => 'Kunci Aplikasi',
     'app_secret' => 'Rahasia Aplikasi',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'Buat Pengguna Baru',
     'create_user' => 'Buat Pengguna',
     'position' => 'Posisi',
@@ -1683,7 +1681,7 @@ return [
     'error_logs' => 'Log Kesalahan',
     'view_logs' => 'Lihat Log',
 
-    //visitstats
+    // visitstats
     'request' => 'Permintaan',
     'visitor' => 'Pengunjung',
     'browser' => 'Browser',
@@ -1843,7 +1841,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'Silakan masukkan kunci Razorpay yang valid.',
         'rzp_secret' => 'Silakan masukkan rahasia Razorpay yang valid.',
-        'apilayer_key' => 'Silakan masukkan kunci akses yang valid.',
     ],
 
     'sys_manager' => [
@@ -2035,7 +2032,6 @@ return [
     'month' => 'bulan',
     'year' => 'tahun',
     'all_time' => 'Sepanjang waktu',
-    'license_types' => 'Jenis Lisensi',
     'caps_go' => 'GO',
     'invoice_due' => 'Jatuh Tempo',
     'subscription-error-message' => 'Harap pilih paket langganan yang valid',
@@ -2289,7 +2285,6 @@ return [
     'till' => 'Sampai',
     'cannot_disable_language' => 'Tidak dapat menonaktifkan bahasa default',
     'langugae_toggle' => 'Tombol ini memungkinkan Anda untuk mengaktifkan atau menonaktifkan dropdown bahasa yang tersedia.',
-    'payment_logs' => 'Log Pembayaran',
     'deactive' => 'Nonaktif',
     'forgot_password_faveo_helpdesk' => 'Lupa Kata Sandi | Faveo Helpdesk',
     'reset_password_faveo_helpdesk' => 'Reset Kata Sandi | Faveo Helpdesk',
@@ -2311,7 +2306,6 @@ return [
     'activity_logs' => 'Log Aktivitas',
     'payment_gateway_integrations' => 'Integrasi Gateway Pembayaran',
     'third_party_integrations' => 'Integrasi Pihak Ketiga',
-    'contact_options' => 'Opsi Kontak',
     'msg91_reports' => 'Laporan MSG91',
     'queue_monitoring' => 'Pemantauan Antrian',
     'pulse' => 'Nadi',
@@ -2519,7 +2513,6 @@ return [
     'zoom_out' => 'Perkecil',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => 'Terbitkan&nbsp;ulang Lisensi',
-    'api_layer_access_key' => 'Kunci Akses ApiLayer (Untuk Konversi Nilai Tukar)',
     'download_logs' => 'Unduh Log',
     'delete_logs' => 'Hapus Log',
     'type_here_search' => 'Ketik di sini untuk mencari',
@@ -2791,7 +2784,6 @@ return [
     'login_password_validation' => 'Silakan masukkan kata sandi Anda.',
     'whatsapp_product_explanation' => 'Aktifkan opsi ini untuk menampilkan alur pendaftaran WhatsApp tertanam untuk produk yang dipilih pada halaman pemesanan klien.',
     'whatsapp_product_heading' => 'Alur Pendaftaran Tertanam',
-    'whatsapp_users' => 'Pengguna WhatsApp',
     'phone_number' => 'Nomor Telepon',
     'waba_id' => 'WABA ID',
     'phone_number_id' => 'ID Nomor Telepon',
@@ -2867,4 +2859,256 @@ return [
     'not_found_title' => 'Ups! Halaman tidak ditemukan.',
     'not_found_message' => 'Kami tidak dapat menemukan halaman yang Anda cari.',
     'not_found_return_prefix' => 'Sementara itu, Anda dapat ',
+
+    /*
+     * Vue i18n keys — added for Vue page translations
+     */
+    'back' => 'Back',
+    'back_to_invoices' => 'Back to Invoices',
+    'back_to_orders' => 'Back to Orders',
+    'back_to_products' => 'Back to Products',
+    'back_to_users' => 'Back to Users',
+    'back_to_pages' => 'Back to Pages',
+    'choose_country_first' => 'Choose a country first',
+    'select_user' => 'Select User',
+    'select_product' => 'Select Product',
+    'select_plan' => 'Select Plan',
+    'invoice_date' => 'Invoice Date',
+    'cloud_domain_label' => 'Cloud Domain',
+    'order_no' => 'Order No',
+    'qty' => 'Qty',
+    'no_items_found' => 'No items found',
+    'unlimited' => 'Unlimited',
+    'download_pdf' => 'Download PDF',
+    'invoice_no_col' => 'Invoice No',
+    'edit_updates_expiry' => 'Edit Updates Expiry Date',
+    'edit_license_expiry' => 'Edit License Expiry Date',
+    'edit_support_expiry' => 'Edit Support Expiry Date',
+    'product_image' => 'Product Image',
+    'image_help' => 'JPEG, PNG, JPG — max 2MB',
+    'show_agent' => 'Show Agent',
+    'add_to_contact' => 'Add to Contact',
+    'can_modify_agent' => 'Can Modify Agent',
+    'can_modify_quantity' => 'Can Modify Quantity',
+    'hidden_pricing_page' => 'Hidden (Pricing Page)',
+    'hidden_admin_dropdown' => 'Hidden (Admin Dropdown)',
+    'whatsapp_signup_flow' => 'WhatsApp Signup Flow',
+    'select_tax_classes_text' => 'Select the tax classes that apply to this product.',
+    'no_tax_classes' => 'No tax classes found.',
+    'select_license_type' => 'Select license type',
+    'select_group' => 'Select group',
+    'select_parent' => 'Select parent',
+    'product_sku' => 'Product SKU',
+    'public_company' => 'Public Company',
+    'self_employed' => 'Self Employed',
+    'non_profit' => 'Non Profit',
+    'privately_held' => 'Privately Held',
+    'partnership' => 'Partnership',
+    'myself_only' => 'Myself only',
+    'filter' => 'Filter',
+    'bulk_action' => 'Bulk Action',
+    'create_invoice_btn' => 'Create Invoice',
+    'payment_method_label' => 'Payment Method',
+    'set_as_default_page' => 'Set as Default Page',
+    'custom' => 'Custom',
+    'page_url' => 'URL',
+    'select_type' => 'Select type',
+    'suspend' => 'Suspend',
+    'all_users' => 'All Users',
+    'zip_postal_code' => 'Zip/Postal Code',
+    'payments_section' => 'Payments',
+    'mobile_label' => 'Mobile',
+    'email_label' => 'Email',
+    'name_label' => 'Name',
+    'country_label' => 'Country',
+
+    // New keys for Vue i18n updates
+    'no_of_agents' => 'No. of Agents',
+    'design_template' => 'Design Template',
+    'hidden_group' => 'Hidden Group',
+    'check_hidden_group' => 'Check this if this is a hidden group',
+    'add_currency' => 'Add Currency',
+    'no_payment_gateways' => 'No payment gateways found.',
+    'gateway_settings' => 'Settings',
+    'list_of_available_shortcodes' => 'List of Available Shortcodes',
+    'from_email' => 'From Email',
+    'mail_driver' => 'Mail Driver',
+    'smtp_host' => 'SMTP Host',
+    'smtp_port' => 'SMTP Port',
+    'add_app' => 'Add App',
+    'edit_app' => 'Edit App',
+    'add_license_type_btn' => 'Add License Type',
+    'add_permissions_btn' => 'Add Permissions',
+    'no_permissions_selected' => 'No Permissions Selected',
+    'make_default' => 'Make Default',
+    'cannot_disable_default_language' => 'Cannot disable the default language',
+    'native_name' => 'Native Name',
+    'iso_code' => 'ISO Code',
+    'system_default' => 'System Default',
+    'configure_gateway' => 'Configure detailed settings for this payment gateway at:',
+    'no_additional_settings' => 'No additional settings available.',
+    'payment_gateway_not_found' => 'Payment gateway not found.',
+    'copy_shortcode_info' => 'Copy a shortcode and paste it into the template content where you want the value to appear.',
+    'edit_social_login' => 'Edit Social Login',
+    'create_product_plan' => 'Create Plan',
+    'edit_product_plan' => 'Edit Plan',
+    'create_coupon_title' => 'Create Coupon',
+    'edit_coupon_title' => 'Edit Coupon',
+    'secret_key_label' => 'Secret Key',
+    'two_step_verification_on_since' => '2-Step Verification is ON since',
+    'mailgun_domain' => 'Domain',
+    'ses_key' => 'Key',
+    'email_templates' => 'Email Templates',
+    'template_settings' => 'Template Settings',
+    'edit_template' => 'Edit Template',
+    'reply_email' => 'Reply Email',
+    'content' => 'Content',
+    'account_info' => 'Account Info',
+    'export_selected_records' => 'Export Selected Records',
+    'search_by_company' => 'Search by company',
+    'verified' => 'Verified',
+    'not_verified' => 'Not Verified',
+    'enabled' => 'Enabled',
+    'disabled' => 'Disabled',
+    'admin' => 'Admin',
+    'exact_order_number' => 'Exact order number',
+    'new_date' => 'New Date',
+    'select_parent_page' => 'Select parent page',
+    'publishing_date' => 'Publishing Date',
+
+    // New keys for i18n update - settings/api, settings/common, logs, settings/settings, widgets, reports
+    'recaptcha_configuration' => 'reCAPTCHA Configuration',
+    'recaptcha_version' => 'reCAPTCHA Version',
+    'general' => 'General',
+    'preview' => 'Preview',
+    'appearance' => 'Appearance',
+    'verify_v3_key' => 'Verify v3 key',
+    'v3_key_valid' => 'v3 key valid',
+    'cannot_disable_dashboard_currency' => 'Cannot disable a dashboard currency',
+    'set_as_default_currency' => 'Set as Default Currency',
+    'set_as_dashboard_currency' => 'Set as Dashboard Currency',
+    'payment_failed_exception' => 'Payment Failed — Exception',
+    'debug_mode' => 'Debug Mode',
+    'debug_mode_description' => 'Enables APP_DEBUG, Pulse, and Clockwork.',
+    'system_local' => 'System (Local)',
+    'amazon_s3' => 'Amazon S3',
+    'auto_assign_account_managers' => 'Enable Auto Assignment for Account Managers',
+    'auto_assign_account_managers_desc' => 'Automatically assign an account manager to new clients upon creation.',
+    'auto_assign_sales_managers' => 'Enable Auto Assignment for Sales Managers',
+    'auto_assign_sales_managers_desc' => 'Automatically assign a sales manager to new clients upon creation.',
+    'select_replacement_account_manager' => 'Select Replacement Account Manager',
+    'enter_whatsapp_app_id' => 'Enter your WhatsApp App ID',
+    'enter_whatsapp_app_secret' => 'Enter your WhatsApp App Secret',
+    'enter_whatsapp_config_id' => 'Enter your WhatsApp Config ID',
+    'enter_whatsapp_verify_token' => 'Enter your WhatsApp Verify Token',
+    'edit_webhook_url' => 'Edit Webhook URL',
+    'enter_webhook_url' => 'Enter webhook URL',
+    'copy_phone_number_id' => 'Copy Phone Number ID',
+    'add_social_media' => 'Add Social Media',
+    'records_per_export_desc' => 'Maximum number of records to include in each export (1–3000).',
+    'every_minute' => 'Every Minute',
+    'every_five_minutes' => 'Every Five Minutes',
+    'every_ten_minutes' => 'Every Ten Minutes',
+    'every_thirty_minutes' => 'Every Thirty Minutes',
+    'hourly' => 'Hourly',
+    'daily' => 'Daily',
+    'daily_at' => 'Daily At',
+    'weekly' => 'Weekly',
+    'cloud_mail_days' => 'Cloud Mail Days',
+    'invoice_deletion_days' => 'Invoice Deletion Days',
+    'msg91_report_days' => 'MSG91 Report Days',
+    'reoon_log_days' => 'Reoon Log Days',
+    'system_log_days' => 'System Log Days',
+    'installation_log_days' => 'Installation Log Days',
+    'license_reports_days' => 'License Reports Days',
+    'license_callbacks_days' => 'License Callbacks Days',
+    'license_crack_days' => 'License Crack Days',
+    'license_system_days' => 'License System Days',
+    'license_versions_days' => 'License Versions Days',
+    'activity_log_days' => 'Activity Log Days',
+    'delete_all_reports' => 'Delete All Reports',
+    'delete_all_logs' => 'Delete All Logs',
+    'cron_days' => 'Cron Days',
+    'expiry_mail_days' => 'Expiry Mail Days',
+    'auto_renewal_days' => 'Auto Renewal Days',
+    'post_expiry_days' => 'Post Expiry Days',
+    'select_an_option' => 'Select an option',
+    'verify_and_copy_command' => 'Verify and copy command',
+    'specify_php_executable' => 'Specify PHP executable path',
+    'please_select_date' => 'Please select a date.',
+    'delete_whatsapp_user_confirm' => 'Delete WhatsApp user',
+    'delete_selected_reports_confirm' => 'Delete :count selected report(s)? This cannot be undone.',
+    'select_date' => 'Select date',
+    'installed_at_least_once' => 'Installed (at least once)',
+    'not_installed' => 'Not Installed',
+    'active_installation' => 'Active Installation',
+    'inactive_installation' => 'Inactive Installation',
+    'active_subscription_label' => 'Active',
+    'expiring_subscription' => 'Expiring (within 30 days)',
+    'expired_subscription' => 'Expired',
+    'unpaid' => 'Unpaid',
+    'partially_paid' => 'Partially Paid',
+    'paid' => 'Paid',
+    'select_a_template' => 'Select a template',
+    'select_a_type' => 'Select a type',
+    'admin_logo' => 'Admin Panel Logo',
+    'client_logo' => 'Client Panel Logo',
+    'company_email' => 'Company Email',
+    'default_currency' => 'System Default Currency',
+    'favicon' => 'Favicon',
+    'meta_title_admin' => 'Meta Title (Admin Panel)',
+    'meta_title_client' => 'Meta Title (Client Panel)',
+    'invoice_total' => 'Invoice Total',
+    'logo_and_favicon' => 'Logo and Favicon',
+    'use_default' => 'Use Default',
+    'use_logo' => 'Use Logo',
+    'autorenewal' => 'Auto Renewal',
+    'cannot_disable_default_currency' => 'Cannot disable the default currency',
+    'days' => 'days',
+    'sales' => 'Sales',
+    'sold' => 'Sold',
+    'subscribe' => 'Subscribe',
+    'unsubscribe' => 'Unsubscribe',
+    'manager' => 'Account Manager',
+    'payments' => 'Payments',
+    'order_id' => 'Order No',
+    'email_not_verified' => 'Email not verified',
+    'mobile_not_verified' => 'Mobile not verified',
+    'social-logins' => 'Social Logins',
+
+    // ── Open Payment Page ──────────────────────────────────────────
+    'op_secure_checkout' => 'Secure Checkout',
+    'op_payment_details' => 'Payment Details',
+    'op_fill_info' => 'Fill in your information to proceed with payment',
+    'op_personal_info' => 'Personal Information',
+    'op_street_address' => 'Street Address',
+    'op_zip_code' => 'ZIP / Postal Code',
+    'op_payment_info' => 'Payment Information',
+    'op_description_optional' => 'Description (optional)',
+    'op_payment_gateway' => 'Payment Gateway',
+    'op_continue_to_review' => 'Continue to Review',
+    'op_review_order' => 'Review Order',
+    'op_confirm_details' => 'Confirm your details before paying',
+    'op_paying_as' => 'Paying As',
+    'op_payment_summary' => 'Payment Summary',
+    'op_total_due' => 'Total Due',
+    'op_gateway' => 'Gateway',
+    'op_note' => 'Note',
+    'op_processing' => 'Processing…',
+    'op_pay' => 'Pay',
+    'op_payment_successful' => 'Payment Successful',
+    'op_payment_failed' => 'Payment Failed',
+    'op_success_msg' => 'Your transaction was completed successfully. A confirmation will be sent to your email.',
+    'op_transaction_id' => 'Transaction ID',
+    'op_amount_paid' => 'Amount Paid',
+    'op_make_another' => 'Make Another Payment',
+    'op_try_again' => 'Try Again',
+    'op_step_details' => 'Details',
+    'op_step_review' => 'Review',
+    'op_step_done' => 'Done',
+    'op_razorpay_methods' => 'Cards · UPI · Net Banking · Wallets',
+    'op_stripe_methods' => 'Cards',
+    'op_what_payment_for' => 'What is this payment for?',
+    'op_something_went_wrong' => 'Something went wrong. Please try again.',
+    'cvc' => 'CVC',
 ];

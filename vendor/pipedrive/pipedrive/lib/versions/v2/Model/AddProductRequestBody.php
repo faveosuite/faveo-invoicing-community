@@ -2,7 +2,7 @@
 /**
  * AddProductRequestBody
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -76,6 +76,7 @@ class AddProductRequestBody implements ModelInterface, ArrayAccess, JsonSerializ
         'is_linkable' => 'bool',
         'visible_to' => '\Pipedrive\versions\v2\Model\VisibleTo',
         'prices' => 'object[]',
+        'custom_fields' => 'array<string,object>',
         'billing_frequency' => '\Pipedrive\versions\v2\Model\BillingFrequency1',
         'billing_frequency_cycles' => 'int'
     ];
@@ -98,6 +99,7 @@ class AddProductRequestBody implements ModelInterface, ArrayAccess, JsonSerializ
         'is_linkable' => null,
         'visible_to' => null,
         'prices' => null,
+        'custom_fields' => null,
         'billing_frequency' => null,
         'billing_frequency_cycles' => null
     ];
@@ -143,6 +145,7 @@ class AddProductRequestBody implements ModelInterface, ArrayAccess, JsonSerializ
         'is_linkable' => 'is_linkable',
         'visible_to' => 'visible_to',
         'prices' => 'prices',
+        'custom_fields' => 'custom_fields',
         'billing_frequency' => 'billing_frequency',
         'billing_frequency_cycles' => 'billing_frequency_cycles'
     ];
@@ -163,6 +166,7 @@ class AddProductRequestBody implements ModelInterface, ArrayAccess, JsonSerializ
         'is_linkable' => 'setIsLinkable',
         'visible_to' => 'setVisibleTo',
         'prices' => 'setPrices',
+        'custom_fields' => 'setCustomFields',
         'billing_frequency' => 'setBillingFrequency',
         'billing_frequency_cycles' => 'setBillingFrequencyCycles'
     ];
@@ -183,6 +187,7 @@ class AddProductRequestBody implements ModelInterface, ArrayAccess, JsonSerializ
         'is_linkable' => 'getIsLinkable',
         'visible_to' => 'getVisibleTo',
         'prices' => 'getPrices',
+        'custom_fields' => 'getCustomFields',
         'billing_frequency' => 'getBillingFrequency',
         'billing_frequency_cycles' => 'getBillingFrequencyCycles'
     ];
@@ -252,7 +257,7 @@ class AddProductRequestBody implements ModelInterface, ArrayAccess, JsonSerializ
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['name'] = $data['name'] ?? null;
         $this->container['code'] = $data['code'] ?? null;
@@ -264,6 +269,7 @@ class AddProductRequestBody implements ModelInterface, ArrayAccess, JsonSerializ
         $this->container['is_linkable'] = $data['is_linkable'] ?? true;
         $this->container['visible_to'] = $data['visible_to'] ?? null;
         $this->container['prices'] = $data['prices'] ?? null;
+        $this->container['custom_fields'] = $data['custom_fields'] ?? null;
         $this->container['billing_frequency'] = $data['billing_frequency'] ?? null;
         $this->container['billing_frequency_cycles'] = $data['billing_frequency_cycles'] ?? null;
     }
@@ -530,6 +536,30 @@ class AddProductRequestBody implements ModelInterface, ArrayAccess, JsonSerializ
     public function setPrices($prices): self
     {
         $this->container['prices'] = $prices;
+
+        return $this;
+    }
+
+    /**
+     * Gets custom_fields
+     *
+     * @return array<string,object>|null
+     */
+    public function getCustomFields()
+    {
+        return $this->container['custom_fields'];
+    }
+
+    /**
+     * Sets custom_fields
+     *
+     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes. To clear a custom field value, set it to `null`. For multi-option fields (field type `set`), use `null` to clear the selection — sending an empty array `[]` is not supported and will result in a validation error.
+     *
+     * @return self
+     */
+    public function setCustomFields($custom_fields): self
+    {
+        $this->container['custom_fields'] = $custom_fields;
 
         return $this;
     }

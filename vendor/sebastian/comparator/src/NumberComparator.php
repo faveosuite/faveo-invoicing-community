@@ -39,17 +39,18 @@ final class NumberComparator extends ObjectComparator
     public function assertEquals(mixed $expected, mixed $actual, float $delta = 0.0, bool $canonicalize = false, bool $ignoreCase = false, array &$processed = []): void
     {
         if (!$expected instanceof Number) {
-            assert(is_string($expected) || is_int($expected));
+            assert(is_int($expected) || is_string($expected) && is_numeric($expected));
 
             $expected = new Number($expected);
         }
 
         if (!$actual instanceof Number) {
-            assert(is_string($actual) || is_int($actual));
+            assert(is_int($actual) || is_string($actual) && is_numeric($actual));
 
             $actual = new Number($actual);
         }
 
+        /** @phpstan-ignore argument.type */
         $deltaNumber = new Number(number_format($delta, max($expected->scale, $actual->scale)));
 
         if ($actual < $expected - $deltaNumber || $actual > $expected + $deltaNumber) {
@@ -59,6 +60,7 @@ final class NumberComparator extends ObjectComparator
                 (string) $expected,
                 (string) $actual,
                 'Failed asserting that two Number objects are equal.',
+                $this->contextLines(),
             );
         }
     }

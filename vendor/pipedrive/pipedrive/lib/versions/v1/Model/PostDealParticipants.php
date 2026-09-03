@@ -2,7 +2,7 @@
 /**
  * PostDealParticipants
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -67,7 +67,7 @@ class PostDealParticipants implements ModelInterface, ArrayAccess, JsonSerializa
       */
     protected static array $openAPITypes = [
         'success' => 'bool',
-        'data' => 'PersonItem',
+        'data' => '\Pipedrive\versions\v1\Model\DealParticipantItem',
         'related_objects' => '\Pipedrive\versions\v1\Model\PostDealParticipantsRelatedObjects'
     ];
 
@@ -207,7 +207,7 @@ class PostDealParticipants implements ModelInterface, ArrayAccess, JsonSerializa
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['success'] = $data['success'] ?? null;
         $this->container['data'] = $data['data'] ?? null;
@@ -267,7 +267,7 @@ class PostDealParticipants implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Gets data
      *
-     * @return PersonItem|null
+     * @return \Pipedrive\versions\v1\Model\DealParticipantItem|null
      */
     public function getData()
     {
@@ -277,7 +277,7 @@ class PostDealParticipants implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Sets data
      *
-     * @param PersonItem|null $data The object of participant
+     * @param \Pipedrive\versions\v1\Model\DealParticipantItem|null $data data
      *
      * @return self
      */

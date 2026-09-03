@@ -1,0 +1,600 @@
+<template>
+  <div>
+    <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
+    <div v-else>
+      <div class="row">
+        <div class="col-lg-4 col-6 d-flex">
+          <div class="small-box text-bg-info flex-fill d-flex flex-column">
+            <div class="inner flex-grow-1">
+              <h4>{{ __('message.total_sales') }}</h4>
+              <template v-for="(amount, currency) in data.totalSales" :key="currency">
+                <span>{{ currency }}: &nbsp; {{ formatCurrency(amount, currency) }}</span><br/>
+              </template>
+            </div>
+            <div class="small-box-icon"><i class="ion ion-bag"></i></div>
+            <router-link to="/invoices?status=success" class="small-box-footer">{{ __('message.more_info') }} <i class="fas fa-arrow-circle-right"></i></router-link>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-6 d-flex">
+          <div class="small-box text-bg-success flex-fill d-flex flex-column">
+            <div class="inner flex-grow-1">
+              <h4>{{ __('message.yearly_sales') }}</h4>
+              <template v-for="(amount, currency) in data.yearlySales" :key="currency">
+                <span>{{ currency }}: &nbsp; {{ formatCurrency(amount, currency) }}</span><br/>
+              </template>
+            </div>
+            <div class="small-box-icon"><i class="ion ion-stats-bars"></i></div>
+            <router-link :to="`/invoices?status=success&from_date=${startingDateOfYear}&to_date=${today}`" class="small-box-footer">{{ __('message.more_info') }} <i class="fas fa-arrow-circle-right"></i></router-link>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-6 d-flex">
+          <div class="small-box text-bg-warning flex-fill d-flex flex-column">
+            <div class="inner flex-grow-1">
+              <h4>{{ __('message.monthly_sales') }}</h4>
+              <template v-for="(amount, currency) in data.monthlySales" :key="currency">
+                <span>{{ currency }}: &nbsp; {{ formatCurrency(amount, currency) }}</span><br/>
+              </template>
+            </div>
+            <div class="small-box-icon"><i class="ion ion-pie-graph"></i></div>
+            <router-link :to="`/invoices?status=success&from_date=${startMonthDate}&to_date=${endMonthDate}`" class="small-box-footer">{{ __('message.more_info') }} <i class="fas fa-arrow-circle-right"></i></router-link>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-6 d-flex">
+          <div class="small-box text-bg-danger flex-fill d-flex flex-column">
+            <div class="inner flex-grow-1">
+              <h4>{{ __('message.pending_payments') }}</h4>
+              <template v-for="(amount, currency) in data.pendingPayments" :key="currency">
+                <span>{{ currency }}: &nbsp; {{ formatCurrency(amount, currency) }}</span><br/>
+              </template>
+            </div>
+            <div class="small-box-icon"><i class="ion ion-ios-pricetag-outline"></i></div>
+            <router-link to="/invoices?status=pending" class="small-box-footer">{{ __('message.more_info') }} <i class="fas fa-arrow-circle-right"></i></router-link>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-6 d-flex">
+          <div class="small-box text-bg-warning flex-fill d-flex flex-column">
+            <div class="inner flex-grow-1">
+              <h4>{{ __('message.products_installed_rate') }}&nbsp;{{ formatRate(data.productInstalledRate?.rate) }}%</h4>
+              <span>{{ __('message.total_subscription') }} &nbsp; {{ data.productInstalledRate?.total_subscription || 0 }}</span><br/>
+              <span>{{ __('message.not_installed') }} &nbsp; {{ data.productInstalledRate?.inactive_subscription || 0 }}</span>
+            </div>
+            <div class="small-box-icon"><i class="ion ion-ios-download-outline"></i></div>
+            <router-link to="/orders?act_ins=not_installed" class="small-box-footer">{{ __('message.more_info') }} <i class="fas fa-arrow-circle-right"></i></router-link>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-6 d-flex">
+          <div class="small-box text-bg-info flex-fill d-flex flex-column">
+            <div class="inner flex-grow-1">
+              <h4>{{ __('message.paid_orders_rate') }}&nbsp;{{ formatRate(data.paidOrderRate?.rate) }}%</h4>
+              <span>{{ __('message.total_orders_rate') }} &nbsp; {{ data.paidOrderRate?.all_orders || 0 }}</span><br/>
+              <span>{{ __('message.paid_orders') }} &nbsp; {{ data.paidOrderRate?.paid_orders || 0 }}</span>
+            </div>
+            <div class="small-box-icon"><i class="ion ion-ios-cart-outline"></i></div>
+            <router-link to="/orders?product_id=unpaid" class="small-box-footer">{{ __('message.more_info') }} <i class="fas fa-arrow-circle-right"></i></router-link>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-header border-bottom bg-light">
+              <h3 class="card-title mb-0 fw-semibold">{{ __('message.recently_register_users') }}</h3>
+              <div class="card-tools">
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-download"></i>
+                </a>
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-list"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body direct-chat-messages p-0">
+              <ul class="users-list clearfix">
+                <li v-for="user in data.clientWithMobileAndEmailActivation" :key="user.id">
+                  <router-link :to="`/users/${user.id}`" class="text-decoration-none d-flex align-items-center flex-grow-1 min-w-0">
+                    <img v-if="user.profile_pic" loading="lazy" :src="user.profile_pic" class="users-list-avatar" alt="User Image">
+                    <span v-else class="users-list-avatar users-list-initials" :style="{ background: avatarColor(user) }">{{ userInitials(user) }}</span>
+                    <span class="users-list-name text-truncate">{{ user.first_name }} {{ user.last_name }}</span>
+                  </router-link>
+                  <span class="users-list-date">{{ formatDateForUser(user.created_at) }}</span>
+                </li>
+              </ul>
+            </div>
+            <div class="card-footer clearfix">
+              <router-link :to="registeredUsersViewAllUrl" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-header border-bottom bg-light">
+              <h3 class="card-title mb-0 fw-semibold">{{ __('message.recent_invoice') }}</h3>
+              <div class="card-tools">
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-download"></i>
+                </a>
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-list"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body table-responsive direct-chat-messages p-0">
+              <table class="table table-striped table-valign-middle">
+                <thead class="table-light">
+                <tr>
+                  <th>{{ __('message.invoice_no') }}</th>
+                  <th>{{ __('message.total') }}</th>
+                  <th>{{ __('message.user') }}</th>
+                  <th>{{ __('message.date') }}</th>
+                  <th>{{ __('message.paid') }}</th>
+                  <th>{{ __('message.balance') }}</th>
+                  <th>{{ __('message.status') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="invoice in data.recentInvoices" :key="invoice.id">
+                  <td><router-link :to="`/invoices/show?invoiceid=${invoice.id}`" class="text-decoration-none">{{ invoice.number }}</router-link></td>
+                  <td>{{ invoice.grand_total }}</td>
+                  <td>
+                    <router-link v-if="invoice.user" :to="`/users/${invoice.user.id}`" class="text-decoration-none">
+                      {{ invoice.user.first_name }} {{ invoice.user.last_name }}
+                    </router-link>
+                  </td>
+                  <td>{{ formatDate(invoice.date) }}</td>
+                  <td>{{ invoice.paid_amount }}</td>
+                  <td><div class="sparkbar" data-color="#00a65a" data-height="20">{{ invoice.balance }}</div></td>
+                  <td><span v-html="invoice.status"></span></td> <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card-footer clearfix">
+              <router-link :to="`/invoices?from_date=${thirtyDaysAgo}&to_date=${yesterday}`" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-header border-bottom bg-light">
+              <h3 class="card-title mb-0 fw-semibold">{{ __('message.paid_orders_expired') }}</h3>
+              <div class="card-tools">
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-download"></i>
+                </a>
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-list"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body table-responsive direct-chat-messages p-0">
+              <table class="table table-striped table-valign-middle">
+                <thead class="table-light">
+                <tr>
+                  <th>{{ __('message.user') }}</th>
+                  <th>{{ __('message.order_no') }}</th>
+                  <th>{{ __('message.expiry') }}</th>
+                  <th>{{ __('message.days_passed') }}</th>
+                  <th>{{ __('message.product') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="sub in data.expiredOrders" :key="sub.id">
+                  <td>
+                    <router-link v-if="sub.user" :to="`/users/${sub.user.id}`" class="text-decoration-none">
+                      {{ sub.user.first_name }} {{ sub.user.last_name }}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-if="sub.order" :to="`/orders/${sub.order.id}`" class="text-decoration-none">
+                      {{ sub.order.number }}
+                    </router-link>
+                  </td>
+                  <td class="text-danger">{{ formatDate(sub.update_ends_at) }}</td>
+                  <td>{{ sub.days_expired }} {{ __('message.days') }}</td>
+                  <td>
+                    <router-link v-if="sub.product" :to="`/products/${sub.product.id}/edit`" class="text-decoration-none">{{ sub.product.name }}</router-link>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card-footer clearfix">
+              <router-link to="/orders?renewal=expired_subscription" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-header border-bottom bg-light">
+              <h3 class="card-title mb-0 fw-semibold">{{ __('message.paid_next_orders_expired') }}</h3>
+              <div class="card-tools">
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-download"></i>
+                </a>
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-list"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body table-responsive direct-chat-messages p-0">
+              <table class="table table-striped table-valign-middle">
+                <thead class="table-light">
+                <tr>
+                  <th>{{ __('message.user') }}</th>
+                  <th>{{ __('message.order_no') }}</th>
+                  <th>{{ __('message.expiry') }}</th>
+                  <th>{{ __('message.days_left') }}</th>
+                  <th>{{ __('message.product') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="sub in data.expiringOrders" :key="sub.id">
+                  <td>
+                    <router-link v-if="sub.user" :to="`/users/${sub.user.id}`" class="text-decoration-none">
+                      {{ sub.user.first_name }} {{ sub.user.last_name }}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-if="sub.order" :to="`/orders/${sub.order.id}`" class="text-decoration-none">
+                      {{ sub.order.number }}
+                    </router-link>
+                  </td>
+                  <td>{{ formatDate(sub.update_ends_at) }}</td>
+                  <td>{{ sub.days_to_expire }} {{ __('message.days') }}</td>
+                  <td>
+                    <router-link v-if="sub.product" :to="`/products/${sub.product.id}/edit`" class="text-decoration-none">{{ sub.product.name }}</router-link>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card-footer clearfix">
+              <router-link to="/orders?renewal=expiring_subscription" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-header border-bottom bg-light">
+              <h3 class="card-title mb-0 fw-semibold">{{ __('message.clients_outdated_version') }}</h3>
+              <div class="card-tools">
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-download"></i>
+                </a>
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-list"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body table-responsive direct-chat-messages p-0">
+              <table class="table table-striped table-valign-middle">
+                <thead class="table-light">
+                <tr>
+                  <th>{{ __('message.user') }}</th>
+                  <th>{{ __('message.version') }}</th>
+                  <th>{{ __('message.product') }}</th>
+                  <th>{{ __('message.expiry') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="sub in data.clientWithOutdatedProducts" :key="sub.id">
+                  <td>
+                    <router-link v-if="sub.user" :to="`/users/${sub.user.id}`" class="text-decoration-none">{{ sub.user.first_name }} {{ sub.user.last_name }}</router-link>
+                  </td>
+                  <td>
+                    <span class="fw-semibold text-body-secondary">{{ sub.version }}</span>
+                  </td>
+                  <td>
+                    <router-link v-if="sub.product" :to="`/products/${sub.product.id}/edit`" class="text-decoration-none">{{ sub.product.name }}</router-link>
+                  </td>
+                  <td>
+                    <span :class="{ 'text-danger': isExpired(sub.update_ends_at) }">{{ formatDate(sub.update_ends_at) }}</span>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card-footer clearfix">
+              <router-link to="/orders" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-header border-bottom bg-light">
+              <h3 class="card-title mb-0 fw-semibold">{{ __('message.recent_paid_orders') }}</h3>
+              <div class="card-tools">
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-download"></i>
+                </a>
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-list"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body table-responsive direct-chat-messages p-0">
+              <table class="table table-striped table-valign-middle">
+                <thead class="table-light">
+                <tr>
+                  <th>{{ __('message.order_no') }}</th>
+                  <th>{{ __('message.product') }}</th>
+                  <th>{{ __('message.date') }}</th>
+                  <th>{{ __('message.user') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="order in data.recentPaidOrders" :key="order.id">
+                  <td><router-link :to="`/orders/${order.id}`" class="text-decoration-none">{{ order.number }}</router-link></td>
+                  <td>
+                    <router-link v-if="order.product_relation" :to="`/products/${order.product_relation.id}/edit`" class="text-decoration-none">{{ order.product_relation.name }}</router-link>
+                  </td>
+                  <td>{{ formatDate(order.created_at) }}</td>
+                  <td>
+                    <router-link v-if="order.user" :to="`/users/${order.user.id}`" class="text-decoration-none">
+                      {{ order.user.first_name }} {{ order.user.last_name }}
+                    </router-link>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card-footer clearfix">
+              <router-link :to="`/orders?product_id=paid&from=${thirtyDaysAgo}&till=${yesterday}`" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-header border-bottom bg-light">
+              <h3 class="card-title mb-0 fw-semibold">{{ __('message.product_sold') }}</h3>
+              <div class="card-tools">
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-download"></i>
+                </a>
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-list"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body table-responsive direct-chat-messages p-0">
+              <table class="table table-striped align-middle" role="table">
+                <thead class="table-light">
+                <tr>
+                  <th scope="col">{{ __('message.product') }}</th>
+                  <th scope="col">{{ __('message.sales') }}</th>
+                  <th scope="col">{{ __('message.last_purchase') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="product in data.productSoldInLast30Days" :key="product.id">
+                  <td>
+                    <img loading="lazy" :src="product.image" alt="Product Image" class="rounded-circle img-size-32 me-2">
+                    <router-link :to="`/products/${product.id}/edit`" class="text-decoration-none">{{ product.name }}</router-link>
+                  </td>
+                  <td>
+                    {{ product.order_count }} {{ __('message.sold') || 'Sold' }}
+                  </td>
+                  <td>
+                    <span>{{ formatDate(product.latest_order_created_at) }}</span>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card-footer clearfix">
+              <router-link :to="`/orders?from=${thirtyDaysAgo}&till=${yesterday}`" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-header border-bottom bg-light">
+              <h3 class="card-title mb-0 fw-semibold">{{ __('message.total_sold_products') }}</h3>
+              <div class="card-tools">
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-download"></i>
+                </a>
+                <a href="javascript:void(0)" class="btn btn-tool btn-sm">
+                  <i class="bi bi-list"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body table-responsive direct-chat-messages p-0">
+              <table class="table table-striped align-middle" role="table">
+                <thead class="table-light">
+                <tr>
+                  <th scope="col">{{ __('message.product') }}</th>
+                  <th scope="col">{{ __('message.sales') }}</th>
+                  <th scope="col">{{ __('message.last_purchase') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="product in data.totalProductsSold" :key="product.id">
+                  <td>
+                    <img loading="lazy" :src="product.image" alt="Product Image" class="rounded-circle img-size-32 me-2">
+                    <router-link :to="`/products/${product.id}/edit`" class="text-decoration-none">{{ product.name }}</router-link>
+                  </td>
+                  <td>
+                    {{ product.order_count }} {{ __('message.sold') || 'Sold' }}
+                  </td>
+                  <td>
+                    <span>{{ formatDate(product.latest_order_created_at) }}</span>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card-footer clearfix">
+              <router-link to="/products" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import http from '@/plugins/axios'
+import { __ } from '@/plugins/i18n'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDate: dtFormatDate, formatCustom, now } = useDateTime()
+
+const loading = ref(true)
+const data = ref({
+  totalSales: {},
+  yearlySales: {},
+  monthlySales: {},
+  pendingPayments: {},
+  productInstalledRate: {},
+  paidOrderRate: {},
+  clientWithMobileAndEmailActivation: [],
+  recentInvoices: [],
+  expiredOrders: [],
+  expiringOrders: [],
+  clientWithOutdatedProducts: [],
+  recentPaidOrders: [],
+  productSoldInLast30Days: [],
+  totalProductsSold: []
+})
+
+const n = now()
+const startingDateOfYear = ref(n.startOf('year').toFormat('yyyy-MM-dd'))
+const startMonthDate = ref(n.startOf('month').toFormat('yyyy-MM-dd'))
+const endMonthDate = ref(n.endOf('month').toFormat('yyyy-MM-dd'))
+const today = n.toFormat('yyyy-MM-dd')
+const thirtyDaysAgo = n.minus({ days: 30 }).toFormat('yyyy-MM-dd')
+const yesterday = n.minus({ days: 1 }).toFormat('yyyy-MM-dd')
+
+// Built here rather than inline in the template: a literal "&reg_from"
+// inside a template attribute gets HTML-entity-decoded at compile time
+// ("&reg" without a ";" is the legacy ® entity, and "_" isn't alphanumeric
+// so the attribute exception doesn't block it) into "®_from", breaking
+// the query string. Plain JS in <script> isn't parsed as HTML, so it's safe here.
+const registeredUsersViewAllUrl = `/users?mobile_verified=1&email_verified=1&reg_from=${thirtyDaysAgo}&reg_till=${yesterday}`
+
+onMounted(async () => {
+  try {
+    const response = await http.get('/dashboard')
+    data.value = response.data
+  } catch (error) {
+    console.error('Failed to fetch dashboard data', error)
+  } finally {
+    loading.value = false
+  }
+})
+
+const formatCurrency = (amount, currency) => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency }).format(amount)
+}
+
+const formatRate = (rate) => {
+  return Number(rate || 0).toFixed(2)
+}
+
+const formatDateForUser = (dateStr) => {
+  if (!dateStr) return ''
+  const dateKey     = formatCustom(dateStr, 'yyyy-MM-dd')
+  const todayKey     = now().toFormat('yyyy-MM-dd')
+  const yesterdayKey = now().minus({ days: 1 }).toFormat('yyyy-MM-dd')
+
+  if (dateKey === todayKey) {
+    return __('message.today') || 'Today'
+  } else if (dateKey === yesterdayKey) {
+    return __('message.yesterday') || 'Yesterday'
+  }
+  return formatCustom(dateStr, 'MMM d')
+}
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  return dtFormatDate(dateStr)
+}
+
+const isExpired = (dateStr) => {
+  if (!dateStr) return false
+  return new Date(dateStr) < new Date()
+}
+
+const avatarPalette = ['#2f9e44', '#343a40', '#c77c02', '#3b82c4', '#495057', '#7048e8', '#e8590c', '#0c8599']
+const userInitials = (user) => {
+  return ((user.first_name?.[0] ?? '') + (user.last_name?.[0] ?? '')).toUpperCase() || '?'
+}
+const avatarColor = (user) => {
+  const name = `${user.first_name ?? ''}${user.last_name ?? ''}`
+  let hash = 0
+  for (const c of name) hash = c.charCodeAt(0) + ((hash << 5) - hash)
+  return avatarPalette[Math.abs(hash) % avatarPalette.length]
+}
+</script>
+
+<style scoped>
+.small-box-footer {
+  color: rgba(255, 255, 255, 0.8);
+}
+.small-box-footer:hover {
+  color: #fff;
+}
+
+.users-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.users-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .75rem 1.25rem;
+  border-bottom: 1px solid var(--bs-border-color, #eee);
+}
+.users-list li:last-child {
+  border-bottom: none;
+}
+.users-list-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+.users-list-initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 600;
+  font-size: .8rem;
+}
+.users-list-name {
+  margin-left: .75rem;
+  font-weight: 600;
+  color: #212529;
+}
+.users-list-date {
+  color: #6c757d;
+  white-space: nowrap;
+}
+</style>

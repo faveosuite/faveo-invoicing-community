@@ -2,7 +2,7 @@
 /**
  * BaseDealProductAllOf3
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -66,7 +66,7 @@ class BaseDealProductAllOf3 implements ModelInterface, ArrayAccess, JsonSerializ
       * @phpsalm-var array<string, string>
       */
     protected static array $openAPITypes = [
-        'billing_start_date' => 'string'
+        'billing_start_date' => '\DateTime'
     ];
 
     /**
@@ -77,7 +77,7 @@ class BaseDealProductAllOf3 implements ModelInterface, ArrayAccess, JsonSerializ
       * @psalm-var array<string, string|null>
       */
     protected static $openAPIFormats = [
-        'billing_start_date' => 'YYYY-MM-DD'
+        'billing_start_date' => 'date'
     ];
 
     /**
@@ -197,7 +197,7 @@ class BaseDealProductAllOf3 implements ModelInterface, ArrayAccess, JsonSerializ
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['billing_start_date'] = $data['billing_start_date'] ?? null;
     }
@@ -231,7 +231,7 @@ class BaseDealProductAllOf3 implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Gets billing_start_date
      *
-     * @return string|null
+     * @return \DateTime|null
      */
     public function getBillingStartDate()
     {
@@ -241,7 +241,7 @@ class BaseDealProductAllOf3 implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Sets billing_start_date
      *
-     * @param string|null $billing_start_date Only available in Growth and above plans  The billing start date. Must be between 10 years in the past and 10 years in the future
+     * @param \DateTime|null $billing_start_date Only available in Growth and above plans  The billing start date. Must be between 10 years in the past and 10 years in the future
      *
      * @return self
      */

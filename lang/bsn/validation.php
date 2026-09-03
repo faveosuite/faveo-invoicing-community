@@ -165,7 +165,7 @@ return [
     'total_amount_numeric' => 'Ukupan iznos mora biti numerička vrijednost',
     'invoice_link_required' => 'Molimo povežite iznos sa barem jednom fakturom',
 
-    //common
+    // common
     'settings_form' => [
         'company' => [
             'required' => 'Polje za naziv kompanije je obavezno.',
@@ -262,7 +262,7 @@ return [
             'regex' => 'Format linka je nevalidan.',
         ],
     ],
-    //Email
+    // Email
     'custom' => [
         'password' => [
             'required_if' => 'Polje za lozinku je obavezno za odabrani mail drajver.',
@@ -449,7 +449,7 @@ return [
         ],
     ],
 
-    //Proizvod
+    // Proizvod
     'subscription_form' => [
         'name' => [
             'required' => 'Polje za naziv je obavezno.',
@@ -542,7 +542,7 @@ return [
         ],
     ],
 
-    //User
+    // User
     'users' => [
         'first_name' => [
             'required' => 'Polje za ime je obavezno.',
@@ -651,7 +651,7 @@ return [
             'required' => 'Unesite pozivni broj zemlje (mobilni).',
         ],
     ],
-    //Invoice
+    // Invoice
     'invoice' => [
         'user' => [
             'required' => 'Polje za klijente je obavezno.',
@@ -674,7 +674,7 @@ return [
         ],
     ],
 
-    //Lokalizirana licenca obrazac
+    // Lokalizirana licenca obrazac
     'domain_form' => [
         'domain' => [
             'required' => 'Polje za domenu je obavezno.',
@@ -682,7 +682,7 @@ return [
         ],
     ],
 
-    //Obrazac za obnovu proizvoda
+    // Obrazac za obnovu proizvoda
     'product_renewal' => [
         'domain' => [
             'required' => 'Polje za domenu je obavezno.',
@@ -690,13 +690,13 @@ return [
         ],
     ],
 
-    //Jezički obrazac
+    // Jezički obrazac
     'language' => [
         'required' => 'Polje za jezik je obavezno.',
         'invalid' => 'Odabrani jezik nije validan.',
     ],
 
-    //Zahtjev za ažuriranje putanje skladišta
+    // Zahtjev za ažuriranje putanje skladišta
     'storage_path' => [
         'disk' => [
             'required' => 'Polje za skladišni disk je obavezno.',
@@ -708,7 +708,7 @@ return [
         ],
     ],
 
-    //Zahtjev za validaciju tajne
+    // Zahtjev za validaciju tajne
     'validate_secret' => [
         'totp' => [
             'required' => 'Molimo unesite kod',
@@ -716,7 +716,7 @@ return [
         ],
     ],
 
-    //Verifikacija OTP-a
+    // Verifikacija OTP-a
     'verify_email' => [
         'required' => 'Polje za email je obavezno.',
         'email' => 'Email mora biti validna email adresa.',
@@ -740,7 +740,7 @@ return [
         'password' => 'Lozinka nije tačna.',
         'invalid' => 'Nevažeća lozinka.',
     ],
-    //AuthController file
+    // AuthController file
     'auth_controller' => [
         'name_required' => 'Ime je obavezno.',
         'name_max' => 'Ime ne smije biti duže od 255 karaktera.',

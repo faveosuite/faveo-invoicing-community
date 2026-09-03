@@ -1,0 +1,1 @@
+import{o as s,g as o}from"./dateTime-BRlL7CfL.js";import{_ as c}from"./AdminErrorPage-B-0vlmO4.js";const t={__name:"Forbidden",setup(r){return(e,_)=>(s(),o(c,{code:"403",color:"danger",title:e.__("message.access_denied"),description:e.__("message.access_denied_desc")},null,8,["title","description"]))}};export{t as default};

@@ -15,6 +15,7 @@ use function range;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Data\ProcessedBranchCoverageData;
 use SebastianBergmann\CodeCoverage\Data\ProcessedClassType;
+use SebastianBergmann\CodeCoverage\Data\ProcessedFunctionCoverageData;
 use SebastianBergmann\CodeCoverage\Data\ProcessedFunctionType;
 use SebastianBergmann\CodeCoverage\Data\ProcessedMethodType;
 use SebastianBergmann\CodeCoverage\Data\ProcessedPathCoverageData;
@@ -29,6 +30,8 @@ use SebastianBergmann\CodeCoverage\StaticAnalysis\Trait_;
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
  * @phpstan-import-type TestType from CodeCoverage
  * @phpstan-import-type LinesType from AnalysisResult
  */
@@ -40,13 +43,17 @@ final class File extends AbstractNode
     private string $sha1;
 
     /**
-     * @var array<int, ?list<non-empty-string>>
+     * @var array<positive-int, ?list<non-empty-string>>
      */
     private array $lineCoverageData;
+
+    /**
+     * @var array<non-empty-string, ProcessedFunctionCoverageData>
+     */
     private array $functionCoverageData;
 
     /**
-     * @var array<string, TestType>
+     * @var array<non-empty-string, TestType>
      */
     private readonly array $testData;
     private int $numExecutableLines    = 0;
@@ -71,36 +78,39 @@ final class File extends AbstractNode
      */
     private array $functions = [];
     private readonly LinesOfCode $linesOfCode;
-    private ?int $numClasses         = null;
-    private int $numTestedClasses    = 0;
-    private ?int $numTraits          = null;
-    private int $numTestedTraits     = 0;
-    private ?int $numMethods         = null;
-    private ?int $numTestedMethods   = null;
-    private ?int $numTestedFunctions = null;
+    private readonly bool $hasBranchCoverageData;
+    private ?int $numClasses        = null;
+    private int $numTestedClasses   = 0;
+    private ?int $numTraits         = null;
+    private int $numTestedTraits    = 0;
+    private ?int $numMethods        = null;
+    private ?int $numTestedMethods  = null;
+    private int $numTestedFunctions = 0;
 
     /**
-     * @var array<int, array|array{0: Class_, 1: string}|array{0: Function_|ProcessedFunctionType|ProcessedMethodType}|array{0: Trait_, 1: string}>
+     * @var array<int, array<int, ProcessedClassType|ProcessedFunctionType|ProcessedMethodType|ProcessedTraitType>>
      */
     private array $codeUnitsByLine = [];
 
     /**
-     * @param non-empty-string                    $sha1
-     * @param array<int, ?list<non-empty-string>> $lineCoverageData
-     * @param array<string, TestType>             $testData
-     * @param array<string, Class_>               $classes
-     * @param array<string, Trait_>               $traits
-     * @param array<string, Function_>            $functions
+     * @param non-empty-string                                       $sha1
+     * @param array<positive-int, ?list<non-empty-string>>           $lineCoverageData
+     * @param array<non-empty-string, ProcessedFunctionCoverageData> $functionCoverageData
+     * @param array<non-empty-string, TestType>                      $testData
+     * @param array<string, Class_>                                  $classes
+     * @param array<string, Trait_>                                  $traits
+     * @param array<string, Function_>                               $functions
      */
-    public function __construct(string $name, AbstractNode $parent, string $sha1, array $lineCoverageData, array $functionCoverageData, array $testData, array $classes, array $traits, array $functions, LinesOfCode $linesOfCode)
+    public function __construct(string $name, AbstractNode $parent, string $sha1, array $lineCoverageData, array $functionCoverageData, array $testData, array $classes, array $traits, array $functions, LinesOfCode $linesOfCode, bool $hasBranchCoverageData = false)
     {
         parent::__construct($name, $parent);
 
-        $this->sha1                 = $sha1;
-        $this->lineCoverageData     = $lineCoverageData;
-        $this->functionCoverageData = $functionCoverageData;
-        $this->testData             = $testData;
-        $this->linesOfCode          = $linesOfCode;
+        $this->sha1                  = $sha1;
+        $this->lineCoverageData      = $lineCoverageData;
+        $this->functionCoverageData  = $functionCoverageData;
+        $this->testData              = $testData;
+        $this->linesOfCode           = $linesOfCode;
+        $this->hasBranchCoverageData = $hasBranchCoverageData;
 
         $this->calculateStatistics($classes, $traits, $functions);
     }
@@ -119,20 +129,23 @@ final class File extends AbstractNode
     }
 
     /**
-     * @return array<int, ?list<non-empty-string>>
+     * @return array<positive-int, ?list<non-empty-string>>
      */
     public function lineCoverageData(): array
     {
         return $this->lineCoverageData;
     }
 
+    /**
+     * @return array<non-empty-string, ProcessedFunctionCoverageData>
+     */
     public function functionCoverageData(): array
     {
         return $this->functionCoverageData;
     }
 
     /**
-     * @return array<string, TestType>
+     * @return array<non-empty-string, TestType>
      */
     public function testData(): array
     {
@@ -196,6 +209,16 @@ final class File extends AbstractNode
     public function numberOfExecutedPaths(): int
     {
         return $this->numExecutedPaths;
+    }
+
+    public function hasBranchCoverageData(): bool
+    {
+        return $this->hasBranchCoverageData;
+    }
+
+    public function numberOfFilesWithoutBranchCoverageData(): int
+    {
+        return $this->hasBranchCoverageData ? 0 : 1;
     }
 
     public function numberOfClasses(): int
@@ -305,17 +328,6 @@ final class File extends AbstractNode
 
     public function numberOfTestedFunctions(): int
     {
-        if ($this->numTestedFunctions === null) {
-            $this->numTestedFunctions = 0;
-
-            foreach ($this->functions as $function) {
-                if ($function->executableLines > 0 &&
-                    $function->coverage === 100) {
-                    $this->numTestedFunctions++;
-                }
-            }
-        }
-
         return $this->numTestedFunctions;
     }
 
@@ -336,20 +348,16 @@ final class File extends AbstractNode
 
         foreach (range(1, $this->linesOfCode->linesOfCode()) as $lineNumber) {
             if (isset($this->lineCoverageData[$lineNumber])) {
-                foreach ($this->codeUnitsByLine[$lineNumber] as &$codeUnit) {
+                foreach ($this->codeUnitsByLine[$lineNumber] ?? [] as $codeUnit) {
                     $codeUnit->executableLines++;
                 }
-
-                unset($codeUnit);
 
                 $this->numExecutableLines++;
 
                 if (count($this->lineCoverageData[$lineNumber]) > 0) {
-                    foreach ($this->codeUnitsByLine[$lineNumber] as &$codeUnit) {
+                    foreach ($this->codeUnitsByLine[$lineNumber] ?? [] as $codeUnit) {
                         $codeUnit->executedLines++;
                     }
-
-                    unset($codeUnit);
 
                     $this->numExecutedLines++;
                 }
@@ -363,7 +371,7 @@ final class File extends AbstractNode
                 $methodPathCoverage   = $method->executablePaths > 0 ? ($method->executedPaths / $method->executablePaths) * 100 : 0;
 
                 $method->coverage = $methodBranchCoverage > 0 ? $methodBranchCoverage : $methodLineCoverage;
-                $method->crap     = (new CrapIndex($method->ccn, $methodPathCoverage > 0 ? $methodPathCoverage : $methodLineCoverage))->asString();
+                $method->crap     = new CrapIndex($method->ccn, $methodPathCoverage > 0 ? $methodPathCoverage : $methodLineCoverage)->asString();
 
                 $trait->ccn += $method->ccn;
             }
@@ -375,10 +383,10 @@ final class File extends AbstractNode
             $traitPathCoverage   = $trait->executablePaths > 0 ? ($trait->executedPaths / $trait->executablePaths) * 100 : 0;
 
             $trait->coverage = $traitBranchCoverage > 0 ? $traitBranchCoverage : $traitLineCoverage;
-            $trait->crap     = (new CrapIndex($trait->ccn, $traitPathCoverage > 0 ? $traitPathCoverage : $traitLineCoverage))->asString();
+            $trait->crap     = new CrapIndex($trait->ccn, $traitPathCoverage > 0 ? $traitPathCoverage : $traitLineCoverage)->asString();
 
             if ($trait->executableLines > 0 && $trait->coverage === 100) {
-                $this->numTestedClasses++;
+                $this->numTestedTraits++;
             }
         }
 
@@ -391,7 +399,7 @@ final class File extends AbstractNode
                 $methodPathCoverage   = $method->executablePaths > 0 ? ($method->executedPaths / $method->executablePaths) * 100 : 0;
 
                 $method->coverage = $methodBranchCoverage > 0 ? $methodBranchCoverage : $methodLineCoverage;
-                $method->crap     = (new CrapIndex($method->ccn, $methodPathCoverage > 0 ? $methodPathCoverage : $methodLineCoverage))->asString();
+                $method->crap     = new CrapIndex($method->ccn, $methodPathCoverage > 0 ? $methodPathCoverage : $methodLineCoverage)->asString();
 
                 $class->ccn += $method->ccn;
             }
@@ -403,7 +411,7 @@ final class File extends AbstractNode
             $classPathCoverage   = $class->executablePaths > 0 ? ($class->executedPaths / $class->executablePaths) * 100 : 0;
 
             $class->coverage = $classBranchCoverage > 0 ? $classBranchCoverage : $classLineCoverage;
-            $class->crap     = (new CrapIndex($class->ccn, $classPathCoverage > 0 ? $classPathCoverage : $classLineCoverage))->asString();
+            $class->crap     = new CrapIndex($class->ccn, $classPathCoverage > 0 ? $classPathCoverage : $classLineCoverage)->asString();
 
             if ($class->executableLines > 0 && $class->coverage === 100) {
                 $this->numTestedClasses++;
@@ -418,7 +426,7 @@ final class File extends AbstractNode
             $functionPathCoverage   = $function->executablePaths > 0 ? ($function->executedPaths / $function->executablePaths) * 100 : 0;
 
             $function->coverage = $functionBranchCoverage > 0 ? $functionBranchCoverage : $functionLineCoverage;
-            $function->crap     = (new CrapIndex($function->ccn, $functionPathCoverage > 0 ? $functionPathCoverage : $functionLineCoverage))->asString();
+            $function->crap     = new CrapIndex($function->ccn, $functionPathCoverage > 0 ? $functionPathCoverage : $functionLineCoverage)->asString();
 
             if ($function->coverage === 100) {
                 $this->numTestedFunctions++;

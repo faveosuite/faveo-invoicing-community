@@ -5,19 +5,17 @@ namespace App\BillingLog\Controllers;
 use App\BillingLog\Model\CronLog;
 use App\BillingLog\Model\LogCategory;
 use App\BillingLog\Model\MailLog;
-use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Throwable;
 
 class LogWriteController
 {
     /**
      * Logs the start of a cron job.
-     *
-     * @param  string  $signature
-     * @param  string  $description
-     * @return CronLog|null
      */
     public function cron(string $signature, string $description = ''): ?CronLog
     {
@@ -27,8 +25,8 @@ class LogWriteController
                 'description' => $description,
                 'status' => 'running',
             ]);
-        } catch (Throwable $e) {
-            $this->exception($e, 'cron');
+        } catch (Throwable $throwable) {
+            $this->exception($throwable, 'cron');
 
             return null;
         }
@@ -36,45 +34,42 @@ class LogWriteController
 
     /**
      * Marks a cron job as failed.
-     *
-     * @param  int  $logId
-     * @param  Exception|null  $exception
-     * @return void
      */
     public function cronFailed(int $logId, ?Exception $exception = null): void
     {
         try {
             $cronLog = CronLog::select('id', 'created_at', 'command')->find($logId);
 
-            $exceptionLog = $this->exception($exception, 'cron');
+            $exceptionLog = $exception ? $this->exception($exception, 'cron') : null;
 
-            $cronLog->update([
-                'status' => 'failed',
-                'exception_log_id' => $exceptionLog?->id,
-                'duration' => (int) Carbon::now()->diffInSeconds($cronLog->created_at, true),
-            ]);
-        } catch (Throwable $e) {
-            $this->exception($e, 'cron');
+            if ($cronLog) {
+                $cronLog->update([
+                    'status' => 'failed',
+                    'exception_log_id' => $exceptionLog?->id,
+                    'duration' => (int) Date::now()->diffInSeconds($cronLog->created_at, absolute: true),
+                ]);
+            }
+        } catch (Throwable $throwable) {
+            $this->exception($throwable, 'cron');
         }
     }
 
     /**
      * Marks a cron job as successfully completed.
-     *
-     * @param  int  $logId
-     * @return void
      */
     public function cronCompleted(int $logId): void
     {
         try {
             $cronLog = CronLog::select('id', 'created_at')->find($logId);
 
-            $cronLog->update([
-                'status' => 'completed',
-                'duration' => (int) Carbon::now()->diffInSeconds($cronLog->created_at, true),
-            ]);
-        } catch (Throwable $e) {
-            $this->exception($e, 'cron');
+            if ($cronLog) {
+                $cronLog->update([
+                    'status' => 'completed',
+                    'duration' => (int) Date::now()->diffInSeconds($cronLog->created_at, absolute: true),
+                ]);
+            }
+        } catch (Throwable $throwable) {
+            $this->exception($throwable, 'cron');
         }
     }
 
@@ -83,9 +78,8 @@ class LogWriteController
      *
      * @param  Throwable  $e  Exception or Error
      * @param  string  $category  Category to which it belongs
-     * @return void
      */
-    public function exception(Throwable $e, string $category = 'default')
+    public function exception(Throwable $e, string $category = 'default'): ?Model
     {
         try {
             $logCategory = LogCategory::firstOrCreate(['name' => $category]);
@@ -96,25 +90,18 @@ class LogWriteController
                 'line' => $e->getLine(),
                 'trace' => nl2br($e->getTraceAsString()),
             ]);
-        } catch (Throwable $fallback) {
+        } catch (Throwable) {
             // ignore exception
         }
+
+        return null;
     }
 
     /**
      * Logs mail send activity.
      *
-     * @param  string  $senderMail
-     * @param  string  $receiverMail
-     * @param  array|string  $cc
-     * @param  string  $subject
-     * @param  string  $body
-     * @param  string|int  $refereeId
-     * @param  string  $refereeType
-     * @param  string|null  $categoryName
-     * @param  string  $status
-     * @param  string  $source
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @param  array<mixed>|string  $cc
+     * @param  array<mixed>|string  $bcc
      */
     public function logMailByCategory(
         string $senderMail,
@@ -124,21 +111,21 @@ class LogWriteController
         string $subject,
         string $body,
         ?string $categoryName = null,
-    ): ?\Illuminate\Database\Eloquent\Model {
+    ): ?Model {
         try {
             $category = LogCategory::firstOrCreate(['name' => $categoryName ?? 'default']);
 
             return $category->mail()->create([
                 'sender_mail' => $senderMail,
                 'receiver_mail' => $receiverMail,
-                'carbon_copy' => ! empty($cc) ? $this->formatAddresses($cc) : null,
-                'blind_carbon_copy' => ! empty($bcc) ? $this->formatAddresses($bcc) : null,
+                'carbon_copy' => in_array($cc, ['', '0', []], strict: true) ? null : $this->formatAddresses($cc),
+                'blind_carbon_copy' => in_array($bcc, ['', '0', []], strict: true) ? null : $this->formatAddresses($bcc),
                 'subject' => $subject,
                 'body' => $body,
                 'status' => 'queued',
             ]);
-        } catch (Throwable $e) {
-            $this->exception($e, 'mail-send-exception');
+        } catch (Throwable $throwable) {
+            $this->exception($throwable, 'mail-send-exception');
 
             return null;
         }
@@ -146,9 +133,13 @@ class LogWriteController
 
     /**
      * Format addresses for database storage.
+     *
+     * @param  array<mixed>|string  $addresses
      */
-    protected function formatAddresses(array $addresses): string
+    protected function formatAddresses(array|string $addresses): string
     {
+        $addresses = is_string($addresses) ? [$addresses] : $addresses;
+
         return collect($addresses)->map(function ($address) {
             if (is_array($address) && isset($address['address'])) {
                 return isset($address['name']) && ! empty($address['name'])
@@ -163,7 +154,7 @@ class LogWriteController
     /**
      * Marks outgoing mail as sent.
      */
-    public function outgoingMailSent($logId)
+    public function outgoingMailSent(mixed $logId): void
     {
         MailLog::whereId($logId)->update(['status' => 'sent']);
     }
@@ -171,36 +162,38 @@ class LogWriteController
     /**
      * Marks outgoing mail as failed.
      */
-    public function outgoingMailFailed($logId, Exception $e)
+    public function outgoingMailFailed(mixed $logId, Exception $e): void
     {
         $mailLog = MailLog::select('id', 'exception_log_id')->find($logId);
 
-        if ($mailLog->exception_log_id) {
-            // if already exception exists for this, should be deleted so that latest exception can be captured
-            $mailLog->exception()->delete();
-        }
+        if ($mailLog instanceof MailLog) {
+            if ($mailLog->exception_log_id) {
+                // if already exception exists for this, should be deleted so that latest exception can be captured
+                $mailLog->exception()->delete();
+            }
 
-        $exception = $this->exception($e, 'cron');
-        $mailLog->update([
-            'status' => 'failed',
-            'exception_log_id' => $exception?->id,
-        ]);
+            $exception = $this->exception($e, 'cron');
+            $mailLog->update([
+                'status' => 'failed',
+                'exception_log_id' => $exception?->id,
+            ]);
+        }
     }
 
-    public function deleteLogs(Request $request)
+    public function deleteLogs(Request $request): JsonResponse
     {
         // Validation
         $validated = $request->validate([
-            'to_date' => 'nullable|date',
-            'log_types' => 'required|array|min:1',
-            'log_types.*' => 'in:cron,exception,mail,systemLogs,failed_jobs',
+            'to_date' => ['nullable', 'date'],
+            'log_types' => ['required', 'array', 'min:1'],
+            'log_types.*' => ['in:cron,exception,mail,systemLogs,failed_jobs'],
         ]);
 
         // Parse to_date with end of day
-        $toDate = $validated['to_date'] ? Carbon::parse($validated['to_date'])->endOfDay() : null;
+        $toDate = $validated['to_date'] ? Date::parse($validated['to_date'])->endOfDay() : null;
 
-        (new LogViewController())->deleteLogsByDate($validated['log_types'], $toDate);
+        new LogViewController()->deleteLogsByDate($validated['log_types'], $toDate);
 
-        return successResponse('Logs deleted successfully');
+        return successResponse(__('message.logs_deleted_successfully'));
     }
 }

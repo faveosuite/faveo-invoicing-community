@@ -1,0 +1,258 @@
+<template>
+    <div>
+        <AppAlert :componentName="COMPONENT" />
+        <div class="card card-light">
+            <div class="card-header">
+                <h4 class="card-title">{{ __('message.third_party_apps') }}</h4>
+                <div class="card-tools">
+                    <button class="btn btn-tool" v-tooltip="__('message.add_app')" @click="openCreate">
+                        <i class="fas fa-plus fw-bold"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <DataTable
+                    ref="dtRef"
+                    :url="apiUrl"
+                    :dataColumns="columns"
+                    :option="tableOptions"
+                >
+                    <template #bulk-actions>
+                        <div v-if="selected.length > 0" class="dropdown">
+                            <button
+                                class="btn btn-sm btn-secondary dropdown-toggle"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                :disabled="deleting"
+                            >
+                                <spinner-loader v-if="deleting" :size="18" />
+                                <span v-else>{{ __('message.bulk_action') }}</span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <button class="dropdown-item" @click="bulkDelete">{{ __('message.Delete') }}</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </template>
+                </DataTable>
+            </div>
+        </div>
+
+        <!-- Create Modal -->
+        <AppModal :showModal="showCreate" :onClose="closeCreate" :showCloseBtn="false">
+            <template #title>
+                <h4>{{ __('message.add_app') }}</h4>
+            </template>
+            <template #fields>
+                <TextField
+                    name="app_name"
+                    :label="__('message.app_name')"
+                    :value="form.app_name"
+                    :onChange="(val) => { setFieldError('app_name', undefined); form.app_name = val }"
+                    :placeholder="__('message.app_name')"
+                    :error="errors.app_name"
+                />
+                <TextField
+                    name="app_key"
+                    :label="__('message.app_key')"
+                    :value="form.app_key"
+                    :onChange="(val) => { setFieldError('app_key', undefined); form.app_key = val }"
+                    :placehold="__('message.app_key')"
+                    :inputGroupBtn="{ text: 'generate_key', action: generateKey }"
+                    :error="errors.app_key"
+                />
+                <TextField
+                    name="app_secret"
+                    :label="__('message.app_secret')"
+                    type="password"
+                    :value="form.app_secret"
+                    :onChange="(val) => { setFieldError('app_secret', undefined); form.app_secret = val }"
+                    :placeholder="__('message.app_secret')"
+                    :error="errors.app_secret"
+                />
+            </template>
+            <template #controls>
+                <action-button action="save" type="button" :loading="saving" @click="saveApp" />
+            </template>
+        </AppModal>
+
+        <!-- Edit Modal -->
+        <AppModal :showModal="showEdit" :onClose="closeEdit" :showCloseBtn="false">
+            <template #title>
+                <h4>{{ __('message.edit_app') }}</h4>
+            </template>
+            <template #fields>
+                <TextField
+                    name="app_name"
+                    :label="__('message.app_name')"
+                    :value="form.app_name"
+                    :onChange="(val) => { setFieldError('app_name', undefined); form.app_name = val }"
+                    :placeholder="__('message.app_name')"
+                    :error="errors.app_name"
+                />
+                <TextField
+                    name="app_key"
+                    :label="__('message.app_key')"
+                    :value="form.app_key"
+                    :onChange="(val) => { setFieldError('app_key', undefined); form.app_key = val }"
+                    :placehold="__('message.app_key')"
+                    :inputGroupBtn="{ text: 'generate_key', action: generateKey }"
+                    :error="errors.app_key"
+                />
+                <TextField
+                    name="app_secret"
+                    :label="__('message.app_secret')"
+                    :value="form.app_secret"
+                    :onChange="(val) => { setFieldError('app_secret', undefined); form.app_secret = val }"
+                    :placeholder="__('message.app_secret')"
+                    :error="errors.app_secret"
+                />
+            </template>
+            <template #controls>
+                <action-button action="save" type="button" :loading="saving" @click="saveApp" />
+            </template>
+        </AppModal>
+
+        <!-- Single Delete Modal -->
+        <DeleteModal
+            v-if="deleteId !== null"
+            :showModal="deleteId !== null"
+            :onClose="closeDelete"
+            :deleteUrl="`${baseUrl}/third-party-delete`"
+            :deleteData="{ select: [deleteId] }"
+            :componentName="COMPONENT"
+            @deleted="onDeleted"
+        />
+
+        <!-- Bulk Delete Modal -->
+        <DeleteModal
+            v-if="showBulkDelete"
+            :showModal="showBulkDelete"
+            :onClose="() => showBulkDelete = false"
+            :deleteUrl="`${baseUrl}/third-party-delete`"
+            :deleteData="{ select: selected }"
+            :componentName="COMPONENT"
+            @deleted="onBulkDeleted"
+        />
+    </div>
+</template>
+
+<script setup>
+import { h, ref, reactive } from 'vue'
+import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
+import http from '@/plugins/axios'
+import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import { thirdPartyAppSchema } from '@/validations/admin/thirdPartyValidations'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { useTableSelection } from '@/core/composables/useTableSelection'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
+
+const COMPONENT = 'third-party-apps'
+const baseUrl = useBaseUrl()
+const apiUrl = `/get-third-party-app`
+
+const dtRef    = ref(null)
+const saving   = ref(false)
+const deleting = ref(false)
+const editId   = ref(null)
+const { selected, allSelected, toggleRow, toggleAll } = useTableSelection(dtRef)
+const form = reactive({ app_name: '', app_key: '', app_secret: '' })
+
+const { errors, setErrors, setFieldError, resetForm } = useForm()
+
+const generatingKey = ref(false)
+async function generateKey() {
+    generatingKey.value = true
+    try {
+        const res = await http.get(`/get-app-key`, { responseType: 'text' })
+        form.app_key = res.data
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
+    finally { generatingKey.value = false }
+}
+
+// Create
+const showCreate = ref(false)
+function openCreate() { Object.assign(form, { app_name: '', app_key: '', app_secret: '' }); resetForm(); showCreate.value = true }
+function closeCreate() { showCreate.value = false; Object.assign(form, { app_name: '', app_key: '', app_secret: '' }) }
+
+// Edit
+const showEdit = ref(false)
+function openEdit(row) {
+    editId.value = row.id
+    Object.assign(form, { app_name: row.app_name, app_key: row.app_key, app_secret: row.app_secret })
+    resetForm()
+    showEdit.value = true
+}
+function closeEdit() { showEdit.value = false; editId.value = null; Object.assign(form, { app_name: '', app_key: '', app_secret: '' }) }
+
+// Single Delete
+const deleteId = ref(null)
+function openDelete(id) { deleteId.value = id }
+function closeDelete() { deleteId.value = null }
+function onDeleted() { closeDelete(); dtRef.value?.refresh() }
+
+// Bulk Delete
+const showBulkDelete = ref(false)
+function bulkDelete() { if (selected.value.length) showBulkDelete.value = true }
+function onBulkDeleted() { showBulkDelete.value = false; selected.value = []; dtRef.value?.refresh() }
+
+// Select all
+
+async function saveApp() {
+    if (!await validateForm(thirdPartyAppSchema, form, setErrors)) return
+    saving.value = true
+    try {
+        const res = editId.value
+            ? await http.put(`/third-party-app-update/${editId.value}`, form)
+            : await http.post(`/third-party-app-create`, form)
+        successHandler(res, COMPONENT)
+        editId.value ? closeEdit() : closeCreate()
+        dtRef.value?.refresh()
+    } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }
+    finally { saving.value = false }
+}
+
+const columns = ['select', 'app_name', 'app_key', 'app_secret', 'action']
+
+const tableOptions = reactive({
+    headings: {
+        select:     () => h('input', { type: 'checkbox', checked: allSelected.value, onChange: toggleAll }),
+        app_name:   __('message.app_name'),
+        app_key:    __('message.app_key'),
+        app_secret: __('message.app_secret'),
+        action:     __('message.action'),
+    },
+    columnsClasses: {
+        select: 'dt-select',
+        app_name: 'dt-name',
+        app_key: 'dt-text',
+        app_secret: 'dt-text',
+        action: 'dt-action',
+    },
+    templates: {
+        select:     (f, row) => h('input', { type: 'checkbox', checked: selected.value.includes(row.id), onChange: () => toggleRow(row.id) }),
+        app_name:   (f, row) => row.app_name   || '—',
+        app_key:    (f, row) => row.app_key    || '—',
+        app_secret: (f, row) => row.app_secret || '—',
+        action:     (f, row) => h('div', { class: 'd-flex gap-1' }, [
+            h('button', { class: 'btn btn-light table_btn', title: __('message.edit'),   onClick: () => openEdit(row)    }, [h('i', { class: 'fas fa-edit'  })]),
+            h('button', { class: 'btn btn-light table_btn', title: __('message.Delete'), onClick: () => openDelete(row.id) }, [h('i', { class: 'fas fa-trash' })]),
+        ]),
+    },
+    sortable: ['app_name'],
+    filterable: true,
+    requestAdapter: makeRequestAdapter('created_at'),
+    responseAdapter({ data }) {
+        const res = data?.data?.third_party_apps
+        return {
+            data:  res?.data  ?? [],
+            count: res?.total ?? 0,
+        }
+    },
+    orderBy: { column: 'created_at', ascending: false },
+})
+</script>

@@ -17,7 +17,7 @@ class DatabaseSetupController extends Controller
         $username = Session::get('username');
         $password = Session::get('password');
         $databasename = Session::get('databasename');
-        $dummy_install = Session::get('dummy_data_installation');
+        Session::get('dummy_data_installation');
         $port = Session::get('port');
         $sslKey = Session::get('db_ssl_key');
         $sslCert = Session::get('db_ssl_cert');
@@ -35,9 +35,6 @@ class DatabaseSetupController extends Controller
         define('DB_SSL_VERIFY_PEER_CERT', $sslVerify);
         define('PROBE_VERSION', '4.2');
         define('PROBE_FOR', 'HELPDESK 1.0 and Newer');
-        define('STATUS_OK', 'Ok');
-        define('STATUS_WARNING', 'Warning');
-        define('STATUS_ERROR', 'Error');
     }
 
     /**
@@ -70,11 +67,7 @@ class DatabaseSetupController extends Controller
          * @link https://mariadb.com/kb/en/library/mariadb-vs-mysql-compatibility/
          * @link https://en.wikipedia.org/wiki/MariaDB
          */
-        if ($version >= 100300) {
-            return true;
-        }
-
-        return false;
+        return $version >= 100300;
     }
 
     /**
@@ -83,36 +76,35 @@ class DatabaseSetupController extends Controller
      * - Checks if database version is compatible
      * - Checks if given database is empty or not.
      *
-     * @param  array  $results  variable linked for errors or success messages
+     * @param  array<mixed>  $results  variable linked for errors or success messages
      * @param  bool  $mysqli_ok  variable linked for mysql status
-     * @param  object  $connection
-     * @return void
      *
      * @author Manish Verma <manish.verma@ladybirdweb.com>
      */
-    private function checkDBPrerequisites(array &$results, bool &$mysqli_ok, object $connection): void
+    /** @param array<mixed> &$results */
+    private function checkDBPrerequisites(array &$results, bool &$mysqli_ok, \mysqli $connection): void
     {
         if (mysqli_select_db($connection, DB_NAME)) {
-            $results[] = new TestResult(\Lang::get('installer_messages.database').' '.DB_NAME.' '.\Lang::get('installer_messages.selected'), STATUS_OK);
+            $results[] = new TestResult(__('installer_messages.database').' '.DB_NAME.' '.__('installer_messages.selected'), TestResult::STATUS_OK);
             $mysqli_version = mysqli_get_server_info($connection);
             $dbVersion = mysqli_get_server_version($connection);
             if ($this->compareMySqlAndMariDB($dbVersion)) {
-                $results[] = new TestResult(\Lang::get('installer_messages.mysql_version_is').' '.$mysqli_version, STATUS_OK);
+                $results[] = new TestResult(__('installer_messages.mysql_version_is').' '.$mysqli_version, TestResult::STATUS_OK);
                 $sql = 'SHOW TABLES FROM '.DB_NAME;
                 $res = mysqli_query($connection, $sql);
-                if (mysqli_fetch_array($res) === null) {
-                    $results[] = new TestResult(\Lang::get('installer_messages.database_empty'));
+                if ($res instanceof \mysqli_result && mysqli_fetch_array($res) === null) {
+                    $results[] = new TestResult(__('installer_messages.database_empty'));
                     $mysqli_ok = true;
                 } else {
-                    $results[] = new TestResult(\Lang::get('installer_messages.database_not_empty'), STATUS_ERROR);
+                    $results[] = new TestResult(__('installer_messages.database_not_empty'), TestResult::STATUS_ERROR);
                     $mysqli_ok = false;
                 }
             } else {
-                $results[] = new TestResult(\Lang::get('installer_messages.mysql_version_is').' '.$mysqli_version.' '.\Lang::get('installer_messages.mysql_version_required'), STATUS_ERROR);
+                $results[] = new TestResult(__('installer_messages.mysql_version_is').' '.$mysqli_version.' '.__('installer_messages.mysql_version_required'), TestResult::STATUS_ERROR);
                 $mysqli_ok = false;
             }
         } else {
-            echo '<br><br><p id="fail">'.\Lang::get('installer_messages.database_connection_unsuccessful').' '.mysqli_connect_error().'</p>';
+            echo '<br><br><p id="fail">'.__('installer_messages.database_connection_unsuccessful').' '.mysqli_connect_error().'</p>';
             $mysqli_ok = false;
         }
     }
@@ -122,9 +114,9 @@ class DatabaseSetupController extends Controller
      *
      * @param  string  $dbUsername  mysql username
      * @param  string  $dbPassword  mysql password
-     * @return null
+     * @param  array<mixed>  $customOptions
      */
-    private function setupConfig($host, $dbUsername, $dbPassword, $port = '', $customOptions = [], $dbengine = '')
+    private function setupConfig(mixed $host, $dbUsername, $dbPassword, mixed $port = '', array $customOptions = [], mixed $dbengine = ''): void
     {
         $options = array_merge([null, null, null, false], $customOptions);
         Config::set('app.env', 'development');
@@ -147,62 +139,66 @@ class DatabaseSetupController extends Controller
     /**
      * Method attempts database connection after setting connection configurations and
      * returns mysqli connection object.
-     *
-     * @return object connection object
      */
-    private function getDBConnection()
+    private function getDBConnection(): false|\mysqli
     {
         try {
             $connection = mysqli_init();
-            mysqli_ssl_set($connection, DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, null, null);
+            if ($connection === false) {
+                return false;
+            }
+            mysqli_ssl_set($connection, DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, ca_path: null, cipher_algos: null);
             if (DB_PORT != '' && is_numeric(DB_PORT)) {
                 $this->setupConfig(DB_HOST, DB_USER, DB_PASS, DB_PORT, [DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, DB_SSL_VERIFY_PEER_CERT]);
-                if (! mysqli_real_connect($connection, DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT)) {
+                if (! mysqli_real_connect($connection, DB_HOST, DB_USER, DB_PASS, DB_NAME, (int) DB_PORT)) {
                     return false;
                 }
 
                 return $connection;
             }
+
             $this->setupConfig(DB_HOST, DB_USER, DB_PASS, '', [DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, DB_SSL_VERIFY_PEER_CERT]);
             if (! mysqli_real_connect($connection, DB_HOST, DB_USER, DB_PASS, DB_NAME)) {
                 return false;
             }
 
             return $connection;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
 
-    public function testResult()
+    /**
+     * @return array<mixed>
+     */
+    public function testResult(): array
     {
+        $mysqli_ok = true;
+        $results = [];
         if (DB_HOST && DB_USER && DB_NAME) {
-            $mysqli_ok = true;
-            $results = [];
-            // error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE | E_ALL);
             error_reporting(0);
             try {
                 if (DB_DEFAULT == 'mysql') {
-                    $connection = $this->getDBConnection(); //first attempt assuming db exists
+                    $connection = $this->getDBConnection(); // first attempt assuming db exists
                     if (! $connection) {
                         /**
                          * if connection is not successful that may be because database does not exist so we will
                          * try to create one and reconnect.
                          */
                         createDB(DB_NAME);
-                        $connection = $this->getDBConnection(); //second attempt after db creation
+                        $connection = $this->getDBConnection(); // second attempt after db creation
                     }
 
                     if ($connection) {
-                        $results[] = new TestResult(\Lang::get('installer_messages.connected_as').' '.DB_USER.'@'.DB_HOST.DB_PORT, STATUS_OK);
+                        $results[] = new TestResult(__('installer_messages.connected_as').' '.DB_USER.'@'.DB_HOST.DB_PORT, TestResult::STATUS_OK);
                         $this->checkDBPrerequisites($results, $mysqli_ok, $connection);
                     } else {
                         $mysqli_ok = false;
-                        $results[] = new TestResult(\Lang::get('installer_messages.failed_connection').' '.mysqli_connect_error(), STATUS_ERROR);
+                        $results[] = new TestResult(__('installer_messages.failed_connection').' '.mysqli_connect_error(), TestResult::STATUS_ERROR);
                     }
                 }
             } catch (Exception $e) {
-                $results[] = new TestResult(\Lang::get('installer_messages.failed_connection').' '.$e->getMessage(), STATUS_ERROR);
+                $results[] = new TestResult(__('installer_messages.failed_connection').' '.$e->getMessage(), TestResult::STATUS_ERROR);
                 $mysqli_ok = false;
             }
         }
@@ -210,14 +206,14 @@ class DatabaseSetupController extends Controller
         return ['results' => $results, 'mysqli_ok' => $mysqli_ok];
     }
 }
+
 class TestResult
 {
-    public $message;
-    public $status;
+    const STATUS_OK = 'Ok';
+    const STATUS_WARNING = 'Warning';
+    const STATUS_ERROR = 'Error';
 
-    public function __construct($message, $status = STATUS_OK)
+    public function __construct(public mixed $message, public mixed $status = self::STATUS_OK)
     {
-        $this->message = $message;
-        $this->status = $status;
     }
 }

@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasColumn('currencies', 'status')) {
-            Schema::table('currencies', function (Blueprint $table) {
+            Schema::table('currencies', function (Blueprint $table): void {
                 $table->boolean('status')->nullable();
             });
         }
@@ -22,12 +20,10 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('currencies', function (Blueprint $table) {
+        Schema::table('currencies', function (Blueprint $table): void {
             $table->dropColumn('status');
         });
     }

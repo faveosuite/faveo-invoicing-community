@@ -1,0 +1,150 @@
+<?php
+$set = \App\Model\Common\Setting::findOrFail(1);
+$rtl = isRtlForLang();
+$cloudBtn = \App\Model\Common\StatusSetting::where('id', 1)->value('cloud_button');
+$demoPage = App\Demo_page::first();
+
+$cartCount = resolve(\App\Http\Controllers\Front\Cart\CartService::class)->resolveCart(request())->itemCount();
+
+$social = App\Model\Common\SocialMedia::get(['name', 'link']);
+
+$widgets = \App\Model\Front\Widgets::where('publish', 1)->get(['id', 'name', 'type', 'content', 'allow_mailchimp', 'allow_social_media', 'allow_tweets']);
+$chatScripts = \App\Model\Common\ChatScript::get(['id', 'script', 'google_analytics', 'google_analytics_tag', 'on_registration', 'on_every_page']);
+
+$languageList = array_map('basename', \Illuminate\Support\Facades\File::directories(lang_path()));
+$dbLanguages = \App\Model\Common\Language::all()->keyBy('locale');
+$languages = collect($languageList)->map(function (string $locale, $key) use ($dbLanguages): array {
+    $config = config('languages.' . $locale, ['', '']);
+    return [
+        'id'          => $key,
+        'locale'      => $locale,
+        'name'        => $config[0] ?? $locale,
+        'translation' => $config[1] ?? '',
+        'status'      => $dbLanguages[$locale]->status ?? 0,
+    ];
+})->sortBy('name')->values();
+
+$publishedPages = \App\Model\Front\FrontendPage::where('publish', 1)
+    ->select('id', 'name', 'slug', 'url', 'type', 'parent_page_id')
+    ->orderBy('created_at', 'asc')
+    ->get();
+
+$productGroups = \App\Model\Product\ProductGroup::select('id', 'name')
+    ->where('hidden', '!=', 1)
+    ->get()
+    ->mapWithKeys(fn($g): array => [$g->id => [
+        'name' => $g->name,
+    ]]);
+
+$seoService = app(\App\Services\Seo\SeoMetaService::class);
+$seo = $seoService->resolve(request()->path());
+
+// Every other client-SPA route's title/description, pre-resolved through the
+// exact same cascade as $seo above — clientRouter.js just looks up its
+// current route here on SPA navigation instead of recomputing anything.
+$routeSeo = $seoService->resolveClientRoutes();
+?>
+<!DOCTYPE html>
+<html lang="{{ app()->getLocale() }}" dir="{{ $rtl ? 'rtl' : 'ltr' }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, shrink-to-fit=no">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ $seo['title'] }}</title>
+    <meta name="description" content="{{ $seo['description'] }}">
+    <meta name="robots" content="{{ $seo['robots'] }}">
+    <link rel="canonical" href="{{ $seo['canonical'] }}">
+    <meta property="og:title" content="{{ $seo['og_title'] }}">
+    <meta property="og:description" content="{{ $seo['og_description'] }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ $seo['canonical'] }}">
+    <meta property="og:site_name" content="{{ $set->company }}">
+    <meta property="og:locale" content="{{ str_replace('-', '_', app()->getLocale()) }}">
+    @if(!empty($seo['image']))
+    <meta property="og:image" content="{{ $seo['image'] }}">
+    @endif
+
+    <meta name="twitter:card" content="{{ !empty($seo['image']) ? 'summary_large_image' : 'summary' }}">
+    <meta name="twitter:title" content="{{ $seo['og_title'] }}">
+    <meta name="twitter:description" content="{{ $seo['og_description'] }}">
+    @if(!empty($seo['image']))
+    <meta name="twitter:image" content="{{ $seo['image'] }}">
+    @endif
+
+    @if($set->fav_icon)
+        <link rel="shortcut icon" href="{{ $set->fav_icon }}" type="image/x-icon">
+    @endif
+
+    {{-- Google Fonts --}} {{-- NOSONAR --}}
+    <link id="googleFonts"
+          href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800%7CShadows+Into+Light&display=swap"
+          rel="stylesheet">
+
+    {{-- Porto vendor CSS --}}
+    <link rel="stylesheet" href="{{ assetLink('css', 'porto-animate') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', 'porto-simple-icons') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', 'porto-owl') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', 'porto-owl-theme') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', 'porto-magnific') }}">
+
+    {{-- Reuse common vendors (same as admin panel) --}}
+    <link rel="stylesheet" href="{{ assetLink('css', $rtl ? 'bootstrap-rtl' : 'bootstrap') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', 'fontawesome') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', $rtl ? 'porto-theme-rtl' : 'porto-theme') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', $rtl ? 'porto-elements-rtl' : 'porto-elements') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', $rtl ? 'porto-blog-rtl' : 'porto-blog') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', $rtl ? 'porto-shop-rtl' : 'porto-shop') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', 'porto-skin') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', 'porto-custom') }}">
+
+    <script src="{{ url('js/lang') }}"></script>
+
+    {{-- Vue client SPA — Vite injects its CSS at build time --}}
+    @vite(['resources/assets/js/client.js'])
+</head>
+
+<body data-plugin-scroll-offset="85">
+
+<div id="app-client"
+     data-theme="porto"
+     data-authenticated="{{ auth()->check() ? 'true' : 'false' }}"
+     data-base-url="{{ url('/') }}"
+     data-client-url="{{ url('/') }}"
+     data-asset-url="{{ asset('') }}"
+     data-locale="{{ app()->getLocale() }}"
+     data-locale-rtl="{{ $rtl ? 'true' : 'false' }}"
+     data-app-version="{{ config('app.version', '') }}"
+     data-sentry-dsn="{{ config('sentry.dsn') }}"
+     data-sentry-enabled="{{ config('app.sentry_reporting') ? 'true' : 'false' }}"
+     data-app-logo="{{ $set->logo }}"
+     data-company="{{ $set->company }}"
+     data-website="{{ $set->website }}"
+     data-user-id="{{ auth()->user()?->id ?? '' }}"
+     data-user-first-name="{{ auth()->user()?->first_name ?? '' }}"
+     data-user-last-name="{{ auth()->user()?->last_name ?? '' }}"
+     data-user-name="{{ auth()->user() ? auth()->user()->first_name . ' ' . auth()->user()->last_name : '' }}"
+     data-user-username="{{ auth()->user()?->user_name ?? '' }}"
+     data-user-email="{{ auth()->user()?->email ?? '' }}"
+     data-user-avatar="{{ auth()->user()?->profile_pic ?? '' }}"
+     data-user-role="{{ auth()->user()?->role ?? '' }}"
+     data-user-timezone="{{ auth()->user()?->timezone?->name ?? '' }}"
+     data-phone="{{ $set->phone ?? '' }}"
+     data-phone-code="{{ $set->phone_code ?? '' }}"
+     data-company-email="{{ $set->company_email ?? '' }}"
+     data-cloud="{{ ($cloudBtn == 1) ? 'true' : 'false' }}"
+     data-demo="{{ ($demoPage && $demoPage->status) ? 'true' : 'false' }}"
+     data-cart-count="{{ $cartCount }}"
+     data-social="{{ $social->toJson() }}"
+     data-widgets="{{ $widgets->toJson() }}"
+     data-scripts="{{ $chatScripts->toJson() }}"
+     data-languages="{{ $languages->toJson() }}"
+     data-published-pages="{{ $publishedPages->toJson() }}"
+     data-product-groups="{{ $productGroups->toJson() }}"
+     data-route-seo="{{ json_encode($routeSeo) }}">
+</div>
+
+{{-- Bootstrap 5 bundle JS (includes Popper) — used for dropdowns, collapse, tooltips. --}}
+<script src="{{ assetLink('js', 'bootstrap') }}" defer></script>
+
+</body>
+</html>

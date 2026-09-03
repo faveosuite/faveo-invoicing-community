@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\Api;
+declare(strict_types=1);
+
+use App\Http\Controllers\Api\ThirdPartyApiController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('api/chunk-upload', [Api\ThirdPartyApiController::class, 'chunkUploadFile']);
-
-Route::post('api/upload/save', [Api\ThirdPartyApiController::class, 'saveProduct']);
+Route::post('api/chunk-upload', [ThirdPartyApiController::class, 'chunkUploadFile']);

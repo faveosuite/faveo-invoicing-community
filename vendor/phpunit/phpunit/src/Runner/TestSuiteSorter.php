@@ -35,12 +35,14 @@ use PHPUnit\Runner\ResultCache\ResultCacheId;
  */
 final class TestSuiteSorter
 {
-    public const int ORDER_DEFAULT       = 0;
-    public const int ORDER_RANDOMIZED    = 1;
-    public const int ORDER_REVERSED      = 2;
-    public const int ORDER_DEFECTS_FIRST = 3;
-    public const int ORDER_DURATION      = 4;
-    public const int ORDER_SIZE          = 5;
+    public const int ORDER_DEFAULT             = 0;
+    public const int ORDER_RANDOMIZED          = 1;
+    public const int ORDER_REVERSED            = 2;
+    public const int ORDER_DEFECTS_FIRST       = 3;
+    public const int ORDER_DURATION_ASCENDING  = 4;
+    public const int ORDER_SIZE_ASCENDING      = 5;
+    public const int ORDER_DURATION_DESCENDING = 6;
+    public const int ORDER_SIZE_DESCENDING     = 7;
 
     /**
      * @var non-empty-array<non-empty-string, positive-int>
@@ -56,11 +58,9 @@ final class TestSuiteSorter
      * @var array<string, int> Associative array of (string => DEFECT_SORT_WEIGHT) elements
      */
     private array $defectSortOrder = [];
-    private readonly ResultCache $cache;
 
-    public function __construct(?ResultCache $cache = null)
+    public function __construct(private readonly ResultCache $cache = new NullResultCache)
     {
-        $this->cache = $cache ?? new NullResultCache;
     }
 
     /**
@@ -72,8 +72,10 @@ final class TestSuiteSorter
             self::ORDER_DEFAULT,
             self::ORDER_REVERSED,
             self::ORDER_RANDOMIZED,
-            self::ORDER_DURATION,
-            self::ORDER_SIZE,
+            self::ORDER_DURATION_ASCENDING,
+            self::ORDER_SIZE_ASCENDING,
+            self::ORDER_DURATION_DESCENDING,
+            self::ORDER_SIZE_DESCENDING,
         ];
 
         if (!in_array($order, $allowedOrders, true)) {
@@ -116,10 +118,14 @@ final class TestSuiteSorter
             $suite->setTests($this->reverse($suite->tests()));
         } elseif ($order === self::ORDER_RANDOMIZED) {
             $suite->setTests($this->randomize($suite->tests()));
-        } elseif ($order === self::ORDER_DURATION) {
+        } elseif ($order === self::ORDER_DURATION_ASCENDING) {
             $suite->setTests($this->sortByDuration($suite->tests()));
-        } elseif ($order === self::ORDER_SIZE) {
+        } elseif ($order === self::ORDER_DURATION_DESCENDING) {
+            $suite->setTests($this->sortByDurationDescending($suite->tests()));
+        } elseif ($order === self::ORDER_SIZE_ASCENDING) {
             $suite->setTests($this->sortBySize($suite->tests()));
+        } elseif ($order === self::ORDER_SIZE_DESCENDING) {
+            $suite->setTests($this->sortBySizeDescending($suite->tests()));
         }
 
         if ($orderDefects === self::ORDER_DEFECTS_FIRST) {
@@ -140,16 +146,15 @@ final class TestSuiteSorter
         $max = 0;
 
         foreach ($suite->tests() as $test) {
-            if (!$test instanceof Reorderable) {
-                continue;
-            }
+            assert($test instanceof Reorderable);
 
             $sortId = $test->sortId();
 
             if (!isset($this->defectSortOrder[$sortId])) {
-                $this->defectSortOrder[$sortId] = $this->cache->status(ResultCacheId::fromReorderable($test))->asInt();
-                $max                            = max($max, $this->defectSortOrder[$sortId]);
+                $this->defectSortOrder[$sortId] = $this->cache->status(ResultCacheId::fromReorderable($test))->sortWeight();
             }
+
+            $max = max($max, $this->defectSortOrder[$sortId]);
         }
 
         $this->defectSortOrder[$suite->sortId()] = $max;
@@ -212,6 +217,21 @@ final class TestSuiteSorter
      *
      * @return list<Test>
      */
+    private function sortByDurationDescending(array $tests): array
+    {
+        usort(
+            $tests,
+            fn (Test $left, Test $right) => $this->cmpDuration($right, $left),
+        );
+
+        return $tests;
+    }
+
+    /**
+     * @param list<Test> $tests
+     *
+     * @return list<Test>
+     */
     private function sortBySize(array $tests): array
     {
         usort(
@@ -223,11 +243,28 @@ final class TestSuiteSorter
     }
 
     /**
+     * @param list<Test> $tests
+     *
+     * @return list<Test>
+     */
+    private function sortBySizeDescending(array $tests): array
+    {
+        usort(
+            $tests,
+            fn (Test $left, Test $right) => $this->cmpSize($right, $left),
+        );
+
+        return $tests;
+    }
+
+    /**
      * Comparator callback function to sort tests for "reach failure as fast as possible".
      *
-     * 1. sort tests by defect weight defined in self::DEFECT_SORT_WEIGHT
-     * 2. when tests are equally defective, sort the fastest to the front
-     * 3. do not reorder successful tests
+     * Tests are sorted by defect weight descending. Tests with equal weight,
+     * including equally-weighted defective tests, keep their existing
+     * relative order, so that any ordering applied by the preceding main
+     * order phase (duration, size, reverse, random) is preserved by
+     * PHP's stable usort() function.
      */
     private function cmpDefectPriorityAndTime(Test $a, Test $b): int
     {
@@ -237,17 +274,7 @@ final class TestSuiteSorter
         $priorityA = $this->defectSortOrder[$a->sortId()] ?? 0;
         $priorityB = $this->defectSortOrder[$b->sortId()] ?? 0;
 
-        if (($priorityB <=> $priorityA) > 0) {
-            // Sort defect weight descending
-            return $priorityB <=> $priorityA;
-        }
-
-        if ($priorityA > 0 || $priorityB > 0) {
-            return $this->cmpDuration($a, $b);
-        }
-
-        // do not change execution order
-        return 0;
+        return $priorityB <=> $priorityA;
     }
 
     /**
@@ -255,11 +282,26 @@ final class TestSuiteSorter
      */
     private function cmpDuration(Test $a, Test $b): int
     {
-        if (!($a instanceof Reorderable && $b instanceof Reorderable)) {
-            return 0;
+        return $this->durationWeight($a) <=> $this->durationWeight($b);
+    }
+
+    private function durationWeight(Test $test): float
+    {
+        if ($test instanceof TestSuite) {
+            $sum = 0.0;
+
+            foreach ($test->tests() as $inner) {
+                $sum += $this->durationWeight($inner);
+            }
+
+            return $sum;
         }
 
-        return $this->cache->time(ResultCacheId::fromReorderable($a)) <=> $this->cache->time(ResultCacheId::fromReorderable($b));
+        if ($test instanceof Reorderable) {
+            return $this->cache->time(ResultCacheId::fromReorderable($test));
+        }
+
+        return 0.0;
     }
 
     /**
@@ -267,18 +309,39 @@ final class TestSuiteSorter
      */
     private function cmpSize(Test $a, Test $b): int
     {
-        $sizeA = ($a instanceof TestCase || $a instanceof DataProviderTestSuite)
-            ? $a->size()->asString()
-            : 'unknown';
-        $sizeB = ($b instanceof TestCase || $b instanceof DataProviderTestSuite)
-            ? $b->size()->asString()
-            : 'unknown';
-
-        return self::SIZE_SORT_WEIGHT[$sizeA] <=> self::SIZE_SORT_WEIGHT[$sizeB];
+        return $this->sizeWeight($a) <=> $this->sizeWeight($b);
     }
 
     /**
-     * Reorder Tests within a TestCase in such a way as to resolve as many dependencies as possible.
+     * @return positive-int
+     */
+    private function sizeWeight(Test $test): int
+    {
+        if ($test instanceof TestCase || $test instanceof DataProviderTestSuite) {
+            return self::SIZE_SORT_WEIGHT[$test->size()->asString()];
+        }
+
+        if ($test instanceof TestSuite) {
+            $max = 0;
+
+            foreach ($test->tests() as $inner) {
+                $weight = $this->sizeWeight($inner);
+
+                if ($weight > $max) {
+                    $max = $weight;
+                }
+            }
+
+            if ($max > 0) {
+                return $max;
+            }
+        }
+
+        return self::SIZE_SORT_WEIGHT['unknown'];
+    }
+
+    /**
+     * Reorder tests within a TestCase in such a way as to resolve as many dependencies as possible.
      * The algorithm will leave the tests in original running order when it can.
      * For more details see the documentation for test dependencies.
      *
@@ -288,9 +351,9 @@ final class TestSuiteSorter
      * 3. If the test has dependencies but none left to do: mark done, start again from the top
      * 4. When we reach the end add any leftover tests to the end. These will be marked 'skipped' during execution.
      *
-     * @param array<TestCase> $tests
+     * @param list<TestCase> $tests
      *
-     * @return array<TestCase>
+     * @return list<TestCase>
      */
     private function resolveDependencies(array $tests): array
     {
@@ -298,7 +361,7 @@ final class TestSuiteSorter
         $i            = 0;
         $provided     = [];
 
-        do {
+        while ($tests !== [] && $i < count($tests)) {
             if ([] === array_diff($tests[$i]->requires(), $provided)) {
                 $provided     = array_merge($provided, $tests[$i]->provides());
                 $newTestOrder = array_merge($newTestOrder, array_splice($tests, $i, 1));
@@ -306,7 +369,7 @@ final class TestSuiteSorter
             } else {
                 $i++;
             }
-        } while ($tests !== [] && ($i < count($tests)));
+        }
 
         return array_merge($newTestOrder, $tests);
     }

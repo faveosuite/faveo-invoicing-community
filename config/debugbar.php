@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -14,7 +16,7 @@ return [
      |
      */
 
-    'enabled' => env('DEBUGBAR_ENABLED', null),
+    'enabled' => env('DEBUGBAR_ENABLED'),
     'except' => [
         'telescope*',
         'horizon*',
@@ -206,7 +208,7 @@ return [
         ],
         'views' => [
             'timeline' => false,  // Add the views to the timeline (Experimental)
-            'data' => false,    //Note: Can slow down the application, because the data can be quite large..
+            'data' => false,    // Note: Can slow down the application, because the data can be quite large..
             'exclude_paths' => [], // Add the paths which you don't want to appear in the views
         ],
         'route' => [

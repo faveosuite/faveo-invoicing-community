@@ -6,120 +6,79 @@ use App\Http\Controllers\Controller;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
+use DB;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Lang;
 
 class CurrencyController extends Controller
 {
+    /**
+     * @var Currency
+     */
     public $currency;
 
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware('admin');
-        $currency = new Currency();
+        $currency = new Currency;
         $this->currency = $currency;
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Response
+     * Get Currency List.
      */
-    public function index()
+    public function getCurrencyList(Request $request): JsonResponse
     {
-        return view('themes.default1.payment.currency.index');
-    }
+        try {
+            $searchString = $request->input('search-query', '');
+            $sortField = $request->input('sort-field', 'id');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $limit = $request->input('limit', 10);
 
-    public function getCurrency()
-    {
-        $model = Currency::select('id', 'name', 'code', 'symbol', 'status');
+            // Get default currency
+            $defaultCurrency = Setting::value('default_currency');
 
-        return \DataTables::of($model)
-            ->editColumn('name', function ($model) {
-                return e($model->name);
-            })
-            ->editColumn('code', function ($model) {
-                return '<div class="text-center">'.e($model->code).'</div>';
-            })
-            ->editColumn('symbol', function ($model) {
-                return '<div class="text-center">'.e($model->symbol).'</div>';
-            })
-            ->addColumn('dashboard', function ($model) {
-                if ($model->status == 1) {
-                    $showButton = $this->getButtonColor($model->id);
+            // Query for currencies (include default currency so it can be shown with is_default flag)
+            $currencyData = Currency::whereNotNull('name')
+                ->whereIn('id', function ($subQuery): void {
+                    $subQuery->selectRaw('MIN(id)')
+                        ->from('currencies')
+                        ->whereNotNull('name')
+                        ->groupBy('name', 'code');
+                })
+                ->when($searchString, function ($q) use ($searchString): void {
+                    $q->where(function ($inner) use ($searchString): void {
+                        $inner->where('name', 'like', sprintf('%%%s%%', $searchString))
+                            ->orWhere('code', 'like', sprintf('%%%s%%', $searchString))
+                            ->orWhere('symbol', 'like', sprintf('%%%s%%', $searchString));
+                    });
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->paginate($limit);
 
-                    return '<div class="dashboard-center">'.$showButton.'</div>';
-                } else {
-                    return '<div class="dashboard-center">
-                    <a class="btn btn-sm btn-secondary btn-xs disabled align-items-center" style="margin-right: 100px;">
-                        <i class="fa fa-eye" style="color:white;"></i>&nbsp;&nbsp;'.__('message.show_on_dashboard').'
-                    </a>
-                </div>';
-                }
-            })
-            ->editColumn('status', function ($model) {
-                $defaultCurrencyCode = Setting::value('default_currency');
-                $checked = $model->status == 1 ? 'checked' : '';
+            // Map data for JSON response
+            $currencyData->getCollection()->transform(fn ($currency): array => [
+                'id' => $currency->id,
+                'name' => $currency->name,
+                'code' => $currency->code,
+                'symbol' => $currency->symbol,
+                'status' => (bool) $currency->status,
+                'is_default' => $currency->code === $defaultCurrency,
+                'dashboard_currency' => (bool) $currency->dashboard_currency,
+            ]);
 
-                // Check if default currency
-                $isDefault = $defaultCurrencyCode === $model->code;
-
-                $disabledAttr = $isDefault ? 'disabled' : '';
-                $style = $isDefault ? 'opacity: 0.6; pointer-events: none;' : '';
-                $title = $isDefault ? __('message.default-currency') : '';
-
-                return <<<HTML
-    <label class="switch toggle_event_editing" style="{$style}" title="{$title}">
-        <input type="hidden" name="module_id" class="module_id" value="{$model->id}">
-        <input type="checkbox" name="modules_settings" class="modules_settings_value" value="{$model->status}" {$checked} {$disabledAttr}>
-        <span class="slider round"></span>
-    </label>
-HTML;
-            })
-            ->filterColumn('name', function ($query, $keyword) {
-                $query->where('name', 'like', "%{$keyword}%");
-            })
-            ->filterColumn('code', function ($query, $keyword) {
-                $query->where('code', 'like', "%{$keyword}%");
-            })
-            ->filterColumn('symbol', function ($query, $keyword) {
-                $query->where('symbol', 'like', "%{$keyword}%");
-            })
-            ->rawColumns(['code', 'symbol', 'dashboard', 'status'])
-            ->make(true);
-    }
-
-    /**
-     * Get the Color of the button when the currency is allowed to show on dashboard.
-     *
-     * @param  string  $id  Currrency id
-     * @return string
-     */
-    public function getButtonColor($id)
-    {
-        $defaultCurrency = Setting::pluck('default_currency')->first();
-        $currencyCode = Currency::where('id', $id)->pluck('code')->first(); //If default currency is equal to the currency code then make that button as Disabled as it would always be shown on dashboard and cannot be modified
-        if ($defaultCurrency == $currencyCode) {
-            return  '<a class="btn btn-sm btn-warning btn-xs disabled" style="background-color:#f39c12;">&nbsp;&nbsp;'.__('message.default-currency').'</a>';
-        }
-        $currency = Currency::where('id', $id)->pluck('dashboard_currency')->first();
-        if ($currency == 1) {
-            return'<form method="post" action='.url('dashboard-currency/'.$id).'>'.'<input type="hidden" name="_token" value='.\Session::token().'>'.'
-                                    <button type="submit" class="btn btn-sm btn-success btn-xs"><i class="fa fa-check" style="color:white;"></i>&nbsp;&nbsp; '.__('message.show_on_dashboard').'</button></form>';
-        } else {
-            return '<form method="post" action='.url('dashboard-currency/'.$id).'>'.'<input type="hidden" name="_token" value='.\Session::token().'>'.'
-                                    <button type="submit" class="btn btn-sm btn-danger btn-xs"><i class="fa fa-times" style="color:white;"></i>&nbsp;&nbsp; '.__('message.show_on_dashboard').'</button></form>';
+            return successResponse(__('message.currency_list_retrieved_successfully'), $currencyData);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage(), 500);
         }
     }
 
     /**
      * Activate the Currency to be Shown on Dashboard.
-     *
-     *
-     * @return \Response
      */
-    public function setDashboardCurrency($id)
+    public function setDashboardCurrency(mixed $id): JsonResponse
     {
         Currency::where('id', $id)->update(['dashboard_currency' => 1]);
         $dashboardStatus = Currency::where('id', '!=', $id)->select('dashboard_currency', 'id')->get();
@@ -127,50 +86,15 @@ HTML;
             $status = Currency::where('id', $status->id)->update(['dashboard_currency' => 0]);
         }
 
-        return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @return \Response
-     */
-    public function store(Request $request)
-    {
-        // dd($request->all());
-        // $this->validate($request, [
-        //     'code'            => 'required',
-        //     'name'            => 'required',
-        // ]);
-
-        try {
-            $nicename = Country::where('country_id', $request->name)->value('country_name');
-            $codeChar2 = Country::where('country_id', $request->name)->value('country_code_char2');
-            $currency = new Currency();
-
-            $currency->code = $request->code;
-            $currency->symbol = $request->symbol;
-            $currency->name = $request->currency_name;
-            $currency->base_conversion = '1.0';
-            $currency->country_code_char2 = $codeChar2;
-            $currency->nicename = $nicename;
-            $currency->save();
-
-            // $this->currency->fill($request->input())->save();
-
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
+        return successResponse(__('message.updated-successfully'));
     }
 
     /**
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Response
      */
-    public function show($id)
+    public function show($id): void
     {
         //
     }
@@ -179,25 +103,25 @@ HTML;
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Response
      */
-    public function edit($id)
+    public function edit($id): void
     {
         //
     }
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  int  $id
-     * @return \Response
      */
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
         try {
             $nicename = Country::where('country_id', $request->editnicename)->value('country_name');
             $codeChar2 = Country::where('country_id', $request->editnicename)->value('country_code_char2');
             $currency = Currency::where('id', $request->currencyId)->first();
+            if (is_null($currency)) {
+                return errorResponse('Currency not found.');
+            }
+            /** @var mixed $currency */
             $currency->code = $request->editcode;
             $currency->symbol = $request->editsymbol;
             $currency->name = $request->editcurrency_name;
@@ -206,102 +130,51 @@ HTML;
             $currency->nicename = $nicename;
             $currency->save();
 
-            return response()->json(['success' => Lang::get('message.updated-successfully')]);
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return successResponse(__('message.updated-successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function destroy(Request $request)
+    public function updatecurrency(Request $request): JsonResponse
     {
         try {
-            $ids = $request->input('select');
-            if (! empty($ids)) {
-                foreach ($ids as $id) {
-                    if ($id != 1) {
-                        $currency = $this->currency->where('id', $id)->first();
-                        if ($currency) {
-                            $currency->delete();
-                        } else {
-                            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
-                </div>';
-                            //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
-                        }
-                        echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.success').'
-
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
-                </div>';
-                    } else {
-                        echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.can-not-delete-default').'
-                </div>';
-                    }
-                }
-            } else {
-                echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
-                </div>';
-                //echo \Lang::get('message.select-a-row');
-            }
-        } catch (\Exception $e) {
-            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */
-                    \Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$e->getMessage().'
-                </div>';
-        }
-    }
-
-    public function countryDetails(Request $request)
-    {
-        $countryDetails = Country::where('country_id', $request->id)->select('currency_code', 'currency_symbol', 'currency_name')->first();
-        $data = ['code' => $countryDetails->currency_code,
-            'symbol' => $countryDetails->currency_symbol, 'currency' => $countryDetails->currency_name, ];
-
-        return $data;
-    }
-
-    public function updatecurrency(Request $request)
-    {
-        try {
-            return \DB::transaction(function () use ($request) {
+            return DB::transaction(function () use ($request): JsonResponse {
                 $currency = Currency::findOrFail($request->input('current_id'));
+                if (! $currency instanceof Currency) {
+                    throw new Exception('Currency not found.');
+                }
 
                 $newStatus = $request->input('current_status') == '1' ? 0 : 1;
 
                 $currency->update(['status' => $newStatus]);
 
-                return successResponse(__('message.updated-successfully'));
+                return successResponse(__('message.updated-successfully'), [
+                    'id' => $currency->id,
+                    'code' => $currency->code,
+                    'status' => $currency->status,
+                ]);
             });
-        } catch (\Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function setDefaultCurrency(mixed $id): JsonResponse
+    {
+        try {
+            $currency = Currency::findOrFail($id);
+            if (! $currency instanceof Currency) {
+                throw new Exception('Currency not found.');
+            }
+            Setting::where('id', 1)->update([
+                'default_currency' => $currency->code,
+                'default_symbol' => $currency->symbol,
+            ]);
+
+            return successResponse(__('message.updated-successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

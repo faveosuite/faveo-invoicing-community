@@ -1,0 +1,1 @@
+import{Q as c}from"./dateTime-BRlL7CfL.js";async function i(){await c(),document.querySelector(".is-invalid")?.scrollIntoView({behavior:"smooth",block:"center"})}async function l(t,o,e){try{return t.validateSync(o,{abortEarly:!1}),!0}catch(n){const a={};return n.inner?.forEach(r=>{r.path&&!a[r.path]&&(a[r.path]=r.message)}),e(a),await i(),!1}}export{i as s,l as v};

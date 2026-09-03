@@ -4,12 +4,33 @@ namespace App\Plugins\Stripe\Controllers;
 
 use App\ApiKey;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\SyncBillingToLatestVersion;
-use App\Plugins\Stripe\Model\StripePayment;
+use App\Jobs\CancelGatewaySubscriptionsJob;
+use App\Model\Common\StatusSetting;
+use App\Plugins\Payment\Dto\SubscriptionRequest;
+use App\Plugins\Payment\Dto\SubscriptionResult;
+use App\Services\Payment\ProcessingFee;
+use App\Services\Payment\SubscriptionService;
 use App\Traits\Payment\PostPaymentHandle;
-use Cartalyst\Stripe\Laravel\Facades\Stripe;
+use App\User;
+use Arr;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Logger;
+use Stripe\Exception\AuthenticationException;
+use Stripe\StripeClient;
 
+/**
+ * Stripe admin settings + shared Stripe helpers.
+ *
+ * The SPA invoice-payment flow lives in the standalone payment package
+ * (App\Plugins\Payment, via App\Services\Payment\InvoicePaymentService). This
+ * controller keeps:
+ *  - admin settings: read (getSettings) and update (updateApiKey) the API keys;
+ *  - handlePayment(): a server-confirmed PaymentIntent used by the auto-renew
+ *    (Front\ClientController) and open-payment (OpenPaymentController) flows;
+ *  - handleStripeAutoPay(): subscription creation used by SubscriptionController.
+ */
 class SettingsController extends Controller
 {
     use PostPaymentHandle;
@@ -17,252 +38,190 @@ class SettingsController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('admin', ['except' => ['postPaymentWithStripe']]);
+        $this->middleware('admin', ['except' => []]);
     }
 
-    public function Settings()
+    public function getSettings(): JsonResponse
     {
         try {
-            $stripe1 = new StripePayment();
-            // //dd($ccavanue);
-            $stripe = $stripe1->where('id', '1')->first();
+            $keys = ApiKey::select('stripe_key', 'stripe_secret', 'stripe_webhook_secret')->first();
+            $status = StatusSetting::select('stripe_auto_renewal')->first();
 
-            if (! $stripe) {
-                (new SyncBillingToLatestVersion)->sync();
-            }
-            $allCurrencies = StripePayment::pluck('currencies', 'id')->toArray();
-            $apikey = new ApiKey();
-            $stripeKeys = $apikey->select('stripe_key', 'stripe_secret')->first();
-            $baseCurrency = StripePayment::pluck('base_currency')->toArray();
-            $path = app_path().'/Plugins/Stripe/views';
-            \View::addNamespace('plugins', $path);
-
-            return view('plugins::settings', compact('stripe', 'baseCurrency', 'allCurrencies', 'stripeKeys'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return successResponse('', [
+                'stripe_key' => $keys->stripe_key ?? '',
+                'stripe_secret' => $keys->stripe_secret ?? '',
+                'webhook_secret' => $keys->stripe_webhook_secret ?? '',
+                'processing_fee' => (string) ProcessingFee::percent('stripe'),
+                'auto_renewal' => (bool) ($status->stripe_auto_renewal ?? false),
+                'webhook_url' => url('pay/webhook/stripe'),
+            ]);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function postSettings(Request $request)
-    {
-        $this->validate($request, [
-            'business' => 'required',
-            'cmd' => 'required',
-            'paypal_url' => 'required|url',
-            'success_url' => 'url',
-            'cancel_url' => 'url',
-            'notify_url' => 'url',
-            'currencies' => 'required',
-        ], [
-            'business.required' => __('validation.razorpay_val.business_required'),
-            'cmd.required' => __('validation.razorpay_val.cmd_required'),
-            'paypal_url.required' => __('validation.razorpay_val.paypal_url_required'),
-            'paypal_url.url' => __('validation.razorpay_val.paypal_url_invalid'),
-            'success_url.url' => __('validation.razorpay_val.success_url_invalid'),
-            'cancel_url.url' => __('validation.razorpay_val.cancel_url_invalid'),
-            'notify_url.url' => __('validation.razorpay_val.notify_url_invalid'),
-            'currencies.required' => __('validation.razorpay_val.currencies_required'),
-        ]);
-
-        try {
-            $ccavanue1 = new Paypal();
-            $ccavanue = $ccavanue1->where('id', '1')->first();
-            $ccavanue->fill($request->input())->save();
-
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function changeBaseCurrency(Request $request)
-    {
-        $baseCurrency = Stripe::where('id', $request->input('b_currency'))->pluck('currencies')->first();
-        $allCurrencies = Stripe::select('base_currency', 'id')->get();
-        foreach ($allCurrencies as $currencies) {
-            Stripe::where('id', $currencies->id)->update(['base_currency' => $baseCurrency]);
-        }
-
-        return ['message' => 'success', 'update' => 'Base Currency Updated'];
-    }
-
-    public function updateApiKey(Request $request)
+    public function updateApiKey(Request $request): JsonResponse
     {
         $request->validate([
-            'stripe_secret' => 'required|string',
-            'stripe_key' => 'required|string',
+            'stripe_secret' => ['required', 'string', 'regex:/^[rs]k_/'],
+            'stripe_key' => ['required', 'string', 'regex:/^pk_/'],
+            'webhook_secret' => ['required', 'string'],
+            'processing_fee' => ['required', 'numeric', 'min:0', 'max:100'],
+            'auto_renewal' => ['nullable', 'boolean'],
         ], [
             'stripe_secret.required' => __('message.stripe_secret_required'),
+            'stripe_secret.regex' => __('message.stripe_secret_invalid'),
             'stripe_key.required' => __('message.stripe_key_required'),
+            'stripe_key.regex' => __('message.stripe_key_invalid'),
+            'processing_fee.numeric' => __('message.processing_fee_invalid'),
+            'processing_fee.min' => __('message.processing_fee_invalid'),
+            'processing_fee.max' => __('message.processing_fee_invalid'),
         ]);
 
         try {
-            $stripe = Stripe::make($request->input('stripe_secret'));
-            $response = $stripe->customers()->create(['description' => 'Test Customer to Validate Secret Key']);
-            $stripe_secret = $request->input('stripe_secret');
-            ApiKey::find(1)->update([
+            // Format is checked above; this proves the key actually authenticates
+            // with Stripe. Read-only call — no throwaway data created on every save.
+            $stripe = new StripeClient($request->input('stripe_secret'));
+            $stripe->balance->retrieve();
+
+            ApiKey::where('id', 1)->update([
                 'stripe_secret' => $request->input('stripe_secret'),
                 'stripe_key' => $request->input('stripe_key'),
+                'stripe_webhook_secret' => $request->input('webhook_secret'),
             ]);
 
-            return successResponse(['success' => 'true', 'message' => __('message.stripe_settings_updated_successfully')]);
-        } catch (\Cartalyst\Stripe\Exception\UnauthorizedException  $e) {
-            return errorResponse($e->getMessage());
-        } catch (\Exception $e) {
+            ProcessingFee::store('stripe', (float) $request->input('processing_fee', 0));
+
+            if ($request->has('auto_renewal')) {
+                $enabling = $request->boolean('auto_renewal');
+                StatusSetting::where('id', 1)->update(['stripe_auto_renewal' => $enabling ? 1 : 0]);
+
+                if (! $enabling) {
+                    dispatch(new CancelGatewaySubscriptionsJob('stripe'));
+                }
+            }
+
+            return successResponse(__('message.stripe_settings_updated_successfully'));
+        } catch (AuthenticationException|Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
 
     /**
-     * success response method.
+     * Create and confirm a PaymentIntent from a card token in a single call.
      *
-     * @return \Illuminate\Http\Response
+     * Shared by the auto-renew (Front\ClientController) and open-payment
+     * (OpenPaymentController) flows, which collect a card token client-side and
+     * need a server-confirmed charge with 3-D Secure support via $url.
      */
-    public function postPaymentWithStripe(Request $request)
-    {
-        try {
-            $invoice = \Session::get('invoice');
-            $amount = rounding(\Cart::getTotal()) ?: rounding(\Session::get('totalToBePaid'));
-            $currency = strtolower($invoice->currency);
-            $url = url('/confirm/payment');
-            $confirm = $this->handlePayment($request, $amount, $currency, $url, $invoice);
-
-            // Check if payment was successful
-            if (isset($confirm->status) && $confirm->status === 'succeeded') {
-                $result = $this->processPaymentSuccess($invoice, $currency);
-                \Session::forget(['items', 'code', 'codevalue', 'totalToBePaid', 'invoice', 'cart_currency']);
-                \Cart::removeCartCondition('Processing fee');
-
-                return redirect('checkout')->with($result['status'], $result['message']);
-            } else {
-                $paymentIntent = \Stripe\PaymentIntent::retrieve($confirm['id']);
-                $redirectUrl = $paymentIntent->next_action->redirect_to_url->url;
-
-                return redirect()->away($redirectUrl);
-            }
-        } catch (\Cartalyst\Stripe\Exception\ApiLimitExceededException|\Cartalyst\Stripe\Exception\BadRequestException|\Cartalyst\Stripe\Exception\MissingParameterException|\Cartalyst\Stripe\Exception\NotFoundException|\Cartalyst\Stripe\Exception\ServerErrorException|\Cartalyst\Stripe\Exception\StripeException|\Cartalyst\Stripe\Exception\UnauthorizedException $e) {
-            $control = new \App\Http\Controllers\Order\RenewController();
-            if ($control->checkRenew($invoice->is_renewed) != true) {
-                return redirect('checkout')->with('fails', __('message.stripe_payment_declined', ['error' => $e->getMessage()]));
-            } else {
-                return redirect('paynow/'.$invoice->id)->with('fails', __('message.stripe_payment_declined', ['error' => $e->getMessage()]));
-            }
-        } catch (\Cartalyst\Stripe\Exception\CardErrorException $e) {
-            if (emailSendingStatus()) {
-                $user = auth()->user();
-                $this->sendFailedPaymenttoAdmin($invoice, $invoice->grand_total, $invoice->invoiceItem()->first()->product_name, $e->getMessage(), $user);
-            }
-            \Session::put('amount', $amount);
-            \Session::put('error', $e->getMessage());
-
-            return redirect()->route('checkout');
-        } catch (\Exception $e) {
-            return redirect('checkout')->with('fails', __('message.stripe_payment_declined', ['error' => $e->getMessage()]));
-        }
-    }
-
-    public function handlePayment(Request $request, $amount, $currency, $url, $invoice = null)
+    public function handlePayment(Request $request, mixed $amount, mixed $currency, mixed $url, mixed $user = null): mixed
     {
         $request->validate([
-            'stripeToken' => 'required|string',
+            'stripeToken' => ['required', 'string'],
         ], [
             'stripeToken.required' => __('message.stripe_token_required'),
         ]);
 
-        $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
+        $user ??= auth()->user();
 
-        \Stripe\Stripe::setApiKey($stripeSecretKey);
+        $stripeSecretKey = ApiKey::value('stripe_secret');
+        $stripe = new StripeClient($stripeSecretKey);
 
         $cost = calculateUnitCost($currency, $amount);
 
-        $user = \Auth::user();
+        $customerData = $this->extractCustomerData($user);
+        $customer = $stripe->customers->create($customerData);
 
-        // Create a Stripe customer with user's information
-        $customer = \Stripe\Customer::create([
-            'name' => $user->first_name.' '.$user->last_name,
-            'email' => $user->email,
+        // Shipping details for Indian export compliance.
+        $addressData = $customerData['address'] ?? [];
+        $shippingDetails = [
+            'name' => $customerData['name'] ?: 'Customer',
             'address' => [
-                'line1' => optional($user)->address,
-                'postal_code' => optional($user)->zip,
-                'city' => optional($user)->town,
-                'state' => optional($user)->state,
-                'country' => optional($user)->country,
+                'line1' => $addressData['line1'] ?: 'Not Provided',
+                'city' => $addressData['city'] ?: 'Not Provided',
+                'state' => $addressData['state'] ?? '',
+                'postal_code' => $addressData['postal_code'] ?? '',
+                'country' => $addressData['country'] ?: 'IN',
             ],
-        ]);
+        ];
 
-        // Create a payment method using the provided token
-        $paymentMethod = \Stripe\PaymentMethod::create([
-            'type' => 'card',
-            'card' => [
-                'token' => $request->stripeToken,
-            ],
-        ]);
-
-        // Create a payment intent for the transaction
-        $intent = \Stripe\PaymentIntent::create([
-            'amount' => intval($cost),
+        return $stripe->paymentIntents->create([
+            'amount' => $cost,
             'currency' => $currency,
-            'payment_method' => $paymentMethod['id'],
-            'customer' => $customer['id'],
+            'customer' => $customer->id,
+            'payment_method_data' => [
+                'type' => 'card',
+                'card' => [
+                    'token' => $request->stripeToken,
+                ],
+            ],
             'confirmation_method' => 'automatic',
+            'confirm' => true,
+            'return_url' => $url,
             'setup_future_usage' => 'off_session',
-            'description' => 'payments for the purchased product',
+            'description' => 'Payment for purchased product',
+            'shipping' => $shippingDetails,
+        ], [
+            'idempotency_key' => uniqid('payment_', more_entropy: true),
         ]);
-
-        // Confirm the payment intent
-        $stripe = new \Stripe\StripeClient($stripeSecretKey);
-        $confirm = $stripe->paymentIntents->confirm(
-            $intent['id'],
-            [
-                'payment_method' => $paymentMethod['id'],
-                'return_url' => $url,
-            ]
-        );
-
-        return $confirm;
     }
 
-    public function handleStripeAutoPay($stripe_payment_details, $product_details, $unit_cost, $currency, $plan)
+    /**
+     * Extract Stripe customer data from a User model, array, or object.
+     *
+     * @return array<mixed>
+     */
+    public function extractCustomerData(mixed $user): array
+    {
+        $data = $user instanceof User ? $user->toArray() : (array) $user;
+
+        $firstName = Arr::get($data, 'first_name');
+        $lastName = Arr::get($data, 'last_name');
+
+        return [
+            'name' => ($firstName || $lastName)
+                ? trim($firstName.' '.$lastName)
+                : Arr::get($data, 'name'),
+
+            'email' => Arr::get($data, 'email'),
+
+            'address' => [
+                'line1' => Arr::get($data, 'address'),
+                'postal_code' => Arr::get($data, 'zip'),
+                'city' => Arr::get($data, 'town') ?? Arr::get($data, 'city'),
+                'state' => Arr::get($data, 'state'),
+                'country' => Arr::get($data, 'country'),
+            ],
+        ];
+    }
+
+    /**
+     * Create a recurring Stripe subscription for autopay.
+     *
+     * Thin adapter over the centralized {@see SubscriptionService}
+     * (which drives the payment package's StripeGateway). Returns a
+     * {@see SubscriptionResult} — callers read ->status,
+     * ->id and ->raw['latest_invoice']. $unit_cost is already in minor units.
+     *
+     * On failure, logs the exception for diagnostics then rethrows — the
+     * caller's own failure handling (which emails the customer/admin the
+     * reason and disables auto-renewal) needs the REAL exception message,
+     * not a generic null standing in for "something went wrong".
+     */
+    public function handleStripeAutoPay(mixed $stripe_payment_details, mixed $product_details, mixed $unit_cost, mixed $currency, mixed $plan): SubscriptionResult
     {
         try {
-            $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
-            $stripe = new \Stripe\StripeClient($stripeSecretKey);
-            \Stripe\Stripe::setApiKey($stripeSecretKey);
+            return resolve(SubscriptionService::class)->createSubscription('Stripe', new SubscriptionRequest(
+                amountMinor: (int) $unit_cost,
+                currency: $currency,
+                intervalDays: (int) $plan->days,
+                planName: $product_details->name,
+                paymentMethodReference: $stripe_payment_details->payment_intent_id,
+            ));
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            $paymentMethod = \Stripe\PaymentMethod::retrieve($stripe_payment_details->payment_intent_id);
-
-            //create product
-            $product = $stripe->products->create([
-                'name' => $product_details->name,
-            ]);
-            $product_id = $product['id'];
-
-            //define product price and recurring interval
-
-            $price = $stripe->prices->create([
-                'unit_amount' => $unit_cost,
-                'currency' => $currency,
-                'recurring' => ['interval' => 'day', 'interval_count' => $plan->days],
-                'product' => $product_id,
-            ]);
-            $price_id = $price['id'];
-
-            //CREATE SUBSCRIPTION
-
-            $stripe_subscription = $stripe->subscriptions->create([
-                'customer' => $paymentMethod->customer,
-                'items' => [
-                    ['price' => $price_id],
-                ],
-                'default_payment_method' => $paymentMethod->id,
-            ]);
-
-            return $stripe_subscription;
-        } catch (ApiErrorException $e) {
-            $errorCode = $e->getStripeCode();
-            $errorMessage = $e->getMessage();
-            $exception = new \Exception("Stripe Error ({$errorCode}): {$errorMessage}");
-            \Logger::exception($exception);
+            throw $exception;
         }
     }
 }

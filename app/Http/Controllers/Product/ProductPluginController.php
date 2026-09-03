@@ -1,0 +1,76 @@
+<?php
+
+namespace App\Http\Controllers\Product;
+
+use App\Http\Controllers\Controller;
+use App\Model\Product\Product;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class ProductPluginController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('admin');
+    }
+
+    public function index(mixed $productId): JsonResponse
+    {
+        try {
+            /** @var Product $product */
+            $product = Product::findOrFail($productId);
+
+            $bundledIds = $product->bundledPlugins()->pluck('products.id')->toArray();
+            $compatibleIds = $product->compatiblePlugins()->pluck('products.id')->toArray();
+
+            $plugins = Product::where('product_type', 'addon')
+                ->where('id', '!=', $productId)
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->map(fn ($p): array => [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'is_bundled' => in_array($p->id, $bundledIds),
+                    'is_compatible' => in_array($p->id, $compatibleIds),
+                ]);
+
+            return successResponse('', ['plugins' => $plugins]);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function sync(Request $request, mixed $productId): JsonResponse
+    {
+        $request->validate([
+            'bundled' => ['array'],
+            'bundled.*' => ['integer'],
+            'compatible' => ['array'],
+            'compatible.*' => ['integer'],
+        ]);
+
+        try {
+            /** @var Product $product */
+            $product = Product::findOrFail($productId);
+
+            $validIds = Product::where('product_type', 'addon')
+                ->where('id', '!=', $productId)
+                ->pluck('id')->toArray();
+
+            $bundledIds = array_values(array_intersect($request->input('bundled', []), $validIds));
+            $compatibleIds = array_values(array_intersect($request->input('compatible', []), $validIds));
+
+            DB::transaction(function () use ($product, $bundledIds, $compatibleIds): void {
+                $product->bundledPlugins()->sync($bundledIds);
+                $product->compatiblePlugins()->sync($compatibleIds);
+            });
+
+            return successResponse(__('message.updated-successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+}

@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Common;
 
-use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Common\SystemManagerSettingsRequest;
+use App\Jobs\NotifyManagerChange;
 use App\Model\Common\ManagerSetting;
 use App\User;
-use Closure;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SystemManagerController extends Controller
@@ -18,59 +19,77 @@ class SystemManagerController extends Controller
         $this->middleware('admin');
     }
 
-    public function getSystemManagers()
-    {
-        $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
-            ->where('role', 'admin')
-            ->whereIn('position', ['account_manager', 'manager'])
-            ->get();
-
-        $accountManagers = $users->filter(fn ($user) => $user->position === 'account_manager')
-            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
-            ->toArray();
-
-        $salesManager = $users->filter(fn ($user) => $user->position === 'manager')
-            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
-            ->toArray();
-
-        $settings = ManagerSetting::whereIn('manager_role', ['account', 'sales'])
-            ->pluck('auto_assign', 'manager_role');
-
-        $accountManagersAutoAssign = $settings['account'];
-        $salesManagerAutoAssign = $settings['sales'];
-
-        return view('themes.default1.common.system-managers', compact(
-            'accountManagers',
-            'salesManager',
-            'accountManagersAutoAssign',
-            'salesManagerAutoAssign'
-        ));
-    }
-
-    public function searchAdmin(Request $request)
+    public function getSystemManagers(): JsonResponse
     {
         try {
-            $term = trim($request->q);
-            if (empty($term)) {
-                return \Response::json([]);
-            }
-            $users = User::where('email', 'LIKE', '%'.$term.'%')
-             ->orWhere('first_name', 'LIKE', '%'.$term.'%')
-             ->orWhere('last_name', 'LIKE', '%'.$term.'%')
-             ->select('id', 'email', 'profile_pic', 'first_name', 'last_name', 'role')->get();
-            $formatted_tags = [];
+            $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
+                ->where('role', 'admin')
+                ->whereIn('position', ['account_manager', 'manager'])
+                ->get();
 
-            foreach ($users as $user) {
-                if ($user->role == 'admin') {
-                    $formatted_users[] = ['id' => $user->id, 'text' => $user->email, 'profile_pic' => $user->profile_pic,
-                        'first_name' => $user->first_name, 'last_name' => $user->last_name, ];
-                }
-            }
+            $accountManagers = $users
+                ->filter(fn ($user): bool => $user->position === 'account_manager')
+                ->map(fn ($user): array => [
 
-            return \Response::json($formatted_users);
-        } catch (\Exception $e) {
-            // returns if try fails with exception meaagse
-            return redirect()->back()->with('fails', $e->getMessage());
+                    'id' => $user->id,
+                    'name' => $user->first_name.' '.$user->last_name,
+                    'email' => $user->email,
+                ])
+                ->values();
+
+            $salesManagers = $users
+                ->filter(fn ($user): bool => $user->position === 'manager')
+                ->map(fn ($user): array => [
+                    'id' => $user->id,
+                    'name' => $user->first_name.' '.$user->last_name,
+                    'email' => $user->email,
+                ])
+                ->values();
+
+            $settings = ManagerSetting::whereIn('manager_role', ['account', 'sales'])
+                ->pluck('auto_assign', 'manager_role');
+
+            $accountManagersAutoAssign = $settings['account'] ?? false;
+            $salesManagersAutoAssign = $settings['sales'] ?? false;
+
+            $response = [
+                'account_managers' => $accountManagers,
+                'sales_managers' => $salesManagers,
+                'account_managers_auto_assign' => (bool) $accountManagersAutoAssign,
+                'sales_managers_auto_assign' => (bool) $salesManagersAutoAssign,
+            ];
+
+            return successResponse('', $response);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function searchAdmin(Request $request): JsonResponse
+    {
+        try {
+            $term = trim($request->input('search-query') ?? '');
+
+            $users = User::where('role', 'admin')
+                ->when($term, function ($query) use ($term): void {
+                    $query->where(function ($q) use ($term): void {
+                        $q->where('first_name', 'LIKE', sprintf('%%%s%%', $term))
+                            ->orWhere('last_name', 'LIKE', sprintf('%%%s%%', $term))
+                            ->orWhere('email', 'LIKE', sprintf('%%%s%%', $term));
+                    });
+                })
+                ->select('id', 'email', 'first_name', 'last_name')
+                ->paginate();
+
+            $users->getCollection()->transform(fn ($user): array => [
+                'id' => $user->id,
+                'name' => $user->first_name.' '.$user->last_name,
+                'email' => $user->email,
+            ]);
+
+            return successResponse('', $users);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -79,32 +98,12 @@ class SystemManagerController extends Controller
      *
      * Validates the request, updates manager assignments, auto-assign settings,
      * and sends notification emails if enabled.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function updateManagerSettings(SystemManagerSettingsRequest $request)
+    public function updateManagerSettings(SystemManagerSettingsRequest $request): JsonResponse
     {
         try {
-            $mailer = new AuthController;
-
-            $this->updateManager(
-                'account_manager',
-                'position',
-                'account',
-                $request->existingAccManager,
-                $request->newAccManager,
-                fn ($user) => $mailer->accountManagerMail($user)
-            );
-
-            $this->updateManager(
-                'manager',
-                'position',
-                'sales',
-                $request->existingSaleManager,
-                $request->newSaleManager,
-                fn ($user) => $mailer->salesManagerMail($user)
-            );
+            $this->updateManager('account_manager', $request->existingAccManager, $request->newAccManager);
+            $this->updateManager('manager', $request->existingSaleManager, $request->newSaleManager);
 
             $roles = [
                 'account' => $request->autoAssignAccount,
@@ -118,41 +117,27 @@ class SystemManagerController extends Controller
             }
 
             return successResponse(__('message.manager_settings_updated_successfully'));
-        } catch (\Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    /**
-     * Updates manager assignment and notifies users.
-     *
-     * @param  string  $managerColumn  The column representing the manager relationship.
-     * @param  string  $positionColumn  The column representing the user's position.
-     * @param  string  $role  The manager role ('account' or 'sales').
-     * @param  int  $oldManagerId  The ID of the old manager.
-     * @param  int  $newManagerId  The ID of the new manager.
-     * @param  \Closure  $mailCallback  Callback to send notification email.
-     * @return void
-     */
-    private function updateManager($managerColumn, $positionColumn, $role, $oldManagerId, $newManagerId, Closure $mailCallback)
+    private function updateManager(string $managerColumn, ?int $oldManagerId, ?int $newManagerId): void
     {
-        if (! filled($oldManagerId) || ! filled($newManagerId)) {
+        if (blank($oldManagerId) || blank($newManagerId)) {
             return;
         }
 
-        $position = $role === 'account' ? 'account_manager' : 'manager';
-        User::where('id', $newManagerId)->update([$positionColumn => $position]);
+        User::where('id', $newManagerId)->update(['position' => $managerColumn]);
 
-        $affectedUserIds = User::where($managerColumn, $oldManagerId)->pluck('id');
+        $affectedUserIds = emailSendingStatus()
+            ? User::where($managerColumn, $oldManagerId)->pluck('id')->all()
+            : [];
 
         User::where($managerColumn, $oldManagerId)->update([$managerColumn => $newManagerId]);
 
-        if (emailSendingStatus() && $affectedUserIds->isNotEmpty()) {
-            User::whereIn('id', $affectedUserIds)
-                ->cursor()
-                ->each(function ($user) use ($mailCallback) {
-                    $mailCallback($user);
-                });
+        if ($affectedUserIds) {
+            NotifyManagerChange::dispatch($affectedUserIds, $managerColumn, (int) $newManagerId);
         }
     }
 }

@@ -2,7 +2,7 @@
 /**
  * ExpectedOutcome
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -203,7 +203,7 @@ class ExpectedOutcome implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['target'] = $data['target'] ?? null;
         $this->container['tracking_metric'] = $data['tracking_metric'] ?? null;

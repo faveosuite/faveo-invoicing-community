@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\Controller;
-use App\Model\Order\InstallationDetail;
+use App\License\Models\Installation;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -12,22 +12,31 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Traits\TaxCalculation;
 use App\User;
+use Auth;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 
 class BaseRenewController extends Controller
 {
     use TaxCalculation;
 
-    public function invoiceBySubscriptionId($id, $planid, $cost, $currency, $agents = null)
+    public function invoiceBySubscriptionId(int $id, int $planid, float|int $cost, string $currency, int|string|null $agents = null): InvoiceItem|JsonResponse|RedirectResponse
     {
         try {
             $sub = Subscription::find($id);
+            if (! $sub) {
+                throw new Exception(__('message.record_not_found'));
+            }
+
             $order_id = $sub->order_id;
 
             return $this->getInvoiceByOrderId($order_id, $planid, $cost, $currency, $agents);
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -39,23 +48,30 @@ class BaseRenewController extends Controller
      * @param  int  $cost  The Renew cost for for the Paln
      * @param  string  $currency  Currency of ther plan
      */
-    public function getInvoiceByOrderId(int $orderid, int $planid, $cost, $currency, $agents = null)
+    public function getInvoiceByOrderId(int $orderid, int $planid, float|int $cost, string $currency, int|string|null $agents = null): InvoiceItem|JsonResponse|RedirectResponse
     {
         try {
+            /** @var Order $order */
             $order = Order::find($orderid);
             $invoice_item_id = $order->invoice_item_id;
-            $invoice_id = $order->invoice_id;
+            $invoice_id = $order->invoice_id; // @phpstan-ignore property.notFound
+            /** @var Invoice $invoice */
             $invoice = Invoice::find($invoice_id);
             if ($invoice_item_id == 0) {
-                $invoice_item_id = $invoice->invoiceItem()->first()->id;
+                /** @var InvoiceItem $firstInvoiceItem */
+                $firstInvoiceItem = $invoice->invoiceItem()->first();
+                $invoice_item_id = $firstInvoiceItem->id;
             }
+
+            /** @var InvoiceItem $item */
             $item = InvoiceItem::find($invoice_item_id);
             $product = $this->getProductByProductId($item->product_id, $order);
-            $user = $this->getUserById($order->client);
+            $user = $this->getUserById($order->client); // @phpstan-ignore method.notFound
             if (! $user) {
                 throw new Exception(__('message.user_removed_database'));
             }
-            if (! $product) {
+
+            if (! $product instanceof Product) {
                 throw new Exception(__('message.product_removed_database'));
             }
 
@@ -63,82 +79,90 @@ class BaseRenewController extends Controller
                 $agents = $item->agents;
             }
 
-            return $this->generateInvoice($product, $user, $orderid, $planid, $cost, $code = '', $agents, $currency);
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+            return $this->generateInvoice($product, $user, $orderid, $planid, $cost, '', $agents, $currency);
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function getProductByProductId($id, $order = '')
+    public function getProductByProductId(?int $id, Order|string|null $order = ''): ?Product
     {
         try {
             $product = Product::find($id);
             if ($product) {
                 return $product;
-            } else {
-                $product = Product::where('id', $order->product)->first();
-
-                return $product;
             }
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+
+            return $order instanceof Order ? Product::where('id', $order->product)->first() : null;
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function getCost(Request $request)
+    public function getCost(Request $request): JsonResponse
     {
         try {
             $planId = $request->input('plan');
-            $userId = $request->input('user');
-            $agents = $request->integer('agents', 0);
+            $orderId = $request->input('order');
 
-            if (! $planId || $planId === 'Choose') {
-                return response()->json([
-                    'formatted_price' => currencyFormat(0, getCurrencyForClient(User::find($userId)?->country)),
+            /** @var User $authUser */
+            $authUser = Auth::user();
+            if (! $planId) {
+                $currency = getCurrencyForClient($authUser->country);
+
+                return successResponse('', [
+                    'formatted_price' => currencyFormat(0, $currency),
+                    'renewalPrice' => currencyFormat(0, $currency, includeSymbol: false),
                 ]);
             }
 
             $plan = Plan::find($planId);
-            $planDetails = userCurrencyAndPrice($userId, $plan);
+            $planDetails = userCurrencyAndPrice($authUser->id, $plan);
             $price = $planDetails['plan']->renew_price;
             $currency = $planDetails['currency'];
 
-            if (isAgentAllowed($plan->product, $planId)) {
-                $priceForAgents = $price / $planDetails['plan']->no_of_agents;
-                $priceForTheAgents = $agents * $priceForAgents;
-                $formattedCurrency = currencyFormat($priceForTheAgents, $currency, true);
+            $agents = InvoiceItem::whereHas('invoice', fn (Builder $q) => $q->whereHas('orders', fn (Builder $q) => $q->where('orders.id', $orderId))) // @phpstan-ignore argument.templateType
+                ->where('plan_id', $planId)
+                ->orderByDesc('id')
+                ->value('agents');
+
+            if ($agents > 0 && $planDetails['plan']->no_of_agents > 0) {
+                $renewalPrice = ($price / $planDetails['plan']->no_of_agents) * (int) $agents;
             } else {
-                $formattedCurrency = currencyFormat($price, $currency, true);
+                $renewalPrice = $price;
             }
 
-            return response()->json([
+            $formattedCurrency = currencyFormat($renewalPrice, $currency, includeSymbol: true);
+
+            return successResponse('', [
                 'formatted_price' => $formattedCurrency,
-                'renewalPrice' => isAgentAllowed($plan->product, $planId) ? $priceForTheAgents : $price,
+                'renewalPrice' => currencyFormat($renewalPrice, $currency, includeSymbol: false),
             ]);
-        } catch (Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function generateInvoice($product, $user, $orderid, $planid, $cost, $code, $agents, $currency)
+    public function generateInvoice(Product $product, User $user, int $orderid, int $planid, float|int $cost, string $code, int|string|null $agents, string $currency): InvoiceItem|JsonResponse|RedirectResponse
     {
         try {
-            $controller = new InvoiceController();
-            if ($code != '') {
-                $product_cost = $controller->checkCode($code, $product->id, $currency);
+            $controller = new InvoiceController;
+            if ($code !== '') {
+                $controller->checkCode($code, $product->id, $currency); // @phpstan-ignore method.notFound
             }
-//            if (!empty($agents) && in_array($product->id, cloudPopupProducts())) {
-//                $license_code = Order::where('id', $orderid)->value('serial_key');
-//                $cost = $cost * (int) substr($license_code, -4);
-//            }
-            $renewalPrice = $cost; //Get Renewal Price before calculating tax over it to save as regular price of product
-            $controller = new \App\Http\Controllers\Order\InvoiceController();
-            $tax = $this->calculateTax($product->id, $user->state, $user->country);
-            $tax_name = $tax->getName();
-            $tax_rate = $tax->getValue();
+
+            //            if (!empty($agents) && in_array($product->id, cloudPopupProducts())) {
+            //                $license_code = Order::where('id', $orderid)->value('serial_key');
+            //                $cost = $cost * (int) substr($license_code, -4);
+            //            }
+            $renewalPrice = $cost; // Get Renewal Price before calculating tax over it to save as regular price of product
+            $controller = new InvoiceController;
+            $tax = $this->calculateTax($product->id, $user->state ?? '', $user->country ?? '');
+            $tax_name = $tax['name'];
+            $tax_rate = $tax['value'];
             $cost = rounding($controller->calculateTotal($tax_rate, $cost));
-            $number = rand(11111111, 99999999);
-            $date = \Carbon\Carbon::now();
+            $number = random_int(11111111, 99999999);
+            $date = Date::now();
             $invoice = Invoice::create([
                 'user_id' => $user->id,
                 'number' => $number,
@@ -148,23 +172,29 @@ class BaseRenewController extends Controller
                 'is_renewed' => 1,
                 'status' => 'pending',
             ]);
-            $renewController = new RenewController();
+            $renewController = new RenewController;
             $renewController->createOrderInvoiceRelation($orderid, $invoice->id);
-            $items = $controller->createInvoiceItemsByAdmin($invoice->id, $product->id, $renewalPrice, $currency, $qty = 1, $agents, $planid, $user->id, $tax_name, $tax_rate, $renewalPrice);
+            $items = $controller->createInvoiceItemsByAdmin($invoice->id, (string) $product->id, $renewalPrice, $currency, 1, $agents, $planid, $user->id, $tax_name, (float) $tax_rate, $renewalPrice);
             if (in_array($product->id, cloudPopupProducts())) {
                 $license_code = Order::where('id', $orderid)->value('serial_key');
-                $installation_path = InstallationDetail::where('order_id', $orderid)->latest()->value('installation_path');
-                \Session::put('AgentAlterationRenew', $user->id);
-                \Session::put('newAgentsRenew', $agents);
-                \Session::put('orderIdRenew', $orderid);
-                \Session::put('installation_pathRenew', $installation_path);
-                \Session::put('product_idRenew', $product->id);
-                \Session::put('oldLicenseRenew', $license_code);
+                $installation_path = Installation::where('license_code', Order::find($orderid)?->serial_key)
+                    ->latest('updated_at')->value('installation_path');
+                $invoice->update([
+                    'metadata' => [
+                        'renewal_agent' => [
+                            'new_agents' => $agents,
+                            'order_id' => $orderid,
+                            'installation_path' => $installation_path,
+                            'product_id' => $product->id,
+                            'old_license' => $license_code,
+                        ],
+                    ],
+                ]);
             }
 
             return $items;
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 }

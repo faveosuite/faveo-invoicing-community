@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('manager_settings', function (Blueprint $table) {
+        Schema::create('manager_settings', function (Blueprint $table): void {
             $table->id();
             $table->string('manager_role')->unique();
-            $table->boolean('auto_assign')->default(false);
+            $table->boolean('auto_assign')->default(value: false);
             $table->timestamps();
         });
     }

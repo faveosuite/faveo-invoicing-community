@@ -1,0 +1,1 @@
+import{o,g as _}from"./dateTime-BRlL7CfL.js";import{_ as n}from"./AdminErrorPage-B-0vlmO4.js";const c={__name:"NotFound",setup(t){return(e,s)=>(o(),_(n,{code:"404",color:"warning",title:e.__("message.page_not_found"),description:e.__("message.page_not_found_desc")},null,8,["title","description"]))}};export{c as default};

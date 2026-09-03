@@ -1,17 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Product;
 
 use App\Http\Requests\Request;
+use App\Traits\RequestJsonValidation;
+use Illuminate\Validation\Rule;
+use Override;
 
 class GroupRequest extends Request
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -19,31 +24,33 @@ class GroupRequest extends Request
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'name' => 'required',
-            // 'features.*.name' => 'required',
-            // 'title'           => 'required_with:type,price,value',
-            // 'type'            => 'required_with:title,price,value',
-            // 'price.*.name'    => 'required_unless:type,1|numeric',
-            // 'price.*.name'    => 'required_unless:type,2|numeric',
-            // 'value.*.name'    => 'required_unless:type,1',
-            // 'value.*.name'    => 'required_unless:type,2',
+            'name' => ['required', Rule::unique('product_groups', 'name')->ignore($this->route('group_id'))],
+            'headline' => ['nullable', 'string'],
+            'tagline' => ['nullable', 'string'],
+            'hidden' => ['nullable', 'integer'],
+            'pricing_templates_id' => ['required', 'exists:pricing_templates,id'],
+            'status' => ['nullable', 'boolean'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string', 'max:255'],
+            'og_title' => ['nullable', 'string', 'max:255'],
+            'og_description' => ['nullable', 'string', 'max:255'],
+            'og_image' => ['sometimes', 'file', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            'og_same_as_meta' => ['nullable', 'boolean'],
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [
-            'name.required' => __('validation.group.name.required'),
-            'features.*.name.required' => __('validation.group.features.name.required'),
-            'price.*.name.required_unless' => __('validation.group.price.name.required_unless'),
-            'value.*.name.required_unless' => __('validation.group.value.name.required_unless'),
-            'type.required_with' => __('validation.group.type.required_with'),
-            'title.required_with' => __('validation.group.title.required_with'),
+            'name.unique' => __('validation.group.name.unique'),
+            'og_image.mimes' => __('validation.og_image.mimes'),
+            'og_image.max' => __('validation.og_image.max'),
         ];
     }
 }

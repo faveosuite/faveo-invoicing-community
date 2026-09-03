@@ -85,8 +85,16 @@ class ListenCommand extends Command
             );
         }
 
+        $nodeExecutable = (new ExecutableFinder)->find('node');
+
+        if (! $nodeExecutable) {
+            throw new InvalidArgumentException(
+                'Node could not be found. Please ensure Node is installed and available in your system PATH.',
+            );
+        }
+
         $process = new Process([
-            (new ExecutableFinder)->find('node'),
+            $nodeExecutable,
             'file-watcher.cjs',
             json_encode(collect($paths)->map(fn ($path) => base_path($path))->values()->all()),
             $this->option('poll') ? '1' : '',
@@ -106,13 +114,13 @@ class ListenCommand extends Command
      */
     protected function startHorizon()
     {
-        $command = 'php artisan horizon';
+        $command = ['php', 'artisan', 'horizon'];
 
         if ($environment = $this->option('environment')) {
-            $command .= ' --environment='.$environment;
+            $command[] = '--environment='.$environment;
         }
 
-        $this->horizonProcess = Process::fromShellCommandline($command)
+        $this->horizonProcess = (new Process($command))
             ->setTimeout(null);
 
         $this->trap([SIGINT, SIGTERM, SIGQUIT], function ($signal) {
@@ -128,7 +136,7 @@ class ListenCommand extends Command
 
         $this->horizonProcess->start();
 
-        usleep(100000);
+        usleep(100_000);
 
         return ! $this->horizonProcess->isTerminated();
     }
@@ -151,7 +159,7 @@ class ListenCommand extends Command
                 break;
             }
 
-            usleep(500000);
+            usleep(500_000);
         }
     }
 

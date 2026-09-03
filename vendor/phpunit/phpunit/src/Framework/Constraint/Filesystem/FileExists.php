@@ -10,6 +10,7 @@
 namespace PHPUnit\Framework\Constraint;
 
 use function file_exists;
+use function is_string;
 use function sprintf;
 
 /**
@@ -26,11 +27,29 @@ final class FileExists extends Constraint
     }
 
     /**
+     * Returns the negated description when this constraint is wrapped in a
+     * LogicalNot operator. The guard ensures that LogicalAnd, LogicalOr, and
+     * LogicalXor keep using the affirmative toString().
+     */
+    protected function toStringInContext(Operator $operator, mixed $role): string
+    {
+        if (!$operator instanceof LogicalNot) {
+            return '';
+        }
+
+        return 'file does not exist';
+    }
+
+    /**
      * Evaluates the constraint for parameter $other. Returns true if the
      * constraint is met, false otherwise.
      */
     protected function matches(mixed $other): bool
     {
+        if (!is_string($other)) {
+            return false;
+        }
+
         return file_exists($other);
     }
 
@@ -44,7 +63,30 @@ final class FileExists extends Constraint
     {
         return sprintf(
             'file "%s" exists',
-            $other,
+            $this->path($other),
         );
+    }
+
+    protected function failureDescriptionInContext(Operator $operator, mixed $role, mixed $other): string
+    {
+        // @codeCoverageIgnoreStart
+        if (!$operator instanceof LogicalNot) {
+            return '';
+        }
+        // @codeCoverageIgnoreEnd
+
+        return sprintf(
+            'file "%s" does not exist',
+            $this->path($other),
+        );
+    }
+
+    private function path(mixed $other): string
+    {
+        if (is_string($other)) {
+            return $other;
+        }
+
+        return '';
     }
 }

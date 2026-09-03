@@ -364,7 +364,7 @@ return [
             'integer' => '数量は整数でなければなりません。',
         ],
     ],
-    //Payment form
+    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'クーポンコードの入力は必須です。',
@@ -420,7 +420,7 @@ return [
         ],
     ],
 
-    //Product
+    // Product
     'subscription_form' => [
         'name' => [
             'required' => '名前の入力は必須です。',
@@ -509,7 +509,7 @@ return [
             'required_if' => 'タイプが2の場合、GitHubリポジトリの入力は必須です。',
         ],
     ],
-    //User
+    // User
     'users' => [
         'first_name' => [
             'required' => '名は必須項目です。',
@@ -619,7 +619,7 @@ return [
         'required' => '国コード（携帯）を入力してください。',
     ],
 
-    //Invoice form
+    // Invoice form
     'invoice' => [
         'user' => [
             'required' => '顧客フィールドは必須です。',
@@ -642,7 +642,7 @@ return [
         ],
     ],
 
-    //LocalizedLicense form
+    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'ドメインフィールドは必須です。',
@@ -650,7 +650,7 @@ return [
         ],
     ],
 
-    //Product Renewal form
+    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'ドメインフィールドは必須です。',
@@ -658,13 +658,13 @@ return [
         ],
     ],
 
-    //Language form
+    // Language form
     'language' => [
         'required' => '言語フィールドは必須です。',
         'invalid' => '選択された言語が無効です。',
     ],
 
-    //UpdateSroragePathRequest form
+    // UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'ストレージディスクフィールドは必須です。',
@@ -676,7 +676,7 @@ return [
         ],
     ],
 
-    //ValidateSecretRequest form
+    // ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'コードを入力してください。',
@@ -684,7 +684,7 @@ return [
         ],
     ],
 
-    //VerifyOtp form
+    // VerifyOtp form
     'verify_email' => [
         'required' => 'メールアドレスは必須項目です。',
         'email' => '有効なメールアドレスを入力してください。',
@@ -709,7 +709,7 @@ return [
         'invalid' => '無効なパスワードです。',
     ],
 
-    //AuthControllerファイル
+    // AuthControllerファイル
     'auth_controller' => [
         'name_required' => '名前は必須です。',
         'name_max' => '名前は255文字を超えることはできません。',

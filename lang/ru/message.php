@@ -198,7 +198,6 @@ return [
     'token_secret' => 'Секрет токена доступа Twitter',
     'rzp_key' => 'Ключ Razorpay',
     'rzp_secret' => 'Секрет Razorpay',
-    'apilayer_key' => 'Ключ доступа ApiLayer (Для конвертации обменных курсов)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'API Ключ Mailchimp',
     'terms_url' => 'URL условий',
@@ -466,7 +465,6 @@ return [
          */
     'rzp_key' => 'Razorpay ключ',
     'rzp_secret' => 'Razorpay секрет',
-    'apilayer' => 'ApiLayer ключ доступа',
     'zoho_key' => 'Zoho ключ',
     'key' => 'API ключи',
     'msg91key' => 'Msg91 ключ авторизации',
@@ -706,10 +704,10 @@ return [
     'cloud_field_label' => 'Введите желаемое имя домена облака',
     'cloud_price' => 'Цена за агента',
 
-    //Сообщение удаления
+    // Сообщение удаления
     'confirm' => 'Вы уверены, что хотите удалить это?',
 
-    //Сообщение удаления
+    // Сообщение удаления
     'cloud_domain_change' => 'Отличные новости! Ваш домен облака был успешно изменен. Пожалуйста, обратите внимание, что для применения этих изменений будет небольшой перерыв на примерно 5 минут. Благодарим за ваше терпение!',
     'limit_is_up' => 'Мы заметили, что вы превысили лимит бесплатной пробной версии, пожалуйста, удалите существующие экземпляры, чтобы продолжить.',
     'too_long' => 'Похоже, что домен слишком длинный, попробуйте создать его с меньшим количеством символов.',
@@ -874,7 +872,7 @@ return [
     'required_stripe_secret' => 'Пожалуйста, введите Stripe Secret',
     'max_stripe_secret' => 'Stripe Secret не может превышать 200 символов',
 
-    //email templates
+    // email templates
 
     'choose_password' => 'Нажмите здесь, чтобы сбросить ваш пароль: ',
     'email_username' => 'Имя пользователя: ',
@@ -882,7 +880,7 @@ return [
     'email_click_here' => 'Нажмите здесь',
     'activate_account' => 'Чтобы активировать вашу учетную запись:',
 
-    //error template
+    // error template
     'page_not_found' => 'Страница не найдена',
     'sorry' => 'Извините, но страница, которую вы ищете, не существует.',
     'useful_links' => 'Вот несколько полезных ссылок',
@@ -891,7 +889,7 @@ return [
     'my_profile' => 'Мой профиль',
     'contact_us' => 'Свяжитесь с нами',
 
-    //login-register template
+    // login-register template
     'login_lr' => 'Войти | Зарегистрироваться',
     'sign_lr' => 'Войти или зарегистрироваться',
     'or' => 'Или',
@@ -925,7 +923,7 @@ return [
     'error_occurred' => 'Произошла ошибка. Пожалуйста, попробуйте снова.',
     'error_one_country' => 'Пожалуйста, выберите одну страну',
 
-    //contact template
+    // contact template
     'feel_free' => 'Не стесняйтесь задавать вопросы, не оставляйте их без ответа!',
     'contact_name' => 'Имя',
     'contact_error_name' => 'Пожалуйста, введите ваше имя.',
@@ -938,7 +936,7 @@ return [
     'contact_send_msg' => 'Отправить сообщение',
     'our_office' => 'Наш офис',
 
-    //password template
+    // password template
     'forgot_password' => 'Забыли пароль? Сбросьте его сейчас!',
     'lost_password' => 'Забыли свой пароль?',
     'know_password' => 'Я знаю свой пароль',
@@ -948,7 +946,7 @@ return [
     'error_occurs' => 'Произошла ошибка.',
     'reset_password' => 'Сбросить пароль',
 
-    //front-client template
+    // front-client template
     'change_faveo' => 'Хотите изменить свой текущий домен Faveo?',
     'current_domain' => 'Введите текущий домен',
     'enter_domain' => 'Введите новый домен',
@@ -1110,7 +1108,7 @@ return [
     'subscriptions_table' => 'Таблица подписок',
     'invalid_format' => 'Неверный формат.',
 
-    //front-page template
+    // front-page template
     'all_pages' => 'Все страницы',
     'create_new_page' => 'Создать новую страницу',
     'edit_page' => 'Редактировать страницу',
@@ -1120,14 +1118,14 @@ return [
     'select_checkbox' => 'Пожалуйста, выберите хотя бы один флажок',
     'search_result' => 'Результат поиска',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => 'Все виджеты',
     'create_widget' => 'Создать виджет',
     'configure_mailchimp' => 'Настройте Mailchimp в настройках для доступа',
     'configure_tweet' => 'Настройте твиты в настройках для доступа',
     'edit_widget' => 'Редактировать виджет',
 
-    //front outer template
+    // front outer template
     'remove_product' => 'Удалить товар',
     'cart_totals' => 'Итого в корзине',
     'clear_cart' => 'Очистить корзину',
@@ -1139,6 +1137,7 @@ return [
     'clear_my_cart' => 'Очистить мою корзину',
     'proceed_checkout' => 'Перейти к оформлению заказа',
     'checkout' => 'Оформление заказа',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'Ваша корзина пуста',
     'your_order' => 'Ваш заказ',
     'cart_subtotal' => 'Промежуточный итог корзины',
@@ -1183,11 +1182,11 @@ return [
     'go_back' => 'Вернуться назад',
     'be_right_back' => 'Скоро вернемся.',
 
-    //category template
+    // category template
     'all_categories' => 'Все категории',
     'category_name' => 'Название',
 
-    //common template
+    // common template
     'create_script_code' => 'Создать код сценария',
     'create_script' => 'Создать сценарий',
     'edit_script_code' => 'Редактировать код сценария',
@@ -1225,7 +1224,6 @@ return [
     'company_details' => 'Данные компании',
     'url_installation' => 'URL предоставляет подробные инструкции по установке',
     'delete_logo' => 'Удалить логотип.',
-    'template_settings' => 'Настройки шаблона',
     'template_list' => 'Список шаблонов',
     'invoice_mail_template' => 'Выберите шаблон письма с счетом',
     'purchase_confirmation' => 'Подтверждение покупки',
@@ -1250,7 +1248,6 @@ return [
     'register_mail' => 'Регистрационное письмо',
     'choose_register_mail_template' => 'Выберите шаблон письма для регистрации',
     'create_new_social_media' => 'Создать новый социальный аккаунт',
-    'edit_social_media' => 'Редактировать социальные сети',
     'social_media' => 'Социальные сети',
     'edit_template' => 'Редактировать шаблон',
     'shortcode_information' => 'Информация о шорткодах',
@@ -1272,7 +1269,6 @@ return [
     'cloud_hub' => 'Облачный центр',
     'debug' => 'Отладка',
     'clockwork' => 'Часовая работа',
-    'social_logins' => 'Социальные логины',
     'err_log' => 'Журнал ошибок',
     'email_log' => 'Журнал электронной почты',
     'payment_log' => 'Журнал платежей',
@@ -1281,6 +1277,10 @@ return [
     'api' => 'API',
     'mail_chimp' => 'Mail Chimp',
     'common' => 'Общие',
+    'license_and_access' => 'License & Access',
+    'integrations' => 'Integrations',
+    'communication' => 'Communication',
+    'logs_and_monitoring' => 'Logs & Monitoring',
     'country_list' => 'Список стран',
     'footer' => 'Подвал',
     'analytics_custom_code' => 'Аналитика/Пользовательский код',
@@ -1349,14 +1349,14 @@ return [
     'deactivate' => 'Деактивировать',
     'provider' => 'Поставщик',
 
-    //github template
+    // github template
     'github_setting' => 'Настройки Github',
     'enter_github_username' => 'Введите имя пользователя Github',
     'enter_github_password' => 'Введите пароль Github',
     'enter_github_clientid' => 'Введите ID клиента',
     'enter_github_client_secret_key' => 'Введите секретный ключ клиента',
 
-    //invoice template
+    // invoice template
     'edit_invoice' => 'Редактировать счет',
     'view_user' => 'Просмотреть пользователя',
     'pending' => 'Ожидает',
@@ -1397,7 +1397,7 @@ return [
     'no_tax_rates' => 'Нет налоговых ставок',
     'store' => 'Магазин',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => 'Административная панель',
     'my_account' => 'Мой аккаунт',
     'start_free_trial' => 'НАЧАТЬ БЕСПЛАТНЫЙ ПРОБНЫЙ ПЕРИОД',
@@ -1438,7 +1438,7 @@ return [
     'enter_domain_license' => 'Введите домен и загрузите файл лицензии',
     'installation_details' => 'Детали установки',
 
-    //payement panel
+    // payement panel
     'payment_date' => 'Дата платежа',
     'auto_renewal_subscription' => 'Автопродление для будущих подписок',
     'subscription_start_date' => 'Дата начала подписки',
@@ -1464,13 +1464,12 @@ return [
     'coupon' => 'Купон',
     'actions' => 'Действия',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => 'Создать налог',
     'caps_others' => 'ДРУГИЕ',
     'others' => 'Другие',
     'all_states' => 'Все штаты',
     'edit_tax_class' => 'Редактировать налоговый класс',
-    'edit_tax' => 'Редактировать налог',
     'create_tax_option_class' => 'Создать налоговые опции и классы налогов',
     'caps_enabled' => 'ВКЛЮЧЕНО',
     'caps_disabled' => 'ВЫКЛЮЧЕНО',
@@ -1503,7 +1502,7 @@ return [
     'show_cart_page' => 'Показать на странице корзины',
     'select_taxes' => 'Выберите налоги',
 
-    //Product panel
+    // Product panel
     'all_product_details' => 'Добавить детали продукта',
     'enter_json_format' => 'Введите формат JSON.',
     'upload' => 'Загрузить',
@@ -1532,22 +1531,21 @@ return [
     'all_types' => 'Все типы',
     'configure_queue' => 'Настроить очередь',
 
-    //renew panel
+    // renew panel
     'renew_product' => 'Убедитесь, что корзина пуста для продления вашего продукта',
     'click_renew' => 'Нажмите здесь, чтобы продлить',
     'renew_your_order' => 'Продлить ваш заказ',
     'renew_order' => 'Продлить заказ',
     'renewal_price_per_agent' => 'Цена продления за агента:',
 
-    //report panel
+    // report panel
     'file_name' => 'Имя файла',
     'format' => 'Формат',
     'contact' => 'Контакт',
     'report_settings' => 'Настройки отчета',
     'report_limit' => 'Добавьте записи на лист. Максимальный лимит — 3000.',
 
-    //tenant panel
-    'cloud_details' => 'Детали облака',
+    // tenant panel
     'cloud_server' => 'Облачный сервер',
     'customise_cloud_popup' => 'Настроить всплывающее окно облака',
     'cloud_product_configuration' => 'Конфигурация облачного продукта',
@@ -1574,7 +1572,7 @@ return [
     'app_key' => 'Ключ приложения',
     'app_secret' => 'Секрет приложения',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'Создать нового пользователя',
     'create_user' => 'Создать пользователя',
     'position' => 'Должность',
@@ -1689,7 +1687,7 @@ return [
     'error_logs' => 'Логи ошибок',
     'view_logs' => 'Просмотр логов',
 
-    //visitstats
+    // visitstats
     'request' => 'Запрос',
     'visitor' => 'Посетитель',
     'browser' => 'Браузер',
@@ -1849,7 +1847,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'Пожалуйста, введите действительный ключ Razorpay.',
         'rzp_secret' => 'Пожалуйста, введите действительный секретный ключ Razorpay.',
-        'apilayer_key' => 'Пожалуйста, введите действительный ключ доступа.',
     ],
 
     'sys_manager' => [
@@ -2041,7 +2038,6 @@ return [
     'month' => 'месяц',
     'year' => 'год',
     'all_time' => 'Все время',
-    'license_types' => 'Типы лицензий',
     'caps_go' => 'Перейти',
     'invoice_due' => 'К оплате',
     'subscription-error-message' => 'Пожалуйста, выберите действующий план подписки',
@@ -2296,7 +2292,6 @@ return [
     'till' => 'До',
     'cannot_disable_language' => 'Невозможно отключить язык по умолчанию',
     'langugae_toggle' => 'Этот переключатель позволяет включать или отключать выпадающие меню доступных языков.',
-    'payment_logs' => 'Журналы платежей',
     'deactive' => 'Неактивен',
     'forgot_password_faveo_helpdesk' => 'Забыли пароль | Faveo Helpdesk',
     'reset_password_faveo_helpdesk' => 'Сбросить пароль | Faveo Helpdesk',
@@ -2318,7 +2313,6 @@ return [
     'activity_logs' => 'Журналы активности',
     'payment_gateway_integrations' => 'Интеграции платежных шлюзов',
     'third_party_integrations' => 'Интеграции сторонних сервисов',
-    'contact_options' => 'Варианты контакта',
     'msg91_reports' => 'Отчеты MSG91',
     'queue_monitoring' => 'Мониторинг очереди',
     'pulse' => 'Пульс',
@@ -2526,7 +2520,6 @@ return [
     'zoom_out' => 'Уменьшить',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => 'Переиздать&nbsp;лицензию',
-    'api_layer_access_key' => 'Ключ доступа ApiLayer (для конвертации курса валют)',
     'download_logs' => 'Скачать логи',
     'delete_logs' => 'Удалить логи',
     'type_here_search' => 'Введите здесь для поиска',
@@ -2799,7 +2792,6 @@ return [
     'login_password_validation' => 'Пожалуйста, введите ваш пароль.',
     'whatsapp_product_explanation' => 'Включите эту опцию, чтобы отобразить встроенный процесс регистрации WhatsApp для выбранного продукта на странице заказа клиента.',
     'whatsapp_product_heading' => 'Встроенный Процесс Регистрации',
-    'whatsapp_users' => 'Пользователи WhatsApp',
     'phone_number' => 'Номер Телефона',
     'waba_id' => 'Waba ID',
     'phone_number_id' => 'ID Номера Телефона',
@@ -2874,4 +2866,256 @@ return [
     'not_found_title' => 'Упс! Страница не найдена.',
     'not_found_message' => 'Мы не смогли найти страницу, которую вы искали.',
     'not_found_return_prefix' => 'Тем временем вы можете ',
+
+    /*
+     * Vue i18n keys — added for Vue page translations
+     */
+    'back' => 'Back',
+    'back_to_invoices' => 'Back to Invoices',
+    'back_to_orders' => 'Back to Orders',
+    'back_to_products' => 'Back to Products',
+    'back_to_users' => 'Back to Users',
+    'back_to_pages' => 'Back to Pages',
+    'choose_country_first' => 'Choose a country first',
+    'select_user' => 'Select User',
+    'select_product' => 'Select Product',
+    'select_plan' => 'Select Plan',
+    'invoice_date' => 'Invoice Date',
+    'cloud_domain_label' => 'Cloud Domain',
+    'order_no' => 'Order No',
+    'qty' => 'Qty',
+    'no_items_found' => 'No items found',
+    'unlimited' => 'Unlimited',
+    'download_pdf' => 'Download PDF',
+    'invoice_no_col' => 'Invoice No',
+    'edit_updates_expiry' => 'Edit Updates Expiry Date',
+    'edit_license_expiry' => 'Edit License Expiry Date',
+    'edit_support_expiry' => 'Edit Support Expiry Date',
+    'product_image' => 'Product Image',
+    'image_help' => 'JPEG, PNG, JPG — max 2MB',
+    'show_agent' => 'Show Agent',
+    'add_to_contact' => 'Add to Contact',
+    'can_modify_agent' => 'Can Modify Agent',
+    'can_modify_quantity' => 'Can Modify Quantity',
+    'hidden_pricing_page' => 'Hidden (Pricing Page)',
+    'hidden_admin_dropdown' => 'Hidden (Admin Dropdown)',
+    'whatsapp_signup_flow' => 'WhatsApp Signup Flow',
+    'select_tax_classes_text' => 'Select the tax classes that apply to this product.',
+    'no_tax_classes' => 'No tax classes found.',
+    'select_license_type' => 'Select license type',
+    'select_group' => 'Select group',
+    'select_parent' => 'Select parent',
+    'product_sku' => 'Product SKU',
+    'public_company' => 'Public Company',
+    'self_employed' => 'Self Employed',
+    'non_profit' => 'Non Profit',
+    'privately_held' => 'Privately Held',
+    'partnership' => 'Partnership',
+    'myself_only' => 'Myself only',
+    'filter' => 'Filter',
+    'bulk_action' => 'Bulk Action',
+    'create_invoice_btn' => 'Create Invoice',
+    'payment_method_label' => 'Payment Method',
+    'set_as_default_page' => 'Set as Default Page',
+    'custom' => 'Custom',
+    'page_url' => 'URL',
+    'select_type' => 'Select type',
+    'suspend' => 'Suspend',
+    'all_users' => 'All Users',
+    'zip_postal_code' => 'Zip/Postal Code',
+    'payments_section' => 'Payments',
+    'mobile_label' => 'Mobile',
+    'email_label' => 'Email',
+    'name_label' => 'Name',
+    'country_label' => 'Country',
+
+    // New keys for Vue i18n updates
+    'no_of_agents' => 'No. of Agents',
+    'design_template' => 'Design Template',
+    'hidden_group' => 'Hidden Group',
+    'check_hidden_group' => 'Check this if this is a hidden group',
+    'add_currency' => 'Add Currency',
+    'no_payment_gateways' => 'No payment gateways found.',
+    'gateway_settings' => 'Settings',
+    'list_of_available_shortcodes' => 'List of Available Shortcodes',
+    'from_email' => 'From Email',
+    'mail_driver' => 'Mail Driver',
+    'smtp_host' => 'SMTP Host',
+    'smtp_port' => 'SMTP Port',
+    'add_app' => 'Add App',
+    'edit_app' => 'Edit App',
+    'add_license_type_btn' => 'Add License Type',
+    'add_permissions_btn' => 'Add Permissions',
+    'no_permissions_selected' => 'No Permissions Selected',
+    'make_default' => 'Make Default',
+    'cannot_disable_default_language' => 'Cannot disable the default language',
+    'native_name' => 'Native Name',
+    'iso_code' => 'ISO Code',
+    'system_default' => 'System Default',
+    'configure_gateway' => 'Configure detailed settings for this payment gateway at:',
+    'no_additional_settings' => 'No additional settings available.',
+    'payment_gateway_not_found' => 'Payment gateway not found.',
+    'copy_shortcode_info' => 'Copy a shortcode and paste it into the template content where you want the value to appear.',
+    'edit_social_login' => 'Edit Social Login',
+    'create_product_plan' => 'Create Plan',
+    'edit_product_plan' => 'Edit Plan',
+    'create_coupon_title' => 'Create Coupon',
+    'edit_coupon_title' => 'Edit Coupon',
+    'secret_key_label' => 'Secret Key',
+    'two_step_verification_on_since' => '2-Step Verification is ON since',
+    'mailgun_domain' => 'Domain',
+    'ses_key' => 'Key',
+    'email_templates' => 'Email Templates',
+    'template_settings' => 'Template Settings',
+    'edit_template' => 'Edit Template',
+    'reply_email' => 'Reply Email',
+    'content' => 'Content',
+    'account_info' => 'Account Info',
+    'export_selected_records' => 'Export Selected Records',
+    'search_by_company' => 'Search by company',
+    'verified' => 'Verified',
+    'not_verified' => 'Not Verified',
+    'enabled' => 'Enabled',
+    'disabled' => 'Disabled',
+    'admin' => 'Admin',
+    'exact_order_number' => 'Exact order number',
+    'new_date' => 'New Date',
+    'select_parent_page' => 'Select parent page',
+    'publishing_date' => 'Publishing Date',
+
+    // New keys for i18n update - settings/api, settings/common, logs, settings/settings, widgets, reports
+    'recaptcha_configuration' => 'reCAPTCHA Configuration',
+    'recaptcha_version' => 'reCAPTCHA Version',
+    'general' => 'General',
+    'preview' => 'Preview',
+    'appearance' => 'Appearance',
+    'verify_v3_key' => 'Verify v3 key',
+    'v3_key_valid' => 'v3 key valid',
+    'cannot_disable_dashboard_currency' => 'Cannot disable a dashboard currency',
+    'set_as_default_currency' => 'Set as Default Currency',
+    'set_as_dashboard_currency' => 'Set as Dashboard Currency',
+    'payment_failed_exception' => 'Payment Failed — Exception',
+    'debug_mode' => 'Debug Mode',
+    'debug_mode_description' => 'Enables APP_DEBUG, Pulse, and Clockwork.',
+    'system_local' => 'System (Local)',
+    'amazon_s3' => 'Amazon S3',
+    'auto_assign_account_managers' => 'Enable Auto Assignment for Account Managers',
+    'auto_assign_account_managers_desc' => 'Automatically assign an account manager to new clients upon creation.',
+    'auto_assign_sales_managers' => 'Enable Auto Assignment for Sales Managers',
+    'auto_assign_sales_managers_desc' => 'Automatically assign a sales manager to new clients upon creation.',
+    'select_replacement_account_manager' => 'Select Replacement Account Manager',
+    'enter_whatsapp_app_id' => 'Enter your WhatsApp App ID',
+    'enter_whatsapp_app_secret' => 'Enter your WhatsApp App Secret',
+    'enter_whatsapp_config_id' => 'Enter your WhatsApp Config ID',
+    'enter_whatsapp_verify_token' => 'Enter your WhatsApp Verify Token',
+    'edit_webhook_url' => 'Edit Webhook URL',
+    'enter_webhook_url' => 'Enter webhook URL',
+    'copy_phone_number_id' => 'Copy Phone Number ID',
+    'add_social_media' => 'Add Social Media',
+    'records_per_export_desc' => 'Maximum number of records to include in each export (1–3000).',
+    'every_minute' => 'Every Minute',
+    'every_five_minutes' => 'Every Five Minutes',
+    'every_ten_minutes' => 'Every Ten Minutes',
+    'every_thirty_minutes' => 'Every Thirty Minutes',
+    'hourly' => 'Hourly',
+    'daily' => 'Daily',
+    'daily_at' => 'Daily At',
+    'weekly' => 'Weekly',
+    'cloud_mail_days' => 'Cloud Mail Days',
+    'invoice_deletion_days' => 'Invoice Deletion Days',
+    'msg91_report_days' => 'MSG91 Report Days',
+    'reoon_log_days' => 'Reoon Log Days',
+    'system_log_days' => 'System Log Days',
+    'installation_log_days' => 'Installation Log Days',
+    'license_reports_days' => 'License Reports Days',
+    'license_callbacks_days' => 'License Callbacks Days',
+    'license_crack_days' => 'License Crack Days',
+    'license_system_days' => 'License System Days',
+    'license_versions_days' => 'License Versions Days',
+    'activity_log_days' => 'Activity Log Days',
+    'delete_all_reports' => 'Delete All Reports',
+    'delete_all_logs' => 'Delete All Logs',
+    'cron_days' => 'Cron Days',
+    'expiry_mail_days' => 'Expiry Mail Days',
+    'auto_renewal_days' => 'Auto Renewal Days',
+    'post_expiry_days' => 'Post Expiry Days',
+    'select_an_option' => 'Select an option',
+    'verify_and_copy_command' => 'Verify and copy command',
+    'specify_php_executable' => 'Specify PHP executable path',
+    'please_select_date' => 'Please select a date.',
+    'delete_whatsapp_user_confirm' => 'Delete WhatsApp user',
+    'delete_selected_reports_confirm' => 'Delete :count selected report(s)? This cannot be undone.',
+    'select_date' => 'Select date',
+    'installed_at_least_once' => 'Installed (at least once)',
+    'not_installed' => 'Not Installed',
+    'active_installation' => 'Active Installation',
+    'inactive_installation' => 'Inactive Installation',
+    'active_subscription_label' => 'Active',
+    'expiring_subscription' => 'Expiring (within 30 days)',
+    'expired_subscription' => 'Expired',
+    'unpaid' => 'Unpaid',
+    'partially_paid' => 'Partially Paid',
+    'paid' => 'Paid',
+    'select_a_template' => 'Select a template',
+    'select_a_type' => 'Select a type',
+    'admin_logo' => 'Admin Panel Logo',
+    'client_logo' => 'Client Panel Logo',
+    'company_email' => 'Company Email',
+    'default_currency' => 'System Default Currency',
+    'favicon' => 'Favicon',
+    'meta_title_admin' => 'Meta Title (Admin Panel)',
+    'meta_title_client' => 'Meta Title (Client Panel)',
+    'invoice_total' => 'Invoice Total',
+    'logo_and_favicon' => 'Logo and Favicon',
+    'use_default' => 'Use Default',
+    'use_logo' => 'Use Logo',
+    'autorenewal' => 'Auto Renewal',
+    'cannot_disable_default_currency' => 'Cannot disable the default currency',
+    'days' => 'days',
+    'sales' => 'Sales',
+    'sold' => 'Sold',
+    'subscribe' => 'Subscribe',
+    'unsubscribe' => 'Unsubscribe',
+    'manager' => 'Account Manager',
+    'payments' => 'Payments',
+    'order_id' => 'Order No',
+    'email_not_verified' => 'Email not verified',
+    'mobile_not_verified' => 'Mobile not verified',
+    'social-logins' => 'Social Logins',
+
+    // ── Open Payment Page ──────────────────────────────────────────
+    'op_secure_checkout' => 'Secure Checkout',
+    'op_payment_details' => 'Payment Details',
+    'op_fill_info' => 'Fill in your information to proceed with payment',
+    'op_personal_info' => 'Personal Information',
+    'op_street_address' => 'Street Address',
+    'op_zip_code' => 'ZIP / Postal Code',
+    'op_payment_info' => 'Payment Information',
+    'op_description_optional' => 'Description (optional)',
+    'op_payment_gateway' => 'Payment Gateway',
+    'op_continue_to_review' => 'Continue to Review',
+    'op_review_order' => 'Review Order',
+    'op_confirm_details' => 'Confirm your details before paying',
+    'op_paying_as' => 'Paying As',
+    'op_payment_summary' => 'Payment Summary',
+    'op_total_due' => 'Total Due',
+    'op_gateway' => 'Gateway',
+    'op_note' => 'Note',
+    'op_processing' => 'Processing…',
+    'op_pay' => 'Pay',
+    'op_payment_successful' => 'Payment Successful',
+    'op_payment_failed' => 'Payment Failed',
+    'op_success_msg' => 'Your transaction was completed successfully. A confirmation will be sent to your email.',
+    'op_transaction_id' => 'Transaction ID',
+    'op_amount_paid' => 'Amount Paid',
+    'op_make_another' => 'Make Another Payment',
+    'op_try_again' => 'Try Again',
+    'op_step_details' => 'Details',
+    'op_step_review' => 'Review',
+    'op_step_done' => 'Done',
+    'op_razorpay_methods' => 'Cards · UPI · Net Banking · Wallets',
+    'op_stripe_methods' => 'Cards',
+    'op_what_payment_for' => 'What is this payment for?',
+    'op_something_went_wrong' => 'Something went wrong. Please try again.',
+    'cvc' => 'CVC',
 ];

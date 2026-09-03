@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -11,22 +12,21 @@ class TenatExport implements FromCollection, WithHeadings, WithTitle
 {
     use Exportable;
 
-    protected $selectedColumns;
-    protected $tenantsData;
-    protected $sheetIndex;
-
-    public function __construct($selectedColumns, $tenantsData, $sheetIndex)
+    public function __construct(protected mixed $selectedColumns, protected mixed $tenantsData, protected mixed $sheetIndex)
     {
-        $this->selectedColumns = $selectedColumns;
-        $this->tenantsData = $tenantsData;
-        $this->sheetIndex = $sheetIndex;
     }
 
-    public function collection()
+    /**
+     * @return Collection<int|string, mixed>
+     */
+    public function collection(): Collection
     {
         return collect($this->tenantsData);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function headings(): array
     {
         $headingsMap = [
@@ -44,9 +44,7 @@ class TenatExport implements FromCollection, WithHeadings, WithTitle
             'db_username' => 'Database Username',
         ];
 
-        return array_map(function ($column) use ($headingsMap) {
-            return $headingsMap[$column] ?? $column;
-        }, $this->selectedColumns);
+        return array_map(fn ($column) => $headingsMap[$column] ?? $column, $this->selectedColumns);
     }
 
     public function title(): string

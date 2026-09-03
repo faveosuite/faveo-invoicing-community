@@ -4,57 +4,29 @@ namespace App\Traits;
 
 use App\ApiKey;
 use App\FileSystemSettings;
+use App\Http\Requests\UpdatePdfSettingsRequest;
 use App\Http\Requests\UpdateStoragePathRequest;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\StatusSetting;
+use App\Services\Pdf\PdfManager;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
-use DateTime;
 use DrewM\MailChimp\MailChimp;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Lang;
 
-//////////////////////////////////////////////////////////////
-//TRAIT FOR SAVING API STATUS AND API KEYS //
-////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////
+// TRAIT FOR SAVING API STATUS AND API KEYS //
+// //////////////////////////////////////////////////////////////
 
 trait ApiKeySettings
 {
-    public function licenseDetails(Request $request)
-    {
-        $status = $request->input('status');
-        $licenseApiSecret = $request->input('license_api_secret');
-        $licenseApiUrl = $request->input('license_api_url');
-        $licenseApiClientId = $request->input('license_client_id');
-        $licenseApiClientSecret = $request->input('license_client_secret');
-        $licenseApiGrantType = $request->input('license_grant_type');
-
-        $data = [
-            'api_key_secret' => $licenseApiSecret,
-            'client_id' => $licenseApiClientId,
-            'client_secret' => $licenseApiClientSecret,
-            'grant_type' => $licenseApiGrantType,
-        ];
-
-        try {
-            $response = Http::withoutVerifying()->asForm()->post($licenseApiUrl.'oauth/token', $data);
-            $response = json_decode($response);
-            $token = $response->access_token;
-        } catch(\Exception $e) {
-            return errorResponse(\Lang::get('message.license_invalid'));
-        }
-        StatusSetting::where('id', 1)->update(['license_status' => $status]);
-        ApiKey::where('id', 1)->update(['license_api_secret' => $licenseApiSecret, 'license_api_url' => $licenseApiUrl,
-            'license_client_id' => $licenseApiClientId, 'license_client_secret' => $licenseApiClientSecret,
-            'license_grant_type' => $licenseApiGrantType, ]);
-
-        return successResponse(\Lang::get('message.license_setting'));
-    }
-
-    public function licenseStatus(Request $request)
+    public function licenseStatus(Request $request): JsonResponse
     {
         $statusData = collect([
-            'status' => ['key' => 'license_status',       'lang' => __('message.license_status')],
             'mstatus' => ['key' => 'msg91_status',         'lang' => __('message.mobile_status')],
             'mailchimpstatus' => ['key' => 'mailchimp_status',     'lang' => __('message.mailchimp_status')],
             'gcaptchastatus' => ['key' => 'recaptcha_status', 'lang' => __('message.google_status')],
@@ -64,21 +36,20 @@ trait ApiKeySettings
             'email_validation_status' => ['key' => 'email_validation_status', 'lang' => __('message.email_validation_status')],
             'mobile_validation_status' => ['key' => 'mobile_validation_status', 'lang' => __('message.mobile_validation_status')],
             'whatsapp_status' => ['key' => 'whatsapp_status', 'lang' => 'Whatsapp Status updated successfully'],
+            'open_payment_status' => ['key' => 'open_payment_status', 'lang' => __('message.open_payment_status_updated')],
         ]);
 
         try {
             $input = $request->all();
 
             // Find the first matching status key
-            $statusEntry = $statusData->first(function ($value, $inputKey) use ($input) {
-                return array_key_exists($inputKey, $input);
-            });
+            $statusEntry = $statusData->first(fn ($value, $inputKey): bool => array_key_exists($inputKey, $input));
 
             if (! $statusEntry) {
-                return errorResponse(\Lang::get('message.invalid_key'));
+                return errorResponse(__('message.invalid_key'));
             }
 
-            $inputKey = array_key_first(array_intersect_key($input, $statusData->toArray()));
+            $inputKey = array_key_first(array_intersect_key($input, $statusData->all()));
             $statusValue = $input[$inputKey];
 
             StatusSetting::where('id', 1)->update([
@@ -86,18 +57,16 @@ trait ApiKeySettings
             ]);
 
             return successResponse($statusEntry['lang']);
-        } catch (\Exception $e) {
-            return errorResponse(\Lang::get('message.invalid_key'));
+        } catch (Exception) {
+            return errorResponse(__('message.invalid_key'));
         }
     }
 
-    public function mobileStatus(Request $request)
-    {
-        $status = $request->input('status');
-    }
-
-    //Save Auto Update status in Database
-    public function updateDetails(Request $request)
+    // Save Auto Update status in Database
+    /**
+     * @return array<mixed>
+     */
+    public function updateDetails(Request $request): array
     {
         $status = $request->input('status');
         $updateApiSecret = $request->input('update_api_secret');
@@ -111,51 +80,92 @@ trait ApiKeySettings
     /*
      * Update Msg91 Details In Database
      */
-    public function updatemobileDetails(Request $request)
+    public function updatemobileDetails(Request $request): JsonResponse
     {
-        $authKey = $request->input('msg91_auth_key');
-        $templateId = $request->input('msg91_template_id');
-        $status = $request->input('status');
-        $key = $request->input('msg91_auth_key');
+        $request->validate([
+            'msg91_auth_key' => ['required', 'string'],
+            'msg91_sender' => ['required', 'string'],
+            'msg91_template_id' => ['required', 'string'],
+        ]);
+
+        $authKey = trim($request->input('msg91_auth_key'));
+        $sender = trim($request->input('msg91_sender'));
+        $templateId = trim($request->input('msg91_template_id'));
         $thirdPartyId = $request->input('thirdPartyId');
-        StatusSetting::find(1)->update(['msg91_status' => $status]);
+        $status = $request->input('status');
 
-        ApiKey::find(1)->update(['msg91_auth_key' => $key, 'msg91_sender' => $request->input('msg91_sender'), 'msg91_template_id' => $request->input('msg91_template_id'), 'msg91_third_party_id' => $thirdPartyId]);
+        // Validate the authkey against the MSG91 OTP Analytics endpoint.
+        // This is a read-only GET — no OTP is sent and no credits are consumed.
+        // MSG91 returns 401 for an invalid authkey, 200 for a valid one.
+        try {
+            $today = now()->toDateString();
+            $response = Http::withHeaders([
+                'Authkey' => $authKey,
+                'Accept' => 'application/json',
+            ])->get('https://control.msg91.com/api/v5/report/analytics/p/otp', [
+                'startDate' => $today,
+                'endDate' => $today,
+            ]);
 
-        return successResponse(\Lang::get('message.mobile_setting'));
+            if ($response->status() === 401) {
+                return errorResponse(__('message.mobile_authkey'));
+            }
+        } catch (Exception) {
+            return errorResponse(__('message.mobile_authkey'));
+        }
+
+        StatusSetting::where('id', 1)->update(['msg91_status' => $status]);
+
+        ApiKey::where('id', 1)->update([
+            'msg91_auth_key' => $authKey,
+            'msg91_sender' => $sender,
+            'msg91_template_id' => $templateId,
+            'msg91_third_party_id' => $thirdPartyId,
+        ]);
+
+        return successResponse(__('message.mobile_setting'));
     }
 
     /*
      * Update Zoho Details In Database
      */
-    public function updatezohoDetails(Request $request)
+    /**
+     * @return array<mixed>
+     */
+    public function updatezohoDetails(Request $request): array
     {
         $status = $request->input('status');
         $key = $request->input('zoho_key');
-        StatusSetting::find(1)->update(['zoho_status' => $status]);
-        ApiKey::find(1)->update(['zoho_api_key' => $key]);
+        StatusSetting::where('id', 1)->update(['zoho_status' => $status]);
+        ApiKey::where('id', 1)->update(['zoho_api_key' => $key]);
 
-        return ['message' => 'success', 'update' => \Lang::get('message.zoho_status')];
+        return ['message' => 'success', 'update' => Lang::get('message.zoho_status')];
     }
 
     /*
      * Update Email Status In Database
      */
-    public function updateEmailDetails(Request $request)
+    /**
+     * @return array<mixed>
+     */
+    public function updateEmailDetails(Request $request): array
     {
         $status = $request->input('status');
-        StatusSetting::find(1)->update(['emailverification_status' => $status]);
+        StatusSetting::where('id', 1)->update(['emailverification_status' => $status]);
 
-        return ['message' => 'success', 'update' => \Lang::get('message.email_setting')];
+        return ['message' => 'success', 'update' => Lang::get('message.email_setting')];
     }
 
     /*
      * Update Domain Check status In Database
      */
-    public function updatedomainCheckDetails(Request $request)
+    /**
+     * @return array<mixed>
+     */
+    public function updatedomainCheckDetails(Request $request): array
     {
         $status = $request->input('status');
-        StatusSetting::find(1)->update(['domain_check' => $status]);
+        StatusSetting::where('id', 1)->update(['domain_check' => $status]);
 
         return ['message' => 'success', 'update' => __('message.domain_check_status_saved')];
     }
@@ -163,236 +173,135 @@ trait ApiKeySettings
     /*
     * Update Twitter Details In Database
     */
-    public function updatetwitterDetails(Request $request)
+    /**
+     * @return array<mixed>
+     */
+    public function updatetwitterDetails(Request $request): array
     {
         $consumer_key = $request->input('consumer_key');
         $consumer_secret = $request->input('consumer_secret');
         $access_token = $request->input('access_token');
         $token_secret = $request->input('token_secret');
         $status = $request->input('status');
-        StatusSetting::find(1)->update(['twitter_status' => $status]);
-        ApiKey::find(1)->update(['twitter_consumer_key' => $consumer_key, 'twitter_consumer_secret' => $consumer_secret, 'twitter_access_token' => $access_token, 'access_tooken_secret' => $token_secret]);
+        StatusSetting::where('id', 1)->update(['twitter_status' => $status]);
+        ApiKey::where('id', 1)->update(['twitter_consumer_key' => $consumer_key, 'twitter_consumer_secret' => $consumer_secret, 'twitter_access_token' => $access_token, 'access_tooken_secret' => $token_secret]);
 
-        return ['message' => 'success', 'update' => \Lang::get('message.twitter_setting')];
+        return ['message' => 'success', 'update' => Lang::get('message.twitter_setting')];
     }
 
-    public function updatepipedriveDetails(Request $request)
+    /**
+     * @return array<mixed>
+     */
+    public function updateMailchimpProductStatus(Request $request): array
     {
-        try {
-            $pipedriveKey = $request->input('pipedrive_key');
-            $status = $request->input('status');
-            $verificationStatus = (bool) $request->input('require_pipedrive_user_verification');
-
-            $response = Http::get('https://api.pipedrive.com/v1/users/me', [
-                'api_token' => $pipedriveKey,
-            ]);
-            if (! $response->successful()) {
-                return errorResponse(\Lang::get('message.pipedrive_error'));
-            }
-
-            $result = json_decode($response, true);
-            if (isset($result['success']) && $result['success'] !== true) {
-                return errorResponse(\Lang::get('message.pipedrive_error'));
-            }
-            StatusSetting::find(1)->update(['pipedrive_status' => $status]);
-            ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
-            ApiKey::find(1)->update(['require_pipedrive_user_verification' => $verificationStatus]);
-
-            return successResponse(\Lang::get('message.pipedrive_setting'));
-        } catch (\Exception $exception) {
-            return errorResponse(\Lang::get('message.pipedrive_error'));
-        }
-    }
-
-    public function updateMailchimpProductStatus(Request $request)
-    {
-        StatusSetting::first()->update(['mailchimp_product_status' => $request->input('status')]);
+        StatusSetting::where('id', 1)->update(['mailchimp_product_status' => $request->input('status')]);
 
         return ['message' => 'success', 'update' => __('message.mailchimp_products_group_status_saved')];
     }
 
-    public function updateMailchimpIsPaidStatus(Request $request)
+    /**
+     * @return array<mixed>
+     */
+    public function updateMailchimpIsPaidStatus(Request $request): array
     {
-        StatusSetting::first()->update(['mailchimp_ispaid_status' => $request->input('status')]);
+        StatusSetting::where('id', 1)->update(['mailchimp_ispaid_status' => $request->input('status')]);
 
         return ['message' => 'success', 'update' => __('message.mailchimp_is_paid_status_saved')];
     }
 
-    public function updateMailchimpDetails(Request $request)
+    public function updateMailchimpDetails(Request $request): JsonResponse
     {
         try {
             $chimp_auth_key = $request->input('mailchimp_auth_key');
 
-            $dc = substr($chimp_auth_key, strpos($chimp_auth_key, '-') + 1);
+            $dc = substr((string) $chimp_auth_key, strpos((string) $chimp_auth_key, '-') + 1);
             // Mailchimp API URL
-            $url = "https://{$dc}.api.mailchimp.com/3.0/";
+            $url = sprintf('https://%s.api.mailchimp.com/3.0/', $dc);
             // Make an API request
             $response = Http::withBasicAuth('anystring', $chimp_auth_key)->get($url);
             if ($response->successful()) {
                 $status = $request->input('status');
-                StatusSetting::find(1)->update(['mailchimp_status' => $status]);
-                MailchimpSetting::find(1)->update(['api_key' => $chimp_auth_key]);
+                StatusSetting::where('id', 1)->update(['mailchimp_status' => $status]);
+                MailchimpSetting::where('id', 1)->update(['api_key' => $chimp_auth_key]);
                 $mailchimpverifiedStatus = 1;
 
-                $mailchimp_set = new MailchimpSetting();
+                $mailchimp_set = new MailchimpSetting;
                 $set = $mailchimp_set->firstOrFail();
                 $mail_api_key = $set->api_key;
-                $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
-                $allists = $mailchimp->get('lists?count=20')['lists'];
+                $mailchimp = new \Mailchimp\Mailchimp($mail_api_key); // @phpstan-ignore class.notFound
+                $allists = $mailchimp->get('lists?count=20')['lists']; // @phpstan-ignore class.notFound
                 $selectedList[] = $set->list_id;
-                $subscribe_status = MailchimpSetting::pluck('subscribe_status')->first();
+                $subscribe_status = MailchimpSetting::value('subscribe_status');
                 $data = ['mailchimpverifiedStatus' => $mailchimpverifiedStatus,
                     'status' => $status,
                     'allLists' => $allists,
                     'selectedList' => $selectedList,
                     'subscribe_status' => $subscribe_status, ];
 
-                return successResponse(\Lang::get('message.mailchimp_setting'), $data);
+                return successResponse(__('message.mailchimp_setting'), $data);
             }
 
-            return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
-        } catch(\Exception $e) {
-            return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
+            return errorResponse(__('message.mailchimp_apikey_error'));
+        } catch (Exception) {
+            return errorResponse(__('message.mailchimp_apikey_error'));
         }
     }
 
-    public function updateTermsDetails(Request $request)
+    public function updateTermsDetails(Request $request): JsonResponse
     {
         $terms_url = $request->input('terms_url');
+
+        // Format-only check, not a live fetch — a live Http::get() here was
+        // fragile (any transient network hiccup on THIS server permanently
+        // blocked saving even a correct URL) and wrong in principle for a
+        // config field: the URL doesn't need to be reachable right now to be
+        // valid (see QA bug #54).
+        if (! filter_var($terms_url, FILTER_VALIDATE_URL)) {
+            return errorResponse(__('message.terms_error'));
+        }
+
+        $status = (int) $request->input('status');
+        StatusSetting::where('id', 1)->update(['terms' => $status]);
+        ApiKey::where('id', 1)->update(['terms_url' => $terms_url]);
+
+        return successResponse(__('message.terms_setting'));
+    }
+
+    public function showFileStorage(): JsonResponse
+    {
         try {
-            $response = Http::get($terms_url);
-
-            if ($response == false) {
-                return errorResponse(\Lang::get('message.terms_error'));
+            $fileStorageSettings = FileSystemSettings::first();
+            if (! $fileStorageSettings instanceof FileSystemSettings) {
+                throw new Exception('File system settings not configured.');
             }
-            $status = (int) $request->input('status');
-            StatusSetting::find(1)->update(['terms' => $status]);
-            ApiKey::find(1)->update(['terms_url' => $terms_url]);
 
-            return successResponse(\Lang::get('message.terms_setting'));
-        } catch (\Exception $e) {
-            return errorResponse(\Lang::get('message.terms_error'));
+            $fileStorage = [
+                'disk' => $fileStorageSettings->disk ?? '',
+                'local_file_storage_path' => config('custom.storage_path', storage_path('app/public')),
+                's3_bucket' => config('filesystems.disks.s3.bucket', ''),
+                's3_region' => config('filesystems.disks.s3.region', ''),
+                's3_access_key' => config('filesystems.disks.s3.key', ''),
+                's3_secret_key' => config('filesystems.disks.s3.secret', ''),
+                's3_endpoint_url' => config('filesystems.disks.s3.endpoint', ''),
+                's3_url' => config('filesystems.disks.s3.url', ''),
+                's3_path_style_endpoint' => config('filesystems.disks.s3.use_path_style_endpoint', ''),
+            ];
+
+            return successResponse('', $fileStorage);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    /**
-     * Get Date.
-     */
-    public function getDate($dbdate)
-    {
-        $created = new DateTime($dbdate);
-        $tz = \Auth::user()->timezone()->first()->name;
-        $created->setTimezone(new \DateTimeZone($tz));
-        $date = $created->format('M j, Y, g:i a '); //5th October, 2018, 11:17PM
-        $newDate = $date;
-
-        return $newDate;
-    }
-
-    public function getDateFormat($dbdate = '')
-    {
-        $created = new DateTime($dbdate);
-        $tz = \Auth::user()->timezone()->first()->name;
-        $created->setTimezone(new \DateTimeZone($tz));
-        $date = $created->format('Y-m-d H:m:i');
-
-        return $date;
-    }
-
-    public function saveConditions()
-    {
-        if (\Request::get('expiry-commands') && \Request::get('activity-commands')) {
-            $expiry_commands = \Request::get('expiry-commands');
-            $expiry_dailyAt = \Request::get('expiry-dailyAt');
-            $activity_commands = \Request::get('activity-commands');
-            $activity_dailyAt = \Request::get('activity-dailyAt');
-            $subexpiry_commands = \Request::get('subexpiry-commands');
-            $subexpiry_dailyAt = \Request::get('subexpiry-dailyAt');
-            $postexpiry_commands = \Request::get('postsubexpiry-commands');
-            $postexpiry_dailyAt = \Request::get('postsubexpiry-dailyAt');
-            $cloud_commands = \Request::get('cloud-commands');
-            $cloud_dailyAt = \Request::get('cloud-dailyAt');
-            $invoice_commands = \Request::get('invoice-commands');
-            $invoice_dailyAt = \Request::get('invoice-dailyAt');
-            $msg91_commands = \Request::get('msg91-commands');
-            $msg91_dailyAt = \Request::get('msg91-dailyAt');
-            $reoon_commands = \Request::get('reoon-commands');
-            $reoon_dailyAt = \Request::get('reoon-dailyAt');
-
-            $system_commands = \Request::get('systemlogs-commands');
-            $system_dailyAt = \Request::get('systemlogs-dailyAt');
-
-            $activity_command = $this->getCommand($activity_commands, $activity_dailyAt);
-            $expiry_command = $this->getCommand($expiry_commands, $expiry_dailyAt);
-            $subexpiry_command = $this->getCommand($subexpiry_commands, $subexpiry_dailyAt);
-            $postexpiry_command = $this->getCommand($postexpiry_commands, $postexpiry_dailyAt);
-            $expiry_command = $this->getCommand($expiry_commands, $expiry_dailyAt);
-            $cloud_command = $this->getCommand($cloud_commands, $cloud_dailyAt);
-            $invoice_command = $this->getCommand($invoice_commands, $invoice_dailyAt);
-            $msg91_command = $this->getCommand($msg91_commands, $msg91_dailyAt);
-            $reoon_command = $this->getCommand($reoon_commands, $reoon_dailyAt);
-            $system_command = $this->getCommand($system_commands, $system_dailyAt);
-
-            $jobs = ['expiryMail' => $expiry_command, 'deleteLogs' => $activity_command, 'subsExpirymail' => $subexpiry_command, 'postExpirymail' => $postexpiry_command,
-                'cloud' => $cloud_command, 'invoice' => $invoice_command, 'msg91Reports' => $msg91_command, 'reoon' => $reoon_command, 'systemLogs' => $system_command];
-
-            $this->storeCommand($jobs);
-        }
-    }
-
-    public function getCommand($command, $daily_at)
-    {
-        if ($command == 'dailyAt') {
-            $command = "dailyAt,$daily_at";
-        }
-
-        return $command;
-    }
-
-    public function storeCommand($array = [])
-    {
-        $command = new \App\Model\Mailjob\Condition();
-        $commands = $command->get();
-        if ($commands->count() > 0) {
-            foreach ($commands as $condition) {
-                $condition->delete();
-            }
-        }
-        if (count($array) > 0) {
-            foreach ($array as $key => $save) {
-                $command->create([
-                    'job' => $key,
-                    'value' => $save,
-                ]);
-            }
-        }
-    }
-
-    public function showFileStorage()
-    {
-        $fileStorageSettings = FileSystemSettings::first();
-
-        $fileStorage = (object) [
-            'disk' => $fileStorageSettings->disk ?? '',
-            'local_file_storage_path' => env('STORAGE_PATH', storage_path('app/public')),
-            's3_bucket' => env('AWS_BUCKET', ''),
-            's3_region' => env('AWS_DEFAULT_REGION', ''),
-            's3_access_key' => env('AWS_ACCESS_KEY_ID', ''),
-            's3_secret_key' => env('AWS_SECRET_ACCESS_KEY', ''),
-            's3_endpoint_url' => env('AWS_ENDPOINT', ''),
-            's3_url' => env('AWS_URL', ''),
-            's3_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', ''),
-        ];
-
-        return view('themes.default1.common.setting.file-storage', compact('fileStorage'));
-    }
-
-    public function updateStoragePath(UpdateStoragePathRequest $request)
+    public function updateStoragePath(UpdateStoragePathRequest $request): JsonResponse
     {
         $disk = $request->input('disk');
         $fileStorageSettings = FileSystemSettings::first();
+        if (! $fileStorageSettings instanceof FileSystemSettings) {
+            return errorResponse('File system settings not configured.');
+        }
 
-        $response = match ($disk) {
+        $response = match ($disk) { // @phpstan-ignore match.unhandled
             'system' => $this->updateLocalStorage($request, $fileStorageSettings),
             's3' => $this->updateS3Storage($request, $fileStorageSettings),
         };
@@ -406,7 +315,7 @@ trait ApiKeySettings
         return successResponse(trans('message.setting_updated'));
     }
 
-    protected function updateLocalStorage($request, $fileStorageSettings)
+    protected function updateLocalStorage(mixed $request, mixed $fileStorageSettings): JsonResponse
     {
         $path = $request->input('path');
 
@@ -420,7 +329,7 @@ trait ApiKeySettings
         return successResponse();
     }
 
-    protected function updateS3Storage($request, $fileStorageSettings)
+    protected function updateS3Storage(mixed $request, mixed $fileStorageSettings): JsonResponse
     {
         $fileStorageSettings->disk = 's3';
 
@@ -451,10 +360,10 @@ trait ApiKeySettings
         return successResponse();
     }
 
-    protected function updateS3EnvSettings($s3fields)
+    protected function updateS3EnvSettings(mixed $s3fields): void
     {
         foreach ($s3fields as $key => $value) {
-            $envKey = match ($key) {
+            $envKey = match ($key) { // @phpstan-ignore match.unhandled
                 's3_bucket' => 'AWS_BUCKET',
                 's3_region' => 'AWS_DEFAULT_REGION',
                 's3_access_key' => 'AWS_ACCESS_KEY_ID',
@@ -464,13 +373,11 @@ trait ApiKeySettings
                 's3_path_style_endpoint' => 'AWS_USE_PATH_STYLE_ENDPOINT',
             };
 
-            if ($envKey) {
-                setEnvValue([$envKey => $value]);
-            }
+            setEnvValue([$envKey => $value]);
         }
     }
 
-    private function validateS3Credentials($s3Region, $s3AccessKey, $s3SecretKey, $s3EndpointUrl, $s3Bucket, $s3Url, $s3PathStyleEndpoint)
+    protected function validateS3Credentials(mixed $s3Region, mixed $s3AccessKey, mixed $s3SecretKey, mixed $s3EndpointUrl, mixed $s3Bucket, mixed $s3Url, mixed $s3PathStyleEndpoint): mixed
     {
         try {
             $s3Client = new S3Client([
@@ -482,14 +389,77 @@ trait ApiKeySettings
                 ],
                 'endpoint' => $s3EndpointUrl,
                 'url' => $s3Url,
-                'use_path_style_endpoint' => $s3PathStyleEndpoint === 'true' ? true : false,
+                'use_path_style_endpoint' => $s3PathStyleEndpoint === 'true',
             ]);
 
             return $s3Client->doesBucketExist($s3Bucket);
-        } catch (AwsException $e) {
+        } catch (AwsException|Exception) {
             return false;
+        }
+    }
+
+    public function showPdfSettings(): JsonResponse
+    {
+        try {
+            $settings = FileSystemSettings::first();
+
+            return successResponse('', [
+                'chrome_path' => $settings->chrome_path ?? '',
+                'pdf_driver' => $settings->pdf_driver ?? 'chrome',
+            ]);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function updatePdfSettings(UpdatePdfSettingsRequest $request): JsonResponse
+    {
+        try {
+            $settings = FileSystemSettings::firstOrNew([]);
+            $settings->fill([
+                'chrome_path' => $request->input('chrome_path', ''),
+                'pdf_driver' => $request->input('pdf_driver', 'chrome'),
+            ]);
+            $settings->save();
+
+            app(PdfManager::class)->clearCache();
+
+            return successResponse(trans('message.setting_updated'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function getDeploymentSettings(): JsonResponse
+    {
+        $settings = \App\Model\Common\Setting::where('id', 1)
+            ->first(['deployment_enabled', 'help_support_url', 'help_docs_url']);
+
+        return successResponse('', [
+            'deployment_enabled' => (bool) $settings?->deployment_enabled,
+            'install_script_url' => $settings?->help_support_url,
+            'manual_install_guide_url' => $settings?->help_docs_url,
+        ]);
+    }
+
+    public function saveDeploymentSettings(Request $request): JsonResponse
+    {
+        $request->validate([
+            'deployment_enabled' => 'required|boolean',
+            'install_script_url' => 'required_if:deployment_enabled,1|nullable|url|max:500',
+            'manual_install_guide_url' => 'required_if:deployment_enabled,1|nullable|url|max:500',
+        ]);
+
+        try {
+            \Illuminate\Support\Facades\DB::table('settings')->where('id', 1)->update([
+                'deployment_enabled' => $request->boolean('deployment_enabled'),
+                'help_support_url' => $request->input('install_script_url'),
+                'help_docs_url' => $request->input('manual_install_guide_url'),
+            ]);
+
+            return successResponse(__('message.updated_successfully'));
         } catch (\Exception $e) {
-            return false;
+            return errorResponse($e->getMessage());
         }
     }
 }

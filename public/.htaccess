@@ -5,6 +5,14 @@
 
     RewriteEngine On
 
+    # Route Vue admin SPA through Laravel.
+    # Only intercepts /admin and /admin/<path-without-a-dot> (Vue routes never
+    # have file extensions). Static files like admin/css/file.css and
+    # admin/js/jquery.min.js are untouched because the !-f check lets them
+    # pass straight through to Apache — so existing blade asset() calls keep working.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^admin(/[^.]*)?$ index.php [L]
+
     # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)/$ /$1 [L,R=301]

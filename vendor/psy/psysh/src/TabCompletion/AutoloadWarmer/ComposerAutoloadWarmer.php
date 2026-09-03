@@ -71,7 +71,10 @@ class ComposerAutoloadWarmer implements AutoloadWarmerInterface
 
     private const KNOWN_BAD_NAMESPACES = [
         'Psy\\Readline\\Hoa\\',
-        'Composer\\', // Autoloading Composer classes breaks Composer autoloading :grimacing:
+        // Autoloading Composer classes breaks Composer autoloading :grimacing:
+        'Composer\\',
+        // DI is an optional Symfony Console dependency; prevent explosion
+        'Symfony\\Component\\Console\\DependencyInjection\\',
     ];
 
     /**
@@ -370,9 +373,7 @@ class ComposerAutoloadWarmer implements AutoloadWarmerInterface
      */
     private function normalizeNamespaces(array $namespaces): array
     {
-        return \array_map(function ($namespace) {
-            return \trim($namespace, '\\').'\\';
-        }, $namespaces);
+        return \array_map(fn ($namespace) => \trim($namespace, '\\').'\\', $namespaces);
     }
 
     /**

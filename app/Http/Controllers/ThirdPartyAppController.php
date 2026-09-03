@@ -3,100 +3,65 @@
 namespace App\Http\Controllers;
 
 use App\ThirdPartyApp;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ThirdPartyAppController extends Controller
 {
-    private $thirdParty;
+    private ThirdPartyApp $thirdParty;
 
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware('admin');
 
-        $thirdParty = new ThirdPartyApp();
+        $thirdParty = new ThirdPartyApp;
         $this->thirdParty = $thirdParty;
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        return view('themes.default1.third-party.index');
     }
 
     /*
     * Get All the third party apps
     */
-    public function getThirdPartyDetails()
+    public function getThirdPartyDetails(Request $request): JsonResponse
     {
         try {
-            $thirdPartyApps = $this->thirdParty->select('id', 'app_name', 'app_key', 'app_secret');
+            $searchString = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = $request->input('limit', 10);
 
-            return \DataTables::of($thirdPartyApps)
-             ->orderColumn('app_name', '-created_at $1')
-             ->orderColumn('app_key', '-created_at $1')
-             ->orderColumn('app_secret', '-created_at $1')
-            ->addColumn('checkbox', function ($model) {
-                return "<input type='checkbox' class='type_checkbox' 
-            value=".$model->id.' name=select[] id=check>';
-            })
-            ->addColumn('app_name', function ($model) {
-                return $model->app_name;
-            })
-            ->addColumn('app_key', function ($model) {
-                return $model->app_key;
-            })
-             ->addColumn('app_secret', function ($model) {
-                 return $model->app_secret;
-             })
-            ->addColumn('action', function ($model) {
-                return "<p><button data-toggle='modal' 
-             data-id=".$model->id." data-appName='$model->app_name'. data-appKey='$model->app_key'. data-secret='$model->app_secret' class='btn btn-sm btn-secondary btn-xs editThirdPartyApp'".tooltip(__('message.edit'))."<i class='fa fa-edit'
-             style='color:white;'> </i></button>&nbsp;</p>";
-            })
-             ->filterColumn('app_name', function ($query, $keyword) {
-                 $sql = 'app_name like ?';
-                 $query->whereRaw($sql, ["%{$keyword}%"]);
-             })
-             ->filterColumn('app_key', function ($query, $keyword) {
-                 $sql = 'app_key like ?';
-                 $query->whereRaw($sql, ["%{$keyword}%"]);
-             })
-            ->filterColumn('app_secret', function ($query, $keyword) {
-                $sql = 'app_secret like ?';
-                $query->whereRaw($sql, ["%{$keyword}%"]);
-            })
-                ->editColumn('app_secret', function ($user) {
-                    return '*****';
-                })
-            ->rawColumns(['checkbox', 'app_name', 'app_key', 'app_secret', 'action'])
-            ->make(true);
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            $query = $this->thirdParty
+                ->select('id', 'app_name', 'app_key', 'app_secret')
+                ->when($searchString, function ($q) use ($searchString): void {
+                    $q->where(function ($sub) use ($searchString): void {
+                        $sub->where('app_name', 'like', sprintf('%%%s%%', $searchString))
+                            ->orWhere('app_key', 'like', sprintf('%%%s%%', $searchString));
+                    });
+                });
+
+            $thirdPartyApps = $query->orderBy($sortField, $sortOrder)
+                ->paginate($limit);
+
+            $thirdPartyApps->getCollection()->transform(function ($app) {
+                $app->app_secret = str_repeat('*', 5);
+
+                return $app;
+            });
+
+            return successResponse(__('message.third_party_apps_fetched'), [
+                'third_party_apps' => $thirdPartyApps,
+            ]);
+        } catch (Exception) {
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function createThirdPartyApp(Request $request): JsonResponse
     {
         $this->validate($request, [
             'app_name' => 'required',
@@ -111,123 +76,88 @@ class ThirdPartyAppController extends Controller
             ]);
         $this->thirdParty->fill($request->all())->save();
 
-        return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
+        return successResponse(__('message.saved-successfully'));
     }
 
-    public function getAppKey()
+    public function getAppKey(): mixed
     {
         try {
-            $code = str_random(32);
+            $code = Str::random(32);
             echo $code;
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
-    }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\ThirdPartyApp  $thirdPartyApp
-     * @return \Illuminate\Http\Response
-     */
-    public function show(ThirdPartyApp $thirdPartyApp)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\ThirdPartyApp  $thirdPartyApp
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(ThirdPartyApp $thirdPartyApp)
-    {
-        //
+        return null;
     }
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ThirdPartyApp  $thirdPartyApp
-     * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function updateThirdPartyApp(Request $request, mixed $id): JsonResponse
     {
         $this->validate($request, [
             'app_name' => 'required',
             'app_key' => 'required|size:32',
-            'app_secret' => 'required',
-        ],
-            [
-                'app_name.required' => __('validation.thirdparty_api.app_name_required'),
-                'app_key.required' => __('validation.thirdparty_api.app_key_required'),
-                'app_key.size' => __('validation.thirdparty_api.app_key_size'),
-                'app_secret.required' => __('validation.thirdparty_api.app_secret_required'),
-            ]);
+            'app_secret' => 'nullable|string',
+        ], [
+            'app_name.required' => __('validation.thirdparty_api.app_name_required'),
+            'app_key.required' => __('validation.thirdparty_api.app_key_required'),
+            'app_key.size' => __('validation.thirdparty_api.app_key_size'),
+        ]);
 
+        /** @var ThirdPartyApp $thirdPartyApp */
         $thirdPartyApp = ThirdPartyApp::findOrFail($id);
 
-        $thirdPartyApp->update($request->only(['app_name', 'app_key', 'app_secret']));
+        $data = $request->only(['app_name', 'app_key']);
+        if ($request->filled('app_secret')) {
+            $data['app_secret'] = $request->app_secret;
+        }
 
-        return redirect()->back()->with('success', __('message.updated-successfully'));
+        $thirdPartyApp->update($data);
+
+        return successResponse(__('message.updated-successfully'));
     }
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param  \App\ThirdPartyApp  $thirdPartyApp
-     * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function deleteThirdPartyApp(Request $request): JsonResponse
     {
         try {
             $ids = $request->input('select');
-            if (! empty($ids)) {
-                foreach ($ids as $id) {
-                    $app = $this->thirdParty->where('id', $id)->first();
-                    if ($app) {
-                        $app->delete();
-                    } else {
-                        echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
-                </div>';
-                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
-                    }
-                }
-                echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
 
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.success').'
-
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
-                </div>';
-            } else {
-                echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
-                </div>';
-                //echo \Lang::get('message.select-a-row');
+            if (is_string($ids)) {
+                $ids = explode(',', $ids);
             }
-        } catch (\Exception $e) {
-            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */
-                    \Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$e->getMessage().'
-                </div>';
+
+            $ids = array_filter(array_map(trim(...), $ids));
+
+            if ($ids === []) {
+                return errorResponse(__('message.select-a-row'));
+            }
+
+            $deleted = [];
+            $notFound = [];
+
+            foreach ($ids as $id) {
+                $app = $this->thirdParty->where('id', $id)->first();
+
+                if ($app) {
+                    $app->delete();
+                    $deleted[] = $id;
+                } else {
+                    $notFound[] = $id;
+                }
+            }
+
+            if ($notFound !== []) {
+                return errorResponse(__('message.no-record'));
+            }
+
+            return successResponse(__('message.deleted-successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

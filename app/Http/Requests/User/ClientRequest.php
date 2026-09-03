@@ -3,15 +3,18 @@
 namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
+use App\Rules\PhoneNumber;
+use App\Traits\RequestJsonValidation;
+use Override;
 
 class ClientRequest extends Request
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -19,47 +22,48 @@ class ClientRequest extends Request
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         switch ($this->method()) {
-            case 'POST':
+            case 'PUT':
                 return [
-                    'first_name' => 'required',
-                    'last_name' => 'required',
-                    'company' => 'required',
-                    'email' => 'required|email|unique:users|unique:settings,email|unique:settings,company_email',
-                    'address' => 'required',
-                    'mobile' => 'required|unique:users,mobile',
-                    'country' => 'required|exists:countries,country_code_char2',
-                    'timezone_id' => 'required',
-                    'user_name' => 'unique:users,user_name|unique:settings,email|unique:settings,company_email',
-                    'zip' => 'regex:/^[a-zA-Z0-9]+$/',
-                    'position' => 'prohibited_if:role,user',
+                    'first_name' => ['required'],
+                    'last_name' => ['required'],
+                    'company' => ['required'],
+                    'email' => ['required', 'email', 'unique:users', 'unique:settings,email', 'unique:settings,company_email'],
+                    'address' => ['required'],
+                    'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
+                    'country' => ['required', 'exists:countries,country_code_char2'],
+                    'timezone_id' => ['required'],
+                    'user_name' => ['unique:users,user_name', 'unique:settings,email', 'unique:settings,company_email'],
+                    'zip' => ['regex:/^[a-zA-Z0-9]+$/'],
+                    'position' => ['prohibited_if:role,user'],
                 ];
 
             case 'PATCH':
                 $id = $this->segment(2);
 
                 return [
-                    'first_name' => 'required',
-                    'last_name' => 'required',
+                    'first_name' => ['required'],
+                    'last_name' => ['required'],
                     'email' => 'required|email|unique:users,email,'.$this->getSegmentFromEnd().',id|unique:settings,email|unique:settings,company_email',
-                    'company' => 'required',
-                    'address' => 'required',
-                    'mobile' => 'required|unique:users,mobile,'.$id,
-                    'timezone_id' => 'required',
+                    'company' => ['required'],
+                    'address' => ['required'],
+                    'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
+                    'timezone_id' => ['required'],
                     'user_name' => 'unique:users,user_name,'.$id.'|unique:settings,email|unique:settings,company_email',
-                    'zip' => 'regex:/^[a-zA-Z0-9]+$/',
-                    'position' => 'prohibited_if:role,user',
+                    'zip' => ['regex:/^[a-zA-Z0-9]+$/'],
+                    'position' => ['prohibited_if:role,user'],
                 ];
 
             default:
-                break;
+                return [];
         }
     }
 
+    #[Override]
     public function messages()
     {
         return [
@@ -82,7 +86,7 @@ class ClientRequest extends Request
         ];
     }
 
-    private function getSegmentFromEnd($position_from_end = 1)
+    private function getSegmentFromEnd(mixed $position_from_end = 1): mixed
     {
         $segments = $this->segments();
 

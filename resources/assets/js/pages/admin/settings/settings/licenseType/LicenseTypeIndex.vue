@@ -1,0 +1,239 @@
+<template>
+    <div>
+        <AppAlert componentName="license-type-index" />
+        <div class="card card-light">
+            <div class="card-header">
+                <h4 class="card-title">{{ __('message.license_types') }}</h4>
+                <div class="card-tools">
+                    <button class="btn btn-tool" v-tooltip="__('message.add_license_type_btn')" @click="openCreate">
+                        <i class="fas fa-plus fw-bold"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <DataTable
+                    ref="dtRef"
+                    :url="apiUrl"
+                    :dataColumns="columns"
+                    :option="tableOptions"
+                >
+                    <template #bulk-actions>
+                        <div v-if="selected.length > 0" class="dropdown">
+                            <button
+                                class="btn btn-sm btn-secondary dropdown-toggle"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                :disabled="deleting"
+                            >
+                                <spinner-loader v-if="deleting" :size="18" />
+                                <span v-else>{{ __('message.bulk_action') }}</span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <button class="dropdown-item" @click="bulkDelete">{{ __('message.Delete') }}</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </template>
+                </DataTable>
+            </div>
+        </div>
+
+        <!-- Create Modal -->
+        <AppModal :showModal="showCreate" :onClose="closeCreate" :showCloseBtn="false">
+            <template #title>
+                <h4>{{ __('message.add_license_type_btn') }}</h4>
+            </template>
+            <template #fields>
+                <TextField
+                    name="license_type_name"
+                    :label="__('message.name')"
+                    :value="newName"
+                    :onChange="(val) => { newName = val; setFieldError('license_type_name', undefined) }"
+                    :placeholder="__('message.name')"
+                    :error="errors.license_type_name"
+                />
+            </template>
+            <template #controls>
+                <action-button action="create" type="button" :loading="creating" @click="create" />
+            </template>
+        </AppModal>
+
+        <!-- Edit Modal -->
+        <AppModal :showModal="showEdit" :onClose="closeEdit" :showCloseBtn="false">
+            <template #title>
+                <h4>{{ __('message.edit-license-type') }}</h4>
+            </template>
+            <template #fields>
+                <div v-if="editLoading" class="row justify-content-center py-3"><loader /></div>
+                <TextField
+                    v-else
+                    name="license_type_edit_name"
+                    :label="__('message.name')"
+                    :value="editName"
+                    :onChange="(val) => { editName = val; setFieldError('license_type_edit_name', undefined) }"
+                    :placeholder="__('message.name')"
+                    :error="errors.license_type_edit_name"
+                />
+            </template>
+            <template #controls>
+                <action-button action="update" type="button" :loading="saving" :disabled="saving || editLoading" @click="update" />
+            </template>
+        </AppModal>
+
+        <!-- Delete Modal -->
+        <DeleteModal
+            v-if="deleteId !== null"
+            :showModal="deleteId !== null"
+            :onClose="closeDelete"
+            :deleteUrl="`${baseUrl}/delete-license-type`"
+            :deleteData="{ select: [deleteId] }"
+            componentName="license-type-index"
+            @deleted="onDeleted"
+        />
+
+        <!-- Bulk Delete Modal -->
+        <DeleteModal
+            v-if="showBulkDelete"
+            :showModal="showBulkDelete"
+            :onClose="() => showBulkDelete = false"
+            :deleteUrl="`${baseUrl}/delete-license-type`"
+            :deleteData="{ select: selected }"
+            componentName="license-type-index"
+            @deleted="onBulkDeleted"
+        />
+
+    </div>
+</template>
+
+<script setup>
+import { h, ref, reactive } from 'vue'
+import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
+import http from '@/plugins/axios'
+import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import { licenseTypeCreateSchema, licenseTypeEditSchema } from '@/validations/admin/licenseTypeValidations'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { useTableSelection } from '@/core/composables/useTableSelection'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
+
+const { errors, setErrors, setFieldError, resetForm } = useForm()
+
+const baseUrl = useBaseUrl()
+const apiUrl = `/get-license-type`
+
+const dtRef = ref(null)
+const { selected, allSelected, toggleRow, toggleAll } = useTableSelection(dtRef)
+const deleting = ref(false)
+
+// Create
+const showCreate = ref(false)
+const newName = ref('')
+const creating = ref(false)
+
+function openCreate() { resetForm(); showCreate.value = true }
+function closeCreate() { showCreate.value = false; newName.value = '' }
+
+// Edit
+const showEdit = ref(false)
+const editId = ref(null)
+const editName = ref('')
+const editLoading = ref(false)
+const saving = ref(false)
+
+async function openEdit(id) {
+    resetForm()
+    editId.value = id
+    editName.value = ''
+    showEdit.value = true
+    editLoading.value = true
+    try {
+        const res = await http.get(`/get-license-type/${id}`)
+        const d = res.data?.data ?? res.data
+        editName.value = d.name ?? ''
+    } catch (e) {
+        errorHandler(e, 'license-type-index', { setErrors })
+        closeEdit()
+    } finally {
+        editLoading.value = false
+    }
+}
+
+function closeEdit() { showEdit.value = false; editId.value = null; editName.value = '' }
+
+// Delete
+const deleteId = ref(null)
+
+function openDelete(id) { deleteId.value = id }
+function closeDelete() { deleteId.value = null }
+function onDeleted() { closeDelete(); dtRef.value?.refresh() }
+
+// Bulk Delete
+const showBulkDelete = ref(false)
+function onBulkDeleted() { showBulkDelete.value = false; selected.value = []; dtRef.value?.refresh() }
+
+
+async function create() {
+    if (!await validateForm(licenseTypeCreateSchema, { license_type_name: newName.value }, setErrors)) return
+    creating.value = true
+    try {
+        const res = await http.post(`/create-license-type`, { name: newName.value })
+        successHandler(res, 'license-type-index')
+        closeCreate()
+        dtRef.value?.refresh()
+    } catch (e) {
+        errorHandler(e, 'license-type-index', { setErrors })
+    } finally {
+        creating.value = false
+    }
+}
+
+async function update() {
+    if (!await validateForm(licenseTypeEditSchema, { license_type_edit_name: editName.value }, setErrors)) return
+    saving.value = true
+    try {
+        const res = await http.put(`/update-license-type/${editId.value}`, { name: editName.value })
+        successHandler(res, 'license-type-index')
+        closeEdit()
+        dtRef.value?.refresh()
+    } catch (e) {
+        errorHandler(e, 'license-type-index', { setErrors })
+    } finally {
+        saving.value = false
+    }
+}
+
+function bulkDelete() {
+    if (!selected.value.length) return
+    showBulkDelete.value = true
+}
+
+const columns = ['select', 'name', 'action']
+
+const tableOptions = reactive({
+    headings: {
+        select: () => h('input', { type: 'checkbox', checked: allSelected.value, onChange: toggleAll }),
+        name:   __('message.name'),
+        action: __('message.action'),
+    },
+    columnsClasses: {
+        select: 'dt-select',
+        name: 'dt-name',
+        action: 'dt-action',
+    },
+    templates: {
+        select: (f, row) => h('input', { type: 'checkbox', checked: selected.value.includes(row.id), onChange: () => toggleRow(row.id) }),
+        name:   (f, row) => row.name || '—',
+        action: (f, row) => h('div', { class: 'd-flex gap-1' }, [
+            h('button', { class: 'btn btn-light table_btn', title: __('message.edit'),   onClick: () => openEdit(row.id)   }, [h('i', { class: 'fas fa-edit' })]),
+            h('button', { class: 'btn btn-light table_btn', title: __('message.Delete'), onClick: () => openDelete(row.id) }, [h('i', { class: 'fas fa-trash' })]),
+        ]),
+    },
+    sortable: ['name'],
+    filterable: true,
+    requestAdapter: makeRequestAdapter('created_at'),
+    orderBy: { column: 'created_at', ascending: false },
+})
+</script>

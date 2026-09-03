@@ -1,6 +1,8 @@
 <?php
 
-return[
+declare(strict_types=1);
+
+return [
 
     'base_url' => 'https://graph.facebook.com',
     'api_version' => 'v21.0',

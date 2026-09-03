@@ -1,8 +1,13 @@
 <?php
 
+use App\Plugins\Recaptcha\Controller\RecaptchaConfigController;
 use App\Plugins\Recaptcha\Controller\RecaptchaSettingsController;
 
-Route::get('recaptcha-settings', [RecaptchaSettingsController::class, 'getSettings']);
-Route::post('recaptcha-settings', [RecaptchaSettingsController::class, 'updateSettings']);
-Route::get('recaptcha', [RecaptchaSettingsController::class, 'settings']);
-Route::post('captcha/verify', [RecaptchaSettingsController::class, 'updateSettings']);
+// Guest-safe public config for the Vue reCAPTCHA layer. Wrapped in `web` so the
+// session/locale middleware run (the v3 -> v2 fallback session lives in `web`).
+Route::middleware('web')->get('recaptcha/config', [RecaptchaConfigController::class, 'show']);
+
+Route::middleware(['auth', 'admin'])->group(function (): void {
+    Route::get('recaptcha-settings', [RecaptchaSettingsController::class, 'getSettings']);
+    Route::match(['post', 'patch'], 'recaptcha-settings', [RecaptchaSettingsController::class, 'updateSettings']);
+});

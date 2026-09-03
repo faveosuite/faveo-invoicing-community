@@ -8,12 +8,10 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('terminated_order_upgrade', function (Blueprint $table) {
+        Schema::create('terminated_order_upgrade', function (Blueprint $table): void {
             $table->id();
             $table->unsignedBigInteger('terminated_order_id');
             $table->unsignedBigInteger('upgraded_order_id');
@@ -23,10 +21,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('terminated_order_upgrade');
     }

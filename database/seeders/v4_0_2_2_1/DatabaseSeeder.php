@@ -9,21 +9,16 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         $this->movePreReleaseData();
     }
 
-    private function movePreReleaseData()
+    private function movePreReleaseData(): void
     {
-        ProductUpload::where('is_pre_release', 1)->each(function ($product) {
-           $product->update(['release_type' => 'pre_release']);
+        ProductUpload::where('is_pre_release', 1)->each(function ($product): void {
+            $product->update(['release_type' => 'pre_release']);
         });
     }
 }
-
-
-

@@ -2,7 +2,7 @@
 /**
  * PersonItem
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -74,15 +74,15 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
         'org_id' => 'int',
         'add_time' => 'string',
         'update_time' => 'string',
-        'emails' => '\Pipedrive\versions\v2\Model\PersonItemEmails[]',
-        'phones' => '\Pipedrive\versions\v2\Model\PersonItemPhones[]',
+        'emails' => '\Pipedrive\versions\v2\Model\PersonEmails[]',
+        'phones' => '\Pipedrive\versions\v2\Model\PersonPhones[]',
         'is_deleted' => 'bool',
         'visible_to' => 'int',
         'label_ids' => 'int[]',
         'picture_id' => 'int',
-        'postal_address' => '\Pipedrive\versions\v2\Model\PersonItemPostalAddress',
+        'postal_address' => '\Pipedrive\versions\v2\Model\PersonPostalAddress',
         'notes' => 'string',
-        'im' => '\Pipedrive\versions\v2\Model\PersonItemIm[]',
+        'im' => '\Pipedrive\versions\v2\Model\PersonIm[]',
         'birthday' => 'string',
         'job_title' => 'string',
         'custom_fields' => 'array<string,object>'
@@ -292,7 +292,7 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['id'] = $data['id'] ?? null;
         $this->container['name'] = $data['name'] ?? null;
@@ -537,7 +537,7 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets emails
      *
-     * @return \Pipedrive\versions\v2\Model\PersonItemEmails[]|null
+     * @return \Pipedrive\versions\v2\Model\PersonEmails[]|null
      */
     public function getEmails()
     {
@@ -547,7 +547,7 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets emails
      *
-     * @param \Pipedrive\versions\v2\Model\PersonItemEmails[]|null $emails The emails of the person
+     * @param \Pipedrive\versions\v2\Model\PersonEmails[]|null $emails The emails of the person
      *
      * @return self
      */
@@ -561,7 +561,7 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets phones
      *
-     * @return \Pipedrive\versions\v2\Model\PersonItemPhones[]|null
+     * @return \Pipedrive\versions\v2\Model\PersonPhones[]|null
      */
     public function getPhones()
     {
@@ -571,7 +571,7 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets phones
      *
-     * @param \Pipedrive\versions\v2\Model\PersonItemPhones[]|null $phones The phones of the person
+     * @param \Pipedrive\versions\v2\Model\PersonPhones[]|null $phones The phones of the person
      *
      * @return self
      */
@@ -681,7 +681,7 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets postal_address
      *
-     * @return \Pipedrive\versions\v2\Model\PersonItemPostalAddress|null
+     * @return \Pipedrive\versions\v2\Model\PersonPostalAddress|null
      */
     public function getPostalAddress()
     {
@@ -691,7 +691,7 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets postal_address
      *
-     * @param \Pipedrive\versions\v2\Model\PersonItemPostalAddress|null $postal_address postal_address
+     * @param \Pipedrive\versions\v2\Model\PersonPostalAddress|null $postal_address postal_address
      *
      * @return self
      */
@@ -729,7 +729,7 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets im
      *
-     * @return \Pipedrive\versions\v2\Model\PersonItemIm[]|null
+     * @return \Pipedrive\versions\v2\Model\PersonIm[]|null
      */
     public function getIm()
     {
@@ -739,7 +739,7 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets im
      *
-     * @param \Pipedrive\versions\v2\Model\PersonItemIm[]|null $im The instant messaging accounts of the person, included if contact sync is enabled for the company
+     * @param \Pipedrive\versions\v2\Model\PersonIm[]|null $im The instant messaging accounts of the person, included if contact sync is enabled for the company
      *
      * @return self
      */
@@ -811,7 +811,7 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets custom_fields
      *
-     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes
+     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes. To clear a custom field value, set it to `null`. For multi-option fields (field type `set`), use `null` to clear the selection — sending an empty array `[]` is not supported and will result in a validation error.
      *
      * @return self
      */

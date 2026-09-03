@@ -2,7 +2,7 @@
 /**
  * NoteParams
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -72,7 +72,8 @@ class NoteParams implements ModelInterface, ArrayAccess, JsonSerializable
         'pinned_to_deal_flag' => '\Pipedrive\versions\v1\Model\NumberBoolean',
         'pinned_to_organization_flag' => '\Pipedrive\versions\v1\Model\NumberBoolean',
         'pinned_to_person_flag' => '\Pipedrive\versions\v1\Model\NumberBoolean',
-        'pinned_to_project_flag' => '\Pipedrive\versions\v1\Model\NumberBoolean'
+        'pinned_to_project_flag' => '\Pipedrive\versions\v1\Model\NumberBoolean',
+        'pinned_to_task_flag' => '\Pipedrive\versions\v1\Model\NumberBoolean'
     ];
 
     /**
@@ -89,7 +90,8 @@ class NoteParams implements ModelInterface, ArrayAccess, JsonSerializable
         'pinned_to_deal_flag' => null,
         'pinned_to_organization_flag' => null,
         'pinned_to_person_flag' => null,
-        'pinned_to_project_flag' => null
+        'pinned_to_project_flag' => null,
+        'pinned_to_task_flag' => null
     ];
 
     /**
@@ -129,7 +131,8 @@ class NoteParams implements ModelInterface, ArrayAccess, JsonSerializable
         'pinned_to_deal_flag' => 'pinned_to_deal_flag',
         'pinned_to_organization_flag' => 'pinned_to_organization_flag',
         'pinned_to_person_flag' => 'pinned_to_person_flag',
-        'pinned_to_project_flag' => 'pinned_to_project_flag'
+        'pinned_to_project_flag' => 'pinned_to_project_flag',
+        'pinned_to_task_flag' => 'pinned_to_task_flag'
     ];
 
     /**
@@ -144,7 +147,8 @@ class NoteParams implements ModelInterface, ArrayAccess, JsonSerializable
         'pinned_to_deal_flag' => 'setPinnedToDealFlag',
         'pinned_to_organization_flag' => 'setPinnedToOrganizationFlag',
         'pinned_to_person_flag' => 'setPinnedToPersonFlag',
-        'pinned_to_project_flag' => 'setPinnedToProjectFlag'
+        'pinned_to_project_flag' => 'setPinnedToProjectFlag',
+        'pinned_to_task_flag' => 'setPinnedToTaskFlag'
     ];
 
     /**
@@ -159,7 +163,8 @@ class NoteParams implements ModelInterface, ArrayAccess, JsonSerializable
         'pinned_to_deal_flag' => 'getPinnedToDealFlag',
         'pinned_to_organization_flag' => 'getPinnedToOrganizationFlag',
         'pinned_to_person_flag' => 'getPinnedToPersonFlag',
-        'pinned_to_project_flag' => 'getPinnedToProjectFlag'
+        'pinned_to_project_flag' => 'getPinnedToProjectFlag',
+        'pinned_to_task_flag' => 'getPinnedToTaskFlag'
     ];
 
     /**
@@ -227,7 +232,7 @@ class NoteParams implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['user_id'] = $data['user_id'] ?? null;
         $this->container['add_time'] = $data['add_time'] ?? null;
@@ -236,6 +241,7 @@ class NoteParams implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['pinned_to_organization_flag'] = $data['pinned_to_organization_flag'] ?? null;
         $this->container['pinned_to_person_flag'] = $data['pinned_to_person_flag'] ?? null;
         $this->container['pinned_to_project_flag'] = $data['pinned_to_project_flag'] ?? null;
+        $this->container['pinned_to_task_flag'] = $data['pinned_to_task_flag'] ?? null;
     }
 
     /**
@@ -428,6 +434,30 @@ class NoteParams implements ModelInterface, ArrayAccess, JsonSerializable
     public function setPinnedToProjectFlag($pinned_to_project_flag): self
     {
         $this->container['pinned_to_project_flag'] = $pinned_to_project_flag;
+
+        return $this;
+    }
+
+    /**
+     * Gets pinned_to_task_flag
+     *
+     * @return \Pipedrive\versions\v1\Model\NumberBoolean|null
+     */
+    public function getPinnedToTaskFlag()
+    {
+        return $this->container['pinned_to_task_flag'];
+    }
+
+    /**
+     * Sets pinned_to_task_flag
+     *
+     * @param \Pipedrive\versions\v1\Model\NumberBoolean|null $pinned_to_task_flag If set, the results are filtered by note to task pinning state (`task_id` is also required)
+     *
+     * @return self
+     */
+    public function setPinnedToTaskFlag($pinned_to_task_flag): self
+    {
+        $this->container['pinned_to_task_flag'] = $pinned_to_task_flag;
 
         return $this;
     }

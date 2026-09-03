@@ -114,7 +114,7 @@ return [
     'user_name' => 'Gebruikersnaam',
     'user_email' => 'Gebruikers e-mail',
     'password_not_match' => 'Wachtwoorden komen niet overeen',
-    //new
+    // new
     'installation_check' => 'Deze test controleert de vereisten die nodig zijn om Agora Facturering Community te installeren',
     'db_setup_error_1' => 'Dit betekent ofwel dat de gebruikersnaam en het wachtwoord incorrect zijn, of dat je host niet bereikbaar is.',
     'db_setup_error_2' => 'Weet je zeker dat je een database hebt die al bestaat met de opgegeven databasenaam?',

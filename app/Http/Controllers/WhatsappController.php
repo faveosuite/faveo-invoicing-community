@@ -3,468 +3,328 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SendWhatsappMessage;
+use App\Model\Common\StatusSetting;
 use App\User;
 use App\WhatsappIntegration;
 use App\WhatsappIntegrationUser;
-use GuzzleHttp\Client;
+use Auth;
+use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
+use Log;
+use Session;
 
+/**
+ * WhatsApp Business (Meta) integration.
+ *
+ * Three areas:
+ *  - Admin config: store the Meta app credentials (whatsapp_integration) and list every registered number.
+ *  - Client embedded-signup: a customer attaches their own WhatsApp number to an order via Meta's
+ *    embedded signup, then can edit the webhook URL or deregister the number.
+ *  - Webhook: Meta posts inbound messages to faveo-whatsapp; we relay them to the number's callback URL.
+ */
 class WhatsappController extends Controller
 {
-    protected $client;
-    protected $base_url;
-    protected $api_version;
+    protected string $base_url;
 
-    protected $endpoint;
+    protected string $api_version;
+
+    /** @var array<string, string> */
+    protected array $endpoint;
 
     public function __construct()
     {
-        $this->middleware('auth');
+        // The Meta webhook is a public callback (also CSRF-exempt) — never behind auth/admin.
+        $this->middleware('auth', ['except' => ['whatsappWebhook']]);
+        // Endpoints reachable by clients (acting on their own numbers / embedded-signup) are
+        // exempt from the admin gate; ownership is enforced per-method below.
         $this->middleware('admin', [
-            'except' => ['urlSave', 'saveAccessToken', 'saveWabaId', 'getWebhookUrl', 'webhookUrlEdit', 'whatsappClientTable', 'deregister'],
+            'except' => ['whatsappWebhook', 'urlSave', 'saveWabaId', 'getWebhookUrl', 'webhookUrlEdit', 'whatsappClientNumbers', 'deregister'],
         ]);
 
-        $this->client = new Client();
         $this->base_url = config('whatsappurl.base_url');
         $this->api_version = config('whatsappurl.api_version');
         $this->endpoint = config('whatsappurl.endpoints');
     }
 
-    public function index()
+    /* ───────────────────────── Admin: global config ───────────────────────── */
+
+    /**
+     * Return the stored Meta app credentials for the admin settings screen.
+     */
+    public function whatsappIntegration(): JsonResponse
     {
         try {
-            [$app_id, $config_id] =
-                array_values(WhatsappIntegration::first()?->only(['app_id', 'config_id']) ?? [null, null]);
+            [$app_id, $app_secret, $config_id, $verify_token] =
+                array_values(WhatsappIntegration::first()?->only(['app_id', 'app_secret', 'config_id', 'verify_token']) ?? [null, null, null, null]);
 
-            return view('themes.default1.common.whatsapp-testing', compact('app_id', 'config_id'));
-        } catch (\Exception $e) {
-            return $e->getMessage();
+            return successResponse('', [
+                'app_id' => $app_id,
+                'app_secret' => $app_secret,
+                'config_id' => $config_id,
+                'verify_token' => $verify_token,
+            ]);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function getWebhookUrl(Request $request)
+    /**
+     * Save the Meta app credentials and enable the global WhatsApp toggle.
+     */
+    public function whatsappSave(Request $request): JsonResponse
     {
-        $id = $request->input('id');
+        try {
+            WhatsappIntegration::updateOrCreate(
+                ['id' => 1],
+                $request->only(['app_id', 'app_secret', 'config_id', 'verify_token'])
+            );
+            StatusSetting::where('id', 1)->update(['whatsapp_status' => 1]);
 
-        $cont = WhatsappIntegrationUser::where('id', $id)->first();
-        $url = $cont->user_callback_url;
-        $id = $cont->id;
-
-        return successResponse('url', ['url' => $url, 'id' => $id]);
+            return successResponse(__('message.updated-successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
     }
 
-//    public function enterToken(Request $request){
-//        [$app_id,$app_secret,$config_id,$version]=array_values(WhatsappIntegration::select('app_id','app_secret','config_id')->first()->toArray());
-//
-//        return view('themes.default1.common.whatsapp-index',compact('app_id','app_secret','config_id'));
-//
-//    }
-
-    public function index1()
+    /**
+     * Paginated, searchable list of every registered WhatsApp number (admin users table — Vue).
+     */
+    public function whatsappUsersApi(Request $request): JsonResponse
     {
-        $user_id = \Auth::user()->id;
+        try {
+            $searchString = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $allowedSorts = ['created_at', 'phone_number', 'waba_id', 'phone_number_id', 'business_id'];
+            $sortField = in_array($request->input('sort-field'), $allowedSorts, strict: true)
+                ? $request->input('sort-field')
+                : 'created_at';
 
-        return response()
-            ->view('themes.default1.common.whatsapp-index', compact('user_id'))
-            ->header('Cache-Control', 'no-store, no-cache, must-revalidate');
+            $users = WhatsappIntegrationUser::with('user:id,first_name,last_name,email')
+                ->when($searchString, function ($query) use ($searchString): void {
+                    $query->where(function (Builder $q) use ($searchString): void {
+                        $q->where('phone_number', 'like', sprintf('%%%s%%', $searchString))
+                            ->orWhere('waba_id', 'like', sprintf('%%%s%%', $searchString))
+                            ->orWhere('phone_number_id', 'like', sprintf('%%%s%%', $searchString))
+                            ->orWhere('business_id', 'like', sprintf('%%%s%%', $searchString))
+                            ->orWhereHas('user', function (Builder $userQuery) use ($searchString): void {
+                                $userQuery->where('first_name', 'like', sprintf('%%%s%%', $searchString))
+                                    ->orWhere('last_name', 'like', sprintf('%%%s%%', $searchString))
+                                    ->orWhere('email', 'like', sprintf('%%%s%%', $searchString));
+                            });
+                    });
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->paginate($request->input('limit', 10));
+
+            $users->getCollection()->transform(function ($model): array {
+                $name = trim(($model->user->first_name ?? '').' '.($model->user->last_name ?? ''));
+
+                return [
+                    'id' => $model->id,
+                    'user_id' => $model->user_id,
+                    'user_name' => $name ?: ($model->user->email ?? '---'),
+                    'user_email' => $model->user->email ?? '',
+                    'phone_number' => $model->phone_number,
+                    'waba_id' => $model->waba_id,
+                    'phone_number_id' => $model->phone_number_id,
+                    'business_id' => $model->business_id,
+                    'callback_url' => $model->user_callback_url,
+                    'created_at' => $model->created_at?->format('Y-m-d H:i'),
+                ];
+            });
+
+            return successResponse('', $users);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
     }
 
-    public function urlSave(Request $request)
+    /* ──────────────────── Client: numbers for one order ───────────────────── */
+
+    /**
+     * Paginated list of the WhatsApp numbers the authenticated user has registered for one of
+     * their orders. Response shape matches the client DataTable contract (paginate + successResponse).
+     */
+    public function whatsappClientNumbers(Request $request, mixed $orderid): JsonResponse
     {
-        $url = $request->input('url');
-        \Session::put('whatsapp_url', $url);
+        try {
+            $query = WhatsappIntegrationUser::where('user_id', Auth::id())
+                ->where('order_id', $orderid);
+            $search = trim((string) $request->input('search-query', ''));
+
+            if ($search !== '' && $search !== '0') {
+                $query->where(function ($q) use ($search): void {
+                    $q->where('phone_number', 'like', sprintf('%%%s%%', $search))
+                        ->orWhere('waba_id', 'like', sprintf('%%%s%%', $search))
+                        ->orWhere('phone_number_id', 'like', sprintf('%%%s%%', $search))
+                        ->orWhere('business_id', 'like', sprintf('%%%s%%', $search));
+                });
+            }
+
+            $allowed = ['phone_number', 'waba_id', 'business_id', 'created_at'];
+            $sortField = in_array($request->input('sort-field'), $allowed, strict: true)
+                ? $request->input('sort-field')
+                : 'created_at';
+            $sortOrder = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+            $query->orderBy($sortField, $sortOrder);
+
+            $paginated = $query->paginate((int) $request->input('limit', 10));
+
+            $paginated->getCollection()->transform(fn ($model): array => [
+                'id' => $model->id,
+                'phone_number' => $model->phone_number,
+                'waba_id' => $model->waba_id,
+                'phone_number_id' => $model->phone_number_id,
+                'business_id' => $model->business_id,
+                'callback_url' => $model->user_callback_url,
+                'created_at' => $model->created_at?->format('Y-m-d H:i'),
+            ]);
+
+            return successResponse('', $paginated);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    /* ─────────────── Client: Meta embedded-signup (add a number) ───────────── */
+
+    /**
+     * Stash the callback URL in the session before launching Meta's embedded signup.
+     */
+    public function urlSave(Request $request): JsonResponse
+    {
+        Session::put('whatsapp_url', $request->input('url'));
 
         return successResponse('success');
     }
 
-    public function whatsappTable(Request $request)
-    {
-        try {
-            $query = WhatsappIntegrationUser::select('*')->with('user');
-
-            return \DataTables::of($query)
-                ->orderColumn('UserName', '-created_at $1')
-                ->orderColumn('PhoneNumber', '-created_at $1')
-                ->orderColumn('WabaId', '-created_at $1')
-                ->orderColumn('PhoneNumberId', '-created_at $1')
-                ->orderColumn('BusinessId', '-created_at $1')
-                ->addColumn('UserName', function ($model) {
-                    return '<a href='.url('clients/'.$model->user->id).'>'.ucfirst($model->user->first_name).'<a>';
-
-//                return $user ? "{$user->first_name} {$user->last_name}" : '';
-                })
-                ->addColumn('PhoneNumber', function ($model) {
-                    return $model->phone_number;
-                })
-                ->addColumn('WabaId', function ($model) {
-                    return $model->waba_id;
-                })
-                ->addColumn('PhoneNumberId', function ($model) {
-                    $token = e($model->phone_number_id); // escape for safety
-
-                    return '
-    <div class="d-flex align-items-center">
-        <input type="password" class="form-control form-control-sm" 
-               value="'.$token.'" readonly style="width: 60px; margin-right: 8px;" />
-        <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" 
-                data-token="'.$token.'">
-            <i class="fas fa-copy"></i>
-        </button>
-        <span class="copy-msg text-success ms-2" style="display:none;">'.__('message.copied').'</span>
-    </div>
-';
-                })
-                ->addColumn('BusinessId', function ($model) {
-                    return $model->business_id;
-                })
-                ->addColumn('created_at', function ($model) {
-                    return getDateHtml($model->created_at);
-                })
-                ->addColumn('access_token', function ($model) {
-                    return $model->access_token;
-                })
-                ->addColumn('action', function ($model) {
-                    return "
-    <div style='display:flex; gap:4px;'>
-        <button 
-            data-toggle='modal'
-            data-id='".$model->id."'
-            onclick=\"editWhatsappUser('".$model->id."')\"
-            class='btn btn-sm btn-info btn-xs'>
-            <i class='fa fa-edit' style='color:white;'></i>
-        </button>
-
-        <button 
-            data-toggle='modal'
-            data-id='".$model->id."'
-            onclick=\"deleteWhatsappUser('".$model->id."')\"
-            class='btn btn-sm btn-dark btn-xs'>
-            <i class='fa fa-trash' style='color:white;'></i>
-        </button>
-    </div>
-";
-                })
-                ->filterColumn('UserName', function ($model, $keyword) {
-                    $model->whereHas('user', function ($query) use ($keyword) {
-                        $query->where('first_name', 'like', "%$keyword%");
-                    });
-                })
-                ->filterColumn('WabaId', function ($model, $keyword) {
-                    $model->where('waba_id', 'like', "%$keyword%");
-                })
-                ->filterColumn('PhoneNumber', function ($model, $keyword) {
-                    $model->where('phone_number', 'like', "%$keyword%");
-                })
-                ->filterColumn('PhoneNumberId', function ($model, $keyword) {
-                    $model->where('phone_number_id', 'like', "%$keyword%");
-                })
-                ->filterColumn('BusinessId', function ($model, $keyword) {
-                    $model->where('business_id', 'like', "%$keyword%");
-                })
-                ->rawColumns(['PhoneNumberId', 'UserName', 'PhoneNumber', 'WabaId', 'BusinessId', 'access_token', 'created_at', 'action'])
-                ->make(true);
-        } catch (\Exception $exception) {
-            return errorResponse($exception->getMessage());
-        }
-    }
-
-    public function whatsappClientTable($orderid)
-    {
-        $query = WhatsappIntegrationUser::select('*')->where('user_id', \Auth::user()->id)->where('order_id', $orderid);
-
-        return \DataTables::of($query)
-            ->orderColumn('UserName', '-created_at $1')
-            ->orderColumn('PhoneNumber', '-created_at $1')
-            ->orderColumn('WabaId', '-created_at $1')
-            ->orderColumn('PhoneNumberId', '-created_at $1')
-            ->orderColumn('BusinessId', '-created_at $1')
-//            ->addColumn('UserName', function ($model) {
-//                $user = User::select('first_name', 'last_name')->find($model->user_id);
-//                return $user ? "{$user->first_name} {$user->last_name}" : '';
-//            })
-            ->addColumn('PhoneNumber', function ($model) {
-                return $model->phone_number;
-            })
-            ->addColumn('WabaId', function ($model) {
-                return $model->waba_id;
-            })
-            ->addColumn('PhoneNumberId', function ($model) {
-//                return $model->phone_number_id;
-                $token = e($model->phone_number_id); // escape for safety
-
-                return '
-    <div class="d-flex align-items-center">
-        <input type="password" class="form-control form-control-sm" 
-               value="'.$token.'" readonly style="width: 60px; margin-right: 8px;" />
-        <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" 
-                data-token="'.$token.'">
-            <i class="fas fa-copy"></i>
-        </button>
-        <span class="copy-msg text-success ms-2" style="display:none;">'.__('message.copied').'</span>
-    </div>
-';
-            })
-            ->addColumn('BusinessId', function ($model) {
-                return $model->business_id;
-            })
-            ->addColumn('created_at', function ($model) {
-                return  getDateHtml($model->created_at);
-            })
-            ->addColumn('access_token', function ($model) {
-                $token = e($model->access_token); // escape for safety
-
-                return '
-    <div class="d-flex align-items-center">
-        <input type="password" class="form-control form-control-sm" 
-               value="'.$token.'" readonly style="width: 60px; margin-right: 8px;" />
-        <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" 
-                data-token="'.$token.'">
-            <i class="fas fa-copy"></i>
-        </button>
-        <span class="copy-msg text-success ms-2" style="display:none;">'.__('message.copied').'</span>
-    </div>
-';
-            })
-            ->addColumn('action', function ($model) {
-                return "
-    <div style='display:flex; gap:4px;'>
-        <button 
-            data-toggle='modal'
-            data-id='".$model->id."'
-            onclick=\"editWhatsappUser('".$model->id."')\"
-            class='btn btn-sm btn-info btn-xs'>
-            <i class='fa fa-edit' style='color:white;'></i>
-        </button>
-
-        <button 
-            data-toggle='modal'
-            data-id='".$model->id."'
-            onclick=\"deleteWhatsappUser('".$model->id."')\"
-            class='btn btn-sm btn-dark btn-xs'>
-            <i class='fa fa-trash' style='color:white;'></i>
-        </button>
-    </div>
-";
-            })
-            ->filterColumn('WabaId', function ($model, $keyword) {
-                $model->where('waba_id', 'like', "%$keyword%");
-            })
-            ->filterColumn('PhoneNumber', function ($model, $keyword) {
-                $model->where('phone_number', 'like', "%$keyword%");
-            })
-            ->filterColumn('PhoneNumberId', function ($model, $keyword) {
-                $model->where('phone_number_id', 'like', "%$keyword%");
-            })
-            ->filterColumn('BusinessId', function ($model, $keyword) {
-                $model->where('business_id', 'like', "%$keyword%");
-            })
-            ->rawColumns(['UserName', 'PhoneNumber', 'WabaId', 'PhoneNumberId', 'BusinessId', 'access_token', 'created_at', 'action'])
-            ->make(true);
-    }
-
-//    public function saveAccessToken(Request $request){
-//        try {
-//            [$app_id, $app_secret] = array_values(WhatsappIntegration::select(['app_id', 'app_secret'])->first()->toArray());
-//            //To get the Token
-//            $code = $request->input('code');
-//
-//            $response = Http::get('https://graph.facebook.com/v21.0/oauth/access_token', [
-//                'client_id' => $app_id,
-//                'client_secret' => $app_secret,
-//                'code' => $code,
-//            ]);
-//
-//            $content = $response->json();
-//
-//
-//            //Exchange the token to get permanent token
-//            $access_token = $content['access_token'];
-//
-//            $getToken = Http::get('https://graph.facebook.com/v21.0/oauth/access_token', [
-//                    'grant_type' => 'fb_exchange_token',
-//                    'client_id' => $app_id,
-//                    'client_secret' => $app_secret,
-//                    'fb_exchange_token' => $access_token,
-//            ]);
-//
-//            $content = $getToken->json();
-//
-//            WhatsappIntegrationUser::updateOrCreate(['user_id' => \Auth::user()->id], ['access_token' => $content['access_token'],'user_id'=>\Auth::user()->id]);
-//            $this->saveNumber($content['access_token']);
-//            return successResponse(__('message.updated-successfully'));
-//        }catch (\Exception $exception){
-//            return errorResponse($exception->getMessage());
-//        }
-//    }
-
-//    public function saveNumber($access_token){
-//        $phone_number_id=WhatsappIntegrationUser::where('user_id',\Auth::user()->id)->value('phone_number_id');
-//        if($phone_number_id) {
-//            $data = Http::get("https://graph.facebook.com/v21.0/{$phone_number_id}", [
-//                'fields' => 'display_phone_number',
-//                'access_token' => $access_token,
-//            ]);
-//            $content = $data->json();
-//            WhatsappIntegrationUser::where('phone_number_id', $phone_number_id)->update(['phone_number' => $content['display_phone_number']]);
-//        }
-//    }
-
-    public function saveWabaId(Request $request)
+    /**
+     * Persist the number Meta returned from embedded signup, exchange the auth code for a
+     * long-lived token, resolve the display number, and subscribe our app to the WABA.
+     */
+    public function saveWabaId(Request $request): JsonResponse
     {
         try {
             $wabaId = $request->input('waba_id');
-            $phoneNumberId = $request->input('phone_number_id') ? $request->input('phone_number_id') : '';
-            $business_id = $request->input('business_id');
-            $url = \Session::get('whatsapp_url');
-            $access_token = $this->getToken($request->input('code'));
-            $phone_number = $this->getNumber($phoneNumberId, $access_token);
-            $order_id = $request->input('order_id');
-            WhatsappIntegrationUser::create(['user_id' => \Auth::user()->id, 'waba_id' => $wabaId,
-                'phone_number_id' => $phoneNumberId, 'business_id' => $business_id,
-                'user_callback_url' => $url, 'access_token' => $access_token, 'order_id' => $order_id, 'phone_number' => $phone_number]);
-            \Session::forget('whatsapp_url');
-            $response = Http::withToken($access_token)
-                ->post("https://graph.facebook.com/v17.0/{$wabaId}/subscribed_apps");
-            \Log::debug('ToCheck', [$response->json()]);
+            $phoneNumberId = $request->input('phone_number_id') ?: '';
+            $accessToken = $this->getToken($request->input('code'));
+
+            WhatsappIntegrationUser::create([
+                'user_id' => Auth::id(),
+                'waba_id' => $wabaId,
+                'phone_number_id' => $phoneNumberId,
+                'business_id' => $request->input('business_id'),
+                'user_callback_url' => Session::get('whatsapp_url'),
+                'access_token' => $accessToken,
+                'order_id' => $request->input('order_id'),
+                'phone_number' => $this->getNumber($phoneNumberId, $accessToken),
+            ]);
+            Session::forget('whatsapp_url');
+
+            Http::withToken($accessToken)
+                ->post(sprintf('https://graph.facebook.com/v17.0/%s/subscribed_apps', $wabaId));
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
 
-    public function getNumber($phone_number_id, $access_token)
-    {
-        if ($phone_number_id) {
-            $url = $this->base_url.'/'.$this->api_version.'/'.$phone_number_id;
-            $data = Http::get($url, [
-                'fields' => 'display_phone_number',
-                'access_token' => $access_token,
-            ]);
-            $content = $data->json();
-            \Log::debug('getNumber', [$content]);
+    /* ──────────────── Shared: read / edit / deregister a number ────────────── */
 
-            return $content['display_phone_number'];
+    /**
+     * Return the stored callback URL for a number (owner or admin only).
+     */
+    public function getWebhookUrl(Request $request): JsonResponse
+    {
+        /** @var WhatsappIntegrationUser $record */
+        $record = WhatsappIntegrationUser::findOrFail($request->input('id'));
+
+        if (! $this->canManage($record)) {
+            return errorResponse(__('message.unauthorized_action'), 403);
         }
 
-        return '';
+        return successResponse('url', ['url' => $record->user_callback_url, 'id' => $record->id]);
     }
 
-    public function getToken($code)
+    /**
+     * Update the callback URL for a number (owner or admin only).
+     */
+    public function webhookUrlEdit(Request $request): JsonResponse
     {
+        $request->validate([
+            'id' => ['required', 'integer', 'exists:whatsapp_integration_user,id'],
+            'url' => ['required', 'string'],
+        ]);
+
+        /** @var WhatsappIntegrationUser $record */
+        $record = WhatsappIntegrationUser::findOrFail($request->input('id'));
+
+        if (! $this->canManage($record)) {
+            return errorResponse(__('message.unauthorized_action'), 403);
+        }
+
         try {
-            [$app_id, $app_secret] = array_values(WhatsappIntegration::select(['app_id', 'app_secret'])->first()->toArray());
-            //To get the Token
-            $url = $this->base_url.'/'.$this->api_version.'/'.$this->endpoint['access_token'];
-            $response = Http::get($url, [
-                'client_id' => $app_id,
-                'client_secret' => $app_secret,
-                'code' => $code,
-            ]);
+            $record->update(['user_callback_url' => $request->input('url')]);
 
-            $content = $response->json();
-
-            //Exchange the token to get permanent token
-            $access_token = $content['access_token'];
-
-            $getToken = Http::get($url, [
-                'grant_type' => 'fb_exchange_token',
-                'client_id' => $app_id,
-                'client_secret' => $app_secret,
-                'fb_exchange_token' => $access_token,
-            ]);
-
-            $content = $getToken->json();
-
-            return $content['access_token'];
-        } catch (\Exception $exception) {
+            return successResponse(__('message.updated-successfully'));
+        } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
 
-    public function deregister(Request $request)
+    /**
+     * Deregister a number from Meta and delete it locally (owner or admin only).
+     * The local row is removed even if the Meta call fails, so the slot is always freed.
+     */
+    public function deregister(Request $request): JsonResponse
     {
+        /** @var WhatsappIntegrationUser $record */
+        $record = WhatsappIntegrationUser::findOrFail($request->input('id'));
+
+        if (! $this->canManage($record)) {
+            return errorResponse(__('message.unauthorized_action'), 403);
+        }
+
         try {
-            $whatsappUser = WhatsappIntegrationUser::where('id', $request->input('id'))->first();
-            $phoneNumberId = $whatsappUser->phone_number_id;
-            $url = $this->base_url.'/'.$this->api_version.'/'.$phoneNumberId.'/'.$this->endpoint['deregister'];
-            $response = Http::post($url, [
-                'access_token' => $whatsappUser->access_token,
-            ]);
-            $whatsappUser->delete();
-            $content = $response->json();
+            $url = $this->base_url.'/'.$this->api_version.'/'.$record->phone_number_id.'/'.$this->endpoint['deregister'];
+            Http::post($url, ['access_token' => $record->access_token]);
+            $record->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $exception) {
-            $whatsappUser->delete();
+        } catch (Exception) {
+            $record->delete();
 
-            return errorResponse('Successfully Deleted From this application but in meta still it is connected.');
+            return errorResponse(__('message.whatsapp_deregister_meta_failed'));
         }
     }
 
-//    public function whatsappWebhook(Request $request)
-//    {
-//        \Log::debug('whatsappWebhook', [$request->all()]);
-//        try {
-//            // Handle GET request (Verification)
-//            if ($request->isMethod('get')) {
-//                $verify_token = WhatsappIntegration::value('verify_token');
-//
-//                $mode = $request->query('hub_mode');
-//                $token = $request->query('hub_verify_token');
-//                $challenge = $request->query('hub_challenge');
-//
-//                if ($mode === 'subscribe' && $token === $verify_token) {
-//                    return response($challenge, 200);
-//                }
-//
-//                return response('Forbidden', 403);
-//            }
-//            if ($request->isMethod('post')) {
-//                $data = $request->all();
-//                if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
-//                    $wabaId = $data['entry'][0]['id'];
-//                    $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('user_callback_url');
-//
-//                    $response = $this->client->post($url, ['json' => $data,
-//                        'headers' => [
-//                            'Accept' => 'application/json',
-//                        ]]);
-//                }
-//
-//                return response('EVENT_RECEIVED', 200);
-//            }
-//
-//            return response('Method Not Allowed', 405);
-//        } catch (\Exception $exception) {
-//            \Log::debug('san_exp', [$exception->getMessage()]);
-//        }
-//    }
+    /* ──────────────────────────── Meta webhook ─────────────────────────────── */
 
-    public function whatsappWebhook(Request $request)
+    /**
+     * Meta webhook endpoint (faveo-whatsapp). GET verifies the subscription;
+     * POST queues inbound messages for relay to the number's callback URL.
+     */
+    public function whatsappWebhook(Request $request): Response|JsonResponse
     {
-        $response = '';
         try {
-            // Handle GET request (Verification)
             if ($request->isMethod('get')) {
-                $verify_token = WhatsappIntegration::value('verify_token');
+                $verifyToken = WhatsappIntegration::value('verify_token');
 
-                $mode = $request->query('hub_mode');
-                $token = $request->query('hub_verify_token');
-                $challenge = $request->query('hub_challenge');
-
-                if ($mode === 'subscribe' && $token === $verify_token) {
-                    return response($challenge, 200);
+                if ($request->query('hub_mode') === 'subscribe' && $request->query('hub_verify_token') === $verifyToken) {
+                    return response($request->query('hub_challenge'), 200);
                 }
 
                 return response('Forbidden', 403);
             }
+
             if ($request->isMethod('post')) {
                 $rawBody = $request->getContent();
-                $data = json_decode($rawBody, true);
-
-                $change = $data['entry'][0]['changes'][0]['value'] ?? [];
+                $change = json_decode($rawBody, associative: true)['entry'][0]['changes'][0]['value'] ?? [];
 
                 if (isset($change['statuses'])) {
                     return response()->json(['ignored' => 'status update'], 200);
@@ -474,102 +334,71 @@ class WhatsappController extends Controller
                     return response()->json(['ignored' => 'not a message'], 200);
                 }
 
-                SendWhatsappMessage::dispatch($rawBody)->onQueue('whatsapp');
+                dispatch(new SendWhatsappMessage($rawBody))->onQueue('whatsapp');
 
-                // decode only if you need to read id
-//                $data = json_decode($rawBody, true);
-//                if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
-//                    $wabaId = $data['entry'][0]['id'];
-//                    $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('user_callback_url');
-//                    $response=$this->client->post($url, [
-//                        'body' => $rawBody,
-//                        'headers' => [
-//                            'Content-Type' => 'application/json',
-//                            'Accept' => 'application/json',
-//                        ],
-//                    ]);
-//                }
                 return response('EVENT_RECEIVED', 200);
             }
 
             return response('Method Not Allowed', 405);
-        } catch (\Exception $exception) {
-            \Log::debug('san_exp', [$exception->getMessage()]);
+        } catch (Exception $exception) {
+            Log::debug('whatsappWebhook', [$exception->getMessage()]);
+
+            return response('Internal Server Error', 500);
         }
     }
 
-    public function whatsappIntegration()
+    /* ──────────────────────────── Internals ────────────────────────────────── */
+
+    /**
+     * Whether the current user may manage this number (its owner, or an admin).
+     */
+    private function canManage(WhatsappIntegrationUser $record): bool
     {
-        try {
-            [$app_id, $app_secret, $config_id, $verify_token] =
-                array_values(WhatsappIntegration::first()?->only(['app_id', 'app_secret', 'config_id', 'verify_token']) ?? [null, null, null, null]);
+        /** @var User $user */
+        $user = Auth::user();
 
-            $data = [
-                'app_id' => $app_id,
-                'app_secret' => $app_secret,
-                'config_id' => $config_id,
-                'verify_token' => $verify_token,
-            ];
-
-            return successResponse('', $data);
-        } catch (\Exception $exception) {
-            return errorResponse($exception->getMessage());
-        }
+        return $user->role === 'admin' || (int) $record->user_id === (int) $user->id;
     }
 
-    public function whatsappSave(Request $request)
+    /**
+     * Resolve the display phone number for a phone_number_id from the Meta Graph API.
+     */
+    private function getNumber(?string $phoneNumberId, string $accessToken): string
     {
-        try {
-            [$app_id, $app_secret, $config_id, $verify_token] = array_values(
-                $request->only(['app_id', 'app_secret', 'config_id', 'verify_token'])
-            );
-            WhatsappIntegration::updateOrCreate(
-                ['id' => 1],
-                [
-                    'app_id' => $app_id,
-                    'app_secret' => $app_secret,
-                    'config_id' => $config_id,
-                    'verify_token' => $verify_token,
-                ]
-            );
-
-            return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $exception) {
-            return errorResponse($exception->getMessage());
+        if (! $phoneNumberId) {
+            return '';
         }
-    }
 
-    public function webhookUrlEdit(Request $request)
-    {
-        $url = $request->input('url');
-        $id = $request->input('id');
-        try {
-            WhatsappIntegrationUser::where('id', $id)->update(['user_callback_url' => $url]);
-
-            return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $exception) {
-            return errorResponse($exception->getMessage());
-        }
-    }
-
-    public function directSaveWhatsapp(Request $request)
-    {
-        $validated = $request->validate([
-            'phone_number' => 'required',
-            'phone_number_id' => 'required',
-            'access_token' => 'required',
-            'waba_id' => 'required',
-            'user_id' => 'required',
-            'user_callback_url' => 'required',
-            'business_id' => 'required',
+        $response = Http::get($this->base_url.'/'.$this->api_version.'/'.$phoneNumberId, [
+            'fields' => 'display_phone_number',
+            'access_token' => $accessToken,
         ]);
 
-        try {
-            WhatsappIntegrationUser::create($validated);
+        return $response->json()['display_phone_number'] ?? '';
+    }
 
-            return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $exception) {
-            return errorResponse($exception->getMessage());
-        }
+    /**
+     * Exchange a Meta auth code for a long-lived access token.
+     */
+    private function getToken(mixed $code): string
+    {
+        [$app_id, $app_secret] = array_values(
+            WhatsappIntegration::select(['app_id', 'app_secret'])->firstOrFail()->toArray()
+        );
+
+        $url = $this->base_url.'/'.$this->api_version.'/'.$this->endpoint['access_token'];
+
+        $shortLived = Http::get($url, [
+            'client_id' => $app_id,
+            'client_secret' => $app_secret,
+            'code' => $code,
+        ])->json()['access_token'] ?? null;
+
+        return Http::get($url, [
+            'grant_type' => 'fb_exchange_token',
+            'client_id' => $app_id,
+            'client_secret' => $app_secret,
+            'fb_exchange_token' => $shortLived,
+        ])->json()['access_token'] ?? '';
     }
 }

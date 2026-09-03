@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -42,6 +42,7 @@ abstract class ClusterStrategy implements StrategyInterface
             /* commands operating on the key space */
             'EXISTS' => $getKeyFromAllArguments,
             'DEL' => $getKeyFromAllArguments,
+            'UNLINK' => $getKeyFromAllArguments,
             'TYPE' => $getKeyFromFirstArgument,
             'EXPIRE' => $getKeyFromFirstArgument,
             'EXPIREAT' => $getKeyFromFirstArgument,
@@ -68,6 +69,7 @@ abstract class ClusterStrategy implements StrategyInterface
             'INCR' => $getKeyFromFirstArgument,
             'INCRBY' => $getKeyFromFirstArgument,
             'INCRBYFLOAT' => $getKeyFromFirstArgument,
+            'INCREX' => $getKeyFromFirstArgument,
             'SETBIT' => $getKeyFromFirstArgument,
             'SETEX' => $getKeyFromFirstArgument,
             'MSET' => [$this, 'getKeyFromInterleavedArguments'],
@@ -98,6 +100,26 @@ abstract class ClusterStrategy implements StrategyInterface
             'LREM' => $getKeyFromFirstArgument,
             'LSET' => $getKeyFromFirstArgument,
             'LTRIM' => $getKeyFromFirstArgument,
+
+            /* commands operating on arrays */
+            'ARCOUNT' => $getKeyFromFirstArgument,
+            'ARDEL' => $getKeyFromFirstArgument,
+            'ARDELRANGE' => $getKeyFromFirstArgument,
+            'ARGET' => $getKeyFromFirstArgument,
+            'ARGETRANGE' => $getKeyFromFirstArgument,
+            'ARGREP' => $getKeyFromFirstArgument,
+            'ARINFO' => $getKeyFromFirstArgument,
+            'ARINSERT' => $getKeyFromFirstArgument,
+            'ARLASTITEMS' => $getKeyFromFirstArgument,
+            'ARLEN' => $getKeyFromFirstArgument,
+            'ARMGET' => $getKeyFromFirstArgument,
+            'ARMSET' => $getKeyFromFirstArgument,
+            'ARNEXT' => $getKeyFromFirstArgument,
+            'AROP' => $getKeyFromFirstArgument,
+            'ARRING' => $getKeyFromFirstArgument,
+            'ARSCAN' => $getKeyFromFirstArgument,
+            'ARSEEK' => $getKeyFromFirstArgument,
+            'ARSET' => $getKeyFromFirstArgument,
 
             /* commands operating on sets */
             'SADD' => $getKeyFromFirstArgument,
@@ -189,6 +211,9 @@ abstract class ClusterStrategy implements StrategyInterface
 
             /* cluster */
             'CLUSTER' => [$this, 'getFakeKey'],
+
+            /* control */
+            'ACL' => [$this, 'getFakeKey'],
         ];
     }
 

@@ -1,14 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 if (!function_exists('debugbar')) {
     /**
      * Get the Debugbar instance
      *
-     * @return \Barryvdh\Debugbar\LaravelDebugbar
      */
-    function debugbar()
+    function debugbar(?string $collector = null): \Fruitcake\LaravelDebugbar\LaravelDebugbar|\DebugBar\DataCollector\DataCollectorInterface|null
     {
-        return app(\Barryvdh\Debugbar\LaravelDebugbar::class);
+        $debugbar = app(\Fruitcake\LaravelDebugbar\LaravelDebugbar::class);
+        if ($collector) {
+            return $debugbar->hasCollector($collector) ? $debugbar->getCollector($collector) : null;
+        }
+
+        return $debugbar;
     }
 }
 
@@ -16,67 +22,12 @@ if (!function_exists('debug')) {
     /**
      * Adds one or more messages to the MessagesCollector
      *
-     * @param  mixed ...$value
-     * @return string
      */
-    function debug($value)
+    function debug(mixed ...$value): void
     {
         $debugbar = debugbar();
-        foreach (func_get_args() as $value) {
-            $debugbar->addMessage($value, 'debug');
+        foreach ($value as $message) {
+            $debugbar->addMessage($message, 'debug');
         }
-    }
-}
-
-if (!function_exists('start_measure')) {
-    /**
-     * Starts a measure
-     *
-     * @param string $name Internal name, used to stop the measure
-     * @param string $label Public name
-     */
-    function start_measure($name, $label = null)
-    {
-        debugbar()->startMeasure($name, $label);
-    }
-}
-
-if (!function_exists('stop_measure')) {
-    /**
-     * Stop a measure
-     *
-     * @param string $name Internal name, used to stop the measure
-     */
-    function stop_measure($name)
-    {
-        debugbar()->stopMeasure($name);
-    }
-}
-
-if (!function_exists('add_measure')) {
-    /**
-     * Adds a measure
-     *
-     * @param string $label
-     * @param float $start
-     * @param float $end
-     */
-    function add_measure($label, $start, $end)
-    {
-        debugbar()->addMeasure($label, $start, $end);
-    }
-}
-
-if (!function_exists('measure')) {
-    /**
-     * Utility function to measure the execution of a Closure
-     *
-     * @param string $label
-     * @param \Closure $closure
-     * @return mixed
-     */
-    function measure($label, \Closure $closure)
-    {
-        return debugbar()->measure($label, $closure);
     }
 }

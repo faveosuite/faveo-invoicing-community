@@ -1,6 +1,7 @@
 /nbproject/private/
 
 /node_modules
+/vendor/ezyang/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/
 /public/hot
 /public/storage
 /storage/*.key
@@ -17,6 +18,7 @@ public/images.zip
 .env.testing
 .env.dusk.testing
 storage/products
+storage/rector
 
 # Packages #
 ############
@@ -49,3 +51,13 @@ storage/products
 ehthumbs.db
 Thumbs.db
 app/Http/Controllers/Front/GetPageTemplateController.php
+
+# Jest coverage output
+coverage/
+
+# SEO files regenerated at runtime by SeoFileGenerator (per-save + hourly
+# cron) — content is install-specific (URLs, company name, pages/products),
+# so it shouldn't be committed.
+/public/sitemap.xml
+/public/llms.txt
+/public/robots.txt

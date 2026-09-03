@@ -7,21 +7,28 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace PHPUnit\Framework;
+namespace PHPUnit\Framework\TestRunner;
 
 use function assert;
+use function bin2hex;
 use function defined;
 use function get_include_path;
 use function hrtime;
+use function random_bytes;
 use function serialize;
+use function sprintf;
 use function sys_get_temp_dir;
 use function tempnam;
 use function unlink;
-use function unserialize;
 use function var_export;
+use PHPUnit\Event\Facade as EventFacade;
 use PHPUnit\Event\NoPreviousThrowableException;
+use PHPUnit\Framework\Exception;
+use PHPUnit\Framework\ProcessIsolationException;
+use PHPUnit\Framework\TestCase;
 use PHPUnit\Runner\CodeCoverage;
 use PHPUnit\TextUI\Configuration\Registry as ConfigurationRegistry;
+use PHPUnit\TextUI\Configuration\SourceMapper;
 use PHPUnit\Util\GlobalState;
 use PHPUnit\Util\PHP\Job;
 use PHPUnit\Util\PHP\JobRunnerRegistry;
@@ -34,8 +41,10 @@ use SebastianBergmann\Template\Template;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class SeparateProcessTestRunner implements IsolatedTestRunner
+final class SeparateProcessTestRunner
 {
+    private static ?string $sourceMapFile = null;
+
     /**
      * @throws \PHPUnit\Runner\Exception
      * @throws \PHPUnit\Util\Exception
@@ -44,19 +53,9 @@ final class SeparateProcessTestRunner implements IsolatedTestRunner
      * @throws NoPreviousThrowableException
      * @throws ProcessIsolationException
      */
-    public function run(TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void
+    public function run(TestCase $test, bool $preserveGlobalState, bool $requiresXdebug): void
     {
         $class = new ReflectionClass($test);
-
-        if ($runEntireClass) {
-            $template = new Template(
-                __DIR__ . '/templates/class.tpl',
-            );
-        } else {
-            $template = new Template(
-                __DIR__ . '/templates/method.tpl',
-            );
-        }
 
         $bootstrap     = '';
         $constants     = '';
@@ -69,10 +68,22 @@ final class SeparateProcessTestRunner implements IsolatedTestRunner
         }
 
         if ($preserveGlobalState) {
-            $constants     = GlobalState::getConstantsAsString();
-            $globals       = GlobalState::getGlobalsAsString();
-            $includedFiles = GlobalState::getIncludedFilesAsString();
-            $iniSettings   = GlobalState::getIniSettingsAsString();
+            $constants         = GlobalState::getConstantsAsString();
+            $globalStateResult = GlobalState::exportGlobals();
+            $globals           = $globalStateResult->globalsString();
+            $includedFiles     = GlobalState::getIncludedFilesAsString();
+            $iniSettings       = GlobalState::getIniSettingsAsString();
+
+            foreach ($globalStateResult->skippedGlobals() as $skipped) {
+                EventFacade::emitter()->testTriggeredPhpunitWarning(
+                    $test->valueObjectForEvents(),
+                    sprintf(
+                        'Global variable %s was not preserved because it %s',
+                        $skipped['name'],
+                        $skipped['reason'],
+                    ),
+                );
+            }
         }
 
         $coverage = CodeCoverage::instance()->isActive() ? 'true' : 'false';
@@ -101,7 +112,16 @@ final class SeparateProcessTestRunner implements IsolatedTestRunner
         $includePath             = "'." . $includePath . ".'";
         $offset                  = hrtime();
         $serializedConfiguration = $this->saveConfigurationForChildProcess();
-        $processResultFile       = tempnam(sys_get_temp_dir(), 'phpunit_');
+        $processResultFile       = $this->pathForCachedSourceMap();
+
+        if ($processResultFile === false || $processResultFile === '') {
+            // @codeCoverageIgnoreStart
+            throw new ProcessIsolationException;
+            // @codeCoverageIgnoreEnd
+        }
+
+        $processResultNonce = bin2hex(random_bytes(16));
+        $sourceMapFile      = $this->sourceMapFileForChildProcess();
 
         $file = $class->getFileName();
 
@@ -113,6 +133,7 @@ final class SeparateProcessTestRunner implements IsolatedTestRunner
             'phar'                           => $phar,
             'filename'                       => $file,
             'className'                      => $class->getName(),
+            'methodName'                     => $test->name(),
             'collectCodeCoverageInformation' => $coverage,
             'data'                           => $data,
             'dataName'                       => $dataName,
@@ -127,11 +148,11 @@ final class SeparateProcessTestRunner implements IsolatedTestRunner
             'offsetNanoseconds'              => (string) $offset[1],
             'serializedConfiguration'        => $serializedConfiguration,
             'processResultFile'              => $processResultFile,
+            'processResultNonce'             => $processResultNonce,
+            'sourceMapFile'                  => $sourceMapFile,
         ];
 
-        if (!$runEntireClass) {
-            $var['methodName'] = $test->name();
-        }
+        $template = new Template(__DIR__ . '/templates/method.tpl');
 
         $template->setVar($var);
 
@@ -139,9 +160,44 @@ final class SeparateProcessTestRunner implements IsolatedTestRunner
 
         assert($code !== '');
 
-        JobRunnerRegistry::runTestJob(new Job($code, requiresXdebug: $requiresXdebug), $processResultFile, $test);
+        JobRunnerRegistry::runTestJob(new Job($code, requiresXdebug: $requiresXdebug), $processResultFile, $test, $processResultNonce);
 
         @unlink($serializedConfiguration);
+    }
+
+    private function sourceMapFileForChildProcess(): string
+    {
+        if (self::$sourceMapFile !== null) {
+            return self::$sourceMapFile;
+        }
+
+        if (!ConfigurationRegistry::get()->source()->notEmpty()) {
+            self::$sourceMapFile = '';
+
+            return self::$sourceMapFile;
+        }
+
+        $path = $this->pathForCachedSourceMap();
+
+        if ($path === false) {
+            // @codeCoverageIgnoreStart
+            self::$sourceMapFile = '';
+
+            return self::$sourceMapFile;
+            // @codeCoverageIgnoreEnd
+        }
+
+        if (!SourceMapper::saveTo($path, ConfigurationRegistry::get()->source())) {
+            // @codeCoverageIgnoreStart
+            self::$sourceMapFile = '';
+
+            return self::$sourceMapFile;
+            // @codeCoverageIgnoreEnd
+        }
+
+        self::$sourceMapFile = $path;
+
+        return self::$sourceMapFile;
     }
 
     /**
@@ -149,16 +205,25 @@ final class SeparateProcessTestRunner implements IsolatedTestRunner
      */
     private function saveConfigurationForChildProcess(): string
     {
-        $path = tempnam(sys_get_temp_dir(), 'phpunit_');
+        $path = $this->pathForCachedSourceMap();
 
         if ($path === false) {
+            // @codeCoverageIgnoreStart
             throw new ProcessIsolationException;
+            // @codeCoverageIgnoreEnd
         }
 
         if (!ConfigurationRegistry::saveTo($path)) {
+            // @codeCoverageIgnoreStart
             throw new ProcessIsolationException;
+            // @codeCoverageIgnoreEnd
         }
 
         return $path;
+    }
+
+    private function pathForCachedSourceMap(): false|string
+    {
+        return tempnam(sys_get_temp_dir(), 'phpunit_');
     }
 }

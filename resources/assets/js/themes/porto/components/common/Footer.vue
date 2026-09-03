@@ -1,0 +1,193 @@
+<template>
+    <footer id="footer" class="footer-top-border bg-color-grey">
+
+        <div v-if="footerWidgets.length" class="container py-4">
+            <div class="row py-5">
+
+                <div v-for="widget in footerWidgets" :key="widget.id"
+                     class="col-md-6 col-lg-4 mb-4 mb-lg-0">
+
+                    <h5 class="text-3 text-color-dark mb-3">{{ widget.name.toUpperCase() }}</h5>
+
+                    <!-- Widget HTML content -->
+                    <div v-if="widget.content" class="footer-widget-content" v-html="widget.content"></div> <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
+
+                    <!-- Newsletter form (allow_mailchimp) -->
+                    <template v-if="widget.allow_mailchimp">
+                        <Alert componentName="newsletter" />
+                        <form v-if="!newsletterSuccess" @submit.prevent="subscribeNewsletter" class="me-4 mb-4">
+                            <div class="input-group input-group-rounded has-validation">
+                                <input class="form-control form-control-sm bg-light px-4 text-3"
+                                       :class="{ 'is-invalid': newsletterEmailError }"
+                                       type="email" v-model="newsletterEmail"
+                                       placeholder="Email Address..."
+                                       @input="newsletterEmailError = ''">
+                                <button class="btn btn-primary text-color-light text-2 py-3 px-4"
+                                        type="submit" :disabled="subscribing">
+                                    <strong>SUBSCRIBE!</strong>
+                                </button>
+                            </div>
+                            <span v-if="newsletterEmailError" class="text-danger text-1 mt-1 d-block">
+                                {{ newsletterEmailError }}
+                            </span>
+                            <RecaptchaField :ref="setNewsletterCaptchaRef" action="mailChimp" class="mt-2" />
+                        </form>
+                    </template>
+
+                    <!-- Contact details (allow_social_media) -->
+                    <template v-if="widget.allow_social_media">
+                        <ul class="list list-icons list-icons-lg">
+                            <li v-if="phone" class="mb-1">
+                                <i class="fab fa-whatsapp text-color-primary"></i>
+                                <p class="m-0">
+                                    <a class="text-color-default" :href="`tel:${phone}`">
+                                        {{ phoneCode ? `+${phoneCode} ` : '' }}{{ phone }}
+                                    </a>
+                                </p>
+                            </li>
+                            <li v-if="companyEmail" class="mb-1">
+                                <i class="far fa-envelope text-color-primary"></i>
+                                <p class="m-0">
+                                    <a class="text-color-default" :href="`mailto:${companyEmail}`">{{ companyEmail }}</a>
+                                </p>
+                            </li>
+                        </ul>
+                        <ul v-if="social.length" class="header-social-icons social-icons mt-3">
+                          <li v-for="s in social" :key="s.name"
+                              :class="`social-icons-${s.name.toLowerCase()}`">
+                          <a :href="s.link" target="_blank" :title="s.name">
+                                    <i :class="`fab fa-${s.name.toLowerCase()} text-2`"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </template>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="footer-copyright footer-top-border bg-color-grey">
+            <div class="container py-2">
+                <div class="row py-4">
+                    <div class="col-12 d-flex align-items-center justify-content-center">
+                        <p class="mb-0 text-center">
+                            {{ __('message.copyright') }} © {{ currentYear }}
+                            <a v-if="website" :href="website"
+                               class="text-color-primary text-decoration-none"
+                               target="_blank">{{ company }}</a>
+                            <span v-else>{{ company }}</span>.
+                            {{ __('message.all_rights') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </footer>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+import { __ } from '@/plugins/i18n'
+import * as yup from 'yup'
+import http from '@/plugins/axios'
+import { RecaptchaField } from '@recaptcha'
+import { useAlertStore } from '@/core/stores/alert'
+import Alert from '@/components/Reusable/Alert.vue'
+
+const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+const newsletterSchema = yup.string()
+    .required(() => __('message.error_email_address'))
+    .matches(EMAIL_RE, () => __('message.contact_error_email'))
+
+const el           = document.getElementById('app-client')
+const company      = computed(() => el?.dataset?.company ?? '')
+const website      = computed(() => el?.dataset?.website ?? '')
+const companyEmail = computed(() => el?.dataset?.companyEmail ?? '')
+const phone        = computed(() => el?.dataset?.phone ?? '')
+const phoneCode    = computed(() => el?.dataset?.phoneCode ?? '')
+const currentYear  = new Date().getFullYear()
+
+const social = computed(() => {
+    try { return JSON.parse(el?.dataset?.social ?? '[]') } catch { return [] }
+})
+
+const footerWidgets = computed(() => {
+    try {
+        const all = JSON.parse(el?.dataset?.widgets ?? '[]')
+        return ['footer1', 'footer2', 'footer3']
+            .map(t => all.find(w => w.type === t))
+            .filter(Boolean)
+    } catch { return [] }
+})
+
+const alertStore = useAlertStore()
+
+const newsletterCaptchaRef = ref(null)
+function setNewsletterCaptchaRef(el) { if (el) newsletterCaptchaRef.value = el }
+const newsletterEmail      = ref('')
+const newsletterEmailError = ref('')
+const newsletterSuccess    = ref(false)
+const subscribing          = ref(false)
+
+async function subscribeNewsletter() {
+    newsletterEmailError.value = ''
+    try {
+        newsletterSchema.validateSync(newsletterEmail.value)
+    } catch (err) {
+        newsletterEmailError.value = err.message
+        return
+    }
+
+    subscribing.value = true
+    alertStore.unsetAlert()
+    try {
+        const captchaPayload = await newsletterCaptchaRef.value?.getPayload()
+        if (!newsletterCaptchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) {
+            return
+        }
+        const res = await http.post(`/newsletter/subscribe`, { newsletterEmail: newsletterEmail.value, ...captchaPayload })
+        newsletterSuccess.value = true
+        newsletterCaptchaRef.value?.reset()
+        alertStore.setAlert({
+            message: res?.data?.message ?? __('message.newsletter_subscribed'),
+            type: 'success',
+            component_name: 'newsletter',
+        })
+    } catch (e) {
+        if (e?.response?.data?.data?.show_v2_recaptcha) {
+            newsletterCaptchaRef.value?.triggerFallback()
+            return
+        }
+        newsletterCaptchaRef.value?.reset()
+        alertStore.setAlert({
+            message: e?.response?.data?.message ?? __('message.something_went_wrong'),
+            type: 'danger',
+            component_name: 'newsletter',
+        })
+    } finally {
+        subscribing.value = false
+    }
+}
+</script>
+
+<style scoped>
+.footer-widget-content :deep(ul) {
+    column-count: 2;
+    column-gap: 1.5rem;
+    padding-left: 1rem;
+}
+.footer-widget-content :deep(ul li) {
+    break-inside: avoid;
+}
+.footer-widget-content :deep(a:hover) {
+    color: var(--default) !important;
+}
+a.text-color-default:hover {
+    color: var(--default) !important;
+}
+a.text-color-primary:hover {
+    color: var(--primary) !important;
+}
+</style>

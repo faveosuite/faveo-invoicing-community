@@ -2,6 +2,30 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](https://keepachangelog.com/) principles.
 
+## [5.0.2] - 2026-07-09
+
+### Fixed
+
+* Guarantee that `$linesOfCode` is always a positive integer
+
+## [5.0.1] - 2026-05-19
+
+### Fixed
+
+* [#6](https://github.com/sebastianbergmann/lines-of-code/issues/6): Lines with multiple comments are double-counted, yielding negative `$nonCommentLinesOfCode`
+
+## [5.0.0] - 2026-02-06
+
+### Removed
+
+* This component is no longer supported on PHP 8.3
+
+## [4.0.1] - 2026-05-19
+
+### Fixed
+
+* [#6](https://github.com/sebastianbergmann/lines-of-code/issues/6): Lines with multiple comments are double-counted, yielding negative `$nonCommentLinesOfCode`
+
 ## [4.0.0] - 2025-02-07
 
 ### Removed
@@ -65,6 +89,10 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 * Initial release
 
+[5.0.2]: https://github.com/sebastianbergmann/lines-of-code/compare/5.0.1...5.0.2
+[5.0.1]: https://github.com/sebastianbergmann/lines-of-code/compare/5.0.0...5.0.1
+[5.0.0]: https://github.com/sebastianbergmann/lines-of-code/compare/4.0...5.0.0
+[4.0.1]: https://github.com/sebastianbergmann/lines-of-code/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/sebastianbergmann/lines-of-code/compare/3.0...4.0.0
 [3.0.1]: https://github.com/sebastianbergmann/lines-of-code/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/sebastianbergmann/lines-of-code/compare/2.0...3.0.0

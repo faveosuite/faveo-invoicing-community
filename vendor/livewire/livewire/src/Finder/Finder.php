@@ -68,9 +68,9 @@ class Finder
         if ($viewPath !== null) $this->viewNamespaces[$namespace] = $viewPath;
     }
 
-    public function getClassNamespace(string $namespace): array
+    public function getClassNamespace(string $namespace): ?array
     {
-        return $this->classNamespaces[$namespace];
+        return $this->classNamespaces[$namespace] ?? null;
     }
 
     public function normalizeName($nameComponentOrClass): ?string
@@ -104,6 +104,12 @@ class Finder
 
             return $result;
         }
+
+        // Rewrite slash-style nested paths to canonical dot-notation and
+        // strip ⚡ markers so the same component is referenced by a
+        // single canonical name regardless of how it was written.
+        $nameComponentOrClass = preg_replace('/' . self::ZAP . '[\x{FE0E}\x{FE0F}]?/u', '', $nameComponentOrClass);
+        $nameComponentOrClass = str_replace('/', '.', $nameComponentOrClass);
 
         return $nameComponentOrClass;
     }
@@ -331,24 +337,12 @@ class Finder
             $fullName = $fullName->replaceLast('.index', '');
         }
 
-        // If using a self-named component in a sub folder, remove the '.[last_segment]' so the name is the subfolder name...
-        $segments = explode('.', $fullName);
-
-        if (count($segments) >= 2) {
-            $lastSegment = end($segments);
-            $secondToLastSegment = $segments[count($segments) - 2];
-
-            if ($secondToLastSegment && $lastSegment === $secondToLastSegment) {
-                $fullName = $fullName->replaceLast('.' . $lastSegment, '');
-            }
-        }
-
         $classNamespaces = collect($this->classNamespaces)
             ->map(fn ($classNamespace) => $classNamespace['classNamespace'])
             ->merge($this->classLocations)
             ->toArray();
 
-        foreach ($classNamespaces as $classNamespace) {
+        foreach ($classNamespaces as $key => $classNamespace) {
             $namespace = str_replace(
                 ['/', '\\'],
                 '.',
@@ -360,7 +354,9 @@ class Finder
                 ->implode('.');
 
             if ($fullName->startsWith($namespace)) {
-                return (string) $fullName->substr(strlen($namespace) + 1);
+                $name = (string) $fullName->substr(strlen($namespace) + 1);
+
+                return is_string($key) ? $key . '::' . $name : $name;
             }
         }
 
@@ -397,9 +393,9 @@ class Finder
         }
 
         // Light touch check: Look for the pattern that indicates an SFC
-        // Pattern: <?php followed by 'new' and 'class' (with potential attributes/newlines between)
+        // Pattern: <?php followed by 'new class' (with potential attributes/newlines between)
         // This distinguishes SFCs from regular Blade views
-        return preg_match('/\<\?php.*new\s+.*class/s', $contents) === 1;
+        return preg_match('/\<\?php.*\bnew\s+(?:#\[[^\]]*\]\s*)*class\b/s', $contents) === 1;
     }
 
     protected function hasValidMultiFileComponentSource(string $dir, string $fileBaseName): bool
@@ -408,7 +404,7 @@ class Finder
             && file_exists($dir . '/' . $fileBaseName . '.blade.php');
     }
 
-    public function resolveSingleFileComponentPathForCreation(string $name): ?string
+    public function resolveSingleFileComponentPathForCreation(string $name, ?bool $useEmoji = null): ?string
     {
         [$namespace, $componentName] = $this->parseNamespaceAndName($name);
 
@@ -432,15 +428,15 @@ class Finder
         $lastSegment = array_pop($segments);
         $leadingPath = !empty($segments) ? implode('/', $segments) . '/' : '';
 
-        // Determine if emoji should be used (get from config)
-        $useEmoji = config('livewire.make_command.emoji', true);
+        // Determine if emoji should be used (prefer explicit parameter, then config)
+        $useEmoji = $useEmoji ?? config('livewire.make_command.emoji', true);
         $prefix = $useEmoji ? self::ZAP : '';
 
         // Build the file path
         return $location . '/' . $leadingPath . $prefix . $lastSegment . '.blade.php';
     }
 
-    public function resolveMultiFileComponentPathForCreation(string $name): ?string
+    public function resolveMultiFileComponentPathForCreation(string $name, ?bool $useEmoji = null): ?string
     {
         [$namespace, $componentName] = $this->parseNamespaceAndName($name);
 
@@ -464,8 +460,8 @@ class Finder
         $lastSegment = array_pop($segments);
         $leadingPath = !empty($segments) ? implode('/', $segments) . '/' : '';
 
-        // Determine if emoji should be used (get from config)
-        $useEmoji = config('livewire.make_command.emoji', true);
+        // Determine if emoji should be used (prefer explicit parameter, then config)
+        $useEmoji = $useEmoji ?? config('livewire.make_command.emoji', true);
         $prefix = $useEmoji ? self::ZAP : '';
 
         // Build the directory path

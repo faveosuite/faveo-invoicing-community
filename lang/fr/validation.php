@@ -150,7 +150,7 @@ return [
     'total_amount_required' => 'Le montant total est requis.',
     'total_amount_numeric' => 'Le montant total doit être une valeur numérique.',
     'invoice_link_required' => 'Veuillez lier le montant à au moins une facture.',
-    //Common
+    // Common
     'settings_form' => [
         'company' => [
             'required' => 'Le champ société est requis.',
@@ -248,7 +248,7 @@ return [
         ],
     ],
 
-    //Email
+    // Email
     'custom' => [
         'password' => [
             'required_if' => 'Le champ mot de passe est requis pour le pilote de messagerie sélectionné.',
@@ -351,7 +351,7 @@ return [
         ],
     ],
 
-    //Order form
+    // Order form
     'order_form' => [
         'client' => [
             'required' => 'Le champ client est requis.',
@@ -379,7 +379,7 @@ return [
         ],
     ],
 
-    //Payment form
+    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'Le champ code promo est requis.',
@@ -437,7 +437,7 @@ return [
         ],
     ],
 
-    //Product
+    // Product
     'subscription_form' => [
         'name' => [
             'required' => 'Le champ nom est requis.',
@@ -638,7 +638,7 @@ return [
         'required' => 'Entrez le code pays (mobile)',
     ],
 
-    //Invoice form
+    // Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Le champ client est requis.',
@@ -661,7 +661,7 @@ return [
         ],
     ],
 
-    //LocalizedLicense form
+    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Le champ domaine est requis.',
@@ -669,7 +669,7 @@ return [
         ],
     ],
 
-    //Product Renewal form
+    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Le champ domaine est requis.',
@@ -677,13 +677,13 @@ return [
         ],
     ],
 
-    //Language form
+    // Language form
     'language' => [
         'required' => 'Le champ langue est requis.',
         'invalid' => 'La langue sélectionnée est invalide.',
     ],
 
-    //UpdateSroragePathRequest form
+    // UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Le champ disque de stockage est requis.',
@@ -695,7 +695,7 @@ return [
         ],
     ],
 
-    //ValidateSecretRequest form
+    // ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'Veuillez entrer le code',
@@ -703,7 +703,7 @@ return [
         ],
     ],
 
-    //VerifyOtp form
+    // VerifyOtp form
     'verify_email' => [
         'required' => 'Le champ email est requis.',
         'email' => 'L\'email doit être une adresse email valide.',
@@ -728,7 +728,7 @@ return [
         'invalid' => 'Mot de passe invalide.',
     ],
 
-    //AuthController file
+    // AuthController file
     'auth_controller' => [
         'name_required' => 'Le nom est requis.',
         'name_max' => 'Le nom ne peut pas dépasser 255 caractères.',

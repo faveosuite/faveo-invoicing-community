@@ -1,0 +1,28 @@
+/* ───────────────────────────────────────────────────────────────────────────
+ * Client panel global styles
+ * Imported once in client.js (the client SPA entry). Keep client-only,
+ * cross-component rules here — not admin styles (those live in app.css).
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+/* Remove Bootstrap's validation icon / extra padding so invalid fields show
+   only the red border + feedback message (and don't collide with input-group
+   buttons such as the password show/hide toggle). */
+.form-control.is-invalid,
+.form-select.is-invalid {
+    background-image: none;
+    padding-right: 0.75rem;
+}
+
+/* Porto sets border:0 on .input-group-rounded .form-control; restore it for invalid state. */
+.input-group-rounded .form-control.is-invalid {
+    border: 1px solid var(--bs-form-invalid-border-color, #dc3545) !important;
+}
+
+
+.grecaptcha-badge {
+    bottom: 14px !important;
+}
+/* ── Tooltip (floating-vue) — match admin panel appearance ─────────────── */
+.v-popper__inner { text-align: center !important; }
+.v-popper__inner div { max-width: 300px !important; word-break: break-word !important; }
+.tooltip-inner { max-width: 600px; }

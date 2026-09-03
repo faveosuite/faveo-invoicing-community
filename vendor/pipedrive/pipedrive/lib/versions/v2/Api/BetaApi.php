@@ -1,7 +1,7 @@
 <?php
 /**
  * BetaApi
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -83,9 +83,9 @@ class BetaApi
      * @param int                  $hostIndex (Optional) host index to select the list of hosts if defined in the OpenAPI spec
      */
     public function __construct(
-        ClientInterface $client = null,
-        Configuration $config = null,
-        HeaderSelector $selector = null,
+        ?ClientInterface $client = null,
+        ?Configuration $config = null,
+        ?HeaderSelector $selector = null,
         int $hostIndex = 0
     ) {
         $this->client = $client ?: new Client();
@@ -123,36 +123,36 @@ class BetaApi
     }
 
     /**
-     * Operation convertDealToLead
+     * Operation addProjectBoard
      *
-     * Convert a deal to a lead (BETA)
+     * Add a project board
      *
-     * @param  int $id The ID of the deal to convert (required)
+     * @param  \Pipedrive\versions\v2\Model\BoardRequestBody $board_request_body board_request_body (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return \Pipedrive\versions\v2\Model\AddConvertDealToLeadResponse|\Pipedrive\versions\v2\Model\GetConvertResponse
+     * @return \Pipedrive\versions\v2\Model\PostPatchGetBoard
      */
-    public function convertDealToLead($id)
+    public function addProjectBoard($board_request_body)
     {
-        list($response) = $this->convertDealToLeadWithHttpInfo($id);
+        list($response) = $this->addProjectBoardWithHttpInfo($board_request_body);
         return $response;
     }
 
     /**
-     * Operation convertDealToLeadWithHttpInfo
+     * Operation addProjectBoardWithHttpInfo
      *
-     * Convert a deal to a lead (BETA)
+     * Add a project board
      *
-     * @param  int $id The ID of the deal to convert (required)
+     * @param  \Pipedrive\versions\v2\Model\BoardRequestBody $board_request_body (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return array<mixed> of \Pipedrive\versions\v2\Model\AddConvertDealToLeadResponse|\Pipedrive\versions\v2\Model\GetConvertResponse, HTTP status code, HTTP response headers (array of strings)
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\PostPatchGetBoard, HTTP status code, HTTP response headers (array of strings)
      */
-    public function convertDealToLeadWithHttpInfo($id)
+    public function addProjectBoardWithHttpInfo($board_request_body)
     {
-        $request = $this->convertDealToLeadRequest($id);
+        $request = $this->addProjectBoardRequest($board_request_body);
 
         try {
             $options = $this->createHttpClientOption();
@@ -161,7 +161,7 @@ class BetaApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->convertDealToLeadRequest($id);
+                    $request = $this->addProjectBoardRequest($board_request_body);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -186,27 +186,14 @@ class BetaApi
             switch($statusCode) {
                 case 200:
                     /* @phpstan-ignore-next-line */
-                    if ('\Pipedrive\versions\v2\Model\AddConvertDealToLeadResponse' === '\SplFileObject') {
+                    if ('\Pipedrive\versions\v2\Model\PostPatchGetBoard' === '\SplFileObject') {
                         $content = $response->getBody(); //stream goes to serializer
                     } else {
                         $content = (string) $response->getBody();
                     }
 
                     return [
-                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\AddConvertDealToLeadResponse', []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                case 404:
-                    /* @phpstan-ignore-next-line */
-                    if ('\Pipedrive\versions\v2\Model\GetConvertResponse' === '\SplFileObject') {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetConvertResponse', []),
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\PostPatchGetBoard', []),
                         $response->getStatusCode(),
                         $response->getHeaders()
                     ];
@@ -226,14 +213,14 @@ class BetaApi
             }
 
             /* @phpstan-ignore-next-line */
-            if ('\Pipedrive\versions\v2\Model\AddConvertDealToLeadResponse' === '\SplFileObject') {
+            if ('\Pipedrive\versions\v2\Model\PostPatchGetBoard' === '\SplFileObject') {
                 $content = $response->getBody(); //stream goes to serializer
             } else {
                 $content = (string) $response->getBody();
             }
 
             return [
-                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\AddConvertDealToLeadResponse', []),
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\PostPatchGetBoard', []),
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
@@ -243,15 +230,7 @@ class BetaApi
                 case 200:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
-                        '\Pipedrive\versions\v2\Model\AddConvertDealToLeadResponse',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
-                case 404:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Pipedrive\versions\v2\Model\GetConvertResponse',
+                        '\Pipedrive\versions\v2\Model\PostPatchGetBoard',
                         $e->getResponseHeaders()
                     );
                     $e->setResponseObject($data);
@@ -262,18 +241,18 @@ class BetaApi
     }
 
     /**
-     * Operation convertDealToLeadAsync
+     * Operation addProjectBoardAsync
      *
-     * Convert a deal to a lead (BETA)
+     * Add a project board
      *
-     * @param  int $id The ID of the deal to convert (required)
+     * @param  \Pipedrive\versions\v2\Model\BoardRequestBody $board_request_body (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function convertDealToLeadAsync($id): PromiseInterface
+    public function addProjectBoardAsync($board_request_body): PromiseInterface
     {
-        return $this->convertDealToLeadAsyncWithHttpInfo($id)
+        return $this->addProjectBoardAsyncWithHttpInfo($board_request_body)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -282,19 +261,19 @@ class BetaApi
     }
 
     /**
-     * Operation convertDealToLeadAsyncWithHttpInfo
+     * Operation addProjectBoardAsyncWithHttpInfo
      *
-     * Convert a deal to a lead (BETA)
+     * Add a project board
      *
-     * @param  int $id The ID of the deal to convert (required)
+     * @param  \Pipedrive\versions\v2\Model\BoardRequestBody $board_request_body (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function convertDealToLeadAsyncWithHttpInfo($id): PromiseInterface
+    public function addProjectBoardAsyncWithHttpInfo($board_request_body): PromiseInterface
     {
-        $returnType = '\Pipedrive\versions\v2\Model\AddConvertDealToLeadResponse';
-        $request = $this->convertDealToLeadRequest($id);
+        $returnType = '\Pipedrive\versions\v2\Model\PostPatchGetBoard';
+        $request = $this->addProjectBoardRequest($board_request_body);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -331,24 +310,24 @@ class BetaApi
     }
 
     /**
-     * Create request for operation 'convertDealToLead'
+     * Create request for operation 'addProjectBoard'
      *
-     * @param  int $id The ID of the deal to convert (required)
+     * @param  \Pipedrive\versions\v2\Model\BoardRequestBody $board_request_body (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function convertDealToLeadRequest($id): Request
+    public function addProjectBoardRequest($board_request_body): Request
     {
-        // verify the required parameter 'id' is set
+        // verify the required parameter 'board_request_body' is set
         /* @phpstan-ignore-next-line */
-        if ($id === null || (is_array($id) && count($id) === 0)) {
+        if ($board_request_body === null || (is_array($board_request_body) && count($board_request_body) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $id when calling convertDealToLead'
+                'Missing the required parameter $board_request_body when calling addProjectBoard'
             );
         }
 
-        $resourcePath = '/deals/{id}/convert/lead';
+        $resourcePath = '/boards';
         $formParams = [];
         $queryParams = [];
         $headerParams = [];
@@ -357,336 +336,6 @@ class BetaApi
 
 
 
-        // path params
-        if ($id !== null) {
-            $resourcePath = str_replace(
-                '{' . 'id' . '}',
-                ObjectSerializer::toPathValue($id),
-                $resourcePath
-            );
-        }
-
-
-        /* @phpstan-ignore-next-line */
-        if ($multipart) {
-            $headers = $this->headerSelector->selectHeadersForMultipart(
-                ['application/json']
-            );
-        } else {
-            $headers = $this->headerSelector->selectHeaders(
-                ['application/json'],
-                []
-            );
-        }
-
-        // for model (json/xml)
-        if (count($formParams) > 0) {
-            /* @phpstan-ignore-next-line */
-            if ($multipart) {
-                $multipartContents = [];
-                foreach ($formParams as $formParamName => $formParamValue) {
-                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
-                    foreach ($formParamValueItems as $formParamValueItem) {
-                        $multipartContents[] = [
-                            'name' => $formParamName,
-                            'contents' => $formParamValueItem
-                        ];
-                    }
-                }
-                // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
-
-            } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = Utils::jsonEncode($formParams);
-
-            } else {
-                // for HTTP post (form)
-                $httpBody = Query::build($formParams);
-            }
-        }
-
-        // this endpoint requires API key authentication
-        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
-        if ($apiKey !== null) {
-            $headers['x-api-token'] = $apiKey;
-        }
-        // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
-            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-        }
-
-        $defaultHeaders = [];
-        if ($this->config->getUserAgent()) {
-            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
-        }
-
-        $headers = array_merge(
-            $defaultHeaders,
-            $headerParams,
-            $headers
-        );
-
-        $query = Query::build($queryParams);
-        return new Request(
-            'POST',
-            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
-            $headers,
-            $httpBody
-        );
-    }
-
-    /**
-     * Operation convertLeadToDeal
-     *
-     * Convert a lead to a deal (BETA)
-     *
-     * @param  string $id The ID of the lead to convert (required)
-     * @param  \Pipedrive\versions\v2\Model\InlineObject|null $inline_object inline_object (optional)
-     *
-     * @throws ApiException on non-2xx response
-     * @throws InvalidArgumentException|GuzzleException
-     * @return \Pipedrive\versions\v2\Model\AddConvertLeadToDealResponse|\Pipedrive\versions\v2\Model\GetConvertResponse
-     */
-    public function convertLeadToDeal($id, $inline_object = null)
-    {
-        list($response) = $this->convertLeadToDealWithHttpInfo($id, $inline_object);
-        return $response;
-    }
-
-    /**
-     * Operation convertLeadToDealWithHttpInfo
-     *
-     * Convert a lead to a deal (BETA)
-     *
-     * @param  string $id The ID of the lead to convert (required)
-     * @param  \Pipedrive\versions\v2\Model\InlineObject|null $inline_object (optional)
-     *
-     * @throws ApiException on non-2xx response
-     * @throws InvalidArgumentException|GuzzleException
-     * @return array<mixed> of \Pipedrive\versions\v2\Model\AddConvertLeadToDealResponse|\Pipedrive\versions\v2\Model\GetConvertResponse, HTTP status code, HTTP response headers (array of strings)
-     */
-    public function convertLeadToDealWithHttpInfo($id, $inline_object = null)
-    {
-        $request = $this->convertLeadToDealRequest($id, $inline_object);
-
-        try {
-            $options = $this->createHttpClientOption();
-            try {
-                $response = $this->client->send($request, $options);
-            } catch (RequestException $e) {
-                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
-                    $this->config->refreshToken();
-                    $request = $this->convertLeadToDealRequest($id, $inline_object);
-                    $response = $this->client->send($request, $options);
-                } else {
-                    throw new ApiException(
-                        "[{$e->getCode()}] {$e->getMessage()}",
-                        (int) $e->getCode(),
-                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
-                    );
-                }
-            } catch (ConnectException $e) {
-                throw new ApiException(
-                    "[{$e->getCode()}] {$e->getMessage()}",
-                    (int) $e->getCode(),
-                    null,
-                    null
-                );
-            }
-
-            $statusCode = $response->getStatusCode();
-
-
-            switch($statusCode) {
-                case 200:
-                    /* @phpstan-ignore-next-line */
-                    if ('\Pipedrive\versions\v2\Model\AddConvertLeadToDealResponse' === '\SplFileObject') {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\AddConvertLeadToDealResponse', []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                case 404:
-                    /* @phpstan-ignore-next-line */
-                    if ('\Pipedrive\versions\v2\Model\GetConvertResponse' === '\SplFileObject') {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetConvertResponse', []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-            }
-
-            if ($statusCode < 200 || $statusCode > 299) {
-                throw new ApiException(
-                    sprintf(
-                        '[%d] Error connecting to the API (%s)',
-                        $statusCode,
-                        (string) $request->getUri()
-                    ),
-                    $statusCode,
-                    $response->getHeaders(),
-                    (string) $response->getBody()
-                );
-            }
-
-            /* @phpstan-ignore-next-line */
-            if ('\Pipedrive\versions\v2\Model\AddConvertLeadToDealResponse' === '\SplFileObject') {
-                $content = $response->getBody(); //stream goes to serializer
-            } else {
-                $content = (string) $response->getBody();
-            }
-
-            return [
-                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\AddConvertLeadToDealResponse', []),
-                $response->getStatusCode(),
-                $response->getHeaders()
-            ];
-
-        } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Pipedrive\versions\v2\Model\AddConvertLeadToDealResponse',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
-                case 404:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Pipedrive\versions\v2\Model\GetConvertResponse',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
-            }
-            throw $e;
-        }
-    }
-
-    /**
-     * Operation convertLeadToDealAsync
-     *
-     * Convert a lead to a deal (BETA)
-     *
-     * @param  string $id The ID of the lead to convert (required)
-     * @param  \Pipedrive\versions\v2\Model\InlineObject|null $inline_object (optional)
-     *
-     * @throws InvalidArgumentException|OAuthProviderException
-     * @return PromiseInterface
-     */
-    public function convertLeadToDealAsync($id, $inline_object = null): PromiseInterface
-    {
-        return $this->convertLeadToDealAsyncWithHttpInfo($id, $inline_object)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation convertLeadToDealAsyncWithHttpInfo
-     *
-     * Convert a lead to a deal (BETA)
-     *
-     * @param  string $id The ID of the lead to convert (required)
-     * @param  \Pipedrive\versions\v2\Model\InlineObject|null $inline_object (optional)
-     *
-     * @throws InvalidArgumentException|OAuthProviderException
-     * @return PromiseInterface
-     */
-    public function convertLeadToDealAsyncWithHttpInfo($id, $inline_object = null): PromiseInterface
-    {
-        $returnType = '\Pipedrive\versions\v2\Model\AddConvertLeadToDealResponse';
-        $request = $this->convertLeadToDealRequest($id, $inline_object);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    /* @phpstan-ignore-next-line */
-                    if ($returnType === '\SplFileObject') {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
-     * Create request for operation 'convertLeadToDeal'
-     *
-     * @param  string $id The ID of the lead to convert (required)
-     * @param  \Pipedrive\versions\v2\Model\InlineObject|null $inline_object (optional)
-     *
-     * @throws InvalidArgumentException|OAuthProviderException
-     * @return Request
-     */
-    public function convertLeadToDealRequest($id, $inline_object = null): Request
-    {
-        // verify the required parameter 'id' is set
-        /* @phpstan-ignore-next-line */
-        if ($id === null || (is_array($id) && count($id) === 0)) {
-            throw new \InvalidArgumentException(
-                'Missing the required parameter $id when calling convertLeadToDeal'
-            );
-        }
-
-        $resourcePath = '/leads/{id}/convert/deal';
-        $formParams = [];
-        $queryParams = [];
-        $headerParams = [];
-        $httpBody = '';
-        $multipart = false;
-
-
-
-        // path params
-        if ($id !== null) {
-            $resourcePath = str_replace(
-                '{' . 'id' . '}',
-                ObjectSerializer::toPathValue($id),
-                $resourcePath
-            );
-        }
 
 
         /* @phpstan-ignore-next-line */
@@ -702,11 +351,11 @@ class BetaApi
         }
 
         // for model (json/xml)
-        if (isset($inline_object)) {
+        if (isset($board_request_body)) {
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($inline_object));
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($board_request_body));
             } else {
-                $httpBody = $inline_object;
+                $httpBody = $board_request_body;
             }
         } elseif (count($formParams) > 0) {
             /* @phpstan-ignore-next-line */
@@ -768,38 +417,36 @@ class BetaApi
     }
 
     /**
-     * Operation deleteInstallment
+     * Operation addProjectField
      *
-     * Delete an installment from a deal
+     * Create one project field
      *
-     * @param  int $id The ID of the deal (required)
-     * @param  int $installment_id The ID of the installment (required)
+     * @param  \Pipedrive\versions\v2\Model\CreateProjectFieldRequest $create_project_field_request create_project_field_request (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return \Pipedrive\versions\v2\Model\DeleteInstallmentResponse
+     * @return \Pipedrive\versions\v2\Model\CreateProjectField
      */
-    public function deleteInstallment($id, $installment_id)
+    public function addProjectField($create_project_field_request)
     {
-        list($response) = $this->deleteInstallmentWithHttpInfo($id, $installment_id);
+        list($response) = $this->addProjectFieldWithHttpInfo($create_project_field_request);
         return $response;
     }
 
     /**
-     * Operation deleteInstallmentWithHttpInfo
+     * Operation addProjectFieldWithHttpInfo
      *
-     * Delete an installment from a deal
+     * Create one project field
      *
-     * @param  int $id The ID of the deal (required)
-     * @param  int $installment_id The ID of the installment (required)
+     * @param  \Pipedrive\versions\v2\Model\CreateProjectFieldRequest $create_project_field_request (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return array<mixed> of \Pipedrive\versions\v2\Model\DeleteInstallmentResponse, HTTP status code, HTTP response headers (array of strings)
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\CreateProjectField, HTTP status code, HTTP response headers (array of strings)
      */
-    public function deleteInstallmentWithHttpInfo($id, $installment_id)
+    public function addProjectFieldWithHttpInfo($create_project_field_request)
     {
-        $request = $this->deleteInstallmentRequest($id, $installment_id);
+        $request = $this->addProjectFieldRequest($create_project_field_request);
 
         try {
             $options = $this->createHttpClientOption();
@@ -808,7 +455,7 @@ class BetaApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->deleteInstallmentRequest($id, $installment_id);
+                    $request = $this->addProjectFieldRequest($create_project_field_request);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -833,14 +480,14 @@ class BetaApi
             switch($statusCode) {
                 case 200:
                     /* @phpstan-ignore-next-line */
-                    if ('\Pipedrive\versions\v2\Model\DeleteInstallmentResponse' === '\SplFileObject') {
+                    if ('\Pipedrive\versions\v2\Model\CreateProjectField' === '\SplFileObject') {
                         $content = $response->getBody(); //stream goes to serializer
                     } else {
                         $content = (string) $response->getBody();
                     }
 
                     return [
-                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteInstallmentResponse', []),
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\CreateProjectField', []),
                         $response->getStatusCode(),
                         $response->getHeaders()
                     ];
@@ -860,14 +507,14 @@ class BetaApi
             }
 
             /* @phpstan-ignore-next-line */
-            if ('\Pipedrive\versions\v2\Model\DeleteInstallmentResponse' === '\SplFileObject') {
+            if ('\Pipedrive\versions\v2\Model\CreateProjectField' === '\SplFileObject') {
                 $content = $response->getBody(); //stream goes to serializer
             } else {
                 $content = (string) $response->getBody();
             }
 
             return [
-                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteInstallmentResponse', []),
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\CreateProjectField', []),
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
@@ -877,7 +524,7 @@ class BetaApi
                 case 200:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
-                        '\Pipedrive\versions\v2\Model\DeleteInstallmentResponse',
+                        '\Pipedrive\versions\v2\Model\CreateProjectField',
                         $e->getResponseHeaders()
                     );
                     $e->setResponseObject($data);
@@ -888,19 +535,18 @@ class BetaApi
     }
 
     /**
-     * Operation deleteInstallmentAsync
+     * Operation addProjectFieldAsync
      *
-     * Delete an installment from a deal
+     * Create one project field
      *
-     * @param  int $id The ID of the deal (required)
-     * @param  int $installment_id The ID of the installment (required)
+     * @param  \Pipedrive\versions\v2\Model\CreateProjectFieldRequest $create_project_field_request (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function deleteInstallmentAsync($id, $installment_id): PromiseInterface
+    public function addProjectFieldAsync($create_project_field_request): PromiseInterface
     {
-        return $this->deleteInstallmentAsyncWithHttpInfo($id, $installment_id)
+        return $this->addProjectFieldAsyncWithHttpInfo($create_project_field_request)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -909,20 +555,19 @@ class BetaApi
     }
 
     /**
-     * Operation deleteInstallmentAsyncWithHttpInfo
+     * Operation addProjectFieldAsyncWithHttpInfo
      *
-     * Delete an installment from a deal
+     * Create one project field
      *
-     * @param  int $id The ID of the deal (required)
-     * @param  int $installment_id The ID of the installment (required)
+     * @param  \Pipedrive\versions\v2\Model\CreateProjectFieldRequest $create_project_field_request (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function deleteInstallmentAsyncWithHttpInfo($id, $installment_id): PromiseInterface
+    public function addProjectFieldAsyncWithHttpInfo($create_project_field_request): PromiseInterface
     {
-        $returnType = '\Pipedrive\versions\v2\Model\DeleteInstallmentResponse';
-        $request = $this->deleteInstallmentRequest($id, $installment_id);
+        $returnType = '\Pipedrive\versions\v2\Model\CreateProjectField';
+        $request = $this->addProjectFieldRequest($create_project_field_request);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -959,32 +604,1220 @@ class BetaApi
     }
 
     /**
-     * Create request for operation 'deleteInstallment'
+     * Create request for operation 'addProjectField'
      *
-     * @param  int $id The ID of the deal (required)
-     * @param  int $installment_id The ID of the installment (required)
+     * @param  \Pipedrive\versions\v2\Model\CreateProjectFieldRequest $create_project_field_request (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function deleteInstallmentRequest($id, $installment_id): Request
+    public function addProjectFieldRequest($create_project_field_request): Request
+    {
+        // verify the required parameter 'create_project_field_request' is set
+        /* @phpstan-ignore-next-line */
+        if ($create_project_field_request === null || (is_array($create_project_field_request) && count($create_project_field_request) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $create_project_field_request when calling addProjectField'
+            );
+        }
+
+        $resourcePath = '/projectFields';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                ['application/json']
+            );
+        }
+
+        // for model (json/xml)
+        if (isset($create_project_field_request)) {
+            if ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($create_project_field_request));
+            } else {
+                $httpBody = $create_project_field_request;
+            }
+        } elseif (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'POST',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation addProjectFieldOptions
+     *
+     * Add project field options in bulk
+     *
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  object[] $request_body request_body (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\InlineResponse200
+     */
+    public function addProjectFieldOptions($field_code, $request_body)
+    {
+        list($response) = $this->addProjectFieldOptionsWithHttpInfo($field_code, $request_body);
+        return $response;
+    }
+
+    /**
+     * Operation addProjectFieldOptionsWithHttpInfo
+     *
+     * Add project field options in bulk
+     *
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  object[] $request_body (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\InlineResponse200, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function addProjectFieldOptionsWithHttpInfo($field_code, $request_body)
+    {
+        $request = $this->addProjectFieldOptionsRequest($field_code, $request_body);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->addProjectFieldOptionsRequest($field_code, $request_body);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\InlineResponse200' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\InlineResponse200', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\InlineResponse200' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\InlineResponse200', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\InlineResponse200',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation addProjectFieldOptionsAsync
+     *
+     * Add project field options in bulk
+     *
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  object[] $request_body (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function addProjectFieldOptionsAsync($field_code, $request_body): PromiseInterface
+    {
+        return $this->addProjectFieldOptionsAsyncWithHttpInfo($field_code, $request_body)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation addProjectFieldOptionsAsyncWithHttpInfo
+     *
+     * Add project field options in bulk
+     *
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  object[] $request_body (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function addProjectFieldOptionsAsyncWithHttpInfo($field_code, $request_body): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\InlineResponse200';
+        $request = $this->addProjectFieldOptionsRequest($field_code, $request_body);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'addProjectFieldOptions'
+     *
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  object[] $request_body (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function addProjectFieldOptionsRequest($field_code, $request_body): Request
+    {
+        // verify the required parameter 'field_code' is set
+        /* @phpstan-ignore-next-line */
+        if ($field_code === null || (is_array($field_code) && count($field_code) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $field_code when calling addProjectFieldOptions'
+            );
+        }
+        // verify the required parameter 'request_body' is set
+        /* @phpstan-ignore-next-line */
+        if ($request_body === null || (is_array($request_body) && count($request_body) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $request_body when calling addProjectFieldOptions'
+            );
+        }
+
+        $resourcePath = '/projectFields/{field_code}/options';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($field_code !== null) {
+            $resourcePath = str_replace(
+                '{' . 'field_code' . '}',
+                ObjectSerializer::toPathValue($field_code),
+                $resourcePath
+            );
+        }
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                ['application/json']
+            );
+        }
+
+        // for model (json/xml)
+        if (isset($request_body)) {
+            if ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($request_body));
+            } else {
+                $httpBody = $request_body;
+            }
+        } elseif (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'POST',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation addProjectPhase
+     *
+     * Add a project phase
+     *
+     * @param  \Pipedrive\versions\v2\Model\PhaseRequestBody $phase_request_body phase_request_body (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\PostPatchGetPhase
+     */
+    public function addProjectPhase($phase_request_body)
+    {
+        list($response) = $this->addProjectPhaseWithHttpInfo($phase_request_body);
+        return $response;
+    }
+
+    /**
+     * Operation addProjectPhaseWithHttpInfo
+     *
+     * Add a project phase
+     *
+     * @param  \Pipedrive\versions\v2\Model\PhaseRequestBody $phase_request_body (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\PostPatchGetPhase, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function addProjectPhaseWithHttpInfo($phase_request_body)
+    {
+        $request = $this->addProjectPhaseRequest($phase_request_body);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->addProjectPhaseRequest($phase_request_body);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\PostPatchGetPhase' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\PostPatchGetPhase', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\PostPatchGetPhase' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\PostPatchGetPhase', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\PostPatchGetPhase',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation addProjectPhaseAsync
+     *
+     * Add a project phase
+     *
+     * @param  \Pipedrive\versions\v2\Model\PhaseRequestBody $phase_request_body (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function addProjectPhaseAsync($phase_request_body): PromiseInterface
+    {
+        return $this->addProjectPhaseAsyncWithHttpInfo($phase_request_body)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation addProjectPhaseAsyncWithHttpInfo
+     *
+     * Add a project phase
+     *
+     * @param  \Pipedrive\versions\v2\Model\PhaseRequestBody $phase_request_body (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function addProjectPhaseAsyncWithHttpInfo($phase_request_body): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\PostPatchGetPhase';
+        $request = $this->addProjectPhaseRequest($phase_request_body);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'addProjectPhase'
+     *
+     * @param  \Pipedrive\versions\v2\Model\PhaseRequestBody $phase_request_body (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function addProjectPhaseRequest($phase_request_body): Request
+    {
+        // verify the required parameter 'phase_request_body' is set
+        /* @phpstan-ignore-next-line */
+        if ($phase_request_body === null || (is_array($phase_request_body) && count($phase_request_body) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $phase_request_body when calling addProjectPhase'
+            );
+        }
+
+        $resourcePath = '/phases';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                ['application/json']
+            );
+        }
+
+        // for model (json/xml)
+        if (isset($phase_request_body)) {
+            if ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($phase_request_body));
+            } else {
+                $httpBody = $phase_request_body;
+            }
+        } elseif (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'POST',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation addTask
+     *
+     * Add a task
+     *
+     * @param  \Pipedrive\versions\v2\Model\TaskPostRequest $task_post_request task_post_request (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\AddTaskResponse
+     */
+    public function addTask($task_post_request)
+    {
+        list($response) = $this->addTaskWithHttpInfo($task_post_request);
+        return $response;
+    }
+
+    /**
+     * Operation addTaskWithHttpInfo
+     *
+     * Add a task
+     *
+     * @param  \Pipedrive\versions\v2\Model\TaskPostRequest $task_post_request (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\AddTaskResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function addTaskWithHttpInfo($task_post_request)
+    {
+        $request = $this->addTaskRequest($task_post_request);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->addTaskRequest($task_post_request);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 201:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\AddTaskResponse' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\AddTaskResponse', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\AddTaskResponse' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\AddTaskResponse', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 201:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\AddTaskResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation addTaskAsync
+     *
+     * Add a task
+     *
+     * @param  \Pipedrive\versions\v2\Model\TaskPostRequest $task_post_request (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function addTaskAsync($task_post_request): PromiseInterface
+    {
+        return $this->addTaskAsyncWithHttpInfo($task_post_request)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation addTaskAsyncWithHttpInfo
+     *
+     * Add a task
+     *
+     * @param  \Pipedrive\versions\v2\Model\TaskPostRequest $task_post_request (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function addTaskAsyncWithHttpInfo($task_post_request): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\AddTaskResponse';
+        $request = $this->addTaskRequest($task_post_request);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'addTask'
+     *
+     * @param  \Pipedrive\versions\v2\Model\TaskPostRequest $task_post_request (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function addTaskRequest($task_post_request): Request
+    {
+        // verify the required parameter 'task_post_request' is set
+        /* @phpstan-ignore-next-line */
+        if ($task_post_request === null || (is_array($task_post_request) && count($task_post_request) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $task_post_request when calling addTask'
+            );
+        }
+
+        $resourcePath = '/tasks';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                ['application/json']
+            );
+        }
+
+        // for model (json/xml)
+        if (isset($task_post_request)) {
+            if ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($task_post_request));
+            } else {
+                $httpBody = $task_post_request;
+            }
+        } elseif (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'POST',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation deleteProjectBoard
+     *
+     * Delete a project board
+     *
+     * @param  int $id The ID of the project board (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\DeleteProjectBoardResponse
+     */
+    public function deleteProjectBoard($id)
+    {
+        list($response) = $this->deleteProjectBoardWithHttpInfo($id);
+        return $response;
+    }
+
+    /**
+     * Operation deleteProjectBoardWithHttpInfo
+     *
+     * Delete a project board
+     *
+     * @param  int $id The ID of the project board (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\DeleteProjectBoardResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function deleteProjectBoardWithHttpInfo($id)
+    {
+        $request = $this->deleteProjectBoardRequest($id);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->deleteProjectBoardRequest($id);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\DeleteProjectBoardResponse' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteProjectBoardResponse', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\DeleteProjectBoardResponse' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteProjectBoardResponse', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\DeleteProjectBoardResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation deleteProjectBoardAsync
+     *
+     * Delete a project board
+     *
+     * @param  int $id The ID of the project board (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function deleteProjectBoardAsync($id): PromiseInterface
+    {
+        return $this->deleteProjectBoardAsyncWithHttpInfo($id)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation deleteProjectBoardAsyncWithHttpInfo
+     *
+     * Delete a project board
+     *
+     * @param  int $id The ID of the project board (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function deleteProjectBoardAsyncWithHttpInfo($id): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\DeleteProjectBoardResponse';
+        $request = $this->deleteProjectBoardRequest($id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'deleteProjectBoard'
+     *
+     * @param  int $id The ID of the project board (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function deleteProjectBoardRequest($id): Request
     {
         // verify the required parameter 'id' is set
         /* @phpstan-ignore-next-line */
         if ($id === null || (is_array($id) && count($id) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $id when calling deleteInstallment'
-            );
-        }
-        // verify the required parameter 'installment_id' is set
-        /* @phpstan-ignore-next-line */
-        if ($installment_id === null || (is_array($installment_id) && count($installment_id) === 0)) {
-            throw new \InvalidArgumentException(
-                'Missing the required parameter $installment_id when calling deleteInstallment'
+                'Missing the required parameter $id when calling deleteProjectBoard'
             );
         }
 
-        $resourcePath = '/deals/{id}/installments/{installment_id}';
+        $resourcePath = '/boards/{id}';
         $formParams = [];
         $queryParams = [];
         $headerParams = [];
@@ -998,14 +1831,6 @@ class BetaApi
             $resourcePath = str_replace(
                 '{' . 'id' . '}',
                 ObjectSerializer::toPathValue($id),
-                $resourcePath
-            );
-        }
-        // path params
-        if ($installment_id !== null) {
-            $resourcePath = str_replace(
-                '{' . 'installment_id' . '}',
-                ObjectSerializer::toPathValue($installment_id),
                 $resourcePath
             );
         }
@@ -1084,36 +1909,36 @@ class BetaApi
     }
 
     /**
-     * Operation deleteProductImage
+     * Operation deleteProjectField
      *
-     * Delete an image of a product
+     * Delete one project field
      *
-     * @param  int $id The ID of the product (required)
+     * @param  string $field_code The unique code identifying the field (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return \Pipedrive\versions\v2\Model\DeleteProductImageResponse
+     * @return \Pipedrive\versions\v2\Model\DeleteProjectField
      */
-    public function deleteProductImage($id)
+    public function deleteProjectField($field_code)
     {
-        list($response) = $this->deleteProductImageWithHttpInfo($id);
+        list($response) = $this->deleteProjectFieldWithHttpInfo($field_code);
         return $response;
     }
 
     /**
-     * Operation deleteProductImageWithHttpInfo
+     * Operation deleteProjectFieldWithHttpInfo
      *
-     * Delete an image of a product
+     * Delete one project field
      *
-     * @param  int $id The ID of the product (required)
+     * @param  string $field_code The unique code identifying the field (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return array<mixed> of \Pipedrive\versions\v2\Model\DeleteProductImageResponse, HTTP status code, HTTP response headers (array of strings)
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\DeleteProjectField, HTTP status code, HTTP response headers (array of strings)
      */
-    public function deleteProductImageWithHttpInfo($id)
+    public function deleteProjectFieldWithHttpInfo($field_code)
     {
-        $request = $this->deleteProductImageRequest($id);
+        $request = $this->deleteProjectFieldRequest($field_code);
 
         try {
             $options = $this->createHttpClientOption();
@@ -1122,7 +1947,7 @@ class BetaApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->deleteProductImageRequest($id);
+                    $request = $this->deleteProjectFieldRequest($field_code);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -1147,14 +1972,14 @@ class BetaApi
             switch($statusCode) {
                 case 200:
                     /* @phpstan-ignore-next-line */
-                    if ('\Pipedrive\versions\v2\Model\DeleteProductImageResponse' === '\SplFileObject') {
+                    if ('\Pipedrive\versions\v2\Model\DeleteProjectField' === '\SplFileObject') {
                         $content = $response->getBody(); //stream goes to serializer
                     } else {
                         $content = (string) $response->getBody();
                     }
 
                     return [
-                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteProductImageResponse', []),
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteProjectField', []),
                         $response->getStatusCode(),
                         $response->getHeaders()
                     ];
@@ -1174,14 +1999,14 @@ class BetaApi
             }
 
             /* @phpstan-ignore-next-line */
-            if ('\Pipedrive\versions\v2\Model\DeleteProductImageResponse' === '\SplFileObject') {
+            if ('\Pipedrive\versions\v2\Model\DeleteProjectField' === '\SplFileObject') {
                 $content = $response->getBody(); //stream goes to serializer
             } else {
                 $content = (string) $response->getBody();
             }
 
             return [
-                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteProductImageResponse', []),
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteProjectField', []),
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
@@ -1191,7 +2016,7 @@ class BetaApi
                 case 200:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
-                        '\Pipedrive\versions\v2\Model\DeleteProductImageResponse',
+                        '\Pipedrive\versions\v2\Model\DeleteProjectField',
                         $e->getResponseHeaders()
                     );
                     $e->setResponseObject($data);
@@ -1202,18 +2027,18 @@ class BetaApi
     }
 
     /**
-     * Operation deleteProductImageAsync
+     * Operation deleteProjectFieldAsync
      *
-     * Delete an image of a product
+     * Delete one project field
      *
-     * @param  int $id The ID of the product (required)
+     * @param  string $field_code The unique code identifying the field (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function deleteProductImageAsync($id): PromiseInterface
+    public function deleteProjectFieldAsync($field_code): PromiseInterface
     {
-        return $this->deleteProductImageAsyncWithHttpInfo($id)
+        return $this->deleteProjectFieldAsyncWithHttpInfo($field_code)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1222,19 +2047,19 @@ class BetaApi
     }
 
     /**
-     * Operation deleteProductImageAsyncWithHttpInfo
+     * Operation deleteProjectFieldAsyncWithHttpInfo
      *
-     * Delete an image of a product
+     * Delete one project field
      *
-     * @param  int $id The ID of the product (required)
+     * @param  string $field_code The unique code identifying the field (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function deleteProductImageAsyncWithHttpInfo($id): PromiseInterface
+    public function deleteProjectFieldAsyncWithHttpInfo($field_code): PromiseInterface
     {
-        $returnType = '\Pipedrive\versions\v2\Model\DeleteProductImageResponse';
-        $request = $this->deleteProductImageRequest($id);
+        $returnType = '\Pipedrive\versions\v2\Model\DeleteProjectField';
+        $request = $this->deleteProjectFieldRequest($field_code);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1271,24 +2096,634 @@ class BetaApi
     }
 
     /**
-     * Create request for operation 'deleteProductImage'
+     * Create request for operation 'deleteProjectField'
      *
-     * @param  int $id The ID of the product (required)
+     * @param  string $field_code The unique code identifying the field (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function deleteProductImageRequest($id): Request
+    public function deleteProjectFieldRequest($field_code): Request
+    {
+        // verify the required parameter 'field_code' is set
+        /* @phpstan-ignore-next-line */
+        if ($field_code === null || (is_array($field_code) && count($field_code) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $field_code when calling deleteProjectField'
+            );
+        }
+
+        $resourcePath = '/projectFields/{field_code}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($field_code !== null) {
+            $resourcePath = str_replace(
+                '{' . 'field_code' . '}',
+                ObjectSerializer::toPathValue($field_code),
+                $resourcePath
+            );
+        }
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                []
+            );
+        }
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'DELETE',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation deleteProjectFieldOptions
+     *
+     * Delete project field options in bulk
+     *
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  object[] $request_body request_body (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\InlineResponse200
+     */
+    public function deleteProjectFieldOptions($field_code, $request_body)
+    {
+        list($response) = $this->deleteProjectFieldOptionsWithHttpInfo($field_code, $request_body);
+        return $response;
+    }
+
+    /**
+     * Operation deleteProjectFieldOptionsWithHttpInfo
+     *
+     * Delete project field options in bulk
+     *
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  object[] $request_body (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\InlineResponse200, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function deleteProjectFieldOptionsWithHttpInfo($field_code, $request_body)
+    {
+        $request = $this->deleteProjectFieldOptionsRequest($field_code, $request_body);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->deleteProjectFieldOptionsRequest($field_code, $request_body);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\InlineResponse200' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\InlineResponse200', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\InlineResponse200' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\InlineResponse200', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\InlineResponse200',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation deleteProjectFieldOptionsAsync
+     *
+     * Delete project field options in bulk
+     *
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  object[] $request_body (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function deleteProjectFieldOptionsAsync($field_code, $request_body): PromiseInterface
+    {
+        return $this->deleteProjectFieldOptionsAsyncWithHttpInfo($field_code, $request_body)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation deleteProjectFieldOptionsAsyncWithHttpInfo
+     *
+     * Delete project field options in bulk
+     *
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  object[] $request_body (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function deleteProjectFieldOptionsAsyncWithHttpInfo($field_code, $request_body): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\InlineResponse200';
+        $request = $this->deleteProjectFieldOptionsRequest($field_code, $request_body);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'deleteProjectFieldOptions'
+     *
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  object[] $request_body (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function deleteProjectFieldOptionsRequest($field_code, $request_body): Request
+    {
+        // verify the required parameter 'field_code' is set
+        /* @phpstan-ignore-next-line */
+        if ($field_code === null || (is_array($field_code) && count($field_code) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $field_code when calling deleteProjectFieldOptions'
+            );
+        }
+        // verify the required parameter 'request_body' is set
+        /* @phpstan-ignore-next-line */
+        if ($request_body === null || (is_array($request_body) && count($request_body) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $request_body when calling deleteProjectFieldOptions'
+            );
+        }
+
+        $resourcePath = '/projectFields/{field_code}/options';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($field_code !== null) {
+            $resourcePath = str_replace(
+                '{' . 'field_code' . '}',
+                ObjectSerializer::toPathValue($field_code),
+                $resourcePath
+            );
+        }
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                ['application/json']
+            );
+        }
+
+        // for model (json/xml)
+        if (isset($request_body)) {
+            if ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($request_body));
+            } else {
+                $httpBody = $request_body;
+            }
+        } elseif (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'DELETE',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation deleteProjectPhase
+     *
+     * Delete a project phase
+     *
+     * @param  int $id The ID of the project phase (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\DeleteProjectPhaseResponse
+     */
+    public function deleteProjectPhase($id)
+    {
+        list($response) = $this->deleteProjectPhaseWithHttpInfo($id);
+        return $response;
+    }
+
+    /**
+     * Operation deleteProjectPhaseWithHttpInfo
+     *
+     * Delete a project phase
+     *
+     * @param  int $id The ID of the project phase (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\DeleteProjectPhaseResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function deleteProjectPhaseWithHttpInfo($id)
+    {
+        $request = $this->deleteProjectPhaseRequest($id);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->deleteProjectPhaseRequest($id);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\DeleteProjectPhaseResponse' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteProjectPhaseResponse', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\DeleteProjectPhaseResponse' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteProjectPhaseResponse', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\DeleteProjectPhaseResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation deleteProjectPhaseAsync
+     *
+     * Delete a project phase
+     *
+     * @param  int $id The ID of the project phase (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function deleteProjectPhaseAsync($id): PromiseInterface
+    {
+        return $this->deleteProjectPhaseAsyncWithHttpInfo($id)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation deleteProjectPhaseAsyncWithHttpInfo
+     *
+     * Delete a project phase
+     *
+     * @param  int $id The ID of the project phase (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function deleteProjectPhaseAsyncWithHttpInfo($id): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\DeleteProjectPhaseResponse';
+        $request = $this->deleteProjectPhaseRequest($id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'deleteProjectPhase'
+     *
+     * @param  int $id The ID of the project phase (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function deleteProjectPhaseRequest($id): Request
     {
         // verify the required parameter 'id' is set
         /* @phpstan-ignore-next-line */
         if ($id === null || (is_array($id) && count($id) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $id when calling deleteProductImage'
+                'Missing the required parameter $id when calling deleteProjectPhase'
             );
         }
 
-        $resourcePath = '/products/{id}/images';
+        $resourcePath = '/phases/{id}';
         $formParams = [];
         $queryParams = [];
         $headerParams = [];
@@ -1380,37 +2815,36 @@ class BetaApi
     }
 
     /**
-     * Operation getDealConversionStatus
+     * Operation deleteTask
      *
-     * Get Deal conversion status (BETA)
+     * Delete a task
      *
-     * @param  int $id The ID of a deal (required)
-     * @param  string $conversion_id The ID of the conversion (required)
+     * @param  int $id The ID of the task (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return void
+     * @return \Pipedrive\versions\v2\Model\DeleteTaskResponse
      */
-    public function getDealConversionStatus($id, $conversion_id)
+    public function deleteTask($id)
     {
-        $this->getDealConversionStatusWithHttpInfo($id, $conversion_id);
+        list($response) = $this->deleteTaskWithHttpInfo($id);
+        return $response;
     }
 
     /**
-     * Operation getDealConversionStatusWithHttpInfo
+     * Operation deleteTaskWithHttpInfo
      *
-     * Get Deal conversion status (BETA)
+     * Delete a task
      *
-     * @param  int $id The ID of a deal (required)
-     * @param  string $conversion_id The ID of the conversion (required)
+     * @param  int $id The ID of the task (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return array<mixed> of null, HTTP status code, HTTP response headers (array of strings)
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\DeleteTaskResponse, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getDealConversionStatusWithHttpInfo($id, $conversion_id)
+    public function deleteTaskWithHttpInfo($id)
     {
-        $request = $this->getDealConversionStatusRequest($id, $conversion_id);
+        $request = $this->deleteTaskRequest($id);
 
         try {
             $options = $this->createHttpClientOption();
@@ -1419,7 +2853,7 @@ class BetaApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->getDealConversionStatusRequest($id, $conversion_id);
+                    $request = $this->deleteTaskRequest($id);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -1441,14 +2875,54 @@ class BetaApi
             $statusCode = $response->getStatusCode();
 
 
-            return [null, $statusCode, $response->getHeaders()];
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\DeleteTaskResponse' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteTaskResponse', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\DeleteTaskResponse' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteTaskResponse', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
 
         } catch (ApiException $e) {
             switch ($e->getCode()) {
-                case 404:
+                case 200:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
-                        '\Pipedrive\versions\v2\Model\GetConvertResponse',
+                        '\Pipedrive\versions\v2\Model\DeleteTaskResponse',
                         $e->getResponseHeaders()
                     );
                     $e->setResponseObject($data);
@@ -1459,19 +2933,18 @@ class BetaApi
     }
 
     /**
-     * Operation getDealConversionStatusAsync
+     * Operation deleteTaskAsync
      *
-     * Get Deal conversion status (BETA)
+     * Delete a task
      *
-     * @param  int $id The ID of a deal (required)
-     * @param  string $conversion_id The ID of the conversion (required)
+     * @param  int $id The ID of the task (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getDealConversionStatusAsync($id, $conversion_id): PromiseInterface
+    public function deleteTaskAsync($id): PromiseInterface
     {
-        return $this->getDealConversionStatusAsyncWithHttpInfo($id, $conversion_id)
+        return $this->deleteTaskAsyncWithHttpInfo($id)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1480,26 +2953,36 @@ class BetaApi
     }
 
     /**
-     * Operation getDealConversionStatusAsyncWithHttpInfo
+     * Operation deleteTaskAsyncWithHttpInfo
      *
-     * Get Deal conversion status (BETA)
+     * Delete a task
      *
-     * @param  int $id The ID of a deal (required)
-     * @param  string $conversion_id The ID of the conversion (required)
+     * @param  int $id The ID of the task (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getDealConversionStatusAsyncWithHttpInfo($id, $conversion_id): PromiseInterface
+    public function deleteTaskAsyncWithHttpInfo($id): PromiseInterface
     {
-        $returnType = '';
-        $request = $this->getDealConversionStatusRequest($id, $conversion_id);
+        $returnType = '\Pipedrive\versions\v2\Model\DeleteTaskResponse';
+        $request = $this->deleteTaskRequest($id);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
                 function ($response) use ($returnType) {
-                    return [null, $response->getStatusCode(), $response->getHeaders()];
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
                 },
                 function ($exception) {
                     $response = $exception->getResponse();
@@ -1519,32 +3002,24 @@ class BetaApi
     }
 
     /**
-     * Create request for operation 'getDealConversionStatus'
+     * Create request for operation 'deleteTask'
      *
-     * @param  int $id The ID of a deal (required)
-     * @param  string $conversion_id The ID of the conversion (required)
+     * @param  int $id The ID of the task (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function getDealConversionStatusRequest($id, $conversion_id): Request
+    public function deleteTaskRequest($id): Request
     {
         // verify the required parameter 'id' is set
         /* @phpstan-ignore-next-line */
         if ($id === null || (is_array($id) && count($id) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $id when calling getDealConversionStatus'
-            );
-        }
-        // verify the required parameter 'conversion_id' is set
-        /* @phpstan-ignore-next-line */
-        if ($conversion_id === null || (is_array($conversion_id) && count($conversion_id) === 0)) {
-            throw new \InvalidArgumentException(
-                'Missing the required parameter $conversion_id when calling getDealConversionStatus'
+                'Missing the required parameter $id when calling deleteTask'
             );
         }
 
-        $resourcePath = '/deals/{id}/convert/status/{conversion_id}';
+        $resourcePath = '/tasks/{id}';
         $formParams = [];
         $queryParams = [];
         $headerParams = [];
@@ -1561,11 +3036,299 @@ class BetaApi
                 $resourcePath
             );
         }
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                []
+            );
+        }
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'DELETE',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation getProjectField
+     *
+     * Get one project field
+     *
+     * @param  string $field_code The unique code identifying the field (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\GetProjectField
+     */
+    public function getProjectField($field_code)
+    {
+        list($response) = $this->getProjectFieldWithHttpInfo($field_code);
+        return $response;
+    }
+
+    /**
+     * Operation getProjectFieldWithHttpInfo
+     *
+     * Get one project field
+     *
+     * @param  string $field_code The unique code identifying the field (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\GetProjectField, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function getProjectFieldWithHttpInfo($field_code)
+    {
+        $request = $this->getProjectFieldRequest($field_code);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->getProjectFieldRequest($field_code);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\GetProjectField' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetProjectField', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\GetProjectField' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetProjectField', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\GetProjectField',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation getProjectFieldAsync
+     *
+     * Get one project field
+     *
+     * @param  string $field_code The unique code identifying the field (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getProjectFieldAsync($field_code): PromiseInterface
+    {
+        return $this->getProjectFieldAsyncWithHttpInfo($field_code)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getProjectFieldAsyncWithHttpInfo
+     *
+     * Get one project field
+     *
+     * @param  string $field_code The unique code identifying the field (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getProjectFieldAsyncWithHttpInfo($field_code): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\GetProjectField';
+        $request = $this->getProjectFieldRequest($field_code);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'getProjectField'
+     *
+     * @param  string $field_code The unique code identifying the field (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function getProjectFieldRequest($field_code): Request
+    {
+        // verify the required parameter 'field_code' is set
+        /* @phpstan-ignore-next-line */
+        if ($field_code === null || (is_array($field_code) && count($field_code) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $field_code when calling getProjectField'
+            );
+        }
+
+        $resourcePath = '/projectFields/{field_code}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
         // path params
-        if ($conversion_id !== null) {
+        if ($field_code !== null) {
             $resourcePath = str_replace(
-                '{' . 'conversion_id' . '}',
-                ObjectSerializer::toPathValue($conversion_id),
+                '{' . 'field_code' . '}',
+                ObjectSerializer::toPathValue($field_code),
                 $resourcePath
             );
         }
@@ -1644,44 +3407,38 @@ class BetaApi
     }
 
     /**
-     * Operation getInstallments
+     * Operation getProjectFields
      *
-     * List installments added to a list of deals
+     * Get all project fields
      *
-     * @param  int[] $deal_ids An array of integers with the IDs of the deals for which the attached installments will be returned. A maximum of 100 deal IDs can be provided. (required)
-     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
-     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;billing_date&#x60;, &#x60;deal_id&#x60;. (optional, default to 'id')
-     * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
+     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return \Pipedrive\versions\v2\Model\InstallmentsResponse
+     * @return \Pipedrive\versions\v2\Model\GetProjectFields
      */
-    public function getInstallments($deal_ids, $cursor = null, $limit = null, $sort_by = 'id', $sort_direction = 'asc')
+    public function getProjectFields($limit = null, $cursor = null)
     {
-        list($response) = $this->getInstallmentsWithHttpInfo($deal_ids, $cursor, $limit, $sort_by, $sort_direction);
+        list($response) = $this->getProjectFieldsWithHttpInfo($limit, $cursor);
         return $response;
     }
 
     /**
-     * Operation getInstallmentsWithHttpInfo
+     * Operation getProjectFieldsWithHttpInfo
      *
-     * List installments added to a list of deals
+     * Get all project fields
      *
-     * @param  int[] $deal_ids An array of integers with the IDs of the deals for which the attached installments will be returned. A maximum of 100 deal IDs can be provided. (required)
-     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
-     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;billing_date&#x60;, &#x60;deal_id&#x60;. (optional, default to 'id')
-     * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
+     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return array<mixed> of \Pipedrive\versions\v2\Model\InstallmentsResponse, HTTP status code, HTTP response headers (array of strings)
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\GetProjectFields, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getInstallmentsWithHttpInfo($deal_ids, $cursor = null, $limit = null, $sort_by = 'id', $sort_direction = 'asc')
+    public function getProjectFieldsWithHttpInfo($limit = null, $cursor = null)
     {
-        $request = $this->getInstallmentsRequest($deal_ids, $cursor, $limit, $sort_by, $sort_direction);
+        $request = $this->getProjectFieldsRequest($limit, $cursor);
 
         try {
             $options = $this->createHttpClientOption();
@@ -1690,7 +3447,7 @@ class BetaApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->getInstallmentsRequest($deal_ids, $cursor, $limit, $sort_by, $sort_direction);
+                    $request = $this->getProjectFieldsRequest($limit, $cursor);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -1715,14 +3472,14 @@ class BetaApi
             switch($statusCode) {
                 case 200:
                     /* @phpstan-ignore-next-line */
-                    if ('\Pipedrive\versions\v2\Model\InstallmentsResponse' === '\SplFileObject') {
+                    if ('\Pipedrive\versions\v2\Model\GetProjectFields' === '\SplFileObject') {
                         $content = $response->getBody(); //stream goes to serializer
                     } else {
                         $content = (string) $response->getBody();
                     }
 
                     return [
-                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\InstallmentsResponse', []),
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetProjectFields', []),
                         $response->getStatusCode(),
                         $response->getHeaders()
                     ];
@@ -1742,14 +3499,14 @@ class BetaApi
             }
 
             /* @phpstan-ignore-next-line */
-            if ('\Pipedrive\versions\v2\Model\InstallmentsResponse' === '\SplFileObject') {
+            if ('\Pipedrive\versions\v2\Model\GetProjectFields' === '\SplFileObject') {
                 $content = $response->getBody(); //stream goes to serializer
             } else {
                 $content = (string) $response->getBody();
             }
 
             return [
-                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\InstallmentsResponse', []),
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetProjectFields', []),
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
@@ -1759,7 +3516,7 @@ class BetaApi
                 case 200:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
-                        '\Pipedrive\versions\v2\Model\InstallmentsResponse',
+                        '\Pipedrive\versions\v2\Model\GetProjectFields',
                         $e->getResponseHeaders()
                     );
                     $e->setResponseObject($data);
@@ -1770,22 +3527,19 @@ class BetaApi
     }
 
     /**
-     * Operation getInstallmentsAsync
+     * Operation getProjectFieldsAsync
      *
-     * List installments added to a list of deals
+     * Get all project fields
      *
-     * @param  int[] $deal_ids An array of integers with the IDs of the deals for which the attached installments will be returned. A maximum of 100 deal IDs can be provided. (required)
-     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
-     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;billing_date&#x60;, &#x60;deal_id&#x60;. (optional, default to 'id')
-     * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
+     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getInstallmentsAsync($deal_ids, $cursor = null, $limit = null, $sort_by = 'id', $sort_direction = 'asc'): PromiseInterface
+    public function getProjectFieldsAsync($limit = null, $cursor = null): PromiseInterface
     {
-        return $this->getInstallmentsAsyncWithHttpInfo($deal_ids, $cursor, $limit, $sort_by, $sort_direction)
+        return $this->getProjectFieldsAsyncWithHttpInfo($limit, $cursor)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1794,23 +3548,20 @@ class BetaApi
     }
 
     /**
-     * Operation getInstallmentsAsyncWithHttpInfo
+     * Operation getProjectFieldsAsyncWithHttpInfo
      *
-     * List installments added to a list of deals
+     * Get all project fields
      *
-     * @param  int[] $deal_ids An array of integers with the IDs of the deals for which the attached installments will be returned. A maximum of 100 deal IDs can be provided. (required)
-     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
-     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;billing_date&#x60;, &#x60;deal_id&#x60;. (optional, default to 'id')
-     * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
+     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getInstallmentsAsyncWithHttpInfo($deal_ids, $cursor = null, $limit = null, $sort_by = 'id', $sort_direction = 'asc'): PromiseInterface
+    public function getProjectFieldsAsyncWithHttpInfo($limit = null, $cursor = null): PromiseInterface
     {
-        $returnType = '\Pipedrive\versions\v2\Model\InstallmentsResponse';
-        $request = $this->getInstallmentsRequest($deal_ids, $cursor, $limit, $sort_by, $sort_direction);
+        $returnType = '\Pipedrive\versions\v2\Model\GetProjectFields';
+        $request = $this->getProjectFieldsRequest($limit, $cursor);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1847,28 +3598,18 @@ class BetaApi
     }
 
     /**
-     * Create request for operation 'getInstallments'
+     * Create request for operation 'getProjectFields'
      *
-     * @param  int[] $deal_ids An array of integers with the IDs of the deals for which the attached installments will be returned. A maximum of 100 deal IDs can be provided. (required)
-     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
-     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;billing_date&#x60;, &#x60;deal_id&#x60;. (optional, default to 'id')
-     * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
+     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function getInstallmentsRequest($deal_ids, $cursor = null, $limit = null, $sort_by = 'id', $sort_direction = 'asc'): Request
+    public function getProjectFieldsRequest($limit = null, $cursor = null): Request
     {
-        // verify the required parameter 'deal_ids' is set
-        /* @phpstan-ignore-next-line */
-        if ($deal_ids === null || (is_array($deal_ids) && count($deal_ids) === 0)) {
-            throw new \InvalidArgumentException(
-                'Missing the required parameter $deal_ids when calling getInstallments'
-            );
-        }
 
-        $resourcePath = '/deals/installments';
+        $resourcePath = '/projectFields';
         $formParams = [];
         $queryParams = [];
         $headerParams = [];
@@ -1877,12 +3618,1791 @@ class BetaApi
 
         // query params
         /* @phpstan-ignore-next-line */
-        if (is_array($deal_ids)) {
-            $deal_ids = ObjectSerializer::serializeCollection($deal_ids, 'csv', true);
+        if (is_array($limit)) {
+            $limit = ObjectSerializer::serializeCollection($limit, '', true);
         }
-        if ($deal_ids !== null) {
-            $queryParams['deal_ids'] = $deal_ids;
+        if ($limit !== null) {
+            $queryParams['limit'] = $limit;
         }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($cursor)) {
+            $cursor = ObjectSerializer::serializeCollection($cursor, '', true);
+        }
+        if ($cursor !== null) {
+            $queryParams['cursor'] = $cursor;
+        }
+
+
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                []
+            );
+        }
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'GET',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation getProjectsBoard
+     *
+     * Get details of a project board
+     *
+     * @param  int $id The ID of the project board (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\PostPatchGetBoard
+     */
+    public function getProjectsBoard($id)
+    {
+        list($response) = $this->getProjectsBoardWithHttpInfo($id);
+        return $response;
+    }
+
+    /**
+     * Operation getProjectsBoardWithHttpInfo
+     *
+     * Get details of a project board
+     *
+     * @param  int $id The ID of the project board (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\PostPatchGetBoard, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function getProjectsBoardWithHttpInfo($id)
+    {
+        $request = $this->getProjectsBoardRequest($id);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->getProjectsBoardRequest($id);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\PostPatchGetBoard' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\PostPatchGetBoard', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\PostPatchGetBoard' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\PostPatchGetBoard', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\PostPatchGetBoard',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation getProjectsBoardAsync
+     *
+     * Get details of a project board
+     *
+     * @param  int $id The ID of the project board (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getProjectsBoardAsync($id): PromiseInterface
+    {
+        return $this->getProjectsBoardAsyncWithHttpInfo($id)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getProjectsBoardAsyncWithHttpInfo
+     *
+     * Get details of a project board
+     *
+     * @param  int $id The ID of the project board (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getProjectsBoardAsyncWithHttpInfo($id): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\PostPatchGetBoard';
+        $request = $this->getProjectsBoardRequest($id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'getProjectsBoard'
+     *
+     * @param  int $id The ID of the project board (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function getProjectsBoardRequest($id): Request
+    {
+        // verify the required parameter 'id' is set
+        /* @phpstan-ignore-next-line */
+        if ($id === null || (is_array($id) && count($id) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $id when calling getProjectsBoard'
+            );
+        }
+
+        $resourcePath = '/boards/{id}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                '{' . 'id' . '}',
+                ObjectSerializer::toPathValue($id),
+                $resourcePath
+            );
+        }
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                []
+            );
+        }
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'GET',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation getProjectsBoards
+     *
+     * Get all project boards
+     *
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\GetBoards
+     */
+    public function getProjectsBoards()
+    {
+        list($response) = $this->getProjectsBoardsWithHttpInfo();
+        return $response;
+    }
+
+    /**
+     * Operation getProjectsBoardsWithHttpInfo
+     *
+     * Get all project boards
+     *
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\GetBoards, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function getProjectsBoardsWithHttpInfo()
+    {
+        $request = $this->getProjectsBoardsRequest();
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->getProjectsBoardsRequest();
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\GetBoards' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetBoards', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\GetBoards' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetBoards', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\GetBoards',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation getProjectsBoardsAsync
+     *
+     * Get all project boards
+     *
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getProjectsBoardsAsync(): PromiseInterface
+    {
+        return $this->getProjectsBoardsAsyncWithHttpInfo()
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getProjectsBoardsAsyncWithHttpInfo
+     *
+     * Get all project boards
+     *
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getProjectsBoardsAsyncWithHttpInfo(): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\GetBoards';
+        $request = $this->getProjectsBoardsRequest();
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'getProjectsBoards'
+     *
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function getProjectsBoardsRequest(): Request
+    {
+
+        $resourcePath = '/boards';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                []
+            );
+        }
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'GET',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation getProjectsPhase
+     *
+     * Get details of a project phase
+     *
+     * @param  int $id The ID of the project phase (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\PostPatchGetPhase
+     */
+    public function getProjectsPhase($id)
+    {
+        list($response) = $this->getProjectsPhaseWithHttpInfo($id);
+        return $response;
+    }
+
+    /**
+     * Operation getProjectsPhaseWithHttpInfo
+     *
+     * Get details of a project phase
+     *
+     * @param  int $id The ID of the project phase (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\PostPatchGetPhase, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function getProjectsPhaseWithHttpInfo($id)
+    {
+        $request = $this->getProjectsPhaseRequest($id);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->getProjectsPhaseRequest($id);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\PostPatchGetPhase' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\PostPatchGetPhase', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\PostPatchGetPhase' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\PostPatchGetPhase', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\PostPatchGetPhase',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation getProjectsPhaseAsync
+     *
+     * Get details of a project phase
+     *
+     * @param  int $id The ID of the project phase (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getProjectsPhaseAsync($id): PromiseInterface
+    {
+        return $this->getProjectsPhaseAsyncWithHttpInfo($id)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getProjectsPhaseAsyncWithHttpInfo
+     *
+     * Get details of a project phase
+     *
+     * @param  int $id The ID of the project phase (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getProjectsPhaseAsyncWithHttpInfo($id): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\PostPatchGetPhase';
+        $request = $this->getProjectsPhaseRequest($id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'getProjectsPhase'
+     *
+     * @param  int $id The ID of the project phase (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function getProjectsPhaseRequest($id): Request
+    {
+        // verify the required parameter 'id' is set
+        /* @phpstan-ignore-next-line */
+        if ($id === null || (is_array($id) && count($id) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $id when calling getProjectsPhase'
+            );
+        }
+
+        $resourcePath = '/phases/{id}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                '{' . 'id' . '}',
+                ObjectSerializer::toPathValue($id),
+                $resourcePath
+            );
+        }
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                []
+            );
+        }
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'GET',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation getProjectsPhases
+     *
+     * Get project phases
+     *
+     * @param  int $board_id The ID of the board for which phases are requested (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\GetPhases
+     */
+    public function getProjectsPhases($board_id)
+    {
+        list($response) = $this->getProjectsPhasesWithHttpInfo($board_id);
+        return $response;
+    }
+
+    /**
+     * Operation getProjectsPhasesWithHttpInfo
+     *
+     * Get project phases
+     *
+     * @param  int $board_id The ID of the board for which phases are requested (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\GetPhases, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function getProjectsPhasesWithHttpInfo($board_id)
+    {
+        $request = $this->getProjectsPhasesRequest($board_id);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->getProjectsPhasesRequest($board_id);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\GetPhases' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetPhases', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\GetPhases' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetPhases', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\GetPhases',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation getProjectsPhasesAsync
+     *
+     * Get project phases
+     *
+     * @param  int $board_id The ID of the board for which phases are requested (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getProjectsPhasesAsync($board_id): PromiseInterface
+    {
+        return $this->getProjectsPhasesAsyncWithHttpInfo($board_id)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getProjectsPhasesAsyncWithHttpInfo
+     *
+     * Get project phases
+     *
+     * @param  int $board_id The ID of the board for which phases are requested (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getProjectsPhasesAsyncWithHttpInfo($board_id): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\GetPhases';
+        $request = $this->getProjectsPhasesRequest($board_id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'getProjectsPhases'
+     *
+     * @param  int $board_id The ID of the board for which phases are requested (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function getProjectsPhasesRequest($board_id): Request
+    {
+        // verify the required parameter 'board_id' is set
+        /* @phpstan-ignore-next-line */
+        if ($board_id === null || (is_array($board_id) && count($board_id) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $board_id when calling getProjectsPhases'
+            );
+        }
+
+        $resourcePath = '/phases';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($board_id)) {
+            $board_id = ObjectSerializer::serializeCollection($board_id, '', true);
+        }
+        if ($board_id !== null) {
+            $queryParams['board_id'] = $board_id;
+        }
+
+
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                []
+            );
+        }
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'GET',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation getTask
+     *
+     * Get details of a task
+     *
+     * @param  int $id The ID of the task (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\GetTaskResponse
+     */
+    public function getTask($id)
+    {
+        list($response) = $this->getTaskWithHttpInfo($id);
+        return $response;
+    }
+
+    /**
+     * Operation getTaskWithHttpInfo
+     *
+     * Get details of a task
+     *
+     * @param  int $id The ID of the task (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\GetTaskResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function getTaskWithHttpInfo($id)
+    {
+        $request = $this->getTaskRequest($id);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->getTaskRequest($id);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\GetTaskResponse' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetTaskResponse', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\GetTaskResponse' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetTaskResponse', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\GetTaskResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation getTaskAsync
+     *
+     * Get details of a task
+     *
+     * @param  int $id The ID of the task (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getTaskAsync($id): PromiseInterface
+    {
+        return $this->getTaskAsyncWithHttpInfo($id)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getTaskAsyncWithHttpInfo
+     *
+     * Get details of a task
+     *
+     * @param  int $id The ID of the task (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getTaskAsyncWithHttpInfo($id): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\GetTaskResponse';
+        $request = $this->getTaskRequest($id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'getTask'
+     *
+     * @param  int $id The ID of the task (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function getTaskRequest($id): Request
+    {
+        // verify the required parameter 'id' is set
+        /* @phpstan-ignore-next-line */
+        if ($id === null || (is_array($id) && count($id) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $id when calling getTask'
+            );
+        }
+
+        $resourcePath = '/tasks/{id}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                '{' . 'id' . '}',
+                ObjectSerializer::toPathValue($id),
+                $resourcePath
+            );
+        }
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                []
+            );
+        }
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'GET',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation getTasks
+     *
+     * Get all tasks
+     *
+     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  bool|null $is_done Whether the task is done or not. If omitted, both done and not done tasks are returned. (optional)
+     * @param  bool|null $is_milestone Whether the task is a milestone or not. If omitted, both milestone and non-milestone tasks are returned. (optional)
+     * @param  int|null $assignee_id If supplied, only tasks assigned to this user are returned (optional)
+     * @param  int|null $project_id If supplied, only tasks belonging to this project are returned (optional)
+     * @param  string|null $parent_task_id If &#x60;null&#x60; is supplied, only root-level tasks (without a parent) are returned. If an integer is supplied, only subtasks of that specific task are returned. By default all tasks are returned. (optional)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\GetTasksResponse
+     */
+    public function getTasks($cursor = null, $limit = null, $is_done = null, $is_milestone = null, $assignee_id = null, $project_id = null, $parent_task_id = null)
+    {
+        list($response) = $this->getTasksWithHttpInfo($cursor, $limit, $is_done, $is_milestone, $assignee_id, $project_id, $parent_task_id);
+        return $response;
+    }
+
+    /**
+     * Operation getTasksWithHttpInfo
+     *
+     * Get all tasks
+     *
+     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  bool|null $is_done Whether the task is done or not. If omitted, both done and not done tasks are returned. (optional)
+     * @param  bool|null $is_milestone Whether the task is a milestone or not. If omitted, both milestone and non-milestone tasks are returned. (optional)
+     * @param  int|null $assignee_id If supplied, only tasks assigned to this user are returned (optional)
+     * @param  int|null $project_id If supplied, only tasks belonging to this project are returned (optional)
+     * @param  string|null $parent_task_id If &#x60;null&#x60; is supplied, only root-level tasks (without a parent) are returned. If an integer is supplied, only subtasks of that specific task are returned. By default all tasks are returned. (optional)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\GetTasksResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function getTasksWithHttpInfo($cursor = null, $limit = null, $is_done = null, $is_milestone = null, $assignee_id = null, $project_id = null, $parent_task_id = null)
+    {
+        $request = $this->getTasksRequest($cursor, $limit, $is_done, $is_milestone, $assignee_id, $project_id, $parent_task_id);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->getTasksRequest($cursor, $limit, $is_done, $is_milestone, $assignee_id, $project_id, $parent_task_id);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\GetTasksResponse' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetTasksResponse', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\GetTasksResponse' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetTasksResponse', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\GetTasksResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation getTasksAsync
+     *
+     * Get all tasks
+     *
+     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  bool|null $is_done Whether the task is done or not. If omitted, both done and not done tasks are returned. (optional)
+     * @param  bool|null $is_milestone Whether the task is a milestone or not. If omitted, both milestone and non-milestone tasks are returned. (optional)
+     * @param  int|null $assignee_id If supplied, only tasks assigned to this user are returned (optional)
+     * @param  int|null $project_id If supplied, only tasks belonging to this project are returned (optional)
+     * @param  string|null $parent_task_id If &#x60;null&#x60; is supplied, only root-level tasks (without a parent) are returned. If an integer is supplied, only subtasks of that specific task are returned. By default all tasks are returned. (optional)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getTasksAsync($cursor = null, $limit = null, $is_done = null, $is_milestone = null, $assignee_id = null, $project_id = null, $parent_task_id = null): PromiseInterface
+    {
+        return $this->getTasksAsyncWithHttpInfo($cursor, $limit, $is_done, $is_milestone, $assignee_id, $project_id, $parent_task_id)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getTasksAsyncWithHttpInfo
+     *
+     * Get all tasks
+     *
+     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  bool|null $is_done Whether the task is done or not. If omitted, both done and not done tasks are returned. (optional)
+     * @param  bool|null $is_milestone Whether the task is a milestone or not. If omitted, both milestone and non-milestone tasks are returned. (optional)
+     * @param  int|null $assignee_id If supplied, only tasks assigned to this user are returned (optional)
+     * @param  int|null $project_id If supplied, only tasks belonging to this project are returned (optional)
+     * @param  string|null $parent_task_id If &#x60;null&#x60; is supplied, only root-level tasks (without a parent) are returned. If an integer is supplied, only subtasks of that specific task are returned. By default all tasks are returned. (optional)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getTasksAsyncWithHttpInfo($cursor = null, $limit = null, $is_done = null, $is_milestone = null, $assignee_id = null, $project_id = null, $parent_task_id = null): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\GetTasksResponse';
+        $request = $this->getTasksRequest($cursor, $limit, $is_done, $is_milestone, $assignee_id, $project_id, $parent_task_id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'getTasks'
+     *
+     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  bool|null $is_done Whether the task is done or not. If omitted, both done and not done tasks are returned. (optional)
+     * @param  bool|null $is_milestone Whether the task is a milestone or not. If omitted, both milestone and non-milestone tasks are returned. (optional)
+     * @param  int|null $assignee_id If supplied, only tasks assigned to this user are returned (optional)
+     * @param  int|null $project_id If supplied, only tasks belonging to this project are returned (optional)
+     * @param  string|null $parent_task_id If &#x60;null&#x60; is supplied, only root-level tasks (without a parent) are returned. If an integer is supplied, only subtasks of that specific task are returned. By default all tasks are returned. (optional)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function getTasksRequest($cursor = null, $limit = null, $is_done = null, $is_milestone = null, $assignee_id = null, $project_id = null, $parent_task_id = null): Request
+    {
+
+        $resourcePath = '/tasks';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($cursor)) {
@@ -1901,19 +5421,43 @@ class BetaApi
         }
         // query params
         /* @phpstan-ignore-next-line */
-        if (is_array($sort_by)) {
-            $sort_by = ObjectSerializer::serializeCollection($sort_by, '', true);
+        if (is_array($is_done)) {
+            $is_done = ObjectSerializer::serializeCollection($is_done, '', true);
         }
-        if ($sort_by !== null) {
-            $queryParams['sort_by'] = $sort_by;
+        if ($is_done !== null) {
+            $queryParams['is_done'] = $is_done;
         }
         // query params
         /* @phpstan-ignore-next-line */
-        if (is_array($sort_direction)) {
-            $sort_direction = ObjectSerializer::serializeCollection($sort_direction, '', true);
+        if (is_array($is_milestone)) {
+            $is_milestone = ObjectSerializer::serializeCollection($is_milestone, '', true);
         }
-        if ($sort_direction !== null) {
-            $queryParams['sort_direction'] = $sort_direction;
+        if ($is_milestone !== null) {
+            $queryParams['is_milestone'] = $is_milestone;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($assignee_id)) {
+            $assignee_id = ObjectSerializer::serializeCollection($assignee_id, '', true);
+        }
+        if ($assignee_id !== null) {
+            $queryParams['assignee_id'] = $assignee_id;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($project_id)) {
+            $project_id = ObjectSerializer::serializeCollection($project_id, '', true);
+        }
+        if ($project_id !== null) {
+            $queryParams['project_id'] = $project_id;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($parent_task_id)) {
+            $parent_task_id = ObjectSerializer::serializeCollection($parent_task_id, '', true);
+        }
+        if ($parent_task_id !== null) {
+            $queryParams['parent_task_id'] = $parent_task_id;
         }
 
 
@@ -1992,300 +5536,48 @@ class BetaApi
     }
 
     /**
-     * Operation getLeadConversionStatus
+     * Operation searchProjects
      *
-     * Get Lead conversion status (BETA)
+     * Search projects
      *
-     * @param  string $id The ID of a lead (required)
-     * @param  string $conversion_id The ID of the conversion (required)
-     *
-     * @throws ApiException on non-2xx response
-     * @throws InvalidArgumentException|GuzzleException
-     * @return void
-     */
-    public function getLeadConversionStatus($id, $conversion_id)
-    {
-        $this->getLeadConversionStatusWithHttpInfo($id, $conversion_id);
-    }
-
-    /**
-     * Operation getLeadConversionStatusWithHttpInfo
-     *
-     * Get Lead conversion status (BETA)
-     *
-     * @param  string $id The ID of a lead (required)
-     * @param  string $conversion_id The ID of the conversion (required)
+     * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
+     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
+     * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
+     * @param  int|null $person_id Will filter projects by the provided person ID (optional)
+     * @param  int|null $organization_id Will filter projects by the provided organization ID (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return array<mixed> of null, HTTP status code, HTTP response headers (array of strings)
+     * @return \Pipedrive\versions\v2\Model\ProjectSearchResponse
      */
-    public function getLeadConversionStatusWithHttpInfo($id, $conversion_id)
+    public function searchProjects($term, $fields = null, $exact_match = null, $person_id = null, $organization_id = null, $limit = null, $cursor = null)
     {
-        $request = $this->getLeadConversionStatusRequest($id, $conversion_id);
-
-        try {
-            $options = $this->createHttpClientOption();
-            try {
-                $response = $this->client->send($request, $options);
-            } catch (RequestException $e) {
-                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
-                    $this->config->refreshToken();
-                    $request = $this->getLeadConversionStatusRequest($id, $conversion_id);
-                    $response = $this->client->send($request, $options);
-                } else {
-                    throw new ApiException(
-                        "[{$e->getCode()}] {$e->getMessage()}",
-                        (int) $e->getCode(),
-                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
-                    );
-                }
-            } catch (ConnectException $e) {
-                throw new ApiException(
-                    "[{$e->getCode()}] {$e->getMessage()}",
-                    (int) $e->getCode(),
-                    null,
-                    null
-                );
-            }
-
-            $statusCode = $response->getStatusCode();
-
-
-            return [null, $statusCode, $response->getHeaders()];
-
-        } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 404:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Pipedrive\versions\v2\Model\GetConvertResponse',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
-            }
-            throw $e;
-        }
-    }
-
-    /**
-     * Operation getLeadConversionStatusAsync
-     *
-     * Get Lead conversion status (BETA)
-     *
-     * @param  string $id The ID of a lead (required)
-     * @param  string $conversion_id The ID of the conversion (required)
-     *
-     * @throws InvalidArgumentException|OAuthProviderException
-     * @return PromiseInterface
-     */
-    public function getLeadConversionStatusAsync($id, $conversion_id): PromiseInterface
-    {
-        return $this->getLeadConversionStatusAsyncWithHttpInfo($id, $conversion_id)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation getLeadConversionStatusAsyncWithHttpInfo
-     *
-     * Get Lead conversion status (BETA)
-     *
-     * @param  string $id The ID of a lead (required)
-     * @param  string $conversion_id The ID of the conversion (required)
-     *
-     * @throws InvalidArgumentException|OAuthProviderException
-     * @return PromiseInterface
-     */
-    public function getLeadConversionStatusAsyncWithHttpInfo($id, $conversion_id): PromiseInterface
-    {
-        $returnType = '';
-        $request = $this->getLeadConversionStatusRequest($id, $conversion_id);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    return [null, $response->getStatusCode(), $response->getHeaders()];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
-     * Create request for operation 'getLeadConversionStatus'
-     *
-     * @param  string $id The ID of a lead (required)
-     * @param  string $conversion_id The ID of the conversion (required)
-     *
-     * @throws InvalidArgumentException|OAuthProviderException
-     * @return Request
-     */
-    public function getLeadConversionStatusRequest($id, $conversion_id): Request
-    {
-        // verify the required parameter 'id' is set
-        /* @phpstan-ignore-next-line */
-        if ($id === null || (is_array($id) && count($id) === 0)) {
-            throw new \InvalidArgumentException(
-                'Missing the required parameter $id when calling getLeadConversionStatus'
-            );
-        }
-        // verify the required parameter 'conversion_id' is set
-        /* @phpstan-ignore-next-line */
-        if ($conversion_id === null || (is_array($conversion_id) && count($conversion_id) === 0)) {
-            throw new \InvalidArgumentException(
-                'Missing the required parameter $conversion_id when calling getLeadConversionStatus'
-            );
-        }
-
-        $resourcePath = '/leads/{id}/convert/status/{conversion_id}';
-        $formParams = [];
-        $queryParams = [];
-        $headerParams = [];
-        $httpBody = '';
-        $multipart = false;
-
-
-
-        // path params
-        if ($id !== null) {
-            $resourcePath = str_replace(
-                '{' . 'id' . '}',
-                ObjectSerializer::toPathValue($id),
-                $resourcePath
-            );
-        }
-        // path params
-        if ($conversion_id !== null) {
-            $resourcePath = str_replace(
-                '{' . 'conversion_id' . '}',
-                ObjectSerializer::toPathValue($conversion_id),
-                $resourcePath
-            );
-        }
-
-
-        /* @phpstan-ignore-next-line */
-        if ($multipart) {
-            $headers = $this->headerSelector->selectHeadersForMultipart(
-                ['application/json']
-            );
-        } else {
-            $headers = $this->headerSelector->selectHeaders(
-                ['application/json'],
-                []
-            );
-        }
-
-        // for model (json/xml)
-        if (count($formParams) > 0) {
-            /* @phpstan-ignore-next-line */
-            if ($multipart) {
-                $multipartContents = [];
-                foreach ($formParams as $formParamName => $formParamValue) {
-                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
-                    foreach ($formParamValueItems as $formParamValueItem) {
-                        $multipartContents[] = [
-                            'name' => $formParamName,
-                            'contents' => $formParamValueItem
-                        ];
-                    }
-                }
-                // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
-
-            } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = Utils::jsonEncode($formParams);
-
-            } else {
-                // for HTTP post (form)
-                $httpBody = Query::build($formParams);
-            }
-        }
-
-        // this endpoint requires API key authentication
-        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
-        if ($apiKey !== null) {
-            $headers['x-api-token'] = $apiKey;
-        }
-        // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
-            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-        }
-
-        $defaultHeaders = [];
-        if ($this->config->getUserAgent()) {
-            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
-        }
-
-        $headers = array_merge(
-            $defaultHeaders,
-            $headerParams,
-            $headers
-        );
-
-        $query = Query::build($queryParams);
-        return new Request(
-            'GET',
-            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
-            $headers,
-            $httpBody
-        );
-    }
-
-    /**
-     * Operation getProductImage
-     *
-     * Get image of a product
-     *
-     * @param  int $id The ID of the product (required)
-     *
-     * @throws ApiException on non-2xx response
-     * @throws InvalidArgumentException|GuzzleException
-     * @return \Pipedrive\versions\v2\Model\ProductImageResponse
-     */
-    public function getProductImage($id)
-    {
-        list($response) = $this->getProductImageWithHttpInfo($id);
+        list($response) = $this->searchProjectsWithHttpInfo($term, $fields, $exact_match, $person_id, $organization_id, $limit, $cursor);
         return $response;
     }
 
     /**
-     * Operation getProductImageWithHttpInfo
+     * Operation searchProjectsWithHttpInfo
      *
-     * Get image of a product
+     * Search projects
      *
-     * @param  int $id The ID of the product (required)
+     * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
+     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
+     * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
+     * @param  int|null $person_id Will filter projects by the provided person ID (optional)
+     * @param  int|null $organization_id Will filter projects by the provided organization ID (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return array<mixed> of \Pipedrive\versions\v2\Model\ProductImageResponse, HTTP status code, HTTP response headers (array of strings)
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\ProjectSearchResponse, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getProductImageWithHttpInfo($id)
+    public function searchProjectsWithHttpInfo($term, $fields = null, $exact_match = null, $person_id = null, $organization_id = null, $limit = null, $cursor = null)
     {
-        $request = $this->getProductImageRequest($id);
+        $request = $this->searchProjectsRequest($term, $fields, $exact_match, $person_id, $organization_id, $limit, $cursor);
 
         try {
             $options = $this->createHttpClientOption();
@@ -2294,7 +5586,7 @@ class BetaApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->getProductImageRequest($id);
+                    $request = $this->searchProjectsRequest($term, $fields, $exact_match, $person_id, $organization_id, $limit, $cursor);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -2319,14 +5611,14 @@ class BetaApi
             switch($statusCode) {
                 case 200:
                     /* @phpstan-ignore-next-line */
-                    if ('\Pipedrive\versions\v2\Model\ProductImageResponse' === '\SplFileObject') {
+                    if ('\Pipedrive\versions\v2\Model\ProjectSearchResponse' === '\SplFileObject') {
                         $content = $response->getBody(); //stream goes to serializer
                     } else {
                         $content = (string) $response->getBody();
                     }
 
                     return [
-                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\ProductImageResponse', []),
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\ProjectSearchResponse', []),
                         $response->getStatusCode(),
                         $response->getHeaders()
                     ];
@@ -2346,14 +5638,14 @@ class BetaApi
             }
 
             /* @phpstan-ignore-next-line */
-            if ('\Pipedrive\versions\v2\Model\ProductImageResponse' === '\SplFileObject') {
+            if ('\Pipedrive\versions\v2\Model\ProjectSearchResponse' === '\SplFileObject') {
                 $content = $response->getBody(); //stream goes to serializer
             } else {
                 $content = (string) $response->getBody();
             }
 
             return [
-                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\ProductImageResponse', []),
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\ProjectSearchResponse', []),
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
@@ -2363,7 +5655,7 @@ class BetaApi
                 case 200:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
-                        '\Pipedrive\versions\v2\Model\ProductImageResponse',
+                        '\Pipedrive\versions\v2\Model\ProjectSearchResponse',
                         $e->getResponseHeaders()
                     );
                     $e->setResponseObject($data);
@@ -2374,18 +5666,24 @@ class BetaApi
     }
 
     /**
-     * Operation getProductImageAsync
+     * Operation searchProjectsAsync
      *
-     * Get image of a product
+     * Search projects
      *
-     * @param  int $id The ID of the product (required)
+     * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
+     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
+     * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
+     * @param  int|null $person_id Will filter projects by the provided person ID (optional)
+     * @param  int|null $organization_id Will filter projects by the provided organization ID (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getProductImageAsync($id): PromiseInterface
+    public function searchProjectsAsync($term, $fields = null, $exact_match = null, $person_id = null, $organization_id = null, $limit = null, $cursor = null): PromiseInterface
     {
-        return $this->getProductImageAsyncWithHttpInfo($id)
+        return $this->searchProjectsAsyncWithHttpInfo($term, $fields, $exact_match, $person_id, $organization_id, $limit, $cursor)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2394,19 +5692,25 @@ class BetaApi
     }
 
     /**
-     * Operation getProductImageAsyncWithHttpInfo
+     * Operation searchProjectsAsyncWithHttpInfo
      *
-     * Get image of a product
+     * Search projects
      *
-     * @param  int $id The ID of the product (required)
+     * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
+     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
+     * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
+     * @param  int|null $person_id Will filter projects by the provided person ID (optional)
+     * @param  int|null $organization_id Will filter projects by the provided organization ID (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getProductImageAsyncWithHttpInfo($id): PromiseInterface
+    public function searchProjectsAsyncWithHttpInfo($term, $fields = null, $exact_match = null, $person_id = null, $organization_id = null, $limit = null, $cursor = null): PromiseInterface
     {
-        $returnType = '\Pipedrive\versions\v2\Model\ProductImageResponse';
-        $request = $this->getProductImageRequest($id);
+        $returnType = '\Pipedrive\versions\v2\Model\ProjectSearchResponse';
+        $request = $this->searchProjectsRequest($term, $fields, $exact_match, $person_id, $organization_id, $limit, $cursor);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2443,40 +5747,94 @@ class BetaApi
     }
 
     /**
-     * Create request for operation 'getProductImage'
+     * Create request for operation 'searchProjects'
      *
-     * @param  int $id The ID of the product (required)
+     * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
+     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
+     * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
+     * @param  int|null $person_id Will filter projects by the provided person ID (optional)
+     * @param  int|null $organization_id Will filter projects by the provided organization ID (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function getProductImageRequest($id): Request
+    public function searchProjectsRequest($term, $fields = null, $exact_match = null, $person_id = null, $organization_id = null, $limit = null, $cursor = null): Request
     {
-        // verify the required parameter 'id' is set
+        // verify the required parameter 'term' is set
         /* @phpstan-ignore-next-line */
-        if ($id === null || (is_array($id) && count($id) === 0)) {
+        if ($term === null || (is_array($term) && count($term) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $id when calling getProductImage'
+                'Missing the required parameter $term when calling searchProjects'
             );
         }
 
-        $resourcePath = '/products/{id}/images';
+        $resourcePath = '/projects/search';
         $formParams = [];
         $queryParams = [];
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
 
-
-
-        // path params
-        if ($id !== null) {
-            $resourcePath = str_replace(
-                '{' . 'id' . '}',
-                ObjectSerializer::toPathValue($id),
-                $resourcePath
-            );
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($term)) {
+            $term = ObjectSerializer::serializeCollection($term, '', true);
         }
+        if ($term !== null) {
+            $queryParams['term'] = $term;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($fields)) {
+            $fields = ObjectSerializer::serializeCollection($fields, '', true);
+        }
+        if ($fields !== null) {
+            $queryParams['fields'] = $fields;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($exact_match)) {
+            $exact_match = ObjectSerializer::serializeCollection($exact_match, '', true);
+        }
+        if ($exact_match !== null) {
+            $queryParams['exact_match'] = $exact_match;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($person_id)) {
+            $person_id = ObjectSerializer::serializeCollection($person_id, '', true);
+        }
+        if ($person_id !== null) {
+            $queryParams['person_id'] = $person_id;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($organization_id)) {
+            $organization_id = ObjectSerializer::serializeCollection($organization_id, '', true);
+        }
+        if ($organization_id !== null) {
+            $queryParams['organization_id'] = $organization_id;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($limit)) {
+            $limit = ObjectSerializer::serializeCollection($limit, '', true);
+        }
+        if ($limit !== null) {
+            $queryParams['limit'] = $limit;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($cursor)) {
+            $cursor = ObjectSerializer::serializeCollection($cursor, '', true);
+        }
+        if ($cursor !== null) {
+            $queryParams['cursor'] = $cursor;
+        }
+
+
 
 
         /* @phpstan-ignore-next-line */
@@ -2552,38 +5910,38 @@ class BetaApi
     }
 
     /**
-     * Operation postInstallment
+     * Operation updateProjectBoard
      *
-     * Add an installment to a deal
+     * Update a project board
      *
-     * @param  int $id The ID of the deal (required)
-     * @param  object|null $body body (optional)
+     * @param  int $id The ID of the project board (required)
+     * @param  \Pipedrive\versions\v2\Model\BoardRequestBody|null $board_request_body board_request_body (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return \Pipedrive\versions\v2\Model\AddInstallmentResponse
+     * @return \Pipedrive\versions\v2\Model\PostPatchGetBoard
      */
-    public function postInstallment($id, $body = null)
+    public function updateProjectBoard($id, $board_request_body = null)
     {
-        list($response) = $this->postInstallmentWithHttpInfo($id, $body);
+        list($response) = $this->updateProjectBoardWithHttpInfo($id, $board_request_body);
         return $response;
     }
 
     /**
-     * Operation postInstallmentWithHttpInfo
+     * Operation updateProjectBoardWithHttpInfo
      *
-     * Add an installment to a deal
+     * Update a project board
      *
-     * @param  int $id The ID of the deal (required)
-     * @param  object|null $body (optional)
+     * @param  int $id The ID of the project board (required)
+     * @param  \Pipedrive\versions\v2\Model\BoardRequestBody|null $board_request_body (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return array<mixed> of \Pipedrive\versions\v2\Model\AddInstallmentResponse, HTTP status code, HTTP response headers (array of strings)
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\PostPatchGetBoard, HTTP status code, HTTP response headers (array of strings)
      */
-    public function postInstallmentWithHttpInfo($id, $body = null)
+    public function updateProjectBoardWithHttpInfo($id, $board_request_body = null)
     {
-        $request = $this->postInstallmentRequest($id, $body);
+        $request = $this->updateProjectBoardRequest($id, $board_request_body);
 
         try {
             $options = $this->createHttpClientOption();
@@ -2592,7 +5950,7 @@ class BetaApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->postInstallmentRequest($id, $body);
+                    $request = $this->updateProjectBoardRequest($id, $board_request_body);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -2617,14 +5975,14 @@ class BetaApi
             switch($statusCode) {
                 case 200:
                     /* @phpstan-ignore-next-line */
-                    if ('\Pipedrive\versions\v2\Model\AddInstallmentResponse' === '\SplFileObject') {
+                    if ('\Pipedrive\versions\v2\Model\PostPatchGetBoard' === '\SplFileObject') {
                         $content = $response->getBody(); //stream goes to serializer
                     } else {
                         $content = (string) $response->getBody();
                     }
 
                     return [
-                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\AddInstallmentResponse', []),
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\PostPatchGetBoard', []),
                         $response->getStatusCode(),
                         $response->getHeaders()
                     ];
@@ -2644,14 +6002,14 @@ class BetaApi
             }
 
             /* @phpstan-ignore-next-line */
-            if ('\Pipedrive\versions\v2\Model\AddInstallmentResponse' === '\SplFileObject') {
+            if ('\Pipedrive\versions\v2\Model\PostPatchGetBoard' === '\SplFileObject') {
                 $content = $response->getBody(); //stream goes to serializer
             } else {
                 $content = (string) $response->getBody();
             }
 
             return [
-                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\AddInstallmentResponse', []),
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\PostPatchGetBoard', []),
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
@@ -2661,7 +6019,7 @@ class BetaApi
                 case 200:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
-                        '\Pipedrive\versions\v2\Model\AddInstallmentResponse',
+                        '\Pipedrive\versions\v2\Model\PostPatchGetBoard',
                         $e->getResponseHeaders()
                     );
                     $e->setResponseObject($data);
@@ -2672,19 +6030,19 @@ class BetaApi
     }
 
     /**
-     * Operation postInstallmentAsync
+     * Operation updateProjectBoardAsync
      *
-     * Add an installment to a deal
+     * Update a project board
      *
-     * @param  int $id The ID of the deal (required)
-     * @param  object|null $body (optional)
+     * @param  int $id The ID of the project board (required)
+     * @param  \Pipedrive\versions\v2\Model\BoardRequestBody|null $board_request_body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function postInstallmentAsync($id, $body = null): PromiseInterface
+    public function updateProjectBoardAsync($id, $board_request_body = null): PromiseInterface
     {
-        return $this->postInstallmentAsyncWithHttpInfo($id, $body)
+        return $this->updateProjectBoardAsyncWithHttpInfo($id, $board_request_body)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2693,20 +6051,20 @@ class BetaApi
     }
 
     /**
-     * Operation postInstallmentAsyncWithHttpInfo
+     * Operation updateProjectBoardAsyncWithHttpInfo
      *
-     * Add an installment to a deal
+     * Update a project board
      *
-     * @param  int $id The ID of the deal (required)
-     * @param  object|null $body (optional)
+     * @param  int $id The ID of the project board (required)
+     * @param  \Pipedrive\versions\v2\Model\BoardRequestBody|null $board_request_body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function postInstallmentAsyncWithHttpInfo($id, $body = null): PromiseInterface
+    public function updateProjectBoardAsyncWithHttpInfo($id, $board_request_body = null): PromiseInterface
     {
-        $returnType = '\Pipedrive\versions\v2\Model\AddInstallmentResponse';
-        $request = $this->postInstallmentRequest($id, $body);
+        $returnType = '\Pipedrive\versions\v2\Model\PostPatchGetBoard';
+        $request = $this->updateProjectBoardRequest($id, $board_request_body);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2743,25 +6101,25 @@ class BetaApi
     }
 
     /**
-     * Create request for operation 'postInstallment'
+     * Create request for operation 'updateProjectBoard'
      *
-     * @param  int $id The ID of the deal (required)
-     * @param  object|null $body (optional)
+     * @param  int $id The ID of the project board (required)
+     * @param  \Pipedrive\versions\v2\Model\BoardRequestBody|null $board_request_body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function postInstallmentRequest($id, $body = null): Request
+    public function updateProjectBoardRequest($id, $board_request_body = null): Request
     {
         // verify the required parameter 'id' is set
         /* @phpstan-ignore-next-line */
         if ($id === null || (is_array($id) && count($id) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $id when calling postInstallment'
+                'Missing the required parameter $id when calling updateProjectBoard'
             );
         }
 
-        $resourcePath = '/deals/{id}/installments';
+        $resourcePath = '/boards/{id}';
         $formParams = [];
         $queryParams = [];
         $headerParams = [];
@@ -2793,338 +6151,11 @@ class BetaApi
         }
 
         // for model (json/xml)
-        if (isset($body)) {
+        if (isset($board_request_body)) {
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($body));
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($board_request_body));
             } else {
-                $httpBody = $body;
-            }
-        } elseif (count($formParams) > 0) {
-            /* @phpstan-ignore-next-line */
-            if ($multipart) {
-                $multipartContents = [];
-                foreach ($formParams as $formParamName => $formParamValue) {
-                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
-                    foreach ($formParamValueItems as $formParamValueItem) {
-                        $multipartContents[] = [
-                            'name' => $formParamName,
-                            'contents' => $formParamValueItem
-                        ];
-                    }
-                }
-                // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
-
-            } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = Utils::jsonEncode($formParams);
-
-            } else {
-                // for HTTP post (form)
-                $httpBody = Query::build($formParams);
-            }
-        }
-
-        // this endpoint requires API key authentication
-        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
-        if ($apiKey !== null) {
-            $headers['x-api-token'] = $apiKey;
-        }
-        // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
-            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-        }
-
-        $defaultHeaders = [];
-        if ($this->config->getUserAgent()) {
-            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
-        }
-
-        $headers = array_merge(
-            $defaultHeaders,
-            $headerParams,
-            $headers
-        );
-
-        $query = Query::build($queryParams);
-        return new Request(
-            'POST',
-            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
-            $headers,
-            $httpBody
-        );
-    }
-
-    /**
-     * Operation updateInstallment
-     *
-     * Update an installment added to a deal
-     *
-     * @param  int $id The ID of the deal (required)
-     * @param  int $installment_id The ID of the installment (required)
-     * @param  object|null $body body (optional)
-     *
-     * @throws ApiException on non-2xx response
-     * @throws InvalidArgumentException|GuzzleException
-     * @return \Pipedrive\versions\v2\Model\UpdateInstallmentResponse
-     */
-    public function updateInstallment($id, $installment_id, $body = null)
-    {
-        list($response) = $this->updateInstallmentWithHttpInfo($id, $installment_id, $body);
-        return $response;
-    }
-
-    /**
-     * Operation updateInstallmentWithHttpInfo
-     *
-     * Update an installment added to a deal
-     *
-     * @param  int $id The ID of the deal (required)
-     * @param  int $installment_id The ID of the installment (required)
-     * @param  object|null $body (optional)
-     *
-     * @throws ApiException on non-2xx response
-     * @throws InvalidArgumentException|GuzzleException
-     * @return array<mixed> of \Pipedrive\versions\v2\Model\UpdateInstallmentResponse, HTTP status code, HTTP response headers (array of strings)
-     */
-    public function updateInstallmentWithHttpInfo($id, $installment_id, $body = null)
-    {
-        $request = $this->updateInstallmentRequest($id, $installment_id, $body);
-
-        try {
-            $options = $this->createHttpClientOption();
-            try {
-                $response = $this->client->send($request, $options);
-            } catch (RequestException $e) {
-                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
-                    $this->config->refreshToken();
-                    $request = $this->updateInstallmentRequest($id, $installment_id, $body);
-                    $response = $this->client->send($request, $options);
-                } else {
-                    throw new ApiException(
-                        "[{$e->getCode()}] {$e->getMessage()}",
-                        (int) $e->getCode(),
-                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
-                    );
-                }
-            } catch (ConnectException $e) {
-                throw new ApiException(
-                    "[{$e->getCode()}] {$e->getMessage()}",
-                    (int) $e->getCode(),
-                    null,
-                    null
-                );
-            }
-
-            $statusCode = $response->getStatusCode();
-
-
-            switch($statusCode) {
-                case 200:
-                    /* @phpstan-ignore-next-line */
-                    if ('\Pipedrive\versions\v2\Model\UpdateInstallmentResponse' === '\SplFileObject') {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\UpdateInstallmentResponse', []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-            }
-
-            if ($statusCode < 200 || $statusCode > 299) {
-                throw new ApiException(
-                    sprintf(
-                        '[%d] Error connecting to the API (%s)',
-                        $statusCode,
-                        (string) $request->getUri()
-                    ),
-                    $statusCode,
-                    $response->getHeaders(),
-                    (string) $response->getBody()
-                );
-            }
-
-            /* @phpstan-ignore-next-line */
-            if ('\Pipedrive\versions\v2\Model\UpdateInstallmentResponse' === '\SplFileObject') {
-                $content = $response->getBody(); //stream goes to serializer
-            } else {
-                $content = (string) $response->getBody();
-            }
-
-            return [
-                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\UpdateInstallmentResponse', []),
-                $response->getStatusCode(),
-                $response->getHeaders()
-            ];
-
-        } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Pipedrive\versions\v2\Model\UpdateInstallmentResponse',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
-            }
-            throw $e;
-        }
-    }
-
-    /**
-     * Operation updateInstallmentAsync
-     *
-     * Update an installment added to a deal
-     *
-     * @param  int $id The ID of the deal (required)
-     * @param  int $installment_id The ID of the installment (required)
-     * @param  object|null $body (optional)
-     *
-     * @throws InvalidArgumentException|OAuthProviderException
-     * @return PromiseInterface
-     */
-    public function updateInstallmentAsync($id, $installment_id, $body = null): PromiseInterface
-    {
-        return $this->updateInstallmentAsyncWithHttpInfo($id, $installment_id, $body)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation updateInstallmentAsyncWithHttpInfo
-     *
-     * Update an installment added to a deal
-     *
-     * @param  int $id The ID of the deal (required)
-     * @param  int $installment_id The ID of the installment (required)
-     * @param  object|null $body (optional)
-     *
-     * @throws InvalidArgumentException|OAuthProviderException
-     * @return PromiseInterface
-     */
-    public function updateInstallmentAsyncWithHttpInfo($id, $installment_id, $body = null): PromiseInterface
-    {
-        $returnType = '\Pipedrive\versions\v2\Model\UpdateInstallmentResponse';
-        $request = $this->updateInstallmentRequest($id, $installment_id, $body);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    /* @phpstan-ignore-next-line */
-                    if ($returnType === '\SplFileObject') {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
-     * Create request for operation 'updateInstallment'
-     *
-     * @param  int $id The ID of the deal (required)
-     * @param  int $installment_id The ID of the installment (required)
-     * @param  object|null $body (optional)
-     *
-     * @throws InvalidArgumentException|OAuthProviderException
-     * @return Request
-     */
-    public function updateInstallmentRequest($id, $installment_id, $body = null): Request
-    {
-        // verify the required parameter 'id' is set
-        /* @phpstan-ignore-next-line */
-        if ($id === null || (is_array($id) && count($id) === 0)) {
-            throw new \InvalidArgumentException(
-                'Missing the required parameter $id when calling updateInstallment'
-            );
-        }
-        // verify the required parameter 'installment_id' is set
-        /* @phpstan-ignore-next-line */
-        if ($installment_id === null || (is_array($installment_id) && count($installment_id) === 0)) {
-            throw new \InvalidArgumentException(
-                'Missing the required parameter $installment_id when calling updateInstallment'
-            );
-        }
-
-        $resourcePath = '/deals/{id}/installments/{installment_id}';
-        $formParams = [];
-        $queryParams = [];
-        $headerParams = [];
-        $httpBody = '';
-        $multipart = false;
-
-
-
-        // path params
-        if ($id !== null) {
-            $resourcePath = str_replace(
-                '{' . 'id' . '}',
-                ObjectSerializer::toPathValue($id),
-                $resourcePath
-            );
-        }
-        // path params
-        if ($installment_id !== null) {
-            $resourcePath = str_replace(
-                '{' . 'installment_id' . '}',
-                ObjectSerializer::toPathValue($installment_id),
-                $resourcePath
-            );
-        }
-
-
-        /* @phpstan-ignore-next-line */
-        if ($multipart) {
-            $headers = $this->headerSelector->selectHeadersForMultipart(
-                ['application/json']
-            );
-        } else {
-            $headers = $this->headerSelector->selectHeaders(
-                ['application/json'],
-                ['application/json']
-            );
-        }
-
-        // for model (json/xml)
-        if (isset($body)) {
-            if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($body));
-            } else {
-                $httpBody = $body;
+                $httpBody = $board_request_body;
             }
         } elseif (count($formParams) > 0) {
             /* @phpstan-ignore-next-line */
@@ -3186,38 +6217,38 @@ class BetaApi
     }
 
     /**
-     * Operation updateProductImage
+     * Operation updateProjectField
      *
-     * Update an image for a product
+     * Update one project field
      *
-     * @param  int $id The ID of the product (required)
-     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  \Pipedrive\versions\v2\Model\UpdateProjectFieldRequest $update_project_field_request update_project_field_request (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return \Pipedrive\versions\v2\Model\UpdateProductImageResponse
+     * @return \Pipedrive\versions\v2\Model\GetProjectField
      */
-    public function updateProductImage($id, $data)
+    public function updateProjectField($field_code, $update_project_field_request)
     {
-        list($response) = $this->updateProductImageWithHttpInfo($id, $data);
+        list($response) = $this->updateProjectFieldWithHttpInfo($field_code, $update_project_field_request);
         return $response;
     }
 
     /**
-     * Operation updateProductImageWithHttpInfo
+     * Operation updateProjectFieldWithHttpInfo
      *
-     * Update an image for a product
+     * Update one project field
      *
-     * @param  int $id The ID of the product (required)
-     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  \Pipedrive\versions\v2\Model\UpdateProjectFieldRequest $update_project_field_request (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return array<mixed> of \Pipedrive\versions\v2\Model\UpdateProductImageResponse, HTTP status code, HTTP response headers (array of strings)
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\GetProjectField, HTTP status code, HTTP response headers (array of strings)
      */
-    public function updateProductImageWithHttpInfo($id, $data)
+    public function updateProjectFieldWithHttpInfo($field_code, $update_project_field_request)
     {
-        $request = $this->updateProductImageRequest($id, $data);
+        $request = $this->updateProjectFieldRequest($field_code, $update_project_field_request);
 
         try {
             $options = $this->createHttpClientOption();
@@ -3226,7 +6257,7 @@ class BetaApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->updateProductImageRequest($id, $data);
+                    $request = $this->updateProjectFieldRequest($field_code, $update_project_field_request);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -3251,14 +6282,14 @@ class BetaApi
             switch($statusCode) {
                 case 200:
                     /* @phpstan-ignore-next-line */
-                    if ('\Pipedrive\versions\v2\Model\UpdateProductImageResponse' === '\SplFileObject') {
+                    if ('\Pipedrive\versions\v2\Model\GetProjectField' === '\SplFileObject') {
                         $content = $response->getBody(); //stream goes to serializer
                     } else {
                         $content = (string) $response->getBody();
                     }
 
                     return [
-                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\UpdateProductImageResponse', []),
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetProjectField', []),
                         $response->getStatusCode(),
                         $response->getHeaders()
                     ];
@@ -3278,14 +6309,14 @@ class BetaApi
             }
 
             /* @phpstan-ignore-next-line */
-            if ('\Pipedrive\versions\v2\Model\UpdateProductImageResponse' === '\SplFileObject') {
+            if ('\Pipedrive\versions\v2\Model\GetProjectField' === '\SplFileObject') {
                 $content = $response->getBody(); //stream goes to serializer
             } else {
                 $content = (string) $response->getBody();
             }
 
             return [
-                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\UpdateProductImageResponse', []),
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\GetProjectField', []),
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
@@ -3295,7 +6326,7 @@ class BetaApi
                 case 200:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
-                        '\Pipedrive\versions\v2\Model\UpdateProductImageResponse',
+                        '\Pipedrive\versions\v2\Model\GetProjectField',
                         $e->getResponseHeaders()
                     );
                     $e->setResponseObject($data);
@@ -3306,19 +6337,19 @@ class BetaApi
     }
 
     /**
-     * Operation updateProductImageAsync
+     * Operation updateProjectFieldAsync
      *
-     * Update an image for a product
+     * Update one project field
      *
-     * @param  int $id The ID of the product (required)
-     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  \Pipedrive\versions\v2\Model\UpdateProjectFieldRequest $update_project_field_request (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function updateProductImageAsync($id, $data): PromiseInterface
+    public function updateProjectFieldAsync($field_code, $update_project_field_request): PromiseInterface
     {
-        return $this->updateProductImageAsyncWithHttpInfo($id, $data)
+        return $this->updateProjectFieldAsyncWithHttpInfo($field_code, $update_project_field_request)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -3327,20 +6358,20 @@ class BetaApi
     }
 
     /**
-     * Operation updateProductImageAsyncWithHttpInfo
+     * Operation updateProjectFieldAsyncWithHttpInfo
      *
-     * Update an image for a product
+     * Update one project field
      *
-     * @param  int $id The ID of the product (required)
-     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  \Pipedrive\versions\v2\Model\UpdateProjectFieldRequest $update_project_field_request (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function updateProductImageAsyncWithHttpInfo($id, $data): PromiseInterface
+    public function updateProjectFieldAsyncWithHttpInfo($field_code, $update_project_field_request): PromiseInterface
     {
-        $returnType = '\Pipedrive\versions\v2\Model\UpdateProductImageResponse';
-        $request = $this->updateProductImageRequest($id, $data);
+        $returnType = '\Pipedrive\versions\v2\Model\GetProjectField';
+        $request = $this->updateProjectFieldRequest($field_code, $update_project_field_request);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -3377,32 +6408,32 @@ class BetaApi
     }
 
     /**
-     * Create request for operation 'updateProductImage'
+     * Create request for operation 'updateProjectField'
      *
-     * @param  int $id The ID of the product (required)
-     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  \Pipedrive\versions\v2\Model\UpdateProjectFieldRequest $update_project_field_request (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function updateProductImageRequest($id, $data): Request
+    public function updateProjectFieldRequest($field_code, $update_project_field_request): Request
     {
-        // verify the required parameter 'id' is set
+        // verify the required parameter 'field_code' is set
         /* @phpstan-ignore-next-line */
-        if ($id === null || (is_array($id) && count($id) === 0)) {
+        if ($field_code === null || (is_array($field_code) && count($field_code) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $id when calling updateProductImage'
+                'Missing the required parameter $field_code when calling updateProjectField'
             );
         }
-        // verify the required parameter 'data' is set
+        // verify the required parameter 'update_project_field_request' is set
         /* @phpstan-ignore-next-line */
-        if ($data === null || (is_array($data) && count($data) === 0)) {
+        if ($update_project_field_request === null || (is_array($update_project_field_request) && count($update_project_field_request) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $data when calling updateProductImage'
+                'Missing the required parameter $update_project_field_request when calling updateProjectField'
             );
         }
 
-        $resourcePath = '/products/{id}/images';
+        $resourcePath = '/projectFields/{field_code}';
         $formParams = [];
         $queryParams = [];
         $headerParams = [];
@@ -3412,27 +6443,14 @@ class BetaApi
 
 
         // path params
-        if ($id !== null) {
+        if ($field_code !== null) {
             $resourcePath = str_replace(
-                '{' . 'id' . '}',
-                ObjectSerializer::toPathValue($id),
+                '{' . 'field_code' . '}',
+                ObjectSerializer::toPathValue($field_code),
                 $resourcePath
             );
         }
 
-        // form params
-        if ($data !== null) {
-            $multipart = true;
-            $formParams['data'] = [];
-            /* @phpstan-ignore-next-line */
-            $paramFiles = is_array($data) ? $data : [$data];
-            foreach ($paramFiles as $paramFile) {
-                $formParams['data'][] = \GuzzleHttp\Psr7\Utils::tryFopen(
-                    ObjectSerializer::toFormValue($paramFile),
-                    'rb'
-                );
-            }
-        }
 
         /* @phpstan-ignore-next-line */
         if ($multipart) {
@@ -3442,12 +6460,18 @@ class BetaApi
         } else {
             $headers = $this->headerSelector->selectHeaders(
                 ['application/json'],
-                ['multipart/form-data']
+                ['application/json']
             );
         }
 
         // for model (json/xml)
-        if (count($formParams) > 0) {
+        if (isset($update_project_field_request)) {
+            if ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($update_project_field_request));
+            } else {
+                $httpBody = $update_project_field_request;
+            }
+        } elseif (count($formParams) > 0) {
             /* @phpstan-ignore-next-line */
             if ($multipart) {
                 $multipartContents = [];
@@ -3499,7 +6523,7 @@ class BetaApi
 
         $query = Query::build($queryParams);
         return new Request(
-            'PUT',
+            'PATCH',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
             $httpBody
@@ -3507,38 +6531,38 @@ class BetaApi
     }
 
     /**
-     * Operation uploadProductImage
+     * Operation updateProjectFieldOptions
      *
-     * Upload an image for a product
+     * Update project field options in bulk
      *
-     * @param  int $id The ID of the product (required)
-     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  object[] $request_body request_body (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return \Pipedrive\versions\v2\Model\AddProductImageResponse
+     * @return \Pipedrive\versions\v2\Model\InlineResponse200
      */
-    public function uploadProductImage($id, $data)
+    public function updateProjectFieldOptions($field_code, $request_body)
     {
-        list($response) = $this->uploadProductImageWithHttpInfo($id, $data);
+        list($response) = $this->updateProjectFieldOptionsWithHttpInfo($field_code, $request_body);
         return $response;
     }
 
     /**
-     * Operation uploadProductImageWithHttpInfo
+     * Operation updateProjectFieldOptionsWithHttpInfo
      *
-     * Upload an image for a product
+     * Update project field options in bulk
      *
-     * @param  int $id The ID of the product (required)
-     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  object[] $request_body (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
-     * @return array<mixed> of \Pipedrive\versions\v2\Model\AddProductImageResponse, HTTP status code, HTTP response headers (array of strings)
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\InlineResponse200, HTTP status code, HTTP response headers (array of strings)
      */
-    public function uploadProductImageWithHttpInfo($id, $data)
+    public function updateProjectFieldOptionsWithHttpInfo($field_code, $request_body)
     {
-        $request = $this->uploadProductImageRequest($id, $data);
+        $request = $this->updateProjectFieldOptionsRequest($field_code, $request_body);
 
         try {
             $options = $this->createHttpClientOption();
@@ -3547,7 +6571,7 @@ class BetaApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->uploadProductImageRequest($id, $data);
+                    $request = $this->updateProjectFieldOptionsRequest($field_code, $request_body);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -3570,16 +6594,16 @@ class BetaApi
 
 
             switch($statusCode) {
-                case 201:
+                case 200:
                     /* @phpstan-ignore-next-line */
-                    if ('\Pipedrive\versions\v2\Model\AddProductImageResponse' === '\SplFileObject') {
+                    if ('\Pipedrive\versions\v2\Model\InlineResponse200' === '\SplFileObject') {
                         $content = $response->getBody(); //stream goes to serializer
                     } else {
                         $content = (string) $response->getBody();
                     }
 
                     return [
-                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\AddProductImageResponse', []),
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\InlineResponse200', []),
                         $response->getStatusCode(),
                         $response->getHeaders()
                     ];
@@ -3599,24 +6623,24 @@ class BetaApi
             }
 
             /* @phpstan-ignore-next-line */
-            if ('\Pipedrive\versions\v2\Model\AddProductImageResponse' === '\SplFileObject') {
+            if ('\Pipedrive\versions\v2\Model\InlineResponse200' === '\SplFileObject') {
                 $content = $response->getBody(); //stream goes to serializer
             } else {
                 $content = (string) $response->getBody();
             }
 
             return [
-                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\AddProductImageResponse', []),
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\InlineResponse200', []),
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
 
         } catch (ApiException $e) {
             switch ($e->getCode()) {
-                case 201:
+                case 200:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
-                        '\Pipedrive\versions\v2\Model\AddProductImageResponse',
+                        '\Pipedrive\versions\v2\Model\InlineResponse200',
                         $e->getResponseHeaders()
                     );
                     $e->setResponseObject($data);
@@ -3627,19 +6651,19 @@ class BetaApi
     }
 
     /**
-     * Operation uploadProductImageAsync
+     * Operation updateProjectFieldOptionsAsync
      *
-     * Upload an image for a product
+     * Update project field options in bulk
      *
-     * @param  int $id The ID of the product (required)
-     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  object[] $request_body (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function uploadProductImageAsync($id, $data): PromiseInterface
+    public function updateProjectFieldOptionsAsync($field_code, $request_body): PromiseInterface
     {
-        return $this->uploadProductImageAsyncWithHttpInfo($id, $data)
+        return $this->updateProjectFieldOptionsAsyncWithHttpInfo($field_code, $request_body)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -3648,20 +6672,20 @@ class BetaApi
     }
 
     /**
-     * Operation uploadProductImageAsyncWithHttpInfo
+     * Operation updateProjectFieldOptionsAsyncWithHttpInfo
      *
-     * Upload an image for a product
+     * Update project field options in bulk
      *
-     * @param  int $id The ID of the product (required)
-     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  object[] $request_body (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function uploadProductImageAsyncWithHttpInfo($id, $data): PromiseInterface
+    public function updateProjectFieldOptionsAsyncWithHttpInfo($field_code, $request_body): PromiseInterface
     {
-        $returnType = '\Pipedrive\versions\v2\Model\AddProductImageResponse';
-        $request = $this->uploadProductImageRequest($id, $data);
+        $returnType = '\Pipedrive\versions\v2\Model\InlineResponse200';
+        $request = $this->updateProjectFieldOptionsRequest($field_code, $request_body);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -3698,32 +6722,32 @@ class BetaApi
     }
 
     /**
-     * Create request for operation 'uploadProductImage'
+     * Create request for operation 'updateProjectFieldOptions'
      *
-     * @param  int $id The ID of the product (required)
-     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     * @param  string $field_code The unique code identifying the field (required)
+     * @param  object[] $request_body (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function uploadProductImageRequest($id, $data): Request
+    public function updateProjectFieldOptionsRequest($field_code, $request_body): Request
     {
-        // verify the required parameter 'id' is set
+        // verify the required parameter 'field_code' is set
         /* @phpstan-ignore-next-line */
-        if ($id === null || (is_array($id) && count($id) === 0)) {
+        if ($field_code === null || (is_array($field_code) && count($field_code) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $id when calling uploadProductImage'
+                'Missing the required parameter $field_code when calling updateProjectFieldOptions'
             );
         }
-        // verify the required parameter 'data' is set
+        // verify the required parameter 'request_body' is set
         /* @phpstan-ignore-next-line */
-        if ($data === null || (is_array($data) && count($data) === 0)) {
+        if ($request_body === null || (is_array($request_body) && count($request_body) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $data when calling uploadProductImage'
+                'Missing the required parameter $request_body when calling updateProjectFieldOptions'
             );
         }
 
-        $resourcePath = '/products/{id}/images';
+        $resourcePath = '/projectFields/{field_code}/options';
         $formParams = [];
         $queryParams = [];
         $headerParams = [];
@@ -3733,27 +6757,14 @@ class BetaApi
 
 
         // path params
-        if ($id !== null) {
+        if ($field_code !== null) {
             $resourcePath = str_replace(
-                '{' . 'id' . '}',
-                ObjectSerializer::toPathValue($id),
+                '{' . 'field_code' . '}',
+                ObjectSerializer::toPathValue($field_code),
                 $resourcePath
             );
         }
 
-        // form params
-        if ($data !== null) {
-            $multipart = true;
-            $formParams['data'] = [];
-            /* @phpstan-ignore-next-line */
-            $paramFiles = is_array($data) ? $data : [$data];
-            foreach ($paramFiles as $paramFile) {
-                $formParams['data'][] = \GuzzleHttp\Psr7\Utils::tryFopen(
-                    ObjectSerializer::toFormValue($paramFile),
-                    'rb'
-                );
-            }
-        }
 
         /* @phpstan-ignore-next-line */
         if ($multipart) {
@@ -3763,12 +6774,18 @@ class BetaApi
         } else {
             $headers = $this->headerSelector->selectHeaders(
                 ['application/json'],
-                ['multipart/form-data']
+                ['application/json']
             );
         }
 
         // for model (json/xml)
-        if (count($formParams) > 0) {
+        if (isset($request_body)) {
+            if ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($request_body));
+            } else {
+                $httpBody = $request_body;
+            }
+        } elseif (count($formParams) > 0) {
             /* @phpstan-ignore-next-line */
             if ($multipart) {
                 $multipartContents = [];
@@ -3820,7 +6837,621 @@ class BetaApi
 
         $query = Query::build($queryParams);
         return new Request(
-            'POST',
+            'PATCH',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation updateProjectPhase
+     *
+     * Update a project phase
+     *
+     * @param  int $id The ID of the project phase (required)
+     * @param  \Pipedrive\versions\v2\Model\PhaseRequestBody|null $phase_request_body phase_request_body (optional)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\PostPatchGetPhase
+     */
+    public function updateProjectPhase($id, $phase_request_body = null)
+    {
+        list($response) = $this->updateProjectPhaseWithHttpInfo($id, $phase_request_body);
+        return $response;
+    }
+
+    /**
+     * Operation updateProjectPhaseWithHttpInfo
+     *
+     * Update a project phase
+     *
+     * @param  int $id The ID of the project phase (required)
+     * @param  \Pipedrive\versions\v2\Model\PhaseRequestBody|null $phase_request_body (optional)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\PostPatchGetPhase, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function updateProjectPhaseWithHttpInfo($id, $phase_request_body = null)
+    {
+        $request = $this->updateProjectPhaseRequest($id, $phase_request_body);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->updateProjectPhaseRequest($id, $phase_request_body);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\PostPatchGetPhase' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\PostPatchGetPhase', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\PostPatchGetPhase' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\PostPatchGetPhase', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\PostPatchGetPhase',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation updateProjectPhaseAsync
+     *
+     * Update a project phase
+     *
+     * @param  int $id The ID of the project phase (required)
+     * @param  \Pipedrive\versions\v2\Model\PhaseRequestBody|null $phase_request_body (optional)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function updateProjectPhaseAsync($id, $phase_request_body = null): PromiseInterface
+    {
+        return $this->updateProjectPhaseAsyncWithHttpInfo($id, $phase_request_body)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation updateProjectPhaseAsyncWithHttpInfo
+     *
+     * Update a project phase
+     *
+     * @param  int $id The ID of the project phase (required)
+     * @param  \Pipedrive\versions\v2\Model\PhaseRequestBody|null $phase_request_body (optional)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function updateProjectPhaseAsyncWithHttpInfo($id, $phase_request_body = null): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\PostPatchGetPhase';
+        $request = $this->updateProjectPhaseRequest($id, $phase_request_body);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'updateProjectPhase'
+     *
+     * @param  int $id The ID of the project phase (required)
+     * @param  \Pipedrive\versions\v2\Model\PhaseRequestBody|null $phase_request_body (optional)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function updateProjectPhaseRequest($id, $phase_request_body = null): Request
+    {
+        // verify the required parameter 'id' is set
+        /* @phpstan-ignore-next-line */
+        if ($id === null || (is_array($id) && count($id) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $id when calling updateProjectPhase'
+            );
+        }
+
+        $resourcePath = '/phases/{id}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                '{' . 'id' . '}',
+                ObjectSerializer::toPathValue($id),
+                $resourcePath
+            );
+        }
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                ['application/json']
+            );
+        }
+
+        // for model (json/xml)
+        if (isset($phase_request_body)) {
+            if ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($phase_request_body));
+            } else {
+                $httpBody = $phase_request_body;
+            }
+        } elseif (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'PATCH',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation updateTask
+     *
+     * Update a task
+     *
+     * @param  int $id The ID of the task (required)
+     * @param  \Pipedrive\versions\v2\Model\TaskPatchRequest|null $task_patch_request task_patch_request (optional)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\UpdateTaskResponse
+     */
+    public function updateTask($id, $task_patch_request = null)
+    {
+        list($response) = $this->updateTaskWithHttpInfo($id, $task_patch_request);
+        return $response;
+    }
+
+    /**
+     * Operation updateTaskWithHttpInfo
+     *
+     * Update a task
+     *
+     * @param  int $id The ID of the task (required)
+     * @param  \Pipedrive\versions\v2\Model\TaskPatchRequest|null $task_patch_request (optional)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\UpdateTaskResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function updateTaskWithHttpInfo($id, $task_patch_request = null)
+    {
+        $request = $this->updateTaskRequest($id, $task_patch_request);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->updateTaskRequest($id, $task_patch_request);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\UpdateTaskResponse' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\UpdateTaskResponse', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\UpdateTaskResponse' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\UpdateTaskResponse', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\UpdateTaskResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation updateTaskAsync
+     *
+     * Update a task
+     *
+     * @param  int $id The ID of the task (required)
+     * @param  \Pipedrive\versions\v2\Model\TaskPatchRequest|null $task_patch_request (optional)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function updateTaskAsync($id, $task_patch_request = null): PromiseInterface
+    {
+        return $this->updateTaskAsyncWithHttpInfo($id, $task_patch_request)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation updateTaskAsyncWithHttpInfo
+     *
+     * Update a task
+     *
+     * @param  int $id The ID of the task (required)
+     * @param  \Pipedrive\versions\v2\Model\TaskPatchRequest|null $task_patch_request (optional)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function updateTaskAsyncWithHttpInfo($id, $task_patch_request = null): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\UpdateTaskResponse';
+        $request = $this->updateTaskRequest($id, $task_patch_request);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'updateTask'
+     *
+     * @param  int $id The ID of the task (required)
+     * @param  \Pipedrive\versions\v2\Model\TaskPatchRequest|null $task_patch_request (optional)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function updateTaskRequest($id, $task_patch_request = null): Request
+    {
+        // verify the required parameter 'id' is set
+        /* @phpstan-ignore-next-line */
+        if ($id === null || (is_array($id) && count($id) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $id when calling updateTask'
+            );
+        }
+
+        $resourcePath = '/tasks/{id}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                '{' . 'id' . '}',
+                ObjectSerializer::toPathValue($id),
+                $resourcePath
+            );
+        }
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                ['application/json']
+            );
+        }
+
+        // for model (json/xml)
+        if (isset($task_patch_request)) {
+            if ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($task_patch_request));
+            } else {
+                $httpBody = $task_patch_request;
+            }
+        } elseif (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'PATCH',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
             $httpBody

@@ -1,28 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
+use App\Events\UserRegisteredEvent;
+use App\Listeners\MergeGuestCartOnLogin;
+use App\Listeners\SyncUserToPipedrive;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Override;
 
 class EventServiceProvider extends ServiceProvider
 {
     /**
      * The event listener mappings for the application.
-     *
-     * @var array
      */
     protected $listen = [
-        \App\Events\Event::class => [
-            'App\Listeners\EventListener',
+        Login::class => [
+            MergeGuestCartOnLogin::class,
+        ],
+        UserRegisteredEvent::class => [
+            SyncUserToPipedrive::class,
         ],
     ];
 
     /**
      * Register any events for your application.
-     *
-     * @return void
      */
-    public function boot()
+    #[Override]
+    public function boot(): void
     {
         //
     }
@@ -32,6 +39,7 @@ class EventServiceProvider extends ServiceProvider
      *
      * @return bool
      */
+    #[Override]
     public function shouldDiscoverEvents()
     {
         return false;

@@ -10,6 +10,7 @@ use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Header\IdentificationHeader;
 use Symfony\Component\Mime\MessageConverter;
 use Symfony\Component\Mime\RawMessage;
 
@@ -100,7 +101,13 @@ class PostmarkTransport implements TransportInterface
             ];
 
             if ($disposition === 'inline') {
-                $attributes['ContentID'] = 'cid:'.$filename;
+                $header = $headers->get('Content-ID');
+
+                if ($header instanceof IdentificationHeader && $header->getId() !== null) {
+                    $attributes['ContentID'] = 'cid:'.$header->getId();
+                } else {
+                    $attributes['ContentID'] = 'cid:'.$filename;
+                }
             }
 
             $attachments[] = $attributes;
@@ -184,7 +191,7 @@ class PostmarkTransport implements TransportInterface
 
     protected function getTemplatedContent(Email $email): ?array
     {
-        return json_decode($email->getHtmlBody(), flags: JSON_OBJECT_AS_ARRAY);
+        return json_decode($email->getHtmlBody() ?? '', flags: JSON_OBJECT_AS_ARRAY);
     }
 
     protected function stringifyAddresses(array $addresses): string

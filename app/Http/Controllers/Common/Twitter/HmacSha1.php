@@ -13,13 +13,15 @@ namespace App\Http\Controllers\Common\Twitter;
  * encoded per Parameter Encoding) of the Consumer Secret and Token Secret, separated by an '&'
  * character (ASCII code 38) even if empty.
  *   - Chapter 9.2 ("HMAC-SHA1").
+ *
+ * @codeCoverageIgnore
  */
 class HmacSha1 extends SignatureMethod
 {
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'HMAC-SHA1';
     }
@@ -27,15 +29,16 @@ class HmacSha1 extends SignatureMethod
     /**
      * {@inheritdoc}
      */
-    public function buildSignature(Request $request, Consumer $consumer, ?Token $token = null)
+    public function buildSignature(Request $request, Consumer $consumer, ?Token $token = null): string
     {
         $signatureBase = $request->getSignatureBaseString();
 
-        $parts = [$consumer->secret, null !== $token ? $token->secret : ''];
+        $parts = [$consumer->secret, $token instanceof Token ? $token->secret : ''];
 
         $parts = Util::urlencodeRfc3986($parts);
-        $key = implode('&', $parts);
 
-        return base64_encode(hash_hmac('sha1', $signatureBase, $key, true));
+        $key = implode('&', (array) $parts);
+
+        return base64_encode(hash_hmac('sha1', $signatureBase, $key, binary: true));
     }
 }

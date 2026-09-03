@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('config_group', function (Blueprint $table) {
+        Schema::create('config_group', function (Blueprint $table): void {
             $table->id();
             $table->string('config_group_name', 255);
             $table->binary('description')->nullable();

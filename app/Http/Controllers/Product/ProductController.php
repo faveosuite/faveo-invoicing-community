@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Product;
 
-// use Illuminate\Http\Request;
 use App\Facades\Attach;
-use App\Http\Controllers\License\LicenseController;
+use App\Http\Controllers\AutoUpdate\AutoUpdateController;
 use App\Http\Controllers\License\LicensePermissionsController;
-use App\Model\Common\Setting;
+use App\License\Services\ProductBundleStampingService;
 use App\Model\Common\StatusSetting;
 use App\Model\License\LicenseType;
-use App\Model\Order\Order;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Period;
 use App\Model\Payment\Plan;
@@ -22,696 +20,676 @@ use App\Model\Product\ProductGroup;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\Traits\Upload\ChunkUpload;
-use GuzzleHttp\Client;
+use DB;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Yajra\DataTables\DataTables;
-
-// use Input;
 
 class ProductController extends BaseProductController
 {
     use ChunkUpload;
 
+    /**
+     * @var Product
+     */
     public $product;
 
+    /**
+     * @var Price
+     */
     public $price;
 
+    /**
+     * @var LicenseType
+     */
     public $type;
 
+    /**
+     * @var Subscription
+     */
     public $subscription;
 
+    /**
+     * @var Currency
+     */
     public $currency;
 
+    /**
+     * @var ProductGroup
+     */
     public $group;
 
+    /**
+     * @var Plan
+     */
     public $plan;
 
+    /**
+     * @var Tax
+     */
     public $tax;
 
+    /**
+     * @var TaxProductRelation
+     */
     public $tax_relation;
 
+    /**
+     * @var TaxClass
+     */
     public $tax_class;
 
+    /**
+     * @var ProductUpload
+     */
     public $product_upload;
 
-    public function __construct()
+    public function __construct(ProductBundleStampingService $stampingService)
     {
+        parent::__construct($stampingService);
+
         $this->middleware('auth');
         $this->middleware('admin', ['except' => ['adminDownload', 'userDownload']]);
 
-        $product = new Product();
+        $product = new Product;
         $this->product = $product;
 
-        $price = new Price();
+        $price = new Price;
         $this->price = $price;
 
-        $type = new LicenseType();
+        $type = new LicenseType;
         $this->type = $type;
 
-        $subscription = new Subscription();
+        $subscription = new Subscription;
         $this->subscription = $subscription;
 
-        $currency = new Currency();
+        $currency = new Currency;
         $this->currency = $currency;
 
-        $group = new ProductGroup();
+        $group = new ProductGroup;
         $this->group = $group;
 
-        $plan = new Plan();
+        $plan = new Plan;
         $this->plan = $plan;
 
-        $tax = new Tax();
+        $tax = new Tax;
         $this->tax = $tax;
 
-        $period = new Period();
-        $this->period = $period;
+        $period = new Period;
+        $this->period = $period; // @phpstan-ignore property.notFound
 
-        $tax_relation = new TaxProductRelation();
+        $tax_relation = new TaxProductRelation;
         $this->tax_relation = $tax_relation;
 
-        $tax_class = new TaxClass();
+        $tax_class = new TaxClass;
         $this->tax_class = $tax_class;
 
-        $product_upload = new ProductUpload();
+        $product_upload = new ProductUpload;
         $this->product_upload = $product_upload;
-
-        $license = new LicenseController();
-        $this->licensing = $license;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Response
-     */
-    public function index(Request $request)
+    public function getProductDropdown(Request $request): JsonResponse
     {
-        try {
-            $data = $request->input('value');
+        $searchQuery = $request->input('search-query', '');
+        $limit = $request->input('limit', 10);
+        $page = $request->input('page', 1);
 
-            return view('themes.default1.product.product.index', compact('data'));
-        } catch (\Exception $e) {
-            return redirect('/')->with('fails', $e->getMessage());
-        }
+        $productsQuery = Product::where('invoice_hidden', 0)
+            ->when($searchQuery, function ($query, string $searchQuery): void {
+                $query->where('name', 'like', sprintf('%%%s%%', $searchQuery));
+            })
+            ->paginate($limit, ['*'], 'page', $page);
+
+        $productsQuery->getCollection()->transform(fn ($item): array => ['id' => $item->id, 'name' => $item->name]);
+
+        return successResponse('', $productsQuery);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Response
-     */
-    public function getProducts(Request $request)
+    public function getProductPlans(Request $request, int $productId): JsonResponse
     {
-        try {
-            if ($request->input('value') == 'totalSoldProduct') {
-                $orderStatus = 'executed'; // Define the order status
+        $searchQuery = $request->input('search-query', '');
+        $limit = $request->input('limit', 10);
+        $request->input('page', 1);
 
-                $new_product = Product::leftJoin('license_types', 'products.type', '=', 'license_types.id')
-                    ->select('products.id', 'products.name as product', 'products.type', 'products.image', 'products.group', 'products.image', 'license_types.name')
-                    ->whereExists(function ($query) use ($orderStatus) {
-                        $query->select(\DB::raw(1))
-                            ->from('orders')
-                            ->whereColumn('orders.product', 'products.id')
-                            ->where('orders.order_status', $orderStatus);
+        $plans = Plan::select('id', 'name')
+            ->where('product', $productId)
+            ->when($searchQuery, function ($query, string $searchQuery): void {
+                $query->where('name', 'like', sprintf('%%%s%%', $searchQuery));
+            })
+            ->paginate($limit);
+
+        return successResponse('', $plans);
+    }
+
+    public function getAllProducts(Request $request): JsonResponse
+    {
+        $searchQuery = $request->input('search-query', '');
+        $sortOrder = in_array($request->input('sort-order'), ['asc', 'desc']) ? $request->input('sort-order') : 'asc';
+        $limit = $request->input('limit', 10);
+
+        $sortFieldMap = [
+            'name' => 'products.name',
+            'license_type' => 'products.type',
+            'group' => 'products.group',
+            'created_at' => 'products.created_at',
+        ];
+        $sortField = $sortFieldMap[$request->input('sort-field')] ?? 'products.created_at';
+
+        $products = Product::select('products.id', 'products.name', 'products.image', 'products.group', 'products.type', 'products.created_at')
+            ->with([
+                'groupRelation',
+                'licenseType',
+            ])
+            ->when($searchQuery, function ($query, string $searchQuery): void {
+                $query->where('products.name', 'like', sprintf('%%%s%%', $searchQuery))
+                    ->orWhereHas('groupRelation', function ($q) use ($searchQuery): void {
+                        $q->where('name', 'like', sprintf('%%%s%%', $searchQuery));
+                    })
+                    ->orWhereHas('licenseType', function ($q) use ($searchQuery): void {
+                        $q->where('name', 'like', sprintf('%%%s%%', $searchQuery));
                     });
-            } else {
-                $new_product = Product::leftJoin('license_types', 'products.type', '=', 'license_types.id')
-                    ->select('products.id', 'products.name as product', 'products.type', 'products.image', 'products.group', 'products.image', 'license_types.name');
-            }
+            })
+            ->orderBy($sortField, $sortOrder)
+            ->paginate($limit);
 
-            return DataTables::of($new_product)
-                            ->orderColumn('name', '-products.id $1')
-                            ->orderColumn('image', '-products.id $1')
-                            ->orderColumn('type', '-products.id $1')
-                            ->orderColumn('group', '-products.id $1')
-                            ->addColumn('checkbox', function ($model) {
-                                return "<input type='checkbox' class='product_checkbox' 
-                                value=".$model->id.' name=select[] id=check>';
-                            })
-                            ->addColumn('name', function ($model) {
-                                return ucfirst($model->product);
-                            })
-                              ->addColumn('image', function ($model) {
-                                  // return $model->image;
-                                  return "<img src= '$model->image' + height=\"80\"/>";
-                              })
-                            ->addColumn('type', function ($model) {
-                                if ($this->type->where('id', $model->type)->first()) {
-                                    return $this->type->where('id', $model->type)->first()->name;
-                                } else {
-                                    return 'Not available';
-                                }
-                            })
-                            ->addColumn('group', function ($model) {
-                                if ($this->group->where('id', $model->group)->first()) {
-                                    return $this->group->where('id', $model->group)->first()->name;
-                                } else {
-                                    return 'Not available';
-                                }
-                            })
+        $products->getCollection()->transform(function ($product): array {
+            $permissions = LicensePermissionsController::getPermissionsForProduct($product->id);
+            $download_url = (empty($permissions['downloadPermission']))
+                ? null
+                : url('product/download/'.$product->id);
 
-                            ->addColumn('Action', function ($model) {
-                                $permissions = LicensePermissionsController::getPermissionsForProduct($model->id);
-                                $url = '';
-                                if (is_array($permissions)) {
-                                    if ($permissions['downloadPermission'] == 1) {
-                                        $url = '<a href='.url('product/download/'.$model->id).
-                                    " class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.download'))."<i class='fas fa-cloud-download-alt' 
-                                    style='color:white;'> </i></a>";
-                                    }
-                                }
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'image' => $product->image,
+                'group' => $product->groupRelation?->name,
+                'license_type' => $product->licenseType?->name,
+                'action' => [
+                    'edit_url' => url('products/'.$product->id.'/edit'),
+                    'download_url' => $download_url,
+                ],
+                'created_at' => $product->created_at,
+            ];
+        });
 
-                                return '<p><a href='.url('products/'.$model->id.'/edit').
-                                " class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit'
-                                 style='color:white;'> </i></a>&nbsp;$url</p>";
-                            })
-                             ->filterColumn('name', function ($query, $keyword) {
-                                 $sql = 'products.name like ?';
-                                 $query->whereRaw($sql, ["%{$keyword}%"]);
-                             })
-                             ->filterColumn('type', function ($query, $keyword) {
-                                 $sql = 'license_types.name like ?';
-                                 $query->whereRaw($sql, ["%{$keyword}%"]);
-                             })
-
-                            ->rawColumns(['checkbox', 'name', 'image', 'type', 'group', 'Action'])
-                            ->make(true);
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
-        }
+        return successResponse('', $products);
     }
 
-    // Save file Info in Modal popup
-    public function save(Request $request)
+    public function deleteBulkProducts(Request $request): JsonResponse
     {
-        $this->validate(
-            $request,
-            [
-                'producttitle' => 'required',
-                'version' => 'required',
-                'filename' => 'required',
-                'dependencies' => 'required',
-            ],
-            [
-                'version.required' => __('validation.product_validate.version_required'),
-                'filename.required' => __('validation.product_validate.filename_required'),
-                'dependencies.required' => __('validation.product_validate.dependencies_required'),
+        $ids = $request->input('product_ids', []);
 
-            ]
-        );
-
-        try {
-            $product_id = Product::find($request->input('product_id'));
-
-            $this->product_upload->product_id = $product_id->id;
-            $this->product_upload->title = $request->input('producttitle');
-            $this->product_upload->description = $request->input('description');
-            $this->product_upload->version = $request->input('version');
-            $this->product_upload->file = $request->input('filename');
-
-            $this->product_upload->is_private = $request->input('is_private');
-            $this->product_upload->release_type = $request->input('release_type');
-            $this->product_upload->is_restricted = $request->input('is_restricted');
-            $this->product_upload->dependencies = json_encode($request->input('dependencies'));
-
-            $this->product_upload->save();
-
-            $this->product->where('id', $product_id->id)->update(['version' => $request->input('version')]);
-            $autoUpdateStatus = StatusSetting::pluck('license_status')->first();
-            if ($autoUpdateStatus == 1) { //If License Setting Status is on,Add Product to the License Manager
-                $updateClassObj = new \App\Http\Controllers\AutoUpdate\AutoUpdateController();
-                $addProductToAutoUpdate = $updateClassObj->addNewVersion($product_id->id, $request->input('version'), $request->input('filename'), '1');
-            }
-            $response = ['success' => 'true', 'message' => __('message.product_uploaded_successfully')];
-
-            return $response;
-        } catch (\Exception $e) {
-            \Logger::exception($e);
-            $message = [$e->getMessage()];
-            $response = ['success' => 'false', 'message' => $message];
-
-            return response()->json(compact('response'), 500);
-        }
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Response
-     */
-    public function create()
-    {
-        try {
-            /*
-             * server url
-             */
-            $url = url('/');
-            $id = $this->product->orderBy('id', 'desc')->first();
-            $i = $id ? $id->id + 1 : 1;
-            $cartUrl = $url.'/pricing?id='.$i;
-            $type = $this->type->pluck('name', 'id')->toArray();
-            $subscription = $this->plan->pluck('name', 'id')->toArray();
-            $currency = $this->currency->where('status', 1)->pluck('name', 'code')->toArray();
-            $group = $this->group->pluck('name', 'id')->toArray();
-            $products = $this->product->pluck('name', 'id')->toArray();
-            $periods = $this->period->pluck('name', 'days')->toArray();
-            $taxes = $this->tax_class->pluck('name', 'id')->toArray();
-            $taxes = $this->tax_class->with('tax:tax_classes_id,id,name')->get()->toArray();
-            $whatsappStatus = StatusSetting::pluck('whatsapp_status')->first();
-
-            return view(
-                'themes.default1.product.product.create',
-                compact(
-                    'subscription',
-                    'type',
-                    'periods',
-                    'currency',
-                    'group',
-                    'cartUrl',
-                    'products',
-                    'taxes',
-                    'whatsappStatus'
-                )
-            );
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
-        }
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @return \Response
-     */
-    public function store(Request $request)
-    {
-        $input = $request->all();
-
-        $v = \Validator::make($input, [
-            'name' => [
-                'required',
-                Rule::unique('products', 'name')->where('group', $request->group),
-            ],
-            'type' => 'required',
-            'description' => 'required',
-            'product_description' => 'required',
-            'short_description' => 'required',
-            'image' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-            'product_sku' => 'required|unique:products,product_sku',
-            'group' => 'required',
-            'show_agent' => 'required',
-            // 'version' => 'required',
-        ], [
-            'product_sku.unique' => __('validation.product_sku_unique'),
-            'name.unique' => __('validation.product_controller.name_unique_in_group'),
-            'show_agent.required' => __('validation.product_show_agent_required'),
-        ]);
-
-        if ($v->fails()) {
-            //     $currency = $input['currency'];
-
-            return redirect()->back()
-                        ->withErrors($v)
-                        ->withInput($request->input());
+        if (empty($ids)) {
+            return errorResponse(__('message.select-a-row'));
         }
 
         try {
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
-            if ($licenseStatus) { //If License Setting Status is on,Add Product to the License Manager
-                $addProductToLicensing = $this->licensing->addNewProduct($input['name'], $input['product_sku']);
-                $product_id = $this->licensing->searchProductId($input['product_sku']);
-                $updateCont = new \App\Http\Controllers\AutoUpdate\AutoUpdateController();
-                $addProductToLicensing = $updateCont->addNewProductToAUS($product_id, $input['name'], $input['product_sku']);
-            }
-            if ($request->hasFile('image')) {
-                $image = Attach::put('common/images/', $request->file('image'), null, true);
-                $this->product->image = basename($image);
-            }
-            $can_modify_agent = $request->input('can_modify_agent');
-            $can_modify_quantity = $request->input('can_modify_quantity');
-            $highlight = $request->input('highlight');
-            $add_to_contact = $request->input('add_to_contact');
-            $this->saveCartValues($input, $can_modify_agent, $can_modify_quantity, $highlight, $add_to_contact);
-            $data = $request->except(['image', 'file']);
-            if (! empty($product_id)) {
-                $data['id'] = $product_id;
-            }
-            $this->product->fill($data)->save();
+            DB::transaction(function () use ($ids): void {
+                $products = Product::whereIn('id', $ids)->get();
 
-            $taxes = $request->input('tax');
-            if ($taxes) {
-                foreach ($taxes as $key => $value) {
-                    $newtax = new TaxProductRelation();
-                    $newtax->product_id = $this->product->id;
-                    $newtax->tax_class_id = $value;
-                    $newtax->save();
-                }
-            }
-
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
-        } catch (\Exception $e) {
-            \Logger::exception($e);
-
-            return redirect()->back()->with('fails', $e->getMessage());
-        }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function edit($id)
-    {
-        try {
-            $type = $this->type->pluck('name', 'id')->toArray();
-
-            $subscription = $this->plan->pluck('name', 'id')->toArray();
-            $currency = $this->currency->pluck('name', 'code')->toArray();
-            $group = $this->group->pluck('name', 'id')->toArray();
-            $products = $this->product->pluck('name', 'id')->toArray();
-
-            $checkowner = Product::where('id', $id)->value('github_owner');
-            $periods = $this->period->pluck('name', 'days')->toArray();
-            // $url = $this->GetMyUrl();
-            $url = url('/');
-            $cartUrl = $url.'/cart?id='.$id;
-            $product = $this->product->where('id', $id)->first();
-            $selectedGroup = ProductGroup::where('id', $product->group)->pluck('name')->toArray();
-            $taxes = $this->tax_class->pluck('name', 'id')->toArray();
-            $taxes = $this->tax_class->with('tax:tax_classes_id,id,name')->get()->toArray();
-            $saved_taxes = $this->tax_relation->where('product_id', $id)->get();
-            $savedTaxes = $this->tax_relation->where('product_id', $id)->pluck('tax_class_id')->toArray();
-            $showagent = $product->show_agent;
-            $showProductQuantity = $product->show_product_quantity;
-            $canModifyAgent = $product->can_modify_agent;
-            $canModifyQuantity = $product->can_modify_quantity;
-            $githubStatus = StatusSetting::pluck('github_status')->first();
-            $whatsappStatus = StatusSetting::pluck('whatsapp_status')->first();
-
-            return view(
-                'themes.default1.product.product.edit',
-                compact(
-                    'product',
-                    'periods',
-                    'type',
-                    'subscription',
-                    'currency',
-                    'group',
-                    'cartUrl',
-                    'products',
-                    'taxes',
-                    'saved_taxes',
-                    'savedTaxes',
-                    'selectedGroup',
-                    'showagent',
-                    'showProductQuantity',
-                    'canModifyAgent',
-                    'canModifyQuantity',
-                    'checkowner',
-                    'githubStatus',
-                    'whatsappStatus',
-                )
-            );
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
-        }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function update($id, Request $request)
-    {
-        $input = $request->all();
-
-        $request->validate([
-            'name' => [
-                'required',
-                Rule::unique('products', 'name')->where('group', $request->group)->ignore($id),
-            ],
-            'type' => 'required',
-            'description' => 'required',
-            'product_description' => 'required',
-            'image' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-            'product_sku' => 'required',
-            'group' => 'required',
-        ],
-            [
-                'name.required' => __('validation.product_controller.name_required'),
-                'name.unique' => __('validation.product_controller.name_unique_in_group'),
-                'type.required' => __('validation.product_controller.type_required'),
-                'description.required' => __('validation.product_controller.description_required'),
-                'short_description.required' => __('validation.product_controller.short_description_required'),
-                'product_description.required' => __('validation.product_controller.product_description_required'),
-                'image.mimes' => __('validation.product_controller.image_mimes'),
-                'image.max' => __('validation.product_controller.image_max'),
-                'product_sku.required' => __('validation.product_controller.product_sku_required'),
-                'group.required' => __('validation.product_controller.group_required'),
-                'show_agent.required' => __('validation.product_controller.show_agent_required'),
-            ]);
-
-//       To Delete the uploaded files when it is removed from the tinymce
-        $product = $this->product->where('id', $id)->first();
-        $this->removeUploads($product->product_description, $request->input('product_description'));
-        try {
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
-            if ($licenseStatus) {
-                $addProductInLicensing = $this->licensing->editProduct($input['name'], $input['product_sku']);
-            }
-
-            if ($request->hasFile('image')) {
-                $image = Attach::put('common/images/', $request->file('image'), null, true);
-                $product->image = basename($image);
-            }
-            if ($request->hasFile('file')) {
-                $file = $request->file('file')->getClientOriginalName();
-                $filedestinationPath = storage_path().'/products';
-                $request->file('file')->move($filedestinationPath, $file);
-                $product->file = $file;
-            }
-
-            $product->fill($request->except('image', 'file'))->save();
-            $highlight = $request->input('highlight');
-            $add_to_contact = $request->input('add_to_contact');
-            $this->saveCartDetailsWhileUpdating($input, $request, $product, $highlight, $add_to_contact);
-
-            if ($request->input('github_owner') && $request->input('github_repository')) {
-                $this->updateVersionFromGithub($product->id, $request->input('github_owner'), $request->input('github_repository'));
-            }
-            //add tax class to tax_product_relation table
-            $newTax = $this->saveTax($request->input('tax'), $product->id);
-
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
-        }
-    }
-
-    public function removeUploads($oldContent, $newContent)
-    {
-        preg_match_all('/<img[^>]+src="([^"]+)"/', $oldContent, $oldMatches);
-        preg_match_all('/<img[^>]+src="([^"]+)"/', $newContent, $newMatches);
-
-        $oldImages = $oldMatches[1] ?? [];
-        $newImages = $newMatches[1] ?? [];
-
-        // 2. Find removed images
-        $removedImages = array_diff($oldImages, $newImages);
-        // 3. Delete removed images from storage
-        foreach ($removedImages as $imgUrl) {
-            // Convert URL to storage path if needed
-            if (Str::contains($imgUrl, '/storage/uploads/tinymce/')) {
-                $path = str_replace('/storage/', 'public/', parse_url($imgUrl, PHP_URL_PATH));
-                if (Storage::exists($path)) {
-                    Storage::delete($path);
-                }
-            }
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function destroy(Request $request)
-    {
-        try {
-            $ids = array_unique($request->input('select', []));
-            if (! empty($ids)) {
-                foreach ($ids as $id) {
-                    $product = $this->product->where('id', $id)->first();
-                    if ($product) {
-                        $licenseStatus = StatusSetting::pluck('license_status')->first();
-                        if ($licenseStatus == 1) {
-                            $this->licensing->deleteProductFromAPL($product);
-                        }
-                        $product->delete();
-                    } else {
-                        echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
-                </div>';
-                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
-                    }
-                }
-                echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */
-                        \Lang::get('message.alert').'!</b> './* @scrutinizer ignore-type */ \Lang::get('message.success').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
-                </div>';
-            } else {
-                echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
-                </div>';
-                //echo \Lang::get('message.select-a-row');
-            }
-        } catch (\Exception $e) {
-            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').',
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.__('message.not-found').'
-                </div>';
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function fileDestroy(Request $request)
-    {
-        try {
-            $ids = $request->input('select');
-            $storagePath = Setting::find(1)->value('file_storage');
-            if (empty($ids)) {
-                return successResponse(__('message.select-a-row'));
-            }
-
-            foreach ($ids as $key => $id) {
-                $product = $this->product_upload->find($id);
-                if ($product) {
-                    $filePath = $storagePath.'/'.$product->file;
-                    if (Attach::exists($filePath)) {
-                        Attach::delete($filePath);
-                    }
+                foreach ($products as $product) {
                     $product->delete();
                 }
-            }
+            });
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
-            return errorResponse(__('message.errors_occurs_delete_product').$e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse(__('message.errors_occurs_delete_product').' '.$exception->getMessage());
         }
     }
 
-    /*
-    *  Download Files from Filesystem/Github
-    */
-    public function downloadProduct($uploadid, $id, $invoice_id, $version_id = '')
+    public function getProduct(Request $request, int $productId): JsonResponse
     {
         try {
-            $product = $this->product->findOrFail($uploadid);
-            $type = $product->type;
-            $owner = $product->github_owner;
-            $repository = $product->github_repository;
-            $file = $this->product_upload
-                ->where('product_id', '=', $uploadid)
-                ->where('id', $version_id)->select('file')->first();
-            $order = Order::where('invoice_id', '=', $invoice_id)->first();
-            $order_id = $order->id;
-            $relese = $this->getRelease($owner, $repository, $order_id, $file);
+            $product = Product::with([
+                'groupRelation:id,name',
+                'licenseType:id,name',
+                'taxes',
+                'planRelation',
+            ])->findOrFail($productId);
 
-            return $relese;
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            $githubStatus = StatusSetting::value('github_status');
+
+            return successResponse('', [
+                'product' => $product,
+                'github_status' => (bool) $githubStatus,
+            ]);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function getSubscriptionCheckScript()
+    public function productUploadCreate(Request $request, int $productId): JsonResponse
     {
-        $response = "<script>
-        function getPrice(val) {
-            var user = document.getElementsByName('user')[0].value;
-            var plan = '';
-            if ($('#plan').length > 0) {
-                var plan = document.getElementsByName('plan')[0].value;
-            }
-            //var plan = document.getElementsByName('plan')[0].value;
-            //alert(user);
+        $product = Product::findOrFail($productId);
 
-            $.ajax({
-                type: 'POST',
-                url: ".url('get-price').",
-                data: {'product': val, 'user': user,'plan':plan},
-                //data: 'product=' + val+'user='+user,
-                success: function (data) {
-                    var price = data['price'];
-                    var field = data['field'];
-                    $('#price').val(price);
-                    $('#fields').append(field);
+        $validated = $request->validate([
+            'producttitle' => ['required', 'string', 'max:255'],
+            'version' => ['required', 'string', 'max:50'],
+            'filename' => ['required', 'string', 'max:255'],
+            // 'present' not 'required': an empty [] is a legitimate "no
+            // dependencies" — 'required' rejects empty arrays outright
+            // (Laravel treats count() < 1 as "missing"), which is exactly
+            // what the frontend sends by default.
+            'dependencies' => ['present', 'array'],
+            'description' => ['required'],
+            'release_type' => ['required'],
+        ], [
+            'producttitle.required' => __('validation.product_validate.producttitle_required'),
+            'version.required' => __('validation.product_validate.version_required'),
+            'filename.required' => __('validation.product_validate.filename_required'),
+            'dependencies.present' => __('validation.product_validate.dependencies_required'),
+            'description' => __('validation.product_validate.description_required'),
+            'release_type' => __('validation.product_validate.release_type_required'),
+        ]);
+
+        try {
+            DB::transaction(function () use ($validated, $request, $product): void {
+                $this->createProductUpload($product, $validated['producttitle'], $validated['filename'], $validated['version'], $validated, $request->boolean('is_private'), $request->boolean('is_restricted'));
+            });
+
+            return successResponse(__('message.product_uploaded_successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    /**
+     * Applies one already-uploaded canonical build (chunk-uploaded via
+     * `chunkupload`, same as a single-product upload) to many products at
+     * once: each target just gets its own ProductUpload row pointing at that
+     * same canonical file — replacing what would otherwise be one manual
+     * productUploadCreate submission per product. No per-product file is
+     * created here: the build is stamped with each product's own identity
+     * fresh, on demand, the moment it's actually downloaded — see
+     * ProductBundleStampingService and DownloadFileController::downloadFile.
+     *
+     * Each product carries its own `version` (not one shared value) — tier
+     * variants of the same core build typically share a version, but a
+     * product like a plugin can be released on its own independent cadence.
+     */
+    public function applyBuildToProducts(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'filename' => ['required', 'string', 'max:255'],
+            // 'present' not 'required': an empty [] is a legitimate "no
+            // dependencies" — 'required' rejects empty arrays outright
+            // (Laravel treats count() < 1 as "missing"), which is exactly
+            // what the frontend sends by default.
+            'dependencies' => ['present', 'array'],
+            'description' => ['required'],
+            'release_type' => ['required'],
+            'products' => ['required', 'array', 'min:1'],
+            'products.*.id' => ['integer', 'exists:products,id'],
+            'products.*.version' => ['required', 'string', 'max:50'],
+        ], [
+            'filename.required' => __('validation.product_validate.filename_required'),
+            'dependencies.present' => __('validation.product_validate.dependencies_required'),
+            'description' => __('validation.product_validate.description_required'),
+            'release_type' => __('validation.product_validate.release_type_required'),
+            'products.required' => __('message.select-a-row'),
+            'products.*.version.required' => __('validation.product_validate.version_required'),
+        ]);
+
+        $versionsById = [];
+        foreach ($validated['products'] as $entry) {
+            $versionsById[(int) $entry['id']] = (string) $entry['version'];
+        }
+
+        $products = Product::whereIn('id', array_keys($versionsById))->get();
+
+        try {
+            DB::transaction(function () use ($validated, $request, $products, $versionsById): void {
+                foreach ($products as $product) {
+                    $version = $versionsById[$product->id];
+
+                    $this->createProductUpload($product, $product->name, $validated['filename'], $version, $validated, $request->boolean('is_private'), $request->boolean('is_restricted'));
                 }
             });
-        }
 
-    </script>";
+            return successResponse(__('message.product_uploaded_successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
     }
 
-    public function uploadImage(Request $request)
+    /**
+     * Shared by productUploadCreate (single product, admin-typed title) and
+     * applyBuildToProducts (many products, title defaults to the product's own
+     * name) — creates the ProductUpload row and bumps the product's version.
+     *
+     * @param  array<mixed>  $validated
+     */
+    private function createProductUpload(Product $product, string $title, string $file, string $version, array $validated, bool $isPrivate, bool $isRestricted): void
+    {
+        ProductUpload::create([
+            'product_id' => $product->id,
+            'title' => $title,
+            'description' => $validated['description'],
+            'version' => $version,
+            'file' => $file,
+            'is_private' => $isPrivate,
+            'is_restricted' => $isRestricted,
+            'release_type' => $validated['release_type'],
+            'dependencies' => json_encode($validated['dependencies']),
+        ]);
+
+        $product->update(['version' => $version]);
+    }
+
+    /**
+     * Paginated list of a product's version uploads, for the DataTable on the
+     * product edit page's "Versions" tab.
+     */
+    public function getProductUploads(int $productId, Request $request): JsonResponse
     {
         try {
-            $setting = Setting::find(1);
+            $limit = $request->input('limit', 10);
+            $page = $request->input('page', 1);
+            $sortField = $request->input('sort-field', 'created_at');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $search = $request->input('search-query', '');
 
-            if ($request->hasFile('file')) {
-                $file = $request->file('file');
-                $filename = time().'_'.$file->getClientOriginalName();
-                $path = $file->storeAs('public/uploads/tinymce', $filename);
+            $allowed = ['created_at', 'version', 'title', 'release_type', 'status'];
+            if (! in_array($sortField, $allowed, strict: true)) {
+                $sortField = 'created_at';
             }
 
-            if ($request->input('url')) {
-                $url = $request->input('url');
-                $client = new Client();
-                $response = $client->get($url, [
-                    'headers' => [
-                        'User-Agent' => 'Mozilla/5.0', // Some servers require User-Agent
-                    ],
-                ]);
-                $contents = $response->getBody()->getContents();
+            $uploads = ProductUpload::where('product_id', $productId)
+                ->when($search, function ($q, $search): void {
+                    $q->where(function ($qq) use ($search): void {
+                        $qq->where('title', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('version', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('release_type', 'like', sprintf('%%%s%%', $search));
+                    });
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->paginate($limit, ['*'], 'page', $page);
 
-                $ext = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
-                $filename = 'tinymce/'.uniqid().'.'.($ext ?: 'jpg');
-                Storage::put('public/uploads/'.$filename, $contents);
-                $path = Storage::url('public/uploads/'.$filename);
-            }
-
-            return response()->json([
-                'location' => asset(str_replace('public/', 'storage/', $path)),
+            $uploads->getCollection()->transform(fn ($u): array => [
+                'id' => $u->id,
+                'title' => $u->title,
+                'description' => $u->description,
+                'version' => $u->version,
+                'release_type' => $u->release_type,
+                'file' => $u->file,
+                'status' => $u->status,
+                'created_at' => $u->created_at,
             ]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'No file uploaded.'], 500);
+
+            return successResponse('', $uploads);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    /**
+     * Single version upload, for the edit form.
+     */
+    public function getProductUpload(int $productUploadId): JsonResponse
+    {
+        try {
+            $u = ProductUpload::findOrFail($productUploadId);
+
+            return successResponse('', [
+                'id' => $u->id,
+                'product_id' => $u->product_id,
+                'title' => $u->title,
+                'description' => $u->description,
+                'version' => $u->version,
+                'file' => $u->file,
+                'release_type' => $u->release_type,
+                'is_private' => (bool) $u->is_private,
+                'is_restricted' => (bool) $u->is_restricted,
+                'dependencies' => json_decode((string) $u->getRawOriginal('dependencies'), associative: true) ?: [],
+            ]);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    /**
+     * Update a version's metadata. A replacement file is optional — see the
+     * `filename` handling below for how it's routed.
+     */
+    public function updateProductUpload(int $productUploadId, Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'version' => ['required', 'string', 'max:50'],
+            // 'present' not 'required': an empty [] is a legitimate "no
+            // dependencies" — 'required' rejects empty arrays outright
+            // (Laravel treats count() < 1 as "missing"), which is exactly
+            // what the frontend sends by default.
+            'dependencies' => ['present', 'array'],
+            'release_type' => ['required'],
+        ], [
+            'title.required' => __('validation.extend_product.title_required'),
+            'version.required' => __('validation.extend_product.version_required'),
+            'dependencies.present' => __('validation.extend_product.dependencies_required'),
+        ]);
+
+        try {
+            $upload = ProductUpload::findOrFail($productUploadId);
+
+            $payload = [
+                'title' => $validated['title'],
+                'description' => $request->input('description'),
+                'version' => $validated['version'],
+                'dependencies' => json_encode($validated['dependencies']),
+                'is_private' => $request->boolean('is_private'),
+                'is_restricted' => $request->boolean('is_restricted'),
+                'release_type' => $validated['release_type'],
+            ];
+
+            if ($request->filled('filename')) {
+                $payload['file'] = $request->input('filename');
+            }
+
+            $upload->update($payload);
+
+            $productSku = $upload->product->product_sku ?? null;
+            if ($productSku) {
+                resolve(AutoUpdateController::class)
+                    ->editVersion($validated['version'], $productSku);
+            }
+
+            return successResponse(__('message.product_updated_successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    /**
+     * Deletes one or more version uploads — used by both the single-row
+     * delete button and the Versions tab's bulk-select delete
+     * (VersionTableActions.vue / ProductEdit.vue's confirmBulkDeleteVersions),
+     * which both already send { select: [ids] } to this same endpoint.
+     */
+    public function deleteBulkProductUploads(Request $request): JsonResponse
+    {
+        $ids = $request->input('select', []);
+
+        if (empty($ids)) {
+            return errorResponse(__('message.select-a-row'));
+        }
+
+        try {
+            DB::transaction(function () use ($ids): void {
+                ProductUpload::whereIn('id', $ids)->get()->each->delete();
+            });
+
+            return successResponse(__('message.deleted-successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function productCreate(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            // Scoped to the group, not global — real catalog data has the same
+            // product name intentionally reused across different groups (e.g.
+            // "Helpdesk Enterprise" under Perpetual/Recurring/Cloud), just never
+            // twice within the same group.
+            'name' => ['required', Rule::unique('products', 'name')->where('group', $request->input('group'))],
+            'type' => ['required'],
+            'product_type' => ['required', 'in:independent,addon'],
+            'config_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
+            'license_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
+            'description' => ['required'],
+            'product_description' => ['required'],
+            'image' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'product_sku' => ['required', 'unique:products,product_sku'],
+            'group' => ['required'],
+            'show_agent' => ['required'],
+        ], [
+            'product_sku.unique' => __('validation.product_sku_unique'),
+            'name.unique' => __('validation.product_name_unique'),
+            'show_agent.required' => __('validation.product_show_agent_required'),
+            'config_file_path.regex' => __('validation.config_file_path_regex'),
+            'license_file_path.regex' => __('validation.license_file_path_regex'),
+        ]);
+
+        // This app doesn't auto-convert empty strings to null (see Kernel.php)
+        // — keep both paths as actual NULL rather than '' when left blank, so
+        // "don't write one" (see ProductBundleStampingService) behaves correctly.
+        $validated['config_file_path'] = empty($validated['config_file_path']) ? null : $validated['config_file_path'];
+        $validated['license_file_path'] = empty($validated['license_file_path']) ? null : $validated['license_file_path'];
+
+        try {
+            DB::transaction(function () use ($request, $validated): void {
+                // Handle Image Upload
+                if ($request->hasFile('image')) {
+                    $validated['image'] = basename((string) Attach::put('common/images/', $request->file('image'), null, true));
+                }
+
+                $validated['show_agent'] = $request->boolean('show_agent');
+                $validated['highlight'] = $request->boolean('highlight');
+                $validated['add_to_contact'] = $request->boolean('add_to_contact');
+                $validated['can_modify_agent'] = $request->boolean('can_modify_agent');
+                $validated['can_modify_quantity'] = $request->boolean('can_modify_quantity');
+                $validated['require_domain'] = $request->boolean('require_domain');
+                $validated['hidden'] = $request->boolean('hidden');
+                $validated['invoice_hidden'] = $request->boolean('invoice_hidden');
+                $validated['whatsapp_integration'] = $request->boolean('whatsapp_integration');
+
+                // Filter only fillable fields
+                $data = array_intersect_key($validated, array_flip((new Product)->getFillable()));
+
+                // Tax status: Taxable (1) / None (0)
+                $data['tax_apply'] = $request->boolean('tax_status') ? 1 : 0;
+
+                // Shared secret an installed copy of this product echoes back on
+                // every AFU/AFL callback (see ProductBundleStampingService, which
+                // refuses to stamp a build with no key). Never comes from the
+                // request — set here, same as the sibling apl_salt secret.
+                $data['product_key'] = Str::random(16);
+
+                // Create Product
+                $product = Product::create($data);
+
+                // A taxable product carries exactly one tax class.
+                if ($data['tax_apply'] === 1 && $request->filled('tax_class_id')) {
+                    TaxProductRelation::create([
+                        'product_id' => $product->id,
+                        'tax_class_id' => $request->input('tax_class_id'),
+                    ]);
+                }
+            });
+
+            return successResponse(__('message.saved-successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function updateProduct(int $productId, Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            // Scoped to the group, not global — see productCreate for why.
+            'name' => ['required', Rule::unique('products', 'name')->where('group', $request->input('group'))->ignore($productId)],
+            'type' => ['required'],
+            'product_type' => ['required', 'in:independent,addon'],
+            'config_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
+            'license_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
+            'description' => ['required'],
+            'product_description' => ['required'],
+            'image' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'file' => ['sometimes', 'file', 'max:102400'], // NOSONAR — 100 MB limit is intentional for product file downloads
+            'product_sku' => ['required', Rule::unique('products', 'product_sku')->ignore($productId)],
+            'group' => ['required'],
+            'show_agent' => ['required'],
+        ], [
+            'name.required' => __('validation.product_controller.name_required'),
+            'name.unique' => __('validation.product_name_unique'),
+            'type.required' => __('validation.product_controller.type_required'),
+            'description.required' => __('validation.product_controller.description_required'),
+            'product_description.required' => __('validation.product_controller.product_description_required'),
+            'image.mimes' => __('validation.product_controller.image_mimes'),
+            'image.max' => __('validation.product_controller.image_max'),
+            'product_sku.required' => __('validation.product_controller.product_sku_required'),
+            'product_sku.unique' => __('validation.product_sku_unique'),
+            'group.required' => __('validation.product_controller.group_required'),
+            'show_agent.required' => __('validation.product_controller.show_agent_required'),
+            'config_file_path.regex' => __('validation.config_file_path_regex'),
+            'license_file_path.regex' => __('validation.license_file_path_regex'),
+        ]);
+
+        // See productCreate — keep both paths as actual NULL rather than ''
+        // when left blank.
+        $validated['config_file_path'] = empty($validated['config_file_path']) ? null : $validated['config_file_path'];
+        $validated['license_file_path'] = empty($validated['license_file_path']) ? null : $validated['license_file_path'];
+
+        try {
+            DB::transaction(function () use ($validated, $request, $productId): void {
+                $product = Product::findOrFail($productId);
+
+                // Handle image upload
+                if ($request->hasFile('image')) {
+                    $validated['image'] = basename((string) Attach::put('common/images/', $request->file('image'), null, true));
+                }
+
+                // Cart-related flags
+                $validated['show_agent'] = $request->boolean('show_agent');
+                $validated['highlight'] = $request->boolean('highlight');
+                $validated['add_to_contact'] = $request->boolean('add_to_contact');
+                $validated['can_modify_agent'] = $request->boolean('can_modify_agent');
+                $validated['can_modify_quantity'] = $request->boolean('can_modify_quantity');
+                $validated['require_domain'] = $request->boolean('require_domain');
+                $validated['hidden'] = $request->boolean('hidden');
+                $validated['invoice_hidden'] = $request->boolean('invoice_hidden');
+                $validated['whatsapp_integration'] = $request->boolean('whatsapp_integration');
+
+                // Update product with only fillable fields
+                $fillableData = array_intersect_key($validated, array_flip($product->getFillable()));
+                $fillableData['tax_apply'] = $request->boolean('tax_status') ? 1 : 0;
+                $product->update($fillableData);
+
+                // Reset to a single tax class (or none when not taxable).
+                TaxProductRelation::where('product_id', $product->id)->delete();
+                if ($fillableData['tax_apply'] === 1 && $request->filled('tax_class_id')) {
+                    TaxProductRelation::create([
+                        'product_id' => $product->id,
+                        'tax_class_id' => $request->input('tax_class_id'),
+                    ]);
+                }
+
+                // Update version from GitHub if provided
+                if ($request->filled('github_owner') && $request->filled('github_repository')) {
+                    $this->updateVersionFromGithub(
+                        $product->id,
+                        $request->input('github_owner'),
+                        $request->input('github_repository')
+                    );
+                }
+            });
+
+            return successResponse(__('message.updated-successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

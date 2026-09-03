@@ -632,7 +632,7 @@ return [
             'url' => 'Die Domain muss eine gültige URL sein.',
         ],
     ],
-    //Product Renewal form
+    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Das Domainfeld ist erforderlich.',
@@ -640,13 +640,13 @@ return [
         ],
     ],
 
-    //Language form
+    // Language form
     'language' => [
         'required' => 'Das Sprachfeld ist erforderlich.',
         'invalid' => 'Die ausgewählte Sprache ist ungültig.',
     ],
 
-    //UpdateStoragePathRequest form
+    // UpdateStoragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Das Speicherlaufwerksfeld ist erforderlich.',
@@ -658,7 +658,7 @@ return [
         ],
     ],
 
-    //ValidateSecretRequest form
+    // ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'Bitte Code eingeben',
@@ -666,7 +666,7 @@ return [
         ],
     ],
 
-    //VerifyOtp form
+    // VerifyOtp form
     'verify_email' => [
         'required' => 'Das E-Mail-Feld ist erforderlich.',
         'email' => 'Die E-Mail muss eine gültige E-Mail-Adresse sein.',
@@ -691,7 +691,7 @@ return [
         'invalid' => 'Ungültiges Passwort.',
     ],
 
-    //AuthController file
+    // AuthController file
     'auth_controller' => [
         'name_required' => 'Name ist erforderlich.',
         'name_max' => 'Name darf nicht länger als 255 Zeichen sein.',

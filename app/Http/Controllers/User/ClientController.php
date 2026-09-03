@@ -4,534 +4,90 @@ namespace App\Http\Controllers\User;
 
 use App\Comment;
 use App\ExportDetail;
-use App\Http\Controllers\License\LicenseController;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Requests\User\ClientRequest;
 use App\Jobs\AddUserToExternalService;
 use App\Jobs\ReportExport;
+use App\Model\Common\Bussiness;
 use App\Model\Common\Country;
+use App\Model\Common\Setting;
+use App\Model\Common\State;
+use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
 use App\Model\Mailjob\QueueService;
+use App\Model\Order\CreditTransaction;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
-use App\Model\Payment\Currency;
+use App\Model\Order\Payment;
+use App\Model\Order\PaymentInvoice;
+use App\Model\Order\UserCreditBalance;
+use App\Model\Product\Product;
 use App\Model\User\AccountActivate;
 use App\ReportColumn;
+use App\Services\Payment\CreditBalanceService;
+use App\Services\Payment\UnappliedPaymentService;
 use App\Traits\PaymentsAndInvoices;
 use App\User;
 use App\UserLinkReport;
+use Auth;
+use Carbon\CarbonImmutable;
+use DB;
+use Exception;
+use Hash;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Storage;
-use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Date;
+use Log;
+use Logger;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use Str;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use ZipArchive;
 
 class ClientController extends AdvanceSearchController
 {
     use PaymentsAndInvoices;
 
+    /**
+     * @var User
+     */
     public $user;
 
+    /**
+     * @var AccountActivate
+     */
     public $activate;
 
+    /**
+     * @var Product
+     */
     public $product;
 
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware('admin');
-        $user = new User();
+        $user = new User;
         $this->user = $user;
-        $activate = new AccountActivate();
+
+        $activate = new AccountActivate;
         $this->activate = $activate;
-        $product = new \App\Model\Product\Product();
+
+        $product = new Product;
         $this->product = $product;
-        $license = new LicenseController();
-        $this->licensing = $license;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @param  Request  $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function index(Request $request)
-    {
-        $validator = \Validator::make($request->all(), [
-            'reg_from' => 'nullable',
-            'reg_till' => 'nullable|after:reg_from',
-        ],
-            [
-                'reg_till.after' => __('validation.reg_till_after'),
-            ]);
-        if ($validator->fails()) {
-            $request->reg_from = '';
-            $request->reg_till = '';
-
-            return redirect('clients')->with('fails', __('message.registered_till_date'));
-        }
-
-        $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
-            ->where('role', 'admin')
-            ->whereIn('position', ['account_manager', 'manager'])
-            ->get();
-
-        $accountManagers = $users->filter(fn ($user) => $user->position === 'account_manager')
-            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
-            ->toArray();
-
-        $salesManager = $users->filter(fn ($user) => $user->position === 'manager')
-            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
-            ->toArray();
-
-        return view('themes.default1.user.client.index', compact('request', 'accountManagers', 'salesManager'));
-    }
-
-    /**
-     * Get Clients for yajra datatable.
-     *
-     * @param  Request  $request
-     * @return
-     *
-     * @throws \Exception
-     */
-    public function getClients(Request $request)
-    {
-        $baseQuery = $this->getBaseQueryForUserSearch($request);
-
-        // dd($baseQuery->get()->last());
-        return DataTables::of($baseQuery)
-                        ->orderColumn('name', '-id $1')
-                        ->orderColumn('email', '-id $1')
-                        ->orderColumn('mobile', '-id $1')
-                        ->orderColumn('country', '-id $1')
-                        ->orderColumn('created_at', '-id $1')
-                        ->orderColumn('active', '-id $1')
-
-                        ->addColumn('checkbox', function ($model) {
-                            $isAccountManager = User::where('account_manager', $model->id)->get();
-                            $isSalesManager = User::where('manager', $model->id)->get();
-                            if (count($isSalesManager)) {
-                                return "<input type='checkbox' disabled> &nbsp;
-                        <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188);' ".'<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('message.existing_sales_manager_deleting').'">
-                        </label>'.'</i>';
-                            } elseif (count($isAccountManager)) {
-                                // dd("<input type='checkbox' ".tooltip('dsf')."'disabled'");
-                                return "<input type='checkbox' disabled> &nbsp;
-                        <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188);' ".'<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('message.existing_account_manager_deleting').'">
-                        </label>'.'</i>';
-                            } else {
-                                return "<input type='checkbox' class='user_checkbox' value=".$model->id.' name=select[] id=check>';
-                            }
-                        })
-                        ->addColumn('name', function ($model) {
-                            return '<a href='.url('clients/'.$model->id).'>'.ucfirst($model->name).'</a>';
-                        })
-                         ->addColumn('email', function ($model) {
-                             return $model->email;
-                         })
-                        ->addColumn('mobile', function ($model) {
-                            return $model->mobile;
-                        })
-                        ->addColumn('country', function ($model) {
-                            return ucfirst(strtolower($model->country));
-                        })
-                        ->addColumn('company', function ($model) {
-                            return $model->company;
-                        })
-                        ->addColumn('created_at', function ($model) {
-                            return getDateHtml($model->created_at);
-                        })
-                        ->addColumn('active', function ($model) {
-                            return $this->getActiveLabel($model->mobile_verified, $model->email_verified, $model->is_2fa_enabled);
-                        })
-                        ->addColumn('action', function ($model) {
-                            return '<a href='.htmlspecialchars(url('clients/'.$model->id.'/edit'))
-                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."
-                            <i class='fa fa-edit' style='color:white;'> </i></a>"
-                                    .'  <a href='.htmlspecialchars(url('clients/'.$model->id))
-                                    ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.view'))."
-                                    <i class='fa fa-eye' style='color:white;'> </i></a>";
-                        })
-
-                        ->filterColumn('name', function ($model, $keyword) {
-                            // removing all white spaces so that it can be searched irrespective of number of spaces
-                            $model->whereRaw("CONCAT(first_name, ' ',last_name) like ?", ["%$keyword%"]);
-                        })
-                        ->filterColumn('email', function ($model, $keyword) {
-                            $model->whereRaw('email like ?', ["%$keyword%"]);
-                        })
-                        ->filterColumn('mobile', function ($model, $keyword) {
-                            // removing all white spaces so that it can be searched in a single query
-                            $searchQuery = str_replace(' ', '', $keyword);
-                            $model->whereRaw("CONCAT('+', mobile_code, mobile) like ?", ["%$searchQuery%"]);
-                        })
-                        ->filterColumn('country', function ($model, $keyword) {
-                            // removing all white spaces so that it can be searched in a single query
-                            $searchQuery = str_replace(' ', '', $keyword);
-                            $model->whereRaw('country_name like ?', ["%$searchQuery%"]);
-                        })
-                        ->filterColumn('created_at', function ($model, $keyword) {
-                            $model->whereRaw('DATE(users.created_at) like ?', ["%$keyword%"]);
-                        })
-                        ->orderColumn('name', 'name $1')
-                        ->orderColumn('email', 'email $1')
-                        ->orderColumn('mobile', 'mobile $1')
-                        ->orderColumn('country', 'country $1')
-                        ->orderColumn('created_at', 'users.created_at $1')
-
-                        ->rawColumns(['checkbox', 'name', 'email',  'created_at', 'active', 'action'])
-                        ->make(true);
-    }
-
-    public function getActiveLabel($mobileActive, $emailActive, $twoFaActive)
-    {
-        $emailLabel = "<i class='fas fa-envelope'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top'  title='".Lang::get('message.unverified_email')."'> </label></i>";
-        $mobileLabel = "<i class='fas fa-phone'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='".Lang::get('message.unverified_mobile')."' >  </label></i>";
-        $twoFalabel = "<i class='fas fa-qrcode'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='".Lang::get('message.2fa_not_enabled')."'> </label></i>";
-        if ($mobileActive) {
-            $mobileLabel = "<i class='fas fa-phone'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='".Lang::get('message.mobile_verified')."'></label></i>";
-        }
-        if ($emailActive) {
-            $emailLabel = "<i class='fas fa-envelope'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='".Lang::get('message.email_verified')."'> </label></i>";
-        }
-        if ($twoFaActive) {
-            $twoFalabel = "<i class='fas fa-qrcode'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title= '".Lang::get('message.2fa_enabled')."'> </label></i>";
-        }
-
-        return $emailLabel.'&nbsp;&nbsp;'.$mobileLabel.'&nbsp;&nbsp;'.$twoFalabel;
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Response
-     */
-    public function create()
-    {
-        $timezones = new \App\Model\Common\Timezone();
-        $timezones = $timezones->pluck('name', 'id')->toArray();
-        $bussinesses = \App\Model\Common\Bussiness::pluck('name', 'short')->toArray();
-
-        $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
-            ->where('role', 'admin')
-            ->whereIn('position', ['account_manager', 'manager'])
-            ->get();
-
-        $accountManager = $users->filter(fn ($user) => $user->position === 'account_manager')
-            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
-            ->toArray();
-
-        $managers = $users->filter(fn ($user) => $user->position === 'manager')
-            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
-            ->toArray();
-
-        $timezonesList = \App\Model\Common\Timezone::get();
-        foreach ($timezonesList as $timezone) {
-            $location = $timezone->location;
-            if ($location) {
-                $start = strpos($location, '(');
-                $end = strpos($location, ')', $start + 1);
-                $length = $end - $start;
-                $result = substr($location, $start + 1, $length - 1);
-                $display[] = ['id' => $timezone->id, 'name' => '('.$result.')'.' '.$timezone->name];
-            }
-        }
-        $timezones = array_column($display, 'name', 'id');
-
-        return view('themes.default1.user.client.create', compact('timezones', 'bussinesses', 'managers', 'accountManager'));
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @return \Response
-     */
-    public function store(ClientRequest $request)
-    {
-        try {
-            $user = $this->user;
-            $str = 'demopass';
-            $password = \Hash::make($str);
-            $user->password = $password;
-            if ($request->input('mobile_code') == '') {
-                $country = new Country();
-                $mobile_code = $country->where('country_code_char2', $request->input('country'))->pluck('phonecode')->first();
-            } else {
-                $mobile_code = str_replace('+', '', $request->input('mobile_code'));
-            }
-            $location = getLocation();
-            $user = [
-                'user_name' => $request->input('user_name'),
-                'first_name' => $request->input('first_name'),
-                'last_name' => $request->input('last_name'),
-                'email' => $request->input('email'),
-                'password' => $password,
-                'company' => $request->input('company'),
-                'bussiness' => $request->input('bussiness'),
-                'email_verified' => $request->input('active'),
-                'mobile_verified' => $request->input('mobile_verified'),
-                'mobile_country_iso' => $request->input('mobile_country_iso'),
-                'company_type' => $request->input('company_type'),
-                'company_size' => $request->input('company_size'),
-                'address' => $request->input('address'),
-                'town' => $request->input('town'),
-                'country' => strtoupper($request->input('country')),
-                'state' => $request->input('state'),
-                'zip' => $request->input('zip'),
-                'timezone_id' => $request->input('timezone_id'),
-                'mobile_code' => $mobile_code,
-                'mobile' => $request->input('mobile'),
-                'skype' => $request->input('skype'),
-                'ip' => $location['ip'],
-            ];
-
-            $userInput = User::create($user);
-            $userInput->active = 1;
-            $userInput->role = $request->input('role');
-            $userInput->position = $request->input('position');
-            $userInput->manager = $request->input('manager');
-            $userInput->account_manager = $request->input('account_manager');
-            $userInput->save();
-
-            if (emailSendingStatus()) {
-                $this->sendWelcomeMail($userInput);
-            }
-
-            AddUserToExternalService::dispatch($userInput);
-
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
-        } catch (\Swift_TransportException $e) {
-            return redirect()->back()->with('warning',
-                __('message.user_created_but_email_problem').$e->getMessage());
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
-        }
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function show($id)
-    {
-        try {
-            $client = User::withTrashed()->find($id);
-
-            if (! $client) {
-                return redirect('clients')->with('fails', \Lang::get('message.user_not_found'));
-            }
-
-            if ($client->trashed()) {
-                return redirect('clients')->with('fails', \Lang::get('message.user_suspend'));
-            }
-            $invoice = new Invoice();
-            $order = new Order();
-            $invoices = $invoice->where('user_id', $id)->orderBy('created_at', 'desc')->get();
-            $invoiceSum = $this->getTotalInvoice($invoices);
-            $amountReceived = $this->getAmountPaid($id);
-            $pendingAmount = $invoiceSum - $amountReceived;
-            // $pendingAmount = $invoiceSum - $amountReceived;
-            // if ($pendingAmount < 0) {
-            //     $pendingAmount = 0;
-            // }
-            $extraAmt = $this->getExtraAmt($id);
-            $client = $this->user->where('id', $id)->first();
-
-            $is2faEnabled = $client->is_2fa_enabled ?? 0;
-            $currency = getCurrencyForClient($client->country);
-            $orders = $order->where('client', $id)->get();
-            $comments = Comment::where('user_id', $client->id)->get();
-            $mobile = $client->verificationAttempts()->value('mobile_attempt');
-            $email = $client->verificationAttempts()->value('email_attempt');
-
-            return view(
-                'themes.default1.user.client.show',
-                compact('id', 'client', 'invoices', 'orders', 'invoiceSum', 'amountReceived', 'pendingAmount', 'currency', 'extraAmt', 'comments',
-                    'is2faEnabled', 'email', 'mobile')
-            );
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return redirect('clients')->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function edit($id)
-    {
-        try {
-            $user = $this->user->where('id', $id)->first();
-            $timezonesList = \App\Model\Common\Timezone::get();
-            foreach ($timezonesList as $timezone) {
-                $location = $timezone->location;
-                if ($location) {
-                    $start = strpos($location, '(');
-                    $end = strpos($location, ')', $start + 1);
-                    $length = $end - $start;
-                    $result = substr($location, $start + 1, $length - 1);
-                    $display[] = ['id' => $timezone->id, 'name' => '('.$result.')'.' '.$timezone->name];
-                }
-            }
-            //for display
-            $timezones = array_column($display, 'name', 'id');
-
-            $state = getStateByCode($user->country, $user->state);
-
-            $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
-                ->where('role', 'admin')
-                ->whereIn('position', ['account_manager', 'manager'])
-                ->get();
-
-            $acc_managers = $users->filter(fn ($user) => $user->position === 'account_manager')
-                ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
-                ->toArray();
-
-            $managers = $users->filter(fn ($user) => $user->position === 'manager')
-                ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
-                ->toArray();
-            $selectedCurrency = Currency::where('code', $user->currency)
-            ->pluck('name', 'code')->toArray();
-            $selectedCompany = \DB::table('company_types')->where('name', $user->company_type)
-            ->pluck('name', 'short')->toArray();
-            $selectedIndustry = \App\Model\Common\Bussiness::where('name', $user->bussiness)
-            ->pluck('name', 'short')->toArray();
-            $selectedCompanySize = \DB::table('company_sizes')->where('short', $user->company_size)
-            ->pluck('name', 'short')->toArray();
-            $states = findStateByRegionId($user->country);
-
-            $bussinesses = \App\Model\Common\Bussiness::pluck('name', 'short')->toArray();
-
-            return view(
-                'themes.default1.user.client.edit',
-                compact(
-                    'bussinesses',
-                    'user',
-                    'timezones',
-                    'state',
-                    'states',
-                    'managers',
-                    'selectedCurrency',
-                    'selectedCompany',
-                    'selectedIndustry',
-                    'selectedCompanySize',
-                    'acc_managers'
-                )
-            );
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function update($id, ClientRequest $request)
-    {
-        try {
-            $user = $this->user->where('id', $id)->first();
-            $user->fill($request->input());
-            $user->role = $request->input('role', $user->role);
-            $user->active = $request->input('active', $user->active);
-            $user->position = $request->input('position', $user->position);
-            $user->manager = $request->input('manager', $user->manager);
-            $user->account_manager = $request->input('account_manager', $user->account_manager);
-            $user->save();
-
-            // \Session::put('test', 1000);
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function destroy(Request $request)
-    {
-        try {
-            $ids = $request->input('select');
-            if (! empty($ids)) {
-                foreach ($ids as $id) {
-                    $user = $this->user->where('id', $id)->first();
-                    //Check if this admin  is account manager and is assigned as account manager to other clients
-                    $isAccountManager = User::where('account_manager', $id)->get();
-                    $isSalesManager = User::where('manager', $id)->get();
-                    if (count($isSalesManager) > 0) {
-                        throw new \Exception(__('message.admin_delete_restricted', [
-                            'name' => $user->first_name.' '.$user->last_name,
-                        ]));
-                    }
-                    if (count($isAccountManager) > 0) {
-                        throw new \Exception(__('message.cannot_delete_admin', [
-                            'name' => $user->first_name.' '.$user->last_name,
-                        ]));
-                    }
-                    if ($user) {
-                        $user->delete();
-                    } else {
-                        echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */
-                    \Lang::get('message.success').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
-                </div>';
-                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
-                    }
-                }
-                echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert')
-                    .'!</b> './* @scrutinizer ignore-type */
-                    '
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.user-suspend-successfully').'
-                </div>';
-            } else {
-                echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '
-                    ./* @scrutinizer ignore-type */\Lang::get('message.success').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
-                </div>';
-            }
-        } catch (\Exception $e) {
-            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$e->getMessage().'
-                </div>';
-        }
-    }
-
-    public function sendWelcomeMail($user)
+    public function sendWelcomeMail(User $user): void
     {
         // Retrieve necessary data
         $contact = getContactData();
-        $settings = \App\Model\Common\Setting::find(1);
-        $template_type = \App\Model\Common\TemplateType::where('name', 'registration_mail')->first();
-        $template = \App\Model\Common\Template::find($template_type->id);
+        $settings = Setting::find(1);
+        /** @var TemplateType $template_type */
+        $template_type = TemplateType::where('name', 'registration_mail')->firstOrFail();
+        $template = Template::find($template_type->id);
 
         // Check if settings or template is missing
         if (! $settings || ! $template) {
@@ -552,178 +108,727 @@ class ClientController extends AdvanceSearchController
 
         // Get template type name
 
-        $type = $template->type ? \App\Model\Common\TemplateType::find($template->type)->name : '';
+        $type = $template->type ? TemplateType::find($template->type)->name : ''; // @phpstan-ignore property.notFound
 
         // Send the email
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController;
         $mail->SendEmail($settings->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
-    /**
-     * Gets baseQuery for user search by appending all the allowed filters.
-     *
-     * @param  $request
-     * @return mixed
-     */
-    private function getBaseQueryForUserSearch(Request $request)
-    {
-        $baseQuery = User::leftJoin('countries', 'users.country', '=', 'countries.country_code_char2')
-            ->select(
-                'users.id',
-                'users.first_name',
-                'users.last_name',
-                'users.email',
-                \DB::raw("CONCAT('+', users.mobile_code, ' ', users.mobile) as mobile"),
-                \DB::raw("CONCAT(users.first_name, ' ', users.last_name) as name"),
-                'countries.country_name as country',
-                'users.created_at',
-                'users.active',
-                'users.mobile_verified',
-                'users.email_verified',
-                'users.is_2fa_enabled',
-                'users.role',
-                'users.position'
-            );
-        // Apply other conditions based on the request
-        $baseQuery = $baseQuery->when($request->company, function ($query) use ($request) {
-            $query->where('company', 'LIKE', '%'.$request->company.'%');
-        })->when($request->country, function ($query) use ($request) {
-            $query->where('users.country', $request->country); // or 'countries.country_name'
-        })->when($request->industry, function ($query) use ($request) {
-            $query->where('bussiness', $request->industry);
-        })->when($request->role, function ($query) use ($request) {
-            $query->where('role', $request->role);
-        })->when($request->position, function ($query) use ($request) {
-            $query->where('position', $request->position);
-        })->when($request->actmanager, function ($query) use ($request) {
-            $query->where('account_manager', $request->actmanager);
-        })->when($request->salesmanager, function ($query) use ($request) {
-            $query->where('manager', $request->salesmanager);
-        })->when($request->filled('mobile_verified'), function ($query) use ($request) {
-            $query->where('mobile_verified', $request->mobile_verified);
-        })->when($request->filled('email_verified'), function ($query) use ($request) {
-            $query->where('email_verified', $request->email_verified);
-        })->when($request->filled('is_2fa_enabled'), function ($query) use ($request) {
-            $query->where('is_2fa_enabled', $request->is_2fa_enabled);
-        });
-
-        $baseQuery = $this->getregFromTill($baseQuery, $request->reg_from, $request->reg_till);
-
-        return $baseQuery;
-    }
-
-    public function exportUsers(Request $request)
+    public function exportUsers(Request $request): JsonResponse
     {
         try {
             ini_set('memory_limit', '-1');
+
             $selectedColumns = $request->input('selected_columns', []);
             $searchParams = $request->input('search_params', []);
-            $email = \Auth::user()->email;
-            $driver = QueueService::where('status', '1')->first();
+            $authUser = Auth::user();
+            $email = $authUser instanceof User ? $authUser->email : '';
 
-            if ($driver->name != 'Sync') {
-                app('queue')->setDefaultDriver($driver->short_name);
-                ReportExport::dispatch('users', $selectedColumns, $searchParams, $email)->onQueue('reports');
+            /** @var QueueService $driver */
+            $driver = QueueService::where('status', '1')->firstOrFail();
 
-                return response()->json(['message' => __('message.system_generating_report')], 200);
-            } else {
-                return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
+            if ($driver->name === 'Sync') {
+                return errorResponse(__('message.cannot_sync_queue_driver'));
             }
-        } catch (\Exception $e) {
-            \Logger::exception($e);
 
-            return response()->json(['message' => $e->getMessage()], 500);
+            // Set the queue driver dynamically
+            resolve('queue')->setDefaultDriver($driver->short_name);
+
+            dispatch(new ReportExport('users', $selectedColumns, $searchParams, $email))
+                ->onQueue('reports');
+
+            return successResponse(__('message.system_generating_report'));
+        } catch (Exception $exception) {
+            Logger::exception($exception);
+
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function downloadExportedFile($id)
+    public function downloadExportedFile(int $id): BinaryFileResponse|JsonResponse
     {
         try {
-            $exportDetail = ExportDetail::find($id);
+            $exportDetail = ExportDetail::findOrFail($id);
 
-            if (! $exportDetail) {
-                return redirect()->back()->with('fails', \Lang::get('message.file_not_found'));
-            }
-
-            $expirationTime = $exportDetail->created_at->addHours(6);
-            if (now()->gt($expirationTime)) {
-                return redirect()->back()->with('fails', \Lang::get('message.download_link_expired'));
+            $expirationTime = $exportDetail->created_at?->addHours(6);
+            if ($expirationTime && now()->gt($expirationTime)) {
+                return errorResponse(__('message.download_link_expired'));
             }
 
             $filePath = $exportDetail->file_path;
             if (! file_exists($filePath)) {
-                return redirect()->back()->with('fails', \Lang::get('message.file_not_found'));
+                return errorResponse(__('message.file_not_found'));
             }
 
             $zipFileName = $exportDetail->file.'.zip';
             $zipFilePath = storage_path('app/public/export/'.$zipFileName);
-            $zip = new \ZipArchive();
-            if ($zip->open($zipFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
+            $zip = new ZipArchive;
+            if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
                 if (is_dir($filePath)) {
                     // Add directory and its files to the zip
-                    $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath), \RecursiveIteratorIterator::LEAVES_ONLY);
-                    foreach ($files as $name => $file) {
+                    $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($filePath), RecursiveIteratorIterator::LEAVES_ONLY);
+                    foreach ($files as $file) {
                         if (! $file->isDir()) {
                             $filePath = $file->getRealPath();
-                            $relativePath = substr($filePath, strlen($exportDetail->file_path) + 1);
+                            $relativePath = substr((string) $filePath, strlen((string) $exportDetail->file_path) + 1);
                             $zip->addFile($filePath, $relativePath);
                         }
                     }
                 } else {
-                    $zip->addFile($filePath, basename($filePath));
+                    $zip->addFile($filePath, basename((string) $filePath));
                 }
+
                 $zip->close();
             } else {
-                return redirect()->back()->with('fails', \Lang::get('message.failed_create_zip_file'));
+                return errorResponse(__('message.failed_create_zip_file'));
             }
 
-            return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(true);
-        } catch (\Exception $e) {
-            \Log::error('Report Export Failure'.$e->getMessage());
+            return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(shouldDelete: true);
+        } catch (Exception $exception) {
+            Log::error('Report Export Failure'.$exception->getMessage());
+
+            return errorResponse('Report Export Failure'.$exception->getMessage());
         }
     }
 
-    public function saveColumns(Request $request)
+    public function saveColumns(Request $request): JsonResponse
     {
         $userId = auth()->id();
-        $entityType = $request->entity_type;
-        $selectedColumns = $request->selected_columns;
-        $selectedColumns = array_unique(array_merge($selectedColumns, ['checkbox', 'action']));
+        $entityType = $request->input('entity_type');
+        $selectedKeys = $request->input('selected_columns', []);
 
-        $reportColumns = ReportColumn::whereIn('key', $selectedColumns)
-                                 ->where('type', $entityType)
-                                 ->pluck('id', 'key');
+        // Always ensure the locked checkbox & action columns exist, while
+        // preserving the incoming display order (drag-and-drop reordering).
+        if (! in_array('checkbox', $selectedKeys, strict: true)) {
+            array_unshift($selectedKeys, 'checkbox');
+        }
 
-        UserLinkReport::where('user_id', $userId)->where('type', $entityType)->delete();
+        if (! in_array('action', $selectedKeys, strict: true)) {
+            $selectedKeys[] = 'action';
+        }
 
-        foreach ($selectedColumns as $columnKey) {
-            if (isset($reportColumns[$columnKey])) {
-                UserLinkReport::create([
+        // De-dupe while keeping the first occurrence's position.
+        $selectedKeys = array_values(array_unique($selectedKeys));
+
+        // Map column keys to IDs
+        $reportColumns = ReportColumn::where('type', $entityType)
+            ->whereIn('key', $selectedKeys)
+            ->pluck('id', 'key');
+
+        UserLinkReport::where('user_id', $userId)
+            ->where('type', $entityType)
+            ->delete();
+
+        $insertData = [];
+        $order = 1;
+        foreach ($selectedKeys as $key) {
+            if (isset($reportColumns[$key])) {
+                $insertData[] = [
                     'user_id' => $userId,
-                    'column_id' => $reportColumns[$columnKey],
+                    'column_id' => $reportColumns[$key],
                     'type' => $entityType,
-                ]);
+                    'order' => $order++,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
             }
         }
 
-        return response()->json(['message' => __('message.columns_saved_successfully.')]);
-    }
-
-    public function getColumns(Request $request)
-    {
-        $userId = auth()->id();
-        $entityType = $request->entity_type;
-
-        $userColumns = UserLinkReport::where('user_id', $userId)->where('type', $entityType)->pluck('column_id');
-        if ($userColumns->isEmpty()) {
-            $defaultColumns = ReportColumn::where('type', $entityType)->where('default', true)->pluck('key');
-
-            return response()->json(['selected_columns' => $defaultColumns]);
-        } else {
-            $defaultColumns = ReportColumn::where('type', $entityType)->whereIn('id', $userColumns)
-                                   ->pluck('key');
+        if ($insertData !== []) {
+            UserLinkReport::insert($insertData);
         }
 
-        return response()->json(['selected_columns' => $defaultColumns]);
+        return successResponse(__('message.columns_saved_successfully.'), [
+            'selected_columns' => $selectedKeys,
+        ]);
+    }
+
+    public function getColumns(Request $request): JsonResponse
+    {
+        $userId = auth()->id();
+        $entityType = $request->input('entity_type');
+
+        // All available columns for this entity, in their canonical order.
+        $allColumns = ReportColumn::where('type', $entityType)
+            ->orderBy('id')
+            ->get(['id', 'key', 'label', 'default']);
+
+        // The user's saved selection + display order (keyed by column id).
+        $saved = UserLinkReport::where('user_id', $userId)
+            ->where('type', $entityType)
+            ->orderBy('order')
+            ->get(['column_id', 'order'])
+            ->keyBy('column_id');
+
+        $hasSaved = $saved->isNotEmpty();
+
+        // Merge availability with the user's preference. New columns that the
+        // user has never seen sink to the bottom and stay hidden by default.
+        $columns = $allColumns->map(function ($col) use ($saved, $hasSaved): array {
+            $savedRow = $saved->get($col->id);
+
+            return [
+                'id' => $col->id,
+                'key' => $col->key,
+                'label' => $col->label,
+                'is_visible' => $hasSaved ? (bool) $savedRow : (bool) $col->default,
+                'order' => $savedRow->order ?? (1000 + $col->id),
+            ];
+        })->sortBy('order')->values();
+
+        return successResponse('', [
+            // Kept flat for the legacy blade lists (they read selected keys only).
+            'selected_columns' => $columns->where('is_visible', true)->pluck('key')->values(),
+            // Full ordered metadata consumed by the Vue ColumnSelector.
+            'columns' => $columns,
+        ]);
+    }
+
+    public function getAllUsers(Request $request): JsonResponse
+    {
+        $searchQuery = $request->input('search-query', '');
+        $sortOrder = $request->input('sort-order', 'desc');
+        $sortField = $request->input('sort-field', 'created_at');
+        $limit = $request->input('limit', 10);
+
+        $query = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country', 'created_at', 'email_verified', 'mobile_verified', 'is_2fa_enabled');
+
+        $query = $this->applyUsersFilters($query, $request); // @phpstan-ignore argument.type
+
+        $query = $this->applyUsersSearch($query, $searchQuery);
+
+        $users = $query
+            ->orderBy($sortField, $sortOrder)
+            ->paginate($limit);
+
+        $users->getCollection()->transform(function ($user) {
+            if ($user->country) {
+                $name = getCountryByCode($user->country) ?? $user->country;
+                $user->setRawAttributes(array_merge($user->getAttributes(), ['country' => $name]), true);
+            }
+
+            return $user;
+        });
+
+        return successResponse('', $users);
+    }
+
+    public function deleteBulkUsers(Request $request): JsonResponse
+    {
+        $ids = $request->input('user_ids', []);
+
+        if (empty($ids)) {
+            return errorResponse(__('message.select-a-row'));
+        }
+
+        $accountManagers = User::whereIn('id', $ids)
+            ->where('position', 'account_manager')
+            ->get(['first_name', 'last_name']);
+
+        $salesManagers = User::whereIn('id', $ids)
+            ->where('position', 'manager')
+            ->get(['first_name', 'last_name']);
+
+        if ($accountManagers->isNotEmpty() || $salesManagers->isNotEmpty()) {
+            $usersInfo = collect([
+                'account_manager' => $accountManagers,
+                'sales_manager' => $salesManagers,
+            ])
+                ->flatMap(fn ($collection, $role) => $collection->map(fn ($u): string => $u->first_name.' '.$u->last_name.' ('.__('message.'.$role).')'))
+                ->implode(', ');
+
+            return errorResponse(__('message.deletion_blocked', [
+                'names' => $usersInfo,
+            ]));
+        }
+
+        User::whereIn('id', $ids)->get()->each->delete();
+
+        return successResponse(__('message.user-suspend-successfully'));
+    }
+
+    public function userCreate(ClientRequest $request): JsonResponse
+    {
+        try {
+            $password = Hash::make(Str::password(12));
+
+            $mobile_code = str_replace('+', '', $request->input('mobile_code') ??
+                Country::where('country_code_char2', $request->input('country'))->value('phonecode'));
+
+            $location = getLocation();
+
+            $userData = $request->only([
+                'user_name', 'first_name', 'last_name', 'email', 'company',
+                'bussiness', 'role', 'position', 'mobile_country_iso',
+                'company_type', 'company_size', 'address', 'town', 'state',
+                'zip', 'timezone_id', 'mobile', 'skype', 'manager', 'account_manager',
+            ]);
+
+            $userData = array_merge($userData, [
+                'password' => $password,
+                'active' => 1,
+                'email_verified' => $request->boolean('email_verified'),
+                'mobile_verified' => $request->boolean('mobile_verified'),
+                'country' => strtoupper((string) $request->input('country')),
+                'mobile_code' => $mobile_code,
+                'ip' => $location['ip'] ?? null,
+            ]);
+
+            $user = User::create($userData);
+
+            if (emailSendingStatus()) {
+                $this->sendWelcomeMail($user);
+            }
+
+            dispatch(new AddUserToExternalService($user));
+
+            return successResponse(__('message.user-create-successfully'), $user);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function getEditUser(int $id): JsonResponse
+    {
+        $user = User::with([
+            'timezone',
+            'manager:id,first_name,last_name,email',
+            'accountManager:id,first_name,last_name,email',
+        ])->find($id);
+
+        if (! $user) {
+            return errorResponse(__('message.user_not_found'), 404);
+        }
+
+        $bussinessShort = $user->attributes['bussiness'] ?? null;
+        $bussinessObj = null;
+        if ($bussinessShort) {
+            $b = Bussiness::where('short', $bussinessShort)->first();
+            $bussinessObj = $b ? ['id' => $b->short, 'name' => $b->name] : null;
+        }
+
+        $countryObj = null;
+        if ($user->country) {
+            $c = Country::where('country_code_char2', $user->country)->first();
+            $countryObj = $c ? ['id' => $c->country_id, 'name' => $c->country_name, 'code' => $c->country_code_char2] : null;
+        }
+
+        $stateObj = null;
+        if ($user->state) {
+            $s = State::find($user->state);
+            $stateObj = $s ? ['id' => $s->state_subdivision_id, 'name' => $s->state_subdivision_name] : null;
+        }
+
+        $timezoneObj = $user->timezone
+            ? ['id' => $user->timezone->id, 'name' => $user->timezone->timezone_name]
+            : null;
+
+        $mgr = $user->manager instanceof User ? $user->manager : null;
+        $managerObj = $mgr instanceof User ? [
+            'id' => $mgr->id,
+            'name' => trim($mgr->first_name.' '.$mgr->last_name),
+            'email' => $mgr->email,
+        ] : null;
+
+        $acm = $user->accountManager instanceof User ? $user->accountManager : null;
+        $accountManagerObj = $acm instanceof User ? [
+            'id' => $acm->id,
+            'name' => trim($acm->first_name.' '.$acm->last_name),
+            'email' => $acm->email,
+        ] : null;
+
+        return successResponse('', [
+            'id' => $user->id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'full_name' => trim($user->first_name.' '.$user->last_name),
+            'email' => $user->email,
+            'user_name' => $user->user_name,
+            'profile_pic' => $user->profile_pic,
+            'company' => $user->company ?? '',
+            'bussiness' => $bussinessObj,
+            'active' => $user->active ?? 1,
+            'email_verified' => $user->email_verified ?? 0,
+            'mobile_verified' => $user->mobile_verified ?? 0,
+            'is_2fa_enabled' => $user->is_2fa_enabled ?? 0,
+            'role' => $user->role,
+            'position' => $user->position,
+            'company_type' => $user->attributes['company_type'] ?? null,
+            'company_size' => $user->attributes['company_size'] ?? null,
+            'address' => $user->address ?? '',
+            'town' => $user->town ?? '',
+            'country' => $countryObj,
+            'state' => $stateObj,
+            'zip' => $user->zip ?? '',
+            'timezone_id' => $timezoneObj,
+            'mobile' => $user->mobile ?? '',
+            'mobile_code' => $user->mobile_code ?? '',
+            'mobile_country_iso' => $user->mobile_country_iso ?? '',
+            'skype' => $user->skype ?? '',
+            'manager' => $managerObj,
+            'account_manager' => $accountManagerObj,
+        ]);
+    }
+
+    public function userUpdate(int $id, ClientRequest $request): JsonResponse
+    {
+        try {
+            $user = User::find($id);
+
+            if (! $user) {
+                return errorResponse(__('message.user_not_found'), 404);
+            }
+
+            // fill() only mass-assigns $fillable columns — role, position, manager,
+            // and account_manager aren't in that list, so they're set explicitly here.
+            $user->fill($request->only([
+                'first_name', 'last_name', 'user_name', 'company', 'zip', 'state', 'town',
+                'mobile', 'mobile_country_iso', 'email', 'address', 'timezone_id',
+                'mobile_code', 'bussiness', 'company_type', 'company_size',
+                'mobile_verified', 'email_verified', 'skype',
+            ]));
+
+            if ($request->filled('country')) {
+                $user->country = strtoupper((string) $request->input('country'));
+            }
+            $user->role = $request->input('role');
+            $user->position = $request->input('position');
+            $user->manager = $request->input('manager');
+            $user->account_manager = $request->input('account_manager');
+
+            $user->save();
+
+            return successResponse(__('message.updated-successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function getUserSummary(int $id): JsonResponse
+    {
+        try {
+            $user = User::find($id);
+            if (! $user) {
+                return errorResponse(__('message.user_not_found'), 404);
+            }
+
+            $invoices = Invoice::where('user_id', $id)->get();
+            $invoiceSum = $this->getTotalInvoice($invoices); // @phpstan-ignore argument.type
+            $amountPaid = $this->getAmountPaid($id);
+            $balance = $invoiceSum - $amountPaid;
+            $currency = getCurrencyForClient($user->country);
+
+            return successResponse('', [
+                'invoice_total' => $invoiceSum,
+                'amount_paid' => $amountPaid,
+                'balance' => $balance,
+                'currency' => $currency,
+                // Summed across every currency the client holds credit in, to
+                // match the tiles beside it (which also total mixed-currency
+                // invoices). The Credits tab shows the honest per-currency split.
+                'credit_balance' => app(CreditBalanceService::class)->balance($id),
+                'credit_balances' => UserCreditBalance::where('user_id', $id)
+                    ->orderBy('currency')
+                    ->get()
+                    ->map(fn ($row): array => ['currency' => $row->currency, 'balance' => (float) $row->balance])
+                    ->values(),
+                // Kept apart from credit on purpose: this is the client's own
+                // money waiting to be allocated, not something we granted them.
+                'unapplied_balance' => app(UnappliedPaymentService::class)->balance($id),
+                'unapplied_balances' => app(UnappliedPaymentService::class)->balances($id),
+                'invoice_count' => $invoices->count(),
+                'payment_count' => Payment::where('user_id', $id)->count(),
+                'order_count' => Order::where('client', $id)->count(),
+                'credit_count' => CreditTransaction::where('user_id', $id)->count(),
+            ]);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function getUserInvoices(int $id, Request $request): JsonResponse
+    {
+        try {
+            $limit = $request->input('limit', 15);
+            $page = $request->input('page', 1);
+            $sortField = $request->input('sort-field', 'date');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $searchQuery = $request->input('search-query', '');
+
+            $allowedSorts = ['date', 'number', 'grand_total', 'status'];
+            if (! in_array($sortField, $allowedSorts, strict: true)) {
+                $sortField = 'date';
+            }
+
+            $invoices = Invoice::where('user_id', $id)
+                ->withCount('orderRelation')
+                ->when($searchQuery, function ($query, $search): void {
+                    $query->where(function ($q) use ($search): void {
+                        $q->where('number', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('status', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('currency', 'like', sprintf('%%%s%%', $search));
+                    });
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->paginate($limit, ['*'], 'page', $page);
+
+            $invoices->getCollection()->transform(function ($invoice): array {
+                return [
+                    'id' => $invoice->id,
+                    'number' => $invoice->number,
+                    'date' => $invoice->date,
+                    'grand_total' => $invoice->grand_total,
+                    'paid' => $invoice->paidTotal(),
+                    'balance' => $invoice->outstanding(),
+                    'currency' => $invoice->currency,
+                    'status' => $invoice->status,
+                    'is_executed' => $invoice->order_relation_count > 0,
+                ];
+            });
+
+            return successResponse('', $invoices);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    /**
+     * The client's credit ledger: the per-currency balances they can actually
+     * spend, plus every movement behind them. Without this the ledger is
+     * write-only — a receipt banked with no invoice attached writes no payment
+     * row, so this is the only screen it ever appears on.
+     */
+    public function getUserCredits(int $id, Request $request): JsonResponse
+    {
+        try {
+            $limit = $request->input('limit', 15);
+            $page = $request->input('page', 1);
+            $sortField = $request->input('sort-field', 'created_at');
+            $sortOrder = $request->input('sort-order', 'desc');
+
+            $allowedSorts = ['created_at', 'type', 'currency']; // not 'amount' — it is a varchar column, so it would sort lexicographically
+            if (! in_array($sortField, $allowedSorts, strict: true)) {
+                $sortField = 'created_at';
+            }
+
+            $transactions = CreditTransaction::where('user_id', $id)
+                ->orderBy($sortField, $sortOrder)
+                // Ledger rows land in the same second often enough (a spend
+                // right after the grant that funded it) that without this the
+                // order between them is whatever the DB feels like.
+                ->orderBy('id', $sortOrder)
+                ->paginate($limit, ['*'], 'page', $page);
+
+            $invoiceNumbers = Invoice::whereIn('id', $transactions->getCollection()->pluck('invoice_id')->filter())
+                ->pluck('number', 'id');
+
+            $transactions->getCollection()->transform(fn ($transaction): array => [
+                'id' => $transaction->id,
+                'date' => $transaction->created_at,
+                'type' => CreditTransaction::typeLabel($transaction->type),
+                'amount' => (float) $transaction->amount,
+                'currency' => $transaction->currency,
+                'invoice_id' => $transaction->invoice_id,
+                'invoice_number' => $invoiceNumbers[$transaction->invoice_id] ?? null,
+                'note' => $transaction->note,
+            ]);
+
+            return successResponse('', $transactions);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    /**
+     * Which invoices a payment settled, and how much went to each.
+     *
+     * @return array<int, array{id: int, number: string, amount: float}>
+     */
+    private function allocationsOf(Payment $payment): array
+    {
+        return $payment->allocations
+            ->map(fn (PaymentInvoice $allocation): array => [
+                'id' => (int) $allocation->invoice_id,
+                'number' => (string) ($allocation->invoice->number ?? ''),
+                'amount' => (float) $allocation->amount,
+            ])
+            ->values()
+            ->all();
+    }
+
+    public function getUserPayments(int $id, Request $request): JsonResponse
+    {
+        try {
+            $limit = $request->input('limit', 15);
+            $page = $request->input('page', 1);
+            $sortField = $request->input('sort-field', 'created_at');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $searchQuery = $request->input('search-query', '');
+
+            $allowedSorts = ['created_at', 'amount', 'payment_method', 'payment_status'];
+            if (! in_array($sortField, $allowedSorts, strict: true)) {
+                $sortField = 'created_at';
+            }
+
+            $payments = Payment::where('user_id', $id)
+                ->with('allocations.invoice:id,number,currency')
+                ->when($searchQuery, function ($query, $search): void {
+                    $query->where(function ($q) use ($search): void {
+                        $q->where('payment_method', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('payment_status', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('amount', 'like', sprintf('%%%s%%', $search));
+                    });
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->paginate($limit, ['*'], 'page', $page);
+
+            // One row per payment, whatever it settled. A payment split across
+            // three invoices is still one row — the invoices it paid are listed
+            // on it, and anything no invoice claimed shows as unapplied.
+            $payments->getCollection()->transform(fn ($payment): array => [
+                'id' => $payment->id,
+                'invoices' => $this->allocationsOf($payment),
+                'date' => $payment->created_at,
+                'payment_method' => $payment->payment_method,
+                'amount' => $payment->amount,
+                'unapplied' => $payment->unapplied(),
+                'currency' => $payment->currency ?: $payment->allocations->first()?->invoice?->currency,
+                'status' => $payment->payment_status,
+            ]);
+
+            return successResponse('', $payments);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function getUserComments(int $id): JsonResponse
+    {
+        try {
+            $comments = Comment::with('user:id,first_name,last_name')
+                ->where('user_id', $id)->latest()
+                ->get()
+                ->map(fn ($c): array => [
+                    'id' => $c->id,
+                    'description' => $c->description,
+                    'created_at' => $c->created_at,
+                    'updated_at' => $c->updated_at,
+                    'author' => $c->user
+                        ? trim($c->user->first_name.' '.$c->user->last_name)
+                        : null,
+                ]);
+
+            return successResponse('', $comments);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function storeUserComment(int $id, Request $request): JsonResponse
+    {
+        try {
+            $user = User::find($id);
+            if (! $user) {
+                return errorResponse(__('message.user_not_found'), 404);
+            }
+
+            $comment = Comment::create([
+                'user_id' => $id,
+                'updated_by_user_id' => auth()->id(),
+                'description' => $request->input('description'),
+            ]);
+
+            return successResponse(__('message.saved-successfully'), [
+                'id' => $comment->id,
+                'description' => $comment->description,
+                'created_at' => $comment->created_at,
+                'updated_at' => $comment->updated_at,
+                'author' => trim(auth()->user() instanceof User ? auth()->user()->first_name.' '.auth()->user()->last_name : ''),
+            ]);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function updateUserComment(int $id, int $commentId, Request $request): JsonResponse
+    {
+        try {
+            $comment = Comment::where('id', $commentId)->where('user_id', $id)->firstOrFail();
+            $comment->description = $request->input('description');
+            $comment->updated_by_user_id = (int) auth()->id();
+            $comment->save();
+
+            return successResponse(__('message.updated-successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function deleteUserComment(int $id, int $commentId): JsonResponse
+    {
+        try {
+            Comment::where('id', $commentId)->where('user_id', $id)->firstOrFail()->delete();
+
+            return successResponse(__('message.deleted-successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    private function applyUsersFilters(Builder $query, Request $request): Builder
+    {
+        return $query
+            ->when($request->filled('company'), fn ($q) => $q->where('company', 'like', '%'.$request->company.'%')
+            )
+            ->when($request->filled('country'), fn ($q) => $q->where('country', $request->country)
+            )
+            ->when($request->filled('industry'), fn ($q) => $q->where('bussiness', $request->industry)
+            )
+            ->when($request->filled('role'), fn ($q) => $q->where('role', $request->role)
+            )
+            ->when($request->filled('position'), fn ($q) => $q->where('position', $request->position)
+            )
+            ->when($request->filled('actmanager'), fn ($q) => $q->where('account_manager', $request->actmanager)
+            )
+            ->when($request->filled('salesmanager'), fn ($q) => $q->where('manager', $request->salesmanager)
+            )
+            ->when($request->filled('mobile_verified'), fn ($q) => $q->where('mobile_verified', $request->mobile_verified)
+            )
+            ->when($request->filled('email_verified'), fn ($q) => $q->where('email_verified', $request->email_verified)
+            )
+            ->when($request->filled('is_2fa_enabled'), fn ($q) => $q->where('is_2fa_enabled', $request->is_2fa_enabled)
+            )
+            ->when($request->hasAny(['reg_from', 'reg_till']), function ($q) use ($request): void {
+                $from = $request->filled('reg_from')
+                    ? Date::parse($request->input('reg_from'))->startOfDay()
+                    : CarbonImmutable::startOfTime();
+
+                $till = $request->filled('reg_till')
+                    ? Date::parse($request->input('reg_till'))->endOfDay()
+                    : Date::now()->endOfDay();
+
+                $q->whereBetween('created_at', [$from, $till]);
+            });
+    }
+
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    private function applyUsersSearch(Builder $query, string $search): Builder
+    {
+        return $query->when($search, function ($q) use ($search): void {
+            $q->where(function (\Illuminate\Contracts\Database\Query\Builder $subQuery) use ($search): void {
+                $subQuery->where('email', 'like', '%'.$search.'%')
+                    ->orWhere(DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%'.$search.'%')
+                    ->orWhere('mobile', 'like', '%'.$search.'%')
+                    ->orWhere('country', 'like', '%'.$search.'%');
+            });
+        });
     }
 }

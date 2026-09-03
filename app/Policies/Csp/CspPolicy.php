@@ -2,6 +2,7 @@
 
 namespace App\Policies\Csp;
 
+use Illuminate\Support\Facades\Vite;
 use Spatie\Csp\Directive;
 use Spatie\Csp\Keyword;
 use Spatie\Csp\Policy;
@@ -11,6 +12,10 @@ class CspPolicy implements Preset
 {
     public function configure(Policy $policy): void
     {
+        if (Vite::isRunningHot()) {
+            return;
+        }
+
         $policy
             ->add(Directive::DEFAULT, Keyword::SELF)
             ->add(Directive::SCRIPT, [
@@ -35,6 +40,8 @@ class CspPolicy implements Preset
                 'www.googletagmanager.com',
                 'www.gstatic.com',
                 'unpkg.com',
+                'https://code.jquery.com',
+                'https://cdn.jsdelivr.net',
                 'https://connect.facebook.net',
                 'https://www.facebook.com/platform',
             ])
@@ -53,6 +60,7 @@ class CspPolicy implements Preset
                 'stackpath.bootstrapcdn.com',
                 'www.tinymce.com',
                 'unpkg.com',
+                'https://cdn.jsdelivr.net',
                 'https://www.facebook.com/platform/',
                 'https://www.facebook.com/',
             ])
@@ -60,6 +68,8 @@ class CspPolicy implements Preset
             ->add(Directive::BASE, [Keyword::SELF])
             ->add(Directive::CONNECT, [
                 Keyword::SELF,
+                'api.razorpay.com',
+                'checkout.razorpay.com',
                 'embed.tawk.to',
                 'google.com',
                 'ipapi.co',
@@ -119,6 +129,6 @@ class CspPolicy implements Preset
                 'embed.tawk.to',
             ])
             ->add(Directive::WORKER, [Keyword::SELF])
-            ->setReportUri(url(config('csp.report_uri')));
+            ->setReportUri((string) url(config('csp.report_uri'))); // @phpstan-ignore cast.string
     }
 }

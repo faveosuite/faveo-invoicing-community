@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Listeners;
 
 use App\Events\UserOrderDelete;
@@ -24,6 +26,6 @@ class CloudDeletion implements ShouldQueue
      */
     public function handle(UserOrderDelete $event): void
     {
-        (new TenantController(new Client, new FaveoCloud))->destroyTenant(new Request(['id' => $event->domain, 'orderId' => $event->order_id]));
+        new TenantController(new Client, new FaveoCloud)->destroyTenant(new Request(['id' => $event->domain, 'orderId' => $event->order_id]));
     }
 }

@@ -4,83 +4,175 @@ namespace App\Http\Controllers;
 
 use App\Model\Common\Language;
 use App\Model\Common\Setting;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Lang;
 
 class LanguageController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'admin'], ['except' => ['fetchLangDropdownUsers']]);
+        // getLanguageFile serves the public translation strings (window.translator)
+        // consumed by every SPA page, including the guest login/register/verify
+        // pages — so it must not require auth/admin.
+        $this->middleware(['auth', 'admin'], ['except' => ['getLanguageFile']]);
     }
 
-    public function viewLanguage()
+    public function getLanguageFile(): void
     {
-        $dbLanguages = \App\Model\Common\Language::all();
-        $defaultLang = Setting::first()->value('content') ?? 'en';
+        $languages = array_unique([Lang::getFallback(), App::getLocale()]);
 
-        return view('themes.default1.common.languages', [
-            'languages' => $dbLanguages,
-            'defaultLang' => $defaultLang,
-        ]);
+        $languageArray = [];
+
+        foreach ($languages as $lang) {
+            $this->appendCoreLanguage($lang, $languageArray);
+            $this->appendPackageLanguage('BillingLog', $lang, 'log', $languageArray);
+            $this->appendRecaptchaLanguage($lang, $languageArray);
+            $this->appendLicenseLanguage($lang, $languageArray);
+        }
+
+        header('Content-Type: text/javascript');
+        header('Cache-Control: no-store');
+        echo 'translator = '.json_encode($languageArray).';';
+        exit;
     }
 
-    public function toggleLanguageStatus(Request $request)
+    /**
+     * @param  array<mixed>  $languageArray
+     */
+    private function appendCoreLanguage(string $languageName, array &$languageArray): void
     {
-        try {
-            $request->validate([
-                'locale' => 'required|string',
-                'status' => 'required|boolean',
-            ]);
+        $path = base_path('lang/'.$languageName);
+        $this->updateLanguageArray($path, $languageArray);
+    }
 
-            $language = Language::where('locale', $request->locale)->first();
+    /**
+     * @param  array<mixed>  $languageArray
+     */
+    private function appendRecaptchaLanguage(string $locale, array &$languageArray): void
+    {
+        $path = app_path(sprintf('Plugins/Recaptcha/resources/lang/%s/recaptcha.php', $locale));
 
-            if ($language) {
-                $languageById = Language::find($language->id);
+        if (! is_file($path)) {
+            return;
+        }
 
-                if ($languageById) {
-                    $languageById->update([
-                        'status' => $request->status,
-                    ]);
+        $languageArray['recaptcha'] = array_merge($languageArray['recaptcha'] ?? [], require $path);
+    }
 
-                    return response()->json([
-                        'success' => true,
-                        'message' => __('message.language_status_updated_successfully'),
-                    ]);
-                }
-            }
-
-            return response()->json(['success' => false, 'message' => __('message.language_not_found')], 404);
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+    /**
+     * @param  array<mixed>  $languageArray
+     */
+    private function appendLicenseLanguage(string $locale, array &$languageArray): void
+    {
+        $path = app_path('License/Lang/'.$locale);
+        foreach ($this->getLanguageFileArray($path) as $file) {
+            $content = require $file;
+            $languageArray['lang'] = array_merge($languageArray['lang'] ?? [], $content);
         }
     }
 
-    public function fetchLangDropdownUsers()
+    /**
+     * @param  array<mixed>  $languageArray
+     */
+    private function appendPackageLanguage(string $package, string $locale, string $namespace, array &$languageArray): void
+    {
+        $path = app_path(sprintf('%s/lang/%s', $package, $locale));
+        foreach ($this->getLanguageFileArray($path) as $file) {
+            $content = require $file;
+            $languageArray[$namespace] = array_merge($languageArray[$namespace] ?? [], $content);
+        }
+    }
+
+    /**
+     * @param  array<mixed>  $languageArray
+     */
+    private function updateLanguageArray(string $path, array &$languageArray): void
+    {
+        $files = $this->getLanguageFileArray($path);
+        foreach ($files as $file) {
+            $name = basename((string) $file, '.php');
+            if (array_key_exists($name, $languageArray)) {
+                $languageArray[$name] = array_merge($languageArray[$name], require $file);
+            } else {
+                $languageArray[$name] = require $file;
+            }
+        }
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function getLanguageFileArray(string $path): array
+    {
+        if (! is_dir($path)) {
+            return [];
+        }
+
+        return glob($path.DIRECTORY_SEPARATOR.'*.php') ?: [];
+    }
+
+    public function viewLanguage(Request $request): JsonResponse
     {
         try {
-            $languageList = array_map('basename', File::directories(lang_path()));
-            $languages = [];
-            $dbLanguages = Language::all()->keyBy('locale');
+            $searchString = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'name');
+            $limit = $request->input('limit', 10);
 
-            foreach ($languageList as $key => $langLocale) {
-                $language = [];
-                $language['id'] = $key;
-                $language['locale'] = $langLocale;
+            $languages = Language::when($searchString, function ($query) use ($searchString): void {
+                $query->where('name', 'like', sprintf('%%%s%%', $searchString))
+                    ->orWhere('locale', 'like', sprintf('%%%s%%', $searchString));
+            })
+                ->orderBy($sortField, $sortOrder)
+                ->paginate($limit);
 
-                $languageArray = \Config::get("languages.$langLocale", ['', '']);
-                $language['name'] = $languageArray[0];
-                $language['translation'] = $languageArray[1];
+            $defaultLocale = Setting::value('content') ?: 'en';
+            $result = $languages->toArray();
+            $result['data'] = array_map(function (array $lang) use ($defaultLocale): array {
+                $lang['is_default'] = $lang['locale'] === $defaultLocale;
 
-                $language['status'] = $dbLanguages[$langLocale]->status ?? 0;
+                return $lang;
+            }, $result['data']);
 
-                $languages[] = $language;
-            }
+            return successResponse(__('message.language_fetched'), $result);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
 
-            return successResponse('', collect($languages)->sortBy('name')->values()->all());
-        } catch (\Exception $exception) {
-            \Logger::exception($exception);
+    public function toggleLanguageStatus(Request $request): JsonResponse
+    {
+        try {
+            $request->validate([
+                'locale' => ['required', 'string', 'exists:languages,locale'],
+                'status' => ['required', 'boolean'],
+            ]);
 
+            $language = Language::where('locale', $request->input('locale'))->firstOrFail();
+            $language->status = (int) $request->boolean('status');
+            $language->save();
+
+            return successResponse(__('message.language_status_updated_successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function setDefaultLanguage(Request $request): JsonResponse
+    {
+        try {
+            $request->validate(['locale' => ['required', 'string', 'exists:languages,locale']]);
+
+            /** @var Setting $setting */
+            $setting = Setting::firstOrFail();
+            $setting->content = $request->input('locale');
+            $setting->save();
+
+            return successResponse(__('message.language_set_as_default'));
+        } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }

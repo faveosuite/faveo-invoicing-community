@@ -1,0 +1,2533 @@
+openapi: 3.0.0
+info:
+  title: Faveo API
+  version: 1.0.0
+  description: Combined API for managing System Settings, Job Scheduler, Logs, and other administrative features.
+servers:
+  - url: /
+security:
+  - bearerAuth: []
+
+paths:
+  #region System Settings
+  /systemSettings/list:
+    get:
+      tags:
+        - Settings
+      summary: Fetch system settings
+      description: Retrieves the core system settings.
+      operationId: getSystemSettings
+      responses:
+        '200':
+          description: System settings fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /systemSettings/update:
+    post:
+      tags:
+        - Settings
+      summary: Update system settings
+      description: Updates various system-wide settings.
+      operationId: updateSystemSettings
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SettingPayload'
+      responses:
+        '200':
+          description: Settings updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  #endregion
+
+  #region Job Scheduler
+  /job-scheduler:
+    get:
+      tags:
+        - Job Scheduler
+      summary: Get scheduler settings
+      description: Retrieves the current settings and status of the job scheduler.
+      operationId: getJobScheduler
+      responses:
+        '200':
+          description: Scheduler settings retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scheduler_status:
+                    type: integer
+                    example: 1
+                  cron_command:
+                    type: string
+                    example: "* * * * * /usr/bin/php /var/www/html/artisan schedule:run >> /dev/null 2>&1"
+                  frequency:
+                    type: string
+                    example: "daily"
+                  days:
+                    type: array
+                    items:
+                      type: string
+                    example: ["monday", "friday"]
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /post-scheduler:
+    patch:
+      tags:
+        - Job Scheduler
+      summary: Update scheduler settings
+      description: Updates the job scheduler's main settings.
+      operationId: updateJobScheduler
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scheduler_status:
+                  type: integer
+                  description: "Set to 1 to enable the scheduler, 0 to disable."
+                  example: 1
+                frequency:
+                  type: string
+                  description: "The desired run frequency."
+                  enum: [every_minute, every_five_minutes, every_ten_minutes, every_thirty_minutes, hourly, daily]
+                  example: "daily"
+      responses:
+        '200':
+          description: Scheduler updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /cron-days:
+    patch:
+      tags:
+        - Job Scheduler
+      summary: Save cron run days
+      description: Updates the specific days of the week or month that the cron job is allowed to run.
+      operationId: saveCronRunDays
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                days:
+                  type: array
+                  items:
+                    type: string
+                  example: ["monday", "friday"]
+      responses:
+        '200':
+          description: Cron days updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /verify-php-path:
+    post:
+      tags:
+        - Job Scheduler
+      summary: Verify PHP executable path
+      description: Checks if the provided path to the PHP executable is valid.
+      operationId: verifyPhpPath
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - php_path
+              properties:
+                php_path:
+                  type: string
+                  example: "/usr/bin/php"
+      responses:
+        '200':
+          description: The path is valid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "PHP executable path is valid."
+        '400':
+          description: The path is invalid or not executable.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /cron/condition/{job}:
+    get:
+      tags:
+        - Job Scheduler
+      summary: Get cron job conditions
+      description: Retrieves the specific conditions for a given scheduled job.
+      operationId: getCronJobConditions
+      parameters:
+        - name: job
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cron job conditions retrieved successfully.
+        '404':
+          description: The specified job was not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  #endregion
+
+  #region License Management
+  /get-license-type:
+    get:
+      tags:
+        - License Types
+      summary: Get all license types
+      description: Retrieves a list of all available license types.
+      operationId: getLicenseTypes
+      responses:
+        '200':
+          description: A list of license types.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LicenseType'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /create-license-type:
+    post:
+      tags:
+        - License Types
+      summary: Create a new license type
+      description: Adds a new license type to the system.
+      operationId: createLicenseType
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseTypePayload'
+      responses:
+        '201':
+          description: License type created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseType'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /update-license-type/{id}:
+    put:
+      tags:
+        - License Types
+      summary: Update a license type
+      description: Updates the details of an existing license type by its ID.
+      operationId: updateLicenseType
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseTypePayload'
+      responses:
+        '200':
+          description: License type updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseType'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /delete-license-type:
+    delete:
+      tags:
+        - License Types
+      summary: Delete license type(s)
+      description: Deletes one or more license types based on their IDs.
+      operationId: deleteLicenseTypes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ids
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                  example: [3, 5]
+      responses:
+        '200':
+          description: License type(s) deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /get-license-permission:
+    get:
+      tags:
+        - Permissions
+      summary: Get all permissions
+      description: Retrieves a list of all available permissions.
+      operationId: getPermissions
+      responses:
+        '200':
+          description: A list of permissions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Permission'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /add-permission:
+    post:
+      tags:
+        - Permissions
+      summary: Create a new permission
+      description: Adds a new permission to the system.
+      operationId: addPermission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - slug
+              properties:
+                name:
+                  type: string
+                  example: 'Create Tickets'
+                slug:
+                  type: string
+                  example: 'tickets.create'
+      responses:
+        '201':
+          description: Permission created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permission'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  #endregion
+
+  #region File Storage
+  /file-storage:
+    get:
+      tags:
+        - File Storage
+      summary: Get file storage settings
+      description: Retrieves the current file storage configuration.
+      operationId: getFileStorageSettings
+      responses:
+        '200':
+          description: File storage settings retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileStorageSettingsResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /file-storage-path:
+    post:
+      tags:
+        - File Storage
+      summary: Update file storage settings
+      description: Updates the file storage configuration.
+      operationId: updateFileStorageSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/LocalStoragePayload'
+                - $ref: '#/components/schemas/S3StoragePayload'
+      responses:
+        '200':
+          description: Settings updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad Request (e.g., invalid S3 credentials).
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  #endregion
+
+  #region Third-Party Apps
+  /get-third-party-app:
+    get:
+      tags:
+        - Third-Party Apps
+      summary: Get all third-party apps
+      description: Retrieves a list of all configured third-party applications.
+      operationId: getThirdPartyApps
+      responses:
+        '200':
+          description: A list of third-party applications.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ThirdPartyApp'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /third-party-app-create:
+    post:
+      tags:
+        - Third-Party Apps
+      summary: Create a new third-party app
+      description: Adds a new third-party application configuration.
+      operationId: createThirdPartyApp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThirdPartyAppPayload'
+      responses:
+        '201':
+          description: Application created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThirdPartyApp'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /third-party-app-update/{id}:
+    put:
+      tags:
+        - Third-Party Apps
+      summary: Update a third-party app
+      description: Updates an existing third-party application by its ID.
+      operationId: updateThirdPartyApp
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThirdPartyAppPayload'
+      responses:
+        '200':
+          description: Application updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThirdPartyApp'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /get-app-key:
+    get:
+      tags:
+        - Third-Party Apps
+      summary: Get a specific app key
+      description: Retrieves a single third-party application by its name.
+      operationId: getAppKeyByName
+      parameters:
+        - name: app_name
+          in: query
+          required: true
+          schema:
+            type: string
+            example: 'faveo_app_key'
+      responses:
+        '200':
+          description: App details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThirdPartyApp'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /third-party-delete:
+    delete:
+      tags:
+        - Third-Party Apps
+      summary: Delete third-party app(s)
+      description: Deletes one or more third-party applications by their IDs.
+      operationId: deleteThirdPartyApps
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ids
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                  example: [2, 4]
+      responses:
+        '200':
+          description: Application(s) deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  #endregion
+
+  #region Debugging
+  /debugg:
+    get:
+      tags:
+        - Debugging
+      summary: Get debug settings
+      description: Retrieves the current state of the application's debug settings.
+      operationId: getDebugSettings
+      responses:
+        '200':
+          description: Returns the view for debug settings.
+          content:
+            text/html: {}
+
+  /save/debugg:
+    post:
+      tags:
+        - Debugging
+      summary: Update debug settings
+      description: Enables or disables various debugging tools for the application.
+      operationId: updateDebugSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                debug:
+                  type: string
+                  description: "Set to 'true' to enable debugging, 'false' to disable."
+                  enum: ["true", "false"]
+                  example: "true"
+      responses:
+        '200':
+          description: Debug settings updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  #endregion
+
+  #region Social Logins
+  /social-logins:
+    get:
+      tags:
+        - Social Logins
+      summary: Get social login providers
+      description: Retrieves a paginated list of configured social login providers.
+      operationId: getSocialLoginProviders
+      parameters:
+        - name: search-query
+          in: query
+          schema:
+            type: string
+        - name: sort-field
+          in: query
+          schema:
+            type: string
+            default: created_at
+        - name: sort-order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A paginated list of social login providers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialLoginResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /edit/SocialLogins/{id}:
+    get:
+      tags:
+        - Social Logins
+      summary: Get a specific social login provider
+      description: Retrieves the details of a single social login provider by its ID.
+      operationId: getSocialLoginProviderById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Social login provider details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialLoginResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /update-social-login:
+    post:
+      tags:
+        - Social Logins
+      summary: Update a social login provider
+      description: Updates the settings for a social login provider.
+      operationId: updateSocialLoginProvider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SocialLoginPayload'
+      responses:
+        '200':
+          description: Settings updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  #endregion
+
+  #region Languages
+  /languages:
+    get:
+      tags:
+        - Languages
+      summary: Get all languages
+      description: Retrieves a paginated list of all languages available in the system.
+      operationId: getLanguages
+      parameters:
+        - name: search-query
+          in: query
+          schema:
+            type: string
+        - name: sort-field
+          in: query
+          schema:
+            type: string
+            default: name
+        - name: sort-order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A paginated list of languages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LanguageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /language-toggle:
+    post:
+      tags:
+        - Languages
+      summary: Toggle language status
+      description: Enables or disables a specific language in the system.
+      operationId: toggleLanguageStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - locale
+                - status
+              properties:
+                locale:
+                  type: string
+                  example: "fr"
+                status:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: Language status updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  #endregion
+
+  #region Widgets
+  /widgets/list:
+    get:
+      tags:
+        - Widgets
+      summary: Get all widgets
+      description: Retrieves a paginated list of widgets.
+      operationId: getWidgetList
+      parameters:
+        - name: search-query
+          in: query
+          schema:
+            type: string
+        - name: sort-field
+          in: query
+          schema:
+            type: string
+            default: created_at
+        - name: sort-order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A paginated list of widgets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetListResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /widgets/show/{id}:
+    get:
+      tags:
+        - Widgets
+      summary: Get a specific widget
+      description: Retrieves the details of a single widget by its ID.
+      operationId: getWidgetById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Widget details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /widgets/create:
+    post:
+      tags:
+        - Widgets
+      summary: Create a new widget
+      description: Creates a new widget.
+      operationId: createWidget
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WidgetPayload'
+      responses:
+        '201':
+          description: Widget created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /widgets/update/{id}:
+    put:
+      tags:
+        - Widgets
+      summary: Update a widget
+      description: Updates an existing widget.
+      operationId: updateWidget
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WidgetPayload'
+      responses:
+        '200':
+          description: Widget updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetUpdateResponse'
+        '400':
+          description: Bad Request.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /widgets/delete:
+    delete:
+      tags:
+        - Widgets
+      summary: Delete widget(s)
+      description: Deletes one or more widgets by their IDs.
+      operationId: deleteWidgets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - select
+              properties:
+                select:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 3]
+      responses:
+        '200':
+          description: Widget(s) deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad Request.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  #endregion
+
+  #region Chat Scripts
+  /chat/list:
+    get:
+      tags:
+        - Chat Scripts
+      summary: Get all chat scripts
+      description: Retrieves a paginated list of chat scripts.
+      operationId: getChatScriptList
+      parameters:
+        - name: search-query
+          in: query
+          schema:
+            type: string
+        - name: sort-field
+          in: query
+          schema:
+            type: string
+            default: created_at
+        - name: sort-order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A paginated list of chat scripts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatScriptListResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /chat/show/{id}:
+    get:
+      tags:
+        - Chat Scripts
+      summary: Get a specific chat script
+      description: Retrieves the details of a single chat script by its ID.
+      operationId: getChatScriptById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Chat script details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatScriptResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /chat/create:
+    post:
+      tags:
+        - Chat Scripts
+      summary: Create a new chat script
+      description: Adds a new chat or analytics script to the system.
+      operationId: createChatScript
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatScriptPayload'
+      responses:
+        '200':
+          description: Script created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /chat/update/{id}:
+    put:
+      tags:
+        - Chat Scripts
+      summary: Update a chat script
+      description: Updates an existing chat script.
+      operationId: updateChatScript
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatScriptPayload'
+      responses:
+        '200':
+          description: Script updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatScriptUpdateResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /chat/delete:
+    delete:
+      tags:
+        - Chat Scripts
+      summary: Delete chat script(s)
+      description: Deletes one or more chat scripts by their IDs.
+      operationId: deleteChatScripts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - select
+              properties:
+                select:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 3]
+      responses:
+        '200':
+          description: Script(s) deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad Request.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  #endregion
+
+  #region Social Media
+  /social-media/list:
+    get:
+      tags:
+        - Social Media
+      summary: Get all social media links
+      description: Retrieves a paginated list of social media links.
+      operationId: getSocialMediaList
+      parameters:
+        - name: search-query
+          in: query
+          schema:
+            type: string
+        - name: sort-field
+          in: query
+          schema:
+            type: string
+            default: created_at
+        - name: sort-order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A paginated list of social media links.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialMediaListResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /social-media/show/{id}:
+    get:
+      tags:
+        - Social Media
+      summary: Get a specific social media link
+      description: Retrieves the details of a single social media link by its ID.
+      operationId: getSocialMediaById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Social media link details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialMediaResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /social-media/create:
+    post:
+      tags:
+        - Social Media
+      summary: Create a new social media link
+      description: Adds a new social media link to the system.
+      operationId: createSocialMediaLink
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SocialMediaPayload'
+      responses:
+        '200':
+          description: Social media link created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialMediaResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /social-media/update/{id}:
+    patch:
+      tags:
+        - Social Media
+      summary: Update a social media link
+      description: Updates an existing social media link.
+      operationId: updateSocialMediaLink
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SocialMediaPayload'
+      responses:
+        '200':
+          description: Social media link updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /social-media/delete:
+    delete:
+      tags:
+        - Social Media
+      summary: Delete social media link(s)
+      description: Deletes one or more social media links by their IDs.
+      operationId: deleteSocialMediaLinks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - select
+              properties:
+                select:
+                  type: array
+                  items:
+                    type: integer
+                  example: [2, 5]
+      responses:
+        '200':
+          description: Social media link(s) deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad Request.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  #endregion
+
+  #region Logs
+  /system-logs:
+    get:
+      tags:
+        - Logs
+      summary: Get system logs view
+      description: This endpoint returns the main view for the system logs interface.
+      operationId: getSystemLogsView
+      responses:
+        '200':
+          description: The system logs HTML view.
+          content:
+            text/html: {}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /logs/{type}:
+    post:
+      tags:
+        - Logs
+      summary: Get logs by type
+      description: Retrieves a paginated list of logs for a specific type.
+      operationId: getLogsByType
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [exception, cron, mail]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/ExceptionLogRequest'
+                - $ref: '#/components/schemas/CronLogRequest'
+                - $ref: '#/components/schemas/MailLogRequest'
+      responses:
+        '200':
+          description: A paginated list of logs.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /log-category-list:
+    get:
+      tags:
+        - Logs
+      summary: Get log categories for a date
+      description: Retrieves a summary of log categories for a specific date and log type.
+      operationId: getLogCategories
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: log_type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [exception, cron, mail]
+      responses:
+        '200':
+          description: A list of log categories with their counts.
+          content:
+            application/json:
+              schema:
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /retry/mail-log/{id}:
+    get:
+      tags:
+        - Logs
+      summary: Retry a failed mail log
+      description: Dispatches a failed mail job again for retry.
+      operationId: retryMailLog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The mail job was successfully re-queued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /logs/delete:
+    delete:
+      tags:
+        - Logs
+      summary: Delete logs
+      description: Deletes logs of specified types, optionally up to a certain date.
+      operationId: deleteLogs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - log_types
+              properties:
+                to_date:
+                  type: string
+                  format: date
+                  nullable: true
+                log_types:
+                  type: array
+                  items:
+                    type: string
+                    enum: [cron, exception, mail, systemLogs, failed_jobs]
+      responses:
+        '200':
+          description: Logs deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /get-activity:
+    get:
+      tags:
+        - Logs
+      summary: Get activity logs
+      description: Retrieves a paginated list of system activity logs.
+      operationId: getActivityLogs
+      parameters:
+        - name: search-query
+          in: query
+          schema:
+            type: string
+        - name: sort-field
+          in: query
+          schema:
+            type: string
+            default: created_at
+        - name: sort-order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: module
+          in: query
+          schema:
+            type: string
+        - name: event
+          in: query
+          schema:
+            type: string
+        - name: performed_by
+          in: query
+          schema:
+            type: integer
+        - name: log_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: log_till
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: A paginated list of activity logs.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityLogResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /get-paymentlog:
+    get:
+      tags:
+        - Logs
+      summary: Get payment logs
+      description: Retrieves a paginated list of payment transaction logs.
+      operationId: getPaymentLogs
+      parameters:
+        - name: search-query
+          in: query
+          schema:
+            type: string
+        - name: sort-field
+          in: query
+          schema:
+            type: string
+            default: created_at
+        - name: sort-order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: log_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: log_till
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: A paginated list of payment logs.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLogResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /paymentlog-delete:
+    delete:
+      tags:
+        - Logs
+      summary: Delete payment logs
+      description: Deletes one or more payment logs by their IDs.
+      operationId: deletePaymentLogs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - select
+              properties:
+                select:
+                  type: array
+                  items:
+                    type: integer
+                  example: [101, 102]
+      responses:
+        '200':
+          description: Logs deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad Request.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  #endregion
+
+  #region MSG91
+  /sms/reports:
+    get:
+      tags:
+        - MSG91
+      summary: Get MSG91 SMS reports
+      description: Retrieves a paginated list of MSG91 delivery reports.
+      operationId: getMsg91Reports
+      parameters:
+        - name: search-query
+          in: query
+          schema:
+            type: string
+        - name: sort_field
+          in: query
+          schema:
+            type: string
+            default: created_at
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: log_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: log_till
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: A paginated list of MSG91 reports.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Msg91ReportResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /getMsgStatus:
+    get:
+      tags:
+        - MSG91
+      summary: Get MSG91 status labels
+      description: Retrieves a list of all possible status labels for MSG91 messages.
+      operationId: getMsg91Statuses
+      responses:
+        '200':
+          description: A list of status labels.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: string
+                    example: ["delivered", "failed", "sent"]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  #endregion
+
+# --- COMPONENTS ---
+components:
+  schemas:
+    #region Settings
+    Setting:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        company:
+          type: string
+          example: 'Faveo'
+        website:
+          type: string
+          format: url
+          example: 'https://www.faveohelpdesk.com'
+        default_currency:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            code:
+              type: string
+              example: 'USD'
+            name:
+              type: string
+              example: 'US Dollar'
+        country:
+          type: object
+          properties:
+            country_id:
+              type: integer
+              example: 101
+            country_name:
+              type: string
+              example: 'India'
+            country_code_char2:
+              type: string
+              example: 'IN'
+        state:
+          type: object
+          properties:
+            state_subdivision_id:
+              type: integer
+              example: 4029
+            state_subdivision_name:
+              type: string
+              example: 'Karnataka'
+            state_subdivision_code:
+              type: string
+              example: 'IN-KA'
+        language:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            name:
+              type: string
+              example: 'English'
+            locale:
+              type: string
+              example: 'en'
+    SettingResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "System settings fetched successfully"
+        data:
+          $ref: '#/components/schemas/Setting'
+    SettingPayload:
+      type: object
+      required:
+        - company
+        - company_email
+        - website
+        - phone
+        - address
+        - city
+        - zip
+        - language
+        - state
+        - default_currency
+        - country
+      properties:
+        company:
+          type: string
+          example: 'Faveo Inc.'
+        company_email:
+          type: string
+          format: email
+          example: 'support@faveo.com'
+        website:
+          type: string
+          format: url
+          example: 'https://www.faveo.com'
+        phone:
+          type: string
+          example: '9876543210'
+        address:
+          type: string
+          example: '123 Faveo Way'
+        city:
+          type: string
+          example: 'Bengaluru'
+        zip:
+          type: string
+          example: '560001'
+        language:
+          type: string
+          example: 'en'
+        state:
+          type: string
+          example: 'IN-KA'
+        default_currency:
+          type: string
+          example: 'INR'
+        country:
+          type: string
+          example: 'IN'
+        logo:
+          type: string
+          format: binary
+        admin-logo:
+          type: string
+          format: binary
+        fav-icon:
+          type: string
+          format: binary
+    #endregion
+
+    #region License
+    LicenseType:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: 'Standard'
+        description:
+          type: string
+          example: 'Basic features'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    LicenseTypePayload:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: 'Premium'
+        description:
+          type: string
+          example: 'Access to all features'
+    Permission:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 101
+        name:
+          type: string
+          example: 'View Reports'
+        slug:
+          type: string
+          example: 'reports.view'
+    #endregion
+
+    #region File Storage
+    FileStorageSettings:
+      type: object
+      properties:
+        disk:
+          type: string
+          enum: [system, s3]
+          example: 'system'
+        local_file_storage_path:
+          type: string
+          example: '/var/www/html/storage/app/public'
+        s3_bucket:
+          type: string
+        s3_region:
+          type: string
+        s3_access_key:
+          type: string
+        s3_secret_key:
+          type: string
+        s3_endpoint_url:
+          type: string
+          format: url
+        s3_url:
+          type: string
+          format: url
+        s3_path_style_endpoint:
+          type: string
+    FileStorageSettingsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/FileStorageSettings'
+    LocalStoragePayload:
+      type: object
+      required:
+        - disk
+        - path
+      properties:
+        disk:
+          type: string
+          enum: [system]
+        path:
+          type: string
+    S3StoragePayload:
+      type: object
+      required:
+        - disk
+        - s3_bucket
+        - s3_region
+        - s3_access_key
+        - s3_secret_key
+      properties:
+        disk:
+          type: string
+          enum: [s3]
+        s3_bucket:
+          type: string
+        s3_region:
+          type: string
+        s3_access_key:
+          type: string
+        s3_secret_key:
+          type: string
+        s3_endpoint_url:
+          type: string
+          format: url
+        s3_url:
+          type: string
+          format: url
+        s3_path_style_endpoint:
+          type: string
+    #endregion
+
+    #region Third-Party Apps
+    ThirdPartyApp:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        app_name:
+          type: string
+          example: 'faveo_app_key'
+        app_key:
+          type: string
+          example: 'key_live_12345'
+        app_secret:
+          type: string
+          example: 'secret_live_67890'
+    ThirdPartyAppPayload:
+      type: object
+      required:
+        - app_name
+      properties:
+        app_name:
+          type: string
+          example: 'My Custom Integration'
+        app_key:
+          type: string
+        app_secret:
+          type: string
+    #endregion
+
+    #region Social Logins
+    SocialLogin:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        type:
+          type: string
+          example: 'Google'
+        client_id:
+          type: string
+        client_secret:
+          type: string
+        redirect_url:
+          type: string
+          format: url
+        status:
+          type: integer
+          example: 1
+    SocialLoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            current_page:
+              type: integer
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/SocialLogin'
+            # ... other pagination fields
+    SocialLoginPayload:
+      type: object
+      required:
+        - type
+        - redirect_url
+      properties:
+        type:
+          type: string
+          enum: [Google, Github, Linkedin, Twitter]
+        client_id:
+          type: string
+        client_secret:
+          type: string
+        api_key:
+          type: string
+        api_secret:
+          type: string
+        redirect_url:
+          type: string
+          format: url
+        optradio:
+          type: integer
+          enum: [0, 1]
+    #endregion
+
+    #region Languages
+    Language:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: 'English'
+        locale:
+          type: string
+          example: 'en'
+        status:
+          type: integer
+          example: 1
+    LanguageResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            languages:
+              type: object
+              properties:
+                current_page:
+                  type: integer
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Language'
+                # ... other pagination fields
+            default_language:
+              type: string
+              example: "en"
+    #endregion
+
+    #region Widgets
+    Widget:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        publish:
+          type: integer
+        content:
+          type: string
+        allow_mailchimp:
+          type: integer
+        allow_social_media:
+          type: integer
+    WidgetListItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        created_at:
+          type: string
+        content:
+          type: string
+        action:
+          type: string
+    WidgetPayload:
+      type: object
+      required:
+        - name
+        - publish
+        - type
+      properties:
+        name:
+          type: string
+          maxLength: 50
+        publish:
+          type: integer
+          enum: [0, 1]
+        type:
+          type: string
+        content:
+          type: string
+        allow_mailchimp:
+          type: integer
+          enum: [0, 1]
+        allow_social_media:
+          type: integer
+          enum: [0, 1]
+    WidgetListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            pages:
+              type: object
+              properties:
+                current_page:
+                  type: integer
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/WidgetListItem'
+                # ... other pagination fields
+            total:
+              type: integer
+    WidgetResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            widget:
+              $ref: '#/components/schemas/Widget'
+            mailchimpStatus:
+              type: integer
+            twitterStatus:
+              type: integer
+    WidgetUpdateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            widgets:
+              $ref: '#/components/schemas/Widget'
+    #endregion
+
+    #region Chat Scripts
+    ChatScript:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        script:
+          type: string
+        on_registration:
+          type: integer
+        on_every_page:
+          type: integer
+        google_analytics:
+          type: integer
+        google_analytics_tag:
+          type: string
+          nullable: true
+    ChatScriptListItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        checkbox:
+          type: integer
+        action:
+          type: string
+    ChatScriptPayload:
+      type: object
+      required:
+        - name
+        - script
+      properties:
+        name:
+          type: string
+          maxLength: 50
+        script:
+          type: string
+        on_registration:
+          type: integer
+          enum: [0, 1]
+        google_analytics:
+          type: integer
+          enum: [0, 1]
+        google_analytics_tag:
+          type: string
+    ChatScriptListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            current_page:
+              type: integer
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChatScriptListItem'
+            # ... other pagination fields
+    ChatScriptResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/ChatScript'
+    ChatScriptUpdateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/ChatScript'
+    #endregion
+
+    #region Social Media
+    SocialMedia:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        link:
+          type: string
+          format: url
+        icon:
+          type: string
+        status:
+          type: integer
+    SocialMediaListItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        link:
+          type: string
+          format: url
+        action:
+          type: string
+    SocialMediaPayload:
+      type: object
+      required:
+        - name
+        - link
+        - icon
+        - status
+      properties:
+        name:
+          type: string
+        link:
+          type: string
+          format: url
+        icon:
+          type: string
+        status:
+          type: integer
+          enum: [0, 1]
+    SocialMediaListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            current_page:
+              type: integer
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/SocialMediaListItem'
+            # ... other pagination fields
+    SocialMediaResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/SocialMedia'
+    #endregion
+
+    #region Logs
+    ActivityLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        module:
+          type: string
+        event:
+          type: string
+        role:
+          type: string
+        description:
+          type: string
+        detailed_properties:
+          type: object
+        performed_by:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    PaymentLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        order_number:
+          type: string
+        order_id:
+          type: integer
+        payment_email:
+          type: string
+          format: email
+        user_name:
+          type: string
+        user_email:
+          type: string
+          format: email
+        user_id:
+          type: integer
+        amount:
+          type: number
+        description:
+          type: string
+        payment_method:
+          type: string
+        status:
+          type: string
+        exception:
+          type: string
+          nullable: true
+        date:
+          type: string
+          format: date-time
+    Msg91Report:
+      type: object
+      properties:
+        request_id:
+          type: string
+        user_fullname:
+          type: string
+        user_email:
+          type: string
+          format: email
+        status:
+          type: string
+        failure_reason:
+          type: string
+          nullable: true
+        mobile_number:
+          type: string
+        delivery_date:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+    ExceptionLogRequest:
+      type: object
+      required: [date, category]
+      properties:
+        date:
+          type: string
+          format: date
+        category:
+          type: integer
+    CronLogRequest:
+      type: object
+      required: [date, category]
+      properties:
+        date:
+          type: string
+          format: date
+        category:
+          type: string
+        status:
+          type: string
+          enum: [completed, failed]
+    MailLogRequest:
+      type: object
+      required: [date, category]
+      properties:
+        date:
+          type: string
+          format: date
+        category:
+          type: integer
+        status:
+          type: string
+          enum: [sent, failed, queued]
+    ActivityLogResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            activityLogs:
+              type: object
+              properties:
+                current_page:
+                  type: integer
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ActivityLog'
+            total:
+              type: integer
+    PaymentLogResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            logs:
+              type: object
+              properties:
+                current_page:
+                  type: integer
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/PaymentLog'
+            total:
+              type: integer
+    Msg91ReportResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            logs:
+              type: object
+              properties:
+                current_page:
+                  type: integer
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Msg91Report'
+            total:
+              type: integer
+    #endregion
+
+    #region Shared
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation completed successfully."
+    #endregion
+
+  responses:
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: "Something went wrong."
+    NotFound:
+      description: The specified resource was not found.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: "No record found."
+    Unauthorized:
+      description: Unauthorized.
+    ValidationError:
+      description: The given data was invalid.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "The given data was invalid."
+              errors:
+                type: object
+                example:
+                  field_name: ["The field_name field is required."]
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

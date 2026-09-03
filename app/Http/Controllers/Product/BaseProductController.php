@@ -2,55 +2,62 @@
 
 namespace App\Http\Controllers\Product;
 
-use App\Facades\Attach;
-use App\Http\Controllers\License\LicenseController;
+use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
-use App\Model\Order\InstallationDetail;
+use App\License\Services\LicenseService;
+use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
-use App\ThirdPartyApp;
 use App\User;
+use Auth;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Logger;
+use Symfony\Component\HttpFoundation\Response;
 
 class BaseProductController extends ExtendedBaseProductController
 {
-    public function getMyUrl()
+    public function getMyUrl(): string
     {
-        $server = new Request();
-        $url = $_SERVER['REQUEST_URI'];
-        $server = parse_url($url);
-        $server['path'] = dirname($server['path']);
+        $server = new Request;
+        $url = \Illuminate\Support\Facades\Request::server('REQUEST_URI');
+        $server = parse_url(is_string($url) ? $url : '');
+        $server = is_array($server) ? $server : [];
+        $server['path'] = dirname($server['path'] ?? '');
         $server = parse_url($server['path']);
-        $server['path'] = dirname($server['path']);
-        $server = 'http://'.$_SERVER['HTTP_HOST'].$server['path'];
+        $server = is_array($server) ? $server : [];
+        $server['path'] = dirname($server['path'] ?? '');
 
-        return $server;
+        $host = \Illuminate\Support\Facades\Request::server('HTTP_HOST');
+
+        return 'http://'.(is_string($host) ? $host : '').$server['path'];
     }
 
     /*
     * Get Product Qty if Product can be modified
      */
-    public function getProductQtyCheck($productid, $planid)
+    /**
+     * @return array<mixed>
+     */
+    public function getProductQtyCheck(int $productId, Plan $plan, string $currency): array
     {
-        try {
-            $check = self::checkMultiProduct($productid);
-            if ($check == true) {
-                $value = Product::find($productid)->planRelation->find($planid)->planPrice->first()->product_quantity;
-                $value = $value == null ? 1 : $value;
-
-                return "<div>
-	                        <label class='required'>"./* @scrutinizer ignore-type */
-                            \Lang::get('message.quantity')."</label>
-	                        <input type='text' name='quantity' class='form-control' id='quantity' value='$value'>
-	                        <span class='error-message' id='quantity-msg'></span>
-	                </div>";
-            }
-        } catch (\Exception $ex) {
-            return $ex->getMessage();
+        if (! self::checkMultiProduct($productId)) {
+            return [
+                'can_modify' => false,
+                'quantity' => null,
+            ];
         }
+
+        $value = $plan->planPrice
+            ->where('currency', $currency)
+            ->value('product_quantity');
+
+        return [
+            'can_modify' => true,
+            'quantity' => empty($value) ? 1 : (int) $value, // @phpstan-ignore cast.int
+        ];
     }
 
     /*
@@ -59,37 +66,37 @@ class BaseProductController extends ExtendedBaseProductController
     *
     * @return boolean
      */
-    public function checkMultiProduct(int $productid)
+    public function checkMultiProduct(int $productid): bool
     {
-        $product = new Product();
+        $product = new Product;
         $product = $product->find($productid);
-        if ($product) {
-            if ($product->can_modify_quantity == 1) {
-                return true;
-            }
+        if (! $product) {
+            return false;
         }
 
-        return false;
+        return $product->can_modify_quantity == 1;
     }
 
-    public function getAgentQtyCheck($productid, $planid)
+    /**
+     * @return array<mixed>
+     */
+    public function getAgentQtyCheck(int $productId, Plan $plan, string $currency): array
     {
-        try {
-            $check = self::checkMultiAgent($productid);
-            if ($check == true) {
-                $value = Product::find($productid)->planRelation->find($planid)->planPrice->first()->no_of_agents;
-                $value = $value == null ? 0 : $value;
-
-                return "<div>
-                            <label class='required'>"./* @scrutinizer ignore-type */
-                            \Lang::get('message.agent')."</label>
-                            <input type='text' name='agents' class='form-control' id='agents' value='$value'>
-                            <span class='error-message' id='agents-msg'></span>
-                    </div>";
-            }
-        } catch (\Exception $ex) {
-            return $ex->getMessage();
+        if (! self::checkMultiAgent($productId)) {
+            return [
+                'can_modify' => false,
+                'quantity' => null,
+            ];
         }
+
+        $value = $plan->planPrice
+            ->where('currency', $currency)
+            ->value('no_of_agents');
+
+        return [
+            'can_modify' => true,
+            'quantity' => empty($value) ? 0 : (int) $value, // @phpstan-ignore cast.int
+        ];
     }
 
     /*
@@ -98,191 +105,75 @@ class BaseProductController extends ExtendedBaseProductController
     *
     * @return boolean
      */
-    public function checkMultiAgent(int $productid)
+    public function checkMultiAgent(int $productid): bool
     {
-        $product = new Product();
+        $product = new Product;
         $product = $product->find($productid);
-        if ($product) {
-            if ($product->can_modify_agent == 1) {
-                return true;
-            }
+        if (! $product) {
+            return false;
         }
 
-        return false;
+        return $product->can_modify_agent == 1;
     }
 
-    /**
-     * Get the Subscription and Price Based on the Product Selected while generating Invoice (Admin Panel).
-     *
-     * @param  int  $productid
-     * @param  Request  $request
-     * @return [type]
-     */
-    public function getSubscriptionCheck(int $productid, Request $request)
+    public function userDownload(mixed $order_id, mixed $version_id = ''): Response|JsonResponse
     {
         try {
-            $controller = new \App\Http\Controllers\Front\CartController();
-            $plan = new Plan();
-            $useID = $request->input('user_id') ?: \Auth::user()->id;
-            $userCountry = User::find($useID)->country;
-            $currency = getCurrencyForClient($userCountry);
-            $plans = Plan::where('product', $productid)
-                ->whereHas('planPrice', function ($query) use ($currency) {
-                    $query->where('currency', $currency);
-                })
-                ->pluck('name', 'id')
-                ->toArray();
+            /** @var Order $order */
+            $order = Order::with('subscription')->findOrFail($order_id);
 
-            if (empty($plans)) { // If Plans Exist For A Product, Display Dropdown for Plans
-                return errorResponse(__('message.no_available_plans_for_user_currency'));
+            /** @var User $authUser2 */
+            $authUser2 = Auth::user();
+            if ($authUser2->role !== 'admin' && $authUser2->id !== $order->client) {
+                throw new Exception(__('message.no_permission_for_action'));
             }
-            $field = html()->div()
-                ->class('form-group')
-                ->children([
-                    html()->label()
-                        ->class('required')
-                        ->text(__('message.subscription')), // Translated label
-                    html()->select('plan', ['' => __('message.select'), 'Plans' => $plans])
-                        ->class('form-control')
-                        ->id('plan')
-                        ->attribute('onchange', 'getPrice(this.value)'),
-                    html()->div()
-                        ->class('error-message')
-                        ->id('subscription-msg'),
-                ])
-                ->toHtml();
 
-            return successResponse('', $field);
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return errorResponse($ex->getMessage());
-        }
-    }
-
-    public function userDownload($uploadid, $userid, $invoice_number, $version_id = '')
-    {
-        try {
-            if (\Auth::user()->role != 'admin') {
-                if (\Auth::user()->id != $userid) {
-                    throw new \Exception(__('message.no_permission_for_action'));
-                }
+            $permissions = LicensePermissionsController::getPermissionsForProduct((int) $order->product);
+            if (($permissions['downloadPermission'] ?? 0) != 1) {
+                throw new Exception(__('message.no_permission_for_action'));
             }
-            $user = new \App\User();
-            $user = $user->findOrFail($userid);
 
-            $invoice = new \App\Model\Order\Invoice();
-            $invoice = $invoice->where('number', $invoice_number)->first();
-            $this->checkSubscriptionExpiry($invoice);
-            if ($user && $invoice) {
-                if ($user->active == 1) {
-                    $product_id = $invoice->order()->value('product');
-                    $name = Product::where('id', $product_id)->value('name');
-                    $invoice_id = $invoice->id;
+            $subscription = $order->subscription;
 
-                    $release = $this->downloadProduct($uploadid, $userid, $invoice_id, $version_id);
-
-                    if (is_array($release) && array_key_exists('type', $release)) {
-                        $release = $release['release'];
-
-                        return view('themes.default1.front.download', compact('release'));
-                    } else {
-                        if (isS3Enabled()) {
-                            if (! Attach::exists('products/'.explode('?', urldecode(basename($release)))[0])) {
-                                return redirect()->back()->with('fails', \Lang::get('message.file_not_exist'));
-                            }
-
-                            return downloadExternalFile($release, $name);
-                        } else {
-                            if (! $release instanceof \Symfony\Component\HttpFoundation\StreamedResponse) {
-                                return redirect()->back()->with('fails', \Lang::get('message.file_not_exist'));
-                            }
-                            $customFileName = "{$name}.zip";
-
-                            $release->headers->set(
-                                'Content-Disposition',
-                                $release->headers->makeDisposition(
-                                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                                    $customFileName
-                                )
-                            );
-
-                            return $release;
-                        }
-                    }
-                } else {
-                    return redirect()->back()->with('fails', \Lang::get('activate-your-account'));
-                }
-            } else {
-                throw new \Exception(\Lang::get('message.no_permission_for_action'));
+            if (! $subscription) {
+                throw new Exception(__('message.no_order_exists_invoice'));
             }
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function getRelease($owner, $repository, $order_id, $file)
-    {
-        if ($owner && $repository) {//If the Product is downloaded from Github
-            $github_controller = new \App\Http\Controllers\Github\GithubController();
-            $relese = $github_controller->listRepositories($owner, $repository, $order_id);
-
-            return ['release' => $relese, 'type' => 'github'];
-        } elseif ($file) {
-            //If the Product is Downloaded from FileSystem
-            $fileName = $file->file;
-            $relese = Attach::download('products/'.$fileName);
-
-            return $relese;
-        }
-    }
-
-    public function getReleaseAdmin($owner, $repository, $file)
-    {
-        if ($owner && $repository) {
-            $github_controller = new \App\Http\Controllers\Github\GithubController();
-            $relese = $github_controller->listRepositoriesAdmin($owner, $repository);
-
-            return ['release' => $relese, 'type' => 'github'];
-        } elseif ($file->file) {
-            // $relese = storage_path().'\products'.'\\'.$file->file;
-            //    $relese = '/home/faveo/products/'.$file->file;
-            $fileName = $file->file;
-
-            $relese = Attach::download('products/'.$fileName);
-
-            return $relese;
-        }
-    }
-
-    public function downloadProductAdmin($id, $beta = 1)
-    {
-        try {
-            $product = Product::findOrFail($id);
-            $type = $product->type;
-            $owner = $product->github_owner;
-            $repository = $product->github_repository;
-            if ($beta) {
-                $file = ProductUpload::where('product_id', '=', $id)->select('file')
-                    ->orderBy('created_at', 'desc')
-                    ->first();
-            } else {
-                $file = ProductUpload::where('product_id', '=', $id)->
-                    where('is_pre_release', 0)
-                    ->select('file')
-                    ->orderBy('created_at', 'desc')
-                    ->first();
+            // A product with allowDownloadTillExpiry keeps serving whatever was
+            // released before the update window closed — the per-version query
+            // below already enforces that date — so only the plain block-everything
+            // behavior needs to skip itself here once that permission is on.
+            if (! ($permissions['allowDownloadTillExpiry'] ?? false)
+                && $subscription->update_ends_at
+                && now()->gt($subscription->update_ends_at)) {
+                throw new Exception(__('message.renew_subscription_download'));
             }
-            $permissions = LicensePermissionsController::getPermissionsForProduct($id);
-            if ($permissions['downloadPermission'] == 1) {
-                $relese = $this->getReleaseAdmin($owner, $repository, $file);
 
-                return $relese;
+            $product = Product::findOrFail($order->product);
+
+            if ($product->github_owner) {
+                $tag = $version_id
+                    ?: resolve(GithubApiController::class)->latestTag($product->github_owner, $product->github_repository);
+
+                return $this->download($product, tag: $tag);
             }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+
+            $version = ProductUpload::where('product_id', $order->product)
+                ->when($version_id, fn ($q) => $q->where('id', $version_id))
+                ->when($subscription->update_ends_at, fn ($q) => $q->where('created_at', '<', $subscription->update_ends_at))
+                ->where('is_private', 0)
+                ->latest()
+                ->first();
+
+            if (! $version) {
+                throw new Exception(trans('message.renew_subscription_download'));
+            }
+
+            return $this->download($product, $version, order: $order);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
+
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -290,41 +181,61 @@ class BaseProductController extends ExtendedBaseProductController
      * Get Price For a Particular Plan Selected.
      *
      * get productid,userid,plan id as request
-     *
-     * @return json The final Price of the Prduct
      */
-    public function getPrice(Request $request)
+    public function getPrice(Request $request): JsonResponse
     {
+        $request->validate([
+            'product' => ['required', 'integer'],
+            'plan' => ['required', 'string'],
+            'user' => ['nullable', 'integer'],
+        ]);
+
         try {
-            $id = $request->input('product');
-            $userid = $request->input('user');
-            $plan = $request->input('plan');
-            $controller = new \App\Http\Controllers\Front\CartController();
-            $price = $controller->cost($id, $plan, $userid, true);
-            $field = $this->getProductField($id);
-            $quantity = $this->getProductQtyCheck($id, $plan);
-            $agents = $this->getAgentQtyCheck($id, $plan);
-            $result = ['price' => $price, 'field' => $field, 'quantity' => $quantity, 'agents' => $agents];
+            $productId = $request->input('product');
+            $userId = $request->input('user');
+            $planId = $request->input('plan');
 
-            return response()->json($result);
-        } catch (\Exception $ex) {
-            $result = ['price' => $ex->getMessage(), 'field' => ''];
+            /** @var Plan $plan */
+            $plan = Plan::findOrFail($planId);
 
-            return response()->json($result);
+            $currency = userCurrencyAndPrice($userId, $plan)['currency'];
+
+            $userPlan = userCurrencyAndPrice($userId, $plan);
+            if (empty($userPlan['plan'])) {
+                return errorResponse(__('message.no_available_plans_currency'));
+            }
+
+            $planPrice = $userPlan['plan'];
+            $cost = (float) $planPrice->add_price;
+            $offer = $planPrice->offer_price ?? 0;
+            $price = $offer > 0 ? $cost * (1 - $offer / 100) : $cost;
+
+            $product = Product::findOrFail($productId);
+
+            $result = [
+                'price' => $price,
+                'fields' => [
+                    'required_domain' => (bool) $product->required_domain, // @phpstan-ignore property.notFound
+                    'is_cloud_product' => in_array($productId, cloudPopupProducts())
+                        ? ['domain' => cloudSubDomain()]
+                        : false,
+                ],
+                'product_quantity' => $this->getProductQtyCheck($productId, $plan, $currency),
+                'agents' => $this->getAgentQtyCheck($productId, $plan, $currency),
+            ];
+
+            return successResponse('', $result);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function updateVersionFromGithub($productid, $github_owner, $github_repository)
+    public function updateVersionFromGithub(mixed $productid, string $github_owner, string $github_repository): void
     {
-        try {
-            $product = Product::find($productid)->select('version')->first();
-            $github_controller = new \App\Http\Controllers\Github\GithubController();
-            $version = $github_controller->findVersion($github_owner, $github_repository);
-            $product->version = $version;
-            $product->save();
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
-        }
+        /** @var Product $product */
+        $product = Product::findOrFail($productid);
+        $product->version = resolve(GithubApiController::class)->latestTag($github_owner, $github_repository) ?? '';
+        $product->save();
     }
 
     /**
@@ -333,15 +244,13 @@ class BaseProductController extends ExtendedBaseProductController
      * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
      *
      * @date   2019-01-11T00:18:49+0530
-     *
-     * @param  int  $productid
-     * @return bool
      */
-    public function allowQuantityOrAgent(int $productid)
+    public function allowQuantityOrAgent(int $productid): bool
     {
+        /** @var Product $product */
         $product = Product::find($productid);
 
-        return $product->show_agent;
+        return (bool) $product->show_agent;
     }
 
     /**
@@ -349,10 +258,11 @@ class BaseProductController extends ExtendedBaseProductController
      *
      *
      * @param  int  $productid  The id of the Product added to the cart
-     * @return array The permissons for Agents and Quantity
+     * @return array<mixed> The permissons for Agents and Quantity
      */
-    public function isAllowedtoEdit(int $productid)
+    public function isAllowedtoEdit(int $productid): array
     {
+        /** @var Product $product */
         $product = Product::where('id', $productid)->first();
 
         $agentModifyPermission = $product->can_modify_agent;
@@ -361,121 +271,15 @@ class BaseProductController extends ExtendedBaseProductController
         return ['agent' => $agentModifyPermission, 'quantity' => $quantityModifyPermission];
     }
 
-    public function productDownload(Request $request)
-    {
-        if (! $this->validateLicenseManagerAppKey($request->input('app_key'), $request->input('app_secret'))) {
-            return errorResponse(\Lang::get('message.invalid_app_key'));
-        }
-
-        $fileName = $request->input('file_name');
-        $filePath = 'products/'.$fileName;
-
-        if (! $this->fileExists($filePath)) {
-            return errorResponse(\Lang::get('message.file_not_exist'));
-        }
-
-        return $this->streamProduct($filePath);
-    }
-
-    public function productFileExist(Request $request)
-    {
-        if (! $this->validateLicenseManagerAppKey($request->input('app_key'), $request->input('app_secret'))) {
-            return errorResponse(\Lang::get('message.invalid_app_key'));
-        }
-        $fileName = $request->input('file_name');
-        $filePath = 'products/'.$fileName;
-
-        if (! $this->fileExists($filePath)) {
-            return errorResponse(\Lang::get('message.file_not_exist'));
-        }
-
-        return successResponse(\Lang::get('message.file_exist'));
-    }
-
-    public function updateStatus(Request $request)
-    {
-        if (! $this->validateLicenseManagerAppKey($request->input('app_key'), $request->input('app_secret'))) {
-            return errorResponse(\Lang::get('message.invalid_app_key'));
-        }
-        $domain = $request->input('domain');
-        InstallationDetail::where('installation_path', $domain)->update(['status' => 0]);
-
-        return successResponse(\Lang::get('message.updated_successfully'));
-    }
-
-    private function fileExists($filePath): bool
-    {
-        return Attach::exists($filePath);
-    }
-
-    private function streamProduct($filePath)
-    {
-        try {
-            $response = new StreamedResponse(function () use ($filePath) {
-                $stream = Attach::readStream($filePath);
-                while (! feof($stream)) {
-                    echo fread($stream, 1024 * 8);  // Read in 8 KB chunks
-                }
-
-                fclose($stream);
-            });
-
-            $response->headers->set('Content-Type', 'application/octet-stream');
-            $response->headers->set('Content-Disposition', 'attachment; filename="'.basename($filePath).'"');
-
-            return $response;
-        } catch (\Exception $e) {
-            return errorResponse(\Lang::get('message.error_occured_while_downloading'));
-        }
-    }
-
-    private function validateLicenseManagerAppKey($appKey, $appSecret): bool
-    {
-        return ThirdPartyApp::where('app_key', $appKey)
-            ->where('app_secret', $appSecret)
-            ->exists();
-    }
-
-    public function agentProductDownload(Request $request)
-    {
-        $product_key = $request->input('product_key');
-        $license = new LicenseController();
-
-        $product_id = $license->searchProductUsingProductKey($product_key);
-
-        $version_number = $request->input('version_number');
-        $version = ! empty($version_number) ? $version_number : ProductUpload::where('product_id', $product_id)
-            ->latest()
-            ->value('version');
-
-        if (! $version) {
-            return errorResponse(\Lang::get('message.file_not_exist'));
-        }
-
-        $product = ProductUpload::where('product_id', $product_id)
-            ->where('version', $version)
-            ->latest()
-            ->first();
-
-        $filePath = 'products/'.$product->file;
-
-        if (! $product || ! $this->fileExists($filePath)) {
-            return errorResponse(\Lang::get('message.file_not_exist'));
-        }
-
-        return $this->streamProduct($filePath);
-    }
-
-    public function getProductUsingLicenseCode(Request $request)
+    public function getProductUsingLicenseCode(Request $request): JsonResponse
     {
         $license_code = $request->input('license_code');
 
-        $license = new LicenseController();
+        $licenseRecord = resolve(LicenseService::class)->findByCode($license_code);
+        $product = $licenseRecord ? [collect($licenseRecord)->toArray()] : [];
 
-        $product = $license->searchProductUsingLicense($license_code);
-
-        if (! $product) {
-            return errorResponse(\Lang::get('message.product_not_found'));
+        if ($product === []) {
+            return errorResponse(__('message.product_not_found'));
         }
 
         $data = [

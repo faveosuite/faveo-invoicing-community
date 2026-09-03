@@ -1,17 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Common;
 
+use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Override;
 
 class SocialMediaRequest extends FormRequest
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -21,23 +26,27 @@ class SocialMediaRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         $regex = '/^(https?:\/\/)?([\w-]+\.)+([a-z]{2,6})(\/[\w-]*)*(\?.*)?(#.*)?$/i';
-
         if ($this->method() == 'POST') {
             return [
-                'name' => 'required|unique:social_media|max:50',
+                'name' => ['required', 'unique:social_media', 'max:50'],
                 'link' => 'required|regex:'.$regex,
             ];
-        } elseif ($this->method() == 'PATCH') {
+        }
+
+        if ($this->method() == 'PATCH') {
             return [
-                'name' => 'required',
+                'name' => ['required', Rule::unique('social_media', 'name')->ignore($this->route('id'))],
                 'link' => 'required|url|regex:'.$regex,
             ];
         }
+
+        return [];
     }
 
+    #[Override]
     public function messages()
     {
         return [

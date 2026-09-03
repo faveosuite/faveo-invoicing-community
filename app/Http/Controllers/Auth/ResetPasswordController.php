@@ -3,12 +3,19 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Model\User\Password;
 use App\Rules\Honeypot;
 use App\Rules\StrongPassword;
 use App\User;
-use Carbon\Carbon;
+use DB;
+use Exception;
+use Hash;
 use Illuminate\Foundation\Auth\ResetsPasswords;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
+use Session;
 
 class ResetPasswordController extends Controller
 {
@@ -34,8 +41,6 @@ class ResetPasswordController extends Controller
 
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -43,47 +48,47 @@ class ResetPasswordController extends Controller
         $this->middleware(['recaptcha:reset'])->only('reset');
     }
 
-    public function showResetForm(Request $request, $token = null)
+    public function showResetForm(Request $request, mixed $token = null): JsonResponse
     {
         try {
-            $reset = \DB::table('password_resets')->select('email', 'created_at')->where('token', $token)->first();
+            $reset = DB::table('password_resets')->select('email', 'created_at')->where('token', $token)->first();
 
-            if ($reset && Carbon::parse($reset->created_at)->addMinutes(config('auth.passwords.users.expire')) > Carbon::now()) {
+            if ($reset && Date::parse($reset->created_at)->addMinutes(config('auth.passwords.users.expire')) > Date::now()) {
                 $user = User::where('email', $reset->email)->first();
 
-                if ($user && $user->is_2fa_enabled && ! \Session::get('2fa_verified')) {
-                    \Session::put('2fa:user:id', $user->id);
-                    \Session::put('verification_user_id', $user->id);
-                    \Session::put('justStarted', true);
-                    \Session::put('reset_token', $token);
+                if ($user && $user->is_2fa_enabled && ! Session::get('2fa_verified')) {
+                    Session::put('2fa:user:id', $user->id);
+                    Session::put('verification_user_id', $user->id);
+                    Session::put('justStarted', true);
+                    Session::put('reset_token', $token);
 
-                    return redirect('verify-2fa');
+                    return successResponse('', ['redirect' => url('verify-2fa')]);
                 }
 
-                return view('themes.default1.front.auth.reset')
-                    ->with(['reset_token' => $token, 'email' => $reset->email]);
-            } else {
-                return redirect('login')->with('fails', \Lang::get('message.reset_link_expired'));
+                $data = ['reset_token' => $token, 'email' => $reset->email];
+
+                return successResponse('Reset page', [$data]);
             }
-        } catch (\Exception $ex) {
-            return redirect('login')->with('fails', $ex->getMessage());
+
+            return errorResponse(__('message.reset_link_expired'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
     /**
      * Reset the given user's password.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     * @return RedirectResponse|JsonResponse
      */
     public function reset(Request $request)
     {
         // Validate request
         $request->validate([
-            'token' => 'required',
-            'email' => 'required|email',
-            'password' => ['required', 'confirmed', new StrongPassword()],
-            'reset' => [new Honeypot()],
+            'token' => ['required'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'confirmed', new StrongPassword],
+            'reset' => [new Honeypot],
         ], [
             'token.required' => __('validation.token_validation.token_required'),
             'email.required' => __('validation.custom_email.required'),
@@ -97,36 +102,36 @@ class ResetPasswordController extends Controller
             $token = $request->input('token');
             $newPassword = $request->input('password');
 
-            $passwordToken = \App\Model\User\Password::where('email', $email)->first();
+            $passwordToken = Password::where('email', $email)->first();
 
             if (! $passwordToken || $passwordToken->token !== $token) {
                 return errorResponse(__('message.cannot_reset_password_invalid'));
             }
 
-            $user = \App\User::where('email', $email)->first();
+            $user = User::where('email', $email)->first();
             if (! $user) {
                 return errorResponse(__('message.user_cannot_identifer'));
             }
 
             // Begin atomic transaction
-            \DB::transaction(function () use ($user, $newPassword) {
-                \Session::forget(['2fa_verified', 'reset_token']);
+            DB::transaction(function () use ($user, $newPassword): void {
+                Session::forget(['2fa_verified', 'reset_token']);
 
-                $user->password = \Hash::make($newPassword);
+                $user->password = Hash::make($newPassword);
                 $user->save();
 
                 // Logout all other sessions
                 deleteUserSessions($user->id, $newPassword);
 
                 // Delete password reset token
-                \DB::table('password_resets')->where('email', $user->email)->delete();
+                DB::table('password_resets')->where('email', $user->email)->delete();
             });
 
-            \Session::flash('success', __('message.password_changed_successfully'));
+            Session::flash('success', __('message.password_changed_successfully'));
 
             return successResponse(__('message.password_changed_successfully'), ['redirect' => url('login')]);
-        } catch (\Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

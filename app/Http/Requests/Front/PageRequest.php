@@ -1,17 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Front;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Request;
+use App\Model\Front\FrontendPage;
+use App\Traits\RequestJsonValidation;
+use Illuminate\Validation\Rule;
+use Override;
 
-class PageRequest extends FormRequest
+class PageRequest extends Request
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -21,48 +27,68 @@ class PageRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
-        $regex = '/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/';
+        // Update (PUT) is a partial update — name/slug/content aren't
+        // resent when only e.g. the SEO fields are being changed, so they're
+        // optional there. Create (POST) always needs the full set.
+        $requiredRule = $this->isMethod('PUT') ? 'sometimes' : 'required';
 
-        if ($this->method() == 'POST') {
-            return [
-                'name' => 'required|unique:frontend_pages,name|max:20|regex:/^[a-zA-Z\s]*$/',
-                'publish' => 'required',
-                'slug' => 'required',
-                'url' => 'required|url|regex:'.$regex,
-                'content' => 'required',
-            ];
-        } elseif ($this->method() == 'PATCH') {
-            return [
-                'name' => 'required|max:20',
-                'publish' => 'required',
-                'slug' => 'required',
-                'url' => 'required|url|regex:'.$regex,
-                'content' => 'required',
-                'created_at' => 'required',
-            ];
-        }
+        return [
+            'name' => [$requiredRule, 'string', Rule::unique('frontend_pages', 'name')->ignore($this->route('id'))],
+            'slug' => [$requiredRule, 'string', Rule::unique('frontend_pages', 'slug')->ignore($this->route('id'))],
+            'url' => ['nullable', 'string'],
+            'type' => ['nullable', 'string'],
+            'publish' => ['nullable', 'boolean'],
+            // The public nav only ever renders two levels (top-level page + its direct
+            // children — see Navbar.vue's topLevelPages/childPages), so the parent
+            // itself must be a top-level page or a deeper sub-page silently never shows.
+            'parent_page_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('frontend_pages', 'id'),
+                function ($attribute, $value, $fail): void {
+                    if (! $value) {
+                        return;
+                    }
+                    if ((int) $value === (int) $this->route('id')) {
+                        $fail(__('validation.frontend_pages.parent_page_id.self'));
+
+                        return;
+                    }
+                    // whereNotIn(..., [null, 0]) would silently never match — SQL's
+                    // `NOT IN` with a NULL in the list evaluates to NULL, not true.
+                    $parentHasParent = FrontendPage::whereKey($value)
+                        ->whereNotNull('parent_page_id')
+                        ->where('parent_page_id', '!=', 0)
+                        ->exists();
+                    if ($parentHasParent) {
+                        $fail(__('validation.frontend_pages.parent_page_id.nested'));
+                    }
+                },
+            ],
+            'content' => [$requiredRule, 'string'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string', 'max:255'],
+            'og_title' => ['nullable', 'string', 'max:255'],
+            'og_description' => ['nullable', 'string', 'max:255'],
+            'og_image' => ['sometimes', 'file', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            'og_same_as_meta' => ['nullable', 'boolean'],
+        ];
     }
 
+    #[Override]
     public function messages()
     {
-        return[
-            'created_at.required' => __('validation.publish_date_required'),
+        return [
             'name.required' => __('validation.frontend_pages.name.required'),
             'name.unique' => __('validation.frontend_pages.name.unique'),
-            'name.max' => __('validation.frontend_pages.name.max'),
-            'name.regex' => __('validation.frontend_pages.name.regex'),
-
-            'publish.required' => __('validation.frontend_pages.publish.required'),
-
             'slug.required' => __('validation.frontend_pages.slug.required'),
-
-            'url.required' => __('validation.frontend_pages.url.required'),
-            'url.url' => __('validation.frontend_pages.url.url'),
-            'url.regex' => __('validation.frontend_pages.url.regex'),
-
+            'slug.unique' => __('validation.frontend_pages.slug.unique'),
             'content.required' => __('validation.frontend_pages.content.required'),
+            'parent_page_id.exists' => __('validation.frontend_pages.parent_page_id.exists'),
+            'og_image.mimes' => __('validation.og_image.mimes'),
+            'og_image.max' => __('validation.og_image.max'),
         ];
     }
 }

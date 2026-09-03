@@ -755,7 +755,7 @@ return [
         'password' => 'Mật khẩu không chính xác.',
         'invalid' => 'Mật khẩu không hợp lệ.',
     ],
-    //AuthController file
+    // AuthController file
     'auth_controller' => [
         'name_required' => 'Tên là bắt buộc.',
         'name_max' => 'Tên không được vượt quá 255 ký tự.',

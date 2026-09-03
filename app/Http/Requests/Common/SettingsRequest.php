@@ -1,17 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Common;
 
+use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class SettingsRequest extends FormRequest
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -21,28 +25,29 @@ class SettingsRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         $regex = '/^(https?:\/\/)?([\w-]+\.)+([a-z]{2,6})(\/[\w-]*)*(\?.*)?(#.*)?$/i';
 
         return [
-            'company' => 'required|max:50',
-            'company_email' => 'required|email|unique:users,email|unique:users,user_name',
-            'title' => 'max:50',
+            'company' => ['required', 'max:50'],
+            'company_email' => ['required', 'email', 'unique:users,email', 'unique:users,user_name'],
+            'title' => ['max:50'],
             'website' => 'required|url|regex:'.$regex,
-            'phone' => 'required',
-            'address' => 'required',
-            'state' => 'required',
-            'country' => 'required',
-            'gstin' => 'max:15',
-            'default_currency' => 'required',
-            'admin-logo' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-            'fav-icon' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-            'logo' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-            'autorenewal_status' => 'sometimes',
+            'phone' => ['required'],
+            'address' => ['required'],
+            'state' => ['required'],
+            'country' => ['required'],
+            'gstin' => ['nullable', 'regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/'],
+            'default_currency' => ['required'],
+            'admin-logo' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'fav-icon' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'logo' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'autorenewal_status' => ['sometimes'],
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [
@@ -64,7 +69,7 @@ class SettingsRequest extends FormRequest
             'state.required' => __('validation.settings_forms.state.required'),
             'country.required' => __('validation.settings_forms.country.required'),
 
-            'gstin.max' => __('validation.settings_forms.gstin.max'),
+            'gstin.regex' => __('validation.settings_forms.gstin.regex'),
 
             'default_currency.required' => __('validation.settings_forms.default_currency.required'),
 

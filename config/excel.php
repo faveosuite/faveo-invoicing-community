@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+use Maatwebsite\Excel\Filters\ChunkReadFilter;
+
 return [
 
     'cache' => [
@@ -346,7 +350,7 @@ return [
         */
 
         'registered' => [
-            'chunk' => 'Maatwebsite\Excel\Filters\ChunkReadFilter',
+            'chunk' => ChunkReadFilter::class,
         ],
 
         /*
