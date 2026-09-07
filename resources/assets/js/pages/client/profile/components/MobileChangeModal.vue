@@ -19,7 +19,7 @@
             </template>
 
             <!-- Step 2: verify the mobile OTP, Step 3: verify the auth-email OTP -->
-            <template v-else>
+            <template v-else-if="step === 'verify_mobile' || step === 'verify_mobile_email'">
                 <p class="text-muted mb-3">
                     {{ step === 'verify_mobile' ? __('message.otp_description') : __('message.confirm_with_email') }}
                 </p>
@@ -36,12 +36,22 @@
                     <span v-if="cooldown > 0" class="text-muted fw-semibold">{{ String(cooldown).padStart(2, '0') }}s</span>
                 </div>
             </template>
+
+            <!-- Step 4: done -->
+            <template v-else-if="step === 'done'">
+                <div class="text-center py-4">
+                    <i class="fas fa-check-circle text-success fa-3x"></i>
+                    <p class="mt-3 mb-0 fw-bold text-2">{{ doneMessage }}</p>
+                </div>
+            </template>
         </template>
 
         <template #controls>
             <action-button v-if="step === 'enter'"
                            action="confirm" :label="__('message.save')"
                            :loading="busy" :disabled="!newMobile" @click="submitMobile" />
+            <action-button v-else-if="step === 'done'"
+                           action="confirm" :label="__('message.done')" @click="close" />
             <action-button v-else
                            action="confirm" :label="__('message.verify')"
                            :loading="busy" :disabled="otp.length !== 6" @click="submitOtp" />
@@ -69,7 +79,7 @@ const emit = defineEmits(['update:show', 'updated'])
 const COMPONENT = 'mobile-change'
 const COOLDOWN  = 120
 
-const step        = ref('enter')   // 'enter' | 'verify_mobile' | 'verify_mobile_email'
+const step        = ref('enter')   // 'enter' | 'verify_mobile' | 'verify_mobile_email' | 'done'
 const newMobile   = ref('')
 const dialCode    = ref('')
 const countryIso  = ref('')
@@ -77,6 +87,7 @@ const otp         = ref('')
 const mobileError = ref('')
 const otpError    = ref('')
 const busy        = ref(false)
+const doneMessage = ref('')
 const { cooldown, start: startCooldown, stop: stopCooldown } = useCooldown(COOLDOWN)
 
 watch(() => props.show, (open) => {
@@ -98,6 +109,7 @@ function reset() {
     otp.value = ''
     mobileError.value = ''
     otpError.value = ''
+    doneMessage.value = ''
     stopCooldown()
 }
 
@@ -134,7 +146,7 @@ async function submitMobile() {
         })
         const data = res.data?.data ?? {}
         if (data.mobile_updated) {
-            finish(data)
+            finish(res, data)
         } else {
             // Mobile verification enabled — OTP sent via SMS.
             step.value = 'verify_mobile'
@@ -161,7 +173,7 @@ async function submitOtp() {
             })
             const data = res.data?.data ?? {}
             if (data.mobile_updated) {
-                finish(data)
+                finish(res, data)
             } else {
                 // Mobile verified, but an email confirmation is also required.
                 await http.post(`/profile/email/send-otp`, {
@@ -179,7 +191,7 @@ async function submitOtp() {
                 otp: otp.value,
                 verify_type: 'mobile_email',
             })
-            finish(res.data?.data ?? {})
+            finish(res, res.data?.data ?? {})
         }
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -202,12 +214,15 @@ async function resend() {
     }
 }
 
-function finish(data) {
+function finish(res, data) {
     emit('updated', {
         mobile: data.mobile ?? cleanMobile(),
         mobile_code: data.mobile_code ?? dialCode.value,
         mobile_country_iso: countryIso.value,
     })
-    close()
+    // Stay open on a "done" step so the success message is actually seen —
+    // the modal (and its own <Alert>) would otherwise unmount immediately.
+    doneMessage.value = res?.data?.message ?? ''
+    step.value = 'done'
 }
 </script>

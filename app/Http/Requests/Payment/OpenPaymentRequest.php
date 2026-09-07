@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Payment;
 
 use App\Model\Payment\Currency;
+use App\Rules\PhoneNumber;
 use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -32,7 +33,7 @@ class OpenPaymentRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email'],
-            'mobile' => ['required', 'string', 'min:8', 'max:20'],
+            'mobile' => ['required', 'string', 'min:8', 'max:20', new PhoneNumber($this->country)],
             'address' => ['required', 'string'],
             'city' => ['required', 'string'],
             'state' => ['required', 'string'],

@@ -15,7 +15,7 @@
                     <!-- Newsletter form (allow_mailchimp) -->
                     <template v-if="widget.allow_mailchimp">
                         <Alert componentName="newsletter" />
-                        <form v-if="!newsletterSuccess" @submit.prevent="subscribeNewsletter" class="me-4 mb-4">
+                        <form @submit.prevent="subscribeNewsletter" class="me-4 mb-4">
                             <div class="input-group input-group-rounded has-validation">
                                 <input class="form-control form-control-sm bg-light px-4 text-3"
                                        :class="{ 'is-invalid': newsletterEmailError }"
@@ -128,7 +128,6 @@ const newsletterCaptchaRef = ref(null)
 function setNewsletterCaptchaRef(el) { if (el) newsletterCaptchaRef.value = el }
 const newsletterEmail      = ref('')
 const newsletterEmailError = ref('')
-const newsletterSuccess    = ref(false)
 const subscribing          = ref(false)
 
 async function subscribeNewsletter() {
@@ -148,7 +147,7 @@ async function subscribeNewsletter() {
             return
         }
         const res = await http.post(`/newsletter/subscribe`, { newsletterEmail: newsletterEmail.value, ...captchaPayload })
-        newsletterSuccess.value = true
+        newsletterEmail.value = ''
         newsletterCaptchaRef.value?.reset()
         alertStore.setAlert({
             message: res?.data?.message ?? __('message.newsletter_subscribed'),

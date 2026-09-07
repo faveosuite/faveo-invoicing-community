@@ -3,27 +3,37 @@
         <AppCard :title="__('message.change_password')">
         <form @submit.prevent="submitPassword" class="needs-validation">
 
-            <ClientField type="password" name="current_password"
+            <ClientField type="password" name="old_password"
                          :label="__('message.current_password')"
-                         v-model="form.current_password"
-                         :error="errors.current_password"
-                         @update:modelValue="setFieldError('current_password', undefined)"
+                         v-model="form.old_password"
+                         :error="errors.old_password"
+                         @update:modelValue="setFieldError('old_password', undefined)"
                          autocomplete="current-password"
                          :required="true" />
 
-            <ClientField type="password" name="password"
+            <ClientField type="password" name="new_password"
                          :label="__('message.new_password')"
-                         v-model="form.password"
-                         :error="errors.password"
-                         @update:modelValue="setFieldError('password', undefined)"
+                         v-model="form.new_password"
+                         :error="errors.new_password"
+                         @update:modelValue="setFieldError('new_password', undefined)"
+                         @focus="passwordFocused = true" @blur="passwordFocused = false"
                          autocomplete="new-password"
                          :required="true" />
 
-            <ClientField type="password" name="password_confirmation"
+            <div v-if="passwordFocused" class="mb-3 text-1">
+                <strong class="d-block mb-1 text-dark">{{ __('message.password_requirements') }}</strong>
+                <ul class="list-unstyled mb-0">
+                    <li v-for="c in checklist" :key="c.key" :class="c.ok ? 'text-success' : 'text-danger'">
+                        <i class="fas" :class="c.ok ? 'fa-check' : 'fa-times'"></i> {{ c.label }}
+                    </li>
+                </ul>
+            </div>
+
+            <ClientField type="password" name="confirm_password"
                          :label="__('message.confirm_password')"
-                         v-model="form.password_confirmation"
-                         :error="errors.password_confirmation"
-                         @update:modelValue="setFieldError('password_confirmation', undefined)"
+                         v-model="form.confirm_password"
+                         :error="errors.confirm_password"
+                         @update:modelValue="setFieldError('confirm_password', undefined)"
                          autocomplete="new-password"
                          :required="true" />
 
@@ -43,13 +53,14 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { useForm } from 'vee-validate'
 import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { passwordChangeSchema } from '@/validations/client/profile.js'
+import { passwordChecks } from '@/validations/client/authSchemas.js'
 
 const COMPONENT = 'client-page'
 
@@ -57,9 +68,22 @@ const saving = ref(false)
 const { errors, setErrors, setFieldError } = useForm()
 
 const form = reactive({
-    current_password: '',
-    password: '',
-    password_confirmation: '',
+    old_password: '',
+    new_password: '',
+    confirm_password: '',
+})
+
+// Show the requirements list only while the new-password field is focused.
+const passwordFocused = ref(false)
+const checklist = computed(() => {
+    const c = passwordChecks(form.new_password)
+    return [
+        { key: 'length',  ok: c.length,  label: __('message.pwd_req_length') },
+        { key: 'upper',   ok: c.upper,   label: __('message.pwd_req_upper') },
+        { key: 'lower',   ok: c.lower,   label: __('message.pwd_req_lower') },
+        { key: 'number',  ok: c.number,  label: __('message.pwd_req_number') },
+        { key: 'special', ok: c.special, label: __('message.pwd_req_special') },
+    ]
 })
 
 async function submitPassword() {
@@ -71,19 +95,10 @@ async function submitPassword() {
         data.append('_method', 'PATCH')
         const res = await http.post(`/my-password`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
         successHandler(res, COMPONENT)
-        form.current_password = ''
-        form.password = ''
-        form.password_confirmation = ''
+        form.old_password = ''
+        form.new_password = ''
+        form.confirm_password = ''
     } catch (e) {
-        if (e?.response?.status === 422) {
-            const serverErrors = e.response.data?.errors ?? {}
-            const map = {}
-            Object.entries(serverErrors).forEach(([k, v]) => { map[k] = Array.isArray(v) ? v[0] : v })
-            if (Object.keys(map).length) {
-                setErrors(map)
-                return
-            }
-        }
         errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false

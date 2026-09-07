@@ -52,7 +52,7 @@
 
                     <!-- Step: Recovery Codes -->
                     <template v-if="twoFaStep === 'recovery'">
-                        <p class="mb-3">{{ __('message.recovery_codes_are_used') }}</p>
+                        <p class="text-muted mb-3">{{ __('message.recovery_codes_are_used') }}</p>
                         <div class="card border mb-2">
                             <div class="card-header d-flex align-items-center justify-content-between py-2">
                                 <span class="fw-bold text-2">{{ __('message.recovery_codes') }}</span>
@@ -68,7 +68,7 @@
                                 </div>
                             </div>
                         </div>
-                        <p class="text-muted small mt-2">{{ __('message.treat_recovery_codes') }}</p>
+                        <p class="text-muted mt-2">{{ __('message.treat_recovery_codes') }}</p>
                     </template>
 
                     <!-- Step: QR Code -->
@@ -151,7 +151,7 @@
                             <i class="fas fa-arrow-left me-1"></i>{{ __('message.previous') }}
                         </button>
                         <button type="button" class="btn btn-primary btn-modern"
-                                @click="twoFaStep = 'totp'; modalError = ''">
+                                @click="twoFaStep = 'totp'; modalError = ''; totp = ''">
                             {{ __('message.next') }}<i class="fas fa-arrow-right ms-1"></i>
                         </button>
                     </div>
@@ -159,7 +159,7 @@
                 <template v-if="twoFaStep === 'totp'">
                     <div class="d-flex w-100 justify-content-between">
                         <button type="button" class="btn btn-light"
-                                @click="twoFaStep = 'qr'; modalError = ''">
+                                @click="twoFaStep = 'qr'; modalError = ''; showSecretKey = false">
                             <i class="fas fa-arrow-left me-1"></i>{{ __('message.previous') }}
                         </button>
                         <button type="button" class="btn btn-primary btn-modern"

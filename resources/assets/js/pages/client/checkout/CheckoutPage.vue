@@ -142,10 +142,6 @@
 
               <!-- Invoice-mode: totals already finalised on the invoice -->
               <template v-else>
-                <div v-if="invoice.number" class="d-flex justify-content-between py-3 border-bottom">
-                  <strong class="text-color-dark">{{ __('message.invoice') }}</strong>
-                  <span class="font-weight-medium">#{{ invoice.number }}</span>
-                </div>
                 <div v-if="invSummary.subtotal_ex_tax !== undefined" class="d-flex justify-content-between py-3 border-bottom">
                   <strong class="text-color-dark">
                     {{ __('message.sub_total') }}

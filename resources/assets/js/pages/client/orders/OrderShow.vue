@@ -63,58 +63,58 @@
             <div class="row pt-2">
 
                 <!-- Left mini-nav -->
-                <div class="col-lg-3 mt-4 mt-lg-0">
-                    <aside class="sidebar mt-2 mb-5">
-                        <ul class="nav nav-list flex-column">
+                <div class="col-lg-3 mt-4 mt-lg-0 client-sidebar-col">
+                    <aside class="sidebar client-sidebar mt-2 mb-5">
+                        <ul class="nav nav-list no-arrows flex-column">
                             <!-- Nothing to show for a terminated order — the notice
                                  above already covers it, and this tab held nothing
                                  but the (no longer reachable) license itself. -->
                             <li v-if="order.status !== 'Terminated'" class="nav-item">
-                                <a class="nav-link text-3" :class="{ active: activeTab === 'license' }"
+                                <a class="nav-link" :class="{ active: activeTab === 'license' }"
                                    href="javascript:;" @click="activeTab = 'license'">
-                                    {{ __('message.license_details') }}
+                                    <i class="fas fa-file-contract fa-fw nav-icon"></i>{{ __('message.license_details') }}
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-3" :class="{ active: activeTab === 'users' }"
+                                <a class="nav-link" :class="{ active: activeTab === 'users' }"
                                    href="javascript:;" @click="activeTab = 'users'">
-                                    {{ __('message.user_details') }}
+                                    <i class="fas fa-users fa-fw nav-icon"></i>{{ __('message.user_details') }}
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-3" :class="{ active: activeTab === 'invoice' }"
+                                <a class="nav-link" :class="{ active: activeTab === 'invoice' }"
                                    href="javascript:;" @click="activeTab = 'invoice'">
-                                    {{ __('message.invoice_list') }}
+                                    <i class="fas fa-file-invoice fa-fw nav-icon"></i>{{ __('message.invoice_list') }}
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-3" :class="{ active: activeTab === 'receipt' }"
+                                <a class="nav-link" :class="{ active: activeTab === 'receipt' }"
                                    href="javascript:;" @click="activeTab = 'receipt'">
-                                    {{ __('message.payment_receipts') }}
+                                    <i class="fas fa-receipt fa-fw nav-icon"></i>{{ __('message.payment_receipts') }}
                                 </a>
                             </li>
                             <li v-if="showCloudTab" class="nav-item">
-                                <a class="nav-link text-3" :class="{ active: activeTab === 'cloud' }"
+                                <a class="nav-link" :class="{ active: activeTab === 'cloud' }"
                                    href="javascript:;" @click="openCloudTab">
-                                    {{ __('message.cloud_settings') }}
+                                    <i class="fas fa-cloud fa-fw nav-icon"></i>{{ __('message.cloud_settings') }}
                                 </a>
                             </li>
                             <li v-if="showAutoRenewTab" class="nav-item">
-                                <a class="nav-link text-3" :class="{ active: activeTab === 'auto-renew' }"
+                                <a class="nav-link" :class="{ active: activeTab === 'auto-renew' }"
                                    href="javascript:;" @click="activeTab = 'auto-renew'">
-                                    {{ __('message.auto_renewal') }}
+                                    <i class="fas fa-rotate fa-fw nav-icon"></i>{{ __('message.auto_renewal') }}
                                 </a>
                             </li>
                             <li v-if="order.whatsapp_enabled" class="nav-item">
-                                <a class="nav-link text-3" :class="{ active: activeTab === 'whatsapp' }"
+                                <a class="nav-link" :class="{ active: activeTab === 'whatsapp' }"
                                    href="javascript:;" @click="activeTab = 'whatsapp'">
-                                    {{ __('message.whatsapp_signup') }}
+                                    <i class="fab fa-whatsapp fa-fw nav-icon"></i>{{ __('message.whatsapp_signup') }}
                                 </a>
                             </li>
                             <li v-if="order.deploy_enabled && order.has_deployable_uploads && order.status !== 'Terminated'" class="nav-item">
-                                <a class="nav-link text-3" :class="{ active: activeTab === 'deploy' }"
+                                <a class="nav-link" :class="{ active: activeTab === 'deploy' }"
                                    href="javascript:;" @click="activeTab = 'deploy'">
-                                    Deploy
+                                    <i class="fas fa-rocket fa-fw nav-icon"></i>Deploy
                                 </a>
                             </li>
                         </ul>

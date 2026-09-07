@@ -17,7 +17,7 @@
             </template>
 
             <!-- Step 2/3: enter the OTP -->
-            <template v-else>
+            <template v-else-if="step === 'verify_old' || step === 'verify_new'">
                 <p class="text-muted mb-3">
                     {{ step === 'verify_old' ? __('message.otp_sent_old_email') : __('message.otp_sent_new_email') }}
                 </p>
@@ -34,12 +34,22 @@
                     <span v-if="cooldown > 0" class="text-muted fw-semibold">{{ String(cooldown).padStart(2, '0') }}s</span>
                 </div>
             </template>
+
+            <!-- Step 4: done -->
+            <template v-else-if="step === 'done'">
+                <div class="text-center py-4">
+                    <i class="fas fa-check-circle text-success fa-3x"></i>
+                    <p class="mt-3 mb-0 fw-bold text-2">{{ doneMessage }}</p>
+                </div>
+            </template>
         </template>
 
         <template #controls>
             <action-button v-if="step === 'enter'"
                            action="confirm" :label="__('message.save')"
                            :loading="busy" :disabled="!newEmail" @click="submitEmail" />
+            <action-button v-else-if="step === 'done'"
+                           action="confirm" :label="__('message.done')" @click="close" />
             <action-button v-else
                            action="confirm" :label="__('message.verify')"
                            :loading="busy" :disabled="otp.length !== 6" @click="submitOtp" />
@@ -64,12 +74,13 @@ const emit = defineEmits(['update:show', 'updated'])
 const COMPONENT = 'email-change'
 const COOLDOWN  = 120
 
-const step       = ref('enter')   // 'enter' | 'verify_old' | 'verify_new'
-const newEmail   = ref('')
-const otp        = ref('')
-const emailError = ref('')
-const otpError   = ref('')
-const busy       = ref(false)
+const step        = ref('enter')   // 'enter' | 'verify_old' | 'verify_new' | 'done'
+const newEmail    = ref('')
+const otp         = ref('')
+const emailError  = ref('')
+const otpError    = ref('')
+const busy        = ref(false)
+const doneMessage = ref('')
 const { cooldown, start: startCooldown, stop: stopCooldown } = useCooldown(COOLDOWN)
 
 watch(() => props.show, (open) => {
@@ -90,6 +101,7 @@ function reset() {
     otp.value = ''
     emailError.value = ''
     otpError.value = ''
+    doneMessage.value = ''
     stopCooldown()
 }
 
@@ -118,7 +130,7 @@ async function submitEmail() {
         })
         const data = res.data?.data ?? {}
         if (data.email_updated) {
-            finish(data.email ?? newEmail.value)
+            finish(res, data.email ?? newEmail.value)
         } else {
             // Verification enabled — OTP sent to the current (old) email first.
             step.value = 'verify_old'
@@ -152,7 +164,7 @@ async function submitOtp() {
                 otp: otp.value,
                 verify_type: 'new_email',
             })
-            finish(res.data?.data?.email ?? newEmail.value)
+            finish(res, res.data?.data?.email ?? newEmail.value)
         }
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -175,8 +187,11 @@ async function resend() {
     }
 }
 
-function finish(email) {
+function finish(res, email) {
     emit('updated', email)
-    close()
+    // Stay open on a "done" step so the success message is actually seen —
+    // the modal (and its own <Alert>) would otherwise unmount immediately.
+    doneMessage.value = res?.data?.message ?? ''
+    step.value = 'done'
 }
 </script>

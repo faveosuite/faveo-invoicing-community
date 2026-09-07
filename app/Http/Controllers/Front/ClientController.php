@@ -313,6 +313,10 @@ class ClientController extends BaseClientController
 
         match ($sortField) {
             'number' => $query->orderBy('number', $sortDir),
+            'product_name' => $query->orderBy(
+                Product::select('name')->whereColumn('id', 'orders.product'),
+                $sortDir
+            ),
             'update_ends_at' => $query->orderBy(
                 Subscription::select('update_ends_at')->whereColumn('order_id', 'orders.id')->limit(1),
                 $sortDir

@@ -31,8 +31,12 @@ export const useAuthStore = defineStore('auth', {
                 this.user = data.data
                 const tz = this.user?.timezone?.name ?? null
                 if (tz) useDateTimeStore().setUserTimezone(tz)
-            } catch {
-                this.user = null
+            } catch (err) {
+                // Only a real 401 means "not actually logged in" — a network
+                // blip or 5xx here shouldn't log out a genuinely authenticated
+                // user on their next click (router guard reads isAuthenticated
+                // live on every navigation).
+                if (err.response?.status === 401) this.user = null
             }
         },
 

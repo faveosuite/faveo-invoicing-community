@@ -1,6 +1,8 @@
 <template>
     <ActionButton v-bind="$attrs" light size="sm">
-        <slot />
+        <template v-for="(_, name) in $slots" #[name]="slotProps">
+            <slot :name="name" v-bind="slotProps" />
+        </template>
     </ActionButton>
 </template>
 

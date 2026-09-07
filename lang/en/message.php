@@ -3553,7 +3553,6 @@ return [
     'verification_code' => 'Verification Code',
     'verify_enable' => 'Verify & Enable',
     'enable_2fa' => 'Enable 2FA',
-    'two_factor_auth' => 'Two-Factor Auth',
     'send_otp' => 'Send OTP',
     'enter_otp' => 'Enter OTP',
     'unverified' => 'Unverified',

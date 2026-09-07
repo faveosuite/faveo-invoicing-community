@@ -65,3 +65,17 @@ const carouselOptions = computed(() => {
     })
 })
 </script>
+
+<style scoped>
+/* Owl centers .owl-nav on the whole carousel (top: 50%), i.e. on the
+   tallest card — since product.description is admin-controlled and varies
+   a lot in length, that drags the arrows way down on any long description.
+   Pin them to the Order button row instead, which sits at roughly the same
+   height on every card. */
+/* ponytail: eyeballed offset, not measured against a live render — nudge
+   this if it doesn't land on the button row. */
+.pricing-carousel :deep(.owl-nav) {
+    top: 300px;
+    transform: none;
+}
+</style>

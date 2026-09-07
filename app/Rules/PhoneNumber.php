@@ -14,7 +14,7 @@ class PhoneNumber implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if ($this->mobileCountryIso === null || blank($value)) {
+        if (blank($this->mobileCountryIso) || blank($value)) {
             return;
         }
 

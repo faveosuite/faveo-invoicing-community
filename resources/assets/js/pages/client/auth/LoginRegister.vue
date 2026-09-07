@@ -6,7 +6,7 @@
       <div class="col-md-6 col-lg-5 mb-5 mb-lg-0">
         <h2 class="font-weight-bold text-5 mb-3">{{ __('message.login') }}</h2>
         <form @submit.prevent="submitLogin" novalidate>
-          <ClientField name="email_username" type="text" :label="__('message.email_address')" required
+          <ClientField name="email_username" type="text" :label="__('message.username_register')" required
                        autocomplete="username"
                        v-model="loginForm.email_username" :error="loginErrors.email_username"
                        @update:modelValue="loginSetFieldError('email_username', undefined)"/>

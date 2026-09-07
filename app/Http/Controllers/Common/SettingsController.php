@@ -29,6 +29,7 @@ use App\Model\Payment\Currency;
 use App\Model\Plugin;
 use App\Model\Product\Product;
 use App\Payment_log;
+use App\Rules\PhoneNumber;
 use App\ThirdPartyApp;
 use App\User;
 use Cache;
@@ -225,7 +226,7 @@ class SettingsController extends BaseSettingsController
             'company' => ['required', 'max:50'],
             'company_email' => ['required', 'email'],
             'website' => ['required', 'url'],
-            'phone' => ['required'],
+            'phone' => ['required', new PhoneNumber($request->phone_country_iso)],
             'address' => ['required'],
             'state' => ['required'],
             'country' => ['required'],

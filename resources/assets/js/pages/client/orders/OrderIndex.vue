@@ -3,8 +3,10 @@
         <AppCard :title="__('message.my_orders')">
             <DataTable :url="apiUrl" :dataColumns="columns" :option="tableOptions">
                 <template #number="{ row }">
-                    <RouterLink :to="'/my-order/' + row.id" class="fw-semibold">{{ row.number || '—' }}</RouterLink>
-                    <span v-if="row.is_terminated" class="badge bg-danger ms-1">{{ __('message.terminated') }}</span>
+                    <div class="d-flex flex-column align-items-start">
+                        <RouterLink :to="'/my-order/' + row.id" class="fw-semibold">{{ row.number || '—' }}</RouterLink>
+                        <span v-if="row.is_terminated" class="badge bg-danger mt-1 w-auto">{{ __('message.terminated') }}</span>
+                    </div>
                 </template>
                 <template #order_date="{ row }">{{ formatDate(row.order_date) }}</template>
                 <template #update_ends_at="{ row }">{{ formatDate(row.update_ends_at) }}</template>
@@ -36,7 +38,7 @@
         <AppModal
             :showModal="showDownloadModal"
             :onClose="closeDownloadModal"
-            classname="modal-xl"
+            classname="modal-xl modal-dialog-scrollable"
             :showCloseBtn="false"
             :showControls="false"
         >
@@ -123,14 +125,14 @@ const tableOptions = reactive({
         action:         () => __('message.actions'),
     },
     columnsClasses: {
-        product_name:   'dt-name',
-        order_date:     'dt-date',
-        number:         'dt-number',
-        agents:         'dt-code',
-        update_ends_at: 'dt-date',
-        action:         'dt-action',
+        product_name:   'dt-product-col',
+        order_date:     'dt-date-col',
+        number:         'dt-number-col',
+        agents:         'dt-agents-col',
+        update_ends_at: 'dt-date-col',
+        action:         'dt-action-col',
     },
-    sortable:   ['number', 'order_date', 'update_ends_at'],
+    sortable:   ['product_name', 'number', 'order_date', 'update_ends_at'],
     filterable: true,
 })
 

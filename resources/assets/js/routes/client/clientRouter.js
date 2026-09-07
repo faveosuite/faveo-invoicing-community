@@ -24,7 +24,7 @@ const routes = [
     // ── Guest auth pages (served at app root: /login, /verify, …) ────────────
     // These load on hard navigation from the client.blade shell; the server
     // guard bounces already-authenticated users to their panel.
-    { path: '/login',                 meta: { requiresAuth: false, guestOnly: true,  sidebar: false, title: 'Login', titleKey: 'message.login' }, component: () => import('@/pages/client/auth/LoginRegister.vue') },
+    { path: '/login',                 meta: { requiresAuth: false, guestOnly: true,  sidebar: false, title: 'Sign in or Register', titleKey: 'message.sign_lr' }, component: () => import('@/pages/client/auth/LoginRegister.vue') },
     { path: '/password/reset',        meta: { requiresAuth: false, guestOnly: true,  sidebar: false, title: 'Forgot Password', titleKey: 'message.forgot-password' }, component: () => import('@/pages/client/auth/ForgotPassword.vue') },
     { path: '/password/reset/:token', meta: { requiresAuth: false, guestOnly: true,  sidebar: false, title: 'Reset Password', titleKey: 'message.reset_password', breadcrumb: [{ title: 'Reset Password', titleKey: 'message.reset_password' }] }, component: () => import('@/pages/client/auth/ResetPassword.vue') },
     { path: '/verify',                meta: { requiresAuth: false, sidebar: false, title: 'Verify Email', titleKey: 'message.verify_email' }, component: () => import('@/pages/client/auth/Verify.vue') },
@@ -40,7 +40,7 @@ const routes = [
     { path: '/my-invoice/:id', meta: { title: 'Invoice Details', sidebar: false }, component: () => import('@/pages/client/invoices/InvoiceShow.vue') },
     { path: '/my-profile',                  meta: { title: 'My Profile' },       component: () => import('@/pages/client/profile/ProfileIndex.vue') },
     { path: '/my-profile/change-password', meta: { title: 'Change Password' },  component: () => import('@/pages/client/profile/ChangePassword.vue') },
-    { path: '/my-profile/2fa',             meta: { title: 'Two-Factor Auth' },  component: () => import('@/pages/client/profile/TwoFactor.vue') },
+    { path: '/my-profile/2fa',             meta: { title: 'Two-Factor Authentication', titleKey: 'message.two_factor_authentication' },  component: () => import('@/pages/client/profile/TwoFactor.vue') },
     { path: '/store',          meta: { title: 'Store', sidebar: false, requiresAuth: false, ownsDocumentTitle: true }, component: () => import('@/pages/client/store/StoreIndex.vue') },
     { path: '/store/:groupId', meta: { title: 'Store', sidebar: false, requiresAuth: false, ownsDocumentTitle: true }, component: () => import('@/pages/client/store/StoreIndex.vue') },
     { path: '/cart',           meta: { title: 'Shopping Cart', sidebar: false }, component: () => import('@/pages/client/cart/CartPage.vue') },

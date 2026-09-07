@@ -10,6 +10,7 @@ use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\User\AccountActivate;
+use App\Rules\PhoneNumber;
 use App\User;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
@@ -138,7 +139,7 @@ class ProfileVerificationController extends BaseAuthController
     public function sendMobileOtp(Request $request, mixed $method = 'POST'): JsonResponse
     {
         $request->validate([
-            'mobile_to_verify' => ['required', 'string'],
+            'mobile_to_verify' => ['required', 'string', new PhoneNumber($request->country_iso)],
             'dial_code' => ['required', 'string'],
             'country_iso' => ['required', 'string'],
         ], [

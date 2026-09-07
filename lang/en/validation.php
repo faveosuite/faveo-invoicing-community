@@ -1007,7 +1007,7 @@ return [
     'too_many_login_attempts' => 'You have been locked out of application due to too many failed login attempts, Please retry after :time',
 
     // Phone number validation (libphonenumber)
-    'phone_number' => 'The :attribute is not a valid phone number.',
+    'phone_number' => 'Please enter a valid mobile phone number.',
     'mobile_number' => 'The :attribute must be a valid mobile phone number.',
 
     // Missing keys — added 2026-06-26

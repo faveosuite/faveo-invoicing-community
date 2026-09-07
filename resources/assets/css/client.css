@@ -26,3 +26,155 @@
 .v-popper__inner { text-align: center !important; }
 .v-popper__inner div { max-width: 300px !important; word-break: break-word !important; }
 .tooltip-inner { max-width: 600px; }
+
+/* ── Client sidebar ─────────────────────────────────────────────────────────
+ * Shared by the account sidebar (themes/porto/components/common/Sidebar.vue)
+ * and the order page's tab nav (pages/client/orders/OrderShow.vue). Both mark
+ * their <aside> .client-sidebar and their <ul> .nav-list.no-arrows.
+ * ─────────────────────────────────────────────────────────────────────────── */
+/* The row is taller than the nav, so the column has to shrink to its content
+   before it has any room to stick within. */
+@media (min-width: 992px) {
+    #app-client .client-sidebar-col {
+        flex: 0 0 23%;
+        width: 23%;
+        position: sticky;
+        top: 1rem;
+        align-self: flex-start;
+    }
+    #app-client .client-content-col {
+        flex: 0 0 77%;
+        width: 77%;
+    }
+}
+
+#app-client .client-sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.625rem;
+    font-size: 0.875rem;
+    line-height: 1.35;
+    color: #555;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-left: 3px solid transparent;
+    transition: background 0.15s, color 0.15s;
+}
+
+#app-client .client-sidebar .nav-link:hover {
+    background: rgba(0, 0, 0, 0.02);
+    color: var(--primary, #0088cc);
+}
+
+/* The one loud thing in the sidebar: where you are now. */
+#app-client .client-sidebar .nav-link.active {
+    border-left-color: var(--primary, #0088cc);
+    background: var(--primary-rgba-10, rgba(0, 136, 204, 0.1));
+    color: var(--primary, #0088cc);
+    font-weight: 600;
+}
+
+#app-client .client-sidebar .nav-icon {
+    font-size: 0.875rem;
+    color: #9a9a9a;
+}
+
+#app-client .client-sidebar .nav-link:hover .nav-icon,
+#app-client .client-sidebar .nav-link.active .nav-icon {
+    color: inherit;
+}
+
+#app-client .client-sidebar .nav-section {
+    width: 100%;
+    background: none;
+    border-right: 0;
+    border-top: 0;
+    color: #555;
+    text-align: left;
+    cursor: pointer;
+}
+
+/* Collapsed sections still say whether the current page lives inside them. */
+#app-client .client-sidebar .nav-section-current {
+    color: var(--primary, #0088cc);
+    font-weight: 600;
+}
+
+#app-client .client-sidebar .nav-caret {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: #b0b0b0;
+    transition: transform 0.15s;
+}
+
+#app-client .client-sidebar .nav-caret-open {
+    transform: rotate(180deg);
+}
+
+/* Indent and a smaller type size mark the children as subordinate. */
+#app-client .client-sidebar .nav-sublist {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#app-client .client-sidebar .nav-sublist .nav-link {
+    padding-left: 1.25rem;
+    font-size: 0.8125rem;
+}
+
+/* Logout ends the session, so it carries the skin's warning colour. */
+#app-client .client-sidebar .nav-exit,
+#app-client .client-sidebar .nav-exit .nav-icon {
+    color: var(--secondary, #e36159);
+}
+
+#app-client .client-sidebar .nav-exit:hover,
+#app-client .client-sidebar .nav-exit:hover .nav-icon {
+    color: var(--secondary-200, #dd4238);
+}
+
+/* ── Client Action Buttons in Tables ────────────────────────────────────────── */
+#app-client .table_btn.action-btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+#app-client .table_btn.action-btn .action-btn-icon {
+    margin-right: 0 !important;
+}
+
+/* ── Client Orders / Tables ─────────────────────────────────────────────────── */
+#app-client .dt-product-col { min-width: 140px; }
+#app-client .dt-date-col    { min-width: 105px; max-width: 125px; white-space: nowrap; }
+#app-client .dt-number-col  { min-width: 100px; max-width: 130px; }
+#app-client .dt-number-col a { white-space: nowrap; }
+#app-client .dt-number-col .badge { white-space: nowrap; font-size: 0.72rem; }
+#app-client .dt-agents-col  { min-width: 65px;  max-width: 80px; text-align: center; }
+#app-client .dt-action-col  { min-width: 140px; max-width: 155px; }
+
+/* ── Client Invoices Table ──────────────────────────────────────────────────── */
+#app-client .dt-inv-num     { min-width: 90px; max-width: 115px; white-space: nowrap; }
+#app-client .dt-inv-date    { min-width: 85px; max-width: 105px; white-space: nowrap; }
+#app-client .dt-inv-order   { min-width: 80px; max-width: 105px; white-space: nowrap; }
+#app-client .dt-inv-amount  { min-width: 70px; max-width: 90px; white-space: nowrap; }
+#app-client .dt-inv-status  { min-width: 65px; max-width: 80px; text-align: center; white-space: nowrap; }
+#app-client .dt-inv-action  { min-width: 120px; max-width: 135px; white-space: nowrap; }
+
+#app-client .VueTables__table {
+    font-size: 13px !important;
+}
+
+#app-client .VueTables__table th,
+#app-client .VueTables__table td {
+    padding: 0.55rem 0.45rem;
+    vertical-align: middle;
+}
+
+
