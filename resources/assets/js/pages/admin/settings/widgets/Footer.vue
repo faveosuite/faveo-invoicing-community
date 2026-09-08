@@ -38,15 +38,33 @@
                                     <Switch :name="`publish-${ft.key}`" :value="forms[ft.key].publish" :onChange="(val) => forms[ft.key].publish = val" />
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label fw-bold d-block">{{ __('message.allow_newsletter') }}</label>
-                                    <span v-if="!mailchimpStatus" class="d-block">
-                                        <small class="text-muted">{{ __('message.newsletter_not_configured') }}</small>
-                                    </span>
-                                    <Switch :name="`allow_mailchimp-${ft.key}`" :value="forms[ft.key].allow_mailchimp" :disabled="!mailchimpStatus" :onChange="(val) => forms[ft.key].allow_mailchimp = val" />
+                                    <label class="form-label fw-bold d-flex align-items-center gap-1">
+                                        <span>{{ __('message.allow_newsletter') }}</span>
+                                        <Tooltip v-if="!mailchimpStatus" :message="__('message.newsletter_not_configured')" />
+                                        <Tooltip v-else-if="otherFooterHasMailchimp(ft.key)" :message="__('message.mailchimp_footer_error')" />
+                                    </label>
+                                    <div :title="!mailchimpStatus ? __('message.newsletter_not_configured') : (otherFooterHasMailchimp(ft.key) ? __('message.mailchimp_footer_error') : '')">
+                                        <Switch
+                                            :name="`allow_mailchimp-${ft.key}`"
+                                            :value="forms[ft.key].allow_mailchimp"
+                                            :disabled="!mailchimpStatus || otherFooterHasMailchimp(ft.key)"
+                                            :onChange="(val) => onMailchimpChange(ft.key, val)"
+                                        />
+                                    </div>
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label fw-bold d-block">{{ __('message.allow_social_media_icons') }}</label>
-                                    <Switch :name="`allow_social_media-${ft.key}`" :value="forms[ft.key].allow_social_media" :onChange="(val) => forms[ft.key].allow_social_media = val" />
+                                    <label class="form-label fw-bold d-flex align-items-center gap-1">
+                                        <span>{{ __('message.allow_social_media_icons') }}</span>
+                                        <Tooltip v-if="otherFooterHasSocial(ft.key)" :message="__('message.social_icon_footer_warning')" />
+                                    </label>
+                                    <div :title="otherFooterHasSocial(ft.key) ? __('message.social_icon_footer_warning') : ''">
+                                        <Switch
+                                            :name="`allow_social_media-${ft.key}`"
+                                            :value="forms[ft.key].allow_social_media"
+                                            :disabled="otherFooterHasSocial(ft.key)"
+                                            :onChange="(val) => onSocialMediaChange(ft.key, val)"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -70,13 +88,14 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, watch, onMounted } from 'vue'
 import { useForm } from 'vee-validate'
 import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { footerWidgetSchema } from '@/validations/admin/widgetValidations'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
+import Tooltip from '@/components/Reusable/Tooltip.vue'
 
 const COMPONENT = 'footer-widget'
 
@@ -99,12 +118,53 @@ const forms = reactive({
     footer3: { name: '', publish: true, allow_mailchimp: false, allow_social_media: false, content: '' },
 })
 
+const savedForms = reactive({
+    footer1: { name: '', publish: true, allow_mailchimp: false, allow_social_media: false, content: '' },
+    footer2: { name: '', publish: true, allow_mailchimp: false, allow_social_media: false, content: '' },
+    footer3: { name: '', publish: true, allow_mailchimp: false, allow_social_media: false, content: '' },
+})
+
 const saving = reactive({ footer1: false, footer2: false, footer3: false })
+
+function otherFooterHasSocial(type) {
+    return footerTypes.some(ft => ft.key !== type && savedForms[ft.key]?.allow_social_media)
+}
+
+function otherFooterHasMailchimp(type) {
+    return footerTypes.some(ft => ft.key !== type && savedForms[ft.key]?.allow_mailchimp)
+}
+
+function onSocialMediaChange(type, val) {
+    if (val && otherFooterHasSocial(type)) {
+        forms[type].allow_social_media = false
+        return
+    }
+    forms[type].allow_social_media = val
+}
+
+function onMailchimpChange(type, val) {
+    if (val && otherFooterHasMailchimp(type)) {
+        forms[type].allow_mailchimp = false
+        return
+    }
+    forms[type].allow_mailchimp = val
+}
+
+watch(activeTab, (newTab, oldTab) => {
+    if (oldTab && savedForms[oldTab]) {
+        if (otherFooterHasSocial(oldTab) && forms[oldTab].allow_social_media) {
+            forms[oldTab].allow_social_media = savedForms[oldTab].allow_social_media
+        }
+        if (otherFooterHasMailchimp(oldTab) && forms[oldTab].allow_mailchimp) {
+            forms[oldTab].allow_mailchimp = savedForms[oldTab].allow_mailchimp
+        }
+    }
+})
 
 onMounted(async () => {
     try {
         const res = await http.get(`/widgets/list`, { params: { limit: 200 } })
-        const pages = res.data?.data?.data ?? []
+        const pages = res.data?.data?.data ?? res.data?.data?.pages?.data ?? res.data?.pages?.data ?? []
 
         for (const ft of footerTypes) {
             const found = pages.find(w => w.type === ft.key)
@@ -120,6 +180,7 @@ onMounted(async () => {
                     allow_social_media: Boolean(d.allow_social_media),
                     content:            d.content ?? '',
                 })
+                Object.assign(savedForms[ft.key], { ...forms[ft.key] })
             }
         }
     } catch (e) {
@@ -150,7 +211,16 @@ async function save(type) {
             widgetIds[type] = res.data?.data?.id ?? null
         }
         successHandler(res, COMPONENT)
+        Object.assign(savedForms[type], {
+            name:               forms[type].name,
+            publish:            forms[type].publish,
+            allow_mailchimp:    forms[type].allow_mailchimp,
+            allow_social_media: forms[type].allow_social_media,
+            content:            forms[type].content,
+        })
     } catch (e) {
+        forms[type].allow_social_media = savedForms[type].allow_social_media
+        forms[type].allow_mailchimp = savedForms[type].allow_mailchimp
         errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving[type] = false

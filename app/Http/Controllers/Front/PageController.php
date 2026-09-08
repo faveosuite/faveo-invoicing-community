@@ -474,11 +474,6 @@ class PageController extends Controller
     public function createPage(PageRequest $request): JsonResponse
     {
         try {
-            $pagesCount = FrontendPage::count();
-            if ($pagesCount >= 3) {
-                return errorResponse(__('message.limit_exceed'));
-            }
-
             $url = $request->validated('url');
             if ($request->validated('type') === 'contactus') {
                 $url = url('/contact-us');

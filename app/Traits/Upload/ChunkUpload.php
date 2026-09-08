@@ -25,6 +25,10 @@ trait ChunkUpload
                 throw new UploadMissingFileException;
             }
 
+            if (strtolower($request->file('file')->getClientOriginalExtension()) !== 'zip') {
+                return errorResponse(__('message.file_not_zip'), 500);
+            }
+
             $save = $receiver->receive();
             // check if the upload has finished (in chunk mode it will send smaller files)
 

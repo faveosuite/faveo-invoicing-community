@@ -2927,6 +2927,7 @@ return [
     'waiting' => 'Wait...',
     'provider_select' => 'Please select a cloud product.',
     'file_invalid' => 'It appears to be corrupted or invalid. Please verify the file and try again.',
+    'file_not_zip' => 'Please upload a valid zip file.',
     'checkbox_error' => 'Please select at least one status option.',
     'allowed_estatus' => 'Allowed Email Statuses',
     'file_not_upload' => '(file could not be uploaded: ',

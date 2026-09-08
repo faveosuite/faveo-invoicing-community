@@ -126,8 +126,56 @@ describe('Footer.vue', () => {
         expect(wrapper.vm.activeTab).toBe('footer1')
     })
 
-    it('switches active tab when tab is changed', async () => {
+    it('reverts allow_social_media and allow_mailchimp to saved state on save failure', async () => {
+        globalThis.mockHttp.onPut(/\/widgets\/update\//).reply(400, { message: 'Social icon error' })
+        for (let i = 0; i < 5; i++) await flushPromises()
+
+        // Suppose footer2 has saved allow_social_media: false
+        wrapper.vm.savedForms.footer2.allow_social_media = false
+        wrapper.vm.forms.footer2.allow_social_media = true
+
+        await wrapper.vm.save('footer2')
+        await flushPromises()
+
+        // Should have reverted to false
+        expect(wrapper.vm.forms.footer2.allow_social_media).toBe(false)
+        expect(errorHandler).toHaveBeenCalled()
+    })
+
+    it('prevents enabling social media if another footer already has it saved', async () => {
+        for (let i = 0; i < 5; i++) await flushPromises()
+
+        wrapper.vm.savedForms.footer1.allow_social_media = true
+        wrapper.vm.savedForms.footer2.allow_social_media = false
+        wrapper.vm.forms.footer2.allow_social_media = false
+
+        wrapper.vm.onSocialMediaChange('footer2', true)
+        expect(wrapper.vm.forms.footer2.allow_social_media).toBe(false)
+    })
+
+    it('prevents enabling mailchimp if another footer already has it saved', async () => {
+        for (let i = 0; i < 5; i++) await flushPromises()
+
+        wrapper.vm.savedForms.footer1.allow_mailchimp = true
+        wrapper.vm.savedForms.footer2.allow_mailchimp = false
+        wrapper.vm.forms.footer2.allow_mailchimp = false
+
+        wrapper.vm.onMailchimpChange('footer2', true)
+        expect(wrapper.vm.forms.footer2.allow_mailchimp).toBe(false)
+    })
+
+    it('reverts conflicting unsaved toggle state when switching tabs', async () => {
+        for (let i = 0; i < 5; i++) await flushPromises()
+
+        wrapper.vm.savedForms.footer1.allow_social_media = true
+        wrapper.vm.savedForms.footer2.allow_social_media = false
+        wrapper.vm.forms.footer2.allow_social_media = true
+
         wrapper.vm.activeTab = 'footer2'
-        expect(wrapper.vm.activeTab).toBe('footer2')
+        await wrapper.vm.$nextTick()
+        wrapper.vm.activeTab = 'footer3'
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.vm.forms.footer2.allow_social_media).toBe(false)
     })
 })

@@ -77,7 +77,14 @@ export function useChunkedFileUpload() {
         uploadedForFile.value = null
         fileError.value = ''
 
-        if (picked) startUpload(picked)
+        if (!picked) return
+
+        if (!/\.zip$/i.test(picked.name)) {
+            fileError.value = __('message.file_not_zip')
+            return
+        }
+
+        startUpload(picked)
     }
 
     return { file, uploading, uploadProgress, fileError, uploadedName, uploadedForFile, onFile }

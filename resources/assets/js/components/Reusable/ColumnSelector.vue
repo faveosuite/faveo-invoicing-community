@@ -1,6 +1,7 @@
 <template>
     <div class="btn-group column-selector">
         <button
+            ref="toggleBtn"
             type="button"
             class="btn btn-light border dropdown-toggle"
             data-bs-toggle="dropdown"
@@ -86,6 +87,7 @@ const loading = ref(false)
 const saving = ref(false)
 const loaded = ref(false)
 const dragIndex = ref(null)
+const toggleBtn = ref(null)
 
 const locked = computed(() => [...props.pinStart, ...props.pinEnd])
 
@@ -167,6 +169,7 @@ async function apply() {
         })
         successHandler(res, props.componentName)
         emit('change', visibleKeys())
+        globalThis.bootstrap?.Dropdown?.getInstance(toggleBtn.value)?.hide()
     } catch (e) {
         errorHandler(e, props.componentName)
     } finally {

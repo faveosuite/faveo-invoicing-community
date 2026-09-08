@@ -33,7 +33,11 @@ class GroupRequest extends Request
             'headline' => ['nullable', 'string'],
             'tagline' => ['nullable', 'string'],
             'hidden' => ['nullable', 'integer'],
-            'pricing_templates_id' => ['required', 'exists:pricing_templates,id'],
+            // Design-template picker removed from the UI (2026-09) — it never drove any
+            // actual rendering difference, just a name/thumbnail. Kept nullable here so
+            // the column (still NOT NULL + FK, defaulted in GroupController::groupCreate())
+            // stays intact for whoever implements real per-template rendering later.
+            'pricing_templates_id' => ['nullable', 'integer', 'exists:pricing_templates,id'],
             'status' => ['nullable', 'boolean'],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:255'],

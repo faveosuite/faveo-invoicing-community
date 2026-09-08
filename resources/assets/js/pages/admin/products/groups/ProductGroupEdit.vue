@@ -24,18 +24,6 @@
 
                     <div class="row">
                         <div class="col-md-4">
-                            <DynamicSelect
-                                name="pricing_templates_id"
-                                :label="__('message.design_template')"
-                                :required="true"
-                                :apiEndpoint="`${baseUrl}/dependency/pricing-templates`"
-                                dataKey="pricing_templates"
-                                :value="form.templateObj"
-                                :onChange="onChange"
-                                :error="errors.pricing_templates_id"
-                            />
-                        </div>
-                        <div class="col-md-4">
                             <RadioButton
                                 name="status"
                                 :label="__('message.status')"
@@ -111,8 +99,6 @@ const form = reactive({
     headline: '',
     tagline: '',
     hidden: 0,
-    pricing_templates_id: null,
-    templateObj: null,
     status: 0,
     meta_title: '',
     meta_description: '',
@@ -122,12 +108,7 @@ const form = reactive({
 
 function onChange(val, name) {
     setFieldError(name, undefined)
-    if (name === 'pricing_templates_id') {
-        form.templateObj = val
-        form.pricing_templates_id = val?.id ?? null
-    } else {
-        form[name] = val
-    }
+    form[name] = val
 }
 
 onMounted(async () => {
@@ -139,17 +120,12 @@ onMounted(async () => {
         form.tagline = g.tagline ?? ''
         form.hidden = g.hidden ?? 0
         form.status = g.status ?? 0
-        form.pricing_templates_id = g.pricing_templates_id ?? null
         form.meta_title = g.meta_title ?? ''
         form.meta_description = g.meta_description ?? ''
         form.og_title = g.og_title ?? ''
         form.og_description = g.og_description ?? ''
         ogImagePreview.value = g.og_image ?? ''
         ogSameAsMeta.value = Boolean(g.og_same_as_meta)
-        const pt = g.pricing_template ?? g.pricingTemplate
-        if (pt) {
-            form.templateObj = { id: pt.id, name: pt.name }
-        }
     } catch (e) {
         errorHandler(e, COMPONENT, { setErrors })
     } finally {
@@ -167,7 +143,6 @@ async function submit() {
         fd.append('headline', form.headline ?? '')
         fd.append('tagline', form.tagline ?? '')
         fd.append('hidden', form.hidden ? 1 : 0)
-        fd.append('pricing_templates_id', form.pricing_templates_id ?? '')
         fd.append('status', form.status)
         fd.append('meta_title', form.meta_title ?? '')
         fd.append('meta_description', form.meta_description ?? '')

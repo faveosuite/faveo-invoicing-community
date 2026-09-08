@@ -6,6 +6,7 @@ use App\Facades\Attach;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\GroupRequest;
 use App\Model\Payment\Plan;
+use App\Model\Common\PricingTemplate;
 use App\Model\Product\ConfigurableOption;
 use App\Model\Product\GroupFeatures;
 use App\Model\Product\Product;
@@ -77,7 +78,6 @@ class GroupController extends Controller
     {
         try {
             $group = ProductGroup::with([
-                'pricingTemplate:id,image,name',
                 'product:id,name,group',
             ])->findOrFail($groupId);
 
@@ -143,6 +143,10 @@ class GroupController extends Controller
             if ($request->hasFile('og_image')) {
                 $data['og_image'] = basename((string) Attach::put('images', $request->file('og_image'), null, true));
             }
+            // No template picker in the UI anymore (see GroupRequest) but the column is
+            // NOT NULL + FK. TODO: once real per-template rendering exists, replace this
+            // with whatever selection UI/logic that feature needs.
+            $data['pricing_templates_id'] ??= PricingTemplate::query()->value('id');
             ProductGroup::create($data);
 
             $this->regenerateSeoFiles();

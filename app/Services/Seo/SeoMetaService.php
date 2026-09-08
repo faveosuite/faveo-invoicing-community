@@ -116,8 +116,8 @@ class SeoMetaService
             },
             $path,
             $this->resolveImage($row?->og_image),
-            $this->formatter->resolveShortcodes($row?->og_title, $name) ?: ($this->formatter->generalOgTitle() ?: $title),
-            $this->formatter->resolveShortcodes($row?->og_description, $name) ?: ($this->formatter->generalOgDescription() ?: $description),
+            $this->ogTitle($row?->og_title, (bool) $row?->og_same_as_meta, $name, $title),
+            $this->ogDescription($row?->og_description, (bool) $row?->og_same_as_meta, $name, $description),
         );
     }
 
@@ -141,8 +141,8 @@ class SeoMetaService
             self::INDEX,
             $path,
             $this->resolveImage($page->og_image),
-            $this->formatter->resolveShortcodes($page->og_title, $page->name) ?: ($this->formatter->generalOgTitle() ?: $title),
-            $this->formatter->resolveShortcodes($page->og_description, $page->name) ?: ($this->formatter->generalOgDescription() ?: $description),
+            $this->ogTitle($page->og_title, (bool) $page->og_same_as_meta, $page->name, $title),
+            $this->ogDescription($page->og_description, (bool) $page->og_same_as_meta, $page->name, $description),
         );
     }
 
@@ -164,8 +164,8 @@ class SeoMetaService
             self::INDEX,
             $path,
             $this->resolveImage($page?->og_image),
-            $this->formatter->resolveShortcodes($page?->og_title, $name) ?: ($this->formatter->generalOgTitle() ?: $title),
-            $this->formatter->resolveShortcodes($page?->og_description, $name) ?: ($this->formatter->generalOgDescription() ?: $description),
+            $this->ogTitle($page?->og_title, (bool) $page?->og_same_as_meta, $name, $title),
+            $this->ogDescription($page?->og_description, (bool) $page?->og_same_as_meta, $name, $description),
         );
     }
 
@@ -193,8 +193,8 @@ class SeoMetaService
             self::INDEX,
             $path,
             $this->resolveImage($group?->og_image),
-            $this->formatter->resolveShortcodes($group?->og_title, $name) ?: ($this->formatter->generalOgTitle() ?: $title),
-            $this->formatter->resolveShortcodes($group?->og_description, $name) ?: ($this->formatter->generalOgDescription() ?: $description),
+            $this->ogTitle($group?->og_title, (bool) $group?->og_same_as_meta, $name, $title),
+            $this->ogDescription($group?->og_description, (bool) $group?->og_same_as_meta, $name, $description),
         );
     }
 
@@ -406,6 +406,33 @@ class SeoMetaService
             'og_title' => $ogTitle,
             'og_description' => $ogDescription,
         ];
+    }
+
+    /**
+     * Resolves a page/group/default-page's own Open Graph title. When
+     * "OG Same as Meta" is on, the meta title wins outright — even over a
+     * stale, separately-configured og_title still sitting in the column
+     * (the admin form only mirrors meta_title into og_title client-side on
+     * change; nothing here re-syncs an already-toggled-on row that was
+     * never re-edited since).
+     */
+    private function ogTitle(?string $ogTitle, bool $sameAsMeta, string $name, string $title): string
+    {
+        if ($sameAsMeta) {
+            return $title;
+        }
+
+        return $this->formatter->resolveShortcodes($ogTitle, $name) ?: ($this->formatter->generalOgTitle() ?: $title);
+    }
+
+    /** Same "Same as Meta" precedence as ogTitle(), for the description. */
+    private function ogDescription(?string $ogDescription, bool $sameAsMeta, string $name, string $description): string
+    {
+        if ($sameAsMeta) {
+            return $description;
+        }
+
+        return $this->formatter->resolveShortcodes($ogDescription, $name) ?: ($this->formatter->generalOgDescription() ?: $description);
     }
 
     /**

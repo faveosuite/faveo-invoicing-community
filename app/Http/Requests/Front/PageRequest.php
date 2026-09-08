@@ -23,6 +23,19 @@ class PageRequest extends Request
     }
 
     /**
+     * The parent dropdown sends 0 for "no parent" (same convention the
+     * parent_page_id closure below and other queries in this codebase use),
+     * but Rule::exists() only knows real IDs (which start at 1). Normalize
+     * before validation instead of teaching every consumer about 0.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('parent_page_id') && (int) $this->input('parent_page_id') === 0) {
+            $this->merge(['parent_page_id' => null]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, mixed>
