@@ -14,8 +14,8 @@
                                     <i class="fas fa-upload text-primary"></i>
                                 </div>
                                 <div class="feature-box-info">
-                                    <h4 class="text-4 mt-3 mb-2 text-color-grey">Deploy on Existing Server</h4>
-                                    <p class="mb-0 text-2">Copies Faveo files to a configured server via SSH/SFTP. Fastest path for servers already running a web stack.</p>
+                                    <h4 class="text-4 mt-3 mb-2 text-color-grey">{{ __('message.deploy_on_existing_server') }}</h4>
+                                    <p class="mb-0 text-2">{{ __('message.deploy_existing_server_desc') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -31,9 +31,9 @@
                                     <i class="fas fa-server text-primary"></i>
                                 </div>
                                 <div class="feature-box-info">
-                                    <h4 class="text-4 mt-3 mb-2 text-color-grey">Deploy on Fresh Server</h4>
-                                    <p class="mb-0 text-2">Runs the Faveo install script on a bare OS — installs PHP, Apache/Nginx, MariaDB, Redis, and Supervisor.</p>
-                                    <span class="badge bg-warning text-dark mt-2">15–30 min</span>
+                                    <h4 class="text-4 mt-3 mb-2 text-color-grey">{{ __('message.deploy_on_fresh_server') }}</h4>
+                                    <p class="mb-0 text-2">{{ __('message.deploy_fresh_server_desc') }}</p>
+                                    <span class="badge bg-warning text-dark mt-2">{{ __('message.deploy_time_estimate') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -60,47 +60,47 @@
 
                     <!-- Segment: SSH Connectivity -->
                     <h6 class="text-color-grey text-uppercase fw-semibold mb-3 section-label">
-                        SSH Connectivity
+                        {{ __('message.deploy_ssh_connectivity') }}
                     </h6>
                     <div class="row">
                         <div class="col-md-8">
-                            <ClientField type="text" name="host" label="Host Address" :required="true"
+                            <ClientField type="text" name="host" :label="__('message.deploy_host_address')" :required="true"
                                          v-model="form.host" placeholder="192.168.1.100 or example.com"
                                          :error="errors.host" @update:modelValue="setFieldError('host', undefined)" />
                         </div>
                         <div class="col-md-4">
-                            <ClientField type="text" name="port" label="Port" :required="true"
+                            <ClientField type="text" name="port" :label="__('message.port')" :required="true"
                                          :model-value="String(form.port)" placeholder="22"
                                          :error="errors.port"
                                          @update:modelValue="form.port = Number($event); setFieldError('port', undefined)" />
                         </div>
                         <div class="col-md-6">
-                            <ClientField type="text" name="username" label="Username" :required="true"
+                            <ClientField type="text" name="username" :label="__('message.username')" :required="true"
                                          v-model="form.username" placeholder="root or ubuntu"
                                          :error="errors.username" @update:modelValue="setFieldError('username', undefined)" />
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label text-dark">Auth Method</label>
+                                <label class="form-label text-dark">{{ __('message.deploy_auth_method') }}</label>
                                 <div class="d-flex align-items-center gap-4">
                                     <label class="d-flex align-items-center mb-0 clickable">
                                         <input type="radio" class="me-2" name="auth_method" value="password" v-model="form.auth_method" />
-                                        Password
+                                        {{ __('message.password') }}
                                     </label>
                                     <label class="d-flex align-items-center mb-0 clickable">
                                         <input type="radio" class="me-2" name="auth_method" value="private_key" v-model="form.auth_method" />
-                                        Private Key
+                                        {{ __('message.deploy_private_key_option') }}
                                     </label>
                                 </div>
                             </div>
                         </div>
                         <div v-if="form.auth_method === 'password'" class="col-md-6">
-                            <ClientField type="password" name="password" label="SSH Password" :required="true"
+                            <ClientField type="password" name="password" :label="__('message.deploy_ssh_password')" :required="true"
                                          v-model="form.password" autocomplete="new-password"
                                          :error="errors.password" @update:modelValue="setFieldError('password', undefined)" />
                         </div>
                         <div v-else class="col-12">
-                            <ClientField type="textarea" name="private_key" label="SSH Private Key" :required="true"
+                            <ClientField type="textarea" name="private_key" :label="__('message.deploy_ssh_private_key')" :required="true"
                                          v-model="form.private_key" :rows="4"
                                          placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"
                                          :error="errors.private_key" @update:modelValue="setFieldError('private_key', undefined)" />
@@ -108,7 +108,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label text-dark">
-                                    Sudo Password
+                                    {{ __('message.deploy_sudo_password') }}
                                     <ToolTip message="Required only if the SSH user needs elevated privileges (sudo) to write to the deploy path or run commands on the server." size="small" />
                                 </label>
                                 <div class="input-group" :class="{ 'is-invalid': errors.sudo_password }">
@@ -133,18 +133,18 @@
                     <!-- Segment: Deployment Path (extract_only) -->
                     <template v-if="form.deploy_mode === 'extract_only'">
                         <h6 class="text-color-grey text-uppercase fw-semibold mb-3 section-label">
-                            Deployment Path
+                            {{ __('message.deploy_deployment_path') }}
                         </h6>
                         <div class="row">
                             <div class="col-md-8">
-                                <ClientField type="text" name="deploy_path" label="Deploy Path" :required="true"
+                                <ClientField type="text" name="deploy_path" :label="__('message.deploy_path_label')" :required="true"
                                              v-model="form.deploy_path" placeholder="/var/www/faveo"
                                              :error="errors.deploy_path" @update:modelValue="setFieldError('deploy_path', undefined)" />
                             </div>
                             <div class="col-md-8">
                                 <div class="mb-3">
                                     <label class="form-label text-dark">
-                                        Domain
+                                        {{ __('message.deploy_domain') }}
                                         <ToolTip message="Optional. Point your domain to this server's IP before deploying — it will be used to generate the web installer link once files are extracted." size="small" />
                                     </label>
                                     <input type="text" class="form-control form-control-lg text-4"
@@ -159,22 +159,22 @@
                     <!-- Segment: Installation Details (fresh_install) -->
                     <template v-if="form.deploy_mode === 'fresh_install'">
                         <h6 class="text-color-grey text-uppercase fw-semibold mb-3 section-label">
-                            Installation Details
+                            {{ __('message.installation_details') }}
                         </h6>
                         <div class="row">
                             <div class="col-md-6">
-                                <ClientField type="text" name="install_domain" label="Domain" :required="true"
+                                <ClientField type="text" name="install_domain" :label="__('message.deploy_domain')" :required="true"
                                              v-model="form.install_domain" placeholder="helpdesk.example.com"
                                              :error="errors.install_domain" @update:modelValue="setFieldError('install_domain', undefined)" />
                             </div>
                             <div class="col-md-6">
-                                <ClientField type="email" name="install_email" label="Admin Email" :required="true"
+                                <ClientField type="email" name="install_email" :label="__('message.deploy_admin_email')" :required="true"
                                              v-model="form.install_email"
                                              :error="errors.install_email" @update:modelValue="setFieldError('install_email', undefined)" />
                             </div>
                             <div class="col-12">
                                 <div class="mb-3">
-                                    <label class="form-label text-dark">Web Server <span class="text-danger">*</span></label>
+                                    <label class="form-label text-dark">{{ __('message.deploy_web_server') }} <span class="text-danger">*</span></label>
                                     <div class="d-flex align-items-center gap-4">
                                         <label class="d-flex align-items-center mb-0 clickable">
                                             <input type="radio" class="me-2" name="web_server" :value="1" v-model="form.web_server" />
@@ -189,7 +189,7 @@
                             </div>
                             <div class="col-12">
                                 <div class="mb-3">
-                                    <label class="form-label text-dark">SSL Certificate <span class="text-danger">*</span></label>
+                                    <label class="form-label text-dark">{{ __('message.deploy_ssl_certificate') }} <span class="text-danger">*</span></label>
                                     <div class="d-flex align-items-center gap-4">
                                         <label v-for="opt in sslOptions" :key="opt.value"
                                                class="d-flex align-items-center mb-0 clickable">
@@ -201,12 +201,12 @@
                             </div>
                             <template v-if="form.ssl_type === 'C'">
                                 <div class="col-md-6">
-                                    <ClientField type="text" name="ssl_cert_path" label="Certificate Path" :required="true"
+                                    <ClientField type="text" name="ssl_cert_path" :label="__('message.deploy_certificate_path')" :required="true"
                                                  v-model="form.ssl_cert_path" placeholder="/etc/ssl/certs/cert.crt"
                                                  :error="errors.ssl_cert_path" @update:modelValue="setFieldError('ssl_cert_path', undefined)" />
                                 </div>
                                 <div class="col-md-6">
-                                    <ClientField type="text" name="ssl_key_path" label="Key Path" :required="true"
+                                    <ClientField type="text" name="ssl_key_path" :label="__('message.deploy_key_path')" :required="true"
                                                  v-model="form.ssl_key_path" placeholder="/etc/ssl/private/cert.key"
                                                  :error="errors.ssl_key_path" @update:modelValue="setFieldError('ssl_key_path', undefined)" />
                                 </div>
@@ -217,7 +217,7 @@
 
                     <!-- Segment: Version -->
                     <h6 class="text-color-grey text-uppercase fw-semibold mb-3 section-label">
-                        Version to Deploy
+                        {{ __('message.deploy_version_heading') }}
                     </h6>
                     <div class="row">
                         <div class="col-md-6">
@@ -225,7 +225,7 @@
                             <DynamicSelect
                                 v-else
                                 name="version_id"
-                                label="Version"
+                                :label="__('message.version')"
                                 :elements="versionOptions"
                                 :value="versionOptions.find(v => v.id === form.version_id) ?? versionOptions[0]"
                                 :onChange="(val) => form.version_id = val?.id ?? null"
@@ -233,12 +233,12 @@
                             />
                         </div>
                         <div class="col-md-6">
-                            <ClientField type="text" name="web_user" label="Web User"
-                                         v-model="form.web_user" placeholder="www-data (auto-detected if blank)" />
+                            <ClientField type="text" name="web_user" :label="__('message.deploy_web_user')"
+                                         v-model="form.web_user" :placeholder="__('message.deploy_web_user_placeholder')" />
                         </div>
                     </div>
 
-                    <p class="text-muted small mt-2 mb-3"><i class="fas fa-lock me-1"></i> Your credentials are never stored — used only for this request.</p>
+                    <p class="text-muted small mt-2 mb-3"><i class="fas fa-lock me-1"></i> {{ __('message.deploy_credentials_notice') }}</p>
 
                     <div class="form-group row">
                         <div class="col-6">
@@ -261,7 +261,7 @@
         <!-- Step 2: Progress -->
         <template v-else-if="step === 2">
             <AppCard>
-                <h5 class="text-4 mb-3">Live Deployment</h5>
+                <h5 class="text-4 mb-3">{{ __('message.deploy_live_deployment') }}</h5>
                 <div v-for="(log, i) in progressLog" :key="i" class="d-flex align-items-start gap-2 mb-2">
                     <span v-if="log.status === 'ok'" class="text-success"><i class="fas fa-check-circle"></i></span>
                     <span v-else-if="log.status === 'error'" class="text-danger"><i class="fas fa-times-circle"></i></span>
@@ -277,31 +277,31 @@
             <AppCard>
                 <div class="text-center py-2">
                     <i class="fas fa-check-circle text-success icon-3rem"></i>
-                    <h4 class="text-4 mt-3 mb-1">Setup Complete!</h4>
-                    <p class="text-muted text-2">Your Faveo instance has been successfully deployed.</p>
+                    <h4 class="text-4 mt-3 mb-1">{{ __('message.deploy_setup_complete') }}</h4>
+                    <p class="text-muted text-2">{{ __('message.deploy_success_desc') }}</p>
                 </div>
                 <template v-if="result.setup_url">
                     <hr>
-                    <p class="mb-1 fw-semibold">Web Installer</p>
-                    <p class="text-muted small mb-2">Open this URL to complete the Faveo setup wizard.</p>
+                    <p class="mb-1 fw-semibold">{{ __('message.deploy_web_installer') }}</p>
+                    <p class="text-muted small mb-2">{{ __('message.deploy_web_installer_desc') }}</p>
                     <a :href="result.setup_url" target="_blank" class="btn btn-primary btn-sm btn-modern">
-                        Visit Web Installer <i class="fas fa-external-link-alt ms-1"></i>
+                        {{ __('message.deploy_visit_web_installer') }} <i class="fas fa-external-link-alt ms-1"></i>
                     </a>
                 </template>
                 <template v-if="result.site_url">
                     <hr>
-                    <p class="mb-1 fw-semibold">Detected Site URL</p>
+                    <p class="mb-1 fw-semibold">{{ __('message.deploy_detected_site_url') }}</p>
                     <a :href="result.site_url" target="_blank" class="btn btn-outline-primary btn-sm btn-modern">{{ result.site_url }}</a>
                 </template>
                 <template v-if="result.credentials">
                     <hr>
-                    <p class="mb-1 fw-semibold">Administrator Credentials</p>
-                    <p class="text-muted small mb-2">Save these securely.</p>
+                    <p class="mb-1 fw-semibold">{{ __('message.deploy_admin_credentials') }}</p>
+                    <p class="text-muted small mb-2">{{ __('message.deploy_save_securely') }}</p>
                     <pre class="bg-light p-3 rounded small">{{ result.credentials }}</pre>
                 </template>
                 <hr>
                 <button class="btn btn-outline-secondary btn-sm btn-modern" @click="resetWizard">
-                    <i class="fas fa-redo me-1"></i> Start Over
+                    <i class="fas fa-redo me-1"></i> {{ __('message.deploy_start_over') }}
                 </button>
             </AppCard>
         </template>
@@ -339,13 +339,13 @@ const errorMessage    = ref('')
 const result          = ref({})
 
 const sslOptions = [
-    { label: "Let's Encrypt (free)", value: 'A' },
-    { label: 'Self-Signed',          value: 'B' },
-    { label: 'Paid Certificate',     value: 'C' },
+    { label: __('message.deploy_ssl_lets_encrypt'), value: 'A' },
+    { label: __('message.deploy_ssl_self_signed'),  value: 'B' },
+    { label: __('message.deploy_ssl_paid_certificate'), value: 'C' },
 ]
 
 const versionOptions = computed(() => [
-    { id: null, name: 'Latest' },
+    { id: null, name: __('message.latest') },
     ...versions.value.map(v => ({ id: v.id, name: `${v.version} — ${v.title}` })),
 ])
 
@@ -431,21 +431,21 @@ async function startDeploy() {
     step.value         = 2
 
     try {
-        const verifyIdx = addLog('Verifying SSH connection…')
+        const verifyIdx = addLog(__('message.deploy_log_verifying_ssh'))
         await runStep('verify')
         updateLog(verifyIdx, 'ok')
 
         if (form.deploy_mode === 'fresh_install') {
-            const installIdx  = addLog('Running installation script (this may take 15–30 min)…')
+            const installIdx  = addLog(__('message.deploy_log_running_install'))
             const installData = await runStep('install')
             updateLog(installIdx, 'ok')
             result.value = { ...installData }
         } else {
-            const uploadIdx  = addLog('Uploading product files via SFTP…')
+            const uploadIdx  = addLog(__('message.deploy_log_uploading_files'))
             const uploadData = await runStep('upload')
             updateLog(uploadIdx, 'ok')
 
-            const extractIdx  = addLog('Extracting files on remote server…')
+            const extractIdx  = addLog(__('message.deploy_log_extracting_files'))
             const extractData = await runStep('extract', { remote_path: uploadData.remote_path })
             updateLog(extractIdx, 'ok')
             result.value = { ...extractData }
@@ -453,7 +453,7 @@ async function startDeploy() {
 
         step.value = 3
     } catch (err) {
-        const msg = err?.response?.data?.message ?? err?.message ?? 'Deployment failed.'
+        const msg = err?.response?.data?.message ?? err?.message ?? __('message.deploy_failed_generic')
         errorMessage.value = msg
         const lastIdx = progressLog.value.length - 1
         if (lastIdx >= 0) updateLog(lastIdx, 'error')

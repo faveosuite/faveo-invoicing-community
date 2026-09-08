@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Configuration</h4>
+                <h4 class="card-title">{{ __('message.configuration') }}</h4>
             </div>
 
             <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
@@ -16,7 +16,7 @@
                         <div class="col-md-6">
                             <div class="form-group mb-3">
                                 <label class="form-label">
-                                    Client Deployments
+                                    {{ __('message.client_deployments') }}
                                     <ToolTip :message="__('message.deployment_enabled_tooltip')" size="small" />
                                 </label>
                                 <div class="d-flex align-items-center gap-2 mt-1">

@@ -47,8 +47,8 @@ async function toggle(row, newVal) {
 
 const tableOptions = reactive({
     headings: {
-        name:        'Plugin',
-        description: 'Description',
+        name:        __('message.plugin'),
+        description: __('message.description'),
     },
     columnsClasses: {
         name:        'dt-name',
@@ -65,7 +65,7 @@ const tableOptions = reactive({
                     h(RouterLink, {
                         to: row.route,
                         class: 'plugin-link'
-                    }, () => 'Settings')
+                    }, () => __('message.settings'))
                 )
 
                 return h('div', {}, [
@@ -80,7 +80,7 @@ const tableOptions = reactive({
                     href: '#',
                     class: 'plugin-link activate-link',
                     onClick: (e) => { e.preventDefault(); toggle(row, !row.enabled) }
-                }, row.enabled ? 'Deactivate' : 'Activate')
+                }, row.enabled ? __('message.deactivate') : __('message.activate'))
             )
 
             // Settings link (if enabled and route is present)
@@ -90,7 +90,7 @@ const tableOptions = reactive({
                     h(RouterLink, {
                         to: row.route,
                         class: 'plugin-link'
-                    }, () => 'Settings')
+                    }, () => __('message.settings'))
                 )
             }
 

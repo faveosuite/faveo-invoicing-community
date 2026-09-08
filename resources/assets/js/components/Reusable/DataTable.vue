@@ -51,9 +51,9 @@
 
     <div class="pagination-container d-flex justify-content-between align-items-center flex-wrap gap-2">
       <div v-if="!isLoading">
-        <template v-if="total === 1">1 record</template>
-        <template v-else-if="total !== null && total <= perPage">{{ total }} records</template>
-        <template v-else-if="total !== null">Showing {{ from }} to {{ to }} of {{ total }} records</template>
+        <template v-if="total === 1">{{ __('message.one_record') }}</template>
+        <template v-else-if="total !== null && total <= perPage">{{ __('message.x_records', { count: total }) }}</template>
+        <template v-else-if="total !== null">{{ __('message.datatable_info').replace('_START_', from).replace('_END_', to).replace('_TOTAL_', total) }}</template>
       </div>
       <Pagination
           v-if="!isLoading"

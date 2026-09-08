@@ -868,11 +868,41 @@ Route::middleware('installAgora')->group(function (): void {
     // registered AFTER all API routes to avoid swallowing API 404s.
     // ==========================================================
 
-    // Admin SPA
+    // Admin SPA — every admin route requires an authenticated admin (see
+    // adminRouter.js, nothing under /admin is guest-accessible), so the
+    // server can gate the whole thing: a guest never gets the shell/JS,
+    // no client-side redirect flash.
     Route::get('/admin/{any?}', fn (): Factory|\Illuminate\Contracts\View\View => view('admin'))
+        ->middleware(['auth', 'admin'])
         ->where('any', '.*');
 
-    // Client SPA catch-all — Route::fallback() always matches last,
-    // even after routes registered by service providers.
-    Route::fallback(fn (): Factory|\Illuminate\Contracts\View\View => view('client'));
+    // Client SPA — pages that require login. Registered ahead of the
+    // guest-accessible fallback below so a direct hit on e.g. /my-orders
+    // gets redirected to /login by the server, instead of shipping the SPA
+    // shell and having clientRouter.js's guard bounce it after the fact.
+    // Mirrors the routes in clientRouter.js that don't set
+    // requiresAuth:false — keep both lists in sync.
+    $clientShell = fn (): Factory|\Illuminate\Contracts\View\View => view('client');
+
+    Route::middleware('auth')->group(function () use ($clientShell): void {
+        Route::get('/', $clientShell);
+        Route::get('client-dashboard', $clientShell);
+        Route::get('my-orders', $clientShell);
+        Route::get('my-order/{id}', $clientShell);
+        Route::get('my-invoices', $clientShell);
+        Route::get('my-invoice/{id}', $clientShell);
+        Route::get('my-profile', $clientShell);
+        Route::get('my-profile/change-password', $clientShell);
+        Route::get('my-profile/2fa', $clientShell);
+        Route::get('checkout', $clientShell);
+        Route::get('place-order', $clientShell);
+        Route::get('payment-success', $clientShell);
+    });
+
+    // Client SPA catch-all — Route::fallback() always matches last, even
+    // after routes registered by service providers. Everything that
+    // reaches here is guest-accessible (login, store, contact-us,
+    // pages/:slug, pay, verify, ...); clientRouter.js's own guard still
+    // handles guest-vs-authenticated routing for those.
+    Route::fallback($clientShell);
 }); // end Route::middleware('installAgora')

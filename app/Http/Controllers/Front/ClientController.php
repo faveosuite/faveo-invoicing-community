@@ -160,7 +160,7 @@ class ClientController extends BaseClientController
         try {
             $user = Auth::user();
             if (! $user instanceof User) {
-                return errorResponse('Unauthorized', 401);
+                return errorResponse(__('message.unauthorized_action'), 401);
             }
 
             $balance = new AdvanceSearchController()->getExtraAmt($user->id);
@@ -218,7 +218,7 @@ class ClientController extends BaseClientController
         $latestInvoice = $order->invoices->first();
         $user = Auth::user();
         if (! $user instanceof User) {
-            return errorResponse('Unauthorized', 401);
+            return errorResponse(__('message.unauthorized_action'), 401);
         }
 
         $license = License::where('license_order_number', $order->number)->first(['license_domain', 'license_ip', 'license_machine_id']);
@@ -370,7 +370,7 @@ class ClientController extends BaseClientController
         try {
             $user = Auth::user();
             if (! $user instanceof User) {
-                return errorResponse('Unauthorized', 401);
+                return errorResponse(__('message.unauthorized_action'), 401);
             }
             $order = $this->getClientPanelOrdersData()->where('id', $orderId)->first();
             $product = $order?->productRelation;
@@ -428,7 +428,7 @@ class ClientController extends BaseClientController
         try {
             $user = Auth::user();
             if (! $user instanceof User) {
-                return errorResponse('Unauthorized', 401);
+                return errorResponse(__('message.unauthorized_action'), 401);
             }
             $currency = getCurrencyForClient($user->country);
 
@@ -513,7 +513,7 @@ class ClientController extends BaseClientController
 
             $product = $order->productRelation;
             if (! $product instanceof Product) {
-                return errorResponse('Product relation not found.', 404);
+                return errorResponse(__('message.product_relation_not_found'), 404);
             }
             $subscription = $order->subscription;
 
@@ -889,7 +889,7 @@ class ClientController extends BaseClientController
     {
         $user = Auth::user();
         if (! $user instanceof User) {
-            return errorResponse('Unauthenticated.', 401);
+            return errorResponse(__('message.unauthenticated'), 401);
         }
 
         return successResponse('', [

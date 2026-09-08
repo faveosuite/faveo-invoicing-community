@@ -317,7 +317,7 @@ class PaymentController extends Controller
     private function authorizedInvoice(Request $request, int $invoiceId): Invoice
     {
         $invoice = Invoice::find($invoiceId);
-        abort_if(! $invoice, 404, 'Invoice not found.');
+        abort_if(! $invoice, 404, __('message.invoice_not_found'));
         abort_if((int) $invoice->user_id !== (int) $request->user()?->getAuthIdentifier(), 403, 'Forbidden');
 
         return $invoice;

@@ -15,7 +15,7 @@
                             <div class="card card-light mb-4">
                                 <div class="card-header">
                                     <h4 class="card-title">
-                                        <i class="fas fa-circle-info text-muted me-2"></i>Basic Information &amp; Content
+                                        <i class="fas fa-circle-info text-muted me-2"></i>{{ __('message.basic_information_content') }}
                                     </h4>
                                 </div>
                                 <div class="card-body">
@@ -106,7 +106,7 @@
                             <div class="card card-light mb-4">
                                 <div class="card-header">
                                     <h4 class="card-title">
-                                        <i class="fas fa-image text-muted me-2"></i>Product Image
+                                        <i class="fas fa-image text-muted me-2"></i>{{ __('message.product_image') }}
                                     </h4>
                                 </div>
                                 <div class="card-body">
@@ -123,7 +123,7 @@
                             <div class="card card-light mb-4">
                                 <div class="card-header">
                                     <h4 class="card-title">
-                                        <i class="fas fa-receipt text-muted me-2"></i>Tax
+                                        <i class="fas fa-receipt text-muted me-2"></i>{{ __('message.tax') }}
                                     </h4>
                                 </div>
                                 <div class="card-body">
@@ -164,7 +164,7 @@
                             <div class="card card-light mb-4">
                                 <div class="card-header">
                                     <h4 class="card-title">
-                                        <i class="fas fa-shopping-cart text-muted me-2"></i>Cart &amp; Display
+                                        <i class="fas fa-shopping-cart text-muted me-2"></i>{{ __('message.cart_display') }}
                                     </h4>
                                 </div>
                                 <div class="card-body">
@@ -193,7 +193,7 @@
                             <div class="card card-light mb-4">
                                 <div class="card-header">
                                     <h4 class="card-title">
-                                        <i class="fas fa-sliders-h text-muted me-2"></i>Visibility &amp; Behavior
+                                        <i class="fas fa-sliders-h text-muted me-2"></i>{{ __('message.visibility_behavior') }}
                                     </h4>
                                 </div>
                                 <div class="card-body">

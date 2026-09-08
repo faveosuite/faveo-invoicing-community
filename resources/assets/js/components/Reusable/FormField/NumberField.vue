@@ -33,7 +33,7 @@ const props = defineProps({
     labelStyle:  { type: Object },
     formStyle:   { type: Object },
     max:         { type: [String, Number], default: '' },
-    placeholder: { type: String,           default: 'Enter a value' },
+    placeholder: { type: String,           default: () => __('message.enter_a_value') },
     pattern:     { type: String,           default: null },
     error:       { type: String,           default: undefined },
 })

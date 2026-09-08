@@ -188,7 +188,7 @@ class ClientController extends AdvanceSearchController
         } catch (Exception $exception) {
             Log::error('Report Export Failure'.$exception->getMessage());
 
-            return errorResponse('Report Export Failure'.$exception->getMessage());
+            return errorResponse(__('message.export_failed').$exception->getMessage());
         }
     }
 

@@ -21,7 +21,7 @@ class MonitoringController extends Controller
         $type = strtolower((string) $request->input('type', ''));
 
         if (! in_array($type, ['pulse', 'horizon', 'clockwork'], strict: true)) {
-            return errorResponse('Invalid monitoring type', 400);
+            return errorResponse(__('message.invalid_monitoring_type'), 400);
         }
 
         $basePath = trim((string) (parse_url(url('/'), PHP_URL_PATH) ?? ''), '/');

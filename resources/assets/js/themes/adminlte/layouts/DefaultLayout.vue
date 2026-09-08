@@ -13,7 +13,7 @@
                         <h3 class="mb-0">{{ pageTitle }}</h3>
                     </div>
                     <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-end mb-0" aria-label="Breadcrumb">
+                        <ol class="breadcrumb float-sm-end mb-0" :aria-label="__('message.breadcrumb')">
                             <li v-if="route.path !== '/dashboard'" class="breadcrumb-item">
                                 <RouterLink to="/dashboard">{{ __('message.dashboard') }}</RouterLink>
                             </li>
@@ -44,7 +44,7 @@
                          :class="`alert alert-${type} alert-dismissible`"
                          role="alert">
                         {{ message }}
-                        <button type="button" class="btn-close" aria-label="Close" @click="dismiss" />
+                        <button type="button" class="btn-close" :aria-label="__('message.close')" @click="dismiss" />
                     </div>
                 </Transition>
 

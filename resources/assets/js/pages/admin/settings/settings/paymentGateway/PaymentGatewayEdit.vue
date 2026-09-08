@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title mb-0">{{ plugin?.name ?? pluginSlug }} Settings</h4>
+                <h4 class="card-title mb-0">{{ `${plugin?.name ?? pluginSlug} ${__('message.settings')}` }}</h4>
             </div>
 
             <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
@@ -59,7 +59,7 @@
                             <div class="col-md-6 mb-3">
                                 <TextField
                                     name="webhook_secret"
-                                    label="Webhook Secret"
+                                    :label="__('message.webhook_secret')"
                                     type="password"
                                     :value="form.webhook_secret"
                                     :onChange="(val, name) => { setFieldError(name, undefined); form[name] = val }"
@@ -180,34 +180,34 @@ const GATEWAY_CONFIGS = {
         fields: [
             { name: 'rzp_key',        label: 'Razorpay Key',        type: 'text'     },
             { name: 'rzp_secret',     label: 'Razorpay Secret',     type: 'password' },
-            { name: 'processing_fee', label: 'Processing Fee (%)', type: 'number'    },
+            { name: 'processing_fee', label: `${__('message.processing_fee')} (%)`, type: 'number'    },
         ],
         fetchUrl: `${baseUrl}/get-razorpay-settings`,
         saveUrl:  `${baseUrl}/update-api-key/payment-gateway/razorpay`,
         webhookEvents: [
-            { name: 'subscription.charged', purpose: 'Required for auto-renewal to actually work — without it, renewed subscriptions won\'t be extended even after Razorpay charges the customer.' },
-            { name: 'subscription.pending', purpose: 'Required to record a renewal charge failing its first attempt — without it, a struggling auto-renewal is invisible until Razorpay exhausts all its retries.' },
-            { name: 'subscription.halted', purpose: 'Required to detect failed renewals — without it, the app won\'t know a recurring charge stopped working, and auto-renewal stays silently broken.' },
-            { name: 'payment.captured', purpose: 'Required to confirm invoice/order payments — without it, a customer can pay successfully and the invoice still won\'t be marked as paid.' },
-            { name: 'payment.failed', purpose: 'Required to detect failed payments — without it, a failed payment attempt goes unnoticed and the customer is never told to retry.' },
+            { name: 'subscription.charged', purpose: __('message.webhook_purpose_subscription_charged') },
+            { name: 'subscription.pending', purpose: __('message.webhook_purpose_subscription_pending') },
+            { name: 'subscription.halted', purpose: __('message.webhook_purpose_subscription_halted') },
+            { name: 'payment.captured', purpose: __('message.webhook_purpose_payment_captured') },
+            { name: 'payment.failed', purpose: __('message.webhook_purpose_payment_failed') },
         ],
     },
     stripe: {
         fields: [
             { name: 'stripe_key',     label: 'Stripe Publishable Key', type: 'text'     },
             { name: 'stripe_secret',  label: 'Stripe Secret Key',      type: 'password' },
-            { name: 'processing_fee', label: 'Processing Fee (%)',     type: 'number'    },
+            { name: 'processing_fee', label: `${__('message.processing_fee')} (%)`,     type: 'number'    },
         ],
         fetchUrl: `${baseUrl}/get-stripe-settings`,
         saveUrl:  `${baseUrl}/update-api-key/payment-gateway/stripe`,
         webhookUrlHint: __('message.stripe_webhook_url_hint'),
         webhookEvents: [
-            { name: 'invoice.payment_succeeded', purpose: 'Required for auto-renewal to actually work — without it, renewed subscriptions won\'t be extended even after Stripe charges the customer.' },
-            { name: 'invoice.payment_failed', purpose: 'Required to detect failed renewals — without it, the app won\'t know a recurring charge stopped working, and auto-renewal stays silently broken.' },
-            { name: 'customer.subscription.deleted', purpose: 'Required to keep auto-renewal status accurate — without it, a subscription cancelled in Stripe still shows as active here.' },
-            { name: 'checkout.session.completed', purpose: 'Required to confirm invoice/order payments made via embedded Checkout — without it, a customer can pay successfully and the invoice still won\'t be marked as paid.' },
-            { name: 'payment_intent.succeeded', purpose: 'Required to confirm invoice/order payments made by card — without it, a customer can pay successfully and the invoice still won\'t be marked as paid.' },
-            { name: 'payment_intent.payment_failed', purpose: 'Required to detect failed payments — without it, a failed payment attempt goes unnoticed and the customer is never told to retry.' },
+            { name: 'invoice.payment_succeeded', purpose: __('message.webhook_purpose_invoice_payment_succeeded') },
+            { name: 'invoice.payment_failed', purpose: __('message.webhook_purpose_invoice_payment_failed') },
+            { name: 'customer.subscription.deleted', purpose: __('message.webhook_purpose_customer_subscription_deleted') },
+            { name: 'checkout.session.completed', purpose: __('message.webhook_purpose_checkout_session_completed') },
+            { name: 'payment_intent.succeeded', purpose: __('message.webhook_purpose_payment_intent_succeeded') },
+            { name: 'payment_intent.payment_failed', purpose: __('message.webhook_purpose_payment_intent_payment_failed') },
         ],
     },
 }

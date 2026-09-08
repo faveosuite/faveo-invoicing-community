@@ -4,7 +4,7 @@
         <select :class="['form-control', { 'is-invalid': error }]" v-model="selectedValue" :name="name"
                 @change="onChange(selectedValue, name)" :id="id"
                 :style="inputStyle" :disabled="disabled">
-            <option value="" v-if="!hideEmptySelect">Select</option>
+            <option value="" v-if="!hideEmptySelect">{{ __('message.select') }}</option>
             <option v-for="element in elements" :value="element.id" :key="element.id">
                 {{ subString(element.name) }}
             </option>

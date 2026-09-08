@@ -1,5 +1,5 @@
 <template>
-    <div class="client-avatar-wrapper" @click="fileInput.click()" title="Change profile picture">
+    <div class="client-avatar-wrapper" @click="fileInput.click()" :title="__('message.change_profile_picture')">
         <div class="client-avatar-circle">
             <img v-if="currentPreview" :src="currentPreview" :alt="alt" class="client-avatar-img">
             <span v-else class="client-avatar-initials">{{ initials }}</span>
@@ -12,7 +12,7 @@
 
     <AppModal :showModal="showModal" :onClose="closeModal" :showCloseBtn="false" classname="modal-lg">
         <template #title>
-            <h4 class="modal-title">Crop Profile Picture</h4>
+            <h4 class="modal-title">{{ __('message.crop_profile_picture') }}</h4>
         </template>
         <template #fields>
             <vue-cropper
@@ -30,23 +30,23 @@
             />
             <div class="text-center mt-2 d-flex justify-content-center gap-1 flex-wrap">
                 <button type="button" class="btn btn-sm btn-outline-secondary" @click="rotateImage">
-                    <i class="fas fa-sync-alt me-1"></i>Rotate
+                    <i class="fas fa-sync-alt me-1"></i>{{ __('message.rotate') }}
                 </button>
                 <button type="button" class="btn btn-sm btn-outline-secondary" :class="{ active: aspectRatio === 0 }" @click="changeRatio(0)">
-                    No Ratio
+                    {{ __('message.no_ratio') }}
                 </button>
                 <button type="button" class="btn btn-sm btn-outline-secondary" :class="{ active: aspectRatio === 1 }" @click="changeRatio(1)">
-                    1:1 Ratio
+                    {{ __('message.ratio_1_1') }}
                 </button>
                 <button type="button" class="btn btn-sm btn-outline-secondary" :class="{ active: aspectRatio === 16/9 }" @click="changeRatio(16/9)">
-                    16:9 Ratio
+                    {{ __('message.ratio_16_9') }}
                 </button>
             </div>
         </template>
         <template #controls>
-            <button type="button" class="btn btn-light me-2" @click="closeModal">Cancel</button>
+            <button type="button" class="btn btn-light me-2" @click="closeModal">{{ __('message.cancel') }}</button>
             <button type="button" class="btn btn-primary" @click="onSubmit">
-                <i class="fa fa-check me-1"></i>Apply
+                <i class="fa fa-check me-1"></i>{{ __('message.apply') }}
             </button>
         </template>
     </AppModal>
@@ -66,7 +66,7 @@ const VueCropper = VueCropperImport?.default ?? VueCropperImport
 const props = defineProps({
     src:      { type: String, default: '' },
     initials: { type: String, default: '?' },
-    alt:      { type: String, default: 'Avatar' },
+    alt:      { type: String, default: () => __('message.avatar') },
 })
 
 const emit = defineEmits(['change'])
@@ -84,11 +84,11 @@ async function onFileSelected(event) {
     if (!file) return
 
     if (!['image/png', 'image/jpg', 'image/jpeg'].includes(file.type)) {
-        alert('Only PNG and JPEG images are allowed.')
+        alert(__('message.only_png_jpeg_allowed'))
         return
     }
     if (file.size > 2097152) {
-        alert('Image must be under 2 MB.')
+        alert(__('message.image_max_2mb'))
         return
     }
 

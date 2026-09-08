@@ -22,7 +22,7 @@
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" :disabled="loading" @click="onClose">
-                                Cancel
+                                {{ __('message.cancel') }}
                             </button>
                             <ActionButton
                                 type="button"
@@ -52,10 +52,10 @@ const props = defineProps({
     onClose:       { type: Function, required: true },
     deleteUrl:     { type: String, required: true },
     deleteData:    { type: Object, default: () => ({}) },
-    title:         { type: String, default: 'Delete' },
-    message:       { type: String, default: 'Are you sure you want to delete this record?' },
+    title:         { type: String, default: () => __('message.delete') },
+    message:       { type: String, default: () => __('message.confirm_delete_record') },
     componentName: { type: String, default: 'users-index' },
-    btnLabel:      { type: String, default: 'Delete' },
+    btnLabel:      { type: String, default: () => __('message.delete') },
     btnVariant:    { type: String, default: 'danger' },
     btnIcon:       { type: String, default: 'fa-trash' },
     method:        { type: String, default: 'delete' },

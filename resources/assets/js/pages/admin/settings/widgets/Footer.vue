@@ -100,9 +100,9 @@ import Tooltip from '@/components/Reusable/Tooltip.vue'
 const COMPONENT = 'footer-widget'
 
 const footerTypes = [
-    { key: 'footer1', label: 'Footer 1' },
-    { key: 'footer2', label: 'Footer 2' },
-    { key: 'footer3', label: 'Footer 3' },
+    { key: 'footer1', label: __('message.footer_1') },
+    { key: 'footer2', label: __('message.footer_2') },
+    { key: 'footer3', label: __('message.footer_3') },
 ]
 
 const { errors, setErrors, setFieldError } = useForm()

@@ -89,7 +89,7 @@
                                 :hint="__('message.tt_city')"
                                 :value="form.city"
                                 :onChange="(val) => form.city = val"
-                                placehold="comma-separated"
+                                :placehold="__('message.city_placeholder')"
                             />
                         </div>
                         <div class="col-md-4">
@@ -160,7 +160,7 @@ const loading    = ref(true)
 const saving     = ref(false)
 const countries  = ref([])
 const states     = ref([])
-const classOptions = ref([{ id: '', name: 'Standard' }])
+const classOptions = ref([{ id: '', name: __('message.standard') }])
 
 const yesNo         = [{ id: 1, name: __('message.yes') }, { id: 0, name: __('message.no') }]
 const activeOptions = [{ id: 1, name: __('message.active') }, { id: 0, name: __('message.inactive') }]
@@ -187,7 +187,7 @@ onMounted(async () => {
         const d   = res.data?.data ?? {}
         countries.value = Object.entries(d.countries ?? {}).map(([id, name]) => ({ id, name }))
         classOptions.value = (d.classes ?? []).map(c => ({ id: c.slug, name: c.name }))
-        if (!classOptions.value.length) classOptions.value = [{ id: '', name: 'Standard' }]
+        if (!classOptions.value.length) classOptions.value = [{ id: '', name: __('message.standard') }]
 
         // Pre-select the tax class from the active tab (?class=slug).
         const preset = route.query.class

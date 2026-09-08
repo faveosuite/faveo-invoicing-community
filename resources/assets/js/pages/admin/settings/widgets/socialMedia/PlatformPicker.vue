@@ -34,7 +34,7 @@
                     >
                         <span class="d-flex align-items-center gap-2 text-truncate">
                             <i class="fas fa-sliders text-center" style="width: 18px; color: #6c757d;"></i>
-                            <span>Custom (Enter your own icon)</span>
+                            <span>{{ __('message.custom_enter_own_icon') }}</span>
                         </span>
                         <i v-if="value === 'custom'" class="fas fa-check small text-primary ms-2"></i>
                     </button>
@@ -63,7 +63,7 @@
                         </button>
                     </li>
                     <li v-if="filteredPresets.length === 0 && !showCustomOption" class="text-muted small text-center py-2">
-                        No platform found
+                        {{ __('message.no_platform_found') }}
                     </li>
                 </ul>
             </div>
@@ -94,13 +94,13 @@ const selected = computed(() => {
     if (props.value === 'custom') {
         return {
             id: 'custom',
-            label: 'Custom (Enter your own icon)',
+            label: __('message.custom_enter_own_icon'),
             fa_class: 'fas fa-sliders',
             color: '#6c757d',
         }
     }
     return props.options.find(o => o.id === props.value) ?? {
-        label: 'Select a platform...',
+        label: __('message.select_a_platform'),
         fa_class: 'fas fa-icons',
         color: '#6c757d',
     }

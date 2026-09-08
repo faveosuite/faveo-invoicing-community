@@ -60,8 +60,8 @@ const emit = defineEmits(['apply', 'reset', 'close'])
 const isFutureDate = (date) => date > new Date()
 
 const statusOptions = [
-    { id: 'success', name: 'Success' },
-    { id: 'failed',  name: 'Failed'  },
+    { id: 'success', name: __('message.success') },
+    { id: 'failed',  name: __('message.failed')  },
 ]
 
 const empty = () => ({

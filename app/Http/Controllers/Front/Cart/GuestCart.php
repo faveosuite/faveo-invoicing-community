@@ -43,7 +43,7 @@ class GuestCart
                 ->value('id');
 
             if (! $planId) {
-                abort(422, 'This product has no active plan and cannot be added to the cart.');
+                abort(422, __('message.cart_product_no_active_plan'));
             }
         }
 

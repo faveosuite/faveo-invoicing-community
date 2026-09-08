@@ -48,22 +48,22 @@ const templates = ref([])
 const mappings  = reactive({})  // typeId → templateId (number | null)
 
 const LABEL_OVERRIDES = {
-    welcome_mail:                   'Welcome Mail',
-    forgot_password_mail:           'Forgot Password', // NOSONAR
-    subscription_going_to_end_mail: 'Subscription Going To End',
-    subscription_over_mail:         'Subscription Over',
-    invoice_mail:                   'Invoice',
-    order_mail:                     'Order Mail',
-    auto_subscription_going_to_end: 'Auto Renewal Reminder',
-    payment_successfull:            'Auto Payment Successfull',
-    payment_failed:                 'Auto Payment Failed',
-    cloud_deleted:                  'URGENT: Order has been deleted',
-    cloud_created:                  'New instance created',
-    contact_us:                     'Contact Us',
-    demo_request:                   'Request a Demo',
-    registration_mail:              'Register Mail',
-    sales_manager_email:            'New Sales Manager',
-    account_manager_email:          'New Account Manager',
+    welcome_mail:                   __('message.welcome-mail'),
+    forgot_password_mail:           __('message.forgot-password'), // NOSONAR
+    subscription_going_to_end_mail: __('message.subscription-going-to-end'),
+    subscription_over_mail:         __('message.subscription-over'),
+    invoice_mail:                   __('message.invoice'),
+    order_mail:                     __('message.order-mail'),
+    auto_subscription_going_to_end: __('message.auto_renewal_reminder'),
+    payment_successfull:            __('message.auto_payment_success'),
+    payment_failed:                 __('message.auto_payment_failed'),
+    cloud_deleted:                  __('message.urgent_order_deleted'),
+    cloud_created:                  __('message.new_instance_created'),
+    contact_us:                     __('message.contact_us'),
+    demo_request:                   __('message.request_demo'),
+    registration_mail:              __('message.register_mail'),
+    sales_manager_email:            __('message.new_sales_manager'),
+    account_manager_email:          __('message.new_account_manager'),
 }
 
 function toLabel(name) {

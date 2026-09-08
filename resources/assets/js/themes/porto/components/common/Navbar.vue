@@ -9,7 +9,7 @@
             <div id="main-logo"
                  class="header-logo p-relative m-0 d-flex align-items-center justify-content-center navbar-logo-wrapper">
               <RouterLink :to="isAuthenticated ? '/client-dashboard' : '/'" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none">
-                <img v-if="logoUrl" :src="logoUrl" alt="Logo"
+                <img v-if="logoUrl" :src="logoUrl" :alt="__('message.logo')"
                      class="img-fluid navbar-logo-img">
                 <span v-else class="brand-text fw-bold text-dark">{{ appCompany }}</span>
               </RouterLink>
@@ -117,32 +117,32 @@
                           <ul class="dropdown-menu border-light mt-n1">
                             <li v-if="isAdmin">
                               <a :href="adminDashboardUrl" class="dropdown-item">
-                                {{ __('message.admin_dashboard') }}
+                                <i class="fas fa-user-shield dropdown-item-icon"></i>{{ __('message.admin_dashboard') }}
                               </a>
                             </li>
                             <li>
                               <RouterLink to="/client-dashboard" class="dropdown-item">
-                                {{ __('message.dashboard') }}
+                                <i class="fas fa-gauge-high dropdown-item-icon"></i>{{ __('message.dashboard') }}
                               </RouterLink>
                             </li>
                             <li>
                               <RouterLink to="/my-orders" class="dropdown-item">
-                                {{ __('message.my_orders') }}
+                                <i class="fas fa-box dropdown-item-icon"></i>{{ __('message.my_orders') }}
                               </RouterLink>
                             </li>
                             <li>
                               <RouterLink to="/my-invoices" class="dropdown-item">
-                                {{ __('message.my_invoices') }}
+                                <i class="fas fa-file-invoice dropdown-item-icon"></i>{{ __('message.my_invoices') }}
                               </RouterLink>
                             </li>
                             <li>
                               <RouterLink to="/my-profile" class="dropdown-item">
-                                {{ __('message.my_profile') }}
+                                <i class="fas fa-user dropdown-item-icon"></i>{{ __('message.my_profile') }}
                               </RouterLink>
                             </li>
                             <li>
-                              <a :href="logoutUrl" class="dropdown-item">
-                                {{ __('message.logout') }}
+                              <a :href="logoutUrl" class="dropdown-item dropdown-item-danger">
+                                <i class="fas fa-right-from-bracket dropdown-item-icon"></i>{{ __('message.logout') }}
                               </a>
                             </li>
                           </ul>
@@ -211,10 +211,11 @@
                     <!-- Cart -->
                     <div
                         class="header-nav-features header-nav-features-no-border header-nav-features-lg-show-border m-0 p-0">
-                      <div ref="cartRef" class="header-nav-feature header-nav-features-cart d-inline-flex m-0 p-0">
-                        <a href="javascript:;"
+                      <div class="header-nav-feature header-nav-features-cart d-inline-flex m-0 p-0 dropdown">
+                        <a ref="cartToggleRef" href="javascript:;"
                            class="header-nav-features-toggle text-decoration-none d-flex align-items-center navbar-feature-toggle"
-                           @click.stop="toggleCartDropdown"
+                           data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-display="static"
+                           aria-expanded="false"
                            :aria-label="__('message.cart')">
                           <span class="cart-toggle-content text-dark opacity-8 font-weight-bold text-color-hover-primary d-inline-flex align-items-center">
                             <span class="cart-label d-none d-xl-inline me-1">{{ __('message.cart') }}</span>
@@ -225,22 +226,14 @@
                           </span>
                         </a>
 
-                        <!-- Cart dropdown -->
-                        <div class="header-nav-features-dropdown header-nav-features-dropdown-mobile-fixed" :class="{ 'show': showCartDropdown }"
+                        <!-- Cart dropdown (real Bootstrap dropdown: data-bs-display="static" keeps our
+                             own tested positioning CSS below instead of handing it to Popper) -->
+                        <div class="header-nav-features-dropdown dropdown-menu header-nav-features-dropdown-mobile-fixed"
                              id="headerTopCartDropdown">
                           <!-- Empty cart -->
-                          <div v-if="!cartItems.length">
-                            <ol class="mini-products-list">
-                              <div class="product-details d-flex justify-content-between align-items-center mb-4 fw-medium">
-                                <span class="text-muted">0 ITEMS</span>
-                                <RouterLink to="/cart" class="text-dark text-uppercase fw-bold"
-                                            @click="showCartDropdown = false">
-                                  {{ __('message.view_cart') }}
-                                </RouterLink>
-                              </div>
-                              <hr class="border-top my-0">
-                              <span class="d-block text-center mt-3">{{ __('message.no_item_cart') }}</span>
-                            </ol>
+                          <div v-if="!cartItems.length" class="cart-dropdown-empty text-center">
+                            <i class="fas fa-shopping-cart cart-dropdown-empty-icon"></i>
+                            <span class="d-block">{{ __('message.no_item_cart') }}</span>
                           </div>
 
                           <!-- Cart has items -->
@@ -269,7 +262,7 @@
                               </span>
                             </div>
                             <div class="actions">
-                              <RouterLink class="btn btn-dark" to="/cart" @click="showCartDropdown = false">
+                              <RouterLink class="btn btn-outline-dark" to="/cart" @click="closeCartDropdown">
                                 {{ __('message.view_cart') }}
                               </RouterLink>
                               <button class="btn btn-primary" @click="handleCheckout">
@@ -284,20 +277,22 @@
                     <!-- Language selector -->
                     <div v-if="languages.length"
                         class="header-nav-features header-nav-features-no-border header-nav-features-lg-show-border m-0 p-0">
-                      <div class="header-nav-feature header-nav-features-cart d-inline-flex m-0 p-0">
+                      <div class="header-nav-feature header-nav-features-cart d-inline-flex m-0 p-0 dropdown">
                         <a href="javascript:;" class="header-nav-features-toggle text-decoration-none d-flex align-items-center gap-1 navbar-feature-toggle"
-                           @click="toggleLanguage" :aria-label="`Change language, current: ${currentLocale}`">
+                           data-bs-toggle="dropdown" data-bs-display="static"
+                           aria-expanded="false" :aria-label="__('message.change_language_current', { locale: currentLocale })">
                           <span :class="`fi fi-${flagCodeFor(currentLocale)}`"></span>
                           <span class="text-dark opacity-8 font-weight-bold text-2 d-none d-xl-inline">{{ currentLocale.toUpperCase() }}</span>
                         </a>
-                        <div class="header-nav-features-dropdown header-nav-features-dropdown-mobile-fixed right-15 lang-dropdown" id="language-dropdown">
+                        <div class="header-nav-features-dropdown dropdown-menu header-nav-features-dropdown-mobile-fixed lang-dropdown" id="language-dropdown">
                           <ul class="list-unstyled m-0">
                             <li v-for="lang in languages" :key="lang.locale">
                               <a href="javascript:;" class="lang-item d-flex align-items-center gap-2"
                                   :class="{ active: lang.locale.toLowerCase() === currentLocale }"
                                   @click.prevent="selectLang(lang)">
                                 <span :class="`fi fi-${flagCodeFor(lang.locale)}`"></span>
-                                <span>{{ lang.name }}</span>
+                                <span class="flex-grow-1">{{ lang.name }}</span>
+                                <i v-if="lang.locale.toLowerCase() === currentLocale" class="fas fa-check lang-active-check"></i>
                               </a>
                             </li>
                           </ul>
@@ -309,7 +304,7 @@
                     <button class="btn header-btn-collapse-nav m-0 d-lg-none"
                             data-bs-toggle="collapse"
                             data-bs-target=".header-nav-main nav"
-                            aria-label="Toggle navigation">
+                            :aria-label="__('message.toggle_navigation')">
                       <i class="fas fa-bars"></i>
                     </button>
                   </div>
@@ -363,7 +358,6 @@ import 'flag-icons/css/flag-icons.min.css'
 import http from '@/plugins/axios'
 import {useCartStore} from '@/core/stores/cart'
 import {useAlertStore} from '@/core/stores/alert'
-import {useNavFeatureToggle} from '../../composables/useNavFeatureToggle.js'
 import {isStickyActive} from '../../composables/useStickyHeader.js'
 import CloudTrialModal from '../store/CloudTrialModal.vue'
 import BookDemoModal from '../store/BookDemoModal.vue'
@@ -372,8 +366,6 @@ import { __ } from '@/plugins/i18n'
 import { useAuthStore } from '@/core/stores/auth'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
-const {toggle: toggleLanguage} = useNavFeatureToggle()
-
 const router     = useRouter()
 const cartStore  = useCartStore()
 const alertStore = useAlertStore()
@@ -381,12 +373,16 @@ const isScrolled = isStickyActive
 
 const showCloudTrialModal = ref(false)
 const showDemoModal       = ref(false)
-const showCartDropdown    = ref(false)
-const cartRef             = ref(null)
+const cartToggleRef       = ref(null)
 const openDropdownKey     = ref(null)
 
-function toggleCartDropdown() {
-  showCartDropdown.value = !showCartDropdown.value
+// Cart is a real Bootstrap dropdown now (data-bs-toggle="dropdown" in the
+// template) — Bootstrap owns open/close/outside-click/Escape itself. We only
+// need to reach in and close it programmatically for the cases Bootstrap
+// doesn't know about: navigating away via "View Cart"/checkout, or an SPA
+// route change firing while it's open.
+function closeCartDropdown() {
+  globalThis.bootstrap?.Dropdown?.getInstance(cartToggleRef.value)?.hide()
 }
 
 // Porto's mobile CSS only reveals a nav dropdown-menu when its parent <li>
@@ -407,8 +403,8 @@ function toggleDropdown(key, event) {
 }
 
 function handleCheckout() {
+  closeCartDropdown()
   if (!isAuthenticated.value) {
-    showCartDropdown.value = false
     router.push('/login').then(() => {
       alertStore.setAlert({
         message: __('message.please_login_to_checkout'),
@@ -418,14 +414,10 @@ function handleCheckout() {
     })
     return
   }
-  showCartDropdown.value = false
   router.push('/checkout')
 }
 
 function onClickOutside(e) {
-  if (cartRef.value && !cartRef.value.contains(e.target)) {
-    showCartDropdown.value = false
-  }
   if (openDropdownKey.value !== null && !e.target.closest('.header-nav-main li.dropdown')) {
     openDropdownKey.value = null
   }
@@ -434,10 +426,10 @@ function onClickOutside(e) {
 // When navigating between pages:
 // 1) Close any open mobile nav collapse drawer
 // 2) Close any open mobile submenu accordion
-// 3) Close any open cart dropdown
+// 3) Close any open cart dropdown (Bootstrap doesn't know about SPA route changes)
 const stopCloseMobileNav = router.afterEach(() => {
   openDropdownKey.value = null
-  showCartDropdown.value = false
+  closeCartDropdown()
   const collapseEl = document.querySelector('.header-nav-main nav')
   if (collapseEl?.classList.contains('show')) {
     globalThis.bootstrap?.Collapse?.getOrCreateInstance(collapseEl, { toggle: false }).hide()
@@ -538,7 +530,6 @@ const pageLink = (page) => page.type === 'contactus' ? '/contact-us' : '/pages/'
 function onWindowResize() {
   if (globalThis.innerWidth >= 992) {
     openDropdownKey.value = null
-    showCartDropdown.value = false
   }
 }
 
@@ -724,6 +715,28 @@ onUnmounted(() => {
 .navbar-scrolled .navbar-info-bar {
   max-height: 0;
   opacity: 0;
+}
+
+/* --------------------------------------------------
+   2b. Desktop Nav Row: prevent wrapping (RTL fix)
+   Bootstrap's .nav sets flex-wrap: wrap by default. .header-nav-main
+   sizes itself shrink-to-fit (flex: 0 1 auto) from its content, and in
+   RTL that shrink-to-fit width comes out narrower than the content
+   actually needs (a legacy Porto RTL/LTR flex-sizing mismatch), so the
+   last nav item(s) wrap onto a second line and spill into the page
+   content below the header. There's always free space in the row for
+   it (header-nav-main never grows to fill it either way) — pin it to
+   one line instead of guessing why the shrink-fit width differs.
+   -------------------------------------------------- */
+@media (min-width: 992px) {
+  #mainNav {
+    flex-wrap: nowrap !important;
+  }
+
+  .header-nav-main,
+  .header-nav-main nav {
+    flex-shrink: 0 !important;
+  }
 }
 
 /* --------------------------------------------------
@@ -929,6 +942,11 @@ onUnmounted(() => {
 
 /* --------------------------------------------------
    6. Dropdowns: Cart & Language
+   Both are real Bootstrap dropdowns now (data-bs-toggle="dropdown" in the
+   template — Bootstrap owns open/close/outside-click/Escape/ARIA). They
+   use data-bs-display="static" though, which tells Bootstrap NOT to hand
+   positioning to Popper — the positioning below is still ours on purpose,
+   since it's already correct across every breakpoint + RTL.
    -------------------------------------------------- */
 /* Cart dropdown on mobile (< 768px): clean dropdown panel below header */
 @media (max-width: 767px) {
@@ -975,15 +993,43 @@ onUnmounted(() => {
   }
 }
 
-/* Desktop (>= 992px) */
+/* Desktop (>= 992px)
+   Shared by both Cart and Language flyouts (both carry the
+   .header-nav-features-dropdown class). The legacy Porto rule this
+   overrides positions the panel via `top: auto` (resolves to the toggle's
+   own top, not its bottom) + `margin-top: 30px`, which lands the panel
+   overlapping the icon by ~8px, plus `right: 100%; margin-right: -25px`,
+   which pushes it 25px past the icon on the other side. Pin it properly
+   below the icon with a real gap instead. */
 @media (min-width: 992px) {
   .header-nav-features-dropdown {
+    top: 100% !important;
     right: 0 !important;
     left: auto !important;
+    margin-top: 10px !important;
+    margin-right: 0 !important;
     max-width: 360px;
     max-height: 80vh;
     overflow-y: auto;
   }
+}
+
+/* Cart & language flyouts: one shared modern card look at every breakpoint —
+   rounded corners, soft elevation, no legacy speech-bubble pointer.
+   Note: no :deep() here — #header is an ANCESTOR of this component (see
+   DefaultLayout.vue), not something Navbar.vue renders itself, so
+   :deep(#header ...) would compile to a selector that can never match.
+   Plain scoped selectors work because Vue scopes them by attaching the
+   data-v attribute to the rightmost element instead, which *is* one of
+   ours (.header-nav-features-dropdown etc). */
+#header .header-nav-features .header-nav-features-dropdown {
+  border-radius: 10px !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+#header .header-nav-features .header-nav-features-dropdown:before {
+  content: none !important;
 }
 
 /* Clearfix for cart actions */
@@ -993,12 +1039,61 @@ onUnmounted(() => {
   clear: both !important;
 }
 
+/* De-shout the cart panel: sentence case instead of legacy ALL-CAPS, and
+   round the product thumbnails to match the new card language. */
+#header .header-nav-features .header-nav-features-cart .totals .label,
+#header .header-nav-features .header-nav-features-cart .totals .price-total,
+#header .header-nav-features .header-nav-features-cart .actions .btn {
+  text-transform: none !important;
+}
+
+#header .header-nav-features .header-nav-features-cart .totals .label {
+  font-weight: 600;
+  color: #6b7280;
+}
+
+#header .header-nav-features .header-nav-features-cart .totals .price-total {
+  font-size: 1.05rem;
+}
+
+#header .header-nav-features .header-nav-features-cart .mini-products-list li .product-image {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cart-dropdown-empty {
+  padding: 28px 8px 20px;
+  color: #6b7280;
+}
+
+.cart-dropdown-empty-icon {
+  display: block;
+  font-size: 1.6rem;
+  margin: 0 auto 10px;
+  opacity: 0.35;
+}
+
 /* Language dropdown */
 .lang-dropdown {
   min-width: 200px;
   max-height: 320px;
   overflow-y: auto;
-  padding: 6px 0;
+  padding: 6px;
+}
+
+/* Thin custom scrollbar for the overflowing language list, matching the
+   convention used across favMer's notification/search/lang dropdowns. */
+.lang-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lang-dropdown::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+.lang-dropdown::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 10px;
 }
 
 @media (max-width: 991px) {
@@ -1015,7 +1110,9 @@ onUnmounted(() => {
 }
 
 .lang-dropdown .lang-item {
-  padding: 10px 16px;
+  padding: 8px 12px;
+  margin: 1px 0;
+  border-radius: 6px;
   color: #333;
   text-decoration: none;
   font-size: 0.9rem;
@@ -1026,11 +1123,12 @@ onUnmounted(() => {
 }
 
 .lang-dropdown .lang-item:hover {
-  background-color: #f5f5f5;
+  background-color: #f1f5f9;
   color: var(--primary, #0088CC);
 }
 
 .lang-dropdown .lang-item.active {
+  background-color: #f1f5f9;
   font-weight: 600;
   color: var(--primary, #0088CC);
 }
@@ -1040,12 +1138,79 @@ onUnmounted(() => {
   line-height: 1em;
 }
 
+.lang-active-check {
+  font-size: 0.75rem;
+  color: var(--primary, #0088CC);
+}
+
+/* --------------------------------------------------
+   6b. Nav Dropdown Menu (Store / Contact Us / My Account) — desktop
+   Legacy Porto skin renders these hover-menus as a flat, hard-edged
+   sheet with a divider under every row. Give them the same rounded
+   card + pill-hover treatment as the Cart/Language flyouts above.
+   Desktop only: the mobile version already renders as a clean static
+   accordion (Porto resets it to background:transparent/position:static
+   under 992px), so it's left alone.
+   -------------------------------------------------- */
+@media (min-width: 992px) {
+  /* These two selectors intentionally mirror the theme's own (which
+     use !important), so this override wins on specificity, not just
+     load order. */
+  #header .header-nav-main.header-nav-main-square nav > ul > li.dropdown .dropdown-menu,
+  #header .header-nav-main.header-nav-main-dropdown-no-borders nav > ul > li.dropdown .dropdown-menu:not(.border-top) {
+    border-radius: 10px !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  }
+
+  #header .header-nav-main nav > ul > li.dropdown .dropdown-menu {
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
+    padding: 6px;
+    transition: opacity .15s ease-out;
+  }
+
+  #header .header-nav-main nav > ul > li.dropdown .dropdown-menu li a {
+    border-bottom: 0 !important;
+    border-radius: 6px;
+    margin: 1px 0;
+  }
+
+  #header .header-nav-main nav > ul > li.dropdown .dropdown-menu li:hover > a {
+    background-color: #f1f5f9 !important;
+  }
+}
+
 /* --------------------------------------------------
    7. Dropdown Carets & Accordion Icons
    -------------------------------------------------- */
 .nav-dropdown-arrow {
   font-size: 0.7rem;
   transition: transform 0.25s ease;
+}
+
+/* My Account dropdown item icons.
+   margin-inline-end (not margin-right): bidi reordering in RTL already
+   puts the icon on the correct visual side automatically, but a
+   physical margin-right would stay on the wrong physical side and
+   collapse the gap instead of moving with it. */
+.dropdown-item-icon {
+  width: 18px;
+  margin-inline-end: 10px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+/* Logout: sets it apart from the rest of the account menu.
+   !important: the legacy Porto rule this beats
+   (#header .header-nav-main nav > ul > li.dropdown .dropdown-menu li a)
+   sets its own color with higher specificity than a plain class here. */
+.dropdown-item-danger,
+.dropdown-item-danger .dropdown-item-icon {
+  color: #dc3545 !important;
+}
+
+.dropdown-item-danger:hover {
+  background-color: #fdecea !important;
+  color: #dc3545 !important;
 }
 
 .rotate-180 {
@@ -1073,6 +1238,35 @@ onUnmounted(() => {
   html[dir="rtl"] .page-dropdown-item > .page-dropdown-caret {
     right: auto;
     left: 0;
+  }
+}
+
+/* CMS Page with children (desktop): the <li> holds two separate <a>
+   children (the label link + a separate caret-toggle link) laid out via
+   normal inline flow, with a whitespace text node between them (from
+   the template's own line breaks) — a valid wrap point. When the
+   item's shrink-to-fit width is tight, the browser wraps the second
+   inline-flex box onto what looks like a second row inside the <li>,
+   breaking the item (most visible in RTL, whose overall row width
+   comes out tighter than LTR's for the same content — white-space:
+   nowrap alone doesn't fix it since it doesn't reliably override
+   Bootstrap's own white-space on .nav-link). Make the two children
+   real flex items instead, which removes the inline wrap point
+   entirely. */
+@media (min-width: 992px) {
+  .page-dropdown-item {
+    display: flex !important;
+    align-items: center;
+  }
+
+  /* Making the <li> a flex container (above) changes how the browser
+     resolves its dropdown-menu's `top: auto` in the shown state — the
+     legacy rule's "auto" relies on the menu's static position, which
+     under flex land a few px *above* the row instead of below it,
+     overlapping the label. Pin it explicitly instead. */
+  .page-dropdown-item.dropdown:hover > .dropdown-menu,
+  .page-dropdown-item.dropdown.open > .dropdown-menu {
+    top: 100% !important;
   }
 }
 

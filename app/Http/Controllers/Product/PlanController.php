@@ -118,7 +118,7 @@ class PlanController extends ExtendedPlanController
             if (in_array($request->product, cloudPopupProducts()) &&
                 Plan::whereProduct($request->product)->where('days', $request->days)->exists()
             ) {
-                return errorResponse('Plan already exists');
+                return errorResponse(__('message.plan_already_exists'));
             }
 
             // Create the plan

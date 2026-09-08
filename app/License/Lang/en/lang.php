@@ -322,4 +322,9 @@ return [
     'license_domain' => 'License Domain',
     'license_expiry' => 'License Expiration',
     'view_agent' => 'View Agent',
+
+    // --- i18n audit additions (2026-09) ---
+    'generate' => 'Generate',
+    'crop_image' => 'Crop Image',
+    'crop_profile' => 'Crop Profile',
 ];

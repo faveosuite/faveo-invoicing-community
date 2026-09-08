@@ -2,13 +2,13 @@
     <div>
         <!-- Monthly / Yearly toggle (only when switcher is enabled) -->
         <div v-if="switcher" class="d-flex justify-content-center align-items-center mb-5">
-            <div class="text-3 p-relative top-1">Monthly</div>
+            <div class="text-3 p-relative top-1">{{ __('message.monthly') }}</div>
             <div class="px-2">
                 <div class="form-check form-switch form-switch-md mb-0">
                     <input type="checkbox" class="form-check-input" v-model="isYearly" />
                 </div>
             </div>
-            <div class="text-3 p-relative top-1">Yearly</div>
+            <div class="text-3 p-relative top-1">{{ __('message.yearly') }}</div>
         </div>
 
         <!-- Cards carousel with rounded navigation -->

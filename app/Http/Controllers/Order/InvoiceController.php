@@ -454,7 +454,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             $authUser = Auth::user();
             if (! $authUser instanceof User) {
-                return errorResponse('Unauthorized', 401);
+                return errorResponse(__('message.unauthorized_action'), 401);
             }
             if ($invoice->user_id != $authUser->id && $authUser->role != 'admin') {
                 return errorResponse(__('message.invalid_user'));
@@ -503,12 +503,12 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $searchParams = $request->input('search_params', []);
             $authUser = Auth::user();
             if (! $authUser instanceof User) {
-                return errorResponse('Unauthorized', 401);
+                return errorResponse(__('message.unauthorized_action'), 401);
             }
             $email = $authUser->email;
             $driver = QueueService::where('status', '1')->first();
             if (! $driver instanceof QueueService) {
-                return errorResponse('Queue driver not configured.');
+                return errorResponse(__('message.queue_driver_not_configured'));
             }
 
             if ($driver->name == 'Sync') {

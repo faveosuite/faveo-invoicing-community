@@ -177,7 +177,7 @@ class ConcreteExportHandleController extends ExportHandleController
             // Get user details for email
             $user = User::where('email', $email)->first();
             if (! $user instanceof User) {
-                return response()->json(['message' => 'User not found.'], 404);
+                return response()->json(['message' => __('message.user_not_found')], 404);
             }
             $id = $user->id;
             $timestamp = now()->format('Ymd_His');
@@ -208,7 +208,7 @@ class ConcreteExportHandleController extends ExportHandleController
             // Send email notification
             $settings = Setting::find(1);
             if (! $settings instanceof Setting) {
-                return response()->json(['message' => 'Setting not found.'], 404);
+                return response()->json(['message' => __('message.setting_not_found')], 404);
             }
             $from = $settings->email;
             $mail = new PhpMailController;
@@ -301,7 +301,7 @@ class ConcreteExportHandleController extends ExportHandleController
             // Get user details for email
             $user = User::where('email', $email)->first();
             if (! $user instanceof User) {
-                return response()->json(['message' => 'User not found.'], 404);
+                return response()->json(['message' => __('message.user_not_found')], 404);
             }
             $id = $user->id;
             $timestamp = now()->format('Ymd_His');
@@ -337,7 +337,7 @@ class ConcreteExportHandleController extends ExportHandleController
             // Send email notification
             $settings = Setting::find(1);
             if (! $settings instanceof Setting) {
-                return response()->json(['message' => 'Setting not found.'], 404);
+                return response()->json(['message' => __('message.setting_not_found')], 404);
             }
             $from = $settings->email;
             $mail = new PhpMailController;
@@ -443,7 +443,7 @@ class ConcreteExportHandleController extends ExportHandleController
             // Get user details for email
             $user = User::where('email', $email)->first();
             if (! $user instanceof User) {
-                return response()->json(['message' => 'User not found.'], 404);
+                return response()->json(['message' => __('message.user_not_found')], 404);
             }
             $id = $user->id;
             $timestamp = now()->format('Ymd_His');
@@ -479,7 +479,7 @@ class ConcreteExportHandleController extends ExportHandleController
             // Send email notification
             $settings = Setting::find(1);
             if (! $settings instanceof Setting) {
-                return response()->json(['message' => 'Setting not found.'], 404);
+                return response()->json(['message' => __('message.setting_not_found')], 404);
             }
             $from = $settings->email;
             $mail = new PhpMailController;

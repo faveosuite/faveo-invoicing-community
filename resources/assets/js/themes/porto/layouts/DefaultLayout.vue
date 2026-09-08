@@ -39,7 +39,7 @@
             <div v-if="notification.visible" class="container mt-3">
                 <div :class="`alert alert-${notification.type} alert-dismissible`" role="alert">
                     {{ notification.message }}
-                    <button type="button" class="btn-close" aria-label="Close"
+                    <button type="button" class="btn-close" :aria-label="__('message.close')"
                             @click="notification.dismiss" />
                 </div>
             </div>

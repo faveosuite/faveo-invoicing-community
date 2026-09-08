@@ -28,7 +28,7 @@
                         </li>
                         <li class="nav-item" v-if="!isPluginProduct">
                             <a class="nav-link" :class="{ active: tab === 'plugins' }" href="#" @click.prevent="tab = 'plugins'">
-                                <i class="fas fa-puzzle-piece me-1"></i>Plugins
+                                <i class="fas fa-puzzle-piece me-1"></i>{{ __('message.plugins') }}
                             </a>
                         </li>
                     </ul>
@@ -43,7 +43,7 @@
                                     <div class="card card-light mb-4">
                                         <div class="card-header">
                                             <h4 class="card-title">
-                                                <i class="fas fa-circle-info text-muted me-2"></i>Basic Information &amp; Content
+                                                <i class="fas fa-circle-info text-muted me-2"></i>{{ __('message.basic_information_content') }}
                                             </h4>
                                         </div>
                                         <div class="card-body">
@@ -137,7 +137,7 @@
                                     <div class="card card-light mb-4">
                                         <div class="card-header">
                                             <h4 class="card-title">
-                                                <i class="fas fa-image text-muted me-2"></i>Product Image &amp; Source
+                                                <i class="fas fa-image text-muted me-2"></i>{{ __('message.product_image_source') }}
                                             </h4>
                                         </div>
                                         <div class="card-body">
@@ -166,7 +166,7 @@
                                                 <div v-if="form.file_source === 'github'" class="mt-3 p-3 border rounded-3 bg-white">
                                                     <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
                                                         <i class="fab fa-github text-dark fs-5"></i>
-                                                        <h6 class="fw-bold mb-0 text-dark github-section-title">GitHub Repository Integration</h6>
+                                                        <h6 class="fw-bold mb-0 text-dark github-section-title">{{ __('message.github_repository_integration') }}</h6>
                                                     </div>
                                                     <div class="row g-2">
                                                         <div class="col-md-12 mb-2">
@@ -188,7 +188,7 @@
                                     <div class="card card-light mb-4">
                                         <div class="card-header">
                                             <h4 class="card-title">
-                                                <i class="fas fa-receipt text-muted me-2"></i>Tax
+                                                <i class="fas fa-receipt text-muted me-2"></i>{{ __('message.tax') }}
                                             </h4>
                                         </div>
                                         <div class="card-body">
@@ -226,7 +226,7 @@
                                     <div class="card card-light mb-4">
                                         <div class="card-header">
                                             <h4 class="card-title">
-                                                <i class="fas fa-shopping-cart text-muted me-2"></i>Cart &amp; Display
+                                                <i class="fas fa-shopping-cart text-muted me-2"></i>{{ __('message.cart_display') }}
                                             </h4>
                                         </div>
                                         <div class="card-body">
@@ -267,7 +267,7 @@
                                     <div class="card card-light mb-4">
                                         <div class="card-header">
                                             <h4 class="card-title">
-                                                <i class="fas fa-sliders-h text-muted me-2"></i>Visibility &amp; Behavior
+                                                <i class="fas fa-sliders-h text-muted me-2"></i>{{ __('message.visibility_behavior') }}
                                             </h4>
                                         </div>
                                         <div class="card-body">

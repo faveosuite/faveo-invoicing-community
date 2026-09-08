@@ -53,8 +53,8 @@
                      "Sorry, no matching options." text instead — hence the
                      trailing v-else, so the loading state renders a real
                      (empty) node instead of falling through to that. -->
-                <span v-if="search">No results for <em>{{ search }}</em></span>
-                <span v-else-if="!isLoading">No options found</span>
+                <span v-if="search">{{ __('message.no_results') }} <em>{{ search }}</em></span>
+                <span v-else-if="!isLoading">{{ __('message.select2_no_results') }}</span>
                 <span v-else></span>
             </template>
         </v-select>
@@ -81,7 +81,7 @@ const props = defineProps({
     multiple:      { type: Boolean, default: false },
     value:         { type: [Object, Array, String, Number], default: null },
     onChange:      { type: Function, required: true },
-    placeholder:   { type: String, default: 'Search or Select' },
+    placeholder:   { type: String, default: () => __('message.search_or_select') },
     clearable:     { type: Boolean, default: true },
     searchable:    { type: Boolean, default: true },
     disabled:      { type: Boolean, default: false },

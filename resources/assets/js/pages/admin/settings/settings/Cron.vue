@@ -261,7 +261,7 @@ const days = reactive({
 function makeOptions(values, deleteLabel = '') {
     return values.map(v => ({
         id: v,
-        name: v === '0' && deleteLabel ? deleteLabel : `${v} days`,
+        name: v === '0' && deleteLabel ? deleteLabel : `${v} ${__('message.days')}`,
     }))
 }
 

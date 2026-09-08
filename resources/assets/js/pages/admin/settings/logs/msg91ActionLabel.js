@@ -2,7 +2,7 @@ const ordinals = ['First', 'Second', 'Third', 'Fourth', 'Fifth']
 
 export function formatAction(action) {
     if (!action) return '—'
-    if (action === 'send') return 'First OTP sent'
+    if (action === 'send') return __('message.first_otp_sent')
     const retryMatch = action.match(/^retry_(\d+)$/)
     if (retryMatch) {
         const n = parseInt(retryMatch[1], 10)

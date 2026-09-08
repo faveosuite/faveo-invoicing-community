@@ -5,16 +5,16 @@
         <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">
-                    Open Payments
+                    {{ __('message.open_payments') }}
                     <span class="badge rounded-pill ms-2" :class="enabled ? 'text-bg-success' : 'text-bg-danger'">
-                        {{ enabled ? 'Enabled' : 'Disabled' }}
+                        {{ enabled ? __('message.enabled') : __('message.disabled') }}
                     </span>
                 </h4>
                 <div class="card-tools">
-                    <button class="btn btn-tool" v-tooltip="'Settings'" @click="openSettingsModal">
+                    <button class="btn btn-tool" v-tooltip="__('message.settings')" @click="openSettingsModal">
                         <i class="fas fa-gear"></i>
                     </button>
-                    <button class="btn btn-tool" v-tooltip="'Filters'" @click="showFilter = !showFilter">
+                    <button class="btn btn-tool" v-tooltip="__('message.filters')" @click="showFilter = !showFilter">
                         <i class="fas fa-filter"></i>
                     </button>
                 </div>
@@ -65,7 +65,7 @@
                             <p class="text-muted mb-0">{{ selectedOrder.company }}</p>
                         </div>
                         <div class="text-end">
-                            <p class="text-muted small mb-1">{{ selectedOrder.gateway }} Gateway</p>
+                            <p class="text-muted small mb-1">{{ selectedOrder.gateway }} {{ __('message.op_gateway') }}</p>
                             <p class="text-muted small mb-0">{{ formatDateTime(selectedOrder.created_at) }}</p>
                         </div>
                     </div>
@@ -75,7 +75,7 @@
                     <!-- Contact + Billing Address -->
                     <div class="row mb-4">
                         <div class="col-sm-6">
-                            <p class="text-uppercase fw-bold text-muted small mb-3">Contact</p>
+                            <p class="text-uppercase fw-bold text-muted small mb-3">{{ __('message.contact') }}</p>
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <i class="fas fa-envelope text-primary"></i>
                                 <span>{{ selectedOrder.email }}</span>
@@ -86,7 +86,7 @@
                             </div>
                         </div>
                         <div class="col-sm-6">
-                            <p class="text-uppercase fw-bold text-muted small mb-3">Billing Address</p>
+                            <p class="text-uppercase fw-bold text-muted small mb-3">{{ __('message.billing_address') }}</p>
                             <div class="d-flex align-items-start gap-2">
                                 <i class="fas fa-location-dot text-primary mt-1"></i>
                                 <div>
@@ -99,17 +99,17 @@
                     </div>
 
                     <!-- Payment breakdown -->
-                    <p class="text-uppercase fw-bold text-muted small mb-3">Payment Details</p>
+                    <p class="text-uppercase fw-bold text-muted small mb-3">{{ __('message.op_payment_details') }}</p>
                     <div class="rounded border overflow-hidden mb-3">
                         <table class="table table-bordered mb-0">
-                            <thead class="visually-hidden"><tr><th>Field</th><th>Value</th></tr></thead>
+                            <thead class="visually-hidden"><tr><th>{{ __('message.field') }}</th><th>{{ __('message.field_value') }}</th></tr></thead>
                             <tbody>
                                 <tr v-if="selectedOrder.transaction_id">
-                                    <td class="table-secondary fw-semibold col-label-width">Transaction ID</td>
+                                    <td class="table-secondary fw-semibold col-label-width">{{ __('message.op_transaction_id') }}</td>
                                     <td class="text-primary font-monospace small">{{ selectedOrder.transaction_id }}</td>
                                 </tr>
                                 <tr v-if="selectedOrder.description">
-                                    <td class="table-secondary fw-semibold">Description</td>
+                                    <td class="table-secondary fw-semibold">{{ __('message.description') }}</td>
                                     <td class="fst-italic text-muted">{{ selectedOrder.description }}</td>
                                 </tr>
                             </tbody>
@@ -117,18 +117,18 @@
                     </div>
 
                     <!-- Amount breakdown -->
-                    <p class="text-uppercase fw-bold text-muted small mb-3">Amount Breakdown</p>
+                    <p class="text-uppercase fw-bold text-muted small mb-3">{{ __('message.amount_breakdown') }}</p>
                     <div class="rounded border overflow-hidden">
                         <table class="table table-bordered mb-0">
-                            <thead class="visually-hidden"><tr><th>Field</th><th>Value</th></tr></thead>
+                            <thead class="visually-hidden"><tr><th>{{ __('message.field') }}</th><th>{{ __('message.field_value') }}</th></tr></thead>
                             <tbody>
                                 <tr>
-                                    <td class="table-secondary fw-semibold col-label-width">Base Amount</td>
+                                    <td class="table-secondary fw-semibold col-label-width">{{ __('message.base_amount') }}</td>
                                     <td>{{ selectedOrder.currency_symbol || selectedOrder.currency }} {{ selectedOrder.base_amount }}</td>
                                 </tr>
                                 <tr>
                                     <td class="table-secondary fw-semibold">
-                                        Processing Fee
+                                        {{ __('message.processing_fee') }}
                                         <span v-if="selectedOrder.processing_fee_rate > 0" class="text-muted fw-normal">
                                             ({{ selectedOrder.processing_fee_rate }}%)
                                         </span>
@@ -136,7 +136,7 @@
                                     <td>{{ selectedOrder.currency_symbol || selectedOrder.currency }} {{ selectedOrder.processing_fee }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="table-secondary fw-bold">Total Charged</td>
+                                    <td class="table-secondary fw-bold">{{ __('message.total_charged') }}</td>
                                     <td class="fw-bold text-primary">{{ selectedOrder.currency_symbol || selectedOrder.currency }} {{ selectedOrder.amount }}</td>
                                 </tr>
                             </tbody>
@@ -150,13 +150,13 @@
         <!-- Open Payment settings modal -->
         <AppModal :showModal="showSettingsModal" :onClose="closeSettingsModal" :showCloseBtn="false">
             <template #title>
-                <h4>Open Payment Settings</h4>
+                <h4>{{ __('message.open_payment_settings') }}</h4>
             </template>
 
             <template #fields>
                 <DynamicSelect
                     name="open_payment_status"
-                    label="Open Payment Page"
+                    :label="__('message.open_payment_page')"
                     :elements="statusOptions"
                     :value="statusOptions.find(o => o.id === draftStatusId) ?? null"
                     :onChange="(val) => draftStatusId = val?.id ?? 1"
@@ -165,7 +165,7 @@
                     :searchable="false"
                 />
                 <div class="mb-3">
-                    <label class="form-label">Page URL</label>
+                    <label class="form-label">{{ __('message.open_payment_page_url') }}</label>
                     <div class="input-group">
                         <input class="form-control" readonly :value="openPaymentUrl" />
                         <span class="input-group-text cursor-pointer" @click="copyUrl">
@@ -212,7 +212,7 @@ const copied            = ref(false)
 const enabled           = ref(true)
 const draftStatusId     = ref(1)
 const savingStatus      = ref(false)
-const statusOptions     = [{ id: 1, name: 'Enabled' }, { id: 0, name: 'Disabled' }]
+const statusOptions     = [{ id: 1, name: __('message.enabled') }, { id: 0, name: __('message.disabled') }]
 
 function copyUrl() {
     navigator.clipboard.writeText(openPaymentUrl).then(() => {
@@ -276,16 +276,16 @@ const columns = ['name', 'company', 'email', 'mobile', 'amount', 'gateway', 'tra
 
 const tableOptions = reactive({
     headings: {
-        name:           'Name',
-        company:        'Company',
-        email:          'Email',
-        mobile:         'Mobile',
-        amount:         'Amount',
-        gateway:        'Gateway',
-        transaction_id: 'Transaction ID',
-        payment_status: 'Status',
-        created_at:     'Date',
-        action:         'Action',
+        name:           __('message.name'),
+        company:        __('message.front_company'),
+        email:          __('message.email'),
+        mobile:         __('message.mobile'),
+        amount:         __('message.amount'),
+        gateway:        __('message.op_gateway'),
+        transaction_id: __('message.op_transaction_id'),
+        payment_status: __('message.status'),
+        created_at:     __('message.date'),
+        action:         __('message.action'),
     },
     columnsClasses: {
         name:           'dt-name',

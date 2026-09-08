@@ -6,7 +6,7 @@
 
                     <div class="modal-header">
                         <slot name="title"></slot>
-                        <button type="button" @click="onClose" aria-label="Close"
+                        <button type="button" @click="onClose" :aria-label="__('message.close')"
                                 class="btn-close ms-auto">
                         </button>
                     </div>

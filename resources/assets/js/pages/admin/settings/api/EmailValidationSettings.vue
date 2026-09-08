@@ -33,7 +33,7 @@
                                 name="apikey"
                                 :label="__('message.emailApikey')"
                                 :value="form.apikey"
-                                placeholder="Enter your API key"
+                                :placeholder="__('message.enter_api_key_placeholder')"
                                 :required="true"
                                 :error="errors.apikey"
                                 :onChange="(val, key) => { setFieldError(key, undefined); form[key] = val }"

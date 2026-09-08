@@ -612,7 +612,7 @@ class PipedriveController extends Controller
             $group_name = PipedriveGroups::where('id', $group_id)->value('group_name');
 
             if (! $group_name) {
-                return errorResponse('Invalid group ID provided.');
+                return errorResponse(__('message.invalid_group_id'));
             }
 
             $groups = $this->getGroups();

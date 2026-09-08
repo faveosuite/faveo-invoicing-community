@@ -48,7 +48,7 @@ defineProps({
     logoSrc:     { type: String,  default: null },
     iconClass:   { type: String,  default: 'fas fa-credit-card' },
     toggling:    { type: Boolean, default: false },
-    description: { type: String,  default: 'No description available.' },
+    description: { type: String,  default: __('message.no_description_available') },
 })
 
 defineEmits(['toggle', 'settings'])

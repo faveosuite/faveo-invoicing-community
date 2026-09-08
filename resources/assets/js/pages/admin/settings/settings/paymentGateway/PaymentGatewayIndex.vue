@@ -21,7 +21,7 @@
                                 :logo-src="gatewayLogo(plugin.name)"
                                 :icon-class="gatewayIcon(plugin.name)"
                                 :toggling="toggling === plugin.name"
-                                :description="gatewayDescription(plugin.name) || plugin.description || 'No description available.'"
+                                :description="gatewayDescription(plugin.name) || plugin.description || __('message.no_description_available')"
                                 @toggle="toggleStatus"
                                 @settings="goToSettings"
                             />
@@ -51,26 +51,26 @@ const GATEWAY_LOGOS = {
 }
 
 const GATEWAY_DESCRIPTIONS = {
-    paypal:       'Accept payments worldwide using PayPal — one of the most trusted online payment platforms supporting 200+ countries and multiple currencies.',
-    stripe:       'Process cards, wallets, and local payment methods globally with Stripe\'s powerful developer-friendly payment infrastructure.',
-    razorpay:     'India\'s leading payment gateway supporting UPI, cards, net banking, wallets, and EMI with seamless checkout experience.',
-    amazon:       'Let customers pay using their Amazon account credentials for a fast, trusted, and familiar checkout experience.',
-    google:       'Enable fast and secure checkout with Google Pay — works across Android, Chrome, and the web.',
-    apple:        'Allow Apple device users to pay quickly and securely using Face ID, Touch ID, or passcode via Apple Pay.',
-    mollie:       'A flexible European payment gateway offering cards, iDEAL, Bancontact, SEPA, and many more local methods.',
-    paytm:        'India\'s popular digital wallet and payment gateway supporting UPI, cards, net banking, and Paytm wallet.',
-    cashfree:     'Fast and reliable payment gateway for Indian businesses with support for payouts, subscriptions, and instant settlements.',
-    instamojo:    'Simple payment gateway for Indian SMBs — accept payments via links, UPI, cards, and wallets with zero setup fees.',
-    flutterwave:  'Pan-African payment platform enabling businesses to accept and send payments across Africa and beyond.',
-    paystack:     'Africa\'s leading payment gateway with support for cards, bank transfers, USSD, and mobile money.',
-    square:       'Unified commerce solution with in-person and online payments, inventory management, and business analytics.',
-    braintree:    'A PayPal service offering flexible payment integrations with support for cards, PayPal, Venmo, and local methods.',
-    authorize:    'One of the most established payment gateways in the US, providing secure card processing and fraud detection.',
-    ccavenue:     'India\'s largest payment gateway with 200+ payment options including cards, net banking, UPI, and wallets.',
-    payu:         'Global payment platform present in 50+ markets, supporting local and international payment methods.',
-    worldpay:     'A global leader in payment processing — accept cards and alternative payment methods across 146 countries.',
-    klarna:       'Offer buy-now-pay-later, installment plans, and flexible financing options to boost conversions at checkout.',
-    afterpay:     'Let customers split purchases into 4 interest-free installments, increasing average order value and conversion.',
+    paypal:       __('message.gateway_desc_paypal'),
+    stripe:       __('message.gateway_desc_stripe'),
+    razorpay:     __('message.gateway_desc_razorpay'),
+    amazon:       __('message.gateway_desc_amazon'),
+    google:       __('message.gateway_desc_google'),
+    apple:        __('message.gateway_desc_apple'),
+    mollie:       __('message.gateway_desc_mollie'),
+    paytm:        __('message.gateway_desc_paytm'),
+    cashfree:     __('message.gateway_desc_cashfree'),
+    instamojo:    __('message.gateway_desc_instamojo'),
+    flutterwave:  __('message.gateway_desc_flutterwave'),
+    paystack:     __('message.gateway_desc_paystack'),
+    square:       __('message.gateway_desc_square'),
+    braintree:    __('message.gateway_desc_braintree'),
+    authorize:    __('message.gateway_desc_authorize'),
+    ccavenue:     __('message.gateway_desc_ccavenue'),
+    payu:         __('message.gateway_desc_payu'),
+    worldpay:     __('message.gateway_desc_worldpay'),
+    klarna:       __('message.gateway_desc_klarna'),
+    afterpay:     __('message.gateway_desc_afterpay'),
 }
 
 const GATEWAY_ICONS = {

@@ -1,7 +1,7 @@
 <template>
     <div class="card card-light">
         <div class="card-header">
-            <h4 class="card-title">Plugins</h4>
+            <h4 class="card-title">{{ __('message.plugins') }}</h4>
             <div class="card-tools">
                 <button class="btn btn-tool" v-tooltip="__('message.filter')" @click="showFilter = !showFilter">
                     <i class="fas fa-filter"></i>
@@ -22,7 +22,7 @@
                         v-model="searchStr"
                         type="text"
                         class="form-control globe-search"
-                        placeholder="Type and press enter to search..."
+                        :placeholder="__('message.search_placeholder')"
                         @keyup.enter="onSearch"
                     />
                 </div>
@@ -88,13 +88,13 @@ const columns = ['name', 'is_compatible', 'is_bundled']
 const tableOptions = reactive({
     skin: 'table table-hover table-striped table-bordered',
     headings: {
-        name:          'Plugin',
+        name:          __('message.plugin'),
         is_compatible: () => h('span', {}, [
-            'Compatible',
+            __('message.compatible'),
             h(Tooltip, { message: __('message.plugin_compatible_tooltip') }),
         ]),
         is_bundled: () => h('span', {}, [
-            'Bundled',
+            __('message.bundled'),
             h(Tooltip, { message: __('message.plugin_bundled_tooltip') }),
         ]),
     },

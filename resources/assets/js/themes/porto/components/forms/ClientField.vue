@@ -19,7 +19,7 @@
                    @focus="$emit('focus', $event)"
                    @blur="$emit('blur', $event)">
             <button type="button" class="input-group-text" tabindex="-1"
-                    :aria-label="revealed ? 'Hide password' : 'Show password'"
+                    :aria-label="revealed ? __('message.hide_password') : __('message.show_password')"
                     @mousedown.prevent
                     @click="revealed = !revealed">
                 <i class="fa" :class="revealed ? 'fa-eye' : 'fa-eye-slash'"></i>

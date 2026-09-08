@@ -146,7 +146,7 @@
             <div v-if="cardErrors.expiry" class="invalid-feedback d-block">{{ cardErrors.expiry }}</div>
           </div>
           <div class="col-6">
-            <label class="form-label text-color-grey mb-1">CVC</label>
+            <label class="form-label text-color-grey mb-1">{{ __('message.cvc') }}</label>
             <div id="card-cvc" class="form-control h-auto py-3" :class="{ 'is-invalid': cardErrors.cvc }"></div>
             <div v-if="cardErrors.cvc" class="invalid-feedback d-block">{{ cardErrors.cvc }}</div>
           </div>

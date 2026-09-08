@@ -98,7 +98,7 @@
               <ul class="users-list clearfix">
                 <li v-for="user in data.clientWithMobileAndEmailActivation" :key="user.id">
                   <router-link :to="`/users/${user.id}`" class="text-decoration-none d-flex align-items-center flex-grow-1 min-w-0">
-                    <img v-if="user.profile_pic" loading="lazy" :src="user.profile_pic" class="users-list-avatar" alt="User Image">
+                    <img v-if="user.profile_pic" loading="lazy" :src="user.profile_pic" class="users-list-avatar" :alt="__('message.user_image')">
                     <span v-else class="users-list-avatar users-list-initials" :style="{ background: avatarColor(user) }">{{ userInitials(user) }}</span>
                     <span class="users-list-name text-truncate">{{ user.first_name }} {{ user.last_name }}</span>
                   </router-link>
@@ -386,7 +386,7 @@
                 <tbody>
                 <tr v-for="product in data.productSoldInLast30Days" :key="product.id">
                   <td>
-                    <img loading="lazy" :src="product.image" alt="Product Image" class="rounded-circle img-size-32 me-2">
+                    <img loading="lazy" :src="product.image" :alt="__('message.product_image')" class="rounded-circle img-size-32 me-2">
                     <router-link :to="`/products/${product.id}/edit`" class="text-decoration-none">{{ product.name }}</router-link>
                   </td>
                   <td>
@@ -430,7 +430,7 @@
                 <tbody>
                 <tr v-for="product in data.totalProductsSold" :key="product.id">
                   <td>
-                    <img loading="lazy" :src="product.image" alt="Product Image" class="rounded-circle img-size-32 me-2">
+                    <img loading="lazy" :src="product.image" :alt="__('message.product_image')" class="rounded-circle img-size-32 me-2">
                     <router-link :to="`/products/${product.id}/edit`" class="text-decoration-none">{{ product.name }}</router-link>
                   </td>
                   <td>

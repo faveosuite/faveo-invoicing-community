@@ -284,11 +284,11 @@ async function addToCart(domain = null, dataCenterId = null) {
 async function onDomainConfirmed() {
   domain.value = domain.value.trim()
   if (! domain.value) {
-    domainError.value = 'Domain name is required.'
+    domainError.value = __('message.deploy_domain_required')
     return
   }
   if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/i.test(domain.value)) {
-    domainError.value = 'Only letters, numbers, and hyphens are allowed.'
+    domainError.value = __('message.domain_alphanumeric_hyphen_only')
     return
   }
   modalLoading.value = true

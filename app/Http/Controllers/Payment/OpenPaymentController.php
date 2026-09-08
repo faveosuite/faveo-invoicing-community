@@ -73,11 +73,11 @@ class OpenPaymentController extends Controller
                 'payment_status' => 'pending',
             ]);
 
-            return successResponse('Order created successfully', [
+            return successResponse(__('message.order_created_successfully'), [
                 'order' => $this->formatOrder($order),
             ]);
         } catch (Exception $exception) {
-            return errorResponse('Failed to create order: '.$exception->getMessage());
+            return errorResponse(__('message.open_payment_order_create_failed').$exception->getMessage());
         }
     }
 
@@ -112,7 +112,7 @@ class OpenPaymentController extends Controller
             $apiKeys = ApiKey::first();
 
             if (! $apiKeys) {
-                return errorResponse('Payment gateway configuration not found', 500);
+                return errorResponse(__('message.payment_gateway_not_found'), 500);
             }
 
             return successResponse('', [
@@ -121,9 +121,9 @@ class OpenPaymentController extends Controller
                 'stripe_key' => $this->payments->publishableKey(),
             ]);
         } catch (ModelNotFoundException) {
-            return errorResponse('Order not found', 404);
+            return errorResponse(__('message.order_not_found'), 404);
         } catch (Exception $e) {
-            return errorResponse('Failed to get order details: '.$e->getMessage());
+            return errorResponse(__('message.open_payment_order_details_failed').$e->getMessage());
         }
     }
 
@@ -144,14 +144,14 @@ class OpenPaymentController extends Controller
             $order = OpenPaymentOrder::findOrFail($request->order_id);
 
             if ($order->isPaid()) {
-                return errorResponse('This order has already been paid');
+                return errorResponse(__('message.order_already_paid'));
             }
 
             return successResponse('', $this->payments->start($order)->clientConfig);
         } catch (ModelNotFoundException) {
-            return errorResponse('Order not found', 404);
+            return errorResponse(__('message.order_not_found'), 404);
         } catch (Throwable $e) {
-            return errorResponse('Failed to prepare payment: '.$e->getMessage());
+            return errorResponse(__('message.payment_prepare_failed').$e->getMessage());
         }
     }
 
@@ -169,7 +169,7 @@ class OpenPaymentController extends Controller
             $order = OpenPaymentOrder::findOrFail($request->order_id);
 
             if ($order->isPaid()) {
-                return errorResponse('This order has already been paid');
+                return errorResponse(__('message.order_already_paid'));
             }
 
             $session = $this->payments->startCardPayment($order);
@@ -178,7 +178,7 @@ class OpenPaymentController extends Controller
 
             return successResponse('', $session->clientConfig);
         } catch (Throwable $throwable) {
-            return errorResponse('Failed to create card session: '.$throwable->getMessage());
+            return errorResponse(__('message.card_session_failed').$throwable->getMessage());
         }
     }
 
@@ -203,12 +203,12 @@ class OpenPaymentController extends Controller
             ]));
 
             return $paid
-                ? successResponse('Payment successful!', ['order' => $this->formatOrder($order->fresh())])
-                : errorResponse('Payment verification failed.', 400);
+                ? successResponse(__('message.op_payment_successful'), ['order' => $this->formatOrder($order->fresh())])
+                : errorResponse(__('message.payment_verification_failed'), 400);
         } catch (SignatureVerificationException) {
-            return errorResponse('Payment verification failed: Invalid signature.', 400);
+            return errorResponse(__('message.payment_verification_failed').' '.__('message.invalid_signature'), 400);
         } catch (Exception $e) {
-            return errorResponse('Payment verification failed: '.$e->getMessage(), 500);
+            return errorResponse(__('message.payment_verification_failed').' '.$e->getMessage(), 500);
         }
     }
 
@@ -229,10 +229,10 @@ class OpenPaymentController extends Controller
             $paid = $this->payments->confirm($order, ['payment_intent' => $request->payment_intent_id]);
 
             return $paid
-                ? successResponse('Payment successful!', ['order' => $this->formatOrder($order->fresh())])
-                : errorResponse('Payment not completed.', 400);
+                ? successResponse(__('message.op_payment_successful'), ['order' => $this->formatOrder($order->fresh())])
+                : errorResponse(__('message.payment_not_completed'), 400);
         } catch (Exception $exception) {
-            return errorResponse('Payment verification failed: '.$exception->getMessage(), 500);
+            return errorResponse(__('message.payment_verification_failed').' '.$exception->getMessage(), 500);
         }
     }
 
@@ -365,7 +365,7 @@ class OpenPaymentController extends Controller
 
             return successResponse('', $orders);
         } catch (Exception $exception) {
-            return errorResponse('Failed to fetch orders: '.$exception->getMessage());
+            return errorResponse(__('message.fetch_orders_failed').$exception->getMessage());
         }
     }
 }

@@ -320,7 +320,7 @@ export const SOCIAL_PLATFORMS = {
 // Shown in picker for manual icon specification
 export const CUSTOM_PLATFORM = {
     id: 'custom',
-    label: 'Custom Icon',
+    label: __('message.custom_icon'),
     class: 'social-icons-custom',
     fa_class: 'fas fa-icons',
     color: '#6c757d',

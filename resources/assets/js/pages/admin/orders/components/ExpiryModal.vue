@@ -80,7 +80,7 @@ async function save() {
             }, 1500)
         }
     } catch (e) {
-        message.value = { type: 'error', text: e?.response?.data?.message ?? 'An error occurred.' }
+        message.value = { type: 'error', text: e?.response?.data?.message ?? __('message.error_occurs') }
     } finally {
         saving.value = false
     }

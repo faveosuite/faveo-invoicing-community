@@ -259,9 +259,9 @@ const tableOptions = reactive({
         country: (f, row) => row.country?.trim() || '—',
         created_at: (f, row) => row.created_at ? formatDate(row.created_at) : '—',
         account_info: (f, row) => h('div', { class: 'd-flex gap-2' }, [
-            statusIcon('fas fa-envelope',              row.email_verified,  "User's email address is verified",  "User's email address is not verified"),
-            statusIcon('fas fa-phone',                 row.mobile_verified, 'User has verified mobile',           'User has not verified mobile'),
-            statusIcon('fas fa-shield-halved',         row.is_2fa_enabled,  'User has enabled 2FA',               'User has not enabled 2FA'),
+            statusIcon('fas fa-envelope',              row.email_verified,  __('message.email_verified_tooltip'),  __('message.email_not_verified_tooltip')),
+            statusIcon('fas fa-phone',                 row.mobile_verified, __('message.mobile_verified_tooltip'),           __('message.mobile_not_verified_tooltip')),
+            statusIcon('fas fa-shield-halved',         row.is_2fa_enabled,  __('message.2fa_enabled_tooltip'),               __('message.2fa_not_enabled_tooltip')),
         ]),
         action: (f, row) => h(UserTableActions, {
             userId: row.id,

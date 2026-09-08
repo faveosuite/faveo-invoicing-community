@@ -87,7 +87,7 @@
                                 :hint="__('message.tt_city')"
                                 :value="form.city"
                                 :onChange="(val) => form.city = val"
-                                placehold="comma-separated"
+                                :placehold="__('message.city_placeholder')"
                             />
                         </div>
                         <div class="col-md-4">
@@ -157,7 +157,7 @@ const loading   = ref(true)
 const saving    = ref(false)
 const countries = ref([])
 const states    = ref([])
-const classOptions = ref([{ id: '', name: 'Standard' }])
+const classOptions = ref([{ id: '', name: __('message.standard') }])
 
 const yesNo         = [{ id: 1, name: __('message.yes') }, { id: 0, name: __('message.no') }]
 const activeOptions = [{ id: 1, name: __('message.active') }, { id: 0, name: __('message.inactive') }]
@@ -203,7 +203,7 @@ onMounted(async () => {
 
         countries.value    = Object.entries(optRes.data?.data?.countries ?? {}).map(([cid, name]) => ({ id: cid, name }))
         classOptions.value = (optRes.data?.data?.classes ?? []).map(c => ({ id: c.slug, name: c.name }))
-        if (!classOptions.value.length) classOptions.value = [{ id: '', name: 'Standard' }]
+        if (!classOptions.value.length) classOptions.value = [{ id: '', name: __('message.standard') }]
 
         if (form.country) await loadStates()
     } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }

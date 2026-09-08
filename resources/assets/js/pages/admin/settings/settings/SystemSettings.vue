@@ -26,7 +26,7 @@
                         <div class="col-md-6">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="form-label fw-bold mb-0">{{ __('message.date_format') }}<span class="text-danger ms-1">*</span></label>
-                                <small v-if="datePreview" class="text-muted fst-italic">(e.g {{ datePreview }})</small>
+                                <small v-if="datePreview" class="text-muted fst-italic">{{ __('message.eg') }}{{ datePreview }})</small>
                             </div>
                             <DynamicSelect
                                 name="date_format"
@@ -43,7 +43,7 @@
                         <div class="col-md-6">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="form-label fw-bold mb-0">{{ __('message.time_format') }}<span class="text-danger ms-1">*</span></label>
-                                <small v-if="timePreview" class="text-muted fst-italic">(e.g {{ timePreview }})</small>
+                                <small v-if="timePreview" class="text-muted fst-italic">{{ __('message.eg') }}{{ timePreview }})</small>
                             </div>
                             <DynamicSelect
                                 name="time_format"

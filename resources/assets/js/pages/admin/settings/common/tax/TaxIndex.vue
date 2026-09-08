@@ -73,7 +73,7 @@
                                 :searchable="true"
                                 :clearable="true"
                                 :closeOnSelect="false"
-                                placeholder="Type a class name and press Enter"
+                                :placeholder="__('message.type_class_name_placeholder')"
                             />
                         </div>
                     </div>
@@ -179,7 +179,7 @@ function onClassesChange(val) {
 }
 
 // --- Tax classes (drive the rate tabs) ---
-const classes     = ref([{ slug: '', name: 'Standard' }])
+const classes     = ref([{ slug: '', name: __('message.standard') }])
 const activeClass  = ref('')
 
 const orderedClasses = computed(() => {
@@ -212,7 +212,7 @@ async function loadOptions() {
         options.tax_based_on           = o.tax_based_on ?? 'billing'
         additionalClasses.value = (d.additional_tax_classes ?? '')
             .split('\n').map(s => s.trim()).filter(Boolean).map(name => ({ name }))
-        classes.value = (d.classes ?? []).length ? d.classes : [{ slug: '', name: 'Standard' }]
+        classes.value = (d.classes ?? []).length ? d.classes : [{ slug: '', name: __('message.standard') }]
         if (!classes.value.some(c => c.slug === activeClass.value)) activeClass.value = ''
     } catch (e) {
         errorHandler(e, COMPONENT)

@@ -125,7 +125,7 @@ class Google2FAController extends Controller
         if (! $request->user_password && $request->login_type == 'social') {
             Session::put('auth.password_confirmed_at', time());
 
-            return successResponse('password_verified');
+            return successResponse(__('message.password_verified'));
         }
 
         /** @var User $user */
@@ -133,7 +133,7 @@ class Google2FAController extends Controller
         if (Hash::check($request->input('user_password'), $user->getAuthPassword())) {
             Session::put('auth.password_confirmed_at', time());
 
-            return successResponse('password_verified');
+            return successResponse(__('message.password_verified'));
         }
 
         return errorResponse(__('message.password_incorrect'));

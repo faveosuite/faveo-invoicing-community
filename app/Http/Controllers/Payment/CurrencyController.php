@@ -119,7 +119,7 @@ class CurrencyController extends Controller
             $codeChar2 = Country::where('country_id', $request->editnicename)->value('country_code_char2');
             $currency = Currency::where('id', $request->currencyId)->first();
             if (is_null($currency)) {
-                return errorResponse('Currency not found.');
+                return errorResponse(__('message.currency_not_found'));
             }
             /** @var mixed $currency */
             $currency->code = $request->editcode;

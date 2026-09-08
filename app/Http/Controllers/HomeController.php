@@ -236,7 +236,7 @@ class HomeController extends BaseHomeController
             ->first();
 
         if (! $order) {
-            return errorResponse('Invalid Credentials');
+            return errorResponse(__('message.invalid_credentials'));
         }
 
         $subscription = $order->subscription;

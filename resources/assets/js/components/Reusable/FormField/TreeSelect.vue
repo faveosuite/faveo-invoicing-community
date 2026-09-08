@@ -56,7 +56,7 @@ const props = defineProps({
     elements:    { type: Array, default: () => [] },
     dataKey:     { type: String, default: null },
     multiple:    { type: Boolean, default: false },
-    placeholder: { type: String, default: 'Search or Select' },
+    placeholder: { type: String, default: () => __('message.search_or_select') },
     disabled:    { type: Boolean, default: false },
     required:    { type: Boolean, default: false },
     error:       { type: String, default: undefined },

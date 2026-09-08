@@ -22,7 +22,7 @@
 
         <AppModal v-if="showModal" :showModal="showModal" :onClose="onClose">
             <template #title>
-                <div><h4>Crop Profile</h4></div>
+                <div><h4>{{ lang('crop_profile') }}</h4></div>
             </template>
             <template #fields>
                 <div>

@@ -250,7 +250,7 @@
                 <!-- Cart summary — server-calculated -->
                 <div class="rounded-3 border bg-white p-3 mt-3">
                   <div v-if="calcLoading" class="text-center py-2 text-muted small">
-                    <i class="fas fa-circle-notch fa-spin me-1"></i> Calculating…
+                    <i class="fas fa-circle-notch fa-spin me-1"></i> {{ __('message.op_calculating') }}
                   </div>
                   <template v-else>
                     <div class="d-flex justify-content-between py-2">
@@ -400,7 +400,7 @@
 
         <div v-if="stripeLoading" class="d-flex align-items-center justify-content-center py-4 gap-2 text-muted">
           <i class="fas fa-circle-notch fa-spin"></i>
-          <span class="small">Loading secure form…</span>
+          <span class="small">{{ __('message.op_loading_secure_form') }}</span>
         </div>
 
         <template v-else>
@@ -661,7 +661,7 @@ const payNow = async () => {
         const estimatedTotal = parseAmount(calculation.total)
         if (!Number.isNaN(confirmedTotal) && Math.abs(confirmedTotal - estimatedTotal) > 0.01) {
           alertStore.setAlert({
-            message: `The total has been updated to ${selectedCurrencySymbol.value}${order.value.amount} due to a fee rate change.`,
+            message: __('message.op_total_updated_fee_change', { amount: `${selectedCurrencySymbol.value}${order.value.amount}` }),
             type: 'warning',
             component_name: 'open-payment-review',
           })
@@ -676,7 +676,7 @@ const payNow = async () => {
         const res = err.response?.data
         if (res?.data?.show_v2_recaptcha) {
           captchaRef.value?.triggerFallback()
-          alertStore.setAlert({ message: 'Please complete the reCAPTCHA and try again.', type: 'warning', component_name: 'open-payment-review' })
+          alertStore.setAlert({ message: __('message.op_recaptcha_required'), type: 'warning', component_name: 'open-payment-review' })
           paying.value = false
           return
         }
@@ -685,11 +685,11 @@ const payNow = async () => {
           const map = Object.fromEntries(Object.entries(res.errors).map(([k, v]) => [k, v[0]]))
           setErrors(map)
           step.value = 'form'
-          alertStore.setAlert({ message: 'Please fix the highlighted fields and try again.', type: 'warning', component_name: 'open-payment-form' })
+          alertStore.setAlert({ message: __('message.op_fix_highlighted_fields'), type: 'warning', component_name: 'open-payment-form' })
         } else if (err.response?.status === 429) {
-          alertStore.setAlert({ message: 'Too many attempts. Please wait a moment and try again.', type: 'danger', component_name: 'open-payment-review' })
+          alertStore.setAlert({ message: __('message.op_too_many_attempts'), type: 'danger', component_name: 'open-payment-review' })
         } else {
-          alertStore.setAlert({ message: res?.message || 'Failed to create order', type: 'danger', component_name: 'open-payment-review' })
+          alertStore.setAlert({ message: res?.message || __('message.op_create_order_failed'), type: 'danger', component_name: 'open-payment-review' })
         }
         paying.value = false
         return
@@ -707,7 +707,7 @@ const payNow = async () => {
     const { data } = await http.post(`${API}/prepare`, { order_id: order.value.id })
     await initRazorpay(data.data)
   } catch (err) {
-    alertStore.setAlert({ message: err.response?.data?.message || 'Failed to initialize payment', type: 'danger', component_name: 'open-payment-review' })
+    alertStore.setAlert({ message: err.response?.data?.message || __('message.op_init_payment_failed'), type: 'danger', component_name: 'open-payment-review' })
     paying.value = false
   }
 }
@@ -771,7 +771,7 @@ const initStripe = async () => {
     cardExpiry.mount('#card-expiry')
     cardCvc.mount('#card-cvc')
   } catch (err) {
-    alertStore.setAlert({ message: err.response?.data?.message || 'Failed to initialise payment', type: 'danger', component_name: 'open-payment-stripe' })
+    alertStore.setAlert({ message: err.response?.data?.message || __('message.op_init_payment_failed'), type: 'danger', component_name: 'open-payment-stripe' })
     showStripeModal.value = true
     stripeLoading.value = false
   } finally {
@@ -782,9 +782,9 @@ const initStripe = async () => {
 const payStripe = async () => {
   if (stripeSubmitting.value) return
 
-  if (!cardComplete.number) cardErrors.number = cardErrors.number || 'Card number is required'
-  if (!cardComplete.expiry) cardErrors.expiry = cardErrors.expiry || 'Expiry date is required'
-  if (!cardComplete.cvc)    cardErrors.cvc    = cardErrors.cvc    || 'CVC is required'
+  if (!cardComplete.number) cardErrors.number = cardErrors.number || __('message.card_number_required')
+  if (!cardComplete.expiry) cardErrors.expiry = cardErrors.expiry || __('message.expiry_required')
+  if (!cardComplete.cvc)    cardErrors.cvc    = cardErrors.cvc    || __('message.cvc_required')
   if (!cardComplete.number || !cardComplete.expiry || !cardComplete.cvc) return
 
   stripeSubmitting.value = true
@@ -807,10 +807,10 @@ const payStripe = async () => {
       showStripeModal.value = false
       await verifyStripe(paymentIntent.id)
     } else {
-      alertStore.setAlert({ message: 'Payment was not completed. Please try again.', type: 'danger', component_name: 'open-payment-stripe' })
+      alertStore.setAlert({ message: __('message.op_payment_not_completed'), type: 'danger', component_name: 'open-payment-stripe' })
     }
   } catch (err) {
-    alertStore.setAlert({ message: err.response?.data?.message || 'Payment failed', type: 'danger', component_name: 'open-payment-stripe' })
+    alertStore.setAlert({ message: err.response?.data?.message || __('message.op_payment_failed_generic'), type: 'danger', component_name: 'open-payment-stripe' })
   } finally {
     stripeSubmitting.value = false
   }
@@ -838,9 +838,9 @@ const verifyRazorpay = async (response) => {
       razorpay_signature: response.razorpay_signature,
     })
     if (data.success && data.data?.order) showResult(true, data.data.order)
-    else showResult(false, null, data.message || 'Payment verification failed')
+    else showResult(false, null, data.message || __('message.op_payment_verification_failed'))
   } catch (err) {
-    showResult(false, null, err.response?.data?.message || 'Verification failed')
+    showResult(false, null, err.response?.data?.message || __('message.op_verification_failed'))
   } finally {
     loaderStore.stopLoader('op-verify')
   }
@@ -854,9 +854,9 @@ const verifyStripe = async (paymentIntentId) => {
       payment_intent_id: paymentIntentId,
     })
     if (data.success && data.data?.order) showResult(true, data.data.order)
-    else showResult(false, null, data.message || 'Payment verification failed')
+    else showResult(false, null, data.message || __('message.op_payment_verification_failed'))
   } catch (err) {
-    showResult(false, null, err.response?.data?.message || 'Verification failed')
+    showResult(false, null, err.response?.data?.message || __('message.op_verification_failed'))
   } finally {
     loaderStore.stopLoader('op-verify')
   }
@@ -914,10 +914,10 @@ onMounted(async () => {
     } catch { showResult(true, { id: orderId }) }
     globalThis.history.replaceState({}, document.title, globalThis.location.pathname)
   } else if (status === 'failed' || status === 'error') {
-    showResult(false, null, message ? decodeURIComponent(message) : 'Payment failed')
+    showResult(false, null, message ? decodeURIComponent(message) : __('message.op_payment_failed_generic'))
     globalThis.history.replaceState({}, document.title, globalThis.location.pathname)
   } else if (status === 'pending') {
-    showResult(false, null, message ? decodeURIComponent(message) : 'Payment is still processing. Please check back later.')
+    showResult(false, null, message ? decodeURIComponent(message) : __('message.op_payment_still_processing'))
     globalThis.history.replaceState({}, document.title, globalThis.location.pathname)
   }
 })

@@ -38,7 +38,7 @@ const props = defineProps({
     onChange:     { type: Function, required: true },
     type:         { type: String, default: 'date' },
     format:       { type: String, default: 'YYYY-MM-DD' },
-    placeholder:  { type: String, default: 'Select date' },
+    placeholder:  { type: String, default: () => __('message.select_date') },
     disabled:     { type: Boolean, default: false },
     clearable:    { type: Boolean, default: true },
     range:        { type: Boolean, default: false },

@@ -95,12 +95,12 @@ const form = reactive({
 })
 
 const paymentMethods = [
-    { name: 'Cash',           value: 'cash' },
-    { name: 'Check',          value: 'check' },
-    { name: 'Online Payment', value: 'online payment' },
+    { name: __('message.cash'),           value: 'cash' },
+    { name: __('message.check'),          value: 'check' },
+    { name: __('message.online_payment'), value: 'online payment' },
     { name: 'Razorpay',       value: 'razorpay' },
     { name: 'Stripe',         value: 'stripe' },
-    { name: 'Credit Balance', value: 'Credit Balance' },
+    { name: __('message.credit_balance'), value: 'Credit Balance' },
 ]
 
 const selectedMethod = computed(() =>

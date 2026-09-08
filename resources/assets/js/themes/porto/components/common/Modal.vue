@@ -11,7 +11,7 @@
 
                         <div class="modal-header">
                             <slot name="title"></slot>
-                            <button type="button" class="btn-close" @click="onClose" aria-label="Close"></button>
+                            <button type="button" class="btn-close" @click="onClose" :aria-label="__('message.close')"></button>
                         </div>
 
                         <div class="modal-body" :class="modalBodyClass">
@@ -21,7 +21,7 @@
                         <div v-if="showControls" class="modal-footer"
                              :class="[showCloseBtn ? 'justify-content-between' : 'justify-content-end', footerClass]">
                             <button v-if="showCloseBtn" type="button" class="btn btn-light" @click="onClose">
-                                {{ closeLabel || 'Close' }}
+                                {{ closeLabel || __('message.close') }}
                             </button>
                             <slot name="controls"></slot>
                         </div>

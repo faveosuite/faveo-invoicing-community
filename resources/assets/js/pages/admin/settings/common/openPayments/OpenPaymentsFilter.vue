@@ -8,7 +8,7 @@
                 <div class="col-md-4">
                     <DynamicSelect
                         name="status"
-                        label="Status"
+                        :label="__('message.status')"
                         :elements="statusOptions"
                         :value="form.status"
                         :onChange="(val) => form.status = val"
@@ -17,7 +17,7 @@
                 <div class="col-md-4">
                     <DynamicSelect
                         name="gateway"
-                        label="Gateway"
+                        :label="__('message.op_gateway')"
                         :elements="gatewayOptions"
                         :value="form.gateway"
                         :onChange="(val) => form.gateway = val"
@@ -26,7 +26,7 @@
                 <div class="col-md-4">
                     <DynamicSelect
                         name="currency"
-                        label="Currency"
+                        :label="__('message.currency')"
                         :elements="currencyOptions"
                         :value="form.currency"
                         :onChange="(val) => form.currency = val"
@@ -37,7 +37,7 @@
                 <div class="col-md-4">
                     <DatePicker
                         name="from_date"
-                        label="From Date"
+                        :label="__('message.from_date')"
                         :value="form.from_date"
                         :clearable="true"
                         :disabledDate="isFutureDate"
@@ -48,7 +48,7 @@
                 <div class="col-md-4">
                     <DatePicker
                         name="to_date"
-                        label="To Date"
+                        :label="__('message.to_date')"
                         :value="form.to_date"
                         :clearable="true"
                         :disabledDate="isFutureDate"
@@ -79,9 +79,9 @@ defineProps({
 const emit = defineEmits(['apply', 'reset', 'close'])
 
 const statusOptions = [
-    { id: 'pending',   name: 'Pending'   },
-    { id: 'completed', name: 'Completed' },
-    { id: 'failed',    name: 'Failed'    },
+    { id: 'pending',   name: __('message.pending')   },
+    { id: 'completed', name: __('message.completed') },
+    { id: 'failed',    name: __('message.failed')    },
 ]
 
 const gatewayOptions = [

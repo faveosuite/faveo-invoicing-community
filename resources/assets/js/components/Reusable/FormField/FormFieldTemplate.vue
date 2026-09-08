@@ -9,7 +9,7 @@
             <ToolTip v-if="hint !== '' && !tipRule" :message="getHint(hint)" size="small" />
             <slot name="word-limit-counter"></slot>
             <i v-if="isClearField && value && typeof value === 'object'" @click="clearField"
-               class="fas fa-times clear-btn" title="Clear" aria-hidden="true"></i>
+               class="fas fa-times clear-btn" :title="__('message.clear')" aria-hidden="true"></i>
             <a v-if="showNewButton" class="btn btn-light mb-2 float-end btn-xs pt-0 pb-0"
                href="javascript:;" @click="clickEvent(name)">
                 <i class="fas fa-plus plus-icon"></i> {{ lang(newBtnName) }}

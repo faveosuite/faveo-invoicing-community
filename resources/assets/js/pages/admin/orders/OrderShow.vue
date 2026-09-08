@@ -96,7 +96,7 @@
                                                 <div class="row align-items-center">
                                                     <div class="col-4 fw-semibold">{{ __('message.license_expiry') }}</div>
                                                     <div class="col-8">
-                                                        <span :class="expiryStatus('subscription_end') ? 'text-danger' : 'text-muted'">{{ expiryDate('subscription_end') || 'Not set' }}</span>
+                                                        <span :class="expiryStatus('subscription_end') ? 'text-danger' : 'text-muted'">{{ expiryDate('subscription_end') || __('message.not_set') }}</span>
                                                         <span v-if="expiryStatus('subscription_end')" class="badge bg-danger ms-1">{{ expiryStatus('subscription_end') }}</span>
                                                     </div>
                                                 </div>
@@ -253,7 +253,7 @@
                                         <div class="d-flex align-items-center justify-content-between mb-3">
                                             <div>
                                                 <div class="small fw-semibold">{{ __('message.auto_renewal_subscription') }}</div>
-                                                <div class="text-muted text-renewal-hint">Automatically renew when subscription ends</div>
+                                                <div class="text-muted text-renewal-hint">{{ __('message.auto_renewal_subscription_hint') }}</div>
                                             </div>
                                             <Switch
                                                 name="auto_renewal"
@@ -724,7 +724,7 @@ const installTableOptions = reactive({
     headings: {
         path:             __('message.installation_path'),
         ip:               __('message.installation_ip'),
-        version:          'Version',
+        version:          __('message.version'),
         status:           __('message.status'),
         last_active_date: __('message.last_active'),
     },

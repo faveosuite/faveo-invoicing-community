@@ -117,7 +117,7 @@
                     <div class="row">
                         <div class="col-lg-5 ms-auto">
                             <table class="table table-sm table-borderless w-100">
-                                <thead class="visually-hidden"><tr><th>Description</th><th>Amount</th></tr></thead>
+                                <thead class="visually-hidden"><tr><th>{{ __('message.description') }}</th><th>{{ __('message.amount') }}</th></tr></thead>
                                 <colgroup>
                                     <col>
                                     <col class="col-label-width">
@@ -128,7 +128,7 @@
                                         <td class="text-end">{{ totals?.subtotal }}</td>
                                     </tr>
                                     <tr v-if="totals?.credits">
-                                        <td class="text-muted">{{ __('message.discount') }} (Credits)</td>
+                                        <td class="text-muted">{{ __('message.discount') }} ({{ __('message.credits') }})</td>
                                         <td class="text-end">{{ totals.credits }}</td>
                                     </tr>
                                     <tr v-if="totals?.discount">

@@ -20,11 +20,11 @@
                                 <input class="form-control form-control-sm bg-light px-4 text-3"
                                        :class="{ 'is-invalid': newsletterEmailError }"
                                        type="email" v-model="newsletterEmail"
-                                       placeholder="Email Address..."
+                                       :placeholder="__('message.email_address_placeholder')"
                                        @input="newsletterEmailError = ''">
                                 <button class="btn btn-primary text-color-light text-2 py-3 px-4"
                                         type="submit" :disabled="subscribing">
-                                    <strong>SUBSCRIBE!</strong>
+                                    <strong>{{ __('message.subscribe') }}</strong>
                                 </button>
                             </div>
                             <span v-if="newsletterEmailError" class="text-danger text-1 mt-1 d-block">

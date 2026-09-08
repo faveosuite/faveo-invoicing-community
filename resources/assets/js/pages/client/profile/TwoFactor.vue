@@ -108,7 +108,7 @@
                             <input type="text"
                                    class="form-control text-3 h-auto py-2"
                                    v-model="totp"
-                                   placeholder="Enter Passcode..."
+                                   :placeholder="__('message.enter_passcode')"
                                    maxlength="6"
                                    @keydown.enter="verify2fa" />
                         </div>

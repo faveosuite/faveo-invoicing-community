@@ -198,7 +198,7 @@
             </tr>
             @if($invoice->credits)
                 <tr>
-                    <td class="label">{{ __('message.discount') }} (Credits)</td>
+                    <td class="label">{{ __('message.discount') }} ({{ __('message.credits') }})</td>
                     <td class="value">{{ $totals['credits'] }}</td>
                 </tr>
             @endif

@@ -92,10 +92,10 @@ const moduleOptions = ref([])
 const userOptions   = ref([])
 
 const eventOptions = [
-    { id: 'created', name: 'Created' },
-    { id: 'updated', name: 'Updated' },
-    { id: 'deleted', name: 'Deleted' },
-    { id: 'login',   name: 'Login'   },
+    { id: 'created', name: __('message.created') },
+    { id: 'updated', name: __('message.updated') },
+    { id: 'deleted', name: __('message.deleted') },
+    { id: 'login',   name: __('message.login')   },
 ]
 
 async function loadOptions() {

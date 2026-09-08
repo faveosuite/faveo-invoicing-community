@@ -5,19 +5,19 @@
     <div class="container-fluid">
 
       <!-- ── Left ───────────────────────────────────────────────────── -->
-      <ul class="navbar-nav" role="listbox" aria-label="Primary navigation">
+      <ul class="navbar-nav" role="listbox" :aria-label="__('message.primary_navigation')">
 
         <!-- Sidebar toggle -->
         <li class="nav-item">
           <button type="button" class="nav-link btn btn-link" :aria-expanded="isOpen"
-                  aria-controls="app-sidebar" aria-label="Toggle sidebar" @click="toggle">
+                  aria-controls="app-sidebar" :aria-label="__('message.toggle_sidebar')" @click="toggle">
             <i class="fas fa-bars" aria-hidden="true"></i>
           </button>
         </li>
 
         <!-- Go to client panel -->
         <li class="nav-item d-none d-md-block">
-          <a :href="`${baseUrl}/client-dashboard`" class="nav-link" aria-label="Go to client panel">
+          <a :href="`${baseUrl}/client-dashboard`" class="nav-link" :aria-label="__('message.go_to_client')">
             <i class="fas fa-arrow-up-right-from-square me-1" aria-hidden="true"></i>
             {{ __('message.go_to_client') }}
           </a>
@@ -25,19 +25,19 @@
       </ul>
 
       <!-- ── Right ──────────────────────────────────────────────────── -->
-      <ul class="navbar-nav ms-auto" role="listbox" aria-label="User navigation">
+      <ul class="navbar-nav ms-auto" role="listbox" :aria-label="__('message.user_navigation')">
 
         <!-- Language -->
         <li class="nav-item dropdown">
 
           <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown"
-             href="javascript:;" role="button" :aria-label="`Change language, current: ${currentLocale}`"
+             href="javascript:;" role="button" :aria-label="__('message.change_language_current', { locale: currentLocale })"
              aria-haspopup="true" @keydown.enter="$event.target.click()" @keydown.space.prevent="$event.target.click()">
             <span :class="`fi fi-${flagCode(currentLocale)}`" v-tooltip="currentLocale.toUpperCase()"></span>
             <span class="d-none d-md-inline">{{ currentLocale.toUpperCase() }}</span>
           </a>
 
-          <ul ref="langMenu" class="dropdown-menu dropdown-menu-end lang-dropdown" role="listbox" aria-label="Languages"
+          <ul ref="langMenu" class="dropdown-menu dropdown-menu-end lang-dropdown" role="listbox" :aria-label="__('message.languages')"
               @scroll="onMenuScroll">
 
             <li v-for="lang in languages" :key="lang.id" role="option">
@@ -64,16 +64,16 @@
         <li class="nav-item dropdown">
 
           <a href="javascript:;" class="nav-link d-flex align-items-center gap-2" data-bs-toggle="dropdown"
-             data-bs-offset="0,8" role="button" :aria-label="`User menu for ${userName}`" aria-haspopup="true"
+             data-bs-offset="0,8" role="button" :aria-label="__('message.user_menu_for', { name: userName })" aria-haspopup="true"
              @keydown.enter="$event.target.click()" @keydown.space.prevent="$event.target.click()">
 
             <span class="d-none d-md-inline">{{ userName }}</span>
 
-            <img :src="avatarUrl" class="user-image rounded-circle" alt="Avatar"
+            <img :src="avatarUrl" class="user-image rounded-circle" :alt="__('message.avatar')"
                  @error="e => { e.target.onerror = null; e.target.src = fallbackAvatar }"/>
           </a>
 
-          <ul class="dropdown-menu dropdown-menu-end user-dropdown" aria-label="User menu">
+          <ul class="dropdown-menu dropdown-menu-end user-dropdown" :aria-label="__('message.user_menu')">
 
             <li>
               <RouterLink to="/profile" class="dropdown-item">

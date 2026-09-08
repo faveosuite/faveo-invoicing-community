@@ -53,8 +53,8 @@ export default [
     { path: '/server/update-notifications', component: CustomizeUpdateNotifications, meta: { title: 'Update Custom Notification', titleKey: 'message.update_custom_notification' } },
 
     { path: '/log-reports', redirect: '/log-reports/license' },
-    { path: '/log-reports/crack', component: ViewCrackingReports, meta: { title: 'Cracking Reports' } },
-    { path: '/log-reports/license', component: ViewLicenseReports, meta: { title: 'License Reports' } },
-    { path: '/log-reports/update', component: ViewUpdateReports, meta: { title: 'Update Reports' } },
-    { path: '/log-reports/system', component: ViewSystemReports, meta: { title: 'System Reports' } },
+    { path: '/log-reports/crack', component: ViewCrackingReports, meta: { title: 'Cracking Reports', titleKey: 'message.cracking_reports' } },
+    { path: '/log-reports/license', component: ViewLicenseReports, meta: { title: 'License Reports', titleKey: 'message.license_reports' } },
+    { path: '/log-reports/update', component: ViewUpdateReports, meta: { title: 'Update Reports', titleKey: 'message.update_reports' } },
+    { path: '/log-reports/system', component: ViewSystemReports, meta: { title: 'System Reports', titleKey: 'message.system_reports' } },
 ];

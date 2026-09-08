@@ -30,7 +30,7 @@
                             <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
                                 <i class="fas fa-info-circle me-1"></i>
                                 {{ __('message.copy_shortcode_info') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" :aria-label="__('message.close')"></button>
                             </div>
                             <ul class="list-inline mb-0">
                                 <li
@@ -125,22 +125,22 @@ const form = reactive({
 const typeOptions = ref([])
 
 const LABEL_OVERRIDES = {
-    welcome_mail:                   'Welcome Mail',
-    forgot_password_mail:           'Forgot Password', // NOSONAR
-    subscription_going_to_end_mail: 'Subscription Going To End',
-    subscription_over_mail:         'Subscription Over',
-    invoice_mail:                   'Invoice',
-    order_mail:                     'Order Mail',
-    auto_subscription_going_to_end: 'Auto Renewal Reminder',
-    payment_successfull:            'Auto Payment Successful',
-    payment_failed:                 'Auto Payment Failed',
-    cloud_deleted:                  'Order Deleted',
-    cloud_created:                  'New Instance Created',
-    contact_us:                     'Contact Us',
-    demo_request:                   'Request a Demo',
-    registration_mail:              'Register Mail',
-    sales_manager_email:            'New Sales Manager',
-    account_manager_email:          'New Account Manager',
+    welcome_mail:                   __('message.welcome-mail'),
+    forgot_password_mail:           __('message.forgot-password'), // NOSONAR
+    subscription_going_to_end_mail: __('message.subscription-going-to-end'),
+    subscription_over_mail:         __('message.subscription-over'),
+    invoice_mail:                   __('message.invoice'),
+    order_mail:                     __('message.order-mail'),
+    auto_subscription_going_to_end: __('message.auto_renewal_reminder'),
+    payment_successfull:            __('message.auto_payment_success'),
+    payment_failed:                 __('message.auto_payment_failed'),
+    cloud_deleted:                  __('message.urgent_order_deleted'),
+    cloud_created:                  __('message.new_instance_created'),
+    contact_us:                     __('message.contact_us'),
+    demo_request:                   __('message.request_demo'),
+    registration_mail:              __('message.register_mail'),
+    sales_manager_email:            __('message.new_sales_manager'),
+    account_manager_email:          __('message.new_account_manager'),
 }
 
 function toLabel(name) {

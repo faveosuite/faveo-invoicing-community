@@ -114,7 +114,7 @@
                             <li v-if="order.deploy_enabled && order.has_deployable_uploads && order.status !== 'Terminated'" class="nav-item">
                                 <a class="nav-link" :class="{ active: activeTab === 'deploy' }"
                                    href="javascript:;" @click="activeTab = 'deploy'">
-                                    <i class="fas fa-rocket fa-fw nav-icon"></i>Deploy
+                                    <i class="fas fa-rocket fa-fw nav-icon"></i>{{ __('message.deploy') }}
                                 </a>
                             </li>
                         </ul>
@@ -640,7 +640,7 @@
                             <div v-if="renewalCardErrors.expiry" class="invalid-feedback d-block">{{ renewalCardErrors.expiry }}</div>
                         </div>
                         <div class="col-6">
-                            <label class="form-label text-color-grey mb-1">CVC</label>
+                            <label class="form-label text-color-grey mb-1">{{ __('message.cvc') }}</label>
                             <div id="renewal-card-cvc" class="form-control h-auto py-3" :class="{ 'is-invalid': renewalCardErrors.cvc }"></div>
                             <div v-if="renewalCardErrors.cvc" class="invalid-feedback d-block">{{ renewalCardErrors.cvc }}</div>
                         </div>

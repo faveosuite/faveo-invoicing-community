@@ -22,11 +22,11 @@ function uploadEditorImage(blobInfo, progress) {
             .then(res => {
                 const location = res.data?.location
                 if (location) resolve(location)
-                else reject('Image upload failed')
+                else reject(__('message.image_upload_failed'))
             })
             .catch(err => {
                 const data = err.response?.data
-                reject(data?.errors?.file?.[0] || data?.message || 'Image upload failed')
+                reject(data?.errors?.file?.[0] || data?.message || __('message.image_upload_failed'))
             })
     })
 }
@@ -44,12 +44,12 @@ function openTooltipDialog(editor, { title, submitLabel, initialValue = '', onCo
             items: [{
                 type: 'input',
                 name: 'tooltipText',
-                label: 'Tooltip description',
-                placeholder: 'Enter the tooltip text...',
+                label: __('message.tooltip_description'),
+                placeholder: __('message.enter_tooltip_text'),
             }],
         },
         buttons: [
-            { type: 'cancel', text: 'Cancel' },
+            { type: 'cancel', text: __('message.cancel') },
             { type: 'submit', text: submitLabel, primary: true },
         ],
         onSubmit(api) {
@@ -65,14 +65,14 @@ function registerTooltipButton(editor) {
     editor.ui.registry.addButton('addtooltip', {
         text: 'Tooltip',
         icon: 'info',
-        tooltip: 'Add or edit a tooltip on selected text',
+        tooltip: __('message.add_edit_tooltip_hint'),
         onAction() {
             const node = getTooltipNode(editor)
 
             if (node) {
                 openTooltipDialog(editor, {
-                    title: 'Edit Tooltip',
-                    submitLabel: 'Update',
+                    title: __('message.edit_tooltip'),
+                    submitLabel: __('message.update'),
                     initialValue: node.getAttribute(TOOLTIP_ATTR) ?? '',
                     onConfirm(text) {
                         editor.dom.setAttrib(node, TOOLTIP_ATTR, text)
@@ -86,7 +86,7 @@ function registerTooltipButton(editor) {
 
             if (!selected) {
                 editor.notificationManager.open({
-                    text: 'Select the text you want to add a tooltip to first.',
+                    text: __('message.select_text_for_tooltip'),
                     type: 'warning',
                     timeout: 3000,
                 })
@@ -94,8 +94,8 @@ function registerTooltipButton(editor) {
             }
 
             openTooltipDialog(editor, {
-                title: 'Add Tooltip',
-                submitLabel: 'Insert',
+                title: __('message.add_tooltip'),
+                submitLabel: __('message.insert'),
                 onConfirm(text) {
                     editor.selection.setContent(
                         `<span class="${TOOLTIP_CLASS}" data-bs-toggle="tooltip" ${TOOLTIP_ATTR}="${text}">${selected}</span>`

@@ -115,11 +115,11 @@ const platform = route.params.platform
 
 const tabs = platform === 'crm'
     ? [
-        { id: 'contacts', label: 'Contacts', icon: 'fas fa-user' },
-        { id: 'accounts', label: 'Accounts', icon: 'fas fa-building' },
+        { id: 'contacts', label: __('message.contacts'), icon: 'fas fa-user' },
+        { id: 'accounts', label: __('message.accounts'), icon: 'fas fa-building' },
       ]
     : [
-        { id: 'contacts', label: 'Contacts', icon: 'fas fa-user' },
+        { id: 'contacts', label: __('message.contacts'), icon: 'fas fa-user' },
       ]
 
 const activeModule  = ref(route.params.module ?? 'contacts')

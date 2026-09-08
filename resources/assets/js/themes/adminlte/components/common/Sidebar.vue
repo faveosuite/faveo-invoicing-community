@@ -5,7 +5,7 @@
         <!-- Brand -->
         <div class="sidebar-brand">
             <RouterLink v-if="logoUrl" to="/dashboard" class="brand-link">
-                <img :src="logoUrl" alt="Logo"
+                <img :src="logoUrl" :alt="__('message.logo')"
                      class="brand-image"
                      @error="e => e.target.style.display = 'none'" />
             </RouterLink>
@@ -21,7 +21,7 @@
             <nav class="mt-2">
                 <ul class="nav sidebar-menu flex-column nav-child-indent"
                     role="navigation"
-                    aria-label="Main navigation">
+                    :aria-label="__('message.main_navigation')">
 
                     <!-- ── Dashboard ───────────────────────────────────────── -->
                     <li class="nav-item">
@@ -34,7 +34,7 @@
                     </li>
 
                     <!-- ── Invoicing ──────────────────────────────────────────── -->
-                    <li class="nav-header">Invoicing</li>
+                    <li class="nav-header">{{ __('message.invoicing') }}</li>
 
                     <!-- ── Users ───────────────────────────────────────────── -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('users') }">
@@ -226,21 +226,21 @@
                     </li>
 
                     <!-- ── License Module ──────────────────────────────────── -->
-                    <li class="nav-header">License Manager</li>
+                    <li class="nav-header">{{ __('message.license_manager') }}</li>
 
                     <!-- Versions -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('versions') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/versions') }"
                            @click.prevent="toggleSection('versions')">
                             <i class="nav-icon fas fa-box"></i>
-                            <p>Versions <i class="nav-arrow fas fa-chevron-right"></i></p>
+                            <p>{{ __('message.versions') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <RouterLink to="/versions/list" class="nav-link"
                                             :class="{ active: isExact('/versions/list') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>All Versions</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all_versions') }}</p>
                                 </RouterLink>
                             </li>
                         </ul>
@@ -251,21 +251,21 @@
                         <a class="nav-link" :class="{ active: isGroupActive('/licenses') }"
                            @click.prevent="toggleSection('licenses')">
                             <i class="nav-icon fas fa-key"></i>
-                            <p>Licenses <i class="nav-arrow fas fa-chevron-right"></i></p>
+                            <p>{{ __('message.licenses') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <RouterLink to="/licenses/create" class="nav-link"
                                             :class="{ active: isExact('/licenses/create') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>New License</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.new_license') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/licenses/list" class="nav-link"
                                             :class="{ active: isExact('/licenses/list') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>All Licenses</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all_licenses') }}</p>
                                 </RouterLink>
                             </li>
                         </ul>
@@ -276,14 +276,14 @@
                         <a class="nav-link" :class="{ active: isGroupActive('/installations') }"
                            @click.prevent="toggleSection('installations')">
                             <i class="nav-icon fas fa-download"></i>
-                            <p>Installations <i class="nav-arrow fas fa-chevron-right"></i></p>
+                            <p>{{ __('message.installations') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <RouterLink to="/installations/list" class="nav-link"
                                             :class="{ active: isExact('/installations/list') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>All Installations</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all_installations') }}</p>
                                 </RouterLink>
                             </li>
                         </ul>
@@ -294,14 +294,14 @@
                         <a class="nav-link" :class="{ active: isGroupActive('/callbacks') }"
                            @click.prevent="toggleSection('callbacks')">
                             <i class="nav-icon fas fa-phone"></i>
-                            <p>Callbacks <i class="nav-arrow fas fa-chevron-right"></i></p>
+                            <p>{{ __('message.callbacks_menu') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <RouterLink to="/callbacks/list" class="nav-link"
                                             :class="{ active: isExact('/callbacks/list') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>All Callbacks</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.callbacks') }}</p>
                                 </RouterLink>
                             </li>
                         </ul>
@@ -312,35 +312,35 @@
                         <a class="nav-link" :class="{ active: isGroupActive('/log-reports') }"
                            @click.prevent="toggleSection('log-reports')">
                             <i class="nav-icon fas fa-clipboard-list"></i>
-                            <p>Log Reports <i class="nav-arrow fas fa-chevron-right"></i></p>
+                            <p>{{ __('message.log_reports') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <RouterLink to="/log-reports/license" class="nav-link"
                                             :class="{ active: isExact('/log-reports/license') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>License Reports</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.license_reports') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/log-reports/system" class="nav-link"
                                             :class="{ active: isExact('/log-reports/system') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>System Reports</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.system_reports') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/log-reports/update" class="nav-link"
                                             :class="{ active: isExact('/log-reports/update') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>Update Reports</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.update_reports') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/log-reports/crack" class="nav-link"
                                             :class="{ active: isExact('/log-reports/crack') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>Cracking Reports</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.cracking_reports') }}</p>
                                 </RouterLink>
                             </li>
                         </ul>
@@ -351,28 +351,28 @@
                         <a class="nav-link" :class="{ active: isGroupActive('/banned-hosts') }"
                            @click.prevent="toggleSection('banned-hosts')">
                             <i class="nav-icon fas fa-circle-xmark"></i>
-                            <p>Banned Hosts <i class="nav-arrow fas fa-chevron-right"></i></p>
+                            <p>{{ __('message.banned_hosts') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <RouterLink to="/banned-hosts/create" class="nav-link"
                                             :class="{ active: isExact('/banned-hosts/create') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>New Banned Host</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.new_banned_host') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/banned-hosts/list" class="nav-link"
                                             :class="{ active: isExact('/banned-hosts/list') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>All Banned Hosts</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all_banned_hosts') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/banned-hosts/settings" class="nav-link"
                                             :class="{ active: isExact('/banned-hosts/settings') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>Banned Host Settings</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.security_settings') }}</p>
                                 </RouterLink>
                             </li>
                         </ul>
@@ -383,21 +383,21 @@
                         <a class="nav-link" :class="{ active: isGroupActive('/server') }"
                            @click.prevent="toggleSection('server')">
                             <i class="nav-icon fas fa-server"></i>
-                            <p>Server Notifications <i class="nav-arrow fas fa-chevron-right"></i></p>
+                            <p>{{ __('message.server_notifications') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <RouterLink to="/server/notifications" class="nav-link"
                                             :class="{ active: isExact('/server/notifications') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>License Notification</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.license_notification') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/server/update-notifications" class="nav-link"
                                             :class="{ active: isExact('/server/update-notifications') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>Update Notification</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.update_notification') }}</p>
                                 </RouterLink>
                             </li>
                         </ul>

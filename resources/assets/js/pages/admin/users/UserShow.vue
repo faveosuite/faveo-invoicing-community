@@ -15,7 +15,7 @@
                             <img
                                 :src="user.profile_pic || fallbackAvatar"
                                 class="profile-user-img img-fluid img-circle"
-                                alt="User avatar"
+                                :alt="__('message.user_avatar')"
                                 @error="e => { e.target.onerror = null; e.target.src = fallbackAvatar }"
                             />
                         </div>
@@ -201,7 +201,7 @@
                             <li v-if="user.skype" class="list-group-item">
                                 <div class="row">
                                     <div class="col-sm-5">
-                                        <label class="text-truncate mb-0">Skype</label>
+                                        <label class="text-truncate mb-0">{{ __('message.skype') }}</label>
                                     </div>
                                     <div class="col-sm-7 text-end text-truncate" v-tooltip="user.skype">{{ user.skype }}</div>
                                 </div>
@@ -370,7 +370,7 @@
                                                 <div class="flex-grow-1">
                                                     <div class="d-flex justify-content-between align-items-start">
                                                         <div>
-                                                            <strong>{{ comment.author || 'Unknown' }}</strong>
+                                                            <strong>{{ comment.author || __('message.unknown') }}</strong>
                                                             <small class="text-muted ms-2">{{ timeAgo(comment.created_at) }}</small>
                                                         </div>
                                                         <div>
@@ -581,7 +581,7 @@ async function disable2fa() {
         notify(__('message.updated-successfully') || 'Updated', 'success')
         user.value.is_2fa_enabled = 0
     } catch (e) {
-        notify(e?.response?.data?.message || 'Error', 'danger')
+        notify(e?.response?.data?.message || __('message.error'), 'danger')
     }
 }
 
@@ -595,7 +595,7 @@ async function addComment() {
         newComment.value = ''
         notify(__('message.saved-successfully') || 'Saved', 'success')
     } catch (e) {
-        notify(e?.response?.data?.message || 'Error', 'danger')
+        notify(e?.response?.data?.message || __('message.error'), 'danger')
     } finally {
         savingComment.value = false
     }
@@ -612,7 +612,7 @@ async function saveEdit(comment) {
         editingComment.value = null
         notify(__('message.updated-successfully') || 'Updated', 'success')
     } catch (e) {
-        notify(e?.response?.data?.message || 'Error', 'danger')
+        notify(e?.response?.data?.message || __('message.error'), 'danger')
     }
 }
 
