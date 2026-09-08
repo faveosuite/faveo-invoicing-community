@@ -46,7 +46,7 @@ describe('SocialMediaIndex.vue', () => {
 
     it('sets pendingDeleteRow when confirmDeleteRow is called', () => {
         wrapper.vm.confirmDeleteRow(5)
-        expect(wrapper.vm.pendingDeleteRow).toEqual({ id: 5 })
+        expect(wrapper.vm.pendingDeleteRow).toEqual({ select: [5] })
     })
 
     it('does not set pendingBulkDelete when no rows selected', () => {
@@ -58,7 +58,7 @@ describe('SocialMediaIndex.vue', () => {
     it('sets pendingBulkDelete when rows are selected', () => {
         wrapper.vm.selected = [2, 4, 6]
         wrapper.vm.confirmBulkDelete()
-        expect(wrapper.vm.pendingBulkDelete).toEqual({ id: [2, 4, 6] })
+        expect(wrapper.vm.pendingBulkDelete).toEqual({ select: [2, 4, 6] })
     })
 
     it('toggleRow adds a new id to selected', () => {

@@ -52,23 +52,7 @@
                         />
                     </template>
                     <template #bulk-actions>
-                        <div v-if="selectedInvoices.length > 0" class="dropdown">
-                            <button
-                                class="btn btn-sm btn-secondary dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                            >
-                                {{ __('message.bulk_action') }}
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <button class="dropdown-item" @click="confirmBulkDelete">
-                                        {{ __('message.Delete') }}
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
+                        <BulkActionIcons v-if="selectedInvoices.length > 0" :actions="[{ icon: 'fas fa-trash', label: __('message.Delete'), onClick: confirmBulkDelete }]" />
                     </template>
                 </DataTable>
             </div>
@@ -99,6 +83,7 @@ import InvoiceTableActions from './components/InvoiceTableActions.vue'
 import InvoiceFilter from './components/InvoiceFilter.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
+import BulkActionIcons from '@/components/Reusable/BulkActionIcons.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import { useTableSelection } from '@/core/composables/useTableSelection'
 import { makeRequestAdapter } from '@/helpers/tableUtils'
@@ -249,7 +234,16 @@ const tableOptions = reactive({
         mobile:       (f, row) => row.user?.mobile ? `${row.user.mobile_code ? '+' + row.user.mobile_code + ' ' : ''}${row.user.mobile}`.trim() : '—',
         country:      (f, row) => row.user?.country || '—',
         number:       (f, row) => row.number || '—',
-        product:      (f, row) => (row.products ?? []).join(', ') || '—',
+        product:      (f, row) => {
+            const items = row.products ?? []
+            if (!items.length) return '—'
+            return h('span', items.flatMap((p, i) => {
+                const link = p.product_id
+                    ? h(RouterLink, { to: '/products/' + p.product_id + '/edit' }, () => p.name || '—')
+                    : (p.name || '—')
+                return i === 0 ? [link] : [', ', link]
+            }))
+        },
         date:         (f, row) => row.created_at ? formatDate(row.created_at) : '—',
         grand_total:  (f, row) => row.grand_total || '—',
         status:       (f, row) => {
@@ -261,7 +255,7 @@ const tableOptions = reactive({
         action:       (f, row) => h(InvoiceTableActions, { invoiceId: row.id, isExecuted: !!row.is_executed, isPaid: ['Paid', 'Success'].includes(row.status), showDelete: true }),
     },
 
-    sortable: ['number', 'date', 'grand_total', 'status'],
+    sortable: ['user', 'email', 'mobile', 'country', 'number', 'date', 'grand_total', 'status'],
     filterable: true,
 
     requestAdapter: makeRequestAdapter('created_at', activeFilters, { date: 'created_at' }),

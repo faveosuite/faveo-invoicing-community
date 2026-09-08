@@ -177,4 +177,109 @@
     vertical-align: middle;
 }
 
+/* ── Social Icons Layout & Spacing (Shared between Navbar & Footer) ── */
+.social-icons {
+    display: inline-flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px !important;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.social-icons li {
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-icons li a {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+    color: #495057 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.social-icons li:hover a {
+    border-color: transparent !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* ── Social Icons Hover Colors (Shared between Navbar & Footer) ─── */
+.social-icons li:hover.social-icons-x a,
+.social-icons li:hover.social-icons-twitter a { background: #000000 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-facebook a { background: #1877f2 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-instagram a { background: #e4405f !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-linkedin a { background: #0a66c2 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-youtube a { background: #ff0000 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-tiktok a { background: #000000 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-whatsapp a { background: #25d366 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-telegram a { background: #229ed9 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-discord a { background: #5865f2 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-github a { background: #24292e !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-reddit a { background: #ff4500 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-threads a { background: #000000 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-bluesky a { background: #0285ff !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-twitch a { background: #9146ff !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-pinterest a { background: #bd081c !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-snapchat a { background: #fffc00 !important; color: #000000 !important; }
+
+.social-icons li:hover.social-icons-tumblr a { background: #36465d !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-vimeo a { background: #1ab7ea !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-dribbble a { background: #ea4c89 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-behance a { background: #1769ff !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-slack a { background: #4a154b !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-gitlab a { background: #fc6d26 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-spotify a { background: #1ed760 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-soundcloud a { background: #ff5500 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-stackoverflow a { background: #f48024 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-medium a { background: #000000 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-mastodon a { background: #6364ff !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-wechat a { background: #07c160 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-patreon a { background: #ff424d !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-phone a { background: #28a745 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-email a,
+.social-icons li:hover.social-icons-envelope a { background: #ea4335 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-globe a { background: #0077b6 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-custom a { background: #6c757d !important; color: #ffffff !important; }
+
+
 

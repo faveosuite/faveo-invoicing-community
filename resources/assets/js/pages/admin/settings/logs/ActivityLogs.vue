@@ -6,6 +6,9 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.activity_logs') }}</h4>
                 <div class="card-tools">
+                    <button class="btn btn-tool" v-tooltip="__('message.refresh')" @click="dtRef?.refresh()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
                     <button class="btn btn-tool" v-tooltip="__('message.filters')" @click="showFilter = !showFilter">
                         <i class="fas fa-filter"></i>
                     </button>

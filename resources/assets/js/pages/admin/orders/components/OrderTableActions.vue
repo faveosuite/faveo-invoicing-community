@@ -28,7 +28,7 @@
                 :deleteUrl="`${resolvedBaseUrl}/orders`"
                 :deleteData="{ order_ids: [orderId] }"
                 :title="__('message.confirm_delete') || 'Confirm Delete'"
-                :message="__('message.are_you_sure') || 'Are you sure?'"
+                :message="__('message.order_delete')"
                 :componentName="componentName"
             />
         </template>

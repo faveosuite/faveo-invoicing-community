@@ -14,29 +14,10 @@
                     :option="tableOptions"
                 >
                     <template #bulk-actions>
-                        <div v-if="selected.length > 0" class="dropdown">
-                            <button
-                                class="btn btn-sm btn-secondary dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                            >
-                                {{ __('message.bulk_action') }}
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <button class="dropdown-item" @click="bulkRestore">
-                                        {{ __('message.restore') }}
-                                    </button>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <button class="dropdown-item" @click="confirmBulkDelete">
-                                        {{ __('message.Delete') }}
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
+                        <BulkActionIcons v-if="selected.length > 0" :actions="[
+                            { key: 'restore', icon: 'fas fa-rotate-left', label: __('message.restore'), onClick: bulkRestore },
+                            { key: 'delete', icon: 'fas fa-trash', label: __('message.Delete'), onClick: confirmBulkDelete },
+                        ]" />
                     </template>
                 </DataTable>
             </div>
@@ -50,7 +31,7 @@
         :deleteUrl="`${baseUrl}/permanent-delete-client`"
         :deleteData="pendingBulkDelete"
         :title="__('message.Delete')"
-        :message="__('message.are_you_sure')"
+        :message="__('message.delete_selected_users_confirm', { count: pendingBulkDelete.user_ids.length })"
         :componentName="COMPONENT"
         @deleted="() => { pendingBulkDelete = null; selected.value = []; dtRef.value?.refresh() }"
     />
@@ -63,6 +44,7 @@ import { errorHandler } from '@/helpers/responseHandler.js'
 import { useDateTime } from '@/core/composables/useDateTime'
 import SuspendedTableActions from './components/SuspendedTableActions.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import BulkActionIcons from '@/components/Reusable/BulkActionIcons.vue'
 import { useTableSelection } from '@/core/composables/useTableSelection'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import { makeRequestAdapter } from '@/helpers/tableUtils'
@@ -145,7 +127,7 @@ const tableOptions = reactive({
         }),
     },
 
-    sortable:   ['email', 'mobile', 'country', 'created_at'],
+    sortable:   ['name', 'email', 'mobile', 'country', 'created_at'],
     filterable: true,
 
     requestAdapter: makeRequestAdapter('created_at'),

@@ -382,7 +382,9 @@ async function submit() {
             country:            form.country?.code ?? null,
             mobile_country_iso: form.mobile_country_iso || form.country?.code || null,
             mobile_code:        form.mobile_code || null,
-            state:              extractId(form.state),
+            // iso2 code, not the numeric id — matches every other write path (registration,
+            // social login, client profile), and what getEditUser/tax lookups expect back.
+            state:              form.state?.iso2 ?? null,
             zip:                form.zip,
             timezone_id:        extractId(form.timezone_id),
             mobile:             form.mobile,

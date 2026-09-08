@@ -22,24 +22,41 @@ class SocialMediaRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if (! $this->has('class') && $this->has('name')) {
+            $this->merge(['class' => 'social-icons-'.\Illuminate\Support\Str::slug((string) $this->input('name'))]);
+        }
+        if (! $this->has('fa_class') && $this->has('name')) {
+            $this->merge(['fa_class' => 'fab fa-'.\Illuminate\Support\Str::slug((string) $this->input('name'))]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, mixed>
      */
     public function rules(): array
     {
-        $regex = '/^(https?:\/\/)?([\w-]+\.)+([a-z]{2,6})(\/[\w-]*)*(\?.*)?(#.*)?$/i';
+        $regex = '/^(https?:\/\/)?([\w-]+\.)+([a-z]{2,10})(\/[\w\-@.~%+=]*)*(\?.*)?(#.*)?$/i';
         if ($this->method() == 'POST') {
             return [
                 'name' => ['required', 'unique:social_media', 'max:50'],
                 'link' => 'required|regex:'.$regex,
+                'class' => 'required|max:255',
+                'fa_class' => 'required|max:225',
             ];
         }
 
         if ($this->method() == 'PATCH') {
             return [
                 'name' => ['required', Rule::unique('social_media', 'name')->ignore($this->route('id'))],
-                'link' => 'required|url|regex:'.$regex,
+                'link' => 'required|regex:'.$regex,
+                'class' => 'required|max:255',
+                'fa_class' => 'required|max:225',
             ];
         }
 
@@ -56,6 +73,8 @@ class SocialMediaRequest extends FormRequest
             'link.required' => __('validation.social_media_form.link.required'),
             'link.url' => __('validation.social_media_form.link.url'),
             'link.regex' => __('validation.social_media_form.link.regex'),
+            'class.required' => __('validation.social_media_form.class.required'),
+            'fa_class.required' => __('validation.social_media_form.fa_class.required'),
         ];
     }
 }

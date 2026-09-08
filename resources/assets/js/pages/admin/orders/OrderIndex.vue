@@ -48,23 +48,7 @@
                         />
                     </template>
                     <template #bulk-actions>
-                        <div v-if="selectedOrders.length > 0" class="dropdown">
-                            <button
-                                class="btn btn-sm btn-secondary dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                            >
-                                {{ __('message.bulk_action') }}
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <button class="dropdown-item" @click="confirmBulkDelete">
-                                        {{ __('message.Delete') }}
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
+                        <BulkActionIcons v-if="selectedOrders.length > 0" :actions="[{ icon: 'fas fa-trash', label: __('message.Delete'), onClick: confirmBulkDelete }]" />
                     </template>
                 </DataTable>
             </div>
@@ -78,7 +62,7 @@
         :deleteUrl="`${baseUrl}/orders`"
         :deleteData="pendingBulkDelete"
         :title="__('message.Delete')"
-        :message="__('message.are_you_sure')"
+        :message="__('message.order_delete_selected', { count: pendingBulkDelete.order_ids.length })"
         componentName="orders-index"
         @deleted="() => { pendingBulkDelete = null; selectedOrders.value = []; dtRef.value?.refresh() }"
     />
@@ -95,6 +79,7 @@ import OrderTableActions from './components/OrderTableActions.vue'
 import OrderFilter from './components/OrderFilter.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
+import BulkActionIcons from '@/components/Reusable/BulkActionIcons.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import { useTableSelection } from '@/core/composables/useTableSelection'
 import { makeRequestAdapter } from '@/helpers/tableUtils'
@@ -296,7 +281,7 @@ const tableOptions = reactive({
         action: (f, row) => h(OrderTableActions, { orderId: row.id, canRenew: !!row.can_renew, baseUrl: baseUrl, showDelete: true }),
     },
 
-    sortable: ['number', 'order_status', 'order_date', 'update_ends_at'],
+    sortable: ['client', 'email', 'mobile', 'country', 'number', 'order_status', 'product_name', 'group', 'plan', 'order_date', 'update_ends_at'],
     filterable: true,
 
     requestAdapter: makeRequestAdapter('created_at', activeFilters, { order_date: 'created_at' }),

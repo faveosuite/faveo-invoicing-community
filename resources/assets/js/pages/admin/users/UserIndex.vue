@@ -54,29 +54,10 @@
                     />
                 </template>
                 <template #bulk-actions>
-                    <div v-if="selectedUsers.length > 0" class="dropdown">
-                        <button
-                            class="btn btn-sm btn-secondary dropdown-toggle"
-                            type="button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                        >
-                            {{ __('message.bulk_action') }}
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <button class="dropdown-item" @click="bulkExport">
-                                    {{ __('message.export_selected_records') }}
-                                </button>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <button class="dropdown-item" @click="confirmBulkDelete">
-                                    {{ __('message.Delete') }}
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
+                    <BulkActionIcons v-if="selectedUsers.length > 0" :actions="[
+                        { key: 'export', icon: 'fas fa-paper-plane', label: __('message.export_selected_records'), onClick: bulkExport },
+                        { key: 'suspend', icon: 'fas fa-trash', label: __('message.Suspend'), onClick: confirmBulkDelete },
+                    ]" />
                 </template>
             </DataTable>
         </div>
@@ -89,8 +70,9 @@
         :onClose="() => pendingBulkDelete = null"
         :deleteUrl="`${baseUrl}/users`"
         :deleteData="pendingBulkDelete"
-        :title="__('message.Delete')"
-        :message="__('message.are_you_sure')"
+        :title="__('message.Suspend')"
+        :message="__('message.suspend_selected_users_confirm', { count: pendingBulkDelete.user_ids.length })"
+        :btnLabel="__('message.Suspend')"
         :componentName="COMPONENT"
         @deleted="() => { pendingBulkDelete = null; selectedUsers.value = []; dtRef.value?.refresh() }"
     />
@@ -108,6 +90,7 @@ import UserTableActions from './components/UserTableActions.vue'
 import UserFilter from './components/UserFilter.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
+import BulkActionIcons from '@/components/Reusable/BulkActionIcons.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import { useTableSelection } from '@/core/composables/useTableSelection'
 import { makeRequestAdapter } from '@/helpers/tableUtils'
@@ -287,7 +270,7 @@ const tableOptions = reactive({
         }),
     },
 
-    sortable: ['email', 'mobile', 'country', 'created_at'],
+    sortable: ['name', 'email', 'mobile', 'country', 'created_at'],
     filterable: true,
 
     requestAdapter: makeRequestAdapter('created_at', activeFilters),

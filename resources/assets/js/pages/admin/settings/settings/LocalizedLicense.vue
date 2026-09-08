@@ -13,22 +13,7 @@
                     :option="tableOptions"
                 >
                     <template #bulk-actions>
-                        <div v-if="selected.length > 0" class="dropdown">
-                            <button
-                                class="btn btn-sm btn-secondary dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                                :disabled="disabling"
-                            >
-                                <spinner-loader v-if="disabling" :size="18" />
-                                <span v-else>{{ __('message.bulk_action') }}</span>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <button class="dropdown-item" @click="bulkDisable">{{ __('message.disable') }}</button>
-                                </li>
-                            </ul>
-                        </div>
+                        <BulkActionIcons v-if="selected.length > 0" :actions="[{ icon: 'fas fa-ban', label: __('message.disable'), onClick: bulkDisable, loading: disabling, disabled: disabling }]" />
                     </template>
                 </DataTable>
             </div>
@@ -40,6 +25,7 @@
 import { h, ref, reactive } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppAlert from '@/components/Reusable/Alert.vue'
+import BulkActionIcons from '@/components/Reusable/BulkActionIcons.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'

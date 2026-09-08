@@ -24,6 +24,9 @@
                                 <template #option="option">
                                     {{ option.name }} &lt;{{ option.email }}&gt;
                                 </template>
+                                <template #selected-option="option">
+                                    {{ option.name }} &lt;{{ option.email }}&gt;
+                                </template>
                             </DynamicSelect>
                         </div>
 

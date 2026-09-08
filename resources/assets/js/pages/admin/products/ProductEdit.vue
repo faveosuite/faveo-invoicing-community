@@ -354,16 +354,7 @@
                                         :option="versionTableOptions"
                                     >
                                         <template #bulk-actions>
-                                            <div v-if="selectedVersions.length > 0" class="dropdown">
-                                                <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    {{ __('message.bulk_action') }}
-                                                </button>
-                                                <ul class="dropdown-menu">
-                                                    <li>
-                                                        <button class="dropdown-item" @click="confirmBulkDeleteVersions">{{ __('message.Delete') }}</button>
-                                                    </li>
-                                                </ul>
-                                            </div>
+                                            <BulkActionIcons v-if="selectedVersions.length > 0" :actions="[{ icon: 'fas fa-trash', label: __('message.Delete'), onClick: confirmBulkDeleteVersions }]" />
                                         </template>
                                     </DataTable>
                                 </div>
@@ -411,6 +402,7 @@ import ImageField from '@/components/Reusable/FormField/ImageField.vue'
 import VersionTableActions from './components/VersionTableActions.vue'
 import ProductPluginMapping from './components/ProductPluginMapping.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import BulkActionIcons from '@/components/Reusable/BulkActionIcons.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import { makeRequestAdapter } from '@/helpers/tableUtils'
 

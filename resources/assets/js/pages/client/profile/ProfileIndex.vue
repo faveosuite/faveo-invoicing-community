@@ -108,6 +108,7 @@
 
           <DynamicSelect name="timezone_id"
                          :label="__('message.timezone')"
+                         :required="true"
                          :apiEndpoint="`${baseUrl}/dependency/time-zones`"
                          dataKey="time_zones"
                          optionLabel="name"

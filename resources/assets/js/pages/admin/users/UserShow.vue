@@ -287,14 +287,7 @@
                                             :option="invoiceOptions"
                                         >
                                             <template #bulk-actions>
-                                                <div v-if="selInvoices.length > 0" class="dropdown">
-                                                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        {{ __('message.bulk_action') }}
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><button class="dropdown-item" @click="startBulkDelete('invoices')">{{ __('message.Delete') }}</button></li>
-                                                    </ul>
-                                                </div>
+                                                <BulkActionIcons v-if="selInvoices.length > 0" :actions="[{ icon: 'fas fa-trash', label: __('message.Delete'), onClick: () => startBulkDelete('invoices') }]" />
                                             </template>
                                         </DataTable>
                                     </div>
@@ -309,14 +302,7 @@
                                             :option="paymentOptions"
                                         >
                                             <template #bulk-actions>
-                                                <div v-if="selPayments.length > 0" class="dropdown">
-                                                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        {{ __('message.bulk_action') }}
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><button class="dropdown-item" @click="startBulkDelete('payments')">{{ __('message.Delete') }}</button></li>
-                                                    </ul>
-                                                </div>
+                                                <BulkActionIcons v-if="selPayments.length > 0" :actions="[{ icon: 'fas fa-trash', label: __('message.Delete'), onClick: () => startBulkDelete('payments') }]" />
                                             </template>
                                         </DataTable>
                                     </div>
@@ -348,14 +334,7 @@
                                             :option="orderOptions"
                                         >
                                             <template #bulk-actions>
-                                                <div v-if="selOrders.length > 0" class="dropdown">
-                                                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        {{ __('message.bulk_action') }}
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><button class="dropdown-item" @click="startBulkDelete('orders')">{{ __('message.Delete') }}</button></li>
-                                                    </ul>
-                                                </div>
+                                                <BulkActionIcons v-if="selOrders.length > 0" :actions="[{ icon: 'fas fa-trash', label: __('message.Delete'), onClick: () => startBulkDelete('orders') }]" />
                                             </template>
                                         </DataTable>
                                     </div>
@@ -463,6 +442,7 @@ import { asset }                    from '@/core/utils/asset.js'
 import { useNotification }          from '@/core/composables/useNotification.js'
 import { useDateTime }              from '@/core/composables/useDateTime'
 import DeleteModal                  from '@/components/Reusable/DeleteModal.vue'
+import BulkActionIcons              from '@/components/Reusable/BulkActionIcons.vue'
 import PaymentTableActions          from './components/PaymentTableActions.vue'
 import InvoiceTableActions          from '../invoices/components/InvoiceTableActions.vue'
 import OrderTableActions            from '../orders/components/OrderTableActions.vue'

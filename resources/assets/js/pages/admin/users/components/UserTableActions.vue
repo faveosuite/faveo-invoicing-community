@@ -16,7 +16,7 @@
         </router-link>
         <button
             class="btn btn-light table_btn"
-            v-tooltip="__('message.Delete')"
+            v-tooltip="__('message.Suspend')"
             @click="showModal = true"
         >
             <i class="fas fa-trash"></i>
@@ -28,6 +28,9 @@
             :onClose="() => showModal = false"
             :deleteUrl="`${baseUrl}/users`"
             :deleteData="{ user_ids: [userId] }"
+            :title="__('message.Suspend')"
+            :message="__('message.suspend_user_confirm')"
+            :btnLabel="__('message.Suspend')"
             :componentName="componentName"
             @deleted="emit('deleted')"
         />

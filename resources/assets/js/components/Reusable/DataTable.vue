@@ -1,18 +1,40 @@
 <template>
   <div class="datatable">
 
-    <!-- Search + optional bulk-actions slot -->
-    <div v-if="isFilterable || $slots['table-tools'] || $slots['bulk-actions']" class="d-flex align-items-center gap-2 float-end me-0 mb-3">
-      <slot name="bulk-actions" />
-      <input
-          v-if="isFilterable"
-          type="text"
-          class="form-control globe-search"
-          v-model="searchStr"
-          @keyup.enter="onSearch"
-          :placeholder="__('message.search_placeholder')"
-      />
-      <slot name="table-tools" />
+    <!-- Top toolbar: perpage at start + search/tools at end on the same line -->
+    <div
+        v-if="showPerPage || isFilterable || $slots['table-tools'] || $slots['bulk-actions']"
+        class="datatable-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3"
+    >
+      <div v-if="showPerPage" class="d-flex align-items-center gap-2">
+        <div class="VueTables__limit-field">
+          <select
+              class="form-control"
+              :value="perPage"
+              @change="onPerPageChange"
+          >
+            <option v-for="val in perPageValues" :key="val" :value="val">
+              {{ val }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div
+          v-if="isFilterable || $slots['table-tools'] || $slots['bulk-actions']"
+          class="d-flex align-items-center gap-2 ms-auto"
+      >
+        <slot name="bulk-actions" />
+        <input
+            v-if="isFilterable"
+            type="text"
+            class="form-control globe-search"
+            v-model="searchStr"
+            @keyup.enter="onSearch"
+            :placeholder="__('message.search_placeholder')"
+        />
+        <slot name="table-tools" />
+      </div>
     </div>
 
     <v-server-table
@@ -63,9 +85,18 @@ const lastPage     = ref(1)
 const total        = ref(null)
 const from         = ref(null)
 const to           = ref(null)
-const perPage      = ref(10)
+const perPage      = ref(props.option?.perPage ?? 10)
+
+const perPageValues = computed(() => props.option?.perPageValues ?? [10, 25, 50, 100])
+const showPerPage   = computed(() => (perPageValues.value.length > 1 || (props.option?.alwaysShowPerPageSelect ?? false)) && !props.option?.pagination?.virtual)
 
 const isFilterable = computed(() => props.option.filterable ?? false)
+
+function onPerPageChange(event) {
+  const newLimit = parseInt(event.target.value)
+  perPage.value = newLimit
+  tableRef.value?.setLimit(newLimit)
+}
 
 function onSearch() {
   tableRef.value?.setFilter(searchStr.value)
@@ -105,11 +136,27 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (globalThis.emitter) globalThis.emitter.off('refreshData')
 })
-defineExpose({ currentPage, lastPage, paginate: onPageChange, total, from, to, perPage, isLoading, tableData, refresh: () => tableRef.value?.refresh() })
+defineExpose({
+  currentPage,
+  lastPage,
+  paginate: onPageChange,
+  total,
+  from,
+  to,
+  perPage,
+  isLoading,
+  tableData,
+  refresh: () => tableRef.value?.refresh(),
+  onPerPageChange,
+  setLimit: (limit) => {
+    perPage.value = limit
+    tableRef.value?.setLimit(limit)
+  },
+})
 
 const computedOptions = computed(() => ({
-  perPage: 10,
-  perPageValues: [10, 25, 50, 100],
+  perPage: props.option?.perPage ?? 10,
+  perPageValues: perPageValues.value,
   skin: 'table table-hover table-striped table-bordered',
   sortable: [],
   filterable: false,
@@ -168,12 +215,14 @@ table                             { border-collapse: collapse; }
 .dt-number{min-width:130px;max-width:130px;}
 .dt-code{min-width:120px;max-width:120px;}
 .dt-text{min-width:250px;max-width:250px;}
+.dt-badge{min-width:90px;max-width:90px;}
 
-.datatable .VueTables__search     { display: none !important; }
-.datatable .VuePagination         { display: none !important; }
+.datatable .VueTables__search            { display: none !important; }
+.datatable .VuePagination                { display: none !important; }
+.datatable .VueTables__limit             { display: none !important; }
+.datatable .VueTables > .row:first-child { display: none !important; }
 
-.VueTables__limit                        { float: left !important; margin-left: 0; }
-.datatable .VueTables__limit-field       { display: flex; align-items: center; margin-bottom: 8px; }
+.datatable .VueTables__limit-field       { display: flex; align-items: center; margin-bottom: 0; }
 .datatable .VueTables__limit-field label { display: none !important; }
 .VueTables__limit-field .form-control    { cursor: pointer !important; appearance: auto !important; width: auto !important; min-width: 70px; }
 

@@ -5,6 +5,11 @@
         <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.email_validation_logs') }}</h4>
+                <div class="card-tools">
+                    <button class="btn btn-tool" v-tooltip="__('message.refresh')" @click="dtRef?.refresh()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="card-body">

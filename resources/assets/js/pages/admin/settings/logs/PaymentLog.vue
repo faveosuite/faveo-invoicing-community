@@ -5,6 +5,9 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.payment_logs') }}</h4>
                 <div class="card-tools">
+                    <button class="btn btn-tool" v-tooltip="__('message.refresh')" @click="dtRef?.refresh()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
                     <button class="btn btn-tool" v-tooltip="__('message.filters')" @click="showFilter = !showFilter">
                         <i class="fas fa-filter"></i>
                     </button>
@@ -25,23 +28,7 @@
                     :option="tableOptions"
                 >
                     <template #bulk-actions>
-                        <div v-if="selected.length > 0" class="dropdown">
-                            <button
-                                class="btn btn-sm btn-secondary dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                            >
-                                {{ __('message.bulk_action') }}
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <button class="dropdown-item" @click="showBulkDeleteModal = true">
-                                        <i class="fas fa-trash me-1"></i> {{ __('message.Delete') }}
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
+                        <BulkActionIcons v-if="selected.length > 0" :actions="[{ icon: 'fas fa-trash', label: __('message.Delete'), onClick: () => showBulkDeleteModal = true }]" />
                     </template>
                 </DataTable>
             </div>
@@ -93,6 +80,7 @@
 <script setup>
 import { h, reactive, ref } from 'vue'
 import PaymentFilter from './PaymentFilter.vue'
+import BulkActionIcons from '@/components/Reusable/BulkActionIcons.vue'
 import { useTableSelection } from '@/core/composables/useTableSelection'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import { makeRequestAdapter } from '@/helpers/tableUtils'

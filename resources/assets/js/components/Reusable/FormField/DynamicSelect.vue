@@ -36,7 +36,9 @@
                 </slot>
             </template>
             <template #selected-option="option">
-                <span :title="option[optionLabel]">{{ subString(option[optionLabel]) }}</span>
+                <slot name="selected-option" v-bind="option">
+                    <span :title="option[optionLabel]">{{ subString(option[optionLabel]) }}</span>
+                </slot>
             </template>
             <template #list-footer>
                 <ul style="list-style:none;margin:0;padding:0"><li v-show="hasNextPage" ref="loaderRef" class="vs__load-trigger" /></ul>

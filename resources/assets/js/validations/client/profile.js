@@ -11,6 +11,7 @@ export const profileSchema = yup.object({
     mobile:     yup.string().required(() => __('validation.users.mobile.required')),
     address:    yup.string().required(() => __('validation.users.address.required')),
     country:    reqSelect(() => __('validation.users.country.required')),
+    timezone_id: reqSelect(() => __('validation.users.timezone_id.required')),
 })
 
 export const passwordChangeSchema = yup.object({

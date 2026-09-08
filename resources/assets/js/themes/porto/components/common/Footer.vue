@@ -53,10 +53,9 @@
                             </li>
                         </ul>
                         <ul v-if="social.length" class="header-social-icons social-icons mt-3">
-                          <li v-for="s in social" :key="s.name"
-                              :class="`social-icons-${s.name.toLowerCase()}`">
+                          <li v-for="s in social" :key="s.name" :class="s.class || `social-icons-${(s.name || '').toLowerCase()}`">
                           <a :href="s.link" target="_blank" :title="s.name">
-                                    <i :class="`fab fa-${s.name.toLowerCase()} text-2`"></i>
+                                    <i :class="`${resolveSocialFaClass(s)} text-2`"></i>
                                 </a>
                             </li>
                         </ul>
@@ -112,6 +111,23 @@ const currentYear  = new Date().getFullYear()
 const social = computed(() => {
     try { return JSON.parse(el?.dataset?.social ?? '[]') } catch { return [] }
 })
+
+function resolveSocialFaClass(s) {
+    if (s?.fa_class) {
+        let fa = s.fa_class
+        if (fa.startsWith('fa fa-')) fa = fa.replace(/^fa fa-/, 'fab fa-')
+        else if (fa.startsWith('fa-')) fa = `fab ${fa}`
+        if (fa === 'fab fa-twitter' && (s.class === 'social-icons-x' || (s.name || '').toLowerCase() === 'x')) {
+            return 'fab fa-x-twitter'
+        }
+        return fa
+    }
+    const name = (s?.name || '').toLowerCase()
+    if (name === 'twitter' || name === 'x' || s?.class === 'social-icons-x') return 'fab fa-x-twitter'
+    if (name === 'facebook') return 'fab fa-facebook-f'
+    if (name === 'linkedin') return 'fab fa-linkedin-in'
+    return `fab fa-${name}`
+}
 
 const footerWidgets = computed(() => {
     try {

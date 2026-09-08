@@ -8,11 +8,65 @@
 
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <TextField name="name" :label="__('message.name')" :required="true" :value="form.name" :onChange="onChange" placeholder="e.g. Twitter" :error="errors.name" />
+                    <!-- Platform Presets (or Custom) -->
+                    <div :class="form.platform === 'custom' ? 'col-md-6 mb-3' : 'col-md-12 mb-3'">
+                        <PlatformPicker
+                            name="platform"
+                            :label="__('message.platform')"
+                            :required="true"
+                            :options="platformOptions"
+                            :value="form.platform"
+                            :onChange="onPlatformChange"
+                        />
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <TextField name="link" :label="__('message.link')" :required="true" :value="form.link" :onChange="onChange" placeholder="https://twitter.com/..." :error="errors.link" />
+
+                    <!-- Custom Icon field (Only visible when Custom is selected) -->
+                    <div v-if="form.platform === 'custom'" class="col-md-6 mb-3 d-flex align-items-end gap-2">
+                        <div class="flex-grow-1">
+                            <TextField
+                                name="fa_class"
+                                :label="__('message.fa-class')"
+                                :required="true"
+                                :value="form.fa_class"
+                                :onChange="onChange"
+                                placeholder="e.g. fab fa-bluesky, fas fa-heart"
+                                :error="errors.fa_class"
+                            />
+                        </div>
+                        <div
+                            v-if="form.fa_class"
+                            class="mb-3 d-flex align-items-center justify-content-center border rounded bg-light flex-shrink-0"
+                            style="width: 38px; height: 38px;"
+                            :title="form.fa_class"
+                        >
+                            <i :class="form.fa_class" class="fs-5 text-secondary"></i>
+                        </div>
+                    </div>
+
+                    <!-- Name -->
+                    <div class="col-md-6 mb-3">
+                        <TextField
+                            name="name"
+                            :label="__('message.name')"
+                            :required="true"
+                            :value="form.name"
+                            :onChange="onChange"
+                            placeholder="e.g. Twitter"
+                            :error="errors.name"
+                        />
+                    </div>
+
+                    <!-- Link -->
+                    <div class="col-md-6 mb-3">
+                        <TextField
+                            name="link"
+                            :label="__('message.link')"
+                            :required="true"
+                            :value="form.link"
+                            :onChange="onChange"
+                            placeholder="https://..."
+                            :error="errors.link"
+                        />
                     </div>
                 </div>
             </div>
@@ -32,6 +86,11 @@ import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { socialMediaSchema } from '@/validations/admin/widgetValidations'
+import {
+    SOCIAL_PLATFORMS,
+    SOCIAL_PLATFORM_OPTIONS,
+} from './platforms'
+import PlatformPicker from './PlatformPicker.vue'
 
 const COMPONENT = 'social-media-create'
 const router = useRouter()
@@ -39,19 +98,61 @@ const router = useRouter()
 const { errors, setErrors, setFieldError } = useForm()
 
 const saving = ref(false)
-const form = reactive({ name: '', link: '' })
+const platformOptions = SOCIAL_PLATFORM_OPTIONS
+const form = reactive({ platform: '', name: '', link: '', class: '', fa_class: '' })
 
 function onChange(val, name) {
     setFieldError(name, undefined)
     form[name] = val
+
+    if (name === 'name' && form.platform === 'custom') {
+        const slug = val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+        form.class = slug ? `social-icons-${slug}` : 'social-icons-custom'
+    }
+}
+
+function onPlatformChange(val, preset) {
+    const oldPreset = SOCIAL_PLATFORMS[form.platform]
+    form.platform = val
+
+    if (val === 'custom') {
+        if (!form.fa_class || form.fa_class === oldPreset?.fa_class) {
+            form.fa_class = ''
+        }
+        form.class = 'social-icons-custom'
+    } else {
+        const p = preset || SOCIAL_PLATFORMS[val]
+        if (p) {
+            if (!form.name || (oldPreset && form.name === oldPreset.label)) {
+                form.name = p.label
+            }
+            form.class = p.class
+            form.fa_class = p.fa_class
+            if (!form.link && p.urlTemplate) {
+                form.link = p.urlTemplate
+            }
+        }
+    }
+
+    setFieldError('class', undefined)
+    setFieldError('fa_class', undefined)
 }
 
 async function submit() {
+    if (form.platform !== 'custom' && SOCIAL_PLATFORMS[form.platform]) {
+        form.class = SOCIAL_PLATFORMS[form.platform].class
+        form.fa_class = SOCIAL_PLATFORMS[form.platform].fa_class
+    } else {
+        if (!form.class) form.class = 'social-icons-custom'
+        if (!form.fa_class) form.fa_class = 'fas fa-icons'
+    }
+
     if (!await validateForm(socialMediaSchema, form, setErrors)) return
 
     saving.value = true
     try {
-        const res = await http.post(`/social-media/create`, form)
+        const { name, link, class: cssClass, fa_class } = form
+        const res = await http.post(`/social-media/create`, { name, link, class: cssClass, fa_class })
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/settings/widgets/social-media'), 2000)
     } catch (e) { errorHandler(e, COMPONENT, { setErrors }) }

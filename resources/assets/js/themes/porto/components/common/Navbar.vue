@@ -39,12 +39,12 @@
               <div class="ms-auto d-none d-lg-inline-block"></div>
               <div class="vr opacity-2 d-none d-lg-inline-block"></div>
               <div class="d-none d-lg-inline-block">
-                <ul class="nav nav-pills me-1">
-                  <li v-for="media in socialMedia" :key="media.name" class="nav-item pe-2 mx-1">
+                <ul class="header-social-icons social-icons me-1">
+                  <li v-for="media in socialMedia" :key="media.name"
+                      :class="media.class || `social-icons-${(media.name || '').toLowerCase()}`">
                     <a :href="media.link" target="_blank"
-                       :title="media.name"
-                       class="text-color-default text-color-hover-primary text-3 text-xl-4">
-                      <i :class="`fab fa-${media.name.toLowerCase()}`"></i>
+                       :title="media.name">
+                      <i :class="`${resolveSocialFaClass(media)} text-2`"></i>
                     </a>
                   </li>
                 </ul>
@@ -189,12 +189,12 @@
                               </a>
                             </div>
                             <div v-if="socialMedia.length" class="mt-2 pt-1">
-                              <ul class="nav nav-pills gap-2 p-0 m-0 d-flex flex-row align-items-center">
-                                <li v-for="media in socialMedia" :key="media.name" class="nav-item">
+                              <ul class="header-social-icons social-icons p-0 m-0 d-flex flex-row align-items-center">
+                                <li v-for="media in socialMedia" :key="media.name"
+                                    :class="media.class || `social-icons-${(media.name || '').toLowerCase()}`">
                                   <a :href="media.link" target="_blank"
-                                     :title="media.name"
-                                     class="btn btn-light rounded-circle text-3 social-media-circle-btn">
-                                    <i :class="`fab fa-${media.name.toLowerCase()}`"></i>
+                                     :title="media.name">
+                                    <i :class="`${resolveSocialFaClass(media)} text-2`"></i>
                                   </a>
                                 </li>
                               </ul>
@@ -475,6 +475,23 @@ const socialMedia = computed(() => {
     return []
   }
 })
+
+function resolveSocialFaClass(media) {
+  if (media?.fa_class) {
+    let fa = media.fa_class
+    if (fa.startsWith('fa fa-')) fa = fa.replace(/^fa fa-/, 'fab fa-')
+    else if (fa.startsWith('fa-')) fa = `fab ${fa}`
+    if (fa === 'fab fa-twitter' && (media.class === 'social-icons-x' || (media.name || '').toLowerCase() === 'x')) {
+      return 'fab fa-x-twitter'
+    }
+    return fa
+  }
+  const name = (media?.name || '').toLowerCase()
+  if (name === 'twitter' || name === 'x' || media?.class === 'social-icons-x') return 'fab fa-x-twitter'
+  if (name === 'facebook') return 'fab fa-facebook-f'
+  if (name === 'linkedin') return 'fab fa-linkedin-in'
+  return `fab fa-${name}`
+}
 
 // Maps language locale codes → ISO 3166-1 alpha-2 country codes used by flag-icons.
 const localeMap = {

@@ -838,6 +838,9 @@ Route::middleware('installAgora')->group(function (): void {
     // Preview image
     Route::get('preview-file', [FileManagerController::class, 'previewFile']);
 
+    // TinyMCE image upload (Pages, Product/ProductVersion descriptions, email templates, footer widget)
+    Route::post('editor-image-upload', [FileManagerController::class, 'uploadEditorImage'])->middleware(['auth', 'admin']);
+
     // ==========================================================
     // 4e. INTERNAL / SYSTEM APIs
     // Infrastructure helpers, CSP reporting, product callbacks.

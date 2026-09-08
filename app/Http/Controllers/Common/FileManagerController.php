@@ -4,10 +4,28 @@ namespace App\Http\Controllers\Common;
 
 use App\Facades\Attach;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class FileManagerController extends Controller
 {
+    // Shared by every TinyMCE instance (tinyMceDefaults.js' images_upload_handler) —
+    // Pages, Product/ProductVersion descriptions, email templates, footer widget.
+    public function uploadEditorImage(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => ['required', 'image', 'mimes:jpeg,png,jpg,webp,gif', 'max:20000'],
+        ]);
+
+        $path = Attach::put('images/editor', $request->file('file'), null, true);
+
+        if (! $path) {
+            return errorResponse(__('message.something_went_wrong'));
+        }
+
+        return response()->json(['location' => Attach::getUrlPath($path)]);
+    }
+
     public function previewFile(Request $request): mixed
     {
         $path = $request->input('path');

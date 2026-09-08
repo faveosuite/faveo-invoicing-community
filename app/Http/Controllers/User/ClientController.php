@@ -298,9 +298,13 @@ class ClientController extends AdvanceSearchController
 
         $query = $this->applyUsersSearch($query, $searchQuery);
 
-        $users = $query
-            ->orderBy($sortField, $sortOrder)
-            ->paginate($limit);
+        if ($sortField === 'name') {
+            $query->orderBy('first_name', $sortOrder)->orderBy('last_name', $sortOrder);
+        } else {
+            $query->orderBy($sortField, $sortOrder);
+        }
+
+        $users = $query->paginate($limit);
 
         $users->getCollection()->transform(function ($user) {
             if ($user->country) {
@@ -416,8 +420,8 @@ class ClientController extends AdvanceSearchController
 
         $stateObj = null;
         if ($user->state) {
-            $s = State::find($user->state);
-            $stateObj = $s ? ['id' => $s->state_subdivision_id, 'name' => $s->state_subdivision_name] : null;
+            $s = State::where('country_code', $user->country)->where('iso2', $user->state)->first();
+            $stateObj = $s ? ['id' => $s->state_subdivision_id, 'name' => $s->state_subdivision_name, 'iso2' => $s->iso2] : null;
         }
 
         $timezoneObj = $user->timezone

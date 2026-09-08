@@ -16,6 +16,7 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\Promotion;
 use App\Model\Product\Price;
 use App\Model\Product\Product;
+use App\Model\Product\ProductGroup;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\Payment_log;
@@ -120,7 +121,10 @@ class OrderController extends BaseOrderController
             $sortField = $request->input('sort-field', 'created_at');
             $limit = $request->input('limit', 10);
 
-            $allowedSorts = ['created_at', 'number', 'order_status', 'update_ends_at'];
+            $allowedSorts = [
+                'created_at', 'number', 'order_status', 'update_ends_at',
+                'client', 'email', 'mobile', 'country', 'product_name', 'group', 'plan',
+            ];
             if (! in_array($sortField, $allowedSorts, strict: true)) {
                 $sortField = 'created_at';
             }
@@ -129,14 +133,27 @@ class OrderController extends BaseOrderController
             $query = $orderSearch->advanceOrderSearch($request);
             $query = $orderSearch->applyOrdersSearch($query, $searchQuery);
 
-            // 'update_ends_at' lives on subscriptions, not orders — sort via a correlated subquery.
-            if ($sortField === 'update_ends_at') {
-                $query->orderBy(
-                    Subscription::select('update_ends_at')
-                        ->whereColumn('subscriptions.order_id', 'orders.id')
-                        ->limit(1),
-                    $sortOrder
-                );
+            // These columns aren't on `orders` itself — the list is eager-loaded (`with`),
+            // not joined, so sort each via a correlated subquery instead.
+            $relatedSort = match ($sortField) {
+                // Displayed expiry is subscription->ends_at (see the transform below) — must sort the same column.
+                'update_ends_at' => Subscription::select('ends_at')->whereColumn('subscriptions.order_id', 'orders.id')->limit(1),
+                'client' => User::selectRaw('CONCAT(first_name, " ", last_name)')->whereColumn('users.id', 'orders.client')->limit(1),
+                'email' => User::select('email')->whereColumn('users.id', 'orders.client')->limit(1),
+                'mobile' => User::select('mobile')->whereColumn('users.id', 'orders.client')->limit(1),
+                'country' => User::select('country')->whereColumn('users.id', 'orders.client')->limit(1),
+                'product_name' => Product::select('name')->whereColumn('products.id', 'orders.product')->limit(1),
+                'group' => ProductGroup::select('product_groups.name')
+                    ->join('products', 'products.group', '=', 'product_groups.id')
+                    ->whereColumn('products.id', 'orders.product')->limit(1),
+                'plan' => Plan::select('plans.name')
+                    ->join('subscriptions', 'subscriptions.plan_id', '=', 'plans.id')
+                    ->whereColumn('subscriptions.order_id', 'orders.id')->limit(1),
+                default => null,
+            };
+
+            if ($relatedSort) {
+                $query->orderBy($relatedSort, $sortOrder);
             } else {
                 $query->orderBy($sortField, $sortOrder);
             }

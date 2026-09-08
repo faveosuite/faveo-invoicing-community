@@ -129,6 +129,11 @@
                 <div v-if="showLogsCard" class="card card-light mt-3">
                     <div class="card-header">
                         <h3 class="card-title">{{ __('log.logs') }}</h3>
+                        <div class="card-tools">
+                            <button class="btn btn-tool" v-tooltip="__('message.refresh')" @click="refreshLogs">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <DataTable
@@ -283,6 +288,7 @@ const loadingCategories   = ref(false)
 const selectedCategoryKey = ref(null)
 const selectedStatus      = ref(null)
 const showLogsCard        = ref(false)
+const reloadTick          = ref(0)
 
 // ── modals ───────────────────────────────────────────────────────────────────
 const showCodeModal = ref(false)
@@ -317,12 +323,11 @@ const tableUrl = computed(() => {
 })
 
 const tableKey = computed(() =>
-    `${activeType.value}|${selectedDate.value}|${selectedCategoryKey.value}|${selectedStatus.value}`
+    `${activeType.value}|${selectedDate.value}|${selectedCategoryKey.value}|${selectedStatus.value}|${reloadTick.value}`
 )
 
 // ── category / filter helpers ─────────────────────────────────────────────────
 function switchType(type) {
-    if (activeType.value === type) return
     activeType.value          = type
     categories.value          = []
     selectedCategoryKey.value = null
@@ -349,6 +354,11 @@ function selectCategory(cat, status) {
     selectedCategoryKey.value = activeType.value === 'cron' ? cat.command : cat.id
     selectedStatus.value      = status
     showLogsCard.value        = true
+}
+
+function refreshLogs() {
+    reloadTick.value++
+    loadCategories()
 }
 
 function onDateChange(val) {
@@ -388,6 +398,13 @@ const exceptionOptions = computed(() => ({
         message:    __('log.message'),
         trace:      __('log.trace'),
         created_at: __('log.created_at'),
+    },
+    columnsClasses: {
+        file:       'dt-text',
+        line:       'dt-number',
+        message:    'dt-text',
+        trace:      'dt-text',
+        created_at: 'dt-date',
     },
     templates: {
         created_at: (f, row) => row.created_at ? formatDateTime(row.created_at) : '—',

@@ -16,6 +16,8 @@ export const socialMediaSchema = yup.object({
     link: yup.string()
         .required(() => __('validation.social_media_form.link.required'))
         .url(() => __('validation.social_media_form.link.url')),
+    class: yup.string().required(() => __('validation.social_media_form.class.required')),
+    fa_class: yup.string().required(() => __('validation.social_media_form.fa_class.required')),
 })
 
 export const footerWidgetSchema = yup.object({

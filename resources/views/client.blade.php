@@ -6,7 +6,7 @@ $demoPage = App\Demo_page::first();
 
 $cartCount = resolve(\App\Http\Controllers\Front\Cart\CartService::class)->resolveCart(request())->itemCount();
 
-$social = App\Model\Common\SocialMedia::get(['name', 'link']);
+$social = App\Model\Common\SocialMedia::get(['name', 'link', 'class', 'fa_class']);
 
 $widgets = \App\Model\Front\Widgets::where('publish', 1)->get(['id', 'name', 'type', 'content', 'allow_mailchimp', 'allow_social_media', 'allow_tweets']);
 $chatScripts = \App\Model\Common\ChatScript::get(['id', 'script', 'google_analytics', 'google_analytics_tag', 'on_registration', 'on_every_page']);

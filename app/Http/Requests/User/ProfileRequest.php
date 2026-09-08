@@ -66,6 +66,7 @@ class ProfileRequest extends Request
                 'address' => ['required'],
                 'country' => ['required', 'exists:countries,country_code_char2'],
                 'profile_pic' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
+                'timezone_id' => ['required'],
 
             ];
         }

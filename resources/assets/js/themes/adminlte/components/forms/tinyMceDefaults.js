@@ -1,5 +1,35 @@
+import http from '@/plugins/axios'
+
 const TOOLTIP_CLASS = 'has-tooltip'
 const TOOLTIP_ATTR  = 'data-bs-title'
+
+// Backs the toolbar's "image" button — without this, TinyMCE's image dialog
+// only accepts a pasted external URL, no local file upload. Same shape as
+// favMer's customImageUploadHandler (blobInfo, progress) -> Promise<location>,
+// built on this project's shared `http` client instead of a raw XHR so it
+// keeps the axios instance's CSRF header + 401/419 session handling.
+function uploadEditorImage(blobInfo, progress) {
+    return new Promise((resolve, reject) => {
+        const fd = new FormData()
+        fd.append('file', blobInfo.blob(), blobInfo.filename())
+
+        http.post('/editor-image-upload', fd, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            onUploadProgress: (e) => {
+                if (progress && e.total) progress((e.loaded / e.total) * 100)
+            },
+        })
+            .then(res => {
+                const location = res.data?.location
+                if (location) resolve(location)
+                else reject('Image upload failed')
+            })
+            .catch(err => {
+                const data = err.response?.data
+                reject(data?.errors?.file?.[0] || data?.message || 'Image upload failed')
+            })
+    })
+}
 
 function getTooltipNode(editor) {
     return editor.dom.getParent(editor.selection.getStart(), `.${TOOLTIP_CLASS}`)
@@ -106,6 +136,7 @@ export const editorInit = {
     toolbar:       toolbarItems.join(' | '),
     content_style: `.${TOOLTIP_CLASS} { text-decoration: underline dotted #aaa; cursor: pointer; }`,
     setup:         registerTooltipButton,
+    images_upload_handler: uploadEditorImage,
     // TinyMCE's default (true) rewrites inserted URLs relative to the admin
     // editor's own page — which then resolves to the wrong path wherever the
     // saved HTML is rendered on a different URL (e.g. the client-facing page).

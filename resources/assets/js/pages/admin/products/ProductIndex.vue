@@ -22,23 +22,7 @@
                     :option="tableOptions"
                 >
                     <template #bulk-actions>
-                        <div v-if="selectedProducts.length > 0" class="dropdown">
-                            <button
-                                class="btn btn-sm btn-secondary dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                            >
-                                {{ __('message.bulk_action') }}
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <button class="dropdown-item" @click="confirmBulkDelete">
-                                        {{ __('message.Delete') }}
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
+                        <BulkActionIcons v-if="selectedProducts.length > 0" :actions="[{ icon: 'fas fa-trash', label: __('message.Delete'), onClick: confirmBulkDelete }]" />
                     </template>
                 </DataTable>
             </div>
@@ -63,6 +47,7 @@ import { h, ref, reactive } from 'vue'
 
 import ProductTableActions from './components/ProductTableActions.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import BulkActionIcons from '@/components/Reusable/BulkActionIcons.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import { useTableSelection } from '@/core/composables/useTableSelection'
 import { makeRequestAdapter } from '@/helpers/tableUtils'

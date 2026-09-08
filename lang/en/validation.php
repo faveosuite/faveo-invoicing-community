@@ -289,6 +289,12 @@ return [
             'url' => 'The link must be a valid URL.',
             'regex' => 'The link format is invalid.',
         ],
+        'class' => [
+            'required' => 'The icon class field is required.',
+        ],
+        'fa_class' => [
+            'required' => 'The icon class field is required.',
+        ],
     ],
 
     // Email

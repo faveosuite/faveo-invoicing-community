@@ -19,22 +19,7 @@
                     :option="tableOptions"
                 >
                     <template #bulk-actions>
-                        <div v-if="selected.length > 0" class="dropdown">
-                            <button
-                                class="btn btn-sm btn-secondary dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                                :disabled="deleting"
-                            >
-                                <spinner-loader v-if="deleting" :size="18" />
-                                <span v-else>{{ __('message.bulk_action') }}</span>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <button class="dropdown-item" @click="bulkDelete">{{ __('message.Delete') }}</button>
-                                </li>
-                            </ul>
-                        </div>
+                        <BulkActionIcons v-if="selected.length > 0" :actions="[{ icon: 'fas fa-trash', label: __('message.Delete'), onClick: bulkDelete, loading: deleting, disabled: deleting }]" />
                     </template>
                 </DataTable>
             </div>
@@ -146,6 +131,7 @@ import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import BulkActionIcons from '@/components/Reusable/BulkActionIcons.vue'
 import { thirdPartyAppSchema } from '@/validations/admin/thirdPartyValidations'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import { useTableSelection } from '@/core/composables/useTableSelection'

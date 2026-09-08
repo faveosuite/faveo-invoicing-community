@@ -33,7 +33,11 @@ class SoftDeleteController extends ClientController
                     ->orWhere('country', 'like', '%'.$searchQuery.'%')
                     ->orWhere('created_at', 'like', '%'.$searchQuery.'%');
             })
-            ->orderBy($sortField, $sortOrder)
+            ->when($sortField === 'name', function ($query) use ($sortOrder): void {
+                $query->orderBy('first_name', $sortOrder)->orderBy('last_name', $sortOrder);
+            }, function ($query) use ($sortField, $sortOrder): void {
+                $query->orderBy($sortField, $sortOrder);
+            })
             ->onlyTrashed()
             ->paginate($limit);
 

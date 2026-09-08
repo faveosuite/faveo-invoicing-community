@@ -172,7 +172,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $sortField = $request->input('sort-field', 'created_at');
             $limit = $request->input('limit', 10);
 
-            $allowedSorts = ['created_at', 'number', 'grand_total', 'status'];
+            $allowedSorts = ['created_at', 'number', 'grand_total', 'status', 'user', 'email', 'mobile', 'country'];
             if (! in_array($sortField, $allowedSorts, strict: true)) {
                 $sortField = 'created_at';
             }
@@ -190,13 +190,34 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 $status = array_key_exists($search, $statusMapping) ? $statusMapping[$search] : $search;
                 $query->where(function (Builder $q) use ($search, $status): void {
                     $q->whereHas('user', function (Builder $q2) use ($search): void {
-                        $q2->whereRaw('CONCAT(first_name, " ", last_name) LIKE ?', [sprintf('%%%s%%', $search)]);
+                        $q2->whereRaw('CONCAT(first_name, " ", last_name) LIKE ?', [sprintf('%%%s%%', $search)])
+                            ->orWhere('email', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('mobile', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('country', 'like', sprintf('%%%s%%', $search));
                     })
+                        ->orWhereHas('invoiceItem', function (Builder $q2) use ($search): void {
+                            $q2->where('product_name', 'like', sprintf('%%%s%%', $search));
+                        })
                         ->orWhere('number', 'like', sprintf('%%%s%%', $search))
                         ->orWhere('status', 'like', sprintf('%%%s%%', $status))
-                        ->orWhere('currency', 'like', sprintf('%%%s%%', $search));
+                        ->orWhere('currency', 'like', sprintf('%%%s%%', $search))
+                        ->orWhere('grand_total', 'like', sprintf('%%%s%%', $search));
                 });
-            })->orderBy($sortField, $sortOrder)->paginate($limit);
+            });
+
+            // user/email/mobile/country live on `users`, not `invoices` — the list is
+            // eager-loaded (`with`), not joined, so sort each via a correlated subquery.
+            $relatedSort = match ($sortField) {
+                'user' => User::selectRaw('CONCAT(first_name, " ", last_name)')->whereColumn('users.id', 'invoices.user_id')->limit(1),
+                'email' => User::select('email')->whereColumn('users.id', 'invoices.user_id')->limit(1),
+                'mobile' => User::select('mobile')->whereColumn('users.id', 'invoices.user_id')->limit(1),
+                'country' => User::select('country')->whereColumn('users.id', 'invoices.user_id')->limit(1),
+                default => null,
+            };
+
+            $invoice = $relatedSort
+                ? $invoice->orderBy($relatedSort, $sortOrder)->paginate($limit)
+                : $invoice->orderBy($sortField, $sortOrder)->paginate($limit);
 
             $invoice->getCollection()->transform(function ($invoice): array { // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
                 $statusMapping = [
@@ -206,7 +227,9 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 ];
                 $status = Str::lower($invoice->status);
 
-                $products = $invoice->invoiceItem ? $invoice->invoiceItem->pluck('item_name')->toArray() : [];
+                $products = $invoice->invoiceItem
+                    ? $invoice->invoiceItem->map(fn ($item): array => ['name' => $item->product_name, 'product_id' => $item->product_id])->toArray()
+                    : [];
 
                 return [
                     'id' => $invoice->id,

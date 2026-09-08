@@ -35,7 +35,7 @@ class SocialMediaController extends Controller
             $limit = $request->input('limit', 10);
 
             $socials = $this->social
-                ->select('id', 'name', 'link')
+                ->select('id', 'name', 'link', 'class', 'fa_class')
                 ->when($searchString, function ($query) use ($searchString): void {
                     $query->where(function ($q) use ($searchString): void {
                         $q->where('name', 'like', sprintf('%%%s%%', $searchString));
@@ -48,6 +48,8 @@ class SocialMediaController extends Controller
                 'id' => $social->id,
                 'name' => ucfirst((string) $social->name),
                 'link' => $social->link,
+                'class' => $social->class,
+                'fa_class' => $social->fa_class,
                 'action' => hyperLinkGenerator('social-media/show/'.$social->id),
             ]);
 

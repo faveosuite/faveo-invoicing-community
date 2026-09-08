@@ -14,20 +14,7 @@
                     :option="tableOptions"
                 >
                     <template #bulk-actions>
-                        <div v-if="selected.length > 0" class="dropdown">
-                            <button
-                                class="btn btn-sm btn-secondary dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                            >
-                                {{ __('message.bulk_action') }}
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <button class="dropdown-item" @click="confirmBulkDelete">{{ __('message.Delete') }}</button>
-                                </li>
-                            </ul>
-                        </div>
+                        <BulkActionIcons v-if="selected.length > 0" :actions="[{ icon: 'fas fa-trash', label: __('message.Delete'), onClick: confirmBulkDelete }]" />
                     </template>
                 </DataTable>
             </div>
@@ -51,11 +38,14 @@
 import { h, ref, reactive } from 'vue'
 import { RouterLink } from 'vue-router'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import BulkActionIcons from '@/components/Reusable/BulkActionIcons.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { useDateTime } from '@/core/composables/useDateTime'
 import { useTableSelection } from '@/core/composables/useTableSelection'
 import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const baseUrl = useBaseUrl()
+const { formatDateTime } = useDateTime()
 const apiUrl = `/reports`
 
 const dtRef = ref(null)
@@ -81,8 +71,8 @@ const tableOptions = reactive({
     },
     columnsClasses: {
         select: 'dt-select',
-        file: 'dt-name',
-        format: 'dt-code',
+        file: 'dt-text',
+        format: 'dt-badge',
         type: 'dt-code',
         contact: 'dt-name',
         created_at: 'dt-date',
@@ -99,7 +89,7 @@ const tableOptions = reactive({
             if (fullName && row.user.id) return h(RouterLink, { to: '/users/' + row.user.id }, () => fullName)
             return '—'
         },
-        created_at: (f, row) => row.created_at ? row.created_at.substring(0, 10) : '—',
+        created_at: (f, row) => row.created_at ? formatDateTime(row.created_at) : '—',
         action:     (f, row) => h('a', {
             href: `${baseUrl}/download-exported-file/${row.id}`,
             class: 'btn btn-light table_btn',
