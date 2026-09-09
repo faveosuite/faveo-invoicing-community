@@ -341,10 +341,12 @@ class SettingsControllerTest extends DBTestCase
 
     public function test_update_storage_path_for_system_disk(): void
     {
-        // Update local file storage
+        // Update local file storage — must be a real, writable dir (see UpdateStoragePathRequest::withValidator)
+        $path = sys_get_temp_dir();
+
         $payload = [
             'disk' => 'system',
-            'path' => '/new/storage/path',
+            'path' => $path,
         ];
 
         $response = $this->postJson('/file-storage-path', $payload);
@@ -356,7 +358,7 @@ class SettingsControllerTest extends DBTestCase
 
         $this->assertDatabaseHas('settings_filesystem', [
             'disk' => 'system',
-            'local_file_storage_path' => '/new/storage/path',
+            'local_file_storage_path' => $path,
         ]);
     }
 
