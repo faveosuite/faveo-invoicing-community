@@ -70,6 +70,7 @@ class SeoSettingsController extends Controller
             return successResponse('', $data);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -134,6 +135,7 @@ class SeoSettingsController extends Controller
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

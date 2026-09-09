@@ -246,6 +246,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             return successResponse('', $invoice);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -370,6 +371,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse([__('message.sorry_something_wrong')]);
         }
     }
@@ -416,6 +418,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -499,6 +502,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 ->download($authUser->first_name.'-invoice.pdf');
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

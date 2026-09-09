@@ -37,6 +37,7 @@ class SettingsController extends Controller
             ]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -90,6 +91,7 @@ class SettingsController extends Controller
             return successResponse(__('message.razorpay_settings_updated_successfully'));
         } catch (BadRequestError|Exception $e) {
             \Logger::exception($e);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

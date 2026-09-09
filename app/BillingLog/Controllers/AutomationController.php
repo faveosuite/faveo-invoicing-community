@@ -121,6 +121,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

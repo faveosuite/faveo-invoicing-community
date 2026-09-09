@@ -173,6 +173,7 @@ class BaseHomeController extends Controller
             return ['status' => 'fails', 'message' => 'do-not-allow-auto-update'];
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return ['status' => 'fails', 'error' => __('message.sorry_something_wrong')];
         }
     }
@@ -255,6 +256,7 @@ class BaseHomeController extends Controller
             return ['status' => 'fails', 'message' => 'version-not updated'];
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return ['status' => 'fails', 'error' => __('message.sorry_something_wrong')];
         }
     }

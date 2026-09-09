@@ -394,6 +394,7 @@ class ClientController extends AdvanceSearchController
             return successResponse(__('message.user-create-successfully'), $user);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -511,6 +512,7 @@ class ClientController extends AdvanceSearchController
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -554,6 +556,7 @@ class ClientController extends AdvanceSearchController
             ]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -601,6 +604,7 @@ class ClientController extends AdvanceSearchController
             return successResponse('', $invoices);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -649,6 +653,7 @@ class ClientController extends AdvanceSearchController
             return successResponse('', $transactions);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -713,6 +718,7 @@ class ClientController extends AdvanceSearchController
             return successResponse('', $payments);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -736,6 +742,7 @@ class ClientController extends AdvanceSearchController
             return successResponse('', $comments);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -763,6 +770,7 @@ class ClientController extends AdvanceSearchController
             ]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -780,6 +788,7 @@ class ClientController extends AdvanceSearchController
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -794,6 +803,7 @@ class ClientController extends AdvanceSearchController
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

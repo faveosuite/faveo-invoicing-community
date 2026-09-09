@@ -72,6 +72,7 @@ class CurrencyController extends Controller
             return successResponse(__('message.currency_list_retrieved_successfully'), $currencyData);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'), 500);
         }
     }
@@ -134,6 +135,7 @@ class CurrencyController extends Controller
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -161,6 +163,7 @@ class CurrencyController extends Controller
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -182,6 +185,7 @@ class CurrencyController extends Controller
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

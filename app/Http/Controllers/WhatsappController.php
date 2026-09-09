@@ -69,6 +69,7 @@ class WhatsappController extends Controller
             ]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -88,6 +89,7 @@ class WhatsappController extends Controller
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -142,6 +144,7 @@ class WhatsappController extends Controller
             return successResponse('', $users);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -190,6 +193,7 @@ class WhatsappController extends Controller
             return successResponse('', $paginated);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -235,6 +239,7 @@ class WhatsappController extends Controller
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -279,6 +284,7 @@ class WhatsappController extends Controller
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

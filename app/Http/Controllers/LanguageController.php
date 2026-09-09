@@ -140,6 +140,7 @@ class LanguageController extends Controller
             return successResponse(__('message.language_fetched'), $result);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -163,6 +164,7 @@ class LanguageController extends Controller
             return errorResponse($exception->getMessage());
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -184,6 +186,7 @@ class LanguageController extends Controller
             return errorResponse($exception->getMessage());
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

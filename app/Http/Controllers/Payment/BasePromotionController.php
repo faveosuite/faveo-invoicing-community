@@ -19,6 +19,7 @@ class BasePromotionController extends Controller
             return successResponse('', strtoupper(Str::random(6)));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

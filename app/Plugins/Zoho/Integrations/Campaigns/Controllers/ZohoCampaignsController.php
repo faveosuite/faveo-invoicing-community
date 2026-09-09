@@ -44,6 +44,7 @@ class ZohoCampaignsController extends ZohoBaseController
             return successResponse('Campaigns fields and topics synced successfully');
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -72,6 +73,7 @@ class ZohoCampaignsController extends ZohoBaseController
             return errorResponse($exception->getMessage());
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

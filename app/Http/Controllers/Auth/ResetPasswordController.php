@@ -73,6 +73,7 @@ class ResetPasswordController extends Controller
             return errorResponse(__('message.reset_link_expired'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -133,6 +134,7 @@ class ResetPasswordController extends Controller
             return successResponse(__('message.password_changed_successfully'), ['redirect' => url('login')]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

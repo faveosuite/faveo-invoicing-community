@@ -224,6 +224,7 @@ class ConcreteExportHandleController extends ExportHandleController
             return response()->json(['message' => __('message.report_email_generated')], 200);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return response()->json(['message' => __('message.failed_generate_report').__('message.sorry_something_wrong')], 500);
         }
     }
@@ -354,6 +355,7 @@ class ConcreteExportHandleController extends ExportHandleController
             return response()->json(['message' => __('message.report_email_generated')], 200);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return response()->json(['message' => __('message.failed_generate_report').__('message.sorry_something_wrong')], 500);
         }
     }

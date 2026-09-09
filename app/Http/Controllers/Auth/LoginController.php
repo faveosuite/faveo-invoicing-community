@@ -84,6 +84,7 @@ class LoginController extends BaseAuthController
             ]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -156,6 +157,7 @@ class LoginController extends BaseAuthController
             return successResponse('', ['redirect' => $this->redirectPath()]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

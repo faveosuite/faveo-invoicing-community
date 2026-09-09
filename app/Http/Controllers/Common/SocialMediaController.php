@@ -56,6 +56,7 @@ class SocialMediaController extends Controller
             return successResponse(__('message.social_media_fetched'), $socials);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -72,6 +73,7 @@ class SocialMediaController extends Controller
             return successResponse(__('message.saved-successfully'), $social);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -93,6 +95,7 @@ class SocialMediaController extends Controller
             return successResponse(__('message.social_media_fetched'), $social, 200);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -114,6 +117,7 @@ class SocialMediaController extends Controller
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'), 500);
         }
     }
@@ -143,6 +147,7 @@ class SocialMediaController extends Controller
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

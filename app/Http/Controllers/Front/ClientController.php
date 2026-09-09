@@ -457,6 +457,7 @@ class ClientController extends BaseClientController
             ]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -495,6 +496,7 @@ class ClientController extends BaseClientController
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -528,6 +530,7 @@ class ClientController extends BaseClientController
             return $this->uploadVersions($request, $order, $product, $subscription);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'), 500);
         }
     }
@@ -731,6 +734,7 @@ class ClientController extends BaseClientController
             return successResponse('', ['user' => $user]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -833,6 +837,7 @@ class ClientController extends BaseClientController
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -872,6 +877,7 @@ class ClientController extends BaseClientController
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -896,6 +902,7 @@ class ClientController extends BaseClientController
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

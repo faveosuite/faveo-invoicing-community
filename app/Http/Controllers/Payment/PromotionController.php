@@ -148,6 +148,7 @@ class PromotionController extends BasePromotionController
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -187,6 +188,7 @@ class PromotionController extends BasePromotionController
             return errorResponse(__('message.coupon-code-exists'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -221,6 +223,7 @@ class PromotionController extends BasePromotionController
             return errorResponse(__('message.coupon-code-exists'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -245,6 +248,7 @@ class PromotionController extends BasePromotionController
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

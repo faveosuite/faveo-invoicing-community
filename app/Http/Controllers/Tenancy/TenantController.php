@@ -336,6 +336,7 @@ class TenantController extends Controller
             return ['status' => 'fails', 'message' => 'Invalid token'];
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return ['status' => 'fails', 'message' => __('message.sorry_something_wrong')];
         }
     }
