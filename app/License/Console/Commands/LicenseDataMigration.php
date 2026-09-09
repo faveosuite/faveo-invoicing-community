@@ -24,7 +24,8 @@ class LicenseDataMigration extends Command
         {--socket= : License database socket}
         {--sql-file= : Path to a SQL dump file; imports into a temporary DB then migrates from it}
         {--fresh : Truncate all license tables before migration}
-        {--include-codes= : Comma-separated license codes to include even without an order mapping}';
+        {--include-codes= : Comma-separated license codes to include even without an order mapping}
+        {--all-licenses : Include all licenses even without an order mapping}';
 
     protected $description = 'Migrate data from the external license database into the billing database';
 
@@ -36,6 +37,11 @@ class LicenseDataMigration extends Command
      * @var array<mixed>
      */
     private array $productMap = [];
+
+    /**
+     * @var array<mixed>
+     */
+    private array $afuProductMap = [];
 
     /**
      * @var array<mixed>
@@ -56,6 +62,8 @@ class LicenseDataMigration extends Command
      * @var array<mixed>
      */
     private array $includedCodes = [];
+
+    private bool $allLicenses = false;
 
     private int $skippedUsers = 0;
 
@@ -114,6 +122,10 @@ class LicenseDataMigration extends Command
             ));
         }
 
+        if ($this->option('all-licenses') || in_array('*', $this->includedCodes, true)) {
+            $this->allLicenses = true;
+        }
+
         if ($this->option('fresh')) {
             $this->warn('Truncating existing license tables...');
             $this->truncateLicenseTables();
@@ -161,7 +173,8 @@ class LicenseDataMigration extends Command
         $this->table(
             ['Metric', 'Count'],
             [
-                ['Products mapped', count($this->productMap)],
+                ['AFL Products mapped', count($this->productMap)],
+                ['AFU Products mapped', count($this->afuProductMap)],
                 ['Licenses migrated', count($this->licenseMap)],
                 ['Licenses user-mapped via order', $this->resolvedViaOrder],
                 ['Versions migrated', count($this->versionMap)],
@@ -186,12 +199,22 @@ class LicenseDataMigration extends Command
         Closure $transformer,
         ?string $productKey = null,
         bool $ignoreDuplicates = false,
+        bool $isAfu = false,
     ): int {
         $count = 0;
 
         $this->licenseDb()->table($sourceTable)
             ->lazyById(self::CHUNK_SIZE, $primaryKey)
-            ->filter(fn (\stdClass $row): bool => ! $productKey || isset($this->productMap[$row->{$productKey}]))
+            ->filter(function (\stdClass $row) use ($productKey, $isAfu): bool {
+                if (! $productKey) {
+                    return true;
+                }
+                $pid = $row->{$productKey};
+
+                return $isAfu
+                    ? (isset($this->afuProductMap[$pid]) || isset($this->productMap[$pid]))
+                    : isset($this->productMap[$pid]);
+            })
             ->map($transformer)
             ->filter()
             ->chunk(self::INSERT_BATCH_SIZE)
@@ -249,6 +272,8 @@ class LicenseDataMigration extends Command
 
     private function migrateLicenseSchemes(): int
     {
+        DB::table('license_schemes')->delete();
+
         return $this->migrateTable(
             'afl_license_schemes', 'license_schemes', 'scheme_id',
             fn (\stdClass $r): array => [
@@ -302,7 +327,7 @@ class LicenseDataMigration extends Command
         return $this->migrateTable(
             'afu_callbacks', 'version_callbacks', 'callback_id',
             fn (\stdClass $r): array => [
-                'product_id' => $this->productMap[$r->product_id],
+                'product_id' => $this->afuProductMap[$r->product_id] ?? $this->productMap[$r->product_id],
                 'version_id' => $this->versionMap[$r->version_id] ?? null,
                 'callback_type' => $r->callback_type,
                 'callback_ip' => $r->callback_ip,
@@ -312,6 +337,7 @@ class LicenseDataMigration extends Command
                 ...$this->timestamps($r),
             ],
             productKey: 'product_id',
+            isAfu: true,
         );
     }
 
@@ -325,8 +351,13 @@ class LicenseDataMigration extends Command
                     return null;
                 }
 
+                $productId = $this->afuProductMap[$r->product_id] ?? $this->productMap[$r->product_id] ?? null;
+                if (! $productId) {
+                    return null;
+                }
+
                 return [
-                    'product_id' => $this->productMap[$r->product_id],
+                    'product_id' => $productId,
                     'user_id' => null,
                     'version_id' => $newVersionId,
                     'installation_date' => $this->cleanDate($r->installation_date),
@@ -335,6 +366,7 @@ class LicenseDataMigration extends Command
                 ];
             },
             productKey: 'product_id',
+            isAfu: true,
         );
     }
 
@@ -404,8 +436,8 @@ class LicenseDataMigration extends Command
         $billingBySku = DB::table('products')->whereNotNull('product_sku')->pluck('id', 'product_sku');
         $billingByName = DB::table('products')->pluck('id', 'name');
 
+        // 1. Map AFL products (including soft-deleted if already in billing)
         $this->licenseDb()->table('afl_products')
-            ->whereNull('deleted_at')
             ->lazyById(self::CHUNK_SIZE, 'product_id')
             ->each(function (object $lp) use ($billingBySku, $billingByName): void {
                 $sku = $lp->product_sku ?? null;
@@ -419,6 +451,11 @@ class LicenseDataMigration extends Command
                 if ($billingByName->has($lp->product_title)) {
                     $this->productMap[$lp->product_id] = $billingByName[$lp->product_title];
 
+                    return;
+                }
+
+                // If product was soft-deleted in AFL and doesn't exist in billing, skip creating it
+                if ($lp->deleted_at !== null) {
                     return;
                 }
 
@@ -440,7 +477,33 @@ class LicenseDataMigration extends Command
                 $this->warn(sprintf('  Created new product: %s (ID: %d)', $lp->product_title, $newId));
             });
 
-        $this->line('  Mapped '.count($this->productMap).' products');
+        // 2. Map AFU products (for versions, update callbacks, and installations)
+        $this->licenseDb()->table('afu_products')
+            ->lazyById(self::CHUNK_SIZE, 'product_id')
+            ->each(function (object $ap) use ($billingBySku, $billingByName): void {
+                $sku = $ap->product_sku ?? null;
+
+                if ($sku && $billingBySku->has($sku)) {
+                    $this->afuProductMap[$ap->product_id] = $billingBySku[$sku];
+
+                    return;
+                }
+
+                if ($billingByName->has($ap->product_title)) {
+                    $this->afuProductMap[$ap->product_id] = $billingByName[$ap->product_title];
+
+                    return;
+                }
+
+                // Fallback: check if same ID was mapped in AFL
+                if (isset($this->productMap[$ap->product_id])) {
+                    $this->afuProductMap[$ap->product_id] = $this->productMap[$ap->product_id];
+
+                    return;
+                }
+            });
+
+        $this->line(sprintf('  Mapped %d AFL products, %d AFU products', count($this->productMap), count($this->afuProductMap)));
     }
 
     private function migrateLicenses(): int
@@ -465,6 +528,13 @@ class LicenseDataMigration extends Command
                     return;
                 }
 
+                $existing = DB::table('licenses')->where('license_code', $lic->license_code)->first();
+                if ($existing) {
+                    $this->licenseMap[$lic->license_id] = $existing->id;
+
+                    return;
+                }
+
                 $orderNumber = $lic->license_order_number;
                 $newUserId = null;
 
@@ -473,9 +543,9 @@ class LicenseDataMigration extends Command
                     $this->resolvedViaOrder++;
                 }
 
-                if (! $newUserId && ! in_array($lic->license_code, $this->includedCodes, strict: true)) {
+                if (! $newUserId && ! $this->allLicenses && ! in_array($lic->license_code, $this->includedCodes, strict: true)) {
                     $this->skippedUsers++;
-                    $this->warn(sprintf('  Skipping license %s - no order mapping (use --include-codes to force)', $lic->license_code));
+                    $this->warn(sprintf('  Skipping license %s - no order mapping (use --include-codes or --all-licenses to force)', $lic->license_code));
 
                     return;
                 }
@@ -518,20 +588,45 @@ class LicenseDataMigration extends Command
         $this->licenseDb()->table('afu_versions')
             ->lazyById(self::CHUNK_SIZE, 'version_id')
             ->each(function (object $ver) use (&$count): void {
-                $newProductId = $this->productMap[$ver->product_id] ?? null;
+                $newProductId = $this->afuProductMap[$ver->product_id] ?? $this->productMap[$ver->product_id] ?? null;
                 if (! $newProductId) {
                     return;
                 }
 
                 try {
+                    $file = ! empty($ver->version_install_file) ? $ver->version_install_file : ($ver->version_upgrade_file ?? '');
+                    $installCount = ($ver->version_install_count ?? 0) > 0 ? (int) $ver->version_install_count : (int) ($ver->version_upgrade_count ?? 0);
+
+                    $existing = DB::table('product_uploads')
+                        ->where('product_id', $newProductId)
+                        ->where('version', $ver->version_number)
+                        ->first();
+
+                    if ($existing) {
+                        $this->versionMap[$ver->version_id] = $existing->id;
+
+                        $update = [];
+                        if (empty($existing->file) && ! empty($file)) {
+                            $update['file'] = $file;
+                        }
+                        if (($existing->version_install_count ?? 0) === 0 && $installCount > 0) {
+                            $update['version_install_count'] = $installCount;
+                        }
+                        if ($update !== []) {
+                            DB::table('product_uploads')->where('id', $existing->id)->update($update);
+                        }
+
+                        return;
+                    }
+
                     $newId = DB::table('product_uploads')->insertGetId([
                         'product_id' => $newProductId,
                         'title' => $ver->version_number,
                         'description' => $ver->version_changelog ?? '',
                         'version' => $ver->version_number,
-                        'file' => $ver->version_install_file ?? '',
+                        'file' => $file,
                         'version_expire_date' => $this->cleanDate($ver->version_expire_date ?? null),
-                        'version_install_count' => $ver->version_install_count ?? 0,
+                        'version_install_count' => $installCount,
                         'status' => (in_array($ver->version_status, ['inactive', 0, '0'], strict: true)) ? 0 : 1,
                         ...$this->timestamps($ver),
                     ]);
@@ -554,6 +649,7 @@ class LicenseDataMigration extends Command
             return;
         }
 
+        DB::table('license_notifications')->delete();
         DB::table('license_notifications')->insert([
             'notification_product_not_found' => $n->notification_product_not_found ?? '',
             'notification_product_inactive' => $n->notification_product_inactive ?? '',
@@ -588,6 +684,7 @@ class LicenseDataMigration extends Command
             return;
         }
 
+        DB::table('version_notifications')->delete();
         DB::table('version_notifications')->insert([
             'notification_operation_ok' => $n->notification_operation_ok ?? '',
             'notification_product_not_found' => $n->notification_product_not_found ?? '',
@@ -616,13 +713,12 @@ class LicenseDataMigration extends Command
 
     private function updateProductColumns(): int
     {
-        $afuProducts = $this->licenseDb()->table('afu_products')->get()->keyBy('product_sku');
         $count = 0;
 
+        // 1. Update from AFL products (homepage, download URL, envato ID)
         $this->licenseDb()->table('afl_products')
-            ->whereNull('deleted_at')
             ->lazyById(self::CHUNK_SIZE, 'product_id')
-            ->each(function (object $lp) use ($afuProducts, &$count): void {
+            ->each(function (object $lp) use (&$count): void {
                 $billingProductId = $this->productMap[$lp->product_id] ?? null;
                 if (! $billingProductId) {
                     return;
@@ -632,18 +728,41 @@ class LicenseDataMigration extends Command
                     'product_url_homepage' => $lp->product_url_homepage,
                     'product_url_download' => $lp->product_url_download,
                     'product_envato_id' => $lp->product_envato_id,
-                ], fn ($v): bool => $v !== null);
+                ], fn ($v): bool => $v !== null && $v !== '');
 
-                $afuProduct = $afuProducts[$lp->product_sku] ?? null;
+                if ($updateData !== []) {
+                    DB::table('products')->where('id', $billingProductId)->update($updateData);
+                    $count++;
+                }
+            });
 
-                if ($afuProduct) {
-                    if ($afuProduct->product_key) {
-                        $updateData['product_key'] = $afuProduct->product_key;
-                    }
+        // 2. Update from AFU products (product_key, product_max_active_versions, product_url_homepage)
+        $billingBySku = DB::table('products')->whereNotNull('product_sku')->pluck('id', 'product_sku');
+        $billingByName = DB::table('products')->pluck('id', 'name');
 
-                    if ($afuProduct->product_max_active_versions) {
-                        $updateData['product_max_active_versions'] = $afuProduct->product_max_active_versions;
-                    }
+        $this->licenseDb()->table('afu_products')
+            ->lazyById(self::CHUNK_SIZE, 'product_id')
+            ->each(function (object $ap) use ($billingBySku, $billingByName, &$count): void {
+                $billingProductId = $this->afuProductMap[$ap->product_id]
+                    ?? ($ap->product_sku ? $billingBySku[$ap->product_sku] ?? null : null)
+                    ?? $billingByName[$ap->product_title] ?? null;
+
+                if (! $billingProductId) {
+                    return;
+                }
+
+                $updateData = [];
+
+                if (! empty($ap->product_key)) {
+                    $updateData['product_key'] = $ap->product_key;
+                }
+
+                if (! empty($ap->product_max_active_versions)) {
+                    $updateData['product_max_active_versions'] = $ap->product_max_active_versions;
+                }
+
+                if (! empty($ap->product_url_homepage)) {
+                    $updateData['product_url_homepage'] = $ap->product_url_homepage;
                 }
 
                 if ($updateData !== []) {
