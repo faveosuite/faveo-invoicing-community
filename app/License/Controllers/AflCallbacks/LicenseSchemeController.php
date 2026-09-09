@@ -62,13 +62,13 @@ class LicenseSchemeController extends Controller
         $license = $this->validator->findLicense($license_code, $client_email, $product_id);
 
         if (! $license instanceof License) {
-            return $this->notificationResponse('notification_license_not_found', []);
+            return $this->notificationResponse('notification_license_not_found', [], $product);
         }
 
         // Validate license (status, expiry, IP, domain)
         $validation = $this->validator->validateLicense($license, $product_id, $client_email, $ip, $root_url);
         if (! $validation['valid']) {
-            return $this->notificationResponse($this->mapErrorToNotification($validation['error']), []);
+            return $this->notificationResponse($this->mapErrorToNotification($validation['error']), $validation['data'] ?? [], $product, $license);
         }
 
         $license = $validation['license'];
@@ -90,7 +90,7 @@ class LicenseSchemeController extends Controller
             ->first();
 
         if (! $installation) {
-            return $this->notificationResponse('notification_installation_not_found', []);
+            return $this->notificationResponse('notification_installation_not_found', [], $product, $license);
         }
 
         // Get scheme based on isPlugin and tableCreate parameters (matching original logic)
@@ -101,7 +101,7 @@ class LicenseSchemeController extends Controller
             ->first();
 
         if (! $scheme) {
-            return $this->notificationResponse('notification_unknown_error', []);
+            return $this->notificationResponse('notification_unknown_error', [], $product, $license);
         }
 
         // Log callback
@@ -111,6 +111,6 @@ class LicenseSchemeController extends Controller
             'scheme_id' => $scheme->id,
             'scheme_name' => 'license_scheme',
             'scheme_query' => $scheme->scheme_query,
-        ], $product_id, $client_email, $license_code, $root_url);
+        ], $product, $license);
     }
 }

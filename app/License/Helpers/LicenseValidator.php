@@ -140,6 +140,16 @@ class LicenseValidator
             }
         }
 
+        // "Always require domain": root_url must be a real, resolving, non-IP domain
+        if ($license->license_require_domain) {
+            $rawDomain = $this->getRawDomain($root_url);
+            if (filter_var($root_url, FILTER_VALIDATE_URL) === false
+                || filter_var(gethostbyname($rawDomain), FILTER_VALIDATE_IP) === false
+                || filter_var($rawDomain, FILTER_VALIDATE_IP) !== false) {
+                return ['valid' => false, 'error' => 'domain_required', 'data' => ['domain' => $root_url]];
+            }
+        }
+
         return ['valid' => true, 'license' => $license];
     }
 
@@ -235,11 +245,10 @@ class LicenseValidator
         $rootUrl = url('/');
         $rootIps = @gethostbynamel($this->getRawDomain($rootUrl));
 
-        if (! is_array($rootIps)) {
-            $rootIps = [];
+        if (empty($rootIps)) {
+            // Matches original: DNS resolution failed, signature cannot be verified.
+            return false;
         }
-
-        sort($rootIps);
 
         $expected = hash('sha256', gmdate('Y-m-d').$root_url.$client_email.$license_code.$product_id.implode('', $rootIps));
 
@@ -329,11 +338,10 @@ class LicenseValidator
         $rootUrl = url('/');
         $rootIps = @gethostbynamel($this->getRawDomain($rootUrl));
 
-        if (! is_array($rootIps)) {
-            $rootIps = [];
+        if (empty($rootIps)) {
+            // Matches original: DNS resolution failed, signature cannot be verified.
+            return false;
         }
-
-        sort($rootIps);
 
         $expected = hash('sha256', gmdate('Y-m-d').$product_id.$product_key.implode('', $rootIps));
 

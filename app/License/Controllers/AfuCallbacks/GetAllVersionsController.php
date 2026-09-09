@@ -50,7 +50,7 @@ class GetAllVersionsController extends Controller
 
         // Verify script signature
         if (! $this->validator->verifyAfuScriptSignature($script_signature, $product_id, $product_key)) {
-            return $this->notificationResponse('notification_invalid_signature', []);
+            return $this->notificationResponse('notification_invalid_signature', [], $product);
         }
 
         // Get all versions
@@ -59,7 +59,7 @@ class GetAllVersionsController extends Controller
             ->get();
 
         if ($versions->isEmpty()) {
-            return $this->notificationResponse('notification_product_no_versions', []);
+            return $this->notificationResponse('notification_product_no_versions', [], $product);
         }
 
         // Build response data (merge product + version, filter sensitive fields)
@@ -75,6 +75,6 @@ class GetAllVersionsController extends Controller
         // Log callback (1 = version check)
         $this->logCallback($product->id, $versions->first()->id, 1, $ip, $user_local_path);
 
-        return $this->notificationResponse('notification_operation_ok', $responseData);
+        return $this->notificationResponse('notification_operation_ok', $responseData, $product, $versions->first());
     }
 }

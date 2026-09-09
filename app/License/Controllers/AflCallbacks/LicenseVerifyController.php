@@ -73,7 +73,7 @@ class LicenseVerifyController extends Controller
         if (! $license instanceof License) {
             $this->createReport($product_id, userId: null, licenseCode: $license_code, text: 'License not found during verification', system: 1);
 
-            return $this->notificationResponse('notification_license_not_found', []);
+            return $this->notificationResponse('notification_license_not_found', [], $product);
         }
 
         // Validate license (status, expiry, IP, domain)
@@ -81,7 +81,7 @@ class LicenseVerifyController extends Controller
         if (! $validation['valid']) {
             $this->createReport($product_id, $license->user_id, $license_code, $validation['error'], 1);
 
-            return $this->notificationResponse($this->mapErrorToNotification($validation['error']), $validation['data'] ?? []);
+            return $this->notificationResponse($this->mapErrorToNotification($validation['error']), $validation['data'] ?? [], $product, $license);
         }
 
         $license = $validation['license'];
@@ -96,7 +96,7 @@ class LicenseVerifyController extends Controller
         if ($existingInstallation && (! empty($license_code) && $license_code != $existingInstallation->license_code || $this->validator->validateIntegerValue($client_id) && $client_id != $existingInstallation->user_id)) {
             $this->createReport($product_id, $license->user_id, $license_code, sprintf('Installation on %s (%s) belongs to another user', $installation_domain, $ip), 1);
 
-            return $this->notificationResponse('notification_domain_in_use', []);
+            return $this->notificationResponse('notification_domain_in_use', [], $product, $license);
         }
 
         // Check installation limit
@@ -112,7 +112,7 @@ class LicenseVerifyController extends Controller
             if ($allInstallations > $license->license_limit) {
                 $this->createReport($product_id, $license->user_id, $license_code, sprintf('Maximum installations limit (%s) exceeded', $license->license_limit), 1);
 
-                return $this->notificationResponse('notification_license_limit', []);
+                return $this->notificationResponse('notification_license_limit', [], $product, $license);
             }
         }
 
@@ -134,7 +134,7 @@ class LicenseVerifyController extends Controller
         if (! $installation) {
             $this->createReport($product_id, $license->user_id, $license_code, 'Installation does not exist or is inactive', 1);
 
-            return $this->notificationResponse('notification_installation_not_found', []);
+            return $this->notificationResponse('notification_installation_not_found', [], $product, $license);
         }
 
         // Log callback
@@ -160,6 +160,6 @@ class LicenseVerifyController extends Controller
             'license_ip' => $license->license_ip,
         ];
 
-        return $this->notificationResponse('notification_license_ok', $notificationData, $product_id, $client_email, $license_code, $root_url);
+        return $this->notificationResponse('notification_license_ok', $notificationData, $product, $license);
     }
 }

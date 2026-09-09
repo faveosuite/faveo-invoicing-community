@@ -5,6 +5,7 @@ namespace App\License\tests\Backend\Controllers\AflCallbacks;
 use App\License\Controllers\AflCallbacks\LicenseInstallController;
 use App\License\Helpers\LicenseValidator;
 use App\License\Models\LicenseCallback;
+use App\License\Models\LicenseNotification;
 use App\License\Services\BannedHostService;
 use App\License\Services\InstallationService;
 use App\License\tests\Backend\LicenseTestCase;
@@ -63,5 +64,40 @@ class LicenseInstallControllerTest extends LicenseTestCase
 
         $this->assertSame('notification_license_ok', $response->headers->get('notification_case'));
         $this->assertSame(1, LicenseCallback::where('license_code', $license->license_code)->count());
+    }
+
+    #[Test]
+    #[Group('license-callbacks')]
+    public function license_install_replaces_product_and_license_shortcodes_in_notification_text(): void
+    {
+        $product = $this->createProduct(['name' => 'Faveo Helpdesk']);
+        // notificationResponse() reads LicenseNotification::first(), so update the existing
+        // row (seeded by LicenseModuleSeeder) rather than creating a second, ignored one.
+        (LicenseNotification::first() ?? LicenseNotification::create())->update([
+            'notification_license_not_found' => 'License %LICENSE_CODE% not found for %PRODUCT_TITLE%',
+        ]);
+
+        $validator = Mockery::mock(LicenseValidator::class);
+        $validator->shouldReceive('resolveIp')->once()->andReturn('127.0.0.1');
+        $validator->shouldReceive('isValidLicenseRequest')->once()->andReturn(true);
+        $validator->shouldReceive('validateInstallationHash')->once()->andReturn(true);
+        $validator->shouldReceive('verifyScriptSignature')->once()->andReturn(true);
+        $validator->shouldReceive('isBanned')->once()->andReturn(false);
+        $validator->shouldReceive('validateProduct')->once()->andReturn($product);
+        $validator->shouldReceive('findLicense')->once()->andReturn(null);
+
+        $service = Mockery::mock(InstallationService::class);
+
+        $response = new LicenseInstallController($validator, $service, new BannedHostService)->licenseInstall($this->moduleRequest([
+            'product_id' => $product->id,
+            'root_url' => 'https://example.com/helpdesk',
+            'client_email' => 'client@example.com',
+            'license_code' => 'MISSING-CODE',
+            'installation_hash' => 'hash',
+            'license_signature' => 'signature',
+        ], 'POST'));
+
+        $this->assertSame('notification_license_not_found', $response->headers->get('notification_case'));
+        $this->assertSame('License MISSING-CODE not found for Faveo Helpdesk', $response->headers->get('notification_text'));
     }
 }

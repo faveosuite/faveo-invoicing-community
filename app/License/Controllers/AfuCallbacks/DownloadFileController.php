@@ -69,30 +69,30 @@ class DownloadFileController extends Controller
                 ? 'notification_product_no_versions'
                 : 'notification_version_not_found';
 
-            return $this->notificationResponse($notifKey, []);
+            return $this->notificationResponse($notifKey, [], $product);
         }
 
         // Verify script signature
         if (! $this->validator->verifyAfuScriptSignature($script_signature, $product_id, $product_key)) {
-            return $this->notificationResponse('notification_invalid_signature', []);
+            return $this->notificationResponse('notification_invalid_signature', [], $product, $version);
         }
 
         // Check version status
         if (! $version->status) {
-            return $this->notificationResponse('notification_version_inactive', []);
+            return $this->notificationResponse('notification_version_inactive', [], $product, $version);
         }
 
         // Check version expiration
         if ($this->validator->verifyDateTime($version->version_expire_date, 'Y-m-d')
             && $version->version_expire_date < date('Y-m-d')) {
-            return $this->notificationResponse('notification_version_expired', []);
+            return $this->notificationResponse('notification_version_expired', [], $product, $version);
         }
 
         $resolvedFile = $version->resolvedFile();
         $filePath = 'products/'.$resolvedFile;
 
         if (empty($resolvedFile) || ! Attach::exists($filePath)) {
-            return $this->notificationResponse('notification_install_archive_not_found', []);
+            return $this->notificationResponse('notification_install_archive_not_found', [], $product, $version);
         }
 
         $version->increment('version_install_count');
@@ -105,7 +105,7 @@ class DownloadFileController extends Controller
         try {
             $response = $this->stampingService->downloadResponseFor($version, $product, $filePath);
         } catch (RuntimeException) {
-            return $this->notificationResponse('notification_install_archive_not_found', []);
+            return $this->notificationResponse('notification_install_archive_not_found', [], $product, $version);
         }
 
         $response->headers->set('Content-Type', 'application/octet-stream');

@@ -2,9 +2,11 @@
 
 namespace App\License\Controllers\Traits;
 
+use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseNotification;
 use App\License\Models\LicenseReport;
+use App\Model\Product\Product;
 use Illuminate\Http\JsonResponse;
 
 trait AflCallbackHelpers
@@ -16,15 +18,17 @@ trait AflCallbackHelpers
      * - Fetches notification text from DB and replaces placeholders
      * - Only sends notification_data when notification_case is 'notification_license_ok'.
      *
+     * $product/$license are passed in whenever the caller has already resolved them,
+     * so their shortcodes (%PRODUCT_TITLE%, %LICENSE_LIMIT%, ...) can be substituted -
+     * same as the original, which always had the full row in scope by the time it notified.
+     *
      * @param  array<mixed>  $data
      */
     protected function notificationResponse(
         string $notificationCase,
         array $data = [],
-        ?int $product_id = null,
-        ?string $client_email = null,
-        ?string $license_code = null,
-        ?string $root_url = null
+        ?Product $product = null,
+        ?License $license = null,
     ): JsonResponse {
         if (! in_array($notificationCase, ['notification_license_ok', 'notification_host_banned'], true)) {
             $this->bannedHostService->recordFailedLicensing((string) request()->ip());
@@ -32,12 +36,12 @@ trait AflCallbackHelpers
 
         $notification = LicenseNotification::first();
         $notificationText = $notification ? ($notification->{$notificationCase} ?? $notificationCase) : $notificationCase;
+        $notificationText = $this->replaceNotificationPlaceholders((string) $notificationText, $product, $license);
 
-        // Replace placeholders in notification text (matching original)
-        $ip = request()->ip();
-        $placeholders = ['%ROOT_URL%', '%IP_ADDRESS%', '%CLIENT_EMAIL%', '%LICENSE_CODE%', '%PRODUCT_ID%'];
-        $replacements = [(string) ($root_url ?? ''), (string) $ip, (string) ($client_email ?? ''), (string) ($license_code ?? ''), (string) ($product_id ?? '')];
-        $notificationText = str_ireplace($placeholders, $replacements, (string) $notificationText);
+        $root_url = (string) request()->input('root_url');
+        $client_email = (string) request()->input('client_email');
+        $license_code = (string) request()->input('license_code');
+        $product_id = request()->input('product_id');
 
         $signature = $this->generateServerSignature($product_id, $root_url, $client_email, $license_code);
 
@@ -52,19 +56,56 @@ trait AflCallbackHelpers
     }
 
     /**
+     * Replace every %SHORTCODE% in notification text (all 17 from the original
+     * returnServerNotification() bad_text_array/good_text_array pair).
+     */
+    protected function replaceNotificationPlaceholders(string $text, ?Product $product, ?License $license): string
+    {
+        $request = request();
+
+        $placeholders = [
+            '%ROOT_URL%', '%IP_ADDRESS%', '%CLIENT_EMAIL%', '%CLIENT_FNAME%', '%CLIENT_LNAME%',
+            '%LICENSE_CODE%', '%PRODUCT_ID%', '%PRODUCT_TITLE%', '%PRODUCT_DESCRIPTION%',
+            '%PRODUCT_URL_HOMEPAGE%', '%PRODUCT_URL_DOWNLOAD%', '%PRODUCT_VERSION%',
+            '%LICENSE_EXPIRE_DATE%', '%LICENSE_CANCEL_DATE%', '%LICENSE_UPDATES_DATE%',
+            '%LICENSE_SUPPORT_DATE%', '%LICENSE_LIMIT%',
+        ];
+        $replacements = [
+            (string) $request->input('root_url', ''),
+            (string) $request->ip(),
+            (string) $request->input('client_email', ''),
+            (string) $request->input('client_fname', ''),
+            (string) $request->input('client_lname', ''),
+            (string) $request->input('license_code', ''),
+            (string) $request->input('product_id', ''),
+            (string) ($product->name ?? ''),
+            (string) ($product->description ?? ''),
+            (string) ($product->product_url_homepage ?? ''),
+            (string) ($product->product_url_download ?? ''),
+            (string) ($product->version ?? ''),
+            (string) ($license->license_expire_date ?? ''),
+            (string) ($license->license_cancel_date ?? ''),
+            (string) ($license->license_updates_date ?? ''),
+            (string) ($license->license_support_date ?? ''),
+            (string) ($license->license_limit ?? ''),
+        ];
+
+        return str_ireplace($placeholders, $replacements, $text);
+    }
+
+    /**
      * Generate server signature for callback verification.
      * Same algorithm as original: SHA256(server_ips + product_id + license_code + email + root_url + date).
      */
-    protected function generateServerSignature(?int $product_id, ?string $root_url, ?string $client_email, ?string $license_code): string
+    protected function generateServerSignature(mixed $product_id, ?string $root_url, ?string $client_email, ?string $license_code): string
     {
         $rootUrl = url('/');
         $rootIps = @gethostbynamel($this->getRawDomain($rootUrl));
 
-        if (! is_array($rootIps)) {
-            $rootIps = [];
+        if (empty($rootIps)) {
+            // Matches original: DNS resolution failed, no signature can be trusted.
+            return '';
         }
-
-        sort($rootIps);
 
         return hash('sha256',
             implode('', $rootIps)

@@ -51,7 +51,7 @@ class GetVersionsController extends Controller
 
         // Verify script signature
         if (! $this->validator->verifyAfuScriptSignature($script_signature, $product_id, $product_key)) {
-            return $this->notificationResponse('notification_invalid_signature', []);
+            return $this->notificationResponse('notification_invalid_signature', [], $product);
         }
 
         // Get specified version or latest active one
@@ -71,18 +71,18 @@ class GetVersionsController extends Controller
                 ? 'notification_product_no_versions'
                 : 'notification_version_not_found';
 
-            return $this->notificationResponse($notifKey, []);
+            return $this->notificationResponse($notifKey, [], $product);
         }
 
         // Check version status
         if (! $version->status) {
-            return $this->notificationResponse('notification_version_inactive', []);
+            return $this->notificationResponse('notification_version_inactive', [], $product, $version);
         }
 
         // Check version expiration
         if ($this->validator->verifyDateTime($version->version_expire_date, 'Y-m-d')
             && $version->version_expire_date < date('Y-m-d')) {
-            return $this->notificationResponse('notification_version_expired', []);
+            return $this->notificationResponse('notification_version_expired', [], $product, $version);
         }
 
         // Build response data (merge product + version, filter sensitive fields)
@@ -93,6 +93,6 @@ class GetVersionsController extends Controller
         // Log callback (1 = version check)
         $this->logCallback($product->id, $version->id, 1, $ip, $user_local_path);
 
-        return $this->notificationResponse('notification_operation_ok', $responseData);
+        return $this->notificationResponse('notification_operation_ok', $responseData, $product, $version);
     }
 }
