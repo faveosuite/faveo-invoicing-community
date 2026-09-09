@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             $table->boolean('reoon_deletion_status')->after('invoice_deletion_status');
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             $table->dropColumn('reoon_deletion_status');
         });
     }

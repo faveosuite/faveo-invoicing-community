@@ -17,7 +17,13 @@ use function getenv;
 use function implode;
 use function ini_get;
 use function ini_set;
+use function is_array;
+use function is_scalar;
 use function putenv;
+use function restore_error_handler;
+use function set_error_handler;
+use function sprintf;
+use PHPUnit\Event\Facade as EventFacade;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -65,10 +71,38 @@ final readonly class PhpHandler
             $value = $iniSetting->value();
 
             if (defined($value)) {
-                $value = (string) constant($value);
+                $constantValue = constant($value);
+
+                if (is_scalar($constantValue) || $constantValue === null) {
+                    $value = (string) $constantValue;
+                }
             }
 
-            ini_set($iniSetting->name(), $value);
+            $error = '';
+
+            set_error_handler(
+                static function (int $errno, string $errstr, string $errfile, int $errline) use (&$error): true
+                {
+                    $error = $errstr;
+
+                    return true;
+                },
+            );
+
+            $success = ini_set($iniSetting->name(), $value);
+
+            restore_error_handler();
+
+            if ($success === false) {
+                EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
+                    sprintf(
+                        'Failed to set "%s=%s": %s',
+                        $iniSetting->name(),
+                        $value,
+                        $error,
+                    ),
+                );
+            }
         }
     }
 
@@ -97,9 +131,17 @@ final readonly class PhpHandler
 
     private function handleVariables(string $target, VariableCollection $variables): void
     {
-        foreach ($variables as $variable) {
-            $GLOBALS[$target][$variable->name()] = $variable->value();
+        $values = [];
+
+        if (isset($GLOBALS[$target]) && is_array($GLOBALS[$target])) {
+            $values = $GLOBALS[$target];
         }
+
+        foreach ($variables as $variable) {
+            $values[$variable->name()] = $variable->value();
+        }
+
+        $GLOBALS[$target] = $values;
     }
 
     private function handleEnvVariables(VariableCollection $variables): void
@@ -109,14 +151,20 @@ final readonly class PhpHandler
             $value = $variable->value();
             $force = $variable->force();
 
-            if ($force || getenv($name) === false) {
-                putenv("{$name}={$value}");
+            if (!is_scalar($value) && $value !== null) {
+                continue;
             }
 
-            $value = getenv($name);
+            $valueAsString = (string) $value;
+
+            if ($force || getenv($name) === false) {
+                putenv("{$name}={$valueAsString}");
+            }
+
+            $valueAsString = getenv($name);
 
             if ($force || !isset($_ENV[$name])) {
-                $_ENV[$name] = $value;
+                $_ENV[$name] = $valueAsString;
             }
         }
     }

@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('plugins')) {
-            Schema::create('plugins', function (Blueprint $table) {
+            Schema::create('plugins', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name');
                 $table->string('path');
@@ -27,10 +25,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('plugins');
     }

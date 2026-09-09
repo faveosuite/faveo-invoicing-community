@@ -13,6 +13,7 @@ namespace Psy\Command;
 
 use Psy\CodeCleanerAware;
 use Psy\ContextAware;
+use Psy\Output\ShellOutputAdapter;
 use Psy\Readline\ReadlineAware;
 use Psy\Shell;
 use Psy\VarDumper\PresenterAware;
@@ -106,15 +107,24 @@ abstract class Command extends BaseCommand
     }
 
     /**
+     * Render help text for the current input context.
+     */
+    public function asTextForInput(InputInterface $input): string
+    {
+        return $this->asText();
+    }
+
+    /**
      * {@inheritdoc}
      */
     private function getArguments(): array
     {
         $hidden = $this->getHiddenArguments();
 
-        return \array_filter($this->getNativeDefinition()->getArguments(), function ($argument) use ($hidden) {
-            return !\in_array($argument->getName(), $hidden);
-        });
+        return \array_filter(
+            $this->getNativeDefinition()->getArguments(),
+            fn ($argument) => !\in_array($argument->getName(), $hidden)
+        );
     }
 
     /**
@@ -134,9 +144,10 @@ abstract class Command extends BaseCommand
     {
         $hidden = $this->getHiddenOptions();
 
-        return \array_filter($this->getNativeDefinition()->getOptions(), function ($option) use ($hidden) {
-            return !\in_array($option->getName(), $hidden);
-        });
+        return \array_filter(
+            $this->getNativeDefinition()->getOptions(),
+            fn ($option) => !\in_array($option->getName(), $hidden)
+        );
     }
 
     /**
@@ -292,5 +303,13 @@ abstract class Command extends BaseCommand
         return $table
             ->setRows([])
             ->setStyle($style);
+    }
+
+    /**
+     * Get a ShellOutputAdapter for the given output.
+     */
+    protected function shellOutput(OutputInterface $output): ShellOutputAdapter
+    {
+        return new ShellOutputAdapter($output);
     }
 }

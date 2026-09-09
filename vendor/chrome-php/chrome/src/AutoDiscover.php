@@ -1,0 +1,91 @@
+<?php
+
+/*
+ * This file is part of Chrome PHP.
+ *
+ * (c) Soufiane Ghzal <sghzal@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace HeadlessChromium;
+
+use Throwable;
+
+class AutoDiscover
+{
+    /**
+     * @var callable(): string
+     */
+    private $osFamily;
+
+    /**
+     * @param (callable(): string)|null $osFamily
+     */
+    public function __construct(?callable $osFamily = null)
+    {
+        $this->osFamily = $osFamily ?? function (): string {
+            return \PHP_OS_FAMILY;
+        };
+    }
+
+    public function guessChromeBinaryPath(): string
+    {
+        if (\array_key_exists('CHROME_PATH', $_SERVER)) {
+            return $_SERVER['CHROME_PATH'];
+        }
+
+        switch (($this->osFamily)()) {
+            case 'Darwin':
+                return '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+            case 'Windows':
+                return self::getFromRegistry() ?? '%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe';
+            default:
+                return \rtrim(\explode("\n", (string) self::shellExec('command -v google-chrome || command -v chromium-browser || command -v chrome || command -v chromium'), 2)[0], " \n\r\t\0\x0B") ?: 'chrome';
+        }
+    }
+
+    private static function getFromRegistry(): ?string
+    {
+        $registryKey = self::shellExec(
+            'reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe" /ve'
+        );
+
+        if (null === $registryKey) {
+            return null;
+        }
+
+        \preg_match('/.:(?!.*:).*/', $registryKey, $matches);
+
+        return $matches[0] ?? null;
+    }
+
+    private static function shellExec(string $command): ?string
+    {
+        try {
+            $result = @\shell_exec($command);
+
+            return \is_string($result) ? $result : null;
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get default browser options from environment variables.
+     *
+     * @return array<string, mixed>
+     */
+    public function getDefaultOptions(): array
+    {
+        $options = [];
+
+        if (\array_key_exists('CHROME_NO_SANDBOX', $_SERVER)
+            && \filter_var($_SERVER['CHROME_NO_SANDBOX'], \FILTER_VALIDATE_BOOLEAN)) {
+            $options['noSandbox'] = true;
+        }
+
+        return $options;
+    }
+}

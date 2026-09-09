@@ -37,6 +37,7 @@ use PHPUnit\Framework\Attributes\CoversNamespace;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderClosure;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\DependsExternal;
@@ -70,7 +71,6 @@ use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\Attributes\RequiresPhpunit;
 use PHPUnit\Framework\Attributes\RequiresPhpunitExtension;
 use PHPUnit\Framework\Attributes\RequiresSetting;
-use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Attributes\Small;
@@ -91,6 +91,7 @@ use PHPUnit\Framework\Attributes\UsesTrait;
 use PHPUnit\Framework\Attributes\WithEnvironmentVariable;
 use PHPUnit\Framework\Attributes\WithoutErrorHandler;
 use PHPUnit\Metadata\InvalidAttributeException;
+use PHPUnit\Metadata\InvalidVersionRequirementException;
 use PHPUnit\Metadata\Metadata;
 use PHPUnit\Metadata\MetadataCollection;
 use PHPUnit\Metadata\Version\Requirement;
@@ -130,12 +131,20 @@ final readonly class AttributeParser implements Parser
             try {
                 $attributeInstance = $attribute->newInstance();
             } catch (Error $e) {
+                $file    = $reflector->getFileName();
+                $line    = $reflector->getStartLine();
+                $message = $e->getMessage();
+
+                assert($file !== false && $file !== '');
+                assert($line !== false);
+                assert($message !== '');
+
                 throw new InvalidAttributeException(
                     $attribute->getName(),
                     'class ' . $className,
-                    $reflector->getFileName(),
-                    $reflector->getStartLine(),
-                    $e->getMessage(),
+                    $file,
+                    $line,
+                    $message,
                 );
             }
 
@@ -357,12 +366,15 @@ final readonly class AttributeParser implements Parser
                 case RequiresPhp::class:
                     assert($attributeInstance instanceof RequiresPhp);
 
-                    $result[] = Metadata::requiresPhpOnClass(
-                        $this->requirement(
-                            $attributeInstance->versionRequirement(),
-                            $className,
-                        ),
+                    $requirement = $this->requirement(
+                        'RequiresPhp',
+                        $attributeInstance->versionRequirement(),
+                        $className,
                     );
+
+                    if ($requirement !== null) {
+                        $result[] = Metadata::requiresPhpOnClass($requirement);
+                    }
 
                     break;
 
@@ -374,6 +386,7 @@ final readonly class AttributeParser implements Parser
 
                     if ($versionRequirement !== null) {
                         $versionConstraint = $this->requirement(
+                            'RequiresPhpExtension',
                             $versionRequirement,
                             $className,
                         );
@@ -389,12 +402,15 @@ final readonly class AttributeParser implements Parser
                 case RequiresPhpunit::class:
                     assert($attributeInstance instanceof RequiresPhpunit);
 
-                    $result[] = Metadata::requiresPhpunitOnClass(
-                        $this->requirement(
-                            $attributeInstance->versionRequirement(),
-                            $className,
-                        ),
+                    $requirement = $this->requirement(
+                        'RequiresPhpunit',
+                        $attributeInstance->versionRequirement(),
+                        $className,
                     );
+
+                    if ($requirement !== null) {
+                        $result[] = Metadata::requiresPhpunitOnClass($requirement);
+                    }
 
                     break;
 
@@ -434,11 +450,6 @@ final readonly class AttributeParser implements Parser
                         $attributeInstance->setting(),
                         $attributeInstance->value(),
                     );
-
-                    break;
-
-                case RunClassInSeparateProcess::class:
-                    $result[] = Metadata::runClassInSeparateProcess();
 
                     break;
 
@@ -542,12 +553,20 @@ final readonly class AttributeParser implements Parser
             try {
                 $attributeInstance = $attribute->newInstance();
             } catch (Error $e) {
+                $file    = $reflector->getFileName();
+                $line    = $reflector->getStartLine();
+                $message = $e->getMessage();
+
+                assert($file !== false && $file !== '');
+                assert($line !== false);
+                assert($message !== '');
+
                 throw new InvalidAttributeException(
                     $attribute->getName(),
                     'method ' . $className . '::' . $methodName . '()',
-                    $reflector->getFileName(),
-                    $reflector->getStartLine(),
-                    $e->getMessage(),
+                    $file,
+                    $line,
+                    $message,
                 );
             }
 
@@ -609,14 +628,21 @@ final readonly class AttributeParser implements Parser
                 case DataProvider::class:
                     assert($attributeInstance instanceof DataProvider);
 
-                    $result[] = Metadata::dataProvider($className, $attributeInstance->methodName(), $attributeInstance->validateArgumentCount());
+                    $result[] = Metadata::dataProvider($className, $attributeInstance->methodName(), $attributeInstance->validateArgumentCount(), $attributeInstance->skipWhenEmpty());
 
                     break;
 
                 case DataProviderExternal::class:
                     assert($attributeInstance instanceof DataProviderExternal);
 
-                    $result[] = Metadata::dataProvider($attributeInstance->className(), $attributeInstance->methodName(), $attributeInstance->validateArgumentCount());
+                    $result[] = Metadata::dataProvider($attributeInstance->className(), $attributeInstance->methodName(), $attributeInstance->validateArgumentCount(), $attributeInstance->skipWhenEmpty());
+
+                    break;
+
+                case DataProviderClosure::class:
+                    assert($attributeInstance instanceof DataProviderClosure);
+
+                    $result[] = Metadata::dataProviderClosure($attributeInstance->closure(), $attributeInstance->validateArgumentCount());
 
                     break;
 
@@ -785,13 +811,16 @@ final readonly class AttributeParser implements Parser
                 case RequiresPhp::class:
                     assert($attributeInstance instanceof RequiresPhp);
 
-                    $result[] = Metadata::requiresPhpOnMethod(
-                        $this->requirement(
-                            $attributeInstance->versionRequirement(),
-                            $className,
-                            $methodName,
-                        ),
+                    $requirement = $this->requirement(
+                        'RequiresPhp',
+                        $attributeInstance->versionRequirement(),
+                        $className,
+                        $methodName,
                     );
+
+                    if ($requirement !== null) {
+                        $result[] = Metadata::requiresPhpOnMethod($requirement);
+                    }
 
                     break;
 
@@ -803,6 +832,7 @@ final readonly class AttributeParser implements Parser
 
                     if ($versionRequirement !== null) {
                         $versionConstraint = $this->requirement(
+                            'RequiresPhpExtension',
                             $versionRequirement,
                             $className,
                             $methodName,
@@ -819,13 +849,16 @@ final readonly class AttributeParser implements Parser
                 case RequiresPhpunit::class:
                     assert($attributeInstance instanceof RequiresPhpunit);
 
-                    $result[] = Metadata::requiresPhpunitOnMethod(
-                        $this->requirement(
-                            $attributeInstance->versionRequirement(),
-                            $className,
-                            $methodName,
-                        ),
+                    $requirement = $this->requirement(
+                        'RequiresPhpunit',
+                        $attributeInstance->versionRequirement(),
+                        $className,
+                        $methodName,
                     );
+
+                    if ($requirement !== null) {
+                        $result[] = Metadata::requiresPhpunitOnMethod($requirement);
+                    }
 
                     break;
 
@@ -978,23 +1011,38 @@ final readonly class AttributeParser implements Parser
     }
 
     /**
+     * @param non-empty-string  $attributeName
      * @param non-empty-string  $versionRequirement
      * @param class-string      $testClassName
      * @param ?non-empty-string $testMethodName
      */
-    private function requirement(string $versionRequirement, string $testClassName, ?string $testMethodName = null): Requirement
+    private function requirement(string $attributeName, string $versionRequirement, string $testClassName, ?string $testMethodName = null): ?Requirement
     {
         if (is_numeric(trim($versionRequirement))) {
-            EventFacade::emitter()->testRunnerTriggeredPhpunitDeprecation(
+            EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
                 sprintf(
-                    'Test %s has attribute with version constraint string argument without explicit version comparison operator ("%s")',
+                    'Attribute %s for test %s has version requirement "%s" without a version comparison operator, the version requirement is ignored (use a version comparison such as ">= 8.1.0" or a version constraint such as "^8.1")',
+                    $attributeName,
+                    $this->testAsString($testClassName, $testMethodName),
+                    $versionRequirement,
+                ),
+            );
+
+            return null;
+        }
+
+        try {
+            return Requirement::from($versionRequirement);
+        } catch (InvalidVersionRequirementException) {
+            throw new InvalidVersionRequirementException(
+                sprintf(
+                    'Attribute %s for test %s has invalid version requirement "%s": expected a version constraint (such as "^8.1", "~8.1.0", or "8.1.*") or a version comparison (such as ">= 8.1.0")',
+                    $attributeName,
                     $this->testAsString($testClassName, $testMethodName),
                     $versionRequirement,
                 ),
             );
         }
-
-        return Requirement::from($versionRequirement);
     }
 
     /**

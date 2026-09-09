@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('api_keys', function (Blueprint $table) {
+        Schema::table('api_keys', function (Blueprint $table): void {
             $table->string('msg91_template_id')->nullable()->after('msg91_sender');
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('api_keys', function (Blueprint $table) {
+        Schema::table('api_keys', function (Blueprint $table): void {
             $table->dropColumn(['msg91_template_id']);
         });
     }

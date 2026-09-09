@@ -1,0 +1,179 @@
+<?php
+
+declare(strict_types=1);
+
+namespace RectorLaravel\Rector\Class_;
+
+use PhpParser\Builder\Property as PropertyBuilder;
+use PhpParser\Node;
+use PhpParser\Node\ArrayItem;
+use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Scalar\String_;
+use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\Property;
+use PHPStan\Type\ObjectType;
+use Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory;
+use Rector\NodeManipulator\ClassInsertManipulator;
+use Rector\PhpParser\Node\Value\ValueResolver;
+use RectorLaravel\AbstractRector;
+use RectorLaravel\Tests\Rector\Class_\UnifyModelDatesWithCastsRector\UnifyModelDatesWithCastsRectorTest;
+use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
+use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
+use Webmozart\Assert\Assert;
+use Webmozart\Assert\InvalidArgumentException;
+
+/**
+ * @changelog https://github.com/laravel/framework/pull/32856
+ *
+ * @see UnifyModelDatesWithCastsRectorTest
+ */
+final class UnifyModelDatesWithCastsRector extends AbstractRector
+{
+    /**
+     * @readonly
+     */
+    private ClassInsertManipulator $classInsertManipulator;
+    /**
+     * @readonly
+     */
+    private ValueResolver $valueResolver;
+    /**
+     * @readonly
+     */
+    private PhpDocInfoFactory $phpDocInfoFactory;
+    public function __construct(ClassInsertManipulator $classInsertManipulator, ValueResolver $valueResolver, PhpDocInfoFactory $phpDocInfoFactory)
+    {
+        $this->classInsertManipulator = $classInsertManipulator;
+        $this->valueResolver = $valueResolver;
+        $this->phpDocInfoFactory = $phpDocInfoFactory;
+    }
+
+    public function getRuleDefinition(): RuleDefinition
+    {
+        return new RuleDefinition('Unify Model $dates property with $casts', [
+            new CodeSample(
+                <<<'CODE_SAMPLE'
+use Illuminate\Database\Eloquent\Model;
+
+class Person extends Model
+{
+    protected $casts = [
+        'age' => 'integer',
+    ];
+
+    protected $dates = ['birthday'];
+}
+CODE_SAMPLE
+
+                ,
+                <<<'CODE_SAMPLE'
+use Illuminate\Database\Eloquent\Model;
+
+class Person extends Model
+{
+    protected $casts = [
+        'age' => 'integer', 'birthday' => 'datetime',
+    ];
+}
+CODE_SAMPLE
+            ),
+        ]);
+    }
+
+    /**
+     * @return array<class-string<Node>>
+     */
+    public function getNodeTypes(): array
+    {
+        return [Class_::class];
+    }
+
+    /**
+     * @param  Class_  $node
+     */
+    public function refactor(Node $node): ?Node
+    {
+        if (! $this->isObjectType($node, new ObjectType('Illuminate\Database\Eloquent\Model'))) {
+            return null;
+        }
+
+        $datesProperty = $node->getProperty('dates');
+
+        if (! $datesProperty instanceof Property) {
+            return null;
+        }
+
+        $datesPropertyProperty = $datesProperty->props[0];
+        if (! $datesPropertyProperty->default instanceof Array_) {
+            return null;
+        }
+
+        /** @var mixed[] $dates */
+        $dates = $this->valueResolver->getValue($datesPropertyProperty->default);
+        if (! is_array($dates)) {
+            return null;
+        }
+
+        try {
+            Assert::allString($dates);
+        } catch (InvalidArgumentException $exception) {
+            return null;
+        }
+
+        if ($dates === []) {
+            return null;
+        }
+
+        $castsProperty = $node->getProperty('casts');
+
+        // add property $casts if not exists
+        if (! $castsProperty instanceof Property) {
+            $castsProperty = $this->createCastsProperty();
+            $this->classInsertManipulator->addAsFirstMethod($node, $castsProperty);
+        }
+
+        $castsPropertyProperty = $castsProperty->props[0];
+        if (! $castsPropertyProperty->default instanceof Array_) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $casts */
+        $casts = $this->valueResolver->getValue($castsPropertyProperty->default);
+        if (! is_array($casts)) {
+            return null;
+        }
+
+        // exclude attributes added in $casts
+        $missingDates = array_diff($dates, array_keys($casts));
+        try {
+            Assert::allString($missingDates);
+        } catch (InvalidArgumentException $exception) {
+            return null;
+        }
+
+        foreach ($missingDates as $missingDate) {
+            $castsPropertyProperty->default->items[] = new ArrayItem(
+                new String_('datetime'),
+                new String_($missingDate)
+            );
+        }
+
+        unset($node->stmts[array_search($datesProperty, $node->stmts, true)]);
+        $node->stmts = array_values($node->stmts);
+
+        return $node;
+    }
+
+    private function createCastsProperty(): Property
+    {
+        $propertyBuilder = new PropertyBuilder('casts');
+        $propertyBuilder->makeProtected();
+        $propertyBuilder->setDefault([]);
+
+        $property = $propertyBuilder->getNode();
+
+        $this->phpDocInfoFactory->createFromNode($property);
+
+        return $property;
+    }
+}

@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('product_bundles')) {
-            Schema::create('product_bundles', function (Blueprint $table) {
+            Schema::create('product_bundles', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name');
                 $table->timestamp('valid_from');
@@ -30,10 +28,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('product_bundles');
     }

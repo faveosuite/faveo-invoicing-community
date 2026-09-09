@@ -9,11 +9,13 @@
  */
 namespace PHPUnit\Util;
 
+use function array_any;
 use function array_unshift;
 use function defined;
 use function in_array;
 use function is_array;
 use function is_file;
+use function is_string;
 use function realpath;
 use function sprintf;
 use function str_starts_with;
@@ -62,16 +64,20 @@ final readonly class Filter
     }
 
     /**
-     * @param list<array{file: string, line: ?int, class?: class-string, function?: string, type: string}> $frames
+     * @param list<array{file?: string, line?: int, ...}> $frames
      */
     private static function stackTraceAsString(array $frames): string
     {
         $buffer      = '';
-        $prefix      = defined('__PHPUNIT_PHAR_ROOT__') ? __PHPUNIT_PHAR_ROOT__ : false;
+        $prefix      = false;
         $excludeList = new ExcludeList;
 
+        if (defined('__PHPUNIT_PHAR_ROOT__') && is_string(__PHPUNIT_PHAR_ROOT__)) {
+            $prefix = __PHPUNIT_PHAR_ROOT__;
+        }
+
         foreach ($frames as $frame) {
-            if (self::shouldPrintFrame($frame, $prefix, $excludeList)) {
+            if (isset($frame['file']) && self::shouldPrintFrame($frame, $prefix, $excludeList)) {
                 $buffer .= sprintf(
                     "%s:%s\n",
                     $frame['file'],
@@ -84,19 +90,21 @@ final readonly class Filter
     }
 
     /**
-     * @param array{file?: non-empty-string} $frame
+     * @param array{file?: string, ...<mixed>} $frame
      */
     private static function shouldPrintFrame(array $frame, false|string $prefix, ExcludeList $excludeList): bool
     {
         if (!isset($frame['file'])) {
+            // @codeCoverageIgnoreStart
             return false;
+            // @codeCoverageIgnoreEnd
         }
 
         $file              = $frame['file'];
         $fileIsNotPrefixed = $prefix === false || !str_starts_with($file, $prefix);
 
         // @see https://github.com/sebastianbergmann/phpunit/issues/4033
-        if (isset($GLOBALS['_SERVER']['SCRIPT_NAME'])) {
+        if (isset($GLOBALS['_SERVER']) && is_array($GLOBALS['_SERVER']) && isset($GLOBALS['_SERVER']['SCRIPT_NAME']) && is_string($GLOBALS['_SERVER']['SCRIPT_NAME'])) {
             $script = realpath($GLOBALS['_SERVER']['SCRIPT_NAME']);
         } else {
             // @codeCoverageIgnoreStart
@@ -120,16 +128,13 @@ final readonly class Filter
     }
 
     /**
-     * @param list<array{file?: non-empty-string, line?: int}> $trace
+     * @param list<array{file?: string, line?: int, ...}> $trace
      */
     private static function frameExists(array $trace, string $file, int $line): bool
     {
-        foreach ($trace as $frame) {
-            if (isset($frame['file'], $frame['line']) && $frame['file'] === $file && $frame['line'] === $line) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any(
+            $trace,
+            static fn (array $frame) => isset($frame['file'], $frame['line']) && $frame['file'] === $file && $frame['line'] === $line,
+        );
     }
 }

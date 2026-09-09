@@ -15,15 +15,15 @@
 
     <div class="card">
         <div class="card-body pb-0">
-            <p class="text-center lead text-bold">{{ __('installer_messages.database_setup') }}</p>
+            <p class="text-center lead fw-bold">{{ __('installer_messages.database_setup') }}</p>
             <form id="databaseform">
                 @csrf
                 <div id="db_fields">
                     {{-- Host --}}
-                    <div class="form-group row">
+                    <div class="row mb-3">
                         <label for="host" class="col-sm-2 col-form-label">
                             {{ __('installer_messages.host') }} <span style="color: red;">*</span>
-                            <i class="fas fa-question-circle text-primary" data-toggle="tooltip" data-placement="top" title="{{ __('installer_messages.host_tooltip') }}"></i>
+                            <i class="fas fa-question-circle text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('installer_messages.host_tooltip') }}"></i>
                         </label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="host" placeholder="{{ __('installer_messages.host') }}" value="localhost">
@@ -31,10 +31,10 @@
                     </div>
 
                     {{-- MySQL Port --}}
-                    <div class="form-group row">
+                    <div class="row mb-3">
                         <label for="mysql_port" class="col-sm-2 col-form-label">
                             {{ __('installer_messages.mysql_port_label') }}
-                            <i class="fas fa-question-circle text-primary" data-toggle="tooltip" data-placement="top" title="{{ __('installer_messages.mysql_port_tooltip') }}"></i>
+                            <i class="fas fa-question-circle text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('installer_messages.mysql_port_tooltip') }}"></i>
                         </label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="mysql_port" placeholder="{{ __('installer_messages.port_number') }}">
@@ -42,7 +42,7 @@
                     </div>
 
                     {{-- Database Name --}}
-                    <div class="form-group row">
+                    <div class="row mb-3">
                         <label for="database_name" class="col-sm-2 col-form-label">
                             {{ __('installer_messages.database_name_label') }} <span style="color: red;">*</span>
                         </label>
@@ -52,7 +52,7 @@
                     </div>
 
                     {{-- Username --}}
-                    <div class="form-group row">
+                    <div class="row mb-3">
                         <label for="username" class="col-sm-2 col-form-label">
                             {{ __('installer_messages.username') }} <span style="color: red;">*</span>
                         </label>
@@ -62,16 +62,14 @@
                     </div>
 
                     {{-- Password --}}
-                    <div class="form-group row">
+                    <div class="row mb-3">
                         <label for="admin_password" class="col-sm-2 col-form-label">
                             {{ __('installer_messages.password') }}
                         </label>
                         <div class="col-sm-10">
                             <div class="input-group">
                                 <input type="password" class="form-control" id="admin_password" placeholder="{{ __('installer_messages.password') }}">
-                                <div class="input-group-append">
-                                    <span class="input-group-text toggle-password cursor-pointer"><i class="fas fa-eye-slash"></i></span>
-                                </div>
+                                <span class="input-group-text toggle-password cursor-pointer"><i class="fas fa-eye-slash"></i></span>
                             </div>
                         </div>
                     </div>
@@ -80,23 +78,21 @@
         </div>
 
         <div class="card-footer">
-            <a class="btn btn-primary" id="previous" href="{{ url('probe.php')  }}">
+            <a class="btn btn-primary" id="previous" href="{{ url('probe.php') }}">
                 <i class="fas {{ in_array(app()->getLocale(), ['ar', 'he']) ? 'fa-arrow-left' : 'fa-arrow-right' }} previous"></i>&nbsp;
                 {{ __('installer_messages.previous') }}
             </a>
 
-            <button class="btn btn-primary float-right" type="submit" id="validate">
+            <button class="btn btn-primary float-end" type="submit" id="validate">
                 {{ __('installer_messages.continue') }} &nbsp;
                 <i class="fas fa-arrow-right continue"></i>
             </button>
         </div>
     </div>
 
-    <script src="{{ asset('admin/js/jquery.min.js') }}"></script>
-
-    <script type="text/javascript">
-        $(document).ready(function(){
-            $('[data-toggle="tooltip"]').tooltip();
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
         });
 
         document.getElementById('validate').addEventListener('click', function(event) {
@@ -153,33 +149,30 @@
                 password: fields.password.value
             };
 
-            const url = '{{ route("posting") }}';
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: data,
-                success: function(response) {
-                    console.log('Success:', response);
-                    window.location.href = '{{ url("/post-check") }}';
-                },
-                error: function(error) {
-                    console.error('Error:', error);
-                    alert('An error occurred while submitting the form.');
+            // Controller always redirects — submit the form directly
+            const form = document.getElementById('databaseform');
+            form.action = '{{ route("posting") }}';
+            form.method = 'POST';
+            // Inject collected data into the form
+            Object.entries(data).forEach(([key, value]) => {
+                let input = form.querySelector(`[name="${key}"]`);
+                if (!input) {
+                    input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    form.appendChild(input);
                 }
+                input.value = value;
             });
+            form.submit();
         }
 
-        $('.toggle-password').click(function() {
-            const input = $('#admin_password');
-            const icon = $(this).find('i');
-
-            if (input.attr('type') === 'password') {
-                input.attr('type', 'text');
-                icon.removeClass('fa-eye-slash').addClass('fa-eye');
-            } else {
-                input.attr('type', 'password');
-                icon.removeClass('fa-eye').addClass('fa-eye-slash');
-            }
+        document.querySelector('.toggle-password').addEventListener('click', function () {
+            const input = document.getElementById('admin_password');
+            const icon = this.querySelector('i');
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            icon.className = isPassword ? 'fas fa-eye' : 'fas fa-eye-slash';
         });
     </script>
 @stop

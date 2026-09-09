@@ -8,21 +8,22 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('api_keys', function (Blueprint $table) {
+        Schema::table('api_keys', function (Blueprint $table): void {
             if (! Schema::hasColumn('api_keys', 'twitter_consumer_key')) {
                 $table->string('twitter_consumer_key', 255)->nullable();
             }
+
             if (! Schema::hasColumn('api_keys', 'twitter_consumer_secret')) {
                 $table->string('twitter_consumer_secret', 255)->nullable();
             }
+
             if (! Schema::hasColumn('api_keys', 'twitter_access_token')) {
                 $table->string('twitter_access_token', 255)->nullable();
             }
+
             if (! Schema::hasColumn('api_keys', 'twitter_access_token')) {
                 $table->string('access_tooken_secret', 255)->nullable();
             }
@@ -31,12 +32,10 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('api_keys', function (Blueprint $table) {
+        Schema::table('api_keys', function (Blueprint $table): void {
             $table->dropColumn('twitter_consumer_key');
             $table->dropColumn('twitter_consumer_secret');
             $table->dropColumn('twitter_access_token');

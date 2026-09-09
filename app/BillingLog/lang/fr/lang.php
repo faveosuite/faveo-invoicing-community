@@ -29,7 +29,6 @@ return [
     'inspire' => 'Afficher une citation inspirante',
     'renewal:cron' => 'Cron de renouvellement automatique',
     'mail-send-exception' => 'Exception d\'envoi de courrier',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => 'Notification de renouvellement expirée',
     'renewal:notification' => 'Notification de renouvellement automatique',
     'cleanup:msg-reports' => 'Nettoyage des rapports MSG91',
@@ -40,11 +39,8 @@ return [
     'droptables' => 'Supprimer toutes les tables',
     'install:db' => 'Installer la base de données',
     'testing-setup' => 'Configurer l\'environnement de test',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'Envoi en file d\'attente réussi',
-    // Added missing UI texts
     'cancel' => 'Annuler',
-    // Added missing messages from blade file
     'system_logs' => 'Journaux système',
     'filter_logs' => 'Filtrer les journaux',
     'logs' => 'Journaux',
@@ -101,4 +97,5 @@ return [
     'confirm_old_email' => 'Confirmer l’ancien e-mail',
     'confirm_mobile_number_change' => 'Confirmer le changement de numéro mobile',
     'logs:delete' => 'Supprimer les journaux système',
+    'date' => 'Dates',
 ];

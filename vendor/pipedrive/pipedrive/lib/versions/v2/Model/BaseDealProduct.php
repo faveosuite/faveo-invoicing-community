@@ -2,7 +2,7 @@
 /**
  * BaseDealProduct
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -80,13 +80,13 @@ class BaseDealProduct implements ModelInterface, ArrayAccess, JsonSerializable
         'currency' => 'string',
         'discount' => 'float',
         'discount_type' => 'string',
-        'quantity' => 'int',
+        'quantity' => 'float',
         'item_price' => 'float',
         'tax_method' => 'string',
         'is_enabled' => 'bool',
         'billing_frequency' => '\Pipedrive\versions\v2\Model\BillingFrequency',
         'billing_frequency_cycles' => 'int',
-        'billing_start_date' => 'string'
+        'billing_start_date' => '\DateTime'
     ];
 
     /**
@@ -117,7 +117,7 @@ class BaseDealProduct implements ModelInterface, ArrayAccess, JsonSerializable
         'is_enabled' => null,
         'billing_frequency' => null,
         'billing_frequency_cycles' => null,
-        'billing_start_date' => 'YYYY-MM-DD'
+        'billing_start_date' => 'date'
     ];
 
     /**
@@ -333,7 +333,7 @@ class BaseDealProduct implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['id'] = $data['id'] ?? null;
         $this->container['sum'] = $data['sum'] ?? null;
@@ -751,7 +751,7 @@ class BaseDealProduct implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets quantity
      *
-     * @return int|null
+     * @return float|null
      */
     public function getQuantity()
     {
@@ -761,7 +761,7 @@ class BaseDealProduct implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets quantity
      *
-     * @param int|null $quantity The quantity of the product
+     * @param float|null $quantity The quantity of the product
      *
      * @return self
      */
@@ -905,7 +905,7 @@ class BaseDealProduct implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets billing_start_date
      *
-     * @return string|null
+     * @return \DateTime|null
      */
     public function getBillingStartDate()
     {
@@ -915,7 +915,7 @@ class BaseDealProduct implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets billing_start_date
      *
-     * @param string|null $billing_start_date Only available in Growth and above plans  The billing start date. Must be between 10 years in the past and 10 years in the future
+     * @param \DateTime|null $billing_start_date Only available in Growth and above plans  The billing start date. Must be between 10 years in the past and 10 years in the future
      *
      * @return self
      */

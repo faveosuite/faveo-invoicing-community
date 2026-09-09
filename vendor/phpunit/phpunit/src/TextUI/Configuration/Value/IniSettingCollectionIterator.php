@@ -9,7 +9,7 @@
  */
 namespace PHPUnit\TextUI\Configuration;
 
-use function count;
+use function assert;
 use Iterator;
 
 /**
@@ -41,7 +41,7 @@ final class IniSettingCollectionIterator implements Iterator
 
     public function valid(): bool
     {
-        return $this->position < count($this->iniSettings);
+        return isset($this->iniSettings[$this->position]);
     }
 
     /**
@@ -54,6 +54,8 @@ final class IniSettingCollectionIterator implements Iterator
 
     public function current(): IniSetting
     {
+        assert(isset($this->iniSettings[$this->position]));
+
         return $this->iniSettings[$this->position];
     }
 

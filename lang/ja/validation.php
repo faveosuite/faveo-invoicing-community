@@ -24,6 +24,7 @@ return [
     'date' => ':attributeが有効な日付ではありません。',
     'date_equals' => ':attributeには、:dateと同じ日付を指定してください。',
     'date_format' => ':attributeは、:formatの形式と一致しません。',
+    'decimal' => ':attribute フィールドには小数点以下 :decimal 桁が必要です。',
     'declined' => ':attributeは拒否されなければなりません。',
     'declined_if' => ':otherが:valueの場合、:attributeは拒否されなければなりません。',
     'different' => ':attributeと:otherは異なっていなければなりません。',
@@ -32,7 +33,7 @@ return [
     'dimensions' => ':attributeの画像の寸法が無効です。',
     'distinct' => ':attributeのフィールドに重複した値があります。',
     'doesnt_start_with' => ':attributeは以下のいずれかで始めることはできません: :values。',
-    'email' => ':attributeは有効なメールアドレスでなければなりません。',
+    'email' => ':attribute は有効な電子メール アドレスである必要があります。',
     'ends_with' => ':attributeは以下のいずれかで終わらなければなりません: :values。',
     'enum' => '選択された:attributeは無効です。',
     'exists' => '選択された:attributeは無効です。',
@@ -90,11 +91,11 @@ return [
     'not_regex' => ':attributeの形式が無効です。',
     'numeric' => ':attributeは数値でなければなりません。',
     'password' => [
-        'letters' => ':attributeには少なくとも1つの文字を含める必要があります。',
-        'mixed' => ':attributeには少なくとも1つの大文字と1つの小文字を含める必要があります。',
-        'numbers' => ':attributeには少なくとも1つの数字を含める必要があります。',
-        'symbols' => ':attributeには少なくとも1つの記号を含める必要があります。',
-        'uncompromised' => '入力された:attributeはデータ漏洩で確認されています。別の:attributeを選んでください。',
+        'letters' => ':attribute には少なくとも 1 つの文字が含まれている必要があります。',
+        'mixed' => ':attribute には、少なくとも 1 つの大文字と 1 つの小文字が含まれている必要があります。',
+        'numbers' => '__​​PH_0__ には少なくとも 1 つの数字が含まれている必要があります。',
+        'symbols' => ':attribute には少なくとも 1 つのシンボルが含まれている必要があります。',
+        'uncompromised' => '指定された :attribute がデータ漏洩に発生しました。別の:attributeを選択してください。',
     ],
     'present' => ':attributeフィールドが存在している必要があります。',
     'prohibited' => ':attributeフィールドは禁止されています。',
@@ -124,18 +125,27 @@ return [
     'uploaded' => ':attributeのアップロードに失敗しました。',
     'url' => ':attributeは有効なURLでなければなりません。',
     'uuid' => ':attributeは有効なUUIDでなければなりません。',
+    'custom_dup' => [
+        'attribute-name' => [
+            'rule-name' => 'カスタムメッセージ',
+        ],
+    ],
     'attributes' => [],
     'publish_date_required' => '公開日が必須です。',
     'price_numeric_value' => '価格は数値でなければなりません。',
     'quantity_integer_value' => '数量は整数でなければなりません。',
     'order_has_Expired' => '注文の有効期限が切れました。',
     'expired' => '期限切れ',
-
-    /*
-    Request file custom validation messages
-    */
-
-    // Common
+    'eid_required' => 'EID フィールドは必須です。',
+    'eid_string' => 'EID は文字列である必要があります。',
+    'otp_required' => 'OTP フィールドは必須です。',
+    'amt_required' => '金額フィールドは必須です',
+    'amt_numeric' => '金額は数値でなければなりません',
+    'payment_date_required' => '支払日は必須です。',
+    'payment_method_required' => '支払い方法は必須です。',
+    'total_amount_required' => '合計金額が必要です。',
+    'total_amount_numeric' => '合計金額は数値でなければなりません。',
+    'invoice_link_required' => '金額を少なくとも 1 つの請求書にリンクしてください。',
     'settings_form' => [
         'company' => [
             'required' => '会社名の入力は必須です。',
@@ -170,7 +180,6 @@ return [
             'email' => 'エラーメールは有効なメールアドレスでなければなりません。',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => '会社名の入力は必須です。',
@@ -201,7 +210,7 @@ return [
             'required' => '国名の入力は必須です。',
         ],
         'gstin' => [
-            'max' => 'GSTINは15文字以内で入力してください。',
+            'regex' => 'GSTIN 形式が無効です。',
         ],
         'default_currency' => [
             'required' => 'デフォルト通貨の入力は必須です。',
@@ -219,7 +228,10 @@ return [
             'max' => 'ロゴは2MB以下である必要があります。',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'OG 画像は、jpeg、png、jpg、webp の形式のファイルである必要があります。',
+        'max' => 'OG イメージは 2MB を超えることはできません。',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => '名前の入力は必須です。',
@@ -231,9 +243,13 @@ return [
             'url' => 'リンクは有効なURLである必要があります。',
             'regex' => 'リンクの形式が無効です。',
         ],
+        'class' => [
+            'required' => 'アイコン クラス フィールドは必須です。',
+        ],
+        'fa_class' => [
+            'required' => 'アイコン クラス フィールドは必須です。',
+        ],
     ],
-
-    // Email
     'custom' => [
         'password' => [
             'required_if' => '選択したメールドライバにはパスワードの入力が必要です。',
@@ -253,23 +269,22 @@ return [
         'domain' => [
             'required_if' => 'Mailgunを使用する場合、ドメインの入力が必要です。',
         ],
+        'key' => [
+            'required_if' => 'SES にはキー フィールドが必要です。',
+        ],
+        'region' => [
+            'required_if' => 'SES には地域フィールドが必要です。',
+        ],
+        'email' => [
+            'required_if' => '選択したメールドライバーには電子メールフィールドが必須です。',
+            'required' => '電子メールフィールドは必須です。',
+            'email' => '有効な電子メール アドレスを入力してください。',
+            'not_matching' => '電子メール ドメインは、現在のサイト ドメインと一致する必要があります。',
+        ],
+        'driver' => [
+            'required' => 'ドライバーフィールドは必須です。',
+        ],
     ],
-    'key' => [
-        'required_if' => 'SESにはキーの入力が必要です。',
-    ],
-    'region' => [
-        'required_if' => 'SESにはリージョンの入力が必要です。',
-    ],
-    'email' => [
-        'required_if' => '選択されたメールドライバにはメールアドレスの入力が必要です。',
-        'required' => 'メールアドレスの入力は必須です。',
-        'email' => '有効なメールアドレスを入力してください。',
-        'not_matching' => 'メールのドメインは現在のサイトのドメインと一致している必要があります。',
-    ],
-    'driver' => [
-        'required' => 'ドライバの入力は必須です。',
-    ],
-
     'customer_form' => [
         'first_name' => [
             'required' => '名の入力は必須です。',
@@ -297,7 +312,6 @@ return [
             'unique' => 'このメールアドレスは既に使用されています。',
         ],
     ],
-
     'contact_request' => [
         'conName' => '名前の入力は必須です。',
         'email' => 'メールアドレスの入力は必須です。',
@@ -310,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => 'ロボット検証に失敗しました。もう一度お試しください。',
         'demo-recaptcha-response-1.required' => 'ロボット検証に失敗しました。もう一度お試しください。',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => '名前の入力は必須です。',
@@ -323,6 +336,7 @@ return [
         ],
         'slug' => [
             'required' => 'スラッグの入力は必須です。',
+            'unique' => 'このナメクジはすでに存在します。',
         ],
         'url' => [
             'required' => 'URLの入力は必須です。',
@@ -335,9 +349,12 @@ return [
         'created_at' => [
             'required' => '作成日時の入力は必須です。',
         ],
+        'parent_page_id' => [
+            'exists' => '選択した親ページが存在しません。',
+            'self' => 'ページはそれ自身の親になることはできません。',
+            'nested' => '選択したページはすでにサブページであるため、親ページとして使用できません。',
+        ],
     ],
-
-    // Order form
     'order_form' => [
         'client' => [
             'required' => 'クライアントの入力は必須です。',
@@ -364,7 +381,6 @@ return [
             'integer' => '数量は整数でなければなりません。',
         ],
     ],
-    //Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'クーポンコードの入力は必須です。',
@@ -397,9 +413,9 @@ return [
             'required' => '割引額の入力は必須です。',
             'numeric' => '割引額は数値でなければなりません。',
             'between' => 'タイプがパーセンテージの場合、割引額は:minから:maxの間でなければなりません。',
+            'max' => '割引値は、適用される製品の価格 (:max) を超えることはできません。',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => '名前の入力は必須です。',
@@ -407,6 +423,12 @@ return [
         'rate' => [
             'required' => '税率の入力は必須です。',
             'numeric' => '税率は数値でなければなりません。',
+            'decimal' => 'レートは小数点以下 3 桁まででなければなりません。',
+            'max' => 'レートは 999.999 を超えてはなりません。',
+        ],
+        'priority' => [
+            'required' => '優先度フィールドは必須です。',
+            'min' => '優先順位は少なくとも 1 である必要があります。',
         ],
         'level' => [
             'required' => 'レベルの入力は必須です。',
@@ -419,8 +441,6 @@ return [
             'required' => '都道府県の入力は必須です。',
         ],
     ],
-
-    //Product
     'subscription_form' => [
         'name' => [
             'required' => '名前の入力は必須です。',
@@ -440,7 +460,6 @@ return [
             'required' => '製品の入力は必須です。',
         ],
     ],
-
     'bundle' => [
         'name' => [
             'required' => '名前の入力は必須です。',
@@ -449,10 +468,13 @@ return [
             'required' => 'すべてのアイテムの入力は必須です。',
         ],
     ],
-
     'group' => [
         'name' => [
             'required' => '名前の入力は必須です。',
+            'unique' => 'この名前はすでに存在します。',
+        ],
+        'pricing_templates_id' => [
+            'required' => 'デザインテンプレートが必要です。',
         ],
         'features' => [
             'name' => [
@@ -476,13 +498,15 @@ return [
             'required_with' => 'タイトルの入力は必須です。',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => '名前の入力は必須です。',
         ],
         'type' => [
             'required' => 'タイプの入力は必須です。',
+        ],
+        'product_type' => [
+            'required' => '製品カテゴリフィールドは必須です。',
         ],
         'group' => [
             'required' => 'グループの入力は必須です。',
@@ -502,14 +526,18 @@ return [
             'mimes' => '画像はPNG形式でなければなりません。',
         ],
         'github_owner' => [
+            'required' => 'GitHub 所有者フィールドは必須です。',
             'required_without_all' => 'ファイルまたは画像が提供されていない場合、GitHubのオーナー情報の入力は必須です。',
         ],
         'github_repository' => [
+            'required' => 'GitHub リポジトリ フィールドは必須です。',
             'required_without_all' => 'ファイルまたは画像が提供されていない場合、GitHubリポジトリの入力は必須です。',
             'required_if' => 'タイプが2の場合、GitHubリポジトリの入力は必須です。',
         ],
+        'shoping_cart_link' => [
+            'required' => 'ショッピングカートリンクフィールドは必須です。',
+        ],
     ],
-    //User
     'users' => [
         'first_name' => [
             'required' => '名は必須項目です。',
@@ -548,8 +576,10 @@ return [
         'zip' => [
             'regex' => '国がインドの場合、都道府県は必須項目です。',
         ],
+        'gstin' => [
+            'regex' => 'GSTIN 形式が無効です。',
+        ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => '名は必須項目です。',
@@ -592,6 +622,9 @@ return [
         'state' => [
             'required_if' => '国がインドの場合、都道府県は必須項目です。',
         ],
+        'gstin' => [
+            'regex' => 'GSTIN 形式が無効です。',
+        ],
         'old_password' => [
             'required' => '現在のパスワードは必須項目です。',
             'min' => '現在のパスワードは:min文字以上である必要があります。',
@@ -607,19 +640,17 @@ return [
         'terms' => [
             'required' => '利用規約に同意する必要があります。',
         ],
+        'password' => [
+            'required' => 'パスワードが必要です。',
+        ],
+        'password_confirmation' => [
+            'required' => 'パスワードの確認が必要です。',
+            'same' => 'パスワードが一致しません。',
+        ],
+        'mobile_code' => [
+            'required' => '国コードを入力します（モバイル）',
+        ],
     ],
-    'password' => [
-        'required' => 'パスワードは必須項目です。',
-    ],
-    'password_confirmation' => [
-        'required' => 'パスワードの確認は必須項目です。',
-        'same' => 'パスワードが一致しません。',
-    ],
-    'mobile_code' => [
-        'required' => '国コード（携帯）を入力してください。',
-    ],
-
-    //Invoice form
     'invoice' => [
         'user' => [
             'required' => '顧客フィールドは必須です。',
@@ -629,7 +660,12 @@ return [
             'date' => '日付は有効な形式である必要があります。',
         ],
         'domain' => [
+            'required' => 'ドメインフィールドは必須です。',
             'regex' => 'ドメインの形式が無効です。',
+        ],
+        'cloud_domain' => [
+            'required' => 'クラウド ドメイン フィールドは必須です。',
+            'regex' => '使用できるのは文字、数字、ハイフンのみです。',
         ],
         'plan' => [
             'required_if' => 'サブスクリプションフィールドは必須です。',
@@ -641,89 +677,86 @@ return [
             'required' => '製品フィールドは必須です。',
         ],
     ],
-
-    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'ドメインフィールドは必須です。',
             'url' => 'ドメインは有効なURLである必要があります。',
         ],
     ],
-
-    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'ドメインフィールドは必須です。',
             'no_http' => 'ドメインには"http"または"https"を含めないでください。',
         ],
     ],
-
-    //Language form
     'language' => [
         'required' => '言語フィールドは必須です。',
         'invalid' => '選択された言語が無効です。',
     ],
-
-    //UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'ストレージディスクフィールドは必須です。',
             'string' => 'ディスクは文字列である必要があります。',
         ],
         'path' => [
+            'required' => 'ストレージパスフィールドは必須です。',
             'string' => 'パスは文字列である必要があります。',
             'nullable' => 'パスフィールドは省略可能です。',
+            'invalid' => 'パスが存在しないか、書き込み可能ではありません。',
         ],
     ],
-
-    //ValidateSecretRequest form
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => 'ノードパスフィールドは必須です。',
+            'string' => 'ノード パスは有効な文字列である必要があります。',
+        ],
+        'npm_path' => [
+            'required' => 'npm パスフィールドは必須です。',
+            'string' => 'npm パスは有効な文字列である必要があります。',
+        ],
+        'chrome_path' => [
+            'required' => 'クロム パス フィールドは必須です。',
+            'string' => 'クロム パスは有効な文字列である必要があります。',
+            'invalid' => 'クロム パスが存在しないか、実行可能ではありません。',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => 'コードを入力してください。',
             'digits' => '6桁の有効なコードを入力してください。',
         ],
     ],
-
-    //VerifyOtp form
     'verify_email' => [
         'required' => 'メールアドレスは必須項目です。',
         'email' => '有効なメールアドレスを入力してください。',
         'verify_email' => 'メールアドレスの認証に失敗しました。',
     ],
-
     'verify_country_code' => [
         'required' => '国コードは必須項目です。',
         'numeric' => '国コードは有効な数値である必要があります。',
         'verify_country_code' => '国コードの認証に失敗しました。',
     ],
-
     'verify_number' => [
         'required' => '番号は必須項目です。',
         'numeric' => '番号は有効な数値である必要があります。',
         'verify_number' => '番号の認証に失敗しました。',
     ],
-
     'password_otp' => [
         'required' => 'パスワードフィールドは必須です。',
         'password' => 'パスワードが正しくありません。',
         'invalid' => '無効なパスワードです。',
     ],
-
-    //AuthControllerファイル
     'auth_controller' => [
         'name_required' => '名前は必須です。',
         'name_max' => '名前は255文字を超えることはできません。',
-
         'email_required' => 'メールアドレスは必須です。',
         'email_email' => '有効なメールアドレスを入力してください。',
         'email_max' => 'メールアドレスは255文字を超えることはできません。',
         'email_unique' => 'このメールアドレスは既に登録されています。',
-
         'password_required' => 'パスワードは必須です。',
         'password_confirmed' => 'パスワードの確認が一致しません。',
         'password_min' => 'パスワードは最低6文字でなければなりません。',
     ],
-
     'resend_otp' => [
         'eid_required' => 'EIDフィールドは必須です。',
         'eid_string' => 'EIDは文字列である必要があります。',
@@ -731,7 +764,6 @@ return [
         'type_string' => 'タイプは文字列である必要があります。',
         'type_in' => '選択されたタイプは無効です。',
     ],
-
     'verify_otp' => [
         'eid_required' => '従業員IDは必須です。',
         'eid_string' => '従業員IDは文字列である必要があります。',
@@ -740,31 +772,26 @@ return [
         'recaptcha_required' => 'CAPTCHAを完了してください。',
         'recaptcha_size' => 'CAPTCHAの応答が無効です。',
     ],
-
     'company_validation' => [
         'company_required' => '会社名は必須です。',
         'company_string' => '会社名はテキストである必要があります。',
         'address_required' => '住所は必須です。',
         'address_string' => '住所はテキストである必要があります。',
     ],
-
     'token_validation' => [
         'token_required' => 'トークンは必須です。',
         'password_required' => 'パスワードフィールドは必須です。',
         'password_confirmed' => 'パスワードの確認が一致しません。',
     ],
-
     'custom_email' => [
         'required' => 'メールアドレスは必須です。',
         'email' => '有効なメールアドレスを入力してください。',
         'exists' => 'このメールアドレスは私たちに登録されていません。',
     ],
-
     'newsletterEmail' => [
         'required' => 'ニュースレターのメールアドレスは必須です。',
         'email' => 'ニュースレター用の有効なメールアドレスを入力してください。',
     ],
-
     'widget' => [
         'name_required' => '名前は必須です。',
         'name_max' => '名前は50文字を超えることはできません。',
@@ -772,40 +799,39 @@ return [
         'type_required' => 'タイプは必須です。',
         'type_unique' => 'このタイプは既に存在します。',
     ],
-
     'payment' => [
         'payment_date_required' => '支払い日付は必須です。',
         'payment_method_required' => '支払い方法は必須です。',
         'amount_required' => '金額は必須です。',
     ],
-
     'custom_date' => [
         'date_required' => '日付フィールドは必須です。',
         'total_required' => '合計フィールドは必須です。',
         'status_required' => 'ステータスフィールドは必須です。',
     ],
-
     'plan_renewal' => [
         'plan_required' => 'プランフィールドは必須です。',
         'payment_method_required' => '支払い方法フィールドは必須です。',
         'cost_required' => 'コストフィールドは必須です。',
         'code_not_valid' => 'プロモーションコードは無効です。',
     ],
-
     'rate' => [
         'required' => 'レートは必須です。',
         'numeric' => 'レートは数値でなければなりません。',
     ],
-
     'product_validate' => [
         'producttitle_required' => '製品タイトルは必須です。',
         'version_required' => 'バージョンは必須です。',
         'filename_required' => 'ファイルをアップロードしてください。',
         'dependencies_required' => '依存関係フィールドは必須です。',
+        'description_required' => '説明は必須です。',
+        'release_type_required' => 'リリースタイプは必須です。',
     ],
     'product_sku_unique' => '製品SKUは一意である必要があります。',
     'product_name_unique' => '名前は一意である必要があります。',
     'product_show_agent_required' => 'カートページの設定を選択してください。',
+    'config_file_path_regex' => '../ セグメントのない相対パスである必要があります。',
+    'license_file_path_regex' => '../ セグメントのない相対パスである必要があります。',
     'product_controller' => [
         'name_required' => '製品名は必須です。',
         'name_unique' => '名前は一意である必要があります。',
@@ -813,6 +839,7 @@ return [
         'type_required' => '製品タイプは必須です。',
         'description_required' => '製品の説明は必須です。',
         'product_description_required' => '詳細な製品説明は必須です。',
+        'short_description_required' => '短い説明が必要です。',
         'image_mimes' => '画像はjpeg、png、jpgの形式でなければなりません。',
         'image_max' => '画像は2048キロバイトを超えてはいけません。',
         'product_sku_required' => '製品SKUは必須です。',
@@ -830,7 +857,9 @@ return [
         'cloud_label_field_required' => 'クラウドラベルフィールドは必須です。',
         'cloud_label_radio_required' => 'クラウドラベルラジオボタンは必須です。',
         'cloud_product_required' => 'クラウド製品は必須です。',
+        'cloud_product_unique' => '本製品はすでにクラウド構成となっております。',
         'cloud_free_plan_required' => 'クラウドの無料プランは必須です。',
+        'cloud_free_plan_invalid' => '選択したプランは選択した製品に属しません。',
         'cloud_product_key_required' => 'クラウド製品キーは必須です。',
     ],
     'reg_till_after' => '登録終了日付は、登録開始日付より後でなければなりません。',
@@ -859,6 +888,8 @@ return [
         'no_agent_req' => '製品数量が存在しない場合、エージェント数フィールドは必須です。',
         'pro_req' => '製品フィールドは必須です',
         'offer_price' => 'オファー価格は100を超えてはなりません',
+        'currency_duplicate' => '各通貨は 1 回のみ使用できます。',
+        'non_negative' => 'この値を負にすることはできません。',
     ],
     'razorpay_val' => [
         'business_required' => 'ビジネスフィールドは必須です。',
@@ -873,4 +904,36 @@ return [
     'login_failed' => 'ログインに失敗しました。入力したメールアドレス/ユーザー名とパスワードが正しいか確認してください。',
     'forgot_email_validation' => '入力したメールアドレスが登録されている場合、パスワードをリセットする手順が記載されたメールをすぐに受け取ることができます。',
     'too_many_login_attempts' => 'ログイン試行が多すぎたため、アプリケーションからロックアウトされました。:time後に再試行してください。',
+    'phone_number' => '有効な携帯電話番号を入力してください。',
+    'mobile_number' => ':attribute は有効な携帯電話番号である必要があります。',
+    'license' => [
+        'product' => [
+            'required' => '製品フィールドは必須です。',
+        ],
+        'client' => [
+            'required' => 'クライアントフィールドは必須です。',
+        ],
+        'license_code' => [
+            'required' => 'ライセンス コード フィールドは必須です。',
+        ],
+        'license_expire_date' => [
+            'required' => 'ライセンスの有効期限フィールドは必須です。',
+        ],
+        'license_updates_date' => [
+            'required' => '更新の有効期限フィールドは必須です。',
+        ],
+        'license_support_date' => [
+            'required' => 'サポート有効期限フィールドは必須です。',
+        ],
+        'banned_host_ip' => [
+            'required' => '禁止されたホスト IP フィールドは必須です。',
+            'invalid' => '有効な IP アドレスを入力してください。',
+        ],
+        'installation_ip' => [
+            'required' => 'インストール IP フィールドは必須です。',
+        ],
+        'notification_field' => [
+            'required' => 'この通知フィールドは必須です。',
+        ],
+    ],
 ];

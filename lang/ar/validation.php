@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'accepted' => 'يجب قبول :attribute.',
     'accepted_if' => 'يجب قبول :attribute عندما يكون :other هو :value.',
     'active_url' => 'الـ :attribute ليس عنوان URL صالح.',
@@ -25,6 +24,7 @@ return [
     'date' => 'الـ :attribute ليس تاريخًا صالحًا.',
     'date_equals' => 'يجب أن يكون :attribute تاريخًا يساوي :date.',
     'date_format' => 'الـ :attribute لا يتطابق مع التنسيق :format.',
+    'decimal' => 'يجب أن يحتوي الحقل :attribute على :decimal منازل عشرية.',
     'declined' => 'يجب رفض :attribute.',
     'declined_if' => 'يجب رفض :attribute عندما يكون :other هو :value.',
     'different' => 'يجب أن يكون :attribute و :other مختلفين.',
@@ -125,7 +125,12 @@ return [
     'uploaded' => 'فشل تحميل :attribute.',
     'url' => 'يجب أن يكون :attribute عنوان URL صالح.',
     'uuid' => 'يجب أن يكون :attribute UUID صالح.',
-
+    'custom_dup' => [
+        'attribute-name' => [
+            'rule-name' => 'رسالة مخصصة',
+        ],
+    ],
+    'attributes' => [],
     'publish_date_required' => 'تاريخ النشر مطلوب',
     'price_numeric_value' => 'يجب أن يكون السعر قيمة رقمية',
     'quantity_integer_value' => 'يجب أن تكون الكمية قيمة عددية صحيحة',
@@ -136,11 +141,11 @@ return [
     'otp_required' => 'حقل رمز التحقق مطلوب.',
     'amt_required' => 'حقل المبلغ مطلوب.',
     'amt_numeric' => 'يجب أن يكون المبلغ رقمًا.',
-
-    /*
-     Request file custom validation message
-     */
-    //Common
+    'payment_date_required' => 'مطلوب تاريخ الدفع.',
+    'payment_method_required' => 'مطلوب طريقة الدفع.',
+    'total_amount_required' => 'المبلغ الإجمالي مطلوب.',
+    'total_amount_numeric' => 'يجب أن يكون المبلغ الإجمالي قيمة رقمية.',
+    'invoice_link_required' => 'يرجى ربط المبلغ بفاتورة واحدة على الأقل.',
     'settings_form' => [
         'company' => [
             'required' => 'حقل الشركة مطلوب.',
@@ -175,7 +180,6 @@ return [
             'email' => 'يجب أن يكون البريد الإلكتروني للخطأ صالحًا.',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => 'اسم الشركة مطلوب.',
@@ -206,7 +210,7 @@ return [
             'required' => 'الدولة مطلوبة.',
         ],
         'gstin' => [
-            'max' => 'يجب ألا يتجاوز رقم GSTIN عدد 15 حرفًا.',
+            'regex' => 'تنسيق GSTIN غير صالح.',
         ],
         'default_currency' => [
             'required' => 'العملة الافتراضية مطلوبة.',
@@ -224,7 +228,10 @@ return [
             'max' => 'يجب ألا يزيد حجم الشعار عن 2 ميجابايت.',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'يجب أن تكون صورة OG ملفًا من النوع:jpeg، png، jpg، webp.',
+        'max' => 'لا يجوز أن يزيد حجم صورة OG عن 2 ميجابايت.',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => 'حقل الاسم مطلوب.',
@@ -236,9 +243,13 @@ return [
             'url' => 'يجب أن يكون الرابط عنوان URL صالحًا.',
             'regex' => 'تنسيق الرابط غير صالح.',
         ],
+        'class' => [
+            'required' => 'حقل فئة الرمز مطلوب.',
+        ],
+        'fa_class' => [
+            'required' => 'حقل فئة الرمز مطلوب.',
+        ],
     ],
-
-    //Email
     'custom' => [
         'password' => [
             'required_if' => 'حقل كلمة المرور مطلوب لمزود البريد المحدد.',
@@ -274,7 +285,6 @@ return [
             'required' => 'حقل مزود البريد مطلوب.',
         ],
     ],
-
     'customer_form' => [
         'first_name' => [
             'required' => 'حقل الاسم الأول مطلوب.',
@@ -302,7 +312,6 @@ return [
             'unique' => 'هذا البريد الإلكتروني مستخدم بالفعل.',
         ],
     ],
-
     'contact_request' => [
         'conName' => 'حقل الاسم مطلوب.',
         'email' => 'حقل البريد الإلكتروني مطلوب.',
@@ -315,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => 'فشل التحقق من الروبوت. يرجى المحاولة مرة أخرى.',
         'demo-recaptcha-response-1.required' => 'فشل التحقق من الروبوت. يرجى المحاولة مرة أخرى.',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => 'حقل الاسم مطلوب.',
@@ -328,6 +336,7 @@ return [
         ],
         'slug' => [
             'required' => 'حقل الرابط الدائم (slug) مطلوب.',
+            'unique' => 'هذه البزاقة موجودة بالفعل.',
         ],
         'url' => [
             'required' => 'حقل الرابط مطلوب.',
@@ -340,9 +349,12 @@ return [
         'created_at' => [
             'required' => 'حقل تاريخ الإنشاء مطلوب.',
         ],
+        'parent_page_id' => [
+            'exists' => 'الصفحة الرئيسية المحددة غير موجودة.',
+            'self' => 'لا يمكن للصفحة أن تكون أصلها.',
+            'nested' => 'الصفحة المحددة هي بالفعل صفحة فرعية ولا يمكن استخدامها كصفحة رئيسية.',
+        ],
     ],
-
-    //Order form
     'order_form' => [
         'client' => [
             'required' => 'حقل العميل مطلوب.',
@@ -369,8 +381,6 @@ return [
             'integer' => 'يجب أن تكون الكمية عدداً صحيحاً.',
         ],
     ],
-
-    //Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'حقل رمز القسيمة مطلوب.',
@@ -403,9 +413,9 @@ return [
             'required' => 'حقل قيمة الخصم مطلوب.',
             'numeric' => 'يجب أن تكون قيمة الخصم رقمًا.',
             'between' => 'يجب أن تكون قيمة الخصم بين :min و :max إذا كان النوع نسبة مئوية.',
+            'max' => 'لا يجوز أن تتجاوز قيمة الخصم سعر المنتج المطبق (:max).',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => 'حقل الاسم مطلوب.',
@@ -413,6 +423,12 @@ return [
         'rate' => [
             'required' => 'حقل المعدل مطلوب.',
             'numeric' => 'يجب أن يكون المعدل رقمًا.',
+            'decimal' => 'يجب أن يحتوي المعدل على 3 منازل عشرية على الأكثر.',
+            'max' => 'يجب ألا يزيد المعدل عن 999.999.',
+        ],
+        'priority' => [
+            'required' => 'حقل الأولوية مطلوب.',
+            'min' => 'يجب أن تكون الأولوية على الأقل 1.',
         ],
         'level' => [
             'required' => 'حقل المستوى مطلوب.',
@@ -420,14 +436,11 @@ return [
         ],
         'country' => [
             'required' => 'حقل الدولة مطلوب.',
-            // 'exists' => 'الدولة المحددة غير صالحة.',
         ],
         'state' => [
             'required' => 'حقل الولاية مطلوب.',
-            // 'exists' => 'الولاية المحددة غير صالحة.',
         ],
     ],
-
     'subscription_form' => [
         'name' => [
             'required' => 'حقل الاسم مطلوب.',
@@ -447,7 +460,6 @@ return [
             'required' => 'حقل المنتجات مطلوب.',
         ],
     ],
-
     'bundle' => [
         'name' => [
             'required' => 'حقل الاسم مطلوب.',
@@ -456,10 +468,13 @@ return [
             'required' => 'كل عنصر مطلوب.',
         ],
     ],
-
     'group' => [
         'name' => [
             'required' => 'الاسم مطلوب',
+            'unique' => 'هذا الاسم موجود بالفعل.',
+        ],
+        'pricing_templates_id' => [
+            'required' => 'نموذج التصميم مطلوب.',
         ],
         'features' => [
             'name' => [
@@ -483,13 +498,15 @@ return [
             'required_with' => 'العنوان مطلوب',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => 'حقل الاسم مطلوب.',
         ],
         'type' => [
             'required' => 'حقل النوع مطلوب.',
+        ],
+        'product_type' => [
+            'required' => 'حقل فئة المنتج مطلوب.',
         ],
         'group' => [
             'required' => 'حقل المجموعة مطلوب.',
@@ -500,9 +517,6 @@ return [
         'currency' => [
             'required' => 'حقل العملة مطلوب.',
         ],
-        // 'price' => [
-        //     'required' => 'حقل السعر مطلوب.',
-        // ],
         'file' => [
             'required_without_all' => 'حقل الملف مطلوب إذا لم يتم توفير أي من github_owner أو github_repository.',
             'mimes' => 'يجب أن يكون الملف من نوع zip.',
@@ -512,15 +526,18 @@ return [
             'mimes' => 'يجب أن تكون الصورة من نوع PNG.',
         ],
         'github_owner' => [
+            'required' => 'حقل مالك GitHub مطلوب.',
             'required_without_all' => 'حقل مالك GitHub مطلوب إذا لم يتم توفير أي من الملف أو الصورة.',
         ],
         'github_repository' => [
+            'required' => 'حقل مستودع GitHub مطلوب.',
             'required_without_all' => 'حقل مستودع GitHub مطلوب إذا لم يتم توفير أي من الملف أو الصورة.',
             'required_if' => 'حقل مستودع GitHub مطلوب إذا كان النوع 2.',
         ],
+        'shoping_cart_link' => [
+            'required' => 'حقل رابط عربة التسوق مطلوب.',
+        ],
     ],
-
-    //Users
     'users' => [
         'first_name' => [
             'required' => 'حقل الاسم الأول مطلوب.',
@@ -559,8 +576,10 @@ return [
         'zip' => [
             'regex' => 'رمز البريد/الرمز البريدي غير صالح.',
         ],
+        'gstin' => [
+            'regex' => 'تنسيق GSTIN غير صالح.',
+        ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => 'الاسم الأول مطلوب.',
@@ -603,6 +622,9 @@ return [
         'state' => [
             'required_if' => 'حقل الولاية مطلوب عندما تكون الدولة هي الهند.',
         ],
+        'gstin' => [
+            'regex' => 'تنسيق GSTIN غير صالح.',
+        ],
         'old_password' => [
             'required' => 'كلمة المرور القديمة مطلوبة.',
             'min' => 'يجب ألا تقل كلمة المرور القديمة عن :min حروف.',
@@ -629,8 +651,6 @@ return [
             'required' => 'يرجى إدخال رمز الدولة (الجوال).',
         ],
     ],
-
-    //Invoice form
     'invoice' => [
         'user' => [
             'required' => 'حقل العملاء مطلوب.',
@@ -640,7 +660,12 @@ return [
             'date' => 'يجب أن يكون التاريخ تاريخًا صالحًا.',
         ],
         'domain' => [
+            'required' => 'حقل المجال مطلوب.',
             'regex' => 'تنسيق النطاق غير صالح.',
+        ],
+        'cloud_domain' => [
+            'required' => 'حقل المجال السحابي مطلوب.',
+            'regex' => 'يُسمح فقط بالأحرف والأرقام والواصلات.',
         ],
         'plan' => [
             'required_if' => 'حقل الاشتراك مطلوب.',
@@ -652,89 +677,86 @@ return [
             'required' => 'حقل المنتج مطلوب.',
         ],
     ],
-
-    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'حقل النطاق مطلوب.',
             'url' => 'يجب أن يكون النطاق عنوان URL صالحًا.',
         ],
     ],
-
-    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'حقل النطاق مطلوب.',
             'no_http' => 'يجب ألا يحتوي النطاق على "http" أو "https".',
         ],
     ],
-
-    //Language form
     'language' => [
         'required' => 'حقل اللغة مطلوب.',
         'invalid' => 'اللغة المحددة غير صالحة.',
     ],
-
-    //UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'حقل القرص في التخزين مطلوب.',
             'string' => 'يجب أن يكون القرص نصًا.',
         ],
         'path' => [
+            'required' => 'حقل مسار التخزين مطلوب.',
             'string' => 'يجب أن يكون المسار نصًا.',
             'nullable' => 'حقل المسار اختياري.',
+            'invalid' => 'المسار غير موجود أو غير قابل للكتابة.',
         ],
     ],
-
-    // ValidateSecretRequest form
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => 'حقل مسار العقدة مطلوب.',
+            'string' => 'يجب أن يكون مسار العقدة عبارة عن سلسلة صالحة.',
+        ],
+        'npm_path' => [
+            'required' => 'حقل مسار npm مطلوب.',
+            'string' => 'يجب أن يكون مسار npm عبارة عن سلسلة صالحة.',
+        ],
+        'chrome_path' => [
+            'required' => 'حقل مسار الكروم مطلوب.',
+            'string' => 'يجب أن يكون مسار الكروم عبارة عن سلسلة صالحة.',
+            'invalid' => 'مسار الكروم غير موجود أو غير قابل للتنفيذ.',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => 'يرجى إدخال الرمز',
             'digits' => 'يرجى إدخال رمز مكون من 6 أرقام بشكل صحيح',
         ],
     ],
-
-    // VerifyOtp form
     'verify_email' => [
         'required' => 'حقل البريد الإلكتروني مطلوب.',
         'email' => 'يجب أن يكون البريد الإلكتروني عنوان بريد إلكتروني صالح.',
         'verify_email' => 'فشل التحقق من البريد الإلكتروني.',
     ],
-
     'verify_country_code' => [
         'required' => 'رمز الدولة مطلوب.',
         'numeric' => 'يجب أن يكون رمز الدولة رقمًا صحيحًا.',
         'verify_country_code' => 'فشل التحقق من رمز الدولة.',
     ],
-
     'verify_number' => [
         'required' => 'رقم الهاتف مطلوب.',
         'numeric' => 'يجب أن يكون الرقم رقمًا صحيحًا.',
         'verify_number' => 'فشل التحقق من الرقم.',
     ],
-
     'password_otp' => [
         'required' => 'حقل كلمة المرور مطلوب.',
         'password' => 'كلمة المرور غير صحيحة.',
         'invalid' => 'كلمة المرور غير صالحة.',
     ],
-
-    //AuthController file
     'auth_controller' => [
         'name_required' => 'الاسم مطلوب.',
         'name_max' => 'لا يجوز أن يزيد الاسم عن 255 حرفًا.',
-
         'email_required' => 'البريد الإلكتروني مطلوب.',
         'email_email' => 'يرجى إدخال عنوان بريد إلكتروني صالح.',
         'email_max' => 'لا يجوز أن يزيد البريد الإلكتروني عن 255 حرفًا.',
         'email_unique' => 'هذا البريد الإلكتروني مسجل بالفعل.',
-
         'password_required' => 'كلمة المرور مطلوبة.',
         'password_confirmed' => 'تأكيد كلمة المرور غير مطابق.',
         'password_min' => 'يجب أن تكون كلمة المرور 6 أحرف على الأقل.',
     ],
-
     'resend_otp' => [
         'eid_required' => 'حقل المعرف مطلوب.',
         'eid_string' => 'يجب أن يكون المعرف نصًا.',
@@ -742,7 +764,6 @@ return [
         'type_string' => 'يجب أن يكون النوع نصًا.',
         'type_in' => 'القيمة المختارة للنوع غير صالحة.',
     ],
-
     'verify_otp' => [
         'eid_required' => 'معرّف الموظف مطلوب.',
         'eid_string' => 'يجب أن يكون معرّف الموظف نصًا.',
@@ -751,31 +772,26 @@ return [
         'recaptcha_required' => 'يرجى إكمال اختبار CAPTCHA.',
         'recaptcha_size' => 'استجابة CAPTCHA غير صالحة.',
     ],
-
     'company_validation' => [
         'company_required' => 'اسم الشركة مطلوب.',
         'company_string' => 'يجب أن يكون اسم الشركة نصًا.',
         'address_required' => 'العنوان مطلوب.',
         'address_string' => 'يجب أن يكون العنوان نصًا.',
     ],
-
     'token_validation' => [
         'token_required' => 'رمز التحقق مطلوب.',
         'password_required' => 'حقل كلمة المرور مطلوب.',
         'password_confirmed' => 'تأكيد كلمة المرور غير متطابق.',
     ],
-
     'custom_email' => [
         'required' => 'حقل البريد الإلكتروني مطلوب.',
         'email' => 'يرجى إدخال عنوان بريد إلكتروني صالح.',
         'exists' => 'هذا البريد الإلكتروني غير مسجل لدينا.',
     ],
-
     'newsletterEmail' => [
         'required' => 'البريد الإلكتروني للنشرة الإخبارية مطلوب.',
         'email' => 'يرجى إدخال بريد إلكتروني صالح للنشرة الإخبارية.',
     ],
-
     'widget' => [
         'name_required' => 'الاسم مطلوب.',
         'name_max' => 'يجب ألا يزيد الاسم عن 50 حرفًا.',
@@ -783,27 +799,22 @@ return [
         'type_required' => 'النوع مطلوب.',
         'type_unique' => 'هذا النوع موجود بالفعل.',
     ],
-
     'payment' => [
         'payment_date_required' => 'تاريخ الدفع مطلوب.',
         'payment_method_required' => 'طريقة الدفع مطلوبة.',
         'amount_required' => 'المبلغ مطلوب.',
     ],
-
     'custom_date' => [
         'date_required' => 'The date field is required.',
         'total_required' => 'The total field is required.',
         'status_required' => 'The status field is required.',
-
     ],
-
     'plan_renewal' => [
         'plan_required' => 'The plan field is required.',
         'payment_method_required' => 'The payment method field is required.',
         'cost_required' => 'The cost field is required.',
         'code_not_valid' => 'The promotion code is not valid.',
     ],
-
     'rate' => [
         'required' => 'معدل السعر مطلوب.',
         'numeric' => 'يجب أن يكون السعر رقمًا.',
@@ -813,10 +824,14 @@ return [
         'version_required' => 'الإصدار مطلوب.',
         'filename_required' => 'يرجى رفع ملف.',
         'dependencies_required' => 'حقل التبعيات مطلوب.',
+        'description_required' => 'الوصف مطلوب.',
+        'release_type_required' => 'نوع الإصدار مطلوب.',
     ],
     'product_sku_unique' => 'يجب أن يكون رمز المنتج فريدًا.',
     'product_name_unique' => 'يجب أن يكون الاسم فريدًا.',
     'product_show_agent_required' => 'يرجى تحديد تفضيل صفحة السلة.',
+    'config_file_path_regex' => 'يجب أن يكون مسارًا نسبيًا بدون ../ مقاطع.',
+    'license_file_path_regex' => 'يجب أن يكون مسارًا نسبيًا بدون ../ مقاطع.',
     'product_controller' => [
         'name_required' => 'اسم المنتج مطلوب.',
         'name_unique' => 'يجب أن يكون الاسم فريدًا.',
@@ -824,6 +839,7 @@ return [
         'type_required' => 'نوع المنتج مطلوب.',
         'description_required' => 'وصف المنتج مطلوب.',
         'product_description_required' => 'الوصف التفصيلي للمنتج مطلوب.',
+        'short_description_required' => 'الوصف المختصر مطلوب.',
         'image_mimes' => 'يجب أن تكون الصورة من نوع: jpeg أو png أو jpg.',
         'image_max' => 'يجب ألا يتجاوز حجم الصورة 2048 كيلوبايت.',
         'product_sku_required' => 'رمز المنتج مطلوب.',
@@ -841,7 +857,9 @@ return [
         'cloud_label_field_required' => 'حقل التسمية السحابي مطلوب.',
         'cloud_label_radio_required' => 'الخيار السحابي مطلوب.',
         'cloud_product_required' => 'المنتج السحابي مطلوب.',
+        'cloud_product_unique' => 'يحتوي هذا المنتج بالفعل على تكوين سحابي.',
         'cloud_free_plan_required' => 'الخطة المجانية للسحابة مطلوبة.',
+        'cloud_free_plan_invalid' => 'الخطة المحددة لا تنتمي إلى المنتج المحدد.',
         'cloud_product_key_required' => 'مفتاح المنتج السحابي مطلوب.',
     ],
     'reg_till_after' => 'يجب أن يكون تاريخ الانتهاء بعد تاريخ البداية.',
@@ -870,6 +888,8 @@ return [
         'no_agent_req' => 'حقل عدد الوكلاء مطلوب عندما لا تكون كمية المنتج موجودة.',
         'pro_req' => 'حقل المنتج مطلوب',
         'offer_price' => 'يجب ألا تكون أسعار العرض أكبر من 100',
+        'currency_duplicate' => 'يمكن استخدام كل عملة مرة واحدة فقط.',
+        'non_negative' => 'لا يمكن أن تكون هذه القيمة سالبة.',
     ],
     'razorpay_val' => [
         'business_required' => 'حقل النشاط التجاري مطلوب.',
@@ -884,5 +904,36 @@ return [
     'login_failed' => 'فشل تسجيل الدخول، يرجى التحقق من البريد الإلكتروني/اسم المستخدم وكلمة المرور التي أدخلتها.',
     'forgot_email_validation' => 'إذا كان البريد الإلكتروني الذي قدمته مسجلاً، ستتلقى رسالة بريد إلكتروني تحتوي على تعليمات لإعادة تعيين كلمة المرور قريبًا.',
     'too_many_login_attempts' => 'تم حظر دخولك إلى التطبيق بسبب عدد كبير جدًا من محاولات تسجيل الدخول الفاشلة، يرجى المحاولة مرة أخرى بعد :time.',
-
+    'phone_number' => 'الرجاء إدخال رقم هاتف محمول صالح.',
+    'mobile_number' => 'يجب أن يكون :attribute رقم هاتف محمول صالحًا.',
+    'license' => [
+        'product' => [
+            'required' => 'حقل المنتج مطلوب.',
+        ],
+        'client' => [
+            'required' => 'حقل العميل مطلوب.',
+        ],
+        'license_code' => [
+            'required' => 'حقل رمز الترخيص مطلوب.',
+        ],
+        'license_expire_date' => [
+            'required' => 'حقل تاريخ انتهاء الترخيص مطلوب.',
+        ],
+        'license_updates_date' => [
+            'required' => 'حقل تاريخ انتهاء التحديثات مطلوب.',
+        ],
+        'license_support_date' => [
+            'required' => 'حقل تاريخ انتهاء الدعم مطلوب.',
+        ],
+        'banned_host_ip' => [
+            'required' => 'حقل IP المضيف المحظور مطلوب.',
+            'invalid' => 'الرجاء إدخال عنوان IP صالح.',
+        ],
+        'installation_ip' => [
+            'required' => 'حقل IP الخاص بالتثبيت مطلوب.',
+        ],
+        'notification_field' => [
+            'required' => 'حقل الإشعار هذا مطلوب.',
+        ],
+    ],
 ];

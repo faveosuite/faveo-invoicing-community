@@ -4,6 +4,7 @@ namespace Livewire\Features\SupportLifecycleHooks;
 
 use function Livewire\store;
 use function Livewire\wrap;
+use function Livewire\on;
 use Livewire\ComponentHook;
 
 class SupportLifecycleHooks extends ComponentHook
@@ -13,6 +14,14 @@ class SupportLifecycleHooks extends ComponentHook
 
     // Performance optimization: Cache method existence checks per component class...
     protected static $methodCache = [];
+
+    public static function provide()
+    {
+        on('flush-state', function () {
+            static::$traitCache = [];
+            static::$methodCache = [];
+        });
+    }
 
     public function mount($params)
     {
@@ -91,13 +100,31 @@ class SupportLifecycleHooks extends ComponentHook
     {
         $protectedMethods = [
             'mount',
+            'boot',
+            'booted',
             'exception',
             'hydrate*',
             'dehydrate*',
             'updating*',
             'updated*',
+            'rendering',
+            'rendered',
             'scriptSrc',
         ];
+
+        // Also block trait-suffixed lifecycle hooks (e.g. mountWithFileUploads, bootMyTrait)
+        $class = get_class($this->component);
+
+        if (! isset(static::$traitCache[$class])) {
+            static::$traitCache[$class] = class_uses_recursive($this->component);
+        }
+
+        foreach (static::$traitCache[$class] as $trait) {
+            $traitBasename = class_basename($trait);
+            $protectedMethods[] = 'mount'.$traitBasename;
+            $protectedMethods[] = 'boot'.$traitBasename;
+            $protectedMethods[] = 'booted'.$traitBasename;
+        }
 
         throw_if(
             str($methodName)->is($protectedMethods),
@@ -170,7 +197,21 @@ class SupportLifecycleHooks extends ComponentHook
             }
 
             if (static::$methodCache[$cacheKey]) {
-                wrap($this->component)->$method(...$params);
+                // resolveMethodDependencies() can produce arrays with both
+                // string and integer keys (e.g. ['postId' => '123', 0 => null]).
+                // PHP forbids positional args after named args when spreading,
+                // so strip the integer-keyed entries in that case. When all keys
+                // are the same type (e.g. updating/updated hooks pass only
+                // integer-keyed [$name, $value]), leave them as-is.
+                $keys = array_keys($params);
+                $hasStringKeys = array_filter($keys, 'is_string');
+                $hasIntKeys = array_filter($keys, 'is_int');
+
+                $paramsToSpread = ($hasStringKeys && $hasIntKeys)
+                    ? array_filter($params, 'is_string', ARRAY_FILTER_USE_KEY)
+                    : $params;
+
+                wrap($this->component)->$method(...$paramsToSpread);
             }
         }
     }

@@ -24,6 +24,7 @@ return [
     'date' => ':attribute geçerli bir tarih olmalıdır.',
     'date_equals' => ':attribute, :date tarihine eşit olmalıdır.',
     'date_format' => ':attribute, :format formatı ile eşleşmiyor.',
+    'decimal' => ':attribute alanında :decimal ondalık basamak bulunmalıdır.',
     'declined' => ':attribute reddedilmelidir.',
     'declined_if' => ':attribute, :other :value olduğunda reddedilmelidir.',
     'different' => ':attribute ve :other birbirinden farklı olmalıdır.',
@@ -92,9 +93,9 @@ return [
     'password' => [
         'letters' => ':attribute en az bir harf içermelidir.',
         'mixed' => ':attribute en az bir büyük harf ve bir küçük harf içermelidir.',
-        'numbers' => ':attribute en az bir rakam içermelidir.',
+        'numbers' => ':attribute en az bir sayı içermelidir.',
         'symbols' => ':attribute en az bir sembol içermelidir.',
-        'uncompromised' => 'Verilen :attribute, bir veri sızıntısında yer alıyor. Lütfen farklı bir :attribute seçin.',
+        'uncompromised' => 'Verilen :attribute bir veri sızıntısında ortaya çıktı. Lütfen farklı bir :attribute seçin.',
     ],
     'present' => ':attribute alanı mevcut olmalıdır.',
     'prohibited' => ':attribute alanı yasaktır.',
@@ -124,18 +125,27 @@ return [
     'uploaded' => ':attribute yüklenemedi.',
     'url' => ':attribute geçerli bir URL olmalıdır.',
     'uuid' => ':attribute geçerli bir UUID olmalıdır.',
+    'custom_dup' => [
+        'attribute-name' => [
+            'rule-name' => 'özel mesaj',
+        ],
+    ],
     'attributes' => [],
     'publish_date_required' => 'Yayın tarihi gereklidir.',
     'price_numeric_value' => 'Fiyat sayısal bir değer olmalıdır.',
     'quantity_integer_value' => 'Miktar bir tam sayı olmalıdır.',
     'order_has_Expired' => 'Siparişin süresi doldu.',
     'expired' => 'Süresi doldu.',
-
-    /*
-    Request file custom validation messages
-    */
-
-    // Common
+    'eid_required' => 'EID alanı zorunludur.',
+    'eid_string' => 'EID bir dize olmalıdır.',
+    'otp_required' => 'OTP alanı zorunludur.',
+    'amt_required' => 'Tutar alanı zorunludur',
+    'amt_numeric' => 'Tutar bir sayı olmalıdır',
+    'payment_date_required' => 'Ödeme tarihi gereklidir.',
+    'payment_method_required' => 'Ödeme yöntemi gereklidir.',
+    'total_amount_required' => 'Toplam tutar gereklidir.',
+    'total_amount_numeric' => 'Toplam tutar sayısal bir değer olmalıdır.',
+    'invoice_link_required' => 'Lütfen tutarı en az bir Faturaya bağlayın.',
     'settings_form' => [
         'company' => [
             'required' => 'Şirket alanı zorunludur.',
@@ -170,7 +180,6 @@ return [
             'email' => 'Hata e-postası geçerli bir e-posta adresi olmalıdır.',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => 'Şirket adı zorunludur.',
@@ -201,7 +210,7 @@ return [
             'required' => 'Ülke zorunludur.',
         ],
         'gstin' => [
-            'max' => 'GSTIN 15 karakteri geçemez.',
+            'regex' => 'GSTIN biçimi geçersiz.',
         ],
         'default_currency' => [
             'required' => 'Varsayılan para birimi zorunludur.',
@@ -219,7 +228,10 @@ return [
             'max' => 'Logo 2MB\'dan büyük olamaz.',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'OG görüntüsü şu türde bir dosya olmalıdır:jpeg, png, jpg, webp.',
+        'max' => 'OG görüntüsü 2 MB\'tan büyük olamaz.',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => 'İsim alanı zorunludur.',
@@ -231,9 +243,13 @@ return [
             'url' => 'Bağlantı geçerli bir URL olmalıdır.',
             'regex' => 'Bağlantı formatı geçersiz.',
         ],
+        'class' => [
+            'required' => 'İkon sınıfı alanı zorunludur.',
+        ],
+        'fa_class' => [
+            'required' => 'İkon sınıfı alanı zorunludur.',
+        ],
     ],
-
-    // Email
     'custom' => [
         'password' => [
             'required_if' => 'Seçilen posta sürücüsü için şifre alanı zorunludur.',
@@ -253,23 +269,22 @@ return [
         'domain' => [
             'required_if' => 'Mailgun için alan adı alanı zorunludur.',
         ],
+        'key' => [
+            'required_if' => 'SES için anahtar alanı zorunludur.',
+        ],
+        'region' => [
+            'required_if' => 'SES için bölge alanı zorunludur.',
+        ],
+        'email' => [
+            'required_if' => 'Seçilen posta sürücüsü için e-posta alanı gereklidir.',
+            'required' => 'E-posta alanı zorunludur.',
+            'email' => 'Lütfen geçerli bir e-posta adresi girin.',
+            'not_matching' => 'E-posta etki alanı mevcut site etki alanıyla eşleşmelidir.',
+        ],
+        'driver' => [
+            'required' => 'Sürücü alanı zorunludur.',
+        ],
     ],
-    'key' => [
-        'required_if' => 'SES için anahtar alanı zorunludur.',
-    ],
-    'region' => [
-        'required_if' => 'SES için bölge alanı zorunludur.',
-    ],
-    'email' => [
-        'required_if' => 'Seçilen e-posta sağlayıcısı için e-posta alanı zorunludur.',
-        'required' => 'E-posta alanı zorunludur.',
-        'email' => 'Lütfen geçerli bir e-posta adresi girin.',
-        'not_matching' => 'E-posta alan adı, mevcut site alan adıyla eşleşmelidir.',
-    ],
-    'driver' => [
-        'required' => 'Sürücü alanı zorunludur.',
-    ],
-
     'customer_form' => [
         'first_name' => [
             'required' => 'Ad alanı zorunludur.',
@@ -297,7 +312,6 @@ return [
             'unique' => 'Bu e-posta zaten alınmış.',
         ],
     ],
-
     'contact_request' => [
         'conName' => 'İsim alanı zorunludur.',
         'email' => 'E-posta alanı zorunludur.',
@@ -310,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => 'Robot doğrulaması başarısız. Lütfen tekrar deneyin.',
         'demo-recaptcha-response-1.required' => 'Robot doğrulaması başarısız. Lütfen tekrar deneyin.',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => 'İsim alanı zorunludur.',
@@ -323,6 +336,7 @@ return [
         ],
         'slug' => [
             'required' => 'Slug alanı zorunludur.',
+            'unique' => 'Bu bilgi zaten mevcut.',
         ],
         'url' => [
             'required' => 'URL alanı zorunludur.',
@@ -335,9 +349,12 @@ return [
         'created_at' => [
             'required' => 'Oluşturulma tarihi alanı zorunludur.',
         ],
+        'parent_page_id' => [
+            'exists' => 'Seçilen ana sayfa mevcut değil.',
+            'self' => 'Bir sayfa kendi kendisinin ebeveyni olamaz.',
+            'nested' => 'Seçilen sayfa zaten bir alt sayfadır ve ana sayfa olarak kullanılamaz.',
+        ],
     ],
-
-    // Order form
     'order_form' => [
         'client' => [
             'required' => 'Müşteri alanı zorunludur.',
@@ -364,7 +381,6 @@ return [
             'integer' => 'Miktar bir tam sayı olmalıdır.',
         ],
     ],
-    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'Kupon kodu alanı zorunludur.',
@@ -397,9 +413,9 @@ return [
             'required' => 'İndirim değeri alanı zorunludur.',
             'numeric' => 'İndirim değeri alanı bir sayı olmalıdır.',
             'between' => 'İndirim değeri alanı, tür yüzde ise :min ve :max arasında olmalıdır.',
+            'max' => 'İndirim değeri, uygulanan ürünün fiyatını (:max) aşamaz.',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => 'İsim alanı zorunludur.',
@@ -407,6 +423,12 @@ return [
         'rate' => [
             'required' => 'Oran alanı zorunludur.',
             'numeric' => 'Oran bir sayı olmalıdır.',
+            'decimal' => 'Oranın en fazla 3 ondalık basamağı olmalıdır.',
+            'max' => 'Kur 999.999\'dan büyük olmamalıdır.',
+        ],
+        'priority' => [
+            'required' => 'Öncelik alanı zorunludur.',
+            'min' => 'Öncelik en az 1 olmalıdır.',
         ],
         'level' => [
             'required' => 'Seviye alanı zorunludur.',
@@ -414,15 +436,11 @@ return [
         ],
         'country' => [
             'required' => 'Ülke alanı zorunludur.',
-            // 'exists' => 'Seçilen ülke geçersiz.',
         ],
         'state' => [
             'required' => 'Eyalet alanı zorunludur.',
-            // 'exists' => 'Seçilen eyalet geçersiz.',
         ],
     ],
-
-    // Product
     'subscription_form' => [
         'name' => [
             'required' => 'İsim alanı zorunludur.',
@@ -442,7 +460,6 @@ return [
             'required' => 'Ürünler alanı zorunludur.',
         ],
     ],
-
     'bundle' => [
         'name' => [
             'required' => 'İsim alanı zorunludur.',
@@ -451,10 +468,13 @@ return [
             'required' => 'Her bir ürün zorunludur.',
         ],
     ],
-
     'group' => [
         'name' => [
             'required' => 'İsim zorunludur.',
+            'unique' => 'Bu ad zaten mevcut.',
+        ],
+        'pricing_templates_id' => [
+            'required' => 'Tasarım şablonu gereklidir.',
         ],
         'features' => [
             'name' => [
@@ -478,13 +498,15 @@ return [
             'required_with' => 'Başlık zorunludur.',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => 'İsim alanı zorunludur.',
         ],
         'type' => [
             'required' => 'Tür alanı zorunludur.',
+        ],
+        'product_type' => [
+            'required' => 'Ürün kategorisi alanı zorunludur.',
         ],
         'group' => [
             'required' => 'Grup alanı zorunludur.',
@@ -495,9 +517,6 @@ return [
         'currency' => [
             'required' => 'Para birimi alanı zorunludur.',
         ],
-        // 'price' => [
-        //     'required' => 'Fiyat alanı zorunludur.',
-        // ],
         'file' => [
             'required_without_all' => 'Dosya alanı, github_owner veya github_repository sağlanmadığı takdirde zorunludur.',
             'mimes' => 'Dosya bir zip dosyası olmalıdır.',
@@ -507,14 +526,18 @@ return [
             'mimes' => 'Resim bir PNG dosyası olmalıdır.',
         ],
         'github_owner' => [
+            'required' => 'GitHub sahibi alanı zorunludur.',
             'required_without_all' => 'GitHub sahibi alanı, dosya veya resim sağlanmadığı takdirde zorunludur.',
         ],
         'github_repository' => [
+            'required' => 'GitHub deposu alanı zorunludur.',
             'required_without_all' => 'GitHub deposu alanı, dosya veya resim sağlanmadığı takdirde zorunludur.',
             'required_if' => 'GitHub deposu alanı, tür 2 ise zorunludur.',
         ],
+        'shoping_cart_link' => [
+            'required' => 'Alışveriş sepeti bağlantı alanı zorunludur.',
+        ],
     ],
-    // User
     'users' => [
         'first_name' => [
             'required' => 'İsim alanı zorunludur.',
@@ -553,8 +576,10 @@ return [
         'zip' => [
             'regex' => 'Eyalet alanı, ülke Hindistan olduğunda zorunludur.',
         ],
+        'gstin' => [
+            'regex' => 'GSTIN biçimi geçersiz.',
+        ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => 'İsim zorunludur.',
@@ -597,6 +622,9 @@ return [
         'state' => [
             'required_if' => 'Ülke Hindistan olduğunda, eyalet alanı zorunludur.',
         ],
+        'gstin' => [
+            'regex' => 'GSTIN biçimi geçersiz.',
+        ],
         'old_password' => [
             'required' => 'Eski şifre zorunludur.',
             'min' => 'Eski şifre en az :min karakter olmalıdır.',
@@ -612,19 +640,17 @@ return [
         'terms' => [
             'required' => 'Şartları kabul etmeniz gerekmektedir.',
         ],
+        'password' => [
+            'required' => 'Şifre gereklidir.',
+        ],
+        'password_confirmation' => [
+            'required' => 'Şifre onayı gereklidir.',
+            'same' => 'Şifreler eşleşmiyor.',
+        ],
+        'mobile_code' => [
+            'required' => 'Ülke kodunu girin (cep telefonu)',
+        ],
     ],
-    'password' => [
-        'required' => 'Şifre zorunludur.',
-    ],
-    'password_confirmation' => [
-        'required' => 'Şifre onayı zorunludur.',
-        'same' => 'Şifreler eşleşmiyor.',
-    ],
-    'mobile_code' => [
-        'required' => 'Ülke kodunu girin (mobil).',
-    ],
-
-    // Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Müşteri alanı zorunludur.',
@@ -634,7 +660,12 @@ return [
             'date' => 'Tarih geçerli bir tarih olmalıdır.',
         ],
         'domain' => [
+            'required' => 'Alan adı alanı zorunludur.',
             'regex' => 'Alan adı formatı geçersiz.',
+        ],
+        'cloud_domain' => [
+            'required' => 'Bulut etki alanı alanı zorunludur.',
+            'regex' => 'Yalnızca harflere, sayılara ve kısa çizgilere izin verilir.',
         ],
         'plan' => [
             'required_if' => 'Abonelik alanı zorunludur.',
@@ -646,89 +677,86 @@ return [
             'required' => 'Ürün alanı zorunludur.',
         ],
     ],
-
-    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Alan adı alanı zorunludur.',
             'url' => 'Alan adı geçerli bir URL olmalıdır.',
         ],
     ],
-
-    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Alan adı alanı zorunludur.',
             'no_http' => 'Alan adı "http" veya "https" içermemelidir.',
         ],
     ],
-
-    // Language form
     'language' => [
         'required' => 'Dil alanı zorunludur.',
         'invalid' => 'Seçilen dil geçersiz.',
     ],
-
-    // UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Depolama diski alanı zorunludur.',
             'string' => 'Disk bir dize olmalıdır.',
         ],
         'path' => [
+            'required' => 'Depolama yolu alanı gereklidir.',
             'string' => 'Yol bir dize olmalıdır.',
             'nullable' => 'Yol alanı isteğe bağlıdır.',
+            'invalid' => 'Yol mevcut değil veya yazılabilir değil.',
         ],
     ],
-
-    // ValidateSecretRequest form
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => 'Düğüm yolu alanı gereklidir.',
+            'string' => 'Düğüm yolu geçerli bir dize olmalıdır.',
+        ],
+        'npm_path' => [
+            'required' => 'Npm yolu alanı gereklidir.',
+            'string' => 'Npm yolu geçerli bir dize olmalıdır.',
+        ],
+        'chrome_path' => [
+            'required' => 'Krom yolu alanı gereklidir.',
+            'string' => 'Chrome yolu geçerli bir dize olmalıdır.',
+            'invalid' => 'Krom yolu mevcut değil veya yürütülebilir değil.',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => 'Lütfen kodu girin.',
             'digits' => 'Lütfen geçerli bir 6 haneli kod girin.',
         ],
     ],
-
-    // VerifyOtp form
     'verify_email' => [
         'required' => 'E-posta alanı zorunludur.',
         'email' => 'E-posta geçerli bir e-posta adresi olmalıdır.',
-        'verify_email' => 'E-posta doğrulama başarısız oldu.', // Özel mesaj verify_email için
+        'verify_email' => 'E-posta doğrulama başarısız oldu.',
     ],
-
     'verify_country_code' => [
         'required' => 'Ülke kodu zorunludur.',
         'numeric' => 'Ülke kodu geçerli bir sayı olmalıdır.',
-        'verify_country_code' => 'Ülke kodu doğrulaması başarısız oldu.', // Özel mesaj verify_country_code için
+        'verify_country_code' => 'Ülke kodu doğrulaması başarısız oldu.',
     ],
-
     'verify_number' => [
         'required' => 'Numara zorunludur.',
         'numeric' => 'Numara geçerli bir sayı olmalıdır.',
-        'verify_number' => 'Numara doğrulaması başarısız oldu.', // Özel mesaj verify_number için
+        'verify_number' => 'Numara doğrulaması başarısız oldu.',
     ],
-
     'password_otp' => [
         'required' => 'Şifre alanı zorunludur.',
         'password' => 'Şifre yanlış.',
         'invalid' => 'Geçersiz şifre.',
     ],
-
-    //AuthController file
     'auth_controller' => [
         'name_required' => 'Ad gereklidir.',
         'name_max' => 'Ad en fazla 255 karakter olabilir.',
-
         'email_required' => 'E-posta gereklidir.',
         'email_email' => 'Geçerli bir e-posta adresi girin.',
         'email_max' => 'E-posta en fazla 255 karakter olabilir.',
         'email_unique' => 'Bu e-posta zaten kayıtlı.',
-
         'password_required' => 'Şifre gereklidir.',
         'password_confirmed' => 'Şifre onayı eşleşmiyor.',
         'password_min' => 'Şifre en az 6 karakter olmalıdır.',
     ],
-
     'resend_otp' => [
         'eid_required' => 'EID alanı gereklidir.',
         'eid_string' => 'EID bir metin olmalıdır.',
@@ -736,7 +764,6 @@ return [
         'type_string' => 'Tür bir metin olmalıdır.',
         'type_in' => 'Seçilen tür geçersizdir.',
     ],
-
     'verify_otp' => [
         'eid_required' => 'Çalışan ID’si gereklidir.',
         'eid_string' => 'Çalışan ID’si bir metin olmalıdır.',
@@ -745,31 +772,26 @@ return [
         'recaptcha_required' => 'Lütfen CAPTCHA’yı tamamlayın.',
         'recaptcha_size' => 'CAPTCHA cevabı geçersiz.',
     ],
-
     'company_validation' => [
         'company_required' => 'Şirket adı gereklidir.',
         'company_string' => 'Şirket bir metin olmalıdır.',
         'address_required' => 'Adres gereklidir.',
         'address_string' => 'Adres bir metin olmalıdır.',
     ],
-
     'token_validation' => [
         'token_required' => 'Token gereklidir.',
         'password_required' => 'Şifre alanı gereklidir.',
         'password_confirmed' => 'Şifre onayı eşleşmiyor.',
     ],
-
     'custom_email' => [
         'required' => 'E-posta alanı gereklidir.',
         'email' => 'Geçerli bir e-posta adresi girin.',
         'exists' => 'Bu e-posta bizimle kayıtlı değil.',
     ],
-
     'newsletterEmail' => [
         'required' => 'Bülten e-posta alanı gereklidir.',
         'email' => 'Lütfen geçerli bir bülten e-posta adresi girin.',
     ],
-
     'widget' => [
         'name_required' => 'Ad gereklidir.',
         'name_max' => 'Ad en fazla 50 karakter olabilir.',
@@ -777,40 +799,39 @@ return [
         'type_required' => 'Tür gereklidir.',
         'type_unique' => 'Bu tür zaten mevcut.',
     ],
-
     'payment' => [
         'payment_date_required' => 'Ödeme tarihi gereklidir.',
         'payment_method_required' => 'Ödeme yöntemi gereklidir.',
         'amount_required' => 'Miktar gereklidir.',
     ],
-
     'custom_date' => [
         'date_required' => 'Tarih alanı gereklidir.',
         'total_required' => 'Toplam alanı gereklidir.',
         'status_required' => 'Durum alanı gereklidir.',
     ],
-
     'plan_renewal' => [
         'plan_required' => 'Plan alanı gereklidir.',
         'payment_method_required' => 'Ödeme yöntemi alanı gereklidir.',
         'cost_required' => 'Maliyet alanı gereklidir.',
         'code_not_valid' => 'Promosyon kodu geçersiz.',
     ],
-
     'rate' => [
         'required' => 'Ortalama gereklidir.',
         'numeric' => 'Ortalama bir sayı olmalıdır.',
     ],
-
     'product_validate' => [
         'producttitle_required' => 'Ürün başlığı gereklidir.',
         'version_required' => 'Versiyon gereklidir.',
         'filename_required' => 'Lütfen bir dosya yükleyin.',
         'dependencies_required' => 'Bağımlılıklar alanı gereklidir.',
+        'description_required' => 'Açıklama gerekli.',
+        'release_type_required' => 'Sürüm türü gerekli.',
     ],
     'product_sku_unique' => 'Ürün SKU’su benzersiz olmalıdır.',
     'product_name_unique' => 'Ad benzersiz olmalıdır.',
     'product_show_agent_required' => 'Lütfen Sepet Sayfası Tercihinizi Seçin.',
+    'config_file_path_regex' => '../ bölümü olmayan göreceli bir yol olmalıdır.',
+    'license_file_path_regex' => '../ bölümü olmayan göreceli bir yol olmalıdır.',
     'product_controller' => [
         'name_required' => 'Ürün adı gereklidir.',
         'name_unique' => 'Ad benzersiz olmalıdır.',
@@ -818,6 +839,7 @@ return [
         'type_required' => 'Ürün türü gereklidir.',
         'description_required' => 'Ürün açıklaması gereklidir.',
         'product_description_required' => 'Ürün detaylı açıklaması gereklidir.',
+        'short_description_required' => 'Kısa açıklama zorunludur.',
         'image_mimes' => 'Resim jpeg, png, jpg türlerinde bir dosya olmalıdır.',
         'image_max' => 'Resim en fazla 2048 kilobayt olabilir.',
         'product_sku_required' => 'Ürün SKU’su gereklidir.',
@@ -835,7 +857,9 @@ return [
         'cloud_label_field_required' => 'Cloud etiket alanı gereklidir.',
         'cloud_label_radio_required' => 'Cloud etiket radyo gereklidir.',
         'cloud_product_required' => 'Cloud ürünü gereklidir.',
+        'cloud_product_unique' => 'Bu ürünün zaten bir bulut yapılandırması var.',
         'cloud_free_plan_required' => 'Cloud ücretsiz plan gereklidir.',
+        'cloud_free_plan_invalid' => 'Seçilen plan seçilen ürüne ait değildir.',
         'cloud_product_key_required' => 'Cloud ürün anahtarı gereklidir.',
     ],
     'reg_till_after' => 'Kayıt son tarihi, kayıt başlangıç tarihinden sonra olmalıdır.',
@@ -864,6 +888,8 @@ return [
         'no_agent_req' => 'Ajan sayısı alanı, ürün miktarı yoksa zorunludur.',
         'pro_req' => 'Ürün alanı zorunludur',
         'offer_price' => 'Teklif fiyatları 100’den büyük olmamalıdır',
+        'currency_duplicate' => 'Her para birimi yalnızca bir kez kullanılabilir.',
+        'non_negative' => 'Bu değer negatif olamaz.',
     ],
     'razorpay_val' => [
         'business_required' => 'İşletme alanı gereklidir.',
@@ -878,5 +904,36 @@ return [
     'login_failed' => 'Giriş başarısız, lütfen girdiğiniz e-posta/kullanıcı adı ve şifrenin doğru olduğundan emin olun.',
     'forgot_email_validation' => 'Sağladığınız e-posta kayıtlıysa, şifreyi sıfırlamak için talimatları içeren bir e-posta alacaksınız.',
     'too_many_login_attempts' => 'Çok fazla başarısız giriş denemesi nedeniyle uygulamadan engellendiniz. Lütfen :time sonra tekrar deneyin.',
-
+    'phone_number' => 'Lütfen geçerli bir cep telefonu numarası girin.',
+    'mobile_number' => ':attribute geçerli bir cep telefonu numarası olmalıdır.',
+    'license' => [
+        'product' => [
+            'required' => 'Ürün alanı zorunludur.',
+        ],
+        'client' => [
+            'required' => 'İstemci alanı zorunludur.',
+        ],
+        'license_code' => [
+            'required' => 'Lisans kodu alanı zorunludur.',
+        ],
+        'license_expire_date' => [
+            'required' => 'Lisans bitiş tarihi alanı zorunludur.',
+        ],
+        'license_updates_date' => [
+            'required' => 'Güncellemelerin son kullanma tarihi alanı zorunludur.',
+        ],
+        'license_support_date' => [
+            'required' => 'Destek bitiş tarihi alanı zorunludur.',
+        ],
+        'banned_host_ip' => [
+            'required' => 'Yasaklanan ana bilgisayar IP alanı gereklidir.',
+            'invalid' => 'Lütfen geçerli bir IP adresi girin.',
+        ],
+        'installation_ip' => [
+            'required' => 'Kurulum IP alanı gereklidir.',
+        ],
+        'notification_field' => [
+            'required' => 'Bu bildirim alanı zorunludur.',
+        ],
+    ],
 ];

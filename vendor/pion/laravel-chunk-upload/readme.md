@@ -9,7 +9,7 @@
 
 Laravel Chunk Upload simplifies chunked uploads with support for multiple JavaScript libraries atop Laravel's file upload system, designed with a minimal memory footprint. Features include cross-domain request support, automatic cleaning, and intuitive usage.
 
-For example repository with **integration tests**, visit [laravel-chunk-upload-example](https://github.com/pionl/laravel-chunk-upload-example).
+For example, a repository with **integration tests**, visit [laravel-chunk-upload-example](https://github.com/pionl/laravel-chunk-upload-example).
 
 Before contributing, familiarize yourself with the guidelines outlined in CONTRIBUTION.md.
 
@@ -21,11 +21,13 @@ Before contributing, familiarize yourself with the guidelines outlined in CONTRI
 composer require pion/laravel-chunk-upload
 ```
 
-**2. Publish the Configuration (Optional)**
+**2. Publish the Configuration (recommended)**
 
 ```bash
 php artisan vendor:publish --provider="Pion\Laravel\ChunkUpload\Providers\ChunkUploadServiceProvider"
 ```
+
+This will force our recommended default values (due to a cross-compatibility, the config can contain different values that the business logic).
 
 ## Usage
 
@@ -35,14 +37,15 @@ The setup involves three steps:
 2. Define a route for the controller. [Instructions](https://github.com/pionl/laravel-chunk-upload/wiki/routing)
 3. Select your preferred frontend provider (multiple providers are supported in a single controller).
 
-| Library | Wiki | Single & Chunk Upload | Simultaneous Uploads | Included in [Example Project](https://github.com/pionl/laravel-chunk-upload-example) | Author |
-|---------|------|-----------------------|----------------------|--------------------------------------------------|--------|
-| [resumable.js](https://github.com/23/resumable.js) | [Wiki](https://github.com/pionl/laravel-chunk-upload/wiki/resumable-js) | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [@pionl](https://github.com/pionl) |
-| [DropZone](https://github.com/dropzone/dropzone) | [Wiki](https://github.com/pionl/laravel-chunk-upload/wiki/dropzone) | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [@pionl](https://github.com/pionl) |
-| [jQuery-File-Upload](https://github.com/blueimp/jQuery-File-Upload) | [Wiki](https://github.com/pionl/laravel-chunk-upload/wiki/jquery-file-upload)  | :heavy_check_mark: | :heavy_multiplication_x: | :heavy_check_mark: | [@pionl](https://github.com/pionl) |
-| [Plupload](https://github.com/moxiecode/plupload) | [Wiki](https://github.com/pionl/laravel-chunk-upload/wiki/plupload) | :heavy_check_mark: | :heavy_multiplication_x: | :heavy_multiplication_x: | [@pionl](https://github.com/pionl) |
-| [simple uploader](https://github.com/simple-uploader) | :heavy_multiplication_x: | :heavy_check_mark: | :heavy_multiplication_x: | :heavy_multiplication_x: | [@dyktek](https://github.com/dyktek) |
-| [ng-file-upload](https://github.com/danialfarid/ng-file-upload) | [Wiki](https://github.com/pionl/laravel-chunk-upload/wiki/ng-file-upload) | :heavy_check_mark: | :heavy_multiplication_x: | :heavy_multiplication_x: | [@L3o-pold](https://github.com/L3o-pold) |
+| Library                                                             | Wiki                                                                          | Single & Chunk Upload | Simultaneous Uploads     | Included in [Example Project](https://github.com/pionl/laravel-chunk-upload-example) | Author                                     |
+|---------------------------------------------------------------------|-------------------------------------------------------------------------------|-----------------------|--------------------------|--------------------------------------------------------------------------------------|--------------------------------------------|
+| [resumable.js](https://github.com/23/resumable.js)                  | [Wiki](https://github.com/pionl/laravel-chunk-upload/wiki/resumable-js)       | :heavy_check_mark:    | :heavy_check_mark:       | :heavy_check_mark:                                                                   | [@pionl](https://github.com/pionl)         |
+| [flow.js](https://github.com/flowjs/flow.js/)                       | [Wiki](https://github.com/pionl/laravel-chunk-upload/wiki/FlowJS)             | :heavy_check_mark:    | :heavy_check_mark:       | :heavy_check_mark:                                                                   | [@kcaj-burr](https://github.com/kcaj-burr) |
+| [DropZone](https://github.com/dropzone/dropzone)                    | [Wiki](https://github.com/pionl/laravel-chunk-upload/wiki/dropzone)           | :heavy_check_mark:    | :heavy_check_mark:       | :heavy_check_mark:                                                                   | [@pionl](https://github.com/pionl)         |
+| [jQuery-File-Upload](https://github.com/blueimp/jQuery-File-Upload) | [Wiki](https://github.com/pionl/laravel-chunk-upload/wiki/jquery-file-upload) | :heavy_check_mark:    | :heavy_multiplication_x: | :heavy_check_mark:                                                                   | [@pionl](https://github.com/pionl)         |
+| [Plupload](https://github.com/moxiecode/plupload)                   | [Wiki](https://github.com/pionl/laravel-chunk-upload/wiki/plupload)           | :heavy_check_mark:    | :heavy_multiplication_x: | :heavy_multiplication_x:                                                             | [@pionl](https://github.com/pionl)         |
+| [simple uploader](https://github.com/simple-uploader)               | :heavy_multiplication_x:                                                      | :heavy_check_mark:    | :heavy_multiplication_x: | :heavy_multiplication_x:                                                             | [@dyktek](https://github.com/dyktek)       |
+| [ng-file-upload](https://github.com/danialfarid/ng-file-upload)     | [Wiki](https://github.com/pionl/laravel-chunk-upload/wiki/ng-file-upload)     | :heavy_check_mark:    | :heavy_multiplication_x: | :heavy_multiplication_x:                                                             | [@L3o-pold](https://github.com/L3o-pold)   |
 
 **Simultaneous Uploads:** The library must send the last chunk as the final one to ensure correct merging.
 
@@ -62,20 +65,24 @@ Refer to [CONTRIBUTING.md](CONTRIBUTING.md) for contribution instructions. All c
 
 ## Compatibility
 
-Though not tested via automation scripts, Laravel 5/6 should still be supported.
+The table below shows which PHP Laravel and PHP version is tested (or was tested). If you see a version
+in the **Supported** column, it means a package version with the last support of the Laravel version. 
 
-| Version | PHP           |
-|---------|---------------| 
-| 12.*    | 8.2,8.3,8.4   |
-| 11.*    | 8.2,8.3,8.4   |
-| 10.*    | 8.1, 8.2      |
-| 9.*     | 8.0, 8.1      |
-| 8.*     | 7.4, 8.0, 8.1 |
-| 7.*     | 7.4           |
+| Version | PHP             | Supported | Tested |
+|---------|-----------------|-----------|--------|
+| 13.*    | 8.3,8.4,8.5     | ✅         | ✅      |
+| 12.*    | 8.2,8.3,8.4,8.5 | ✅         | ✅      |
+| 11.*    | 8.2,8.3,8.4     | ✅         | ✅      |
+| 10.*    | 8.2             | ✅         | ✅      |
+| 9.*     | 8.2             | ✅         | ✅      |
+| 8.*     | 7.4, 8.0, 8.1   | v1.5.6    | 🟥     |
+| 7.*     | 7.4             | v1.5.6    | 🟥     |
+
+
 
 ### New versions
 
-If there is a new Laravel version and there is not a offical release you can create a PR and then any one can use the PR until offical release is made. Check the PR and and update composer.json with the repository.
+If there is a new Laravel version and there is no an official release in our package, you can create a PR. Then anyone can use the PR until the official release is made. Check the PR and update composer.json with the repository.
 
 ```
 "repositories": [
@@ -86,7 +93,7 @@ If there is a new Laravel version and there is not a offical release you can cre
   ]
 ```
 
-Here is [exmplanation article](https://putyourlightson.com/articles/requiring-a-forked-repo-with-composer)
+Here is [explanation article](https://putyourlightson.com/articles/requiring-a-forked-repo-with-composer)
 
 ## Copyright and License
 

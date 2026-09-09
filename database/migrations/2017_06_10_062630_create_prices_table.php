@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('prices')) {
-            Schema::create('prices', function (Blueprint $table) {
+            Schema::create('prices', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('product_id')->unsigned()->index('prices_product_id_foreign');
                 $table->string('currency');
@@ -28,10 +26,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('prices');
     }

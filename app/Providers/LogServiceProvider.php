@@ -3,23 +3,26 @@
 namespace App\Providers;
 
 use App;
+use App\BillingLog\Controllers\LogWriteController;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class LogServiceProvider extends ServiceProvider implements DeferrableProvider
 {
     /**
      * Register the application services.
-     *
-     * @return void
      */
-    public function register()
+    #[Override]
+    public function register(): void
     {
-        App::bind('Log', function () {
-            return new App\BillingLog\Controllers\LogWriteController;
-        });
+        App::bind('Log', fn (): LogWriteController => new LogWriteController);
     }
 
+    /**
+     * @return array<mixed>
+     */
+    #[Override]
     public function provides(): array
     {
         return ['Log'];

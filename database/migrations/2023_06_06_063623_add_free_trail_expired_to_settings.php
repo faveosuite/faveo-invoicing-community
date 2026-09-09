@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasColumn('free_trail_expired', 'Free_trail_gonna_expired')) {
-            Schema::table('settings', function (Blueprint $table) {
+            Schema::table('settings', function (Blueprint $table): void {
                 $table->string('free_trail_expired')->nullable();
                 $table->string('Free_trail_gonna_expired')->nullable();
             });
@@ -23,12 +21,10 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('settings', function (Blueprint $table): void {
             $table->dropColumn('free_trail_expired');
             $table->dropColumn('Free_trail_gonna_expired');
         });

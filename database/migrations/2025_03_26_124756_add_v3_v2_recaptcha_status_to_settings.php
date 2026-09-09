@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             $table->boolean('v3_v2_recaptcha_status')->default(0)->after('v3_recaptcha_status');
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             $table->dropColumn('v3_v2_recaptcha_status');
         });
     }

@@ -8,21 +8,22 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('api_keys', function (Blueprint $table) {
+        Schema::table('api_keys', function (Blueprint $table): void {
             if (! Schema::hasColumn('api_keys', 'update_api_url')) {
                 $table->string('update_api_url', 255)->nullable();
             }
+
             if (! Schema::hasColumn('api_keys', 'update_api_secret')) {
                 $table->string('update_api_secret', 255)->nullable();
             }
+
             if (! Schema::hasColumn('api_keys', 'terms_url')) {
                 $table->string('terms_url', 255)->nullable();
             }
+
             if (! Schema::hasColumn('api_keys', 'pipedrive_api_key')) {
                 $table->string('pipedrive_api_key', 255)->nullable();
             }
@@ -31,12 +32,10 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('api_keys', function (Blueprint $table) {
+        Schema::table('api_keys', function (Blueprint $table): void {
             $table->dropColumn(['update_api_url', 'update_api_secret', 'terms_url', 'pipedrive_api_key']);
         });
     }

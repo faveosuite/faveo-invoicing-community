@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('cloud_products', function (Blueprint $table) {
+        Schema::table('cloud_products', function (Blueprint $table): void {
             $table->boolean('trial_status')->after('cloud_product_key')->default('0');
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('cloud_products', function (Blueprint $table) {
+        Schema::table('cloud_products', function (Blueprint $table): void {
             $table->dropColumn('trial_status');
         });
     }

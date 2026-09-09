@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('whatsapp_integration_user', function (Blueprint $table) {
+        Schema::table('whatsapp_integration_user', function (Blueprint $table): void {
             $table->string('order_id');
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('whatsapp_integration_user', function (Blueprint $table) {
+        Schema::table('whatsapp_integration_user', function (Blueprint $table): void {
             $table->dropColumn('order_id');
         });
     }

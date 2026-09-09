@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\SocialLogin;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\Rule;
 
 class SocialLoginsController extends Controller
 {
@@ -14,35 +16,52 @@ class SocialLoginsController extends Controller
         $this->middleware('admin');
     }
 
-    public function view()
+    public function getSocialLogin(Request $request): JsonResponse
     {
-        $socialLoginss = SocialLogin::get();
+        $search = $request->input('search-query', '');
+        $sortField = $request->input('sort-field', 'created_at');
+        $sortOrder = $request->input('sort-order', 'desc');
+        $limit = $request->input('limit', 10);
 
-        return view('themes.default1.common.socialLogins', compact('socialLoginss'));
+        $query = SocialLogin::select('id', 'type', 'client_id', 'client_secret', 'redirect_url', 'status')
+            ->when($search, function ($q) use ($search): void {
+                $q->where('type', 'like', sprintf('%%%s%%', $search))
+                    ->orWhere('client_id', 'like', sprintf('%%%s%%', $search));
+            });
+
+        $socialLogins = $query->orderBy($sortField, $sortOrder)
+            ->paginate($limit);
+
+        return successResponse('', $socialLogins);
     }
 
-    public function edit($id)
+    public function editSocialLogin(mixed $id): JsonResponse
     {
         $socialLogins = SocialLogin::where('id', $id)->first();
 
-        return view('themes.default1.common.editSocialLogins', compact('socialLogins'));
+        return successResponse('', $socialLogins);
     }
 
-    public function update(Request $request)
+    public function updateSocialLogin(Request $request): JsonResponse
     {
+        $isTwitter = $request->input('type') === 'Twitter';
+
         $request->validate([
-            'client_id' => 'required_if:type,Google,Github,Linkedin',
-            'client_secret' => 'required_if:type,Google,Github,Linkedin',
-            'api_key' => 'required_if:type,Twitter',
-            'api_secret' => 'required_if:type,Twitter',
-            'redirect_url' => 'required',
+            'client_id' => [Rule::requiredIf(! $isTwitter)],
+            'client_secret' => [Rule::requiredIf(! $isTwitter)],
+            'api_key' => [Rule::requiredIf($isTwitter)],
+            'api_secret' => [Rule::requiredIf($isTwitter)],
+            'redirect_url' => ['required', 'url'],
         ],
             [
-                'client_id.required_if' => __('validation.social_login.client_id_required'),
-                'client_secret.required_if' => __('validation.social_login.client_secret_required'),
-                'api_key.required_if' => __('validation.social_login.api_key_required'),
-                'api_secret.required_if' => __('validation.social_login.api_secret_required'),
+                // Rule::requiredIf() compiles down to the plain "required" rule at
+                // validation time (not "required_if"), so the message key must match that.
+                'client_id.required' => __('validation.social_login.client_id_required'),
+                'client_secret.required' => __('validation.social_login.client_secret_required'),
+                'api_key.required' => __('validation.social_login.api_key_required'),
+                'api_secret.required' => __('validation.social_login.api_secret_required'),
                 'redirect_url.required' => __('validation.social_login.redirect_url_required'),
+                'redirect_url.url' => __('message.invalid_url'),
             ]);
 
         try {
@@ -53,11 +72,9 @@ class SocialLoginsController extends Controller
                 'status' => $request->optradio,
             ]);
 
-            Session::flash('success', __('message.social_login_settings_updated'));
-        } catch (\Exception $e) {
-            Session::flash('error', __('message.error_occurred_social_login'));
+            return successResponse(__('message.social_login_settings_updated'));
+        } catch (Exception) {
+            return errorResponse(__('message.error_occurred_social_login'));
         }
-
-        return redirect()->back();
     }
 }

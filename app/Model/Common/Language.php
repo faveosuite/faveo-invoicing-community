@@ -1,10 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Model\Common;
 
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $translation
+ * @property string $locale
+ * @property int $status
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Language newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Language newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Language query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Language whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Language whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Language whereLocale($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Language whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Language whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Language whereTranslation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Language whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class Language extends Model
 {
     use SystemActivityLogsTrait;
@@ -18,28 +47,37 @@ class Language extends Model
         'status',
     ];
 
-    protected $logName = 'language';
+    protected string $logName = 'language';
 
-    protected $logNameColumn = 'name';
+    protected string $logNameColumn = 'name';
 
-    protected $logAttributes = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logAttributes = [
         'name',
         'translation',
         'locale',
         'status',
     ];
 
-    protected $logUrl = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logUrl = [
         'segments' => ['languages'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
             'name' => ['Name', fn ($value) => $value],
             'translation' => ['Translation', fn ($value) => $value],
             'locale' => ['Locale', fn ($value) => $value],
-            'status' => ["{$this->name} Language", fn ($value) => $value === 1 ? __('message.enable') : __('message.disable')],
+            'status' => [$this->name.' Language', fn ($value): array|string => $value === 1 ? __('message.enable') : __('message.disable')],
         ];
     }
 }

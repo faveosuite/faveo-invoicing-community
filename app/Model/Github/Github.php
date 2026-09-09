@@ -4,7 +4,36 @@ namespace App\Model\Github;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use Crypt;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
+/**
+ * @property int $id
+ * @property string|null $client_id
+ * @property string|null $client_secret
+ * @property string|null $username
+ * @property string|null $password
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github whereClientSecret($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github whereUsername($value)
+ *
+ * @mixin \Eloquent
+ */
 class Github extends BaseModel
 {
     use SystemActivityLogsTrait;
@@ -13,40 +42,52 @@ class Github extends BaseModel
 
     protected $fillable = ['client_id', 'client_secret', 'username', 'password'];
 
-    protected $logName = 'github';
+    protected string $logName = 'github';
 
-    protected $logNameColumn = 'Settings';
+    protected string $logNameColumn = 'Settings';
 
-    protected $logAttributes = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logAttributes = [
         'client_id', 'client_secret', 'username', 'password',
     ];
 
-    protected $logUrl = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logUrl = [
         'segments' => ['third-party-integration'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
             'client_id' => ['Client ID', fn ($value) => $value],
             'client_secret' => ['Client Secret', fn ($value) => $value],
             'username' => ['Username', fn ($value) => $value],
-            'password' => ['Password', fn ($value) => $value ? '********' : ''],
+            'password' => ['Password', fn ($value): string => $value ? '********' : ''],
         ];
     }
 
-    public function setPasswordAttribute($value)
+    /**
+     * @return Attribute<mixed, mixed>
+     */
+    protected function password(): Attribute
     {
-        $value = \Crypt::encrypt($value);
-        $this->attributes['password'] = $value;
-    }
+        return Attribute::make(get: function ($value) {
+            if ($value) {
+                return Crypt::decrypt($value);
+            }
 
-    public function getPasswordAttribute($value)
-    {
-        if ($value) {
-            $value = \Crypt::decrypt($value);
-        }
+            return $value;
+        }, set: function ($value): array {
+            $value = Crypt::encrypt($value);
 
-        return $value;
+            return ['password' => $value];
+        });
     }
 }

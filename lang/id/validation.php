@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'accepted' => ':attribute harus diterima.',
     'accepted_if' => ':attribute harus diterima ketika :other adalah :value.',
     'active_url' => ':attribute bukan URL yang valid.',
@@ -25,6 +24,7 @@ return [
     'date' => ':attribute bukan tanggal yang valid.',
     'date_equals' => ':attribute harus berupa tanggal yang sama dengan :date.',
     'date_format' => ':attribute tidak cocok dengan format :format.',
+    'decimal' => 'Bidang :attribute harus memiliki :decimal desimal.',
     'declined' => ':attribute harus ditolak.',
     'declined_if' => ':attribute harus ditolak ketika :other adalah :value.',
     'different' => ':attribute dan :other harus berbeda.',
@@ -91,11 +91,11 @@ return [
     'not_regex' => 'Format :attribute tidak valid.',
     'numeric' => ':attribute harus berupa angka.',
     'password' => [
-        'letters' => ':attribute harus mengandung setidaknya satu huruf.',
-        'mixed' => ':attribute harus mengandung setidaknya satu huruf besar dan satu huruf kecil.',
-        'numbers' => ':attribute harus mengandung setidaknya satu angka.',
-        'symbols' => ':attribute harus mengandung setidaknya satu simbol.',
-        'uncompromised' => ':attribute yang diberikan telah muncul dalam kebocoran data. Silakan pilih :attribute lain.',
+        'letters' => ':attribute harus berisi minimal satu huruf.',
+        'mixed' => ':attribute harus berisi setidaknya satu huruf besar dan satu huruf kecil.',
+        'numbers' => ':attribute harus berisi setidaknya satu nomor.',
+        'symbols' => ':attribute harus berisi setidaknya satu simbol.',
+        'uncompromised' => ':attribute yang diberikan telah muncul dalam kebocoran data. Silakan pilih :attribute yang lain.',
     ],
     'present' => 'Field :attribute harus ada.',
     'prohibited' => 'Field :attribute dilarang.',
@@ -125,35 +125,11 @@ return [
     'uploaded' => 'Upload :attribute gagal.',
     'url' => ':attribute harus berupa URL yang valid.',
     'uuid' => ':attribute harus berupa UUID yang valid.',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Validation Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | Here you may specify custom validation messages for attributes using the
-    | convention "attribute.rule" to name the lines. This makes it quick to
-    | specify a specific custom language line for a given attribute rule.
-    |
-    */
-
     'custom_dup' => [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Validation Attributes
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines are used to swap our attribute placeholder
-    | with something more reader friendly such as "E-Mail Address" instead
-    | of "email". This simply helps us make our message more expressive.
-    |
-    */
-
     'attributes' => [],
     'publish_date_required' => 'Tanggal terbit wajib diisi',
     'price_numeric_value' => 'Harga harus berupa nilai numerik',
@@ -170,12 +146,6 @@ return [
     'total_amount_required' => 'Jumlah total wajib diisi.',
     'total_amount_numeric' => 'Jumlah total harus berupa nilai numerik.',
     'invoice_link_required' => 'Harap tautkan jumlah dengan setidaknya satu Faktur.',
-
-    /*
-    Request file custom validation messages
-    */
-
-    //Common
     'settings_form' => [
         'company' => [
             'required' => 'Kolom perusahaan wajib diisi.',
@@ -210,7 +180,6 @@ return [
             'email' => 'Email kesalahan harus berupa alamat email yang valid.',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => 'Nama perusahaan wajib diisi.',
@@ -241,7 +210,7 @@ return [
             'required' => 'Negara wajib diisi.',
         ],
         'gstin' => [
-            'max' => 'GSTIN tidak boleh melebihi 15 karakter.',
+            'regex' => 'Format GSTIN tidak valid.',
         ],
         'default_currency' => [
             'required' => 'Mata uang default wajib diisi.',
@@ -259,7 +228,10 @@ return [
             'max' => 'Logo tidak boleh lebih dari 2MB.',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'Gambar OG harus berupa file dengan tipe:jpeg, png, jpg, webp.',
+        'max' => 'Gambar OG tidak boleh lebih besar dari 2MB.',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => 'Kolom nama wajib diisi.',
@@ -271,9 +243,13 @@ return [
             'url' => 'Tautan harus berupa URL yang valid.',
             'regex' => 'Format tautan tidak valid.',
         ],
+        'class' => [
+            'required' => 'Bidang kelas ikon wajib diisi.',
+        ],
+        'fa_class' => [
+            'required' => 'Bidang kelas ikon wajib diisi.',
+        ],
     ],
-
-    //Email
     'custom' => [
         'password' => [
             'required_if' => 'Kolom kata sandi wajib diisi untuk driver email yang dipilih.',
@@ -309,7 +285,6 @@ return [
             'required' => 'Kolom driver wajib diisi.',
         ],
     ],
-
     'customer_form' => [
         'first_name' => [
             'required' => 'Kolom nama depan wajib diisi.',
@@ -349,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => 'Verifikasi robot gagal. Silakan coba lagi.',
         'demo-recaptcha-response-1.required' => 'Verifikasi robot gagal. Silakan coba lagi.',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => 'Kolom nama wajib diisi.',
@@ -362,6 +336,7 @@ return [
         ],
         'slug' => [
             'required' => 'Kolom slug wajib diisi.',
+            'unique' => 'Siput ini sudah ada.',
         ],
         'url' => [
             'required' => 'Kolom URL wajib diisi.',
@@ -374,9 +349,12 @@ return [
         'created_at' => [
             'required' => 'Kolom tanggal dibuat wajib diisi.',
         ],
+        'parent_page_id' => [
+            'exists' => 'Halaman induk yang dipilih tidak ada.',
+            'self' => 'Suatu halaman tidak dapat menjadi induknya sendiri.',
+            'nested' => 'Halaman yang dipilih sudah menjadi subhalaman dan tidak dapat dijadikan induk.',
+        ],
     ],
-
-    //Order form
     'order_form' => [
         'client' => [
             'required' => 'Kolom klien wajib diisi.',
@@ -403,8 +381,6 @@ return [
             'integer' => 'Jumlah harus berupa bilangan bulat.',
         ],
     ],
-
-    //Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'Kolom kode kupon wajib diisi.',
@@ -437,9 +413,9 @@ return [
             'required' => 'Kolom nilai diskon wajib diisi.',
             'numeric' => 'Kolom nilai diskon harus berupa angka.',
             'between' => 'Kolom nilai diskon harus antara :min dan :max jika tipenya adalah persentase.',
+            'max' => 'Nilai diskon tidak boleh melebihi harga produk yang berlaku (:max).',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => 'Kolom nama wajib diisi.',
@@ -447,6 +423,12 @@ return [
         'rate' => [
             'required' => 'Kolom tarif wajib diisi.',
             'numeric' => 'Tarif harus berupa angka.',
+            'decimal' => 'Nilai tukar harus mempunyai paling banyak 3 angka desimal.',
+            'max' => 'Tarifnya tidak boleh lebih besar dari 999.999.',
+        ],
+        'priority' => [
+            'required' => 'Bidang prioritas wajib diisi.',
+            'min' => 'Prioritas minimal harus 1.',
         ],
         'level' => [
             'required' => 'Kolom tingkat wajib diisi.',
@@ -454,15 +436,11 @@ return [
         ],
         'country' => [
             'required' => 'Kolom negara wajib diisi.',
-            // 'exists' => 'Negara yang dipilih tidak valid.',
         ],
         'state' => [
             'required' => 'Kolom negara bagian wajib diisi.',
-            // 'exists' => 'Negara bagian yang dipilih tidak valid.',
         ],
     ],
-
-    //Product
     'subscription_form' => [
         'name' => [
             'required' => 'Kolom nama wajib diisi.',
@@ -490,10 +468,13 @@ return [
             'required' => 'Setiap item wajib diisi.',
         ],
     ],
-
     'group' => [
         'name' => [
             'required' => 'Nama wajib diisi',
+            'unique' => 'Nama ini sudah ada.',
+        ],
+        'pricing_templates_id' => [
+            'required' => 'Templat desain diperlukan.',
         ],
         'features' => [
             'name' => [
@@ -517,13 +498,15 @@ return [
             'required_with' => 'Judul wajib diisi',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => 'Kolom nama wajib diisi.',
         ],
         'type' => [
             'required' => 'Kolom tipe wajib diisi.',
+        ],
+        'product_type' => [
+            'required' => 'Bidang kategori produk wajib diisi.',
         ],
         'group' => [
             'required' => 'Kolom grup wajib diisi.',
@@ -543,15 +526,18 @@ return [
             'mimes' => 'Gambar harus berupa file PNG.',
         ],
         'github_owner' => [
+            'required' => 'Bidang pemilik GitHub wajib diisi.',
             'required_without_all' => 'Kolom pemilik GitHub wajib diisi jika file atau gambar tidak tersedia.',
         ],
         'github_repository' => [
+            'required' => 'Bidang repositori GitHub wajib diisi.',
             'required_without_all' => 'Kolom repositori GitHub wajib diisi jika file atau gambar tidak tersedia.',
             'required_if' => 'Kolom repositori GitHub wajib diisi jika tipe adalah 2.',
         ],
+        'shoping_cart_link' => [
+            'required' => 'Bidang tautan keranjang belanja wajib diisi.',
+        ],
     ],
-
-    //User
     'users' => [
         'first_name' => [
             'required' => 'Kolom nama depan wajib diisi.',
@@ -590,8 +576,10 @@ return [
         'zip' => [
             'regex' => 'Kolom provinsi wajib diisi jika negara adalah India.',
         ],
+        'gstin' => [
+            'regex' => 'Format GSTIN tidak valid.',
+        ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => 'Nama depan wajib diisi.',
@@ -624,44 +612,45 @@ return [
             'required' => 'Nama pengguna wajib diisi.',
             'unique' => 'Nama pengguna ini sudah digunakan.',
         ],
+        'timezone_id' => [
+            'required' => 'Zona waktu wajib diisi.',
+        ],
+        'country' => [
+            'required' => 'Negara wajib diisi.',
+            'exists' => 'Negara yang dipilih tidak valid.',
+        ],
+        'state' => [
+            'required_if' => 'Bidang negara bagian wajib diisi untuk negara ini.',
+        ],
+        'gstin' => [
+            'regex' => 'Format GSTIN tidak valid.',
+        ],
+        'old_password' => [
+            'required' => 'Kata sandi lama diperlukan.',
+            'min' => 'Kata sandi lama minimal harus :min karakter.',
+        ],
+        'new_password' => [
+            'required' => 'Diperlukan kata sandi baru.',
+            'different' => 'Password baru harus berbeda dengan password lama.',
+        ],
+        'confirm_password' => [
+            'required' => 'Diperlukan konfirmasi kata sandi.',
+            'same' => 'Konfirmasi password harus sesuai dengan password baru.',
+        ],
+        'terms' => [
+            'required' => 'Anda harus menerima persyaratannya.',
+        ],
+        'password' => [
+            'required' => 'Kata sandi diperlukan.',
+        ],
+        'password_confirmation' => [
+            'required' => 'Konfirmasi kata sandi diperlukan.',
+            'same' => 'Kata sandi tidak cocok.',
+        ],
+        'mobile_code' => [
+            'required' => 'Masukkan kode Negara (ponsel)',
+        ],
     ],
-    'timezone_id' => [
-        'required' => 'Zona waktu wajib diisi.',
-    ],
-    'country' => [
-        'required' => 'Negara wajib diisi.',
-        'exists' => 'Negara yang dipilih tidak valid.',
-    ],
-    'state' => [
-        'required_if' => 'Kolom provinsi wajib diisi jika negara adalah India.',
-    ],
-    'old_password' => [
-        'required' => 'Kata sandi lama wajib diisi.',
-        'min' => 'Kata sandi lama minimal :min karakter.',
-    ],
-    'new_password' => [
-        'required' => 'Kata sandi baru wajib diisi.',
-        'different' => 'Kata sandi baru harus berbeda dari kata sandi lama.',
-    ],
-    'confirm_password' => [
-        'required' => 'Konfirmasi kata sandi wajib diisi.',
-        'same' => 'Konfirmasi kata sandi harus sama dengan kata sandi baru.',
-    ],
-    'terms' => [
-        'required' => 'Anda harus menyetujui syarat dan ketentuan.',
-    ],
-    'password' => [
-        'required' => 'Kata sandi wajib diisi.',
-    ],
-    'password_confirmation' => [
-        'required' => 'Konfirmasi kata sandi wajib diisi.',
-        'same' => 'Kata sandi tidak cocok.',
-    ],
-    'mobile_code' => [
-        'required' => 'Masukkan kode negara (ponsel)',
-    ],
-
-    //Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Kolom klien wajib diisi.',
@@ -671,7 +660,12 @@ return [
             'date' => 'Tanggal harus berupa tanggal yang valid.',
         ],
         'domain' => [
+            'required' => 'Bidang domain wajib diisi.',
             'regex' => 'Format domain tidak valid.',
+        ],
+        'cloud_domain' => [
+            'required' => 'Bidang domain cloud wajib diisi.',
+            'regex' => 'Hanya huruf, angka, dan tanda hubung yang diperbolehkan.',
         ],
         'plan' => [
             'required_if' => 'Kolom langganan wajib diisi.',
@@ -683,89 +677,86 @@ return [
             'required' => 'Kolom produk wajib diisi.',
         ],
     ],
-
-    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Kolom domain wajib diisi.',
             'url' => 'Domain harus berupa URL yang valid.',
         ],
     ],
-
-    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Kolom domain wajib diisi.',
             'no_http' => 'Domain tidak boleh mengandung "http" atau "https".',
         ],
     ],
-
-    //Language form
     'language' => [
         'required' => 'Kolom bahasa wajib diisi.',
         'invalid' => 'Bahasa yang dipilih tidak valid.',
     ],
-
-    //UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Kolom penyimpanan wajib diisi.',
             'string' => 'Penyimpanan harus berupa teks.',
         ],
         'path' => [
+            'required' => 'Bidang jalur penyimpanan wajib diisi.',
             'string' => 'Path harus berupa teks.',
             'nullable' => 'Kolom path bersifat opsional.',
+            'invalid' => 'Jalur tidak ada atau tidak dapat ditulisi.',
         ],
     ],
-
-    //ValidateSecretRequest form
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => 'Bidang jalur simpul wajib diisi.',
+            'string' => 'Jalur node harus berupa string yang valid.',
+        ],
+        'npm_path' => [
+            'required' => 'Bidang jalur npm wajib diisi.',
+            'string' => 'Jalur npm harus berupa string yang valid.',
+        ],
+        'chrome_path' => [
+            'required' => 'Bidang jalur chrome wajib diisi.',
+            'string' => 'Jalur chrome harus berupa string yang valid.',
+            'invalid' => 'Jalur chrome tidak ada atau tidak dapat dieksekusi.',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => 'Silakan masukkan kode',
             'digits' => 'Silakan masukkan kode 6 digit yang valid',
         ],
     ],
-
-    //VerifyOtp form
     'verify_email' => [
         'required' => 'Kolom email wajib diisi.',
         'email' => 'Email harus berupa alamat email yang valid.',
         'verify_email' => 'Verifikasi email gagal.',
     ],
-
     'verify_country_code' => [
         'required' => 'Kode negara wajib diisi.',
         'numeric' => 'Kode negara harus berupa angka yang valid.',
         'verify_country_code' => 'Verifikasi kode negara gagal.',
     ],
-
     'verify_number' => [
         'required' => 'Nomor wajib diisi.',
         'numeric' => 'Nomor harus berupa angka yang valid.',
         'verify_number' => 'Verifikasi nomor gagal.',
     ],
-
     'password_otp' => [
         'required' => 'Kolom kata sandi wajib diisi.',
         'password' => 'Kata sandi salah.',
         'invalid' => 'Kata sandi tidak valid.',
     ],
-
-    //AuthController file
     'auth_controller' => [
         'name_required' => 'Nama wajib diisi.',
         'name_max' => 'Nama tidak boleh lebih dari 255 karakter.',
-
         'email_required' => 'Email wajib diisi.',
         'email_email' => 'Masukkan alamat email yang valid.',
         'email_max' => 'Email tidak boleh lebih dari 255 karakter.',
         'email_unique' => 'Email ini sudah terdaftar.',
-
         'password_required' => 'Kata sandi wajib diisi.',
         'password_confirmed' => 'Konfirmasi kata sandi tidak cocok.',
         'password_min' => 'Kata sandi minimal 6 karakter.',
     ],
-
     'resend_otp' => [
         'eid_required' => 'Kolom EID wajib diisi.',
         'eid_string' => 'EID harus berupa teks.',
@@ -773,7 +764,6 @@ return [
         'type_string' => 'Tipe harus berupa teks.',
         'type_in' => 'Tipe yang dipilih tidak valid.',
     ],
-
     'verify_otp' => [
         'eid_required' => 'ID karyawan wajib diisi.',
         'eid_string' => 'ID karyawan harus berupa teks.',
@@ -782,31 +772,26 @@ return [
         'recaptcha_required' => 'Silakan selesaikan CAPTCHA.',
         'recaptcha_size' => 'Respon CAPTCHA tidak valid.',
     ],
-
     'company_validation' => [
         'company_required' => 'Nama perusahaan wajib diisi.',
         'company_string' => 'Nama perusahaan harus berupa teks.',
         'address_required' => 'Alamat wajib diisi.',
         'address_string' => 'Alamat harus berupa teks.',
     ],
-
     'token_validation' => [
         'token_required' => 'Token wajib diisi.',
         'password_required' => 'Kolom kata sandi wajib diisi.',
         'password_confirmed' => 'Konfirmasi kata sandi tidak cocok.',
     ],
-
     'custom_email' => [
         'required' => 'Kolom email wajib diisi.',
         'email' => 'Masukkan alamat email yang valid.',
         'exists' => 'Email ini tidak terdaftar di sistem kami.',
     ],
-
     'newsletterEmail' => [
         'required' => 'Email newsletter wajib diisi.',
         'email' => 'Masukkan alamat email yang valid untuk newsletter.',
     ],
-
     'widget' => [
         'name_required' => 'Nama wajib diisi.',
         'name_max' => 'Nama tidak boleh lebih dari 50 karakter.',
@@ -814,40 +799,39 @@ return [
         'type_required' => 'Tipe wajib diisi.',
         'type_unique' => 'Tipe ini sudah ada.',
     ],
-
     'payment' => [
         'payment_date_required' => 'Tanggal pembayaran wajib diisi.',
         'payment_method_required' => 'Metode pembayaran wajib diisi.',
         'amount_required' => 'Jumlah wajib diisi.',
     ],
-
     'custom_date' => [
         'date_required' => 'Kolom tanggal wajib diisi.',
         'total_required' => 'Kolom total wajib diisi.',
         'status_required' => 'Kolom status wajib diisi.',
     ],
-
     'plan_renewal' => [
         'plan_required' => 'Kolom paket wajib diisi.',
         'payment_method_required' => 'Kolom metode pembayaran wajib diisi.',
         'cost_required' => 'Kolom biaya wajib diisi.',
         'code_not_valid' => 'Kode promo tidak valid.',
     ],
-
     'rate' => [
         'required' => 'Tarif wajib diisi.',
         'numeric' => 'Tarif harus berupa angka.',
     ],
-
     'product_validate' => [
         'producttitle_required' => 'Judul produk wajib diisi.',
         'version_required' => 'Versi wajib diisi.',
         'filename_required' => 'Silakan unggah file.',
         'dependencies_required' => 'Kolom dependensi wajib diisi.',
+        'description_required' => 'Deskripsi diperlukan.',
+        'release_type_required' => 'Jenis rilis diperlukan.',
     ],
     'product_sku_unique' => 'SKU produk harus unik',
     'product_name_unique' => 'Nama harus unik',
     'product_show_agent_required' => 'Pilih preferensi halaman keranjang Anda',
+    'config_file_path_regex' => 'Harus berupa jalur relatif tanpa ../ segmen.',
+    'license_file_path_regex' => 'Harus berupa jalur relatif tanpa ../ segmen.',
     'product_controller' => [
         'name_required' => 'Nama produk wajib diisi.',
         'name_unique' => 'Nama harus unik.',
@@ -855,6 +839,7 @@ return [
         'type_required' => 'Jenis produk wajib diisi.',
         'description_required' => 'Deskripsi produk wajib diisi.',
         'product_description_required' => 'Deskripsi lengkap produk wajib diisi.',
+        'short_description_required' => 'Penjelasan singkat diperlukan.',
         'image_mimes' => 'Gambar harus berupa file dengan tipe: jpeg, png, jpg.',
         'image_max' => 'Ukuran gambar tidak boleh lebih dari 2048 kilobyte.',
         'product_sku_required' => 'SKU produk wajib diisi.',
@@ -872,7 +857,9 @@ return [
         'cloud_label_field_required' => 'Label kolom cloud wajib diisi.',
         'cloud_label_radio_required' => 'Label radio cloud wajib diisi.',
         'cloud_product_required' => 'Produk cloud wajib diisi.',
+        'cloud_product_unique' => 'Produk ini sudah memiliki konfigurasi cloud.',
         'cloud_free_plan_required' => 'Paket gratis cloud wajib diisi.',
+        'cloud_free_plan_invalid' => 'Paket yang dipilih bukan milik produk yang dipilih.',
         'cloud_product_key_required' => 'Kunci produk cloud wajib diisi.',
     ],
     'reg_till_after' => 'Tanggal "hingga" pendaftaran harus setelah tanggal "dari" pendaftaran.',
@@ -901,6 +888,8 @@ return [
         'no_agent_req' => 'Field jumlah agen wajib diisi jika jumlah produk tidak ada.',
         'pro_req' => 'Field produk wajib diisi',
         'offer_price' => 'Harga penawaran tidak boleh lebih dari 100',
+        'currency_duplicate' => 'Setiap mata uang hanya dapat digunakan satu kali.',
+        'non_negative' => 'Nilai ini tidak boleh negatif.',
     ],
     'razorpay_val' => [
         'business_required' => 'Kolom bisnis wajib diisi.',
@@ -915,5 +904,36 @@ return [
     'login_failed' => 'Login gagal, silakan periksa email/nama pengguna dan kata sandi yang Anda masukkan sudah benar.',
     'forgot_email_validation' => 'Jika email yang Anda berikan terdaftar, Anda akan menerima email dengan instruksi untuk mereset kata sandi dalam waktu dekat.',
     'too_many_login_attempts' => 'Anda telah diblokir dari aplikasi karena terlalu banyak percobaan login yang gagal. Silakan coba lagi setelah :time.',
-
+    'phone_number' => 'Silakan masukkan nomor ponsel yang valid.',
+    'mobile_number' => ':attribute harus berupa nomor ponsel yang valid.',
+    'license' => [
+        'product' => [
+            'required' => 'Bidang produk wajib diisi.',
+        ],
+        'client' => [
+            'required' => 'Bidang klien wajib diisi.',
+        ],
+        'license_code' => [
+            'required' => 'Kolom kode lisensi wajib diisi.',
+        ],
+        'license_expire_date' => [
+            'required' => 'Kolom tanggal habis masa berlaku lisensi wajib diisi.',
+        ],
+        'license_updates_date' => [
+            'required' => 'Bidang tanggal kedaluwarsa pembaruan wajib diisi.',
+        ],
+        'license_support_date' => [
+            'required' => 'Bidang tanggal kedaluwarsa dukungan wajib diisi.',
+        ],
+        'banned_host_ip' => [
+            'required' => 'Bidang IP host yang dilarang wajib diisi.',
+            'invalid' => 'Silakan masukkan alamat IP yang valid.',
+        ],
+        'installation_ip' => [
+            'required' => 'Bidang IP instalasi wajib diisi.',
+        ],
+        'notification_field' => [
+            'required' => 'Bidang notifikasi ini wajib diisi.',
+        ],
+    ],
 ];

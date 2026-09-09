@@ -4,16 +4,19 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **int** | The ID of the created filter | [optional]
-**name** | **string** | The name of the created filter | [optional]
-**active_flag** | **bool** | The activity flag of the created filter | [optional]
+**id** | **int** | The ID of the filter | [optional]
+**name** | **string** | The name of the filter | [optional]
+**filter_code** | **string** | The system code of the filter | [optional]
+**is_editable** | **bool** | Whether the filter can be edited by the requesting user | [optional]
+**active_flag** | **bool** | The activity flag of the filter | [optional]
 **type** | [**\Pipedrive\versions\v1\Model\FilterType**](FilterType.md) |  | [optional]
-**temporary_flag** | **bool** | If the created filter is temporary or not | [optional]
-**user_id** | **int** | The user ID of the created filter | [optional]
-**add_time** | **string** | The add time of the created filter | [optional]
-**update_time** | **string** | The update time of the created filter | [optional]
-**visible_to** | **int** | The visibility group ID of the created filter | [optional]
-**custom_view_id** | **int** | The custom view ID of the created filter | [optional]
-**conditions** | **object** | The created filter conditions object | [optional]
+**temporary_flag** | **bool** | Whether the filter is temporary | [optional]
+**user_id** | **int** | The user ID of the filter owner | [optional]
+**add_time** | **string** | The date and time when the filter was added | [optional]
+**update_time** | **string** | The date and time when the filter was last updated | [optional]
+**visible_to** | [**VisibleTo**](VisibleTo.md) | The visibility group ID of the filter | [optional]
+**last_used_time** | **string** | The date and time when the filter was last used | [optional]
+**custom_view_id** | **int** | The custom view ID linked to the filter | [optional]
+**conditions** | [**\Pipedrive\versions\v1\Model\FilterConditions**](FilterConditions.md) |  | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

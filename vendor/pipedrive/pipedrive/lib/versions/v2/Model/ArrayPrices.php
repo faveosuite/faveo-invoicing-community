@@ -2,7 +2,7 @@
 /**
  * ArrayPrices
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -66,7 +66,7 @@ class ArrayPrices implements ModelInterface, ArrayAccess, JsonSerializable
       * @phpsalm-var array<string, string>
       */
     protected static array $openAPITypes = [
-        'prices' => 'object[]'
+        'prices' => '\Pipedrive\versions\v2\Model\ArrayPricesPrices[]'
     ];
 
     /**
@@ -197,7 +197,7 @@ class ArrayPrices implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['prices'] = $data['prices'] ?? null;
     }
@@ -231,7 +231,7 @@ class ArrayPrices implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets prices
      *
-     * @return object[]|null
+     * @return \Pipedrive\versions\v2\Model\ArrayPricesPrices[]|null
      */
     public function getPrices()
     {
@@ -241,7 +241,7 @@ class ArrayPrices implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets prices
      *
-     * @param object[]|null $prices Array of objects, each containing: product_id (number), currency (string), price (number), cost (number), direct_cost (number | null), notes (string)
+     * @param \Pipedrive\versions\v2\Model\ArrayPricesPrices[]|null $prices The prices of the product in different currencies
      *
      * @return self
      */

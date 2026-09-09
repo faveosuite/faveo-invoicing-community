@@ -14,7 +14,7 @@ class SetupTestEnv extends LoggableCommand
      *
      * @var string
      */
-    protected $signature = 'testing-setup {--username=} {--password=} {--database=}';
+    protected $signature = 'testing-setup {--username=} {--password=} {--database=}'; // NOSONAR
 
     /**
      * The console command description.
@@ -25,17 +25,15 @@ class SetupTestEnv extends LoggableCommand
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handleAndLog()
+    public function handleAndLog(): void
     {
-        $dbUsername = $this->option('username') ? $this->option('username') : env('DB_USERNAME');
-        $dbPassword = $this->option('password') ? $this->option('password') : env('DB_PASSWORD');
-        $dbName = $this->option('database') ? $this->option('database') : 'billing_testing_db';
+        $dbUsername = $this->option('username') ?: config('database.connections.mysql.username');
+        $dbPassword = $this->option('password') ?: config('database.connections.mysql.password');
+        $dbName = is_string($this->option('database')) ? $this->option('database') : 'billing_testing_db';
 
-        $dbPassword = ! $dbPassword ? '' : $dbPassword;
-        $this->setupConfig($dbUsername, $dbPassword, '', 'Innodb');
+        $dbPassword = $dbPassword ? $dbPassword : '';
+        $this->setupConfig($dbUsername, $dbPassword, 'Innodb');
 
         echo "\nCreating database...\n";
 
@@ -43,16 +41,16 @@ class SetupTestEnv extends LoggableCommand
 
         echo "\nDatabase Created Successfully!\n";
 
-        //setting up new database name
+        // setting up new database name
         Config::set('database.connections.mysql.database', $dbName);
 
-        //setting up app env to testing
+        // setting up app env to testing
         Config::set('app.env', 'testing');
 
-        //add default app key for testing
+        // add default app key for testing
         Config::set('app.key', 'base64:G4WSQduFNvk9rYtoLS1ozg==');
 
-        //opening a database connection
+        // opening a database connection
         DB::purge('mysql');
 
         echo "\nRunning migrations!\n";
@@ -72,7 +70,7 @@ class SetupTestEnv extends LoggableCommand
 
         echo "\nSeeders ran successfully!\n";
 
-        //closing the database connection
+        // closing the database connection
         DB::disconnect('mysql');
 
         $this->createEnv($dbUsername, $dbPassword, $dbName);
@@ -82,12 +80,8 @@ class SetupTestEnv extends LoggableCommand
 
     /**
      * Creates an env file if not exists already.
-     *
-     * @param  string  $dbUsername
-     * @param  string  $dbPassword
-     * @return null
      */
-    private function createEnv(string $dbUsername, string $dbPassword, string $dbName)
+    private function createEnv(string $dbUsername, string $dbPassword, string $dbName): void
     {
         $testingEnv = [
             'APP_ENV' => 'testing',
@@ -111,11 +105,14 @@ class SetupTestEnv extends LoggableCommand
         $this->createEnvFile($duskEnv, '.env.dusk.testing');
     }
 
-    private function createEnvFile(array $settings, string $envFile)
+    /**
+     * @param  array<mixed>  $settings
+     */
+    private function createEnvFile(array $settings, string $envFile): void
     {
         $config = '';
         foreach ($settings as $key => $val) {
-            $config .= "{$key}={$val}\n";
+            $config .= sprintf('%s=%s%s', $key, $val, PHP_EOL);
         }
 
         $envLocation = base_path(DIRECTORY_SEPARATOR.$envFile);
@@ -127,9 +124,8 @@ class SetupTestEnv extends LoggableCommand
      *
      * @param  string  $dbUsername  mysql username
      * @param  string  $dbPassword  mysql password
-     * @return null
      */
-    private function setupConfig($dbUsername, $dbPassword, $port = '', $dbengine = '')
+    private function setupConfig($dbUsername, $dbPassword, string $dbengine = ''): void
     {
         Config::set('app.env', 'development');
         Config::set('database.connections.mysql.port', '');
@@ -144,42 +140,39 @@ class SetupTestEnv extends LoggableCommand
      * Creates an empty DB with given name.
      *
      * @param  string  $dbName  name of the DB
-     * @return null
      */
-    private function createDB(string $dbName)
+    private function createDB(string $dbName): void
     {
-        \DB::purge('mysql');
+        DB::purge('mysql');
         // removing old db
-        \DB::connection('mysql')->getPdo()->exec("DROP DATABASE IF EXISTS `{$dbName}`");
+        DB::connection('mysql')->getPdo()->exec(sprintf('DROP DATABASE IF EXISTS `%s`', $dbName));
 
         // Creating testing_db
-        \DB::connection('mysql')->getPdo()->exec("CREATE DATABASE `{$dbName}`");
-        //disconnecting it will remove database config from the memory so that new database name can be
+        DB::connection('mysql')->getPdo()->exec(sprintf('CREATE DATABASE `%s`', $dbName));
+        // disconnecting it will remove database config from the memory so that new database name can be
         // populated
-        \DB::disconnect('mysql');
+        DB::disconnect('mysql');
     }
 
-    private function handleSeeder()
+    private function handleSeeder(): void
     {
-        $latestVersion = preg_replace('#v\.|v#', '', str_replace('_', '.', Config::get('app.version')));
+        $latestVersion = preg_replace('#v\.|v#', '', str_replace('_', '.', (string) Config::get('app.version'))) ?? '';
         $seedersPath = database_path('seeders');
         $seederVersions = scandir($seedersPath);
-        $seederVersions = array_filter($seederVersions, function ($dir) {
-            return preg_match('/^v[\d_]+(?:_[A-Za-z\d]+)*$/', $dir);
-        });
+        $seederVersions = array_filter($seederVersions, fn ($dir): bool => (bool) preg_match('/^v[\d_]+(?:_[A-Za-z\d]+)*$/', (string) $dir));
         natsort($seederVersions);
         foreach ($seederVersions as $version) {
             if (version_compare($version, $latestVersion, '<=')) {
-                $seederClass = "Database\\Seeders\\$version\\DatabaseSeeder";
+                $seederClass = sprintf('Database\Seeders\%s\DatabaseSeeder', $version);
                 $this->runSeeder($seederClass);
             }
         }
     }
 
-    private function runSeeder($seederClass)
+    private function runSeeder(string $seederClass): void
     {
         Artisan::call('db:seed', ['--class' => $seederClass, '--force' => true]);
         $output = Artisan::output();
-        echo "Seeding for $seederClass: $output\n";
+        echo sprintf('Seeding for %s: %s%s', $seederClass, $output, PHP_EOL);
     }
 }

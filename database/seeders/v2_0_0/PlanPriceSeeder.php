@@ -10,20 +10,20 @@ class PlanPriceSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         $this->mapCountriesToCurrency();
     }
 
-    private function mapCountriesToCurrency()
+    private function mapCountriesToCurrency(): void
     {
+        /** @var Setting $settingForCurrency */
+        $settingForCurrency = new Setting()->first();
         $nonDefaultCurrencies = PlanPrice::where(
-            'currency', '=', (new Setting())->first()->default_currency
+            'currency', '=', $settingForCurrency->default_currency
         )->get(['id', 'currency']);
-        if ($nonDefaultCurrencies) {
+        if ($nonDefaultCurrencies) { // @phpstan-ignore if.alwaysTrue
             foreach ($nonDefaultCurrencies as $currency) {
                 $currency->update(['country_id' => 0]);
             }

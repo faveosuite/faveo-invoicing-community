@@ -2,7 +2,7 @@
 /**
  * ObjectSerializer
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -70,7 +70,7 @@ class ObjectSerializer
      *
      * @return scalar|object|array<string, mixed>|null serialized form of $data
      */
-    public static function sanitizeForSerialization($data, $type = null, string $format = null)
+    public static function sanitizeForSerialization($data, $type = null, ?string $format = null)
     {
         if (is_scalar($data) || null === $data) {
             return $data;
@@ -268,7 +268,7 @@ class ObjectSerializer
      *
      * @return object|array<mixed>|null a single or an array of $class instances
      */
-    public static function deserialize($data, string $class, array $httpHeaders = null)
+    public static function deserialize($data, string $class, ?array $httpHeaders = null)
     {
         if (null === $data) {
             return null;
@@ -365,6 +365,11 @@ class ObjectSerializer
         }
 
         if (in_array($class, ['\DateTime', '\SplFileObject', 'array', 'bool', 'boolean', 'byte', 'double', 'float', 'int', 'integer', 'mixed', 'number', 'object', 'string', 'void'], true)) {
+            // V1 relational fields (user_id, org_id, person_id) may return as objects; extract the scalar ID.
+            // Only applies to numeric types — 'mixed'/'array'/'object' must keep the full value.
+            if (is_object($data) && in_array($class, ['int', 'integer', 'float', 'double', 'number', 'byte'], true)) {
+                $data = $data->value ?? $data->id ?? null;
+            }
             settype($data, $class);
             return $data;
         }

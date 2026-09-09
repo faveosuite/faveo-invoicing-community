@@ -23,7 +23,6 @@ abstract class LoggableCommand extends Command
     /**
      * Final handle method that wraps execution with logging.
      *
-     * @return void
      *
      * @throws Exception
      */
@@ -38,7 +37,7 @@ abstract class LoggableCommand extends Command
             );
         }
 
-        $this->info("Starting: {$this->signature}");
+        $this->info('Starting: '.$this->signature);
 
         try {
             $this->log = Logger::cron($this->signature, $this->description);
@@ -49,20 +48,20 @@ abstract class LoggableCommand extends Command
                 Logger::cronCompleted($this->log->id);
             }
 
-            $this->info("Finished successfully: {$this->signature}");
-        } catch (Exception $e) {
+            $this->info('Finished successfully: '.$this->signature);
+        } catch (Exception $exception) {
             if ($this->log) {
-                Logger::cronFailed($this->log->id, $e);
+                Logger::cronFailed($this->log->id, $exception);
             }
 
             $this->error(
                 sprintf(
                     "\nCommand failed: %s\nError: %s\nFile: %s (%d)\n\nTrace:\n%s",
                     $this->signature,
-                    $e->getMessage(),
-                    $e->getFile(),
-                    $e->getLine(),
-                    $e->getTraceAsString()
+                    $exception->getMessage(),
+                    $exception->getFile(),
+                    $exception->getLine(),
+                    $exception->getTraceAsString()
                 )
             );
         }

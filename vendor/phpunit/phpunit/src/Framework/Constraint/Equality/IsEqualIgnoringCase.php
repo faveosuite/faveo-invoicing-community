@@ -16,7 +16,6 @@ use function trim;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Util\Exporter;
 use SebastianBergmann\Comparator\ComparisonFailure;
-use SebastianBergmann\Comparator\Factory as ComparatorFactory;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -51,21 +50,8 @@ final class IsEqualIgnoringCase extends Constraint
             return true;
         }
 
-        $comparatorFactory = ComparatorFactory::getInstance();
-
         try {
-            $comparator = $comparatorFactory->getComparatorFor(
-                $this->value,
-                $other,
-            );
-
-            $comparator->assertEquals(
-                $this->value,
-                $other,
-                0.0,
-                false,
-                true,
-            );
+            $this->assertEqualsUsingComparator($this->value, $other, 0.0, false, true);
         } catch (ComparisonFailure $f) {
             if ($returnResult) {
                 return false;
@@ -85,20 +71,35 @@ final class IsEqualIgnoringCase extends Constraint
      */
     public function toString(): string
     {
-        if (is_string($this->value)) {
-            if (str_contains($this->value, "\n")) {
-                return 'is equal to <text>';
-            }
+        return 'is equal to ' . $this->valueAsString();
+    }
 
-            return sprintf(
-                "is equal to '%s'",
-                $this->value,
-            );
+    /**
+     * Returns the negated description when this constraint is wrapped in a
+     * LogicalNot operator. Authoring the negation here, instead of letting
+     * LogicalNot rewrite the affirmative description, keeps the exported value
+     * out of the negation entirely. The guard ensures that LogicalAnd,
+     * LogicalOr, and LogicalXor keep using the affirmative toString().
+     */
+    protected function toStringInContext(Operator $operator, mixed $role): string
+    {
+        if (!$operator instanceof LogicalNot) {
+            return '';
         }
 
-        return sprintf(
-            'is equal to %s',
-            Exporter::export($this->value),
-        );
+        return 'is not equal to ' . $this->valueAsString();
+    }
+
+    private function valueAsString(): string
+    {
+        if (is_string($this->value)) {
+            if (str_contains($this->value, "\n")) {
+                return '<text>';
+            }
+
+            return sprintf("'%s'", $this->value);
+        }
+
+        return Exporter::export($this->value);
     }
 }

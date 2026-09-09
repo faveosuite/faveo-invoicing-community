@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'accepted' => ':attribute mora biti prihvaćen.',
     'accepted_if' => ':attribute mora biti prihvaćen kada je :other :value.',
     'active_url' => ':attribute nije validan URL.',
@@ -25,6 +24,7 @@ return [
     'date' => ':attribute nije validan datum.',
     'date_equals' => ':attribute mora biti datum jednak :date.',
     'date_format' => ':attribute se ne poklapa sa formatom :format.',
+    'decimal' => 'Polje :attribute mora imati :decimal decimalnih mjesta.',
     'declined' => ':attribute mora biti odbijen.',
     'declined_if' => ':attribute mora biti odbijen kada je :other :value.',
     'different' => ':attribute i :other moraju biti različiti.',
@@ -125,29 +125,11 @@ return [
     'uploaded' => ':attribute nije uspjelo da se otpremi.',
     'url' => ':attribute mora biti validan URL.',
     'uuid' => ':attribute mora biti validan UUID.',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Validation Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | Here you may specify custom validation messages for attributes using the
-    | convention "attribute.rule" to name the lines. This makes it quick to
-    | specify a specific custom language line for a given attribute rule.
-    |
-    */
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Validation Attributes
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines are used to swap our attribute placeholder
-    | with something more reader friendly such as "E-Mail Address" instead
-    | of "email". This simply helps us make our message more expressive.
-    |
-    */
-
+    'custom_dup' => [
+        'attribute-name' => [
+            'rule-name' => 'prilagođena poruka',
+        ],
+    ],
     'attributes' => [],
     'publish_date_required' => 'Datum objave je obavezan',
     'price_numeric_value' => 'Cijena mora biti numerička vrijednost',
@@ -164,8 +146,6 @@ return [
     'total_amount_required' => 'Ukupan iznos je obavezan',
     'total_amount_numeric' => 'Ukupan iznos mora biti numerička vrijednost',
     'invoice_link_required' => 'Molimo povežite iznos sa barem jednom fakturom',
-
-    //common
     'settings_form' => [
         'company' => [
             'required' => 'Polje za naziv kompanije je obavezno.',
@@ -200,7 +180,6 @@ return [
             'email' => 'Email za greške mora biti validna email adresa.',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => 'Naziv kompanije je obavezan.',
@@ -231,7 +210,7 @@ return [
             'required' => 'Zemlja je obavezna.',
         ],
         'gstin' => [
-            'max' => 'GSTIN ne smije biti duži od 15 karaktera.',
+            'regex' => 'GSTIN format je nevažeći.',
         ],
         'default_currency' => [
             'required' => 'Podrazumijevana valuta je obavezna.',
@@ -249,7 +228,10 @@ return [
             'max' => 'Logo ne smije biti veći od 2MB.',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'OG slika mora biti datoteka tipa:jpeg, png, jpg, webp.',
+        'max' => 'OG slika ne smije biti veća od 2MB.',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => 'Polje za naziv je obavezno.',
@@ -261,8 +243,13 @@ return [
             'url' => 'Link mora biti validna URL adresa.',
             'regex' => 'Format linka je nevalidan.',
         ],
+        'class' => [
+            'required' => 'Polje klase ikone je obavezno.',
+        ],
+        'fa_class' => [
+            'required' => 'Polje klase ikone je obavezno.',
+        ],
     ],
-    //Email
     'custom' => [
         'password' => [
             'required_if' => 'Polje za lozinku je obavezno za odabrani mail drajver.',
@@ -298,7 +285,6 @@ return [
             'required' => 'Polje za drajver je obavezno.',
         ],
     ],
-
     'customer_form' => [
         'first_name' => [
             'required' => 'Polje za ime je obavezno.',
@@ -326,7 +312,6 @@ return [
             'unique' => 'Ovaj email je već zauzet.',
         ],
     ],
-
     'contact_request' => [
         'conName' => 'Polje za ime je obavezno.',
         'email' => 'Polje za email je obavezno.',
@@ -339,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => 'Verifikacija robota nije uspjela. Molimo pokušajte ponovo.',
         'demo-recaptcha-response-1.required' => 'Verifikacija robota nije uspjela. Molimo pokušajte ponovo.',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => 'Polje za ime je obavezno.',
@@ -352,6 +336,7 @@ return [
         ],
         'slug' => [
             'required' => 'Polje za slug je obavezno.',
+            'unique' => 'Ovaj puž već postoji.',
         ],
         'url' => [
             'required' => 'Polje za URL je obavezno.',
@@ -364,8 +349,12 @@ return [
         'created_at' => [
             'required' => 'Polje za datum kreiranja je obavezno.',
         ],
+        'parent_page_id' => [
+            'exists' => 'Odabrana roditeljska stranica ne postoji.',
+            'self' => 'Stranica ne može biti vlastiti roditelj.',
+            'nested' => 'Odabrana stranica je već podstranica i ne može se koristiti kao nadređena.',
+        ],
     ],
-
     'order_form' => [
         'client' => [
             'required' => 'Polje za klijenta je obavezno.',
@@ -392,7 +381,6 @@ return [
             'integer' => 'Količina mora biti cijeli broj.',
         ],
     ],
-
     'coupon_form' => [
         'code' => [
             'required' => 'Polje za kupon kod je obavezno.',
@@ -425,6 +413,7 @@ return [
             'required' => 'Polje za vrijednost popusta je obavezno.',
             'numeric' => 'Polje za vrijednost popusta mora biti broj.',
             'between' => 'Polje za vrijednost popusta mora biti između :min i :max ako je tip procenat.',
+            'max' => 'Vrijednost popusta ne može premašiti cijenu primijenjenog proizvoda (:max).',
         ],
     ],
     'tax_form' => [
@@ -434,6 +423,12 @@ return [
         'rate' => [
             'required' => 'Polje za stopu je obavezno.',
             'numeric' => 'Stopa mora biti broj.',
+            'decimal' => 'Stopa mora imati najviše 3 decimale.',
+            'max' => 'Stopa ne smije biti veća od 999.999.',
+        ],
+        'priority' => [
+            'required' => 'Polje prioriteta je obavezno.',
+            'min' => 'Prioritet mora biti najmanje 1.',
         ],
         'level' => [
             'required' => 'Polje za nivo je obavezno.',
@@ -441,15 +436,11 @@ return [
         ],
         'country' => [
             'required' => 'Polje za državu je obavezno.',
-            // 'exists' => 'Odabrana država nije validna.',
         ],
         'state' => [
             'required' => 'Polje za regiju je obavezno.',
-            // 'exists' => 'Odabrana regija nije validna.',
         ],
     ],
-
-    //Proizvod
     'subscription_form' => [
         'name' => [
             'required' => 'Polje za naziv je obavezno.',
@@ -469,7 +460,6 @@ return [
             'required' => 'Polje za proizvode je obavezno.',
         ],
     ],
-
     'bundle' => [
         'name' => [
             'required' => 'Polje za naziv je obavezno.',
@@ -478,10 +468,13 @@ return [
             'required' => 'Svaka stavka je obavezna.',
         ],
     ],
-
     'group' => [
         'name' => [
             'required' => 'Naziv je obavezan',
+            'unique' => 'Ovo ime već postoji.',
+        ],
+        'pricing_templates_id' => [
+            'required' => 'Predložak dizajna je obavezan.',
         ],
         'features' => [
             'name' => [
@@ -505,13 +498,15 @@ return [
             'required_with' => 'Naslov je obavezan',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => 'Polje za naziv je obavezno.',
         ],
         'type' => [
             'required' => 'Polje za tip je obavezno.',
+        ],
+        'product_type' => [
+            'required' => 'Polje kategorije proizvoda je obavezno.',
         ],
         'group' => [
             'required' => 'Polje za grupu je obavezno.',
@@ -522,9 +517,6 @@ return [
         'currency' => [
             'required' => 'Polje za valutu je obavezno.',
         ],
-        // 'price' => [
-        //     'required' => 'Polje za cijenu je obavezno.',
-        // ],
         'file' => [
             'required_without_all' => 'Polje za fajl je obavezno ako nisu dostupni github_owner ili github_repository.',
             'mimes' => 'Fajl mora biti ZIP format.',
@@ -534,15 +526,18 @@ return [
             'mimes' => 'Slika mora biti u PNG formatu.',
         ],
         'github_owner' => [
+            'required' => 'Polje vlasnika GitHub-a je obavezno.',
             'required_without_all' => 'Polje za GitHub vlasnika je obavezno ako nisu dostupni file ili image.',
         ],
         'github_repository' => [
+            'required' => 'Polje GitHub repozitorija je obavezno.',
             'required_without_all' => 'Polje za GitHub repozitorij je obavezno ako nisu dostupni file ili image.',
             'required_if' => 'Polje za GitHub repozitorij je obavezno ako je tip 2.',
         ],
+        'shoping_cart_link' => [
+            'required' => 'Polje veze sa korpom za kupovinu je obavezno.',
+        ],
     ],
-
-    //User
     'users' => [
         'first_name' => [
             'required' => 'Polje za ime je obavezno.',
@@ -581,8 +576,10 @@ return [
         'zip' => [
             'regex' => 'Polje za poštanski broj je obavezno kada je zemlja Indija.',
         ],
+        'gstin' => [
+            'regex' => 'GSTIN format je nevažeći.',
+        ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => 'Ime je obavezno.',
@@ -625,6 +622,9 @@ return [
         'state' => [
             'required_if' => 'Polje za državu je obavezno kada je zemlja Indija.',
         ],
+        'gstin' => [
+            'regex' => 'GSTIN format je nevažeći.',
+        ],
         'old_password' => [
             'required' => 'Stara lozinka je obavezna.',
             'min' => 'Stara lozinka mora imati najmanje :min karaktera.',
@@ -651,7 +651,6 @@ return [
             'required' => 'Unesite pozivni broj zemlje (mobilni).',
         ],
     ],
-    //Invoice
     'invoice' => [
         'user' => [
             'required' => 'Polje za klijente je obavezno.',
@@ -661,7 +660,12 @@ return [
             'date' => 'Datum mora biti validan.',
         ],
         'domain' => [
+            'required' => 'Polje domene je obavezno.',
             'regex' => 'Format domene nije validan.',
+        ],
+        'cloud_domain' => [
+            'required' => 'Polje domena oblaka je obavezno.',
+            'regex' => 'Dozvoljena su samo slova, brojevi i crtice.',
         ],
         'plan' => [
             'required_if' => 'Polje za pretplatu je obavezno.',
@@ -673,88 +677,86 @@ return [
             'required' => 'Polje za proizvod je obavezno.',
         ],
     ],
-
-    //Lokalizirana licenca obrazac
     'domain_form' => [
         'domain' => [
             'required' => 'Polje za domenu je obavezno.',
             'url' => 'Domena mora biti validan URL.',
         ],
     ],
-
-    //Obrazac za obnovu proizvoda
     'product_renewal' => [
         'domain' => [
             'required' => 'Polje za domenu je obavezno.',
             'no_http' => 'Domena ne smije sadržavati "http" ili "https".',
         ],
     ],
-
-    //Jezički obrazac
     'language' => [
         'required' => 'Polje za jezik je obavezno.',
         'invalid' => 'Odabrani jezik nije validan.',
     ],
-
-    //Zahtjev za ažuriranje putanje skladišta
     'storage_path' => [
         'disk' => [
             'required' => 'Polje za skladišni disk je obavezno.',
             'string' => 'Disk mora biti tekstualna vrijednost.',
         ],
         'path' => [
+            'required' => 'Polje za put memorije je obavezno.',
             'string' => 'Putanja mora biti tekstualna vrijednost.',
             'nullable' => 'Polje za putanju je opcionalno.',
+            'invalid' => 'Putanja ne postoji ili se ne može pisati.',
         ],
     ],
-
-    //Zahtjev za validaciju tajne
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => 'Polje putanje čvora je obavezno.',
+            'string' => 'Putanja čvora mora biti važeći niz.',
+        ],
+        'npm_path' => [
+            'required' => 'Polje npm putanje je obavezno.',
+            'string' => 'Putanja npm mora biti ispravan niz.',
+        ],
+        'chrome_path' => [
+            'required' => 'Hromirano polje putanje je obavezno.',
+            'string' => 'Hromirana putanja mora biti važeći niz.',
+            'invalid' => 'Chrome putanja ne postoji ili nije izvršna.',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => 'Molimo unesite kod',
             'digits' => 'Molimo unesite validan 6-cifreni kod',
         ],
     ],
-
-    //Verifikacija OTP-a
     'verify_email' => [
         'required' => 'Polje za email je obavezno.',
         'email' => 'Email mora biti validna email adresa.',
         'verify_email' => 'Verifikacija emaila nije uspjela.',
     ],
-
     'verify_country_code' => [
         'required' => 'Pozivni broj države je obavezan.',
         'numeric' => 'Pozivni broj države mora biti validan broj.',
         'verify_country_code' => 'Verifikacija pozivnog broja države nije uspjela.',
     ],
-
     'verify_number' => [
         'required' => 'Broj je obavezan.',
         'numeric' => 'Broj mora biti validan.',
         'verify_number' => 'Verifikacija broja nije uspjela.',
     ],
-
     'password_otp' => [
         'required' => 'Polje za lozinku je obavezno.',
         'password' => 'Lozinka nije tačna.',
         'invalid' => 'Nevažeća lozinka.',
     ],
-    //AuthController file
     'auth_controller' => [
         'name_required' => 'Ime je obavezno.',
         'name_max' => 'Ime ne smije biti duže od 255 karaktera.',
-
         'email_required' => 'Email je obavezan.',
         'email_email' => 'Unesite važeću email adresu.',
         'email_max' => 'Email ne smije biti duži od 255 karaktera.',
         'email_unique' => 'Ovaj email je već registrovan.',
-
         'password_required' => 'Lozinka je obavezna.',
         'password_confirmed' => 'Potvrda lozinke se ne podudara.',
         'password_min' => 'Lozinka mora imati najmanje 6 karaktera.',
     ],
-
     'resend_otp' => [
         'eid_required' => 'EID polje je obavezno.',
         'eid_string' => 'EID mora biti string.',
@@ -762,7 +764,6 @@ return [
         'type_string' => 'Tip mora biti string.',
         'type_in' => 'Izabrani tip je nevažeći.',
     ],
-
     'verify_otp' => [
         'eid_required' => 'EID polje je obavezno.',
         'eid_string' => 'EID mora biti string.',
@@ -771,31 +772,26 @@ return [
         'recaptcha_required' => 'Molimo završite CAPTCHA verifikaciju.',
         'recaptcha_size' => 'CAPTCHA odgovor je nevažeći.',
     ],
-
     'company_validation' => [
         'company_required' => 'Ime kompanije je obavezno.',
         'company_string' => 'Kompanija mora biti tekst.',
         'address_required' => 'Adresa je obavezna.',
         'address_string' => 'Adresa mora biti tekst.',
     ],
-
     'token_validation' => [
         'token_required' => 'Token je obavezan.',
         'password_required' => 'Polje lozinke je obavezno.',
         'password_confirmed' => 'Potvrda lozinke se ne podudara.',
     ],
-
     'custom_email' => [
         'required' => 'Email polje je obavezno.',
         'email' => 'Molimo unesite važeću email adresu.',
         'exists' => 'Ovaj email nije registrovan kod nas.',
     ],
-
     'newsletterEmail' => [
         'required' => 'Email za newsletter je obavezan.',
         'email' => 'Molimo unesite važeću email adresu za newsletter.',
     ],
-
     'widget' => [
         'name_required' => 'Ime je obavezno.',
         'name_max' => 'Ime ne smije biti duže od 50 karaktera.',
@@ -803,40 +799,39 @@ return [
         'type_required' => 'Tip je obavezan.',
         'type_unique' => 'Ovaj tip već postoji.',
     ],
-
     'payment' => [
         'payment_date_required' => 'Datum plaćanja je obavezan.',
         'payment_method_required' => 'Metoda plaćanja je obavezna.',
         'amount_required' => 'Iznos je obavezan.',
     ],
-
     'custom_date' => [
         'date_required' => 'Polje za datum je obavezno.',
         'total_required' => 'Polje za ukupno je obavezno.',
         'status_required' => 'Polje za status je obavezno.',
     ],
-
     'plan_renewal' => [
         'plan_required' => 'Polje za plan je obavezno.',
         'payment_method_required' => 'Polje za metodu plaćanja je obavezno.',
         'cost_required' => 'Polje za trošak je obavezno.',
         'code_not_valid' => 'Promotivni kod nije važeći.',
     ],
-
     'rate' => [
         'required' => 'Ocjena je obavezna.',
         'numeric' => 'Ocjena mora biti broj.',
     ],
-
     'product_validate' => [
         'producttitle_required' => 'Naziv proizvoda je obavezan.',
         'version_required' => 'Verzija je obavezna.',
         'filename_required' => 'Molimo prenesite fajl.',
         'dependencies_required' => 'Polje za zavisnosti je obavezno.',
+        'description_required' => 'Opis je obavezan.',
+        'release_type_required' => 'Vrsta izdanja je obavezna.',
     ],
     'product_sku_unique' => 'SKU proizvoda treba biti jedinstven',
     'product_name_unique' => 'Ime treba biti jedinstveno',
     'product_show_agent_required' => 'Odaberite vašu preferencu stranice sa korpom',
+    'config_file_path_regex' => 'Mora biti relativna putanja bez ../ segmenata.',
+    'license_file_path_regex' => 'Mora biti relativna putanja bez ../ segmenata.',
     'product_controller' => [
         'name_required' => 'Ime proizvoda je obavezno.',
         'name_unique' => 'Ime treba biti jedinstveno.',
@@ -844,6 +839,7 @@ return [
         'type_required' => 'Tip proizvoda je obavezan.',
         'description_required' => 'Opis proizvoda je obavezan.',
         'product_description_required' => 'Detaljan opis proizvoda je obavezan.',
+        'short_description_required' => 'Kratak opis je obavezan.',
         'image_mimes' => 'Slika mora biti fajl tipa: jpeg, png, jpg.',
         'image_max' => 'Slika ne smije biti veća od 2048 kilobajta.',
         'product_sku_required' => 'SKU proizvoda je obavezan.',
@@ -861,7 +857,9 @@ return [
         'cloud_label_field_required' => 'Cloud polje za oznaku je obavezno.',
         'cloud_label_radio_required' => 'Cloud radio oznaka je obavezna.',
         'cloud_product_required' => 'Cloud proizvod je obavezan.',
+        'cloud_product_unique' => 'Ovaj proizvod već ima konfiguraciju u oblaku.',
         'cloud_free_plan_required' => 'Cloud besplatan plan je obavezan.',
+        'cloud_free_plan_invalid' => 'Odabrani plan ne pripada odabranom proizvodu.',
         'cloud_product_key_required' => 'Cloud ključ proizvoda je obavezan.',
     ],
     'reg_till_after' => 'Datum registracije do mora biti poslije datuma registracije od.',
@@ -890,6 +888,8 @@ return [
         'no_agent_req' => 'Polje za broj agenata je obavezno kada količina proizvoda nije unesena.',
         'pro_req' => 'Polje za proizvod je obavezno',
         'offer_price' => 'Cijena ponude ne smije biti veća od 100',
+        'currency_duplicate' => 'Svaka valuta se može koristiti samo jednom.',
+        'non_negative' => 'Ova vrijednost ne može biti negativna.',
     ],
     'razorpay_val' => [
         'business_required' => 'Polje za poslovanje je obavezno.',
@@ -904,5 +904,36 @@ return [
     'login_failed' => 'Prijava nije uspjela, provjerite e-mail/korisničko ime i lozinku koju ste unijeli.',
     'forgot_email_validation' => 'Ako je e-mail koji ste unijeli registriran, dobit ćete e-mail s uputama za resetiranje lozinke uskoro.',
     'too_many_login_attempts' => 'Zaključani ste iz aplikacije zbog previše neuspjelih pokušaja prijave. Molimo pokušajte ponovo nakon :time.',
-
+    'phone_number' => 'Unesite važeći broj mobilnog telefona.',
+    'mobile_number' => ':attribute mora biti važeći broj mobilnog telefona.',
+    'license' => [
+        'product' => [
+            'required' => 'Polje proizvoda je obavezno.',
+        ],
+        'client' => [
+            'required' => 'Polje klijenta je obavezno.',
+        ],
+        'license_code' => [
+            'required' => 'Polje koda licence je obavezno.',
+        ],
+        'license_expire_date' => [
+            'required' => 'Polje za datum isteka licence je obavezno.',
+        ],
+        'license_updates_date' => [
+            'required' => 'Polje datuma isteka ažuriranja je obavezno.',
+        ],
+        'license_support_date' => [
+            'required' => 'Polje za datum isteka podrške je obavezno.',
+        ],
+        'banned_host_ip' => [
+            'required' => 'Polje zabranjene IP adrese je obavezno.',
+            'invalid' => 'Unesite ispravnu IP adresu.',
+        ],
+        'installation_ip' => [
+            'required' => 'Polje IP instalacije je obavezno.',
+        ],
+        'notification_field' => [
+            'required' => 'Ovo polje obavijesti je obavezno.',
+        ],
+    ],
 ];

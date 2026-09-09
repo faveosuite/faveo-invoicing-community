@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'title' => 'Installatur ta’ Agora Invoicing',
     'probe' => 'Provi ta’ Agora Invoicing',
     'magic_phrase' => 'X’inhu l-frażi maġika',
@@ -20,18 +19,16 @@ return [
     'off_apache' => 'MITFI (Jekk qed tuża Apache, kun żgur li <var><strong>AllowOverride</strong></var> huwa issettjat għal <var><strong>All</strong></var> fil-konfigurazzjoni ta’ Apache)',
     'rewrite_engine' => 'Rewrite Engine',
     'user_url' => 'URL faċli għall-utent',
-
-    'host' => 'Ospitanti',
+    'host' => 'Host',
     'host_tooltip' => 'Jekk MySQL tiegħek hija installata fuq l-istess server ta’ Agora Invoicing, ħalliha bħala localhost',
     'database_name_label' => 'Isem tad-Database',
     'mysql_port_label' => 'Numru tal-Port MySQL',
     'mysql_port_tooltip' => 'Numru tal-port fejn qed jisma’ s-server MySQL tiegħek. B’mod predefinit huwa 3306',
-    'username' => 'Username',
+    'username' => 'Isem tal-utent',
     'password_label' => 'Password',
     'test_prerequisites_message' => 'Dan it-test se jivverifika l-ħtiġijiet meħtieġa biex tinstalla Agora Invoicing',
     'previous' => 'Preċedenti',
-
-    'sign_up_as_admin' => 'Irreġistra bħala Amministratur',
+    'sign_up_as_admin' => 'Irreġistra bħala Admin',
     'first_name' => 'Isem',
     'first_name_required' => 'L-isem huwa meħtieġ',
     'last_name' => 'Kunjom',
@@ -44,13 +41,27 @@ return [
     'confirm_password_required' => 'L-ikkonferma tal-password hija meħtieġa',
     'password_requirements' => 'Il-password tiegħek trid tinkludi:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => 'Bejn 8 u 16-il karattru'],
-        ['id' => 'letter', 'text' => 'Karattri żgħar (a-z)'],
-        ['id' => 'capital', 'text' => 'Karattri kbar (A-Z)'],
-        ['id' => 'number', 'text' => 'Numri (0-9)'],
-        ['id' => 'space', 'text' => 'Karattri speċjali (~*!@$#%_+.?:,{ })'],
+        [
+            'id' => 'length',
+            'text' => 'Bejn 8 u 16-il karattru',
+        ],
+        [
+            'id' => 'letter',
+            'text' => 'Karattri żgħar (a-z)',
+        ],
+        [
+            'id' => 'capital',
+            'text' => 'Karattri kbar (A-Z)',
+        ],
+        [
+            'id' => 'number',
+            'text' => 'Numri (0-9)',
+        ],
+        [
+            'id' => 'space',
+            'text' => 'Karattri speċjali (~*!@$#%_+.?:,{ })',
+        ],
     ],
-
     'system_information' => 'Informazzjoni tas-Sistema',
     'environment' => 'Ambjent',
     'environment_required' => 'L-ambjent huwa meħtieġ',
@@ -62,37 +73,29 @@ return [
     'file' => 'Fajl',
     'redis' => 'Redis',
     'password' => 'Password',
-
     'redis_setup' => 'Setup ta’ Redis',
     'redis_host' => 'Host ta’ Redis',
     'redis_port' => 'Port ta’ Redis',
     'redis_password' => 'Password ta’ Redis',
-
     'continue' => 'Kompli',
-
     'final_setup' => 'L-Applikazzjoni Agora Invoicing Lesta!',
     'installation_complete' => 'Kollox sew! Għaddejt mill-proċess ta’ installazzjoni b’suċċess.',
-
     'learn_more' => 'Tgħallem Aktar',
     'knowledge_base' => 'Bażi ta’ Għarfien',
     'email_support' => 'Appoġġ bl-Email',
-
     'next_step' => 'Pass Li Jmiss',
     'login_button' => 'Idħol f’Agora Invoicing',
-
     'pre_migration_success' => 'It-test ta’ qabel il-migrazzjoni sar b’suċċess',
     'migrating_tables' => 'Qed nimigraw it-tabelli fid-database',
     'db_connection_error' => 'Il-konnessjoni mad-database ma ġietx aġġornata',
     'database_setup_success' => 'Id-database ġiet issettjata b’suċċess',
     'env_file_created' => 'Il-fajl tal-konfigurazzjoni ambjentali ġie maħluq b’suċċess',
     'pre_migration_test' => 'Qed isir test ta’ qabel il-migrazzjoni',
-
     'redis_host_required' => 'Host ta’ Redis huwa meħtieġ',
     'redis_password_required' => 'Password ta’ Redis hija meħtieġa',
     'redis_port_required' => 'Port ta’ Redis huwa meħtieġ',
     'password_regex' => 'Il-password trid tkun magħmula minn mill-inqas 8 karattri, ittra kbira, ittra żgħira, numru, u karattru speċjali',
     'setup_completed' => 'Setup lest b’suċċess!',
-
     'database' => 'Database',
     'selected' => 'Magħżul',
     'mysql_version_is' => 'Il-verżjoni ta’ MySQL hija',
@@ -108,7 +111,6 @@ return [
     'user_name' => 'Isem tal-utent',
     'user_email' => 'Email tal-utent',
     'password_not_match' => 'Il-passwords ma jaqblux',
-    // new
     'installation_check' => 'Dan it-test jiċċekkja r-rekwiżiti meħtieġa biex tinstalla Agora Invoice Community',
     'db_setup_error_1' => 'Dan ifisser li l-informazzjoni tal-isem tal-utent u l-password hija żbaljata jew il-host tiegħek mhux aċċessibbli',
     'db_setup_error_2' => 'Żgur li għandek database diġà eżistenti bl-isem tal-Database ipprovdut?',
@@ -128,7 +130,6 @@ return [
     'click_here' => 'Ikklikkja hawn',
     'continue_installation_process' => 'biex tkompli l-proċess ta’ installazzjoni.',
     'database_details' => 'Daħħal id-dettalji tal-konnessjoni tad-database tiegħek',
-    'host' => 'Host',
     'sql_port' => 'Numru tal-port MySQL',
     'database_name' => 'Isem tad-database',
     'finishing_setup' => 'Jekk jogħġbok stenna, qed jintemm is-setup...',
@@ -139,17 +140,11 @@ return [
     'i_accept' => 'Naccetta',
     'enter_license' => 'Jekk jogħġbok daħħal il-Kodiċi tal-Liċenzja tiegħek għal',
     'find_license_in_billing' => 'Tista’ ssib il-kodiċi tal-liċenzja tiegħek fil-portal tal-fatturazzjoni tagħna',
-    'sign_up_as_admin' => 'Irreġistra bħala Admin',
-    'system_information' => 'Informazzjoni tas-Sistema',
     'close' => 'Agħlaq',
     'port_number' => 'Numru tal-Port',
     'is_required' => 'huwa meħtieġ',
     'firstname' => 'Isem',
     'lastname' => 'Kunjom',
-    'username' => 'Isem tal-utent',
-    'email' => 'Email',
-    'password' => 'Password',
-    'confirm_password' => 'Ikkonferma l-Password',
     'copyright' => 'Copyright',
     'powered_by' => 'Id-drittijiet kollha riżervati. Powered by',
     'invalid_email' => 'Email mhux validu',
@@ -159,5 +154,4 @@ return [
     'tooltip_timezone' => 'Żona tal-ħin tal-browser tintuża inizjalment. Agħżel żona tal-ħin differenti jekk meħtieġ',
     'tooltip_language' => 'Lingwa default inizjali. Agħżel lingwa differenti jekk meħtieġ',
     'enter_magic_phrase' => 'Daħħal frażi maġika',
-
 ];

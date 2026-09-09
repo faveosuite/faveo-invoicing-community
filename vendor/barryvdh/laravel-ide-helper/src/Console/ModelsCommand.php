@@ -124,6 +124,14 @@ class ModelsCommand extends Command
     protected $phpstorm_noinspections;
     protected $write_model_external_builder_methods;
     /**
+     * @var array<string, \SplFileObject>
+     */
+    protected $fileCache = [];
+    /**
+     * @var array<string, Context>
+     */
+    protected $contextCache = [];
+    /**
      * @var array<string, true>
      */
     protected $nullableColumns = [];
@@ -526,9 +534,25 @@ class ModelsCommand extends Command
         }
 
         if ($isNullable) {
-            $type .= '|null';
+            $type = $this->wrapIntersectionType($type) . '|null';
         } else {
             $type = str_replace($nullString, '', $type);
+        }
+
+        return $type;
+    }
+
+    /**
+     * Wraps a bare intersection type in parentheses for correct DNF syntax.
+     *
+     * For example, `A&B` becomes `(A&B)` so that adding `|null` produces
+     * `(A&B)|null` instead of the ambiguous `A&B|null`.
+     * Types that are already parenthesized or contain union types are returned as-is.
+     */
+    protected function wrapIntersectionType(string $type): string
+    {
+        if (str_contains($type, '&') && !str_contains($type, '|') && $type[0] !== '(') {
+            return '(' . $type . ')';
         }
 
         return $type;
@@ -696,13 +720,16 @@ class ModelsCommand extends Command
                         );
                         $this->setMethod($name, $builder . '<static>|' . $modelName, $args, $comment);
                     }
-                } elseif (in_array($method, ['query', 'newQuery', 'newModelQuery'])) {
-                    $builder = $this->getClassNameInDestinationFile($model, get_class($model->newModelQuery()));
+                } elseif (in_array($method, ['query', 'newQuery', 'newModelQuery'])
+                ) {
+                    if ($this->laravel['config']->get('ide-helper.write_query_methods', true)) {
+                        $builder = $this->getClassNameInDestinationFile($model, get_class($model->newModelQuery()));
 
-                    $this->setMethod(
-                        $method,
-                        $builder . '<static>|' . $this->getClassNameInDestinationFile($model, get_class($model))
-                    );
+                        $this->setMethod(
+                            $method,
+                            $builder . '<static>|' . $this->getClassNameInDestinationFile($model, get_class($model))
+                        );
+                    }
 
                     if ($this->write_model_external_builder_methods) {
                         $this->writeModelExternalBuilderMethods($model);
@@ -721,14 +748,19 @@ class ModelsCommand extends Command
                         $type = (string)$this->getReturnTypeFromDocBlock($reflection);
                     }
 
-                    $file = new \SplFileObject($reflection->getFileName());
+                    $fileName = $reflection->getFileName();
+                    if (!isset($this->fileCache[$fileName])) {
+                        $this->fileCache[$fileName] = new \SplFileObject($fileName);
+                    }
+                    $file = $this->fileCache[$fileName];
                     $file->seek($reflection->getStartLine() - 1);
 
-                    $code = '';
+                    $lines = [];
                     while ($file->key() < $reflection->getEndLine()) {
-                        $code .= $file->current();
+                        $lines[] = $file->current();
                         $file->next();
                     }
+                    $code = implode('', $lines);
                     $code = trim(preg_replace('/\s\s+/', '', $code));
                     $begin = strpos($code, 'function(');
                     $code = substr($code, $begin, strrpos($code, '}') - $begin + 1);
@@ -911,7 +943,29 @@ class ModelsCommand extends Command
             }
         }
 
+        if ($this->relatedModelUsesSoftDeletes($relationObj)) {
+            return true;
+        }
+
         return false;
+    }
+
+    /**
+     * Check if the related model uses the SoftDeletes trait
+     *
+     * @param Relation $relationObj
+     *
+     * @return bool
+     */
+    protected function relatedModelUsesSoftDeletes(Relation $relationObj): bool
+    {
+        if (!$this->laravel['config']->get('ide-helper.soft_deletes_force_nullable', true)) {
+            return false;
+        }
+
+        $relatedModel = $relationObj->getRelated();
+
+        return in_array('Illuminate\\Database\\Eloquent\\SoftDeletes', class_uses_recursive($relatedModel));
     }
 
     /**
@@ -960,7 +1014,7 @@ class ModelsCommand extends Command
         if ($type !== null) {
             $newType = $this->getTypeOverride($type);
             if ($nullable) {
-                $newType .= '|null';
+                $newType = $this->wrapIntersectionType($newType) . '|null';
             }
             $this->properties[$name]['type'] = $newType;
         }
@@ -1111,6 +1165,7 @@ class ModelsCommand extends Command
 
         $serializer = new DocBlockSerializer();
         $docComment = $serializer->getDocComment($phpdoc);
+        $mixinClassName = null;
 
         if ($this->write_mixin) {
             $phpdocMixin = new DocBlock($reflection, new Context($namespace));
@@ -1147,6 +1202,14 @@ class ModelsCommand extends Command
                 $replace = "{$modelDocComment}\n";
                 $pos = strpos($contents, "final class {$classname}") ?: strpos($contents, "class {$classname}");
                 if ($pos !== false) {
+                    // If PHP 8 attributes (e.g. #[ObservedBy(...)]) precede the class
+                    // declaration, insert the docblock before the first attribute so that
+                    // the resulting order is: docblock → attributes → class.
+                    $before = substr($contents, 0, $pos);
+                    if (preg_match('/((?:#\[.+?\]\s*)+)$/s', $before, $matches)) {
+                        $pos -= strlen($matches[1]);
+                        $replace = "{$modelDocComment}\n";
+                    }
                     $contents = substr_replace($contents, $replace, $pos, 0);
                 }
             }
@@ -1252,13 +1315,18 @@ class ModelsCommand extends Command
         }
     }
 
+    protected ?array $cachedRelationTypes = null;
+    protected ?array $cachedRelationReturnTypes = null;
+
     /**
      * Returns the available relation types
      */
     protected function getRelationTypes(): array
     {
-        $configuredRelations = $this->laravel['config']->get('ide-helper.additional_relation_types', []);
-        return array_merge(self::RELATION_TYPES, $configuredRelations);
+        return $this->cachedRelationTypes ??= array_merge(
+            self::RELATION_TYPES,
+            $this->laravel['config']->get('ide-helper.additional_relation_types', [])
+        );
     }
 
     /**
@@ -1266,7 +1334,7 @@ class ModelsCommand extends Command
      */
     protected function getRelationReturnTypes(): array
     {
-        return $this->laravel['config']->get('ide-helper.additional_relation_return_types', []);
+        return $this->cachedRelationReturnTypes ??= $this->laravel['config']->get('ide-helper.additional_relation_return_types', []);
     }
 
     /**
@@ -1341,11 +1409,7 @@ class ModelsCommand extends Command
      */
     protected function getCommentFromDocBlock(\ReflectionMethod $reflection)
     {
-        $phpDocContext = (new ContextFactory())->createFromReflector($reflection);
-        $context = new Context(
-            $phpDocContext->getNamespace(),
-            $phpDocContext->getNamespaceAliases()
-        );
+        $context = $this->getDocBlockContext($reflection);
         $comment = '';
         $phpdoc = new DocBlock($reflection, $context);
 
@@ -1366,11 +1430,7 @@ class ModelsCommand extends Command
      */
     protected function getReturnTypeFromDocBlock(\ReflectionMethod $reflection, ?\Reflector $reflectorForContext = null)
     {
-        $phpDocContext = (new ContextFactory())->createFromReflector($reflectorForContext ?? $reflection);
-        $context = new Context(
-            $phpDocContext->getNamespace(),
-            $phpDocContext->getNamespaceAliases()
-        );
+        $context = $this->getDocBlockContext($reflectorForContext ?? $reflection);
         $type = null;
         $phpdoc = new DocBlock($reflection, $context);
 
@@ -1386,6 +1446,31 @@ class ModelsCommand extends Command
         }
 
         return $type;
+    }
+
+    protected function getDocBlockContext(\Reflector $reflector): Context
+    {
+        if ($reflector instanceof \ReflectionMethod) {
+            $key = $reflector->getDeclaringClass()->getName();
+        } elseif ($reflector instanceof ReflectionClass) {
+            $key = $reflector->getName();
+        } else {
+            $phpDocContext = (new ContextFactory())->createFromReflector($reflector);
+            return new Context(
+                $phpDocContext->getNamespace(),
+                $phpDocContext->getNamespaceAliases()
+            );
+        }
+
+        if (!isset($this->contextCache[$key])) {
+            $phpDocContext = (new ContextFactory())->createFromReflector($reflector);
+            $this->contextCache[$key] = new Context(
+                $phpDocContext->getNamespace(),
+                $phpDocContext->getNamespaceAliases()
+            );
+        }
+
+        return $this->contextCache[$key];
     }
 
     protected function getReturnTypeFromReflection(\ReflectionMethod $reflection): ?string
@@ -1593,9 +1678,10 @@ class ModelsCommand extends Command
      */
     protected function getUsedClassNames(ReflectionClass $reflection): array
     {
+        $context = $this->getDocBlockContext($reflection);
         $namespaceAliases = array_flip(array_map(function ($alias) {
             return ltrim($alias, '\\');
-        }, (new ContextFactory())->createFromReflector($reflection)->getNamespaceAliases()));
+        }, $context->getNamespaceAliases()));
         $namespaceAliases[$reflection->getName()] = $reflection->getShortName();
 
         return $namespaceAliases;
@@ -1639,7 +1725,8 @@ class ModelsCommand extends Command
             $type = implode('|', $types);
 
             if ($paramType->allowsNull()) {
-                if (count($types) == 1) {
+                // Use ?Type syntax only for single named types, not for intersection types
+                if (count($types) == 1 && !str_starts_with($type, '(')) {
                     $type = '?' . $type;
                 } else {
                     $type .= '|null';
@@ -1657,7 +1744,7 @@ class ModelsCommand extends Command
 
         preg_match(
             '/@param ((?:(?:[\w?|\\\\<>])+(?:\[])?)+)/',
-            $docComment ?? '',
+            $docComment,
             $matches
         );
         $type = $matches[1] ?? '';
@@ -1712,22 +1799,51 @@ class ModelsCommand extends Command
         return $type;
     }
 
-    protected function extractReflectionTypes(ReflectionType $reflection_type)
+    protected function extractReflectionTypes(ReflectionType $reflection_type): array
     {
         if ($reflection_type instanceof ReflectionNamedType) {
-            $types[] = $this->getReflectionNamedType($reflection_type);
-        } else {
-            $types = [];
-            foreach ($reflection_type->getTypes() as $named_type) {
-                if ($named_type->getName() === 'null') {
+            return [$this->getReflectionNamedType($reflection_type)];
+        }
+
+        if ($reflection_type instanceof \ReflectionIntersectionType) {
+            return [$this->formatIntersectionType($reflection_type)];
+        }
+
+        if ($reflection_type instanceof \ReflectionUnionType) {
+            return $this->extractUnionTypes($reflection_type);
+        }
+
+        // Unknown type - return empty array as fallback
+        return [];
+    }
+
+    protected function extractUnionTypes(\ReflectionUnionType $union_type): array
+    {
+        $types = [];
+
+        foreach ($union_type->getTypes() as $inner_type) {
+            if ($inner_type instanceof ReflectionNamedType) {
+                if ($inner_type->getName() === 'null') {
                     continue;
                 }
-
-                $types[] = $this->getReflectionNamedType($named_type);
+                $types[] = $this->getReflectionNamedType($inner_type);
+            } elseif ($inner_type instanceof \ReflectionIntersectionType) {
+                $types[] = $this->formatIntersectionType($inner_type);
             }
+            // ReflectionUnionType cannot be nested per PHP's DNF rules
         }
 
         return $types;
+    }
+
+    protected function formatIntersectionType(\ReflectionIntersectionType $intersection_type): string
+    {
+        $parts = [];
+        foreach ($intersection_type->getTypes() as $type) {
+            $parts[] = $this->getReflectionNamedType($type);
+        }
+
+        return '(' . implode('&', $parts) . ')';
     }
 
     protected function getReflectionNamedType(ReflectionNamedType $paramType): string

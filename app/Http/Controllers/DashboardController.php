@@ -11,212 +11,75 @@ use App\Model\Product\Subscription;
 use App\User;
 use Carbon\Carbon;
 use DateTime;
-use Illuminate\Http\Request;
+use DB;
+use Exception;
+use Illuminate\Support\Facades\Date;
 
 class DashboardController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth', ['only' => ['index']]);
-        $this->middleware('admin', ['only' => ['index']]);
-    }
-
-    /**
-     * The method returns all the data required to be displayed on the dashboard.
-     *
-     * $allowedCurrencies1 The default currency of the system. This can be changed from Admin system  settings
-     * $allowedCurrencies2 The currency that is activated from currency settings.
-     *
-     * Only two currencies are allowed to be displayed on the dashboard. One is system deafult currency. Other is the activated
-     * currency from the system.
-     */
-    public function index(Request $request)
-    {
-        $allowedCurrencies1 = Setting::find(1)->value('default_currency');
-        $currency1Symbol = Setting::find(1)->value('default_symbol');
-        $allowedCurrencies2 = Currency::where('dashboard_currency', 1)->pluck('code')->first();
-        $currency2Symbol = Currency::where('dashboard_currency', 1)->pluck('symbol')->first();
-        $totalSalesCurrency1 = $this->getTotalSales($allowedCurrencies1);
-        $totalSalesCurrency2 = $this->getTotalSales($allowedCurrencies2);
-        $yearlySalesCurrency2 = $this->getYearlySales($allowedCurrencies2);
-        $yearlySalesCurrency1 = $this->getYearlySales($allowedCurrencies1);
-        $monthlySalesCurrency2 = $this->getMonthlySales($allowedCurrencies2);
-        $monthlySalesCurrency1 = $this->getMonthlySales($allowedCurrencies1);
-        $pendingPaymentCurrency2 = $this->getPendingPayments($allowedCurrencies2);
-        $pendingPaymentCurrency1 = $this->getPendingPayments($allowedCurrencies1);
-        $getLast30DaysInstallation = $this->getLast30DaysInstallation();
-
-        $users = $this->getAllUsers();
-        $productSoldInLast30Days = $this->getSoldProducts(30);
-        $recentOrders = $this->getRecentOrders();
-        $subscriptions = $this->getExpiringSubscriptions();
-
-        $expiredSubscriptions = $this->getExpiringSubscriptions(true);
-
-        $invoices = $this->getRecentInvoices();
-        $allSoldProducts = $this->getSoldProducts();
-
-        $clientsUsingOldVersion = $this->getClientsUsingOldVersions();
-
-        $startSubscriptionDate = date('Y-m-d');
-        $endSubscriptionDate = date('Y-m-d', strtotime('+3 months'));
-        $status = $request->input('status');
-        $conversionRate = $this->getConversionRate();
-
-        return view('themes.default1.common.dashboard', compact('allowedCurrencies1', 'allowedCurrencies2',
-            'currency1Symbol', 'currency2Symbol', 'totalSalesCurrency2', 'totalSalesCurrency1', 'yearlySalesCurrency2',
-            'yearlySalesCurrency1', 'monthlySalesCurrency2', 'monthlySalesCurrency1', 'users', 'productSoldInLast30Days', 'recentOrders', 'subscriptions', 'expiredSubscriptions', 'invoices', 'allSoldProducts', 'pendingPaymentCurrency2',
-            'pendingPaymentCurrency1', 'status', 'startSubscriptionDate', 'endSubscriptionDate', 'clientsUsingOldVersion', 'getLast30DaysInstallation', 'conversionRate'));
-    }
-
-    /**
-     * Get all the orders that got converted into paid orders in last 30 days.
-     *
-     * @return array
-     */
-    private function getConversionRate()
-    {
-        $dayUtc = new Carbon('-30 days');
-        $rate = 0;
-        $now = Carbon::now();
-        $allOrders = Order::whereBetween('created_at', [$dayUtc, $now])->count();
-        $paidOrders = Order::where('price_override', '>', 0)->whereBetween('created_at', [$dayUtc, $now])->count();
-        if ($paidOrders) {
-            $rate = ($paidOrders / $allOrders) * 100;
-        }
-
-        return ['all_orders' => $allOrders, 'paid_orders' => $paidOrders, 'rate' => $rate];
-    }
-
-    /**
-     * Get all the installations and their percentage that got active in the last 30 days with respect to inactive installation.
-     *
-     * @return array
-     */
-    public function getLast30DaysInstallation()
-    {
-        $dayUtc = new Carbon('-30 days');
-        $now = Carbon::now()->subDays(1);
-        $rate = 0;
-        $totalSubscriptionInLast30Days = Subscription::whereBetween('created_at', [$dayUtc, $now])->count();
-        $inactiveInstallation = Subscription::whereColumn('created_at', '=', 'updated_at')->whereBetween('created_at', [$dayUtc, $now])->count();
-        if ($totalSubscriptionInLast30Days) {
-            $rate = (($totalSubscriptionInLast30Days - $inactiveInstallation) / $totalSubscriptionInLast30Days * 100);
-        }
-
-        return ['total_subscription' => $totalSubscriptionInLast30Days, 'inactive_subscription' => $inactiveInstallation, 'rate' => $rate];
-    }
-
     /**
      * Calculates total sales.
      *
      * @param  $allowedCurrencies  The currency in which total needs to be calculated
-     * @return float|int
      */
-    public function getTotalSales($allowedCurrencies)
+    public function getTotalSales(mixed $allowedCurrencies): float|int
     {
-        $total = Invoice::leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
-                 ->where('invoices.currency', $allowedCurrencies)
-                 ->where('invoices.status', '!=', 'pending')
-                 ->pluck('payments.amount')->all();
-        $grandTotal = array_sum($total);
+        $total = Invoice::leftJoin('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
+            ->where('invoices.currency', $allowedCurrencies)
+            ->where('invoices.status', '!=', 'pending')
+            ->pluck('payment_invoice.amount')->all();
 
-        return $grandTotal;
+        return array_sum($total);
     }
 
     /**
      * Calculates yearly sales.
      *
      * @param  $allowedCurrencies  The currency in which yearly sales needs to be calculated
-     * @return float|int
      */
-    public function getYearlySales($allowedCurrencies)
+    public function getYearlySales(mixed $allowedCurrencies): float|int
     {
         $currentYear = date('Y');
-        $yearlytotal = Invoice::leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
-                ->whereYear('invoices.date', '=', $currentYear)
-                ->where('invoices.currency', $allowedCurrencies)
-                 ->where('invoices.status', '!=', 'pending')
-                 ->pluck('payments.amount')->all();
-        $grandTotal = array_sum($yearlytotal);
+        $yearlytotal = Invoice::leftJoin('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
+            ->whereYear('invoices.date', '=', $currentYear)
+            ->where('invoices.currency', $allowedCurrencies)
+            ->where('invoices.status', '!=', 'pending')
+            ->pluck('payment_invoice.amount')->all();
 
-        return $grandTotal;
+        return array_sum($yearlytotal);
     }
 
     /**
      * Calculates monthly sales.
      *
      * @param  $allowedCurrencies  Currency in which monthly sales needs to be calculated
-     * @return float|int
      */
-    public function getMonthlySales($allowedCurrencies)
+    public function getMonthlySales(mixed $allowedCurrencies): float|int
     {
         $currentMonth = date('m');
         $currentYear = date('Y');
-        $total = Invoice::leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
-                ->whereYear('invoices.date', '=', $currentYear)->whereMonth('invoices.date', '=', $currentMonth)
-                ->where('invoices.currency', $allowedCurrencies)
-                 ->where('invoices.status', '!=', 'pending')
-                 ->pluck('payments.amount')->all();
-        $grandTotal = array_sum($total);
+        $total = Invoice::leftJoin('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
+            ->whereYear('invoices.date', '=', $currentYear)->whereMonth('invoices.date', '=', $currentMonth)
+            ->where('invoices.currency', $allowedCurrencies)
+            ->where('invoices.status', '!=', 'pending')
+            ->pluck('payment_invoice.amount')->all();
 
-        return $grandTotal;
-    }
-
-    /**
-     * Calculates pending payments in the system.
-     *
-     * @param  $allowedCurrencies  Currency in which pending payment need to be calculated
-     * @return float|int
-     */
-    public function getPendingPayments($allowedCurrencies)
-    {
-        $total = Invoice::where('currency', $allowedCurrencies)
-        ->where('status', '=', 'pending')
-        ->pluck('grand_total')->all();
-        $grandTotal = array_sum($total);
-
-        return $grandTotal;
-    }
-
-    /**
-     * Get the list of previous month registered users.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getAllUsers()
-    {
-        $dateBefore = Carbon::now()->subDays(31)->startOfDay()->setTime(12, 0, 0);
-
-        $today = Carbon::now()->endOfDay();
-        $fromDateStart = date_create($dateBefore)->format('Y-m-d').' 00:00:00';
-        $tillDateEnd = date_create($today)->format('Y-m-d').' 23:59:59';
-
-        $todayInclusive = Carbon::now()->endOfDay()->second(59);
-
-        return User::orderBy('created_at', 'desc')
-            ->where('active', 1)
-            ->where('mobile_verified', 1)
-            ->select('id', 'first_name', 'last_name', 'user_name', 'profile_pic', 'email', 'created_at')
-            ->whereBetween('users.created_at', [$fromDateStart, $tillDateEnd])
-            ->get();
+        return array_sum($total);
     }
 
     /**
      * List of products sold in past $noOfDays days. If no parameter is passed, it will give all products.
      *
-     * @param  int  $noOfDays
-     * @return \Illuminate\Database\Eloquent\Collection
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getSoldProducts(?int $noOfDays = null)
+    public function getSoldProducts(?int $noOfDays = null): mixed
     {
         // ASSUMING THIS CODE WON"T STAY ALIVE TILL year 3000
-        $dateBefore = $noOfDays ? (new Carbon("-$noOfDays days"))->toDateTimeString() : Carbon::now()->startOfMillennium()->toDateTimeString();
+        $dateBefore = $noOfDays ? new Carbon(sprintf('-%s days', $noOfDays))->toDateTimeString() : Date::now()->startOfMillennium()->toDateTimeString();
 
         return Order::join('products', 'products.id', '=', 'orders.product')
-            ->select(\DB::raw('COUNT(*) as order_count'), 'products.id as product_id',
+            ->select(DB::raw('COUNT(*) as order_count'), 'products.id as product_id',
                 'orders.created_at as order_created_at', 'products.image as product_image', 'products.name as product_name')
             ->where('order_status', 'executed')
             ->where('orders.created_at', '>', $dateBefore)
@@ -224,8 +87,8 @@ class DashboardController extends Controller
             ->orderBy('orders.created_at', 'desc')
             ->groupBy('products.id')
             ->get()->map(function ($element) {
-                $element->product_image = (new Product())->getImageAttribute($element->product_image);
-                $element->order_created_at = getTimeInLoggedInUserTimeZone($element->order_created_at);
+                // product_image already set on element
+                $element->order_created_at = getTimeInLoggedInUserTimeZone($element->order_created_at); // @phpstan-ignore property.notFound, property.notFound
 
                 return $element;
             });
@@ -233,12 +96,10 @@ class DashboardController extends Controller
 
     /**
      * List of orders of past 30 days.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getRecentOrders()
+    public function getRecentOrders(): mixed
     {
-        $dateBefore = (new Carbon('-30 days'))->toDateTimeString();
+        $dateBefore = new Carbon('-30 days')->toDateTimeString();
 
         return Order::with('user:id,first_name,last_name,email,user_name')
             ->join('products', 'products.id', '=', 'orders.product')
@@ -247,11 +108,11 @@ class DashboardController extends Controller
             ->where('price_override', '>', 0)
             ->orderBy('orders.id', 'desc')
             ->get()->map(function ($element) {
-                $element->order_created_at = getDateHtml($element->order_created_at);
+                $element->order_created_at = getDateHtml($element->order_created_at); // @phpstan-ignore property.notFound, property.notFound
 
-                $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->client)->first_name.' '.User::onlyTrashed()->find($element->client)->last_name;
+                $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->client)?->first_name.' '.User::onlyTrashed()->find($element->client)?->last_name; // @phpstan-ignore property.notFound
 
-                $element->client_profile_link = \Config('app.url').'/clients/'.$element->client;
+                $element->client_profile_link = \Config('app.url').'/clients/'.$element->client; // @phpstan-ignore property.notFound
                 unset($element->user);
 
                 return $element;
@@ -262,13 +123,12 @@ class DashboardController extends Controller
      * List of orders expiring in next 30 days.
      *
      * @param  bool  $past30Days
-     * @return \Illuminate\Database\Eloquent\Collection
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getExpiringSubscriptions($past30Days = false)
+    public function getExpiringSubscriptions($past30Days = false): mixed
     {
-        $today = Carbon::now()->endOfDay();
+        $today = Date::now()->endOfDay();
 
         $baseQuery = Subscription::with('user:id,first_name,last_name,email,user_name')
             ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
@@ -282,87 +142,336 @@ class DashboardController extends Controller
         } else {
             $baseQuery->whereBetween('update_ends_at', [$today, now()->addMonth()->toDateTimeString()]);
         }
-        $baseQuery->orderByDesc('subscription_ends_at')
+
+        $baseQuery->latest('subscription_ends_at')
             ->groupBy('subscriptions.id');
 
-        $subscriptions = $baseQuery->get()->map(function ($element) {
-            $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->user_id)->first_name.' '.User::onlyTrashed()->find($element->user_id)->last_name;
-            $element->client_profile_link = config('app.url').'/clients/'.$element->user_id;
-            $element->order_link = config('app.url').'/orders/'.$element->order_id;
-            $element->days_difference = date_diff(now(), new DateTime($element->subscription_ends_at))->format('%a days');
-            $element->subscription_ends_at = getDateHtml($element->subscription_ends_at);
+        return $baseQuery->get()->map(function ($element) {
+            $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->user_id)?->first_name.' '.User::onlyTrashed()->find($element->user_id)?->last_name; // @phpstan-ignore property.notFound
+            $element->client_profile_link = config('app.url').'/clients/'.$element->user_id; // @phpstan-ignore property.notFound
+            $element->order_link = config('app.url').'/orders/'.$element->order_id; // @phpstan-ignore property.notFound
+            $element->days_difference = date_diff(now(), new DateTime($element->subscription_ends_at))->format('%a days'); // @phpstan-ignore property.notFound, property.notFound
+            $element->subscription_ends_at = getDateHtml($element->subscription_ends_at); // @phpstan-ignore property.notFound, property.notFound
             unset($element->user);
 
             return $element;
         });
-
-        return $subscriptions;
     }
 
     /**
-     * List of Invoices of past 30 ays.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @param  array<mixed>  $totals
+     * @return array<mixed>
      */
-    public function getRecentInvoices()
+    private function formatCurrencyTotals(array $totals): array
     {
-        $dateBefore = Carbon::now()->subDays(31)->startOfDay()->setTime(12, 0, 0);
+        $defaultCurrency = Setting::where('id', 1)->value('default_currency');
+        $dashboardCurrency = Currency::where('dashboard_currency', 1)->value('code');
 
-        $today = Carbon::now()->endOfDay();
-        $fromDateStart = date_create($dateBefore)->format('Y-m-d').' 00:00:00';
-        $tillDateEnd = date_create($today)->format('Y-m-d').' 23:59:59';
+        $result = [];
 
-        $todayInclusive = Carbon::now()->endOfDay()->second(59);
+        if ($defaultCurrency) {
+            $result[$defaultCurrency] = $totals[$defaultCurrency] ?? 0;
+        }
 
-        return Invoice::with('user:id,first_name,last_name,email,user_name')
-            ->leftJoin('currencies', 'invoices.currency', '=', 'currencies.code')
-            ->leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
-            ->select('invoices.id as invoice_id', 'invoices.number as invoice_number', 'invoices.grand_total', 'invoices.status',
-                \DB::raw('SUM(payments.amount) as paid'), 'invoices.user_id', 'currencies.code as currency_code', 'invoices.date')
-            ->whereBetween('invoices.date', [$fromDateStart, $tillDateEnd])
+        if ($dashboardCurrency && $dashboardCurrency !== $defaultCurrency) {
+            $result[$dashboardCurrency] = $totals[$dashboardCurrency] ?? 0;
+        }
 
-            ->groupBy('invoices.id')
-            ->orderBy('invoices.date', 'desc')
-            ->get()->map(function ($element) {
-                $element->balance = (int) ($element->grand_total - $element->paid);
-                $element->status = getStatusLabel($element->status);
-                $element->grand_total = currencyFormat((int) $element->grand_total, $element->currency_code);
-                $element->paid = currencyFormat((int) $element->paid, $element->currency_code);
-                $element->balance = currencyFormat((int) $element->balance, $element->currency_code);
-                $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->user_id)->first_name.' '.User::onlyTrashed()->find($element->user_id)->last_name;
-                $element->client_profile_link = \Config('app.url').'/clients/'.$element->user_id;
-                unset($element->user);
-
-                return $element;
-            });
+        return $result;
     }
 
     /**
-     * Gets list of clients who are using older version of the latest release.
-     *
-     * @return mixed
-     *
-     * @throws \Exception
+     * @return array<mixed>
      */
-    private function getClientsUsingOldVersions()
+    public function dashboard(): array
     {
-        $latestVersion = (string) Subscription::orderBy('version', 'desc')->value('version');
-        $baseQuery = $this->getBaseQueryForOrders()->where('price_override', '>', 0)
-        ->where('subscriptions.version', '<', $latestVersion)->
-        orderBy('subscriptions.created_at', 'desc')
-        ->get();
+        return [
+            'totalSales' => $this->formatCurrencyTotals($this->getTotalSalesByCurrency()->toArray()),
+            'yearlySales' => $this->formatCurrencyTotals($this->getYearlySalesByCurrency()->toArray()),
+            'monthlySales' => $this->formatCurrencyTotals($this->getMonthlySalesByCurrency()->toArray()),
+            'pendingPayments' => $this->formatCurrencyTotals($this->getAllPendingPayments()->toArray()),
+            'productInstalledRate' => $this->getLastNoOfDaysInstallation(30),
+            'paidOrderRate' => $this->getConversionRateByDays(30),
 
-        return $baseQuery;
+            'clientWithMobileAndEmailActivation' => $this->getUsersWithMobileAndEmailActivation(30),
+            'recentInvoices' => $this->getAllRecentInvoices(30),
+            'expiringOrders' => $this->getExpiringOrders(30),
+            'expiredOrders' => $this->getExpiredOrders(30),
+            'clientWithOutdatedProducts' => $this->getClientsUsingOldVersion(),
+            'recentPaidOrders' => $this->getRecentPaidOrders(30),
+            'productSoldInLast30Days' => $this->getSoldProduct(30),
+            'totalProductsSold' => $this->getSoldProduct(),
+        ];
     }
 
-    private function getBaseQueryForOrders()
+    private function getUsersWithMobileAndEmailActivation(int $days): mixed
     {
-        return Order::leftJoin('subscriptions', 'orders.id', '=', 'subscriptions.order_id')
-            ->leftJoin('users', 'orders.client', '=', 'users.id')
-            ->leftJoin('products', 'orders.product', '=', 'products.id')
-            ->leftJoin('installation_details', 'orders.id', '=', 'installation_details.order_id')
-            ->select('orders.id', \DB::raw("concat(first_name, ' ', last_name) as client_name"), 'products.name as product_name', 'products.id as product_id',
-                'subscriptions.version as product_version', 'client as client_id', 'subscriptions.update_ends_at as subscription_ends_at'
-            )->groupBy('orders.number');
+        return User::where('mobile_verified', 1)
+            ->where('email_verified', 1)
+            ->whereBetween('created_at', [
+                Date::now()->subDays($days)->startOfDay(),
+                Date::now()->subDay()->endOfDay(),
+            ])
+            ->orderByDesc('created_at')
+            ->get();
+    }
+
+    private function getExpiredOrders(int $days): mixed
+    {
+        return Subscription::select(
+            'id',
+            'order_id',
+            'update_ends_at',
+            'user_id',
+            'product_id',
+            DB::raw('DATEDIFF(NOW(), update_ends_at) as days_expired')
+        )
+            ->with([
+                'user:id,first_name,last_name',
+                'order:id,number',
+                'product:id,name',
+            ])
+            ->whereBetween('update_ends_at', [
+                Date::now()->subDays($days)->startOfDay(),
+                Date::now()->subDay()->endOfDay(),
+            ])
+            ->orderBy('days_expired')
+            ->get();
+    }
+
+    private function getExpiringOrders(int $days): mixed
+    {
+        return Subscription::select(
+            'id',
+            'order_id',
+            'update_ends_at',
+            'user_id',
+            'product_id',
+            DB::raw('DATEDIFF(update_ends_at, NOW()) as days_to_expire')
+        )
+            ->with([
+                'user:id,first_name,last_name',
+                'order:id,number',
+                'product:id,name',
+            ])
+            ->whereBetween('update_ends_at', [
+                Date::now()->startOfDay(),
+                Date::now()->addDays($days)->endOfDay(),
+            ])
+            ->orderBy('days_to_expire')
+            ->get();
+    }
+
+    public function getClientsUsingOldVersion(): mixed
+    {
+        // Fetch subscriptions whose product/version exists in outdated uploads
+        return Subscription::select(
+            'id',
+            'order_id',
+            'update_ends_at',
+            'user_id',
+            'product_id',
+            'version'
+        )
+            ->whereExists(function ($query): void {
+                $query->selectRaw('1')
+                    ->from('product_uploads as pu')
+                    ->whereColumn('pu.product_id', 'subscriptions.product_id')
+                    ->whereColumn('pu.version', 'subscriptions.version')
+                    ->whereRaw('pu.id NOT IN (SELECT MAX(id) FROM product_uploads GROUP BY product_id)');
+            })
+            ->with([
+                'user:id,first_name,last_name',
+                'product:id,name',
+            ])
+            ->whereHas('order', function ($query): void {
+                $query->where('price_override', '>', 0);
+            })
+            ->orderBy('id', 'desc')
+            ->get();
+    }
+
+    public function getRecentPaidOrders(int $days): mixed
+    {
+        return Order::select(
+            'id',
+            'number',
+            'price_override',
+            'client',
+            'product',
+            'created_at'
+        )
+            ->with([
+                'user:id,first_name,last_name',
+                'productRelation:id,name',
+            ])
+            ->where('price_override', '>', 0)
+            ->whereBetween('created_at', [
+                Date::now()->subDays($days)->startOfDay(),
+                Date::now()->subDay()->endOfDay(),
+            ])
+            ->orderBy('id', 'desc')
+            ->get();
+    }
+
+    public function getTotalSalesByCurrency(): mixed
+    {
+        return Invoice::join('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
+            ->where('invoices.status', '!=', 'pending')
+            ->groupBy('invoices.currency')
+            ->selectRaw('invoices.currency, SUM(payment_invoice.amount) as total')
+            ->pluck('total', 'currency');
+    }
+
+    public function getYearlySalesByCurrency(): mixed
+    {
+        return Invoice::join('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
+            ->where('invoices.status', '!=', 'pending')
+            ->whereYear('invoices.date', Date::now()->year)
+            ->groupBy('invoices.currency')
+            ->selectRaw('invoices.currency, SUM(payment_invoice.amount) as total')
+            ->pluck('total', 'currency');
+    }
+
+    public function getMonthlySalesByCurrency(): mixed
+    {
+        return Invoice::join('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
+            ->where('invoices.status', '!=', 'pending')
+            ->whereBetween('invoices.date', [now()->startOfMonth(), now()->endOfMonth()])
+            ->groupBy('invoices.currency')
+            ->selectRaw('invoices.currency, SUM(payment_invoice.amount) as total')
+            ->pluck('total', 'currency');
+    }
+
+    public function getAllPendingPayments(): mixed
+    {
+        return DB::table(
+            Invoice::leftJoin('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
+                ->where('invoices.status', '!=', 'success')
+                ->groupBy('invoices.id', 'invoices.currency', 'invoices.grand_total')
+                ->selectRaw('invoices.currency, invoices.grand_total - COALESCE(SUM(payment_invoice.amount), 0) as remaining')
+                ->toBase(),
+            'sub'
+        )
+            ->groupBy('currency')
+            ->selectRaw('currency, SUM(remaining) as total')
+            ->pluck('total', 'currency');
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function getLastNoOfDaysInstallation(int $days): array
+    {
+        $startDate = Date::now()->subDays($days)->startOfDay();
+        $endDate = Date::now()->subDay()->endOfDay();
+
+        // Total subscriptions in the period
+        $totalSubscription = Subscription::whereBetween('created_at', [$startDate, $endDate])->count();
+
+        // Inactive subscriptions (no installation detail)
+        $inactiveSubscription = Subscription::whereBetween('created_at', [$startDate, $endDate])
+            ->whereDoesntHave('order.licensedInstallations')
+            ->count();
+
+        // Calculate rate
+        $rate = $totalSubscription ? (($totalSubscription - $inactiveSubscription) / $totalSubscription * 100) : 0;
+
+        return [
+            'total_subscription' => $totalSubscription,
+            'inactive_subscription' => $inactiveSubscription,
+            'rate' => $rate,
+        ];
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function getConversionRateByDays(int $days): array
+    {
+        $startDate = Date::now()->subDays($days)->startOfDay();
+        $endDate = Date::now()->subDay()->endOfDay();
+
+        // Total orders in the period
+        $allOrders = Order::whereBetween('created_at', [$startDate, $endDate])->count();
+
+        // Paid orders in the same period
+        $paidOrders = Order::whereBetween('created_at', [$startDate, $endDate])
+            ->where('price_override', '>', 0)
+            ->count();
+
+        $rate = $allOrders ? ($paidOrders / $allOrders * 100) : 0;
+
+        return [
+            'all_orders' => $allOrders,
+            'paid_orders' => $paidOrders,
+            'rate' => $rate,
+        ];
+    }
+
+    private function getAllRecentInvoices(int $days): mixed
+    {
+        $fromDate = Date::now()->subDays($days)->startOfDay();
+        $toDate = Date::now()->subDay()->endOfDay();
+
+        // Fetch invoices with user info and payment sum
+        $invoices = Invoice::with([
+            'user:id,first_name,last_name',
+        ])
+            // Sum the allocations, not the payments — a payment covering three
+            // invoices must only count here for the slice that landed on each.
+            ->withSum('allocations', 'amount')
+            ->whereBetween('date', [$fromDate, $toDate])
+            ->orderByDesc('date')
+            ->get([
+                'id',
+                'number',
+                'date',
+                'user_id',
+                'grand_total',
+                'currency',
+                'status',
+            ]);
+
+        return $invoices->map(function ($invoice): array {
+            $paidAmount = $invoice->allocations_sum_amount ?? 0;
+            $balance = $invoice->grand_total - $paidAmount;
+
+            return [
+                'id' => $invoice->id,
+                'number' => $invoice->number,
+                'date' => $invoice->date,
+                'grand_total' => currencyFormat($invoice->grand_total, $invoice->currency),
+                'currency' => $invoice->currency,
+                'status' => getStatusLabel($invoice->status),
+                'paid_amount' => currencyFormat($paidAmount, $invoice->currency),
+                'balance' => currencyFormat($balance, $invoice->currency),
+                'user' => $invoice->user,
+            ];
+        });
+    }
+
+    public function getSoldProduct(?int $days = null): mixed
+    {
+        $fromDate = $days ? Date::now()->subDays($days)->startOfDay() : null;
+        $toDate = Date::now()->subDay()->endOfDay();
+
+        return Product::select('id', 'name', 'image')
+            ->withCount(['order as order_count' => function ($query) use ($fromDate, $toDate): void {
+                $query->where('order_status', 'executed');
+                if ($fromDate) {
+                    $query->whereBetween('created_at', [$fromDate, $toDate]);
+                }
+            }])
+            ->withMax(['order as latest_order_created_at' => function ($query) use ($fromDate, $toDate): void {
+                $query->where('order_status', 'executed');
+                if ($fromDate) {
+                    $query->whereBetween('created_at', [$fromDate, $toDate]);
+                }
+            }], 'created_at')
+            ->having('order_count', '>', 0)
+            ->orderByDesc('order_count')
+            ->orderByDesc('latest_order_created_at')
+            ->get();
     }
 }

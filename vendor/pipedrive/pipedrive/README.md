@@ -21,7 +21,7 @@ This SDK supports two API versions, each with its own namespace and documentatio
 
 ### Requirements
 
-PHP 7.4+ and later.
+PHP 8.0+ and later.
 
 ### Composer
 

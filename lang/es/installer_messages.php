@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'title' => 'Instalador de Agora Facturación',
     'probe' => 'Sondeos de Agora Facturación',
     'magic_phrase' => '¿Cuál es la frase mágica?',
@@ -20,7 +19,6 @@ return [
     'off_apache' => 'APAGADO (Si estás usando apache, asegúrate de que <var><strong>AllowOverride</strong></var> esté configurado en <var><strong>All</strong></var> en la configuración de apache)',
     'rewrite_engine' => 'Motor de reescritura',
     'user_url' => 'URL amigable para el usuario',
-
     'host' => 'Anfitrión',
     'host_tooltip' => 'Si tu MySQL está instalado en el mismo servidor que Agora Facturación, déjalo como localhost',
     'database_name_label' => 'Nombre de la base de datos',
@@ -30,7 +28,6 @@ return [
     'password_label' => 'Contraseña',
     'test_prerequisites_message' => 'Esta prueba verificará los requisitos previos necesarios para instalar Agora Facturación',
     'previous' => 'Anterior',
-
     'sign_up_as_admin' => 'Regístrate como Administrador',
     'first_name' => 'Nombre',
     'first_name_required' => 'El nombre es requerido',
@@ -44,14 +41,27 @@ return [
     'confirm_password_required' => 'Confirmar contraseña es requerido',
     'password_requirements' => 'Tu contraseña debe tener:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => 'Entre 8-16 caracteres'],
-        ['id' => 'letter', 'text' => 'Caracteres en minúsculas (a-z)'],
-        ['id' => 'capital', 'text' => 'Caracteres en mayúsculas (A-Z)'],
-        ['id' => 'number', 'text' => 'Números (0-9)'],
-        ['id' => 'space', 'text' => 'Caracteres especiales (~*!@$#%_+.?:,{ })'],
+        [
+            'id' => 'length',
+            'text' => 'Entre 8-16 caracteres',
+        ],
+        [
+            'id' => 'letter',
+            'text' => 'Caracteres en minúsculas (a-z)',
+        ],
+        [
+            'id' => 'capital',
+            'text' => 'Caracteres en mayúsculas (A-Z)',
+        ],
+        [
+            'id' => 'number',
+            'text' => 'Números (0-9)',
+        ],
+        [
+            'id' => 'space',
+            'text' => 'Caracteres especiales (~*!@$#%_+.?:,{ })',
+        ],
     ],
-
-    // Información del sistema
     'system_information' => 'Información del sistema',
     'environment' => 'Entorno',
     'environment_required' => 'El entorno es requerido',
@@ -63,42 +73,29 @@ return [
     'file' => 'Archivo',
     'redis' => 'Redis',
     'password' => 'Contraseña',
-
-    // Configuración de Redis
     'redis_setup' => 'Configuración de Redis',
     'redis_host' => 'Host de Redis',
     'redis_port' => 'Puerto de Redis',
     'redis_password' => 'Contraseña de Redis',
-
-    // Botones
     'continue' => 'Continuar',
-
-    // Configuración final
     'final_setup' => '¡Tu aplicación de Agora Facturación está lista!',
     'installation_complete' => '¡Todo listo, crack! Has superado la instalación',
-
-    // Aprender más
     'learn_more' => 'Aprende más',
     'knowledge_base' => 'Base de conocimiento',
     'email_support' => 'Soporte por correo electrónico',
-
-    // Próximo paso
     'next_step' => 'Próximo paso',
     'login_button' => 'Iniciar sesión en Agora Facturación',
-
     'pre_migration_success' => 'La pre-migración ha sido probada con éxito',
     'migrating_tables' => 'Migrando tablas en la base de datos',
     'db_connection_error' => 'La conexión a la base de datos no se actualizó',
     'database_setup_success' => 'La base de datos se ha configurado con éxito',
     'env_file_created' => 'El archivo de configuración del entorno ha sido creado con éxito',
     'pre_migration_test' => 'Ejecutando prueba de pre-migración',
-
     'redis_host_required' => 'El host de Redis es requerido',
     'redis_password_required' => 'La contraseña de Redis es requerida',
     'redis_port_required' => 'El puerto de Redis es requerido',
     'password_regex' => 'La contraseña debe contener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial',
     'setup_completed' => '¡Configuración completada con éxito!',
-
     'database' => 'Base de datos',
     'selected' => 'Seleccionado',
     'mysql_version_is' => 'La versión de MySQL es',
@@ -114,7 +111,6 @@ return [
     'user_name' => 'Nombre de usuario',
     'user_email' => 'Correo electrónico del usuario',
     'password_not_match' => 'Las contraseñas no coinciden',
-    //nuevo
     'installation_check' => 'Esta prueba verificará los requisitos previos necesarios para instalar Agora Facturación Comunidad',
     'db_setup_error_1' => 'Esto significa que la información de nombre de usuario y contraseña es incorrecta o tu host no es accesible',
     'db_setup_error_2' => '¿Estás seguro de que ya tienes una base de datos existente con el nombre de base de datos proporcionado?',
@@ -158,5 +154,4 @@ return [
     'tooltip_timezone' => 'La zona horaria del navegador se usa inicialmente. Seleccione una zona horaria diferente si es necesario',
     'tooltip_language' => 'Idioma predeterminado cargado inicialmente. Seleccione un idioma diferente si es necesario',
     'enter_magic_phrase' => 'Ingrese frase mágica',
-
 ];

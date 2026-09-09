@@ -1,45 +1,43 @@
 <?php
 
 namespace Database\Seeders\v4_0_1;
-use Illuminate\Database\Seeder;
+
 use App\Model\Common\PricingTemplate;
 use App\Model\Common\Template;
+use Illuminate\Database\Seeder;
+
 class DatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
 
         $this->call([PricingTemplateSeeder::class]);
         $this->command->info('Pricing Template Table Seeded!');
-        
+
         $this->call([TemplateTableSeeder::class]);
         $this->command->info('Template table seeded!');
 
-
     }
-
 }
 
 class PricingTemplateSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
 
-        PricingTemplate::whereIn('id', [1, 2])->update(['image' => 'pricing_template1.png','name' => 'Porto Theme(With Gap Style)']);
-        
+        PricingTemplate::whereIn('id', [1, 2])->update(['image' => 'pricing_template1.png', 'name' => 'Porto Theme(With Gap Style)']);
+
     }
 }
 
 class TemplateTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-          Template::where('id',4)->update(['data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 4)->update(['data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>

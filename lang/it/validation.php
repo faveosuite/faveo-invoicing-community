@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'accepted' => 'Il :attribute deve essere accettato.',
     'accepted_if' => 'Il :attribute deve essere accettato quando :other è :value.',
     'active_url' => 'Il :attribute non è un URL valido.',
@@ -25,6 +24,7 @@ return [
     'date' => 'Il :attribute non è una data valida.',
     'date_equals' => 'Il :attribute deve essere una data uguale a :date.',
     'date_format' => 'Il :attribute non corrisponde al formato :format.',
+    'decimal' => 'Il campo :attribute deve contenere :decimal cifre decimali.',
     'declined' => 'Il :attribute deve essere rifiutato.',
     'declined_if' => 'Il :attribute deve essere rifiutato quando :other è :value.',
     'different' => 'Il :attribute e :other devono essere diversi.',
@@ -125,38 +125,12 @@ return [
     'uploaded' => 'Il :attribute non è riuscito a caricarsi.',
     'url' => 'Il :attribute deve essere un URL valido.',
     'uuid' => 'Il :attribute deve essere un UUID valido.',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Validation Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | Qui puoi specificare messaggi di validazione personalizzati per gli
-    | attributi utilizzando la convenzione "attribute.rule" per nominare le righe.
-    | Questo ti consente di specificare rapidamente una linea di lingua personalizzata
-    | per una determinata regola di attributo.
-    |
-    */
-
     'custom_dup' => [
         'attribute-name' => [
             'rule-name' => 'messaggio-personalizzato',
         ],
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Validation Attributes
-    |--------------------------------------------------------------------------
-    |
-    | Le seguenti linee di lingua vengono utilizzate per sostituire il segnaposto
-    | dell'attributo con qualcosa di più leggibile, come "Indirizzo e-mail" al posto di "email".
-    | Questo ci aiuta semplicemente a rendere i messaggi più espressivi.
-    |
-    */
-
     'attributes' => [],
-
     'publish_date_required' => 'La data di pubblicazione è obbligatoria',
     'price_numeric_value' => 'Il prezzo deve essere un valore numerico',
     'quantity_integer_value' => 'La quantità deve essere un valore intero',
@@ -172,11 +146,6 @@ return [
     'total_amount_required' => 'L\'importo totale è obbligatorio.',
     'total_amount_numeric' => 'L\'importo totale deve essere un valore numerico.',
     'invoice_link_required' => 'Si prega di collegare l\'importo con almeno una fattura.',
-    /*
-    Request file custom validation messages
-    */
-
-    //Common
     'settings_form' => [
         'company' => [
             'required' => 'Il campo azienda è obbligatorio.',
@@ -211,7 +180,6 @@ return [
             'email' => 'L\'email di errore deve essere un indirizzo email valido.',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => 'Il nome dell\'azienda è obbligatorio.',
@@ -242,7 +210,7 @@ return [
             'required' => 'Il paese è obbligatorio.',
         ],
         'gstin' => [
-            'max' => 'Il GSTIN non può superare i 15 caratteri.',
+            'regex' => 'Il formato GSTIN non è valido.',
         ],
         'default_currency' => [
             'required' => 'La valuta predefinita è obbligatoria.',
@@ -260,7 +228,10 @@ return [
             'max' => 'Il logo non può superare i 2MB.',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'L\'immagine OG deve essere un file di tipo:jpeg, png, jpg, webp.',
+        'max' => 'L\'immagine originale non può essere superiore a 2 MB.',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => 'Il campo nome è obbligatorio.',
@@ -272,9 +243,13 @@ return [
             'url' => 'Il link deve essere un URL valido.',
             'regex' => 'Il formato del link è invalido.',
         ],
+        'class' => [
+            'required' => 'Il campo della classe dell\'icona è obbligatorio.',
+        ],
+        'fa_class' => [
+            'required' => 'Il campo della classe dell\'icona è obbligatorio.',
+        ],
     ],
-
-    //Email
     'custom' => [
         'password' => [
             'required_if' => 'Il campo password è obbligatorio per il driver di posta selezionato.',
@@ -310,7 +285,6 @@ return [
             'required' => 'Il campo driver è obbligatorio.',
         ],
     ],
-
     'customer_form' => [
         'first_name' => [
             'required' => 'Il campo nome è obbligatorio.',
@@ -350,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => 'Verifica del robot fallita. Per favore riprova.',
         'demo-recaptcha-response-1.required' => 'Verifica del robot fallita. Per favore riprova.',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => 'Il campo nome è obbligatorio.',
@@ -363,6 +336,7 @@ return [
         ],
         'slug' => [
             'required' => 'Il campo slug è obbligatorio.',
+            'unique' => 'Questo slug esiste già.',
         ],
         'url' => [
             'required' => 'Il campo URL è obbligatorio.',
@@ -375,9 +349,12 @@ return [
         'created_at' => [
             'required' => 'Il campo creato il è obbligatorio.',
         ],
+        'parent_page_id' => [
+            'exists' => 'La pagina principale selezionata non esiste.',
+            'self' => 'Una pagina non può essere la propria madre.',
+            'nested' => 'La pagina selezionata è già una sottopagina e non può essere utilizzata come pagina principale.',
+        ],
     ],
-
-    //Order form
     'order_form' => [
         'client' => [
             'required' => 'Il campo cliente è obbligatorio.',
@@ -404,8 +381,6 @@ return [
             'integer' => 'La quantità deve essere un numero intero.',
         ],
     ],
-
-    //Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'Il campo codice coupon è obbligatorio.',
@@ -438,9 +413,9 @@ return [
             'required' => 'Il campo valore sconto è obbligatorio.',
             'numeric' => 'Il campo valore sconto deve essere un numero.',
             'between' => 'Il campo valore sconto deve essere tra :min e :max se il tipo è percentuale.',
+            'max' => 'Il valore dello sconto non può superare il prezzo del prodotto applicato (:max).',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => 'Il campo nome è obbligatorio.',
@@ -448,6 +423,12 @@ return [
         'rate' => [
             'required' => 'Il campo tasso è obbligatorio.',
             'numeric' => 'Il tasso deve essere un numero.',
+            'decimal' => 'La tariffa deve avere al massimo 3 cifre decimali.',
+            'max' => 'La tariffa non deve essere superiore a 999.999.',
+        ],
+        'priority' => [
+            'required' => 'Il campo priorità è obbligatorio.',
+            'min' => 'La priorità deve essere almeno 1.',
         ],
         'level' => [
             'required' => 'Il campo livello è obbligatorio.',
@@ -455,15 +436,11 @@ return [
         ],
         'country' => [
             'required' => 'Il campo paese è obbligatorio.',
-            // 'exists' => 'Il paese selezionato non è valido.',
         ],
         'state' => [
             'required' => 'Il campo stato è obbligatorio.',
-            // 'exists' => 'Lo stato selezionato non è valido.',
         ],
     ],
-
-    //Product
     'subscription_form' => [
         'name' => [
             'required' => 'Il campo nome è obbligatorio.',
@@ -483,7 +460,6 @@ return [
             'required' => 'Il campo prodotti è obbligatorio.',
         ],
     ],
-
     'bundle' => [
         'name' => [
             'required' => 'Il campo nome è obbligatorio.',
@@ -495,6 +471,10 @@ return [
     'group' => [
         'name' => [
             'required' => 'Il campo nome è obbligatorio',
+            'unique' => 'Questo nome esiste già.',
+        ],
+        'pricing_templates_id' => [
+            'required' => 'È richiesto il modello di progettazione.',
         ],
         'features' => [
             'name' => [
@@ -518,13 +498,15 @@ return [
             'required_with' => 'Il campo titolo è obbligatorio',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => 'Il campo nome è obbligatorio.',
         ],
         'type' => [
             'required' => 'Il campo tipo è obbligatorio.',
+        ],
+        'product_type' => [
+            'required' => 'Il campo della categoria prodotto è obbligatorio.',
         ],
         'group' => [
             'required' => 'Il campo gruppo è obbligatorio.',
@@ -535,9 +517,6 @@ return [
         'currency' => [
             'required' => 'Il campo valuta è obbligatorio.',
         ],
-        // 'price' => [
-        //     'required' => 'Il campo prezzo è obbligatorio.',
-        // ],
         'file' => [
             'required_without_all' => 'Il campo file è obbligatorio se non sono forniti né github_owner né github_repository.',
             'mimes' => 'Il file deve essere un file zip.',
@@ -547,14 +526,18 @@ return [
             'mimes' => 'L\'immagine deve essere un file PNG.',
         ],
         'github_owner' => [
+            'required' => 'Il campo del proprietario GitHub è obbligatorio.',
             'required_without_all' => 'Il campo GitHub owner è obbligatorio se non sono forniti né file né immagine.',
         ],
         'github_repository' => [
+            'required' => 'Il campo Repository GitHub è obbligatorio.',
             'required_without_all' => 'Il campo GitHub repository è obbligatorio se non sono forniti né file né immagine.',
             'required_if' => 'Il campo GitHub repository è obbligatorio se il tipo è 2.',
         ],
+        'shoping_cart_link' => [
+            'required' => 'Il campo del collegamento al carrello è obbligatorio.',
+        ],
     ],
-
     'users' => [
         'first_name' => [
             'required' => 'Il campo nome è obbligatorio.',
@@ -593,8 +576,10 @@ return [
         'zip' => [
             'regex' => 'Il campo stato è obbligatorio quando il paese è l\'India.',
         ],
+        'gstin' => [
+            'regex' => 'Il formato GSTIN non è valido.',
+        ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => 'Il nome è obbligatorio.',
@@ -637,6 +622,9 @@ return [
         'state' => [
             'required_if' => 'Il campo stato è obbligatorio quando il paese è l\'India.',
         ],
+        'gstin' => [
+            'regex' => 'Il formato GSTIN non è valido.',
+        ],
         'old_password' => [
             'required' => 'La vecchia password è obbligatoria.',
             'min' => 'La vecchia password deve contenere almeno :min caratteri.',
@@ -663,7 +651,6 @@ return [
             'required' => 'Inserisci il prefisso del paese (mobile)',
         ],
     ],
-    //Modulo Fattura
     'invoice' => [
         'user' => [
             'required' => 'Il campo clienti è obbligatorio.',
@@ -673,7 +660,12 @@ return [
             'date' => 'La data deve essere una data valida.',
         ],
         'domain' => [
+            'required' => 'Il campo dominio è obbligatorio.',
             'regex' => 'Il formato del dominio non è valido.',
+        ],
+        'cloud_domain' => [
+            'required' => 'Il campo del dominio cloud è obbligatorio.',
+            'regex' => 'Sono ammessi solo lettere, numeri e trattini.',
         ],
         'plan' => [
             'required_if' => 'Il campo abbonamento è obbligatorio.',
@@ -685,89 +677,86 @@ return [
             'required' => 'Il campo prodotto è obbligatorio.',
         ],
     ],
-
-    //Modulo Licenza Localizzata
     'domain_form' => [
         'domain' => [
             'required' => 'Il campo dominio è obbligatorio.',
             'url' => 'Il dominio deve essere un URL valido.',
         ],
     ],
-
-    //Modulo Rinnovo Prodotto
     'product_renewal' => [
         'domain' => [
             'required' => 'Il campo dominio è obbligatorio.',
             'no_http' => 'Il dominio non deve contenere "http" o "https".',
         ],
     ],
-
-    //Modulo Lingua
     'language' => [
         'required' => 'Il campo lingua è obbligatorio.',
         'invalid' => 'La lingua selezionata non è valida.',
     ],
-
-    //Modulo Aggiornamento Percorso di Memorizzazione
     'storage_path' => [
         'disk' => [
             'required' => 'Il campo disco di memorizzazione è obbligatorio.',
             'string' => 'Il disco deve essere una stringa.',
         ],
         'path' => [
+            'required' => 'Il campo del percorso di archiviazione è obbligatorio.',
             'string' => 'Il percorso deve essere una stringa.',
             'nullable' => 'Il campo percorso è facoltativo.',
+            'invalid' => 'Il percorso non esiste o non è scrivibile.',
         ],
     ],
-
-    //Modulo Validazione Codice Segreto
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => 'Il campo del percorso del nodo è obbligatorio.',
+            'string' => 'Il percorso del nodo deve essere una stringa valida.',
+        ],
+        'npm_path' => [
+            'required' => 'Il campo del percorso npm è obbligatorio.',
+            'string' => 'Il percorso npm deve essere una stringa valida.',
+        ],
+        'chrome_path' => [
+            'required' => 'Il campo del percorso chrome è obbligatorio.',
+            'string' => 'Il percorso chrome deve essere una stringa valida.',
+            'invalid' => 'Il percorso Chrome non esiste o non è eseguibile.',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => 'Inserisci il codice.',
             'digits' => 'Inserisci un codice valido di 6 cifre.',
         ],
     ],
-
-    //Modulo Verifica OTP
     'verify_email' => [
         'required' => 'Il campo email è obbligatorio.',
         'email' => 'L\'email deve essere un indirizzo email valido.',
         'verify_email' => 'La verifica dell\'email è fallita.',
     ],
-
     'verify_country_code' => [
         'required' => 'Il campo prefisso paese è obbligatorio.',
         'numeric' => 'Il prefisso paese deve essere un numero valido.',
         'verify_country_code' => 'La verifica del prefisso paese è fallita.',
     ],
-
     'verify_number' => [
         'required' => 'Il numero è obbligatorio.',
         'numeric' => 'Il numero deve essere un numero valido.',
         'verify_number' => 'La verifica del numero è fallita.',
     ],
-
     'password_otp' => [
         'required' => 'Il campo password è obbligatorio.',
         'password' => 'La password è errata.',
         'invalid' => 'Password non valida.',
     ],
-
-    //Controller di Autenticazione
     'auth_controller' => [
         'name_required' => 'Il nome è obbligatorio.',
         'name_max' => 'Il nome non può essere più lungo di 255 caratteri.',
-
         'email_required' => 'L\'email è obbligatoria.',
         'email_email' => 'Inserisci un indirizzo email valido.',
         'email_max' => 'L\'email non può essere più lunga di 255 caratteri.',
         'email_unique' => 'Questa email è già registrata.',
-
         'password_required' => 'La password è obbligatoria.',
         'password_confirmed' => 'La conferma della password non corrisponde.',
         'password_min' => 'La password deve contenere almeno 6 caratteri.',
     ],
-
     'resend_otp' => [
         'eid_required' => 'Il campo EID è obbligatorio.',
         'eid_string' => 'L\'EID deve essere una stringa.',
@@ -775,7 +764,6 @@ return [
         'type_string' => 'Il tipo deve essere una stringa.',
         'type_in' => 'Il tipo selezionato non è valido.',
     ],
-
     'verify_otp' => [
         'eid_required' => 'Il campo ID dipendente è obbligatorio.',
         'eid_string' => 'L\'ID dipendente deve essere una stringa.',
@@ -784,31 +772,26 @@ return [
         'recaptcha_required' => 'Completa il CAPTCHA.',
         'recaptcha_size' => 'La risposta al CAPTCHA non è valida.',
     ],
-
     'company_validation' => [
         'company_required' => 'Il nome dell\'azienda è obbligatorio.',
         'company_string' => 'Il nome dell\'azienda deve essere un testo.',
         'address_required' => 'Il campo indirizzo è obbligatorio.',
         'address_string' => 'L\'indirizzo deve essere un testo.',
     ],
-
     'token_validation' => [
         'token_required' => 'Il token è obbligatorio.',
         'password_required' => 'Il campo password è obbligatorio.',
         'password_confirmed' => 'La conferma della password non corrisponde.',
     ],
-
     'custom_email' => [
         'required' => 'Il campo email è obbligatorio.',
         'email' => 'Inserisci un indirizzo email valido.',
         'exists' => 'Questa email non è registrata con noi.',
     ],
-
     'newsletterEmail' => [
         'required' => 'Il campo email della newsletter è obbligatorio.',
         'email' => 'Inserisci un indirizzo email valido per la newsletter.',
     ],
-
     'widget' => [
         'name_required' => 'Il nome è obbligatorio.',
         'name_max' => 'Il nome non può essere più lungo di 50 caratteri.',
@@ -816,40 +799,39 @@ return [
         'type_required' => 'Il campo tipo è obbligatorio.',
         'type_unique' => 'Questo tipo esiste già.',
     ],
-
     'payment' => [
         'payment_date_required' => 'La data di pagamento è obbligatoria.',
         'payment_method_required' => 'Il metodo di pagamento è obbligatorio.',
         'amount_required' => 'L\'importo è obbligatorio.',
     ],
-
     'custom_date' => [
         'date_required' => 'Il campo data è obbligatorio.',
         'total_required' => 'Il campo totale è obbligatorio.',
         'status_required' => 'Il campo stato è obbligatorio.',
     ],
-
     'plan_renewal' => [
         'plan_required' => 'Il campo piano è obbligatorio.',
         'payment_method_required' => 'Il campo metodo di pagamento è obbligatorio.',
         'cost_required' => 'Il campo costo è obbligatorio.',
         'code_not_valid' => 'Il codice promozionale non è valido.',
     ],
-
     'rate' => [
         'required' => 'Il campo tasso è obbligatorio.',
         'numeric' => 'Il tasso deve essere un numero.',
     ],
-
     'product_validate' => [
         'producttitle_required' => 'Il titolo del prodotto è richiesto.',
         'version_required' => 'La versione è richiesta.',
         'filename_required' => 'Carica un file.',
         'dependencies_required' => 'Il campo dipendenze è richiesto.',
+        'description_required' => 'La descrizione è obbligatoria.',
+        'release_type_required' => 'Il tipo di rilascio è obbligatorio.',
     ],
     'product_sku_unique' => 'Lo SKU del prodotto deve essere unico.',
     'product_name_unique' => 'Il nome deve essere unico.',
     'product_show_agent_required' => 'Seleziona la tua preferenza per la pagina del carrello.',
+    'config_file_path_regex' => 'Deve essere un percorso relativo senza segmenti ../.',
+    'license_file_path_regex' => 'Deve essere un percorso relativo senza segmenti ../.',
     'product_controller' => [
         'name_required' => 'Il nome del prodotto è richiesto.',
         'name_unique' => 'Il nome deve essere unico.',
@@ -857,6 +839,7 @@ return [
         'type_required' => 'Il tipo di prodotto è richiesto.',
         'description_required' => 'La descrizione del prodotto è richiesta.',
         'product_description_required' => 'La descrizione dettagliata del prodotto è richiesta.',
+        'short_description_required' => 'La breve descrizione è obbligatoria.',
         'image_mimes' => 'L\'immagine deve essere un file di tipo: jpeg, png, jpg.',
         'image_max' => 'L\'immagine non può essere più grande di 2048 kilobyte.',
         'product_sku_required' => 'Lo SKU del prodotto è richiesto.',
@@ -874,7 +857,9 @@ return [
         'cloud_label_field_required' => 'Il campo etichetta del cloud è richiesto.',
         'cloud_label_radio_required' => 'Il radio etichetta del cloud è richiesto.',
         'cloud_product_required' => 'Il prodotto cloud è richiesto.',
+        'cloud_product_unique' => 'Questo prodotto ha già una configurazione cloud.',
         'cloud_free_plan_required' => 'Il piano gratuito del cloud è richiesto.',
+        'cloud_free_plan_invalid' => 'Il piano selezionato non appartiene al prodotto selezionato.',
         'cloud_product_key_required' => 'La chiave del prodotto cloud è richiesta.',
     ],
     'reg_till_after' => 'La data di registrazione fino deve essere dopo la data di registrazione da.',
@@ -903,6 +888,8 @@ return [
         'no_agent_req' => 'Il campo numero di agenti è obbligatorio quando la quantità prodotto non è presente.',
         'pro_req' => 'Il campo prodotto è obbligatorio',
         'offer_price' => 'Il prezzo dell\'offerta non deve essere superiore a 100',
+        'currency_duplicate' => 'Ogni valuta può essere utilizzata una sola volta.',
+        'non_negative' => 'Questo valore non può essere negativo.',
     ],
     'razorpay_val' => [
         'business_required' => 'Il campo azienda è obbligatorio.',
@@ -917,5 +904,36 @@ return [
     'login_failed' => 'Accesso fallito, si prega di verificare che l\'email/nome utente e la password inseriti siano corretti.',
     'forgot_email_validation' => 'Se l\'email fornita è registrata, riceverai un\'email con le istruzioni per reimpostare la password a breve.',
     'too_many_login_attempts' => 'Sei stato bloccato dall\'applicazione a causa di troppi tentativi di accesso falliti. Riprova dopo :time.',
-
+    'phone_number' => 'Inserisci un numero di cellulare valido.',
+    'mobile_number' => ':attribute deve essere un numero di cellulare valido.',
+    'license' => [
+        'product' => [
+            'required' => 'Il campo del prodotto è obbligatorio.',
+        ],
+        'client' => [
+            'required' => 'Il campo cliente è obbligatorio.',
+        ],
+        'license_code' => [
+            'required' => 'Il campo del codice di licenza è obbligatorio.',
+        ],
+        'license_expire_date' => [
+            'required' => 'Il campo della data di scadenza della licenza è obbligatorio.',
+        ],
+        'license_updates_date' => [
+            'required' => 'Il campo della data di scadenza degli aggiornamenti è obbligatorio.',
+        ],
+        'license_support_date' => [
+            'required' => 'Il campo della data di scadenza del supporto è obbligatorio.',
+        ],
+        'banned_host_ip' => [
+            'required' => 'Il campo IP dell\'host escluso è obbligatorio.',
+            'invalid' => 'Inserisci un indirizzo IP valido.',
+        ],
+        'installation_ip' => [
+            'required' => 'Il campo IP di installazione è obbligatorio.',
+        ],
+        'notification_field' => [
+            'required' => 'Questo campo di notifica è obbligatorio.',
+        ],
+    ],
 ];

@@ -10,6 +10,6 @@ Name | Type | Description | Notes
 **add_time** | **string** | The add time of the picture | [optional]
 **update_time** | **string** | The update time of the picture | [optional]
 **added_by_user_id** | **int** | The ID of the user who added the picture | [optional]
-**pictures** | [**\Pipedrive\versions\v1\Model\PictureDataPictures**](PictureDataPictures.md) |  | [optional]
+**pictures** | [**\Pipedrive\versions\v1\Model\PictureDataWithID1Pictures**](PictureDataWithID1Pictures.md) |  | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

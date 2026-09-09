@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'accepted' => ':attribute는 반드시 동의해야 합니다.',
     'accepted_if' => ':attribute는 :other가 :value일 때 동의해야 합니다.',
     'active_url' => ':attribute는 유효한 URL이 아닙니다.',
@@ -25,6 +24,7 @@ return [
     'date' => ':attribute는 유효한 날짜가 아닙니다.',
     'date_equals' => ':attribute는 :date와 동일한 날짜여야 합니다.',
     'date_format' => ':attribute는 :format 형식과 일치하지 않습니다.',
+    'decimal' => ':attribute 필드에는 소수점 이하 :decimal 자리가 있어야 합니다.',
     'declined' => ':attribute는 거부되어야 합니다.',
     'declined_if' => ':attribute는 :other가 :value일 때 거부되어야 합니다.',
     'different' => ':attribute와 :other는 달라야 합니다.',
@@ -125,8 +125,12 @@ return [
     'uploaded' => ':attribute 업로드에 실패했습니다.',
     'url' => ':attribute는 유효한 URL이어야 합니다.',
     'uuid' => ':attribute는 유효한 UUID여야 합니다.',
-    'attribute' => [],
-
+    'custom_dup' => [
+        'attribute-name' => [
+            'rule-name' => '맞춤 메시지',
+        ],
+    ],
+    'attributes' => [],
     'publish_date_required' => '출판일은 필수 항목입니다.',
     'price_numeric_value' => '가격은 숫자여야 합니다.',
     'quantity_integer_value' => '수량은 정수여야 합니다.',
@@ -142,11 +146,6 @@ return [
     'total_amount_required' => '총 금액은 필수 항목입니다.',
     'total_amount_numeric' => '총 금액은 숫자여야 합니다.',
     'invoice_link_required' => '적어도 하나의 인보이스와 금액을 연결해 주세요.',
-    /*
-    Request file custom validation messages
-    */
-
-    //Common
     'settings_form' => [
         'company' => [
             'required' => '회사 필드는 필수 항목입니다.',
@@ -181,7 +180,6 @@ return [
             'email' => '오류 이메일은 유효한 이메일 주소여야 합니다.',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => '회사 이름은 필수 항목입니다.',
@@ -212,7 +210,7 @@ return [
             'required' => '국가는 필수 항목입니다.',
         ],
         'gstin' => [
-            'max' => 'GSTIN은 15자를 초과할 수 없습니다.',
+            'regex' => 'GSTIN 형식이 잘못되었습니다.',
         ],
         'default_currency' => [
             'required' => '기본 통화는 필수 항목입니다.',
@@ -230,7 +228,10 @@ return [
             'max' => '로고는 2MB를 초과할 수 없습니다.',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'OG 이미지는 jpeg, png, jpg, webp 형식의 파일이어야 합니다.',
+        'max' => 'OG 이미지는 2MB를 초과할 수 없습니다.',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => '이름 필드는 필수 항목입니다.',
@@ -242,9 +243,13 @@ return [
             'url' => '링크는 유효한 URL이어야 합니다.',
             'regex' => '링크 형식이 잘못되었습니다.',
         ],
+        'class' => [
+            'required' => '아이콘 클래스 필드는 필수입니다.',
+        ],
+        'fa_class' => [
+            'required' => '아이콘 클래스 필드는 필수입니다.',
+        ],
     ],
-
-    //Email
     'custom' => [
         'password' => [
             'required_if' => '선택한 메일 드라이버에 대해 비밀번호 필드는 필수 항목입니다.',
@@ -280,7 +285,6 @@ return [
             'required' => '드라이버 필드는 필수 항목입니다.',
         ],
     ],
-
     'customer_form' => [
         'first_name' => [
             'required' => '이름 필드는 필수 항목입니다.',
@@ -320,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => '로봇 검증에 실패했습니다. 다시 시도해 주세요.',
         'demo-recaptcha-response-1.required' => '로봇 검증에 실패했습니다. 다시 시도해 주세요.',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => '이름 필드는 필수 항목입니다.',
@@ -333,6 +336,7 @@ return [
         ],
         'slug' => [
             'required' => '슬러그 필드는 필수 항목입니다.',
+            'unique' => '이 슬러그는 이미 존재합니다.',
         ],
         'url' => [
             'required' => 'URL 필드는 필수 항목입니다.',
@@ -345,9 +349,12 @@ return [
         'created_at' => [
             'required' => '생성일 필드는 필수 항목입니다.',
         ],
+        'parent_page_id' => [
+            'exists' => '선택한 상위 페이지가 존재하지 않습니다.',
+            'self' => '페이지는 자신의 상위 페이지가 될 수 없습니다.',
+            'nested' => '선택한 페이지는 이미 하위 페이지이므로 상위 페이지로 사용할 수 없습니다.',
+        ],
     ],
-
-    //Order form
     'order_form' => [
         'client' => [
             'required' => '고객 필드는 필수 항목입니다.',
@@ -374,8 +381,6 @@ return [
             'integer' => '수량은 정수여야 합니다.',
         ],
     ],
-
-    //Payment form
     'coupon_form' => [
         'code' => [
             'required' => '쿠폰 코드 필드는 필수 항목입니다.',
@@ -408,9 +413,9 @@ return [
             'required' => '할인 값 필드는 필수 항목입니다.',
             'numeric' => '할인 값 필드는 숫자여야 합니다.',
             'between' => '할인 값 필드는 타입이 percentage인 경우 :min과 :max 사이여야 합니다.',
+            'max' => '할인 금액은 적용 상품 가격(:max)을 초과할 수 없습니다.',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => '이름 필드는 필수 항목입니다.',
@@ -418,6 +423,12 @@ return [
         'rate' => [
             'required' => '세율 필드는 필수 항목입니다.',
             'numeric' => '세율은 숫자여야 합니다.',
+            'decimal' => '요율은 소수점 이하 3자리까지만 가능합니다.',
+            'max' => '환율은 999.999보다 클 수 없습니다.',
+        ],
+        'priority' => [
+            'required' => '우선순위 필드는 필수입니다.',
+            'min' => '우선순위는 1 이상이어야 합니다.',
         ],
         'level' => [
             'required' => '레벨 필드는 필수 항목입니다.',
@@ -425,15 +436,11 @@ return [
         ],
         'country' => [
             'required' => '국가 필드는 필수 항목입니다.',
-            // 'exists' => '선택한 국가는 유효하지 않습니다.',
         ],
         'state' => [
             'required' => '상태 필드는 필수 항목입니다.',
-            // 'exists' => '선택한 상태는 유효하지 않습니다.',
         ],
     ],
-
-    //Product
     'subscription_form' => [
         'name' => [
             'required' => '이름 필드는 필수 항목입니다.',
@@ -453,7 +460,6 @@ return [
             'required' => '상품 필드는 필수 항목입니다.',
         ],
     ],
-
     'bundle' => [
         'name' => [
             'required' => '이름 필드는 필수 항목입니다.',
@@ -465,6 +471,10 @@ return [
     'group' => [
         'name' => [
             'required' => '이름은 필수 항목입니다.',
+            'unique' => '이 이름은 이미 존재합니다.',
+        ],
+        'pricing_templates_id' => [
+            'required' => '디자인 템플릿이 필요합니다.',
         ],
         'features' => [
             'name' => [
@@ -488,13 +498,15 @@ return [
             'required_with' => '제목은 필수 항목입니다.',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => '이름 필드는 필수 항목입니다.',
         ],
         'type' => [
             'required' => '유형 필드는 필수 항목입니다.',
+        ],
+        'product_type' => [
+            'required' => '제품 카테고리 필드는 필수입니다.',
         ],
         'group' => [
             'required' => '그룹 필드는 필수 항목입니다.',
@@ -514,14 +526,18 @@ return [
             'mimes' => '이미지는 PNG 파일이어야 합니다.',
         ],
         'github_owner' => [
+            'required' => 'GitHub 소유자 필드는 필수입니다.',
             'required_without_all' => 'GitHub 소유자 필드는 파일이나 이미지가 제공되지 않으면 필수입니다.',
         ],
         'github_repository' => [
+            'required' => 'GitHub 리포지토리 필드는 필수입니다.',
             'required_without_all' => 'GitHub 저장소 필드는 파일이나 이미지가 제공되지 않으면 필수입니다.',
             'required_if' => 'GitHub 저장소 필드는 유형이 2일 때 필수입니다.',
         ],
+        'shoping_cart_link' => [
+            'required' => '장바구니 링크 입력란은 필수입니다.',
+        ],
     ],
-
     'users' => [
         'first_name' => [
             'required' => '이름 필드는 필수 항목입니다.',
@@ -560,8 +576,10 @@ return [
         'zip' => [
             'regex' => '국가가 인도일 경우, 상태 필드는 필수입니다.',
         ],
+        'gstin' => [
+            'regex' => 'GSTIN 형식이 잘못되었습니다.',
+        ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => '이름은 필수 항목입니다.',
@@ -604,6 +622,9 @@ return [
         'state' => [
             'required_if' => '국가가 인도일 경우, 상태 필드는 필수입니다.',
         ],
+        'gstin' => [
+            'regex' => 'GSTIN 형식이 잘못되었습니다.',
+        ],
         'old_password' => [
             'required' => '기존 비밀번호는 필수 항목입니다.',
             'min' => '기존 비밀번호는 최소 :min 자 이상이어야 합니다.',
@@ -630,7 +651,6 @@ return [
             'required' => '국가 코드 (휴대폰)를 입력하세요.',
         ],
     ],
-    //Invoice form
     'invoice' => [
         'user' => [
             'required' => '클라이언트 필드는 필수 항목입니다.',
@@ -640,7 +660,12 @@ return [
             'date' => '날짜는 유효한 날짜여야 합니다.',
         ],
         'domain' => [
+            'required' => '도메인 필드는 필수입니다.',
             'regex' => '도메인 형식이 잘못되었습니다.',
+        ],
+        'cloud_domain' => [
+            'required' => '클라우드 도메인 필드는 필수입니다.',
+            'regex' => '문자, 숫자, 하이픈만 허용됩니다.',
         ],
         'plan' => [
             'required_if' => '구독 필드는 필수 항목입니다.',
@@ -652,89 +677,86 @@ return [
             'required' => '제품 필드는 필수 항목입니다.',
         ],
     ],
-
-    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => '도메인 필드는 필수 항목입니다.',
             'url' => '도메인은 유효한 URL이어야 합니다.',
         ],
     ],
-
-    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => '도메인 필드는 필수 항목입니다.',
             'no_http' => '도메인에 "http" 또는 "https"가 포함되지 않아야 합니다.',
         ],
     ],
-
-    //Language form
     'language' => [
         'required' => '언어 필드는 필수 항목입니다.',
         'invalid' => '선택한 언어는 유효하지 않습니다.',
     ],
-
-    //UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => '저장 디스크 필드는 필수 항목입니다.',
             'string' => '디스크는 문자열이어야 합니다.',
         ],
         'path' => [
+            'required' => '저장 경로 필드는 필수입니다.',
             'string' => '경로는 문자열이어야 합니다.',
             'nullable' => '경로 필드는 선택 사항입니다.',
+            'invalid' => '경로가 존재하지 않거나 쓸 수 없습니다.',
         ],
     ],
-
-    //ValidateSecretRequest form
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => '노드 경로 필드는 필수입니다.',
+            'string' => '노드 경로는 유효한 문자열이어야 합니다.',
+        ],
+        'npm_path' => [
+            'required' => 'npm 경로 필드는 필수입니다.',
+            'string' => 'npm 경로는 유효한 문자열이어야 합니다.',
+        ],
+        'chrome_path' => [
+            'required' => '크롬 경로 필드는 필수입니다.',
+            'string' => '크롬 경로는 유효한 문자열이어야 합니다.',
+            'invalid' => '크롬 경로가 존재하지 않거나 실행할 수 없습니다.',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => '코드를 입력하세요.',
             'digits' => '유효한 6자리 코드를 입력하세요.',
         ],
     ],
-
-    //VerifyOtp form
     'verify_email' => [
         'required' => '이메일 필드는 필수 항목입니다.',
         'email' => '이메일은 유효한 이메일 주소여야 합니다.',
-        'verify_email' => '이메일 인증에 실패했습니다.', // Custom message for verify_email
+        'verify_email' => '이메일 인증에 실패했습니다.',
     ],
-
     'verify_country_code' => [
         'required' => '국가 코드는 필수 항목입니다.',
         'numeric' => '국가 코드는 유효한 숫자여야 합니다.',
-        'verify_country_code' => '국가 코드 인증에 실패했습니다.', // Custom message for verify_country_code
+        'verify_country_code' => '국가 코드 인증에 실패했습니다.',
     ],
-
     'verify_number' => [
         'required' => '번호는 필수 항목입니다.',
         'numeric' => '번호는 유효한 숫자여야 합니다.',
-        'verify_number' => '번호 인증에 실패했습니다.', // Custom message for verify_number
+        'verify_number' => '번호 인증에 실패했습니다.',
     ],
-
     'password_otp' => [
         'required' => '비밀번호 필드는 필수 항목입니다.',
         'password' => '비밀번호가 잘못되었습니다.',
         'invalid' => '잘못된 비밀번호입니다.',
     ],
-
-    //AuthController file
     'auth_controller' => [
         'name_required' => '이름은 필수 항목입니다.',
         'name_max' => '이름은 255자를 초과할 수 없습니다.',
-
         'email_required' => '이메일은 필수 항목입니다.',
         'email_email' => '유효한 이메일 주소를 입력하세요.',
         'email_max' => '이메일은 255자를 초과할 수 없습니다.',
         'email_unique' => '이 이메일은 이미 등록되어 있습니다.',
-
         'password_required' => '비밀번호는 필수 항목입니다.',
         'password_confirmed' => '비밀번호 확인이 일치하지 않습니다.',
         'password_min' => '비밀번호는 최소 6자 이상이어야 합니다.',
     ],
-
     'resend_otp' => [
         'eid_required' => 'EID 필드는 필수 항목입니다.',
         'eid_string' => 'EID는 문자열이어야 합니다.',
@@ -742,7 +764,6 @@ return [
         'type_string' => '유형은 문자열이어야 합니다.',
         'type_in' => '선택한 유형은 유효하지 않습니다.',
     ],
-
     'verify_otp' => [
         'eid_required' => '직원 ID는 필수 항목입니다.',
         'eid_string' => '직원 ID는 문자열이어야 합니다.',
@@ -751,31 +772,26 @@ return [
         'recaptcha_required' => 'CAPTCHA를 완료해주세요.',
         'recaptcha_size' => 'CAPTCHA 응답이 유효하지 않습니다.',
     ],
-
     'company_validation' => [
         'company_required' => '회사 이름은 필수 항목입니다.',
         'company_string' => '회사는 텍스트여야 합니다.',
         'address_required' => '주소는 필수 항목입니다.',
         'address_string' => '주소는 텍스트여야 합니다.',
     ],
-
     'token_validation' => [
         'token_required' => '토큰은 필수 항목입니다.',
         'password_required' => '비밀번호 필드는 필수 항목입니다.',
         'password_confirmed' => '비밀번호 확인이 일치하지 않습니다.',
     ],
-
     'custom_email' => [
         'required' => '이메일 필드는 필수 항목입니다.',
         'email' => '유효한 이메일 주소를 입력하세요.',
         'exists' => '이 이메일은 등록되지 않았습니다.',
     ],
-
     'newsletterEmail' => [
         'required' => '뉴스레터 이메일은 필수 항목입니다.',
         'email' => '뉴스레터에 유효한 이메일 주소를 입력하세요.',
     ],
-
     'widget' => [
         'name_required' => '이름은 필수 항목입니다.',
         'name_max' => '이름은 50자를 초과할 수 없습니다.',
@@ -783,40 +799,39 @@ return [
         'type_required' => '유형은 필수 항목입니다.',
         'type_unique' => '이 유형은 이미 존재합니다.',
     ],
-
     'payment' => [
         'payment_date_required' => '지불 날짜는 필수 항목입니다.',
         'payment_method_required' => '지불 방법은 필수 항목입니다.',
         'amount_required' => '금액은 필수 항목입니다.',
     ],
-
     'custom_date' => [
         'date_required' => '날짜 필드는 필수 항목입니다.',
         'total_required' => '총 금액 필드는 필수 항목입니다.',
         'status_required' => '상태 필드는 필수 항목입니다.',
     ],
-
     'plan_renewal' => [
         'plan_required' => '계획 필드는 필수 항목입니다.',
         'payment_method_required' => '지불 방법 필드는 필수 항목입니다.',
         'cost_required' => '비용 필드는 필수 항목입니다.',
         'code_not_valid' => '프로모션 코드는 유효하지 않습니다.',
     ],
-
     'rate' => [
         'required' => '요금은 필수 항목입니다.',
         'numeric' => '요금은 숫자여야 합니다.',
     ],
-
     'product_validate' => [
         'producttitle_required' => '제품 제목은 필수입니다.',
         'version_required' => '버전은 필수입니다.',
         'filename_required' => '파일을 업로드해 주세요.',
         'dependencies_required' => '종속성 필드는 필수입니다.',
+        'description_required' => '설명이 필요합니다.',
+        'release_type_required' => '릴리스 유형이 필요합니다.',
     ],
     'product_sku_unique' => '제품 SKU는 고유해야 합니다.',
     'product_name_unique' => '이름은 고유해야 합니다.',
     'product_show_agent_required' => '카트 페이지 선호도를 선택해 주세요.',
+    'config_file_path_regex' => '../세그먼트가 없는 상대 경로여야 합니다.',
+    'license_file_path_regex' => '../세그먼트가 없는 상대 경로여야 합니다.',
     'product_controller' => [
         'name_required' => '제품 이름은 필수입니다.',
         'name_unique' => '이름은 고유해야 합니다.',
@@ -824,6 +839,7 @@ return [
         'type_required' => '제품 유형은 필수입니다.',
         'description_required' => '제품 설명은 필수입니다.',
         'product_description_required' => '상세 제품 설명은 필수입니다.',
+        'short_description_required' => '간단한 설명이 필요합니다.',
         'image_mimes' => '이미지는 jpeg, png, jpg 형식이어야 합니다.',
         'image_max' => '이미지 크기는 2048킬로바이트를 넘을 수 없습니다.',
         'product_sku_required' => '제품 SKU는 필수입니다.',
@@ -841,7 +857,9 @@ return [
         'cloud_label_field_required' => '클라우드 레이블 필드는 필수입니다.',
         'cloud_label_radio_required' => '클라우드 레이블 라디오는 필수입니다.',
         'cloud_product_required' => '클라우드 제품은 필수입니다.',
+        'cloud_product_unique' => '이 제품에는 이미 클라우드 구성이 있습니다.',
         'cloud_free_plan_required' => '클라우드 무료 플랜은 필수입니다.',
+        'cloud_free_plan_invalid' => '선택하신 플랜은 선택하신 상품에 속하지 않습니다.',
         'cloud_product_key_required' => '클라우드 제품 키는 필수입니다.',
     ],
     'reg_till_after' => '등록 종료 날짜는 등록 시작 날짜 이후여야 합니다.',
@@ -870,6 +888,8 @@ return [
         'no_agent_req' => '제품 수량이 없는 경우 에이전트 수 필드는 필수입니다.',
         'pro_req' => '제품 필드는 필수입니다',
         'offer_price' => '할인 가격은 100보다 클 수 없습니다',
+        'currency_duplicate' => '각 통화는 한 번만 사용할 수 있습니다.',
+        'non_negative' => '이 값은 음수일 수 없습니다.',
     ],
     'razorpay_val' => [
         'business_required' => '비즈니스 필드는 필수입니다.',
@@ -884,5 +904,36 @@ return [
     'login_failed' => '로그인에 실패했습니다. 입력한 이메일/사용자 이름과 비밀번호가 올바른지 확인하세요.',
     'forgot_email_validation' => '제공한 이메일이 등록되어 있다면, 비밀번호 재설정 지침이 포함된 이메일을 곧 받게 됩니다.',
     'too_many_login_attempts' => '너무 많은 로그인 시도로 인해 애플리케이션에서 차단되었습니다. :time 후에 다시 시도하세요.',
-
+    'phone_number' => '유효한 휴대폰 번호를 입력해주세요.',
+    'mobile_number' => ':attribute은(는) 유효한 휴대폰 번호여야 합니다.',
+    'license' => [
+        'product' => [
+            'required' => '제품 항목은 필수 항목입니다.',
+        ],
+        'client' => [
+            'required' => '클라이언트 필드는 필수입니다.',
+        ],
+        'license_code' => [
+            'required' => '라이센스 코드 필드는 필수입니다.',
+        ],
+        'license_expire_date' => [
+            'required' => '라이센스 만료일 필드는 필수입니다.',
+        ],
+        'license_updates_date' => [
+            'required' => '업데이트 만료 날짜 필드는 필수입니다.',
+        ],
+        'license_support_date' => [
+            'required' => '지원 만료일 필드는 필수입니다.',
+        ],
+        'banned_host_ip' => [
+            'required' => '금지된 호스트 IP 필드는 필수입니다.',
+            'invalid' => '유효한 IP 주소를 입력하세요.',
+        ],
+        'installation_ip' => [
+            'required' => '설치 IP 필드는 필수입니다.',
+        ],
+        'notification_field' => [
+            'required' => '이 알림 필드는 필수입니다.',
+        ],
+    ],
 ];

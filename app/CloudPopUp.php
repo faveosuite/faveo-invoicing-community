@@ -1,33 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App;
 
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
+/**
+ * @property int $id
+ * @property string $cloud_top_message
+ * @property string $cloud_label_field
+ * @property string $cloud_label_radio
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp whereCloudLabelField($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp whereCloudLabelRadio($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp whereCloudTopMessage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class CloudPopUp extends Model
 {
-    use HasFactory, SystemActivityLogsTrait;
+    /**
+     * @use HasFactory<Factory>
+     */
+    use HasFactory;
+
+    use SystemActivityLogsTrait;
 
     protected $table = 'cloud_pop_up';
 
     protected $guarded = [];
 
-    protected $logName = 'cloud';
+    protected string $logName = 'cloud';
 
-    protected $logNameColumn = 'Settings';
+    protected string $logNameColumn = 'Settings';
 
-    protected $logAttributes = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logAttributes = [
         'cloud_top_message',
         'cloud_label_field',
         'cloud_label_radio',
     ];
 
-    protected $logUrl = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logUrl = [
         'segments' => ['view/tenant'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

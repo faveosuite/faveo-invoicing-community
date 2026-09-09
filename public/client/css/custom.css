@@ -1,6 +1,0 @@
-/* Add here all your CSS customizations */
-.required:after{ 
-        content:'*'; 
-        color:red; 
-        padding-left:5px;
-    }

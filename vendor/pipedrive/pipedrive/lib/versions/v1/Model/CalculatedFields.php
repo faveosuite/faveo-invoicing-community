@@ -2,7 +2,7 @@
 /**
  * CalculatedFields
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -202,7 +202,7 @@ class CalculatedFields implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['calculated_type'] = $data['calculated_type'] ?? null;
         $this->container['calculated_related_org_id'] = $data['calculated_related_org_id'] ?? null;

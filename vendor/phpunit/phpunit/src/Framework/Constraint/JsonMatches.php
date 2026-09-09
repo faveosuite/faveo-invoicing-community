@@ -9,6 +9,7 @@
  */
 namespace PHPUnit\Framework\Constraint;
 
+use function is_string;
 use function json_decode;
 use function sprintf;
 use PHPUnit\Framework\ExpectationFailedException;
@@ -40,6 +41,24 @@ final class JsonMatches extends Constraint
     }
 
     /**
+     * Returns the negated description when this constraint is wrapped in a
+     * LogicalNot operator. Authoring the negation here keeps the expected JSON
+     * out of the negation entirely. The guard ensures that LogicalAnd,
+     * LogicalOr, and LogicalXor keep using the affirmative toString().
+     */
+    protected function toStringInContext(Operator $operator, mixed $role): string
+    {
+        if (!$operator instanceof LogicalNot) {
+            return '';
+        }
+
+        return sprintf(
+            'does not match JSON string "%s"',
+            $this->value,
+        );
+    }
+
+    /**
      * Evaluates the constraint for parameter $other. Returns true if the
      * constraint is met, false otherwise.
      *
@@ -47,6 +66,10 @@ final class JsonMatches extends Constraint
      */
     protected function matches(mixed $other): bool
     {
+        if (!is_string($other)) {
+            return false;
+        }
+
         [$error, $recodedOther] = Json::canonicalize($other);
 
         if ($error) {
@@ -70,16 +93,16 @@ final class JsonMatches extends Constraint
      */
     protected function fail(mixed $other, string $description, ?ComparisonFailure $comparisonFailure = null): never
     {
-        if ($comparisonFailure === null) {
+        if ($comparisonFailure === null && is_string($other)) {
             [$error, $recodedOther] = Json::canonicalize($other);
 
-            if ($error) {
+            if ($error || $recodedOther === null) {
                 parent::fail($other, $description);
             }
 
             [$error, $recodedValue] = Json::canonicalize($this->value);
 
-            if ($error) {
+            if ($error || $recodedValue === null) {
                 parent::fail($other, $description);
             }
 

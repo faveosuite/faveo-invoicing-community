@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
+use PragmaRX\Google2FALaravel\Support\Constants;
+
 return [
 
     /*
      * Enable / disable Google2FA.
      */
-    'enabled' => env('OTP_ENABLED', true),
+    'enabled' => env('OTP_ENABLED', default: true),
 
     /*
      * Lifetime in minutes.
@@ -17,7 +21,7 @@ return [
     /*
      * Renew lifetime at every new request.
      */
-    'keep_alive' => env('OTP_KEEP_ALIVE', true),
+    'keep_alive' => env('OTP_KEEP_ALIVE', default: true),
 
     /*
      * Auth container binding.
@@ -67,13 +71,13 @@ return [
     /*
      * Throw exceptions or just fire events?
      */
-    'throw_exceptions' => env('OTP_THROW_EXCEPTION', true),
+    'throw_exceptions' => env('OTP_THROW_EXCEPTION', default: true),
 
     /*
      * Which image backend to use for generating QR codes?
      *
      * Supports imagemagick, svg and eps
      */
-    'qrcode_image_backend' => \PragmaRX\Google2FALaravel\Support\Constants::QRCODE_IMAGE_BACKEND_IMAGEMAGICK,
+    'qrcode_image_backend' => Constants::QRCODE_IMAGE_BACKEND_IMAGEMAGICK,
 
 ];

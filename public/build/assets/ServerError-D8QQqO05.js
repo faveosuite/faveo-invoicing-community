@@ -1,0 +1,1 @@
+import{o as e,g as o}from"./dateTime-BRlL7CfL.js";import{_ as s}from"./AdminErrorPage-B-0vlmO4.js";const n={__name:"ServerError",setup(_){return(r,t)=>(e(),o(s,{code:"500",color:"danger",title:r.__("message.server_error"),description:r.__("message.server_error_desc")},null,8,["title","description"]))}};export{n as default};

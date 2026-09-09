@@ -14,14 +14,21 @@ use function htmlspecialchars;
 use function is_string;
 use function round;
 use DOMDocument;
-use SebastianBergmann\CodeCoverage\CodeCoverage;
+use SebastianBergmann\CodeCoverage\Node\Directory;
 use SebastianBergmann\CodeCoverage\Node\File;
+use SebastianBergmann\CodeCoverage\Util\EnsuresUtf8;
 use SebastianBergmann\CodeCoverage\Util\Filesystem;
 use SebastianBergmann\CodeCoverage\Util\Xml;
 use SebastianBergmann\CodeCoverage\WriteOperationFailedException;
 
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
 final readonly class Crap4j
 {
+    use EnsuresUtf8;
     private int $threshold;
 
     public function __construct(int $threshold = 30)
@@ -35,22 +42,19 @@ final readonly class Crap4j
      *
      * @throws WriteOperationFailedException
      */
-    public function process(CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
+    public function process(Directory $report, ?string $target = null, ?string $name = null): string
     {
         $document = new DOMDocument('1.0', 'UTF-8');
 
         $root = $document->createElement('crap_result');
         $document->appendChild($root);
 
-        $project = $document->createElement('project', is_string($name) ? $name : '');
+        $project = $document->createElement('project', is_string($name) ? $this->ensureUtf8($name) : '');
         $root->appendChild($project);
         $root->appendChild($document->createElement('timestamp', date('Y-m-d H:i:s')));
 
         $stats       = $document->createElement('stats');
         $methodsNode = $document->createElement('methods');
-
-        $report = $coverage->getReport();
-        unset($coverage);
 
         $fullMethodCount     = 0;
         $fullCrapMethodCount = 0;
@@ -65,7 +69,7 @@ final readonly class Crap4j
             }
 
             $file = $document->createElement('file');
-            $file->setAttribute('name', $item->pathAsString());
+            $file->setAttribute('name', $this->ensureUtf8($item->pathAsString()));
 
             $classes = $item->classesAndTraits();
 
@@ -73,7 +77,7 @@ final readonly class Crap4j
                 foreach ($class->methods as $methodName => $method) {
                     $crapLoad = $this->crapLoad((float) $method->crap, $method->ccn, $method->coverage);
 
-                    $fullCrap     += $method->crap;
+                    $fullCrap     += (float) $method->crap;
                     $fullCrapLoad += $crapLoad;
                     $fullMethodCount++;
 
@@ -87,11 +91,11 @@ final readonly class Crap4j
                         $namespace = $class->namespace;
                     }
 
-                    $methodNode->appendChild($document->createElement('package', $namespace));
-                    $methodNode->appendChild($document->createElement('className', $className));
-                    $methodNode->appendChild($document->createElement('methodName', $methodName));
-                    $methodNode->appendChild($document->createElement('methodSignature', htmlspecialchars($method->signature)));
-                    $methodNode->appendChild($document->createElement('fullMethod', htmlspecialchars($method->signature)));
+                    $methodNode->appendChild($document->createElement('package', $this->ensureUtf8($namespace)));
+                    $methodNode->appendChild($document->createElement('className', $this->ensureUtf8($className)));
+                    $methodNode->appendChild($document->createElement('methodName', $this->ensureUtf8($methodName)));
+                    $methodNode->appendChild($document->createElement('methodSignature', htmlspecialchars($this->ensureUtf8($method->signature))));
+                    $methodNode->appendChild($document->createElement('fullMethod', htmlspecialchars($this->ensureUtf8($method->signature))));
                     $methodNode->appendChild($document->createElement('crap', (string) $this->roundValue((float) $method->crap)));
                     $methodNode->appendChild($document->createElement('complexity', (string) $method->ccn));
                     $methodNode->appendChild($document->createElement('coverage', (string) $this->roundValue($method->coverage)));

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('api_keys', function (Blueprint $table) {
+        Schema::table('api_keys', function (Blueprint $table): void {
             $table->unsignedBigInteger('msg91_third_party_id')->nullable()->after('msg91_template_id');
 
             $table->foreign('msg91_third_party_id')
@@ -26,7 +26,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('api_keys', function (Blueprint $table) {
+        Schema::table('api_keys', function (Blueprint $table): void {
             $table->dropForeign(['msg91_third_party_id']);
             $table->dropColumn('msg91_third_party_id');
         });

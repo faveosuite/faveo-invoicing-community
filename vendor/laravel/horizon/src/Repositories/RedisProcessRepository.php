@@ -8,6 +8,8 @@ use Laravel\Horizon\Contracts\ProcessRepository;
 
 class RedisProcessRepository implements ProcessRepository
 {
+    use UsesClusterAwarePipeline;
+
     /**
      * The Redis connection instance.
      *
@@ -58,7 +60,7 @@ class RedisProcessRepository implements ProcessRepository
             $this->connection()->hdel($key, ...$shouldRemove);
         }
 
-        $this->connection()->pipeline(function ($pipe) use ($key, $time, $processIds) {
+        $this->pipeline(function ($pipe) use ($key, $time, $processIds) {
             foreach ($processIds as $processId) {
                 $pipe->hsetnx($key, $processId, $time);
             }

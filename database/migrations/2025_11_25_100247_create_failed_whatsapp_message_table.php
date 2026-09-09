@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('failed_whatsapp_message', function (Blueprint $table) {
+        Schema::create('failed_whatsapp_message', function (Blueprint $table): void {
             $table->id();
             $table->binary('message');
             $table->timestamps();

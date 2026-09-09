@@ -90,6 +90,13 @@ final class ProgressPrinter
         }
     }
 
+    public function testSuiteSkipped(int $countTests): void
+    {
+        for ($i = 0; $i < $countTests; $i++) {
+            $this->testSkipped();
+        }
+    }
+
     public function testMarkedIncomplete(): void
     {
         $this->updateTestStatus(TestStatus::incomplete());
@@ -137,8 +144,7 @@ final class ProgressPrinter
             return;
         }
 
-        if ($this->source->ignoreSelfDeprecations() &&
-            ($event->trigger()->isTest() || $event->trigger()->isSelf())) {
+        if ($this->source->ignoreSelfDeprecations() && $event->trigger()->isSelf()) {
             return;
         }
 
@@ -163,8 +169,7 @@ final class ProgressPrinter
             return;
         }
 
-        if ($this->source->ignoreSelfDeprecations() &&
-            ($event->trigger()->isTest() || $event->trigger()->isSelf())) {
+        if ($this->source->ignoreSelfDeprecations() && $event->trigger()->isSelf()) {
             return;
         }
 
@@ -316,6 +321,7 @@ final class ProgressPrinter
             new TestPreparedSubscriber($this),
             new TestRunnerExecutionStartedSubscriber($this),
             new TestSkippedSubscriber($this),
+            new TestSuiteSkippedSubscriber($this),
             new TestTriggeredDeprecationSubscriber($this),
             new TestTriggeredNoticeSubscriber($this),
             new TestTriggeredPhpDeprecationSubscriber($this),
@@ -384,6 +390,10 @@ final class ProgressPrinter
         $this->printProgressWithColor('fg-red, bold', 'E');
     }
 
+    /**
+     * @param non-empty-string $color
+     * @param non-empty-string $progress
+     */
     private function printProgressWithColor(string $color, string $progress): void
     {
         if ($this->colors) {
@@ -393,6 +403,9 @@ final class ProgressPrinter
         $this->printProgress($progress);
     }
 
+    /**
+     * @param non-empty-string $progress
+     */
     private function printProgress(string $progress): void
     {
         $this->printer->print($progress);

@@ -2,7 +2,7 @@
 /**
  * ModelInterface
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1\Model

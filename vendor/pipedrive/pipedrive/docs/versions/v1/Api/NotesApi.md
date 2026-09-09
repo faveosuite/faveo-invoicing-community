@@ -484,7 +484,7 @@ Name | Type | Description  | Notes
 ## `getNotes()`
 
 ```php
-getNotes($user_id, $lead_id, $deal_id, $person_id, $org_id, $project_id, $start, $limit, $sort, $start_date, $end_date, $updated_since, $pinned_to_lead_flag, $pinned_to_deal_flag, $pinned_to_organization_flag, $pinned_to_person_flag, $pinned_to_project_flag): \Pipedrive\versions\v1\Model\GetNotes
+getNotes($user_id, $lead_id, $deal_id, $person_id, $org_id, $project_id, $task_id, $start, $limit, $sort, $start_date, $end_date, $updated_since, $pinned_to_lead_flag, $pinned_to_deal_flag, $pinned_to_organization_flag, $pinned_to_person_flag, $pinned_to_project_flag, $pinned_to_task_flag): \Pipedrive\versions\v1\Model\GetNotes
 ```
 
 Get all notes
@@ -519,6 +519,7 @@ $deal_id = 56; // int | The ID of the deal which notes to fetch. If omitted, not
 $person_id = 56; // int | The ID of the person whose notes to fetch. If omitted, notes about all persons will be returned.
 $org_id = 56; // int | The ID of the organization which notes to fetch. If omitted, notes about all organizations will be returned.
 $project_id = 56; // int | The ID of the project which notes to fetch. If omitted, notes about all projects will be returned.
+$task_id = 56; // int | The ID of the task which notes to fetch. If omitted, notes about all tasks will be returned.
 $start = 0; // int | Pagination start
 $limit = 56; // int | Items shown per page
 $sort = 'sort_example'; // string | The field names and sorting mode separated by a comma (`field_name_1 ASC`, `field_name_2 DESC`). Only first-level field keys are supported (no nested keys). Supported fields: `id`, `user_id`, `deal_id`, `person_id`, `org_id`, `content`, `add_time`, `update_time`.
@@ -530,9 +531,10 @@ $pinned_to_deal_flag = new \Pipedrive\versions\v1\Model\\Pipedrive\versions\v1\M
 $pinned_to_organization_flag = new \Pipedrive\versions\v1\Model\\Pipedrive\versions\v1\Model\NumberBoolean(); // \Pipedrive\versions\v1\Model\NumberBoolean | If set, the results are filtered by note to organization pinning state
 $pinned_to_person_flag = new \Pipedrive\versions\v1\Model\\Pipedrive\versions\v1\Model\NumberBoolean(); // \Pipedrive\versions\v1\Model\NumberBoolean | If set, the results are filtered by note to person pinning state
 $pinned_to_project_flag = new \Pipedrive\versions\v1\Model\\Pipedrive\versions\v1\Model\NumberBoolean(); // \Pipedrive\versions\v1\Model\NumberBoolean | If set, the results are filtered by note to project pinning state
+$pinned_to_task_flag = new \Pipedrive\versions\v1\Model\\Pipedrive\versions\v1\Model\NumberBoolean(); // \Pipedrive\versions\v1\Model\NumberBoolean | If set, the results are filtered by note to task pinning state
 
 try {
-    $result = $apiInstance->getNotes($user_id, $lead_id, $deal_id, $person_id, $org_id, $project_id, $start, $limit, $sort, $start_date, $end_date, $updated_since, $pinned_to_lead_flag, $pinned_to_deal_flag, $pinned_to_organization_flag, $pinned_to_person_flag, $pinned_to_project_flag);
+    $result = $apiInstance->getNotes($user_id, $lead_id, $deal_id, $person_id, $org_id, $project_id, $task_id, $start, $limit, $sort, $start_date, $end_date, $updated_since, $pinned_to_lead_flag, $pinned_to_deal_flag, $pinned_to_organization_flag, $pinned_to_person_flag, $pinned_to_project_flag, $pinned_to_task_flag);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling NotesApi->getNotes: ', $e->getMessage(), PHP_EOL;
@@ -549,6 +551,7 @@ Name | Type | Description  | Notes
  **person_id** | **int**| The ID of the person whose notes to fetch. If omitted, notes about all persons will be returned. | [optional]
  **org_id** | **int**| The ID of the organization which notes to fetch. If omitted, notes about all organizations will be returned. | [optional]
  **project_id** | **int**| The ID of the project which notes to fetch. If omitted, notes about all projects will be returned. | [optional]
+ **task_id** | **int**| The ID of the task which notes to fetch. If omitted, notes about all tasks will be returned. | [optional]
  **start** | **int**| Pagination start | [optional] [default to 0]
  **limit** | **int**| Items shown per page | [optional]
  **sort** | **string**| The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). Supported fields: &#x60;id&#x60;, &#x60;user_id&#x60;, &#x60;deal_id&#x60;, &#x60;person_id&#x60;, &#x60;org_id&#x60;, &#x60;content&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. | [optional]
@@ -560,6 +563,7 @@ Name | Type | Description  | Notes
  **pinned_to_organization_flag** | [**\Pipedrive\versions\v1\Model\NumberBoolean**](../Model/.md)| If set, the results are filtered by note to organization pinning state | [optional]
  **pinned_to_person_flag** | [**\Pipedrive\versions\v1\Model\NumberBoolean**](../Model/.md)| If set, the results are filtered by note to person pinning state | [optional]
  **pinned_to_project_flag** | [**\Pipedrive\versions\v1\Model\NumberBoolean**](../Model/.md)| If set, the results are filtered by note to project pinning state | [optional]
+ **pinned_to_task_flag** | [**\Pipedrive\versions\v1\Model\NumberBoolean**](../Model/.md)| If set, the results are filtered by note to task pinning state | [optional]
 
 ### Return type
 

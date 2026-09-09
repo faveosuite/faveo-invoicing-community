@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     [
         'state_subdivision_id' => '1',
-        'state_subdivision_name' => 'Southern Nations, Nationalities, and Peoples\'',
+        'state_subdivision_name' => "Southern Nations, Nationalities, and Peoples'",
         'country_code' => 'ET',
         'iso2' => 'SN',
         'primary_level_name' => 'region',
@@ -993,7 +995,7 @@ return [
     ],
     [
         'state_subdivision_id' => '100',
-        'state_subdivision_name' => 'St. Julian\'s',
+        'state_subdivision_name' => "St. Julian's",
         'country_code' => 'MT',
         'iso2' => '48',
         'primary_level_name' => 'local council',
@@ -1213,7 +1215,7 @@ return [
     ],
     [
         'state_subdivision_id' => '122',
-        'state_subdivision_name' => 'Ta\' Xbiex',
+        'state_subdivision_name' => "Ta' Xbiex",
         'country_code' => 'MT',
         'iso2' => '58',
         'primary_level_name' => 'local council',
@@ -1383,7 +1385,7 @@ return [
     ],
     [
         'state_subdivision_id' => '139',
-        'state_subdivision_name' => 'St. Paul\'s Bay',
+        'state_subdivision_name' => "St. Paul's Bay",
         'country_code' => 'MT',
         'iso2' => '51',
         'primary_level_name' => 'local council',
@@ -1733,7 +1735,7 @@ return [
     ],
     [
         'state_subdivision_id' => '174',
-        'state_subdivision_name' => 'Murang\'a',
+        'state_subdivision_name' => "Murang'a",
         'country_code' => 'KE',
         'iso2' => '29',
         'primary_level_name' => 'county',
@@ -4963,7 +4965,7 @@ return [
     ],
     [
         'state_subdivision_id' => '497',
-        'state_subdivision_name' => 'Grand\'Anse Praslin',
+        'state_subdivision_name' => "Grand'Anse Praslin",
         'country_code' => 'SC',
         'iso2' => '14',
         'primary_level_name' => 'district',
@@ -8923,7 +8925,7 @@ return [
     ],
     [
         'state_subdivision_id' => '893',
-        'state_subdivision_name' => 'Ma\'an',
+        'state_subdivision_name' => "Ma'an",
         'country_code' => 'JO',
         'iso2' => 'MN',
         'primary_level_name' => 'governorate',
@@ -10523,7 +10525,7 @@ return [
     ],
     [
         'state_subdivision_id' => '1053',
-        'state_subdivision_name' => 'M\'Sila',
+        'state_subdivision_name' => "M'Sila",
         'country_code' => 'DZ',
         'iso2' => '28',
         'primary_level_name' => 'province',
@@ -11103,7 +11105,7 @@ return [
     ],
     [
         'state_subdivision_id' => '1111',
-        'state_subdivision_name' => 'Ta\'izz',
+        'state_subdivision_name' => "Ta'izz",
         'country_code' => 'YE',
         'iso2' => 'TA',
         'primary_level_name' => 'governorate',
@@ -11133,7 +11135,7 @@ return [
     ],
     [
         'state_subdivision_id' => '1114',
-        'state_subdivision_name' => 'Ma\'rib',
+        'state_subdivision_name' => "Ma'rib",
         'country_code' => 'YE',
         'iso2' => 'MA',
         'primary_level_name' => 'governorate',
@@ -11153,7 +11155,7 @@ return [
     ],
     [
         'state_subdivision_id' => '1116',
-        'state_subdivision_name' => 'Sana\'a',
+        'state_subdivision_name' => "Sana'a",
         'country_code' => 'YE',
         'iso2' => 'SN',
         'primary_level_name' => 'governorate',
@@ -11193,7 +11195,7 @@ return [
     ],
     [
         'state_subdivision_id' => '1120',
-        'state_subdivision_name' => 'Al Bayda\'',
+        'state_subdivision_name' => "Al Bayda'",
         'country_code' => 'YE',
         'iso2' => 'BA',
         'primary_level_name' => 'governorate',
@@ -11213,7 +11215,7 @@ return [
     ],
     [
         'state_subdivision_id' => '1122',
-        'state_subdivision_name' => '\'Adan',
+        'state_subdivision_name' => "'Adan",
         'country_code' => 'YE',
         'iso2' => 'AD',
         'primary_level_name' => 'governorate',
@@ -11293,7 +11295,7 @@ return [
     ],
     [
         'state_subdivision_id' => '1130',
-        'state_subdivision_name' => '\'Amran',
+        'state_subdivision_name' => "'Amran",
         'country_code' => 'YE',
         'iso2' => 'AM',
         'primary_level_name' => 'governorate',
@@ -11343,7 +11345,7 @@ return [
     ],
     [
         'state_subdivision_id' => '1135',
-        'state_subdivision_name' => 'Ombella-M\'Poko',
+        'state_subdivision_name' => "Ombella-M'Poko",
         'country_code' => 'CF',
         'iso2' => 'MP',
         'primary_level_name' => 'prefecture',
@@ -16333,7 +16335,7 @@ return [
     ],
     [
         'state_subdivision_id' => '1634',
-        'state_subdivision_name' => 'L\'Aquila',
+        'state_subdivision_name' => "L'Aquila",
         'country_code' => 'IT',
         'iso2' => 'AQ',
         'primary_level_name' => 'province',
@@ -26583,7 +26585,7 @@ return [
     ],
     [
         'state_subdivision_id' => '2659',
-        'state_subdivision_name' => 'Libertador General Bernardo O\'Higgins',
+        'state_subdivision_name' => "Libertador General Bernardo O'Higgins",
         'country_code' => 'CL',
         'iso2' => 'LI',
         'primary_level_name' => 'region',
@@ -26733,7 +26735,7 @@ return [
     ],
     [
         'state_subdivision_id' => '2674',
-        'state_subdivision_name' => '\'Asir',
+        'state_subdivision_name' => "'Asir",
         'country_code' => 'SA',
         'iso2' => '14',
         'primary_level_name' => 'region',
@@ -26753,7 +26755,7 @@ return [
     ],
     [
         'state_subdivision_id' => '2676',
-        'state_subdivision_name' => 'Ha\'il',
+        'state_subdivision_name' => "Ha'il",
         'country_code' => 'SA',
         'iso2' => '06',
         'primary_level_name' => 'region',
@@ -28423,7 +28425,7 @@ return [
     ],
     [
         'state_subdivision_id' => '2843',
-        'state_subdivision_name' => 'Mohale\'s Hoek',
+        'state_subdivision_name' => "Mohale's Hoek",
         'country_code' => 'LS',
         'iso2' => 'F',
         'primary_level_name' => 'district',
@@ -28443,7 +28445,7 @@ return [
     ],
     [
         'state_subdivision_id' => '2845',
-        'state_subdivision_name' => 'Qacha\'s Nek',
+        'state_subdivision_name' => "Qacha's Nek",
         'country_code' => 'LS',
         'iso2' => 'H',
         'primary_level_name' => 'district',
@@ -30853,7 +30855,7 @@ return [
     ],
     [
         'state_subdivision_id' => '3086',
-        'state_subdivision_name' => 'L\'Oriental',
+        'state_subdivision_name' => "L'Oriental",
         'country_code' => 'MA',
         'iso2' => '02',
         'primary_level_name' => 'region',
@@ -33953,7 +33955,7 @@ return [
     ],
     [
         'state_subdivision_id' => '3396',
-        'state_subdivision_name' => 'N\'Djamena',
+        'state_subdivision_name' => "N'Djamena",
         'country_code' => 'TD',
         'iso2' => 'ND',
         'primary_level_name' => 'province',
@@ -34063,7 +34065,7 @@ return [
     ],
     [
         'state_subdivision_id' => '3407',
-        'state_subdivision_name' => 'Governor\'s Harbour',
+        'state_subdivision_name' => "Governor's Harbour",
         'country_code' => 'BS',
         'iso2' => 'GH',
         'primary_level_name' => 'district',
@@ -38763,7 +38765,7 @@ return [
     ],
     [
         'state_subdivision_id' => '3877',
-        'state_subdivision_name' => 'Hawke\'s Bay',
+        'state_subdivision_name' => "Hawke's Bay",
         'country_code' => 'NZ',
         'iso2' => 'HKB',
         'primary_level_name' => 'region',
@@ -39203,7 +39205,7 @@ return [
     ],
     [
         'state_subdivision_id' => '3921',
-        'state_subdivision_name' => 'Grand\'Anse',
+        'state_subdivision_name' => "Grand'Anse",
         'country_code' => 'HT',
         'iso2' => 'GA',
         'primary_level_name' => 'department',
@@ -44703,7 +44705,7 @@ return [
     ],
     [
         'state_subdivision_id' => '4471',
-        'state_subdivision_name' => 'Satupa\'itea',
+        'state_subdivision_name' => "Satupa'itea",
         'country_code' => 'WS',
         'iso2' => 'SA',
         'primary_level_name' => 'district',
@@ -44713,7 +44715,7 @@ return [
     ],
     [
         'state_subdivision_id' => '4472',
-        'state_subdivision_name' => 'A\'ana',
+        'state_subdivision_name' => "A'ana",
         'country_code' => 'WS',
         'iso2' => 'AA',
         'primary_level_name' => 'district',
@@ -44723,7 +44725,7 @@ return [
     ],
     [
         'state_subdivision_id' => '4473',
-        'state_subdivision_name' => 'Fa\'asaleleaga',
+        'state_subdivision_name' => "Fa'asaleleaga",
         'country_code' => 'WS',
         'iso2' => 'FA',
         'primary_level_name' => 'district',
@@ -44763,7 +44765,7 @@ return [
     ],
     [
         'state_subdivision_id' => '4477',
-        'state_subdivision_name' => 'Va\'a-o-Fonoti',
+        'state_subdivision_name' => "Va'a-o-Fonoti",
         'country_code' => 'WS',
         'iso2' => 'VF',
         'primary_level_name' => 'district',
@@ -44773,7 +44775,7 @@ return [
     ],
     [
         'state_subdivision_id' => '4478',
-        'state_subdivision_name' => 'Gaga\'emauga',
+        'state_subdivision_name' => "Gaga'emauga",
         'country_code' => 'WS',
         'iso2' => 'GE',
         'primary_level_name' => 'district',
@@ -44793,7 +44795,7 @@ return [
     ],
     [
         'state_subdivision_id' => '4480',
-        'state_subdivision_name' => 'Gaga\'ifomauga',
+        'state_subdivision_name' => "Gaga'ifomauga",
         'country_code' => 'WS',
         'iso2' => 'GI',
         'primary_level_name' => 'district',
@@ -45553,7 +45555,7 @@ return [
     ],
     [
         'state_subdivision_id' => '4556',
-        'state_subdivision_name' => 'Saint George\'s',
+        'state_subdivision_name' => "Saint George's",
         'country_code' => 'BM',
         'iso2' => 'SGE',
         'primary_level_name' => 'municipality',
@@ -45573,7 +45575,7 @@ return [
     ],
     [
         'state_subdivision_id' => '4558',
-        'state_subdivision_name' => 'Smith\'s',
+        'state_subdivision_name' => "Smith's",
         'country_code' => 'BM',
         'iso2' => 'SMI',
         'primary_level_name' => 'municipality',
@@ -45883,7 +45885,7 @@ return [
     ],
     [
         'state_subdivision_id' => '4589',
-        'state_subdivision_name' => 'El M\'ghair',
+        'state_subdivision_name' => "El M'ghair",
         'country_code' => 'DZ',
         'iso2' => '49',
         'primary_level_name' => 'province',
@@ -47453,7 +47455,7 @@ return [
     ],
     [
         'state_subdivision_id' => '4746',
-        'state_subdivision_name' => 'Val-d\'Oise',
+        'state_subdivision_name' => "Val-d'Oise",
         'country_code' => 'FR',
         'iso2' => '95',
         'primary_level_name' => 'metropolitan department',
@@ -49503,7 +49505,7 @@ return [
     ],
     [
         'state_subdivision_id' => '4951',
-        'state_subdivision_name' => 'Talofofo (Talo\'fo\'fo)',
+        'state_subdivision_name' => "Talofofo (Talo'fo'fo)",
         'country_code' => 'GU',
         'iso2' => null,
         'primary_level_name' => 'village',
@@ -50943,7 +50945,7 @@ return [
     ],
     [
         'state_subdivision_id' => '5095',
-        'state_subdivision_name' => 'M\'Tsangamouji',
+        'state_subdivision_name' => "M'Tsangamouji",
         'country_code' => 'YT',
         'iso2' => '13',
         'primary_level_name' => 'commune',
@@ -51273,7 +51275,7 @@ return [
     ],
     [
         'state_subdivision_id' => '5128',
-        'state_subdivision_name' => 'Saint Paul\'s',
+        'state_subdivision_name' => "Saint Paul's",
         'country_code' => 'SH',
         'iso2' => '08',
         'primary_level_name' => 'district',

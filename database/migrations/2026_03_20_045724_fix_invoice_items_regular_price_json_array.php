@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
@@ -13,7 +14,7 @@ return new class extends Migration
     public function up(): void
     {
         DB::table('invoice_items')
-            ->where(function ($q) {
+            ->where(function (Builder $q): void {
                 $q->where('regular_price', '[]')
                     ->orWhereRaw("JSON_VALID(regular_price) AND JSON_TYPE(regular_price) = 'ARRAY'")
                     ->orWhereRaw("regular_price REGEXP '^[0-9]+/'")

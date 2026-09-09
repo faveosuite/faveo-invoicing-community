@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('paypal')) {
-            Schema::create('paypal', function (Blueprint $table) {
+            Schema::create('paypal', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('business');
                 $table->string('cmd');
@@ -31,10 +29,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('paypal');
     }

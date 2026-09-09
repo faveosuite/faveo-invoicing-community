@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('email_mobile_validation_providers', function (Blueprint $table) {
+        Schema::create('email_mobile_validation_providers', function (Blueprint $table): void {
             $table->increments('id');
             $table->string('provider')->unique();
             $table->string('api_key')->nullable();

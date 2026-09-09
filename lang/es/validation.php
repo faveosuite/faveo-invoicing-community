@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'accepted' => 'El :attribute debe ser aceptado.',
     'accepted_if' => 'El :attribute debe ser aceptado cuando :other sea :value.',
     'active_url' => 'El :attribute no es una URL válida.',
@@ -25,6 +24,7 @@ return [
     'date' => 'El :attribute no es una fecha válida.',
     'date_equals' => 'El :attribute debe ser una fecha igual a :date.',
     'date_format' => 'El :attribute no coincide con el formato :format.',
+    'decimal' => 'El campo :attribute debe tener :decimal decimales.',
     'declined' => 'El :attribute debe ser rechazado.',
     'declined_if' => 'El :attribute debe ser rechazado cuando :other sea :value.',
     'different' => 'El :attribute y :other deben ser diferentes.',
@@ -125,8 +125,12 @@ return [
     'uploaded' => 'El :attribute no se pudo cargar.',
     'url' => 'El :attribute debe ser una URL válida.',
     'uuid' => 'El :attribute debe ser un UUID válido.',
+    'custom_dup' => [
+        'attribute-name' => [
+            'rule-name' => 'mensaje personalizado',
+        ],
+    ],
     'attributes' => [],
-
     'publish_date_required' => 'La fecha de publicación es obligatoria',
     'price_numeric_value' => 'El precio debe ser un valor numérico',
     'quantity_integer_value' => 'La cantidad debe ser un valor entero',
@@ -142,12 +146,6 @@ return [
     'total_amount_required' => 'El monto total es obligatorio.',
     'total_amount_numeric' => 'El monto total debe ser un valor numérico.',
     'invoice_link_required' => 'Por favor, vincule el monto con al menos una factura.',
-
-    /*
-Request file custom validation messages
-*/
-
-    // Common
     'settings_form' => [
         'company' => [
             'required' => 'El campo de la empresa es obligatorio.',
@@ -182,7 +180,6 @@ Request file custom validation messages
             'email' => 'El correo electrónico de error debe ser una dirección válida.',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => 'El nombre de la empresa es obligatorio.',
@@ -213,7 +210,7 @@ Request file custom validation messages
             'required' => 'El país es obligatorio.',
         ],
         'gstin' => [
-            'max' => 'El GSTIN no debe superar los 15 caracteres.',
+            'regex' => 'El formato GSTIN no es válido.',
         ],
         'default_currency' => [
             'required' => 'La moneda predeterminada es obligatoria.',
@@ -231,7 +228,10 @@ Request file custom validation messages
             'max' => 'El logo no debe superar los 2MB.',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'La imagen OG debe ser un archivo de tipo:jpeg, png, jpg, webp.',
+        'max' => 'La imagen OG no puede tener más de 2 MB.',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => 'El campo de nombre es obligatorio.',
@@ -243,8 +243,13 @@ Request file custom validation messages
             'url' => 'El enlace debe ser una URL válida.',
             'regex' => 'El formato del enlace no es válido.',
         ],
+        'class' => [
+            'required' => 'El campo de clase de icono es obligatorio.',
+        ],
+        'fa_class' => [
+            'required' => 'El campo de clase de icono es obligatorio.',
+        ],
     ],
-    // Email
     'custom' => [
         'password' => [
             'required_if' => 'El campo de contraseña es obligatorio para el controlador de correo seleccionado.',
@@ -280,7 +285,6 @@ Request file custom validation messages
             'required' => 'El campo del controlador es obligatorio.',
         ],
     ],
-
     'customer_form' => [
         'first_name' => [
             'required' => 'El campo de nombre es obligatorio.',
@@ -308,7 +312,6 @@ Request file custom validation messages
             'unique' => 'Este correo electrónico ya está en uso.',
         ],
     ],
-
     'contact_request' => [
         'conName' => 'El campo de nombre es obligatorio.',
         'email' => 'El campo de correo electrónico es obligatorio.',
@@ -321,7 +324,6 @@ Request file custom validation messages
         'congg-recaptcha-response-1.required' => 'Verificación de robot fallida. Por favor, inténtalo de nuevo.',
         'demo-recaptcha-response-1.required' => 'Verificación de robot fallida. Por favor, inténtalo de nuevo.',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => 'El campo de nombre es obligatorio.',
@@ -334,6 +336,7 @@ Request file custom validation messages
         ],
         'slug' => [
             'required' => 'El campo de slug es obligatorio.',
+            'unique' => 'Esta babosa ya existe.',
         ],
         'url' => [
             'required' => 'El campo de URL es obligatorio.',
@@ -346,9 +349,12 @@ Request file custom validation messages
         'created_at' => [
             'required' => 'El campo de creación es obligatorio.',
         ],
+        'parent_page_id' => [
+            'exists' => 'La página principal seleccionada no existe.',
+            'self' => 'Una página no puede ser su propia página principal.',
+            'nested' => 'La página seleccionada ya es una subpágina y no se puede utilizar como página principal.',
+        ],
     ],
-
-    // Order form
     'order_form' => [
         'client' => [
             'required' => 'El campo de cliente es obligatorio.',
@@ -375,7 +381,6 @@ Request file custom validation messages
             'integer' => 'La cantidad debe ser un número entero.',
         ],
     ],
-    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'El campo del código de cupón es obligatorio.',
@@ -408,9 +413,9 @@ Request file custom validation messages
             'required' => 'El campo de valor de descuento es obligatorio.',
             'numeric' => 'El campo de valor de descuento debe ser un número.',
             'between' => 'El campo de valor de descuento debe estar entre :min y :max si el tipo es porcentaje.',
+            'max' => 'El valor del descuento no puede exceder el precio del producto aplicado (:max).',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => 'El campo de nombre es obligatorio.',
@@ -418,6 +423,12 @@ Request file custom validation messages
         'rate' => [
             'required' => 'El campo de tasa es obligatorio.',
             'numeric' => 'La tasa debe ser un número.',
+            'decimal' => 'La tasa deberá tener como máximo 3 decimales.',
+            'max' => 'La tarifa no debe ser superior a 999,999.',
+        ],
+        'priority' => [
+            'required' => 'El campo de prioridad es obligatorio.',
+            'min' => 'La prioridad debe ser al menos 1.',
         ],
         'level' => [
             'required' => 'El campo de nivel es obligatorio.',
@@ -425,15 +436,11 @@ Request file custom validation messages
         ],
         'country' => [
             'required' => 'El campo de país es obligatorio.',
-            // 'exists' => 'El país seleccionado no es válido.',
         ],
         'state' => [
             'required' => 'El campo de estado es obligatorio.',
-            // 'exists' => 'El estado seleccionado no es válido.',
         ],
     ],
-
-    // Product
     'subscription_form' => [
         'name' => [
             'required' => 'El campo de nombre es obligatorio.',
@@ -453,7 +460,6 @@ Request file custom validation messages
             'required' => 'El campo de productos es obligatorio.',
         ],
     ],
-
     'bundle' => [
         'name' => [
             'required' => 'El campo de nombre es obligatorio.',
@@ -462,10 +468,13 @@ Request file custom validation messages
             'required' => 'Cada elemento es obligatorio.',
         ],
     ],
-
     'group' => [
         'name' => [
             'required' => 'El nombre es obligatorio',
+            'unique' => 'Este nombre ya existe.',
+        ],
+        'pricing_templates_id' => [
+            'required' => 'Se requiere la plantilla de diseño.',
         ],
         'features' => [
             'name' => [
@@ -489,13 +498,15 @@ Request file custom validation messages
             'required_with' => 'El título es obligatorio',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => 'El campo de nombre es obligatorio.',
         ],
         'type' => [
             'required' => 'El campo de tipo es obligatorio.',
+        ],
+        'product_type' => [
+            'required' => 'El campo de categoría de producto es obligatorio.',
         ],
         'group' => [
             'required' => 'El campo de grupo es obligatorio.',
@@ -506,27 +517,27 @@ Request file custom validation messages
         'currency' => [
             'required' => 'El campo de moneda es obligatorio.',
         ],
+        'file' => [
+            'required_without_all' => 'El campo de archivo es obligatorio si no se proporciona ninguno de github_owner o github_repository.',
+            'mimes' => 'El archivo debe ser un archivo zip.',
+        ],
+        'image' => [
+            'required_without_all' => 'El campo de imagen es obligatorio si no se proporciona ninguno de github_owner o github_repository.',
+            'mimes' => 'La imagen debe ser un archivo PNG.',
+        ],
+        'github_owner' => [
+            'required' => 'El campo de propietario de GitHub es obligatorio.',
+            'required_without_all' => 'El campo de propietario de GitHub es obligatorio si no se proporciona ningún archivo o imagen.',
+        ],
+        'github_repository' => [
+            'required' => 'El campo del repositorio de GitHub es obligatorio.',
+            'required_without_all' => 'El campo del repositorio de GitHub es obligatorio si no se proporciona ningún archivo o imagen.',
+            'required_if' => 'El campo del repositorio de GitHub es obligatorio si el tipo es 2.',
+        ],
+        'shoping_cart_link' => [
+            'required' => 'El campo de enlace del carrito de compras es obligatorio.',
+        ],
     ],
-    // 'price' => [
-    //     'required' => 'The price field is required.',
-    // ],
-    'file' => [
-        'required_without_all' => 'El campo de archivo es obligatorio si no se proporcionan github_owner ni github_repository.',
-        'mimes' => 'El archivo debe ser un archivo zip.',
-    ],
-    'image' => [
-        'required_without_all' => 'El campo de imagen es obligatorio si no se proporcionan github_owner ni github_repository.',
-        'mimes' => 'La imagen debe ser un archivo PNG.',
-    ],
-    'github_owner' => [
-        'required_without_all' => 'El campo de propietario de GitHub es obligatorio si no se proporcionan archivo ni imagen.',
-    ],
-    'github_repository' => [
-        'required_without_all' => 'El campo del repositorio de GitHub es obligatorio si no se proporcionan archivo ni imagen.',
-        'required_if' => 'El campo del repositorio de GitHub es obligatorio si el tipo es 2.',
-    ],
-
-    // User
     'users' => [
         'first_name' => [
             'required' => 'El campo de nombre es obligatorio.',
@@ -565,8 +576,10 @@ Request file custom validation messages
         'zip' => [
             'regex' => 'El campo de estado es obligatorio cuando el país es India.',
         ],
+        'gstin' => [
+            'regex' => 'El formato GSTIN no es válido.',
+        ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => 'El nombre es obligatorio.',
@@ -609,6 +622,9 @@ Request file custom validation messages
         'state' => [
             'required_if' => 'El campo de estado es obligatorio cuando el país es India.',
         ],
+        'gstin' => [
+            'regex' => 'El formato GSTIN no es válido.',
+        ],
         'old_password' => [
             'required' => 'La contraseña anterior es obligatoria.',
             'min' => 'La contraseña anterior debe tener al menos :min caracteres.',
@@ -635,8 +651,6 @@ Request file custom validation messages
             'required' => 'Introduce el código de país (móvil).',
         ],
     ],
-
-    // Invoice form
     'invoice' => [
         'user' => [
             'required' => 'El campo de clientes es obligatorio.',
@@ -646,7 +660,12 @@ Request file custom validation messages
             'date' => 'La fecha debe ser una fecha válida.',
         ],
         'domain' => [
+            'required' => 'El campo de dominio es obligatorio.',
             'regex' => 'El formato del dominio no es válido.',
+        ],
+        'cloud_domain' => [
+            'required' => 'El campo dominio de la nube es obligatorio.',
+            'regex' => 'Sólo se permiten letras, números y guiones.',
         ],
         'plan' => [
             'required_if' => 'El campo de suscripción es obligatorio.',
@@ -658,88 +677,86 @@ Request file custom validation messages
             'required' => 'El campo de producto es obligatorio.',
         ],
     ],
-
-    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'El campo de dominio es obligatorio.',
             'url' => 'El dominio debe ser una URL válida.',
         ],
     ],
-    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'El campo de dominio es obligatorio.',
             'no_http' => 'El dominio no debe contener "http" o "https".',
         ],
     ],
-
-    //Language form
     'language' => [
         'required' => 'El campo de idioma es obligatorio.',
         'invalid' => 'El idioma seleccionado no es válido.',
     ],
-
-    //UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'El campo de disco de almacenamiento es obligatorio.',
             'string' => 'El disco debe ser una cadena de texto.',
         ],
         'path' => [
+            'required' => 'El campo de ruta de almacenamiento es obligatorio.',
             'string' => 'La ruta debe ser una cadena de texto.',
             'nullable' => 'El campo de ruta es opcional.',
+            'invalid' => 'La ruta no existe o no se puede escribir.',
         ],
     ],
-
-    //ValidateSecretRequest form
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => 'El campo de ruta del nodo es obligatorio.',
+            'string' => 'La ruta del nodo debe ser una cadena válida.',
+        ],
+        'npm_path' => [
+            'required' => 'El campo de ruta npm es obligatorio.',
+            'string' => 'La ruta npm debe ser una cadena válida.',
+        ],
+        'chrome_path' => [
+            'required' => 'El campo de ruta de Chrome es obligatorio.',
+            'string' => 'La ruta de Chrome debe ser una cadena válida.',
+            'invalid' => 'La ruta de Chrome no existe o no es ejecutable.',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => 'Por favor, introduce el código',
             'digits' => 'Por favor, introduce un código válido de 6 dígitos',
         ],
     ],
-
-    //VerifyOtp form
     'verify_email' => [
         'required' => 'El campo de correo electrónico es obligatorio.',
         'email' => 'El correo electrónico debe ser una dirección válida.',
         'verify_email' => 'La verificación del correo electrónico ha fallado.',
     ],
-
     'verify_country_code' => [
         'required' => 'El código de país es obligatorio.',
         'numeric' => 'El código de país debe ser un número válido.',
         'verify_country_code' => 'La verificación del código de país ha fallado.',
     ],
-
     'verify_number' => [
         'required' => 'El número es obligatorio.',
         'numeric' => 'El número debe ser un número válido.',
         'verify_number' => 'La verificación del número ha fallado.',
     ],
-
     'password_otp' => [
         'required' => 'El campo de contraseña es obligatorio.',
         'password' => 'La contraseña es incorrecta.',
         'invalid' => 'Contraseña inválida.',
     ],
-
-    //AuthController file
     'auth_controller' => [
         'name_required' => 'El nombre es obligatorio.',
         'name_max' => 'El nombre no puede tener más de 255 caracteres.',
-
         'email_required' => 'El correo electrónico es obligatorio.',
         'email_email' => 'Introduce una dirección de correo electrónico válida.',
         'email_max' => 'El correo electrónico no puede tener más de 255 caracteres.',
         'email_unique' => 'Este correo ya está registrado.',
-
         'password_required' => 'La contraseña es obligatoria.',
         'password_confirmed' => 'La confirmación de la contraseña no coincide.',
         'password_min' => 'La contraseña debe tener al menos 6 caracteres.',
     ],
-
     'resend_otp' => [
         'eid_required' => 'El campo EID es obligatorio.',
         'eid_string' => 'El EID debe ser una cadena de texto.',
@@ -747,7 +764,6 @@ Request file custom validation messages
         'type_string' => 'El tipo debe ser una cadena de texto.',
         'type_in' => 'El tipo seleccionado no es válido.',
     ],
-
     'verify_otp' => [
         'eid_required' => 'El ID del empleado es obligatorio.',
         'eid_string' => 'El ID del empleado debe ser una cadena de texto.',
@@ -756,31 +772,26 @@ Request file custom validation messages
         'recaptcha_required' => 'Por favor, completa el CAPTCHA.',
         'recaptcha_size' => 'La respuesta del CAPTCHA no es válida.',
     ],
-
     'company_validation' => [
         'company_required' => 'El nombre de la empresa es obligatorio.',
         'company_string' => 'La empresa debe ser texto.',
         'address_required' => 'La dirección es obligatoria.',
         'address_string' => 'La dirección debe ser texto.',
     ],
-
     'token_validation' => [
         'token_required' => 'El token es obligatorio.',
         'password_required' => 'El campo de contraseña es obligatorio.',
         'password_confirmed' => 'La confirmación de la contraseña no coincide.',
     ],
-
     'custom_email' => [
         'required' => 'El campo de correo electrónico es obligatorio.',
         'email' => 'Por favor, introduce una dirección de correo electrónico válida.',
         'exists' => 'Este correo no está registrado con nosotros.',
     ],
-
     'newsletterEmail' => [
         'required' => 'El correo del boletín es obligatorio.',
         'email' => 'Por favor, introduce un correo válido para el boletín.',
     ],
-
     'widget' => [
         'name_required' => 'El nombre es obligatorio.',
         'name_max' => 'El nombre no puede tener más de 50 caracteres.',
@@ -788,26 +799,22 @@ Request file custom validation messages
         'type_required' => 'El tipo es obligatorio.',
         'type_unique' => 'Este tipo ya existe.',
     ],
-
     'payment' => [
         'payment_date_required' => 'La fecha de pago es obligatoria.',
         'payment_method_required' => 'El método de pago es obligatorio.',
         'amount_required' => 'El monto es obligatorio.',
     ],
-
     'custom_date' => [
         'date_required' => 'El campo de fecha es obligatorio.',
         'total_required' => 'El campo total es obligatorio.',
         'status_required' => 'El estado es obligatorio.',
     ],
-
     'plan_renewal' => [
         'plan_required' => 'El campo de plan es obligatorio.',
         'payment_method_required' => 'El campo de método de pago es obligatorio.',
         'cost_required' => 'El campo de coste es obligatorio.',
         'code_not_valid' => 'El código de promoción no es válido.',
     ],
-
     'rate' => [
         'required' => 'La tarifa es obligatoria.',
         'numeric' => 'La tarifa debe ser un número.',
@@ -817,10 +824,14 @@ Request file custom validation messages
         'version_required' => 'Se requiere la versión.',
         'filename_required' => 'Por favor, sube un archivo.',
         'dependencies_required' => 'Se requiere el campo de dependencias.',
+        'description_required' => 'Se requiere descripción.',
+        'release_type_required' => 'Se requiere el tipo de versión.',
     ],
     'product_sku_unique' => 'El SKU del producto debe ser único.',
     'product_name_unique' => 'El nombre debe ser único.',
     'product_show_agent_required' => 'Selecciona tu preferencia de página del carrito.',
+    'config_file_path_regex' => 'Debe ser una ruta relativa sin ../ segmentos.',
+    'license_file_path_regex' => 'Debe ser una ruta relativa sin segmentos ../.',
     'product_controller' => [
         'name_required' => 'Se requiere el nombre del producto.',
         'name_unique' => 'El nombre debe ser único.',
@@ -828,6 +839,7 @@ Request file custom validation messages
         'type_required' => 'Se requiere el tipo de producto.',
         'description_required' => 'Se requiere la descripción del producto.',
         'product_description_required' => 'Se requiere una descripción detallada del producto.',
+        'short_description_required' => 'Se requiere la breve descripción.',
         'image_mimes' => 'La imagen debe ser un archivo de tipo: jpeg, png, jpg.',
         'image_max' => 'La imagen no debe ser mayor a 2048 kilobytes.',
         'product_sku_required' => 'Se requiere el SKU del producto.',
@@ -845,7 +857,9 @@ Request file custom validation messages
         'cloud_label_field_required' => 'Se requiere el campo de etiqueta de la nube.',
         'cloud_label_radio_required' => 'Se requiere la opción de radio de la nube.',
         'cloud_product_required' => 'Se requiere el producto de la nube.',
+        'cloud_product_unique' => 'Este producto ya tiene una configuración en la nube.',
         'cloud_free_plan_required' => 'Se requiere el plan gratuito de la nube.',
+        'cloud_free_plan_invalid' => 'El plan seleccionado no pertenece al producto seleccionado.',
         'cloud_product_key_required' => 'Se requiere la clave del producto en la nube.',
     ],
     'reg_till_after' => 'La fecha de registro hasta debe ser posterior a la fecha de registro desde.',
@@ -874,6 +888,8 @@ Request file custom validation messages
         'no_agent_req' => 'El campo número de agentes es obligatorio cuando la cantidad de producto no está presente.',
         'pro_req' => 'El campo producto es obligatorio',
         'offer_price' => 'Los precios de oferta no deben ser mayores a 100',
+        'currency_duplicate' => 'Cada moneda sólo se puede utilizar una vez.',
+        'non_negative' => 'Este valor no puede ser negativo.',
     ],
     'razorpay_val' => [
         'business_required' => 'El campo de negocio es obligatorio.',
@@ -888,5 +904,36 @@ Request file custom validation messages
     'login_failed' => 'Error de inicio de sesión, por favor verifica el correo electrónico/nombre de usuario y la contraseña que ingresaste.',
     'forgot_email_validation' => 'Si el correo electrónico que proporcionaste está registrado, recibirás un correo con las instrucciones para restablecer la contraseña en breve.',
     'too_many_login_attempts' => 'Has sido bloqueado de la aplicación debido a demasiados intentos fallidos de inicio de sesión. Por favor, inténtalo nuevamente después de :time.',
-
+    'phone_number' => 'Ingrese un número de teléfono móvil válido.',
+    'mobile_number' => 'El :attribute debe ser un número de teléfono móvil válido.',
+    'license' => [
+        'product' => [
+            'required' => 'El campo del producto es obligatorio.',
+        ],
+        'client' => [
+            'required' => 'El campo del cliente es obligatorio.',
+        ],
+        'license_code' => [
+            'required' => 'El campo del código de licencia es obligatorio.',
+        ],
+        'license_expire_date' => [
+            'required' => 'El campo de fecha de vencimiento de la licencia es obligatorio.',
+        ],
+        'license_updates_date' => [
+            'required' => 'El campo de fecha de vencimiento de las actualizaciones es obligatorio.',
+        ],
+        'license_support_date' => [
+            'required' => 'El campo de fecha de vencimiento del soporte es obligatorio.',
+        ],
+        'banned_host_ip' => [
+            'required' => 'El campo IP del host prohibido es obligatorio.',
+            'invalid' => 'Ingrese una dirección IP válida.',
+        ],
+        'installation_ip' => [
+            'required' => 'El campo IP de instalación es obligatorio.',
+        ],
+        'notification_field' => [
+            'required' => 'Este campo de notificación es obligatorio.',
+        ],
+    ],
 ];

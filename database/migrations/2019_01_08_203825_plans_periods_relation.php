@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('plans_periods_relation')) {
-            Schema::create('plans_periods_relation', function (Blueprint $table) {
+            Schema::create('plans_periods_relation', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->unsignedInteger('plan_id');
                 $table->unsignedInteger('period_id');
@@ -28,10 +26,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('plans_periods_relation');
     }

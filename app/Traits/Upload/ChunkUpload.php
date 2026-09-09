@@ -3,43 +3,61 @@
 namespace App\Traits\Upload;
 
 use App\Facades\Attach;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
 use Pion\Laravel\ChunkUpload\Handler\AbstractHandler;
 use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
 use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
+use Pion\Laravel\ChunkUpload\Save\AbstractSave;
+use ZipArchive;
 
 trait ChunkUpload
 {
-    public function uploadFile(Request $request)
+    public function uploadFile(Request $request): JsonResponse
     {
         try {
             $receiver = new FileReceiver('file', $request, HandlerFactory::classFromRequest($request));
 
             if ($receiver->isUploaded() === false) {
-                throw new UploadMissingFileException();
+                throw new UploadMissingFileException;
+            }
+
+            if (strtolower($request->file('file')->getClientOriginalExtension()) !== 'zip') {
+                return errorResponse(__('message.file_not_zip'), 500);
             }
 
             $save = $receiver->receive();
             // check if the upload has finished (in chunk mode it will send smaller files)
 
+            if ($save === false || ! ($save instanceof AbstractSave)) {
+                return errorResponse(__('message.file_invalid'), 500);
+            }
+
             if ($save->isFinished()) {
                 $file = $save->getFile();
                 $filePath = $file->getPathname();
-                $zip = new \ZipArchive;
+                $zip = new ZipArchive;
                 $res = $zip->open($filePath);
-                if ($res === true && $zip->numFiles > 0) {
-                    return $this->saveFile($save->getFile());
-                } else {
-                    unlink($filePath);
 
-                    return response()->json(__('message.file_invalid'), 500);
+                if ($res !== true || $zip->numFiles === 0) {
+                    // $filePath is the reassembled upload's own temp path (from the chunk
+                    // receiver), not a raw user-supplied path.
+                    unlink($filePath); // nosemgrep: php.lang.security.unlink-use.unlink-use
+
+                    return errorResponse(__('message.file_invalid'), 500);
                 }
+
+                $zip->close();
+
+                return $this->saveFile($save->getFile());
 
                 // save the file and return any response you need, current example uses `move` function. If you are
                 // not using move, you need to manually delete the file by unlink($save->getFile()->getPathname())
             }
+
             // we are in chunk mode, lets send the current progress
             /** @var AbstractHandler $handler */
             $handler = $save->handler();
@@ -48,18 +66,17 @@ trait ChunkUpload
                 'done' => $handler->getPercentageDone(),
                 'status' => true,
             ]);
-        } catch (\Exception $ex) {
-            $response = ['success' => 'false', 'message' => $ex->getMessage()];
+        } catch (Exception $exception) {
+            \Logger::exception($exception);
 
-            return response()->json($ex->getMessage(), 500);
+            return errorResponse(__('message.sorry_something_wrong'), 500);
         }
     }
 
     /**
      * Saves the file.
      *
-     * @param  UploadedFile  $file
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     protected function saveFile(UploadedFile $file)
     {

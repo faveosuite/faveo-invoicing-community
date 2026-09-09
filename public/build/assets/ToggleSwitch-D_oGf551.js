@@ -1,0 +1,1 @@
+import{_ as t,o,c as s,V as c}from"./dateTime-BRlL7CfL.js";const r={},a={class:"toggleswitch-wrapper"};function n(e,l){return o(),s("div",a,[c(e.$slots,"default")])}const d=t(r,[["render",n]]);export{d as default};

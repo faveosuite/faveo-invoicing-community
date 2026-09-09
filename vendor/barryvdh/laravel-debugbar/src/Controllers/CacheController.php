@@ -1,24 +1,22 @@
 <?php
 
-namespace Barryvdh\Debugbar\Controllers;
+declare(strict_types=1);
 
-use Illuminate\Http\Response;
+namespace Fruitcake\LaravelDebugbar\Controllers;
 
-class CacheController extends BaseController
+use Fruitcake\LaravelDebugbar\Requests\CacheDeleteRequest;
+use Illuminate\Cache\CacheManager;
+
+class CacheController
 {
     /**
      * Forget a cache key
      *
      */
-    public function delete($key, $tags = '')
+    public function delete(CacheManager $cache, CacheDeleteRequest $request, string $key): \Illuminate\Http\JsonResponse
     {
-        $cache = app('cache');
-
-        if (!empty($tags)) {
-            $tags = json_decode($tags, true);
+        if ($tags = $request->validated('tags')) {
             $cache = $cache->tags($tags);
-        } else {
-            unset($tags);
         }
 
         $success = $cache->forget($key);

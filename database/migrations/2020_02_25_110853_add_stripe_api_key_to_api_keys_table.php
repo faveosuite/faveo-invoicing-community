@@ -8,15 +8,14 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('api_keys', function (Blueprint $table) {
+        Schema::table('api_keys', function (Blueprint $table): void {
             if (! Schema::hasColumn('api_keys', 'stripe_key')) {
                 $table->string('stripe_key')->nullable();
             }
+
             if (! Schema::hasColumn('api_keys', 'stripe_secret')) {
                 $table->string('stripe_secret')->nullable();
             }
@@ -25,12 +24,10 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('api_keys', function (Blueprint $table) {
+        Schema::table('api_keys', function (Blueprint $table): void {
             $table->dropColumn('stripe_key');
             $table->dropColumn('stripe_secret');
         });

@@ -28,6 +28,9 @@ final readonly class PostConditionErrored implements Event
     private Code\ClassMethod $calledMethod;
     private Throwable $throwable;
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(Telemetry\Info $telemetryInfo, Code\TestMethod $test, Code\ClassMethod $calledMethod, Throwable $throwable)
     {
         $this->telemetryInfo = $telemetryInfo;
@@ -44,16 +47,6 @@ final readonly class PostConditionErrored implements Event
     public function test(): Code\TestMethod
     {
         return $this->test;
-    }
-
-    /**
-     * @return class-string
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
-     */
-    public function testClassName(): string
-    {
-        return $this->test->className();
     }
 
     public function calledMethod(): Code\ClassMethod

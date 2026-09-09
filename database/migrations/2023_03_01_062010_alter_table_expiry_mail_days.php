@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasColumn('autorenewal_days', 'postexpiry_days')) {
-            Schema::table('expiry_mail_days', function (Blueprint $table) {
+            Schema::table('expiry_mail_days', function (Blueprint $table): void {
                 $table->string('autorenewal_days')->nullable();
                 $table->string('postexpiry_days')->nullable();
             });
@@ -23,12 +21,10 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('expiry_mail_days', function (Blueprint $table) {
+        Schema::table('expiry_mail_days', function (Blueprint $table): void {
             $table->dropColumn('autorenewal_days');
             $table->dropColumn('postexpiry_days');
         });

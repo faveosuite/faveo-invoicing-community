@@ -1,36 +1,80 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Model\Payment;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
+/**
+ * @property int $id
+ * @property int $tax_enable
+ * @property int $inclusive
+ * @property string $tax_based_on
+ * @property int $round_at_subtotal
+ * @property int $shop_inclusive
+ * @property int $cart_inclusive
+ * @property string $Gst_No
+ * @property int $rounding
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereCartInclusive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereGstNo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereInclusive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereRoundAtSubtotal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereRounding($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereShopInclusive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereTaxBasedOn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereTaxEnable($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class TaxOption extends BaseModel
 {
     use SystemActivityLogsTrait;
 
     protected $table = 'tax_rules';
 
-    protected $fillable = ['tax_enable', 'inclusive', 'shop_inclusive', 'cart_inclusive', 'rounding', 'Gst_no', 'cif_no'];
+    protected $fillable = ['tax_enable', 'inclusive', 'tax_based_on', 'shop_inclusive', 'cart_inclusive', 'rounding', 'Gst_no', 'cif_no'];
 
-    protected $logName = 'tax';
+    protected string $logName = 'tax';
 
-    protected $logNameColumn = 'Settings';
+    protected string $logNameColumn = 'Settings';
 
-    protected $logAttributes = [
-        'tax_enable', 'inclusive', 'shop_inclusive', 'cart_inclusive', 'rounding', 'Gst_no', 'cif_no',
+    /**
+     * @var array<mixed>
+     */
+    protected array $logAttributes = [
+        'tax_enable', 'inclusive', 'tax_based_on', 'shop_inclusive', 'cart_inclusive', 'rounding', 'Gst_no', 'cif_no',
     ];
 
-    protected $requireLogUrl = false;
+    protected bool $requireLogUrl = false;
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
-            'tax_enable' => ['Tax Enable', fn ($value) => $value === 1 ? __('message.active') : __('message.inactive')],
-            'inclusive' => ['Prices Entered With Tax', fn ($value) => $value === 1 ? 'Yes' : 'No'],
-            'shop_inclusive' => ['Shop Prices Entered With Tax', fn ($value) => $value === 1 ? 'Yes' : 'No'],
-            'cart_inclusive' => ['Cart Prices Entered With Tax', fn ($value) => $value === 1 ? 'Yes' : 'No'],
-            'rounding' => ['Rounding Tax At subtotal', fn ($value) => $value === 1 ? __('message.enable') : __('message.disable')],
+            'tax_enable' => ['Tax Enable', fn ($value): array|string => $value === 1 ? __('message.active') : __('message.inactive')],
+            'inclusive' => ['Prices Entered With Tax', fn ($value): string => $value === 1 ? 'Yes' : 'No'],
+            'tax_based_on' => ['Calculate Tax Based On', fn ($value): string => $value === 'base' ? 'Company address' : 'Billing address'],
+            'shop_inclusive' => ['Shop Prices Entered With Tax', fn ($value): string => $value === 1 ? 'Yes' : 'No'],
+            'cart_inclusive' => ['Cart Prices Entered With Tax', fn ($value): string => $value === 1 ? 'Yes' : 'No'],
+            'rounding' => ['Round Tax To Whole Number', fn ($value): array|string => $value === 1 ? __('message.enable') : __('message.disable')],
             'Gst_no' => ['GST Number', fn ($value) => $value ?: 'N/A'],
             'cif_no' => ['CIF Number', fn ($value) => $value ?: 'N/A'],
         ];

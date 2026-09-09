@@ -104,7 +104,7 @@ final class SummaryPrinter
         $this->printCountString($result->numberOfPhpunitDeprecations(), 'PHPUnit Deprecations', $color);
         $this->printCountString($result->numberOfPhpunitNotices(), 'PHPUnit Notices', $color);
         $this->printCountString($result->numberOfNotices(), 'Notices', $color);
-        $this->printCountString($result->numberOfTestSuiteSkippedEvents() + $result->numberOfTestSkippedEvents(), 'Skipped', $color);
+        $this->printCountString($result->numberOfTestSkippedByTestSuiteSkippedEvents() + $result->numberOfTestSkippedEvents(), 'Skipped', $color);
         $this->printCountString($result->numberOfTestMarkedIncompleteEvents(), 'Incomplete', $color);
         $this->printCountString($result->numberOfTestsWithTestConsideredRiskyEvents(), 'Risky', $color);
         $this->printWithColor($color, '.');
@@ -112,6 +112,10 @@ final class SummaryPrinter
         $this->printNumberOfIssuesIgnoredByBaseline($result);
     }
 
+    /**
+     * @param non-empty-string $name
+     * @param non-empty-string $color
+     */
     private function printCountString(int $count, string $name, string $color, bool $always = false): void
     {
         if ($always || $count > 0) {
@@ -130,6 +134,10 @@ final class SummaryPrinter
         }
     }
 
+    /**
+     * @param non-empty-string $color
+     * @param non-empty-string $buffer
+     */
     private function printWithColor(string $color, string $buffer, bool $lf = true): void
     {
         if ($this->colors) {

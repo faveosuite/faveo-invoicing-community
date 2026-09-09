@@ -2,11 +2,6 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Http\Controllers\License\LicensePermissionsController;
-use App\Http\Controllers\Tenancy\CloudExtraActivities;
-use App\Model\Common\FaveoCloud;
-use App\Model\Common\StatusSetting;
-use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -14,82 +9,98 @@ use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\SubscriptionRenewalService;
 use App\Traits\TaxCalculation;
 use App\User;
+use Auth;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Session;
 
 class RenewController extends BaseRenewController
 {
     use TaxCalculation;
 
-    protected $sub;
+    protected Subscription $sub;
 
-    protected $plan;
+    protected Plan $plan;
 
-    protected $order;
+    protected Order $order;
 
-    protected $invoice;
+    protected Invoice $invoice;
 
-    protected $item;
+    protected InvoiceItem $item;
 
-    protected $product;
+    protected Product $product;
 
-    protected $user;
+    protected User $user;
 
     public function __construct()
     {
-        $sub = new Subscription();
+        $sub = new Subscription;
         $this->sub = $sub;
 
-        $plan = new Plan();
+        $plan = new Plan;
         $this->plan = $plan;
 
-        $order = new Order();
+        $order = new Order;
         $this->order = $order;
 
-        $invoice = new Invoice();
+        $invoice = new Invoice;
         $this->invoice = $invoice;
 
-        $item = new InvoiceItem();
+        $item = new InvoiceItem;
         $this->item = $item;
 
-        $product = new Product();
+        $product = new Product;
         $this->product = $product;
 
-        $user = new User();
+        $user = new User;
         $this->user = $user;
     }
 
-    //Renew From admin panel
-    public function renewBySubId($id, $planid, $payment_method, $cost, $code, $isAgentIncrease = true, $agents = null)
+    public function renew(int $id, Request $request): JsonResponse
+    {
+        $request->validate([
+            'plan' => ['required', 'integer'],
+            'payment_method' => ['required', 'string'],
+            'cost' => ['required', 'numeric'],
+        ]);
+
+        try {
+            $sub = Subscription::where('order_id', $id)->firstOrFail();
+
+            $this->renewBySubId(
+                $sub->id,
+                (int) $request->input('plan'),
+                $request->input('payment_method'),
+                (float) $request->input('cost'),
+                (string) $request->input('code', ''),
+            );
+
+            return successResponse(__('message.renewed_successfully'));
+        } catch (Exception $exception) {
+            return errorResponse([$exception->getMessage()]);
+        }
+    }
+
+    // Renew From admin panel
+    public function renewBySubId(int $id, int $planid, string $payment_method, float|int $cost, string $code, bool $isAgentIncrease = true, ?int $agents = null): Subscription|InvoiceItem
     {
         try {
+            /** @var Plan $plan */
             $plan = $this->plan->find($planid);
             $days = $plan->days;
+            /** @var Subscription $sub */
             $sub = $this->sub->find($id);
             $currency = userCurrencyAndPrice($sub->user_id, $plan)['currency'];
             if ($isAgentIncrease) {
-                $permissions = LicensePermissionsController::getPermissionsForProduct($sub->product_id);
-                $licenseExpiry = $this->getExpiryDate($permissions['generateLicenseExpiryDate'], $sub, $days);
-                $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $sub, $days);
-                $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $sub, $days);
-                $sub->ends_at = $licenseExpiry;
-                $sub->update_ends_at = $updatesExpiry;
-                $sub->support_ends_at = $supportExpiry;
-                $sub->save();
-            }
-
-            if (Order::where('id', $sub->order_id)->value('license_mode') == 'File') {
-                Order::where('id', $sub->order_id)->update(['is_downloadable' => 0]);
-            } else {
-                $licenseStatus = StatusSetting::pluck('license_status')->first();
-                if ($licenseStatus == 1 && $isAgentIncrease) {
-                    $this->editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry);
-                }
+                resolve(SubscriptionRenewalService::class)->extendDates($sub, $days); // @phpstan-ignore argument.type
             }
 
             $invoice = $this->invoiceBySubscriptionId($id, $planid, $cost, $currency, $agents);
@@ -98,312 +109,153 @@ class RenewController extends BaseRenewController
                 return $sub;
             }
 
-            return $invoice;
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+            return $invoice; // @phpstan-ignore return.type
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    //Renewal from ClienT Panel
-    public function successRenew($invoice, $isCloud = false)
+    // Renewal from ClienT Panel
+    public function successRenew(Invoice $invoice): void
     {
         try {
-            if (! $isCloud) {
-                $invoice->processing_fee = $invoice->processing_fee;
-                $invoice->status = 'success';
-                $invoice->save();
+            $invoice->status = 'success';
+            $invoice->save();
+
+            $orderId = OrderInvoiceRelation::where('invoice_id', $invoice->id)->value('order_id');
+
+            $newPlanId = InvoiceItem::where('invoice_id', $invoice->id)->value('plan_id');
+
+            $sub = Subscription::where('order_id', $orderId)->firstOrFail();
+
+            if ($newPlanId) {
+                $sub->plan_id = $newPlanId;
+                $sub->save();
             }
-            $orderid = \DB::table('order_invoice_relations')->where('invoice_id', $invoice->id)->value('order_id');
-            if (Session::has('plan_id')) {
-                Subscription::where('order_id', $orderid)->update(['plan_id' => Session::get('plan_id')]);
-            }
-            // $id = Session::get('subscription_id');
-            // $planid = Session::get('plan_id');
-            $id = Subscription::where('order_id', $orderid)->value('id');
-            $planid = Subscription::where('order_id', $orderid)->value('plan_id');
-            $plan = $this->plan->find($planid);
-            $days = $plan->days;
-            $sub = $this->sub->find($id);
-            $permissions = LicensePermissionsController::getPermissionsForProduct($sub->product_id);
-            $licenseExpiry = $this->getExpiryDate($permissions['generateLicenseExpiryDate'], $sub, $days);
-            $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $sub, $days);
-            $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $sub, $days);
-            $sub->ends_at = $licenseExpiry;
-            $sub->update_ends_at = $updatesExpiry;
-            $sub->support_ends_at = $supportExpiry;
-            $sub->save();
-            if (Order::where('id', $sub->order_id)->value('license_mode') == 'File') {
-                Order::where('id', $sub->order_id)->update(['is_downloadable' => 0]);
-            } else {
-                $licenseStatus = StatusSetting::pluck('license_status')->first();
-                if ($licenseStatus == 1) {
-                    $this->editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry);
-                }
-            }
-            $this->removeSession();
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+
+            $days = Plan::findOrFail($sub->plan_id)->days;
+
+            resolve(SubscriptionRenewalService::class)->extendDates($sub, (int) $days);
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry)
-    {
-        $productId = $sub->product_id;
-        $domain = $sub->order->domain;
-        $orderNo = $sub->order->number;
-        $licenseCode = $sub->order->serial_key;
-        $expiryDate = $updatesExpiry ? Carbon::parse($updatesExpiry)->format('Y-m-d') : '';
-        $licenseExpiry = $licenseExpiry ? Carbon::parse($licenseExpiry)->format('Y-m-d') : '';
-        $supportExpiry = $supportExpiry ? Carbon::parse($supportExpiry)->format('Y-m-d') : '';
-        $noOfAllowedInstallation = '';
-        $getInstallPreference = '';
-        $cont = new \App\Http\Controllers\License\LicenseController();
-        $noOfAllowedInstallation = $cont->getNoOfAllowedInstallation($licenseCode, $productId);
-        $getInstallPreference = $cont->getInstallPreference($licenseCode, $productId);
-        $updateLicensedDomain = $cont->updateExpirationDate($licenseCode, $expiryDate, $productId, $domain, $orderNo, $licenseExpiry, $supportExpiry, $noOfAllowedInstallation, $getInstallPreference);
-    }
+    // Tuesday, June 13, 2017 08:06 AM
 
-    //Tuesday, June 13, 2017 08:06 AM
-
-    public function getProductById($id)
+    public function getProductById(int $id): ?Product
     {
         try {
             $product = $this->product->where('id', $id)->first();
             if ($product) {
                 return $product;
             }
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
+
+        return null;
     }
 
-    public function getUserById($id)
+    public function getUserById(int $id): ?User
     {
         try {
             $user = $this->user->where('id', $id)->first();
             if ($user) {
                 return $user;
             }
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
+
+        return null;
     }
 
-    public function createOrderInvoiceRelation($orderid, $invoiceid)
+    public function createOrderInvoiceRelation(int $orderid, int $invoiceid): void
     {
         try {
-            $relation = new \App\Model\Order\OrderInvoiceRelation();
+            $relation = new OrderInvoiceRelation;
             $relation->create([
                 'order_id' => $orderid,
                 'invoice_id' => $invoiceid,
             ]);
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function getPriceByProductId($productid, $userid)
+    public function getPriceByProductId(int $productid, int $userid): float|int
     {
         try {
             $product = $this->getProductById($productid);
-            if (! $product) {
+            if (! $product instanceof Product) {
                 throw new Exception(__('message.product_removed_database'));
             }
-            $currency = $this->getUserCurrencyById($userid);
+
+            $currency = $this->getUserCurrencyById($userid); // @phpstan-ignore method.notFound
             $price = $product->price()->where('currency', $currency)->first();
             if (! $price) {
                 throw new Exception(__('message.price_removed_database'));
             }
+
             $cost = $price->sales_price;
             if (! $cost) {
-                $cost = $price->regular_price;
+                return $price->regular_price; // @phpstan-ignore property.notFound
             }
 
-            return $cost;
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+            return (float) $cost;
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function tax($product, $cost, $user)
+    public function renewByClient(int $id, Request $request): JsonResponse
     {
         try {
-            $controller = new \App\Http\Controllers\Order\InvoiceController();
-            $tax = $this->calculateTax($product->id, $user->state, $user->country);
-            $tax_name = $tax->getName();
-            $tax_rate = $tax->getValue();
+            $request->validate(
+                ['plan' => ['required']],
+                ['plan.required' => __('validation.plan_renewal.plan_required')]
+            );
 
-            $grand_total = $controller->calculateTotal($tax_rate, $cost);
+            $planId = (int) $request->input('plan');
+            $sub = Subscription::findOrFail($id);
+            $plan = Plan::findOrFail($planId);
 
-            return rounding($grand_total);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
-        }
-    }
-
-    /*
-        Renew From Admin Panel
-     */
-    public function renew($id, Request $request)
-    {
-        $this->validate($request, [
-            'plan' => 'required',
-            'payment_method' => 'required',
-            'cost' => 'required',
-            'code' => 'exists:promotions,code',
-        ],
-            [
-                'plan.required' => __('validation.plan_renewal.plan_required'),
-                'payment_method.required' => __('validation.plan_renewal.payment_method_required'),
-                'cost.required' => __('validation.plan_renewal.cost_required'),
-                'code.exists' => __('validation.plan_renewal.code_not_valid'),
-            ]);
-
-        try {
-            $agents = null;
-            $planid = $request->input('plan');
-            $payment_method = $request->input('payment_method');
-            $code = $request->input('code');
-            $cost = $request->input('cost');
-            $sub = Subscription::find($id);
-            $order_id = $sub->order_id;
-            if ($request->has('agents')) {
-                $agents = $request->input('agents');
-                $installation_path = InstallationDetail::where('order_id', $order_id)->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
-                if (empty($installation_path)) {
-                    return response(['status' => false, 'message' => trans('message.no_installation_found')]);
-                }
-                if ($this->checktheAgent($agents, $installation_path)) {
-                    return response(['status' => false, 'message' => trans('message.agent_reduce')]);
-                }
-                $license = Order::where('id', $order_id)->value('serial_key');
-                (new CloudExtraActivities(new Client, new FaveoCloud()))->doTheAgentAltering($agents, $license, $order_id, $installation_path, $sub->product_id);
-            }
-            $renew = $this->renewBySubId($id, $planid, $payment_method, $cost, $code = '', true, $agents);
-
-            Subscription::where('order_id', $order_id)->update(['plan_id' => $planid]);
-
-            if ($renew) {
-                return redirect()->back()->with('success', __('message.renewed_successfully'));
+            $existingUnpaidInvoice = $this->checkExistingUnpaidInvoice($sub, $planId);
+            if ($existingUnpaidInvoice instanceof InvoiceItem) {
+                return successResponse(trans('message.existings_invoice'), ['invoice_id' => $existingUnpaidInvoice->invoice_id]);
             }
 
-            return redirect()->back()->with('fails', __('message.cannot_process'));
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * Show the Renew Page from by clicking onRenew in All Orders (Admin Panel).
-     *
-     * @param  int  $id  Subscription id for the order
-     */
-    public function renewForm($id, $agents = null)
-    {
-        try {
-            $sub = $this->sub->find($id);
-            $userid = $sub->user_id;
-            if (User::onlyTrashed()->find($userid)) {//If User is soft deleted for this order
-                throw new \Exception(__('message.user_order_suspended'));
-            }
-            $productid = $sub->product_id;
-            $plans = $this->plan->pluck('name', 'id')->toArray();
-
-            return view('themes.default1.renew.renew', compact('id', 'productid', 'plans', 'userid', 'agents'));
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function renewByClient($id, Request $request)
-    {
-        $subscription = Subscription::find($id);
-        $userId = $subscription->user_id;
-        $existingUnpaidInvoice = $this->checkExistingUnpaidInvoice($subscription, $request->input('plan'));
-        if ($existingUnpaidInvoice) {
-            return redirect('my-invoice/'.$existingUnpaidInvoice->invoice_id.'#invoice-section')
-                ->with('warning', trans('message.existings_invoice'));
-        }
-
-        $this->validate($request, [
-            'plan' => 'required',
-            'code' => 'exists:promotions,code',
-        ],
-            [
-                'plan.required' => __('validation.plan_renewal.plan_required'),
-                'code.exists' => __('validation.plan_renewal.code_not_valid'),
-            ]);
-
-        try {
-            $planId = $request->input('plan');
-            $userId = $request->input('user');
-            $code = $request->input('code');
-            $agentsInput = $request->input('agents');
-
-            $plan = Plan::find($planId);
-            $planDetails = userCurrencyAndPrice($userId, $plan);
-
-            $cost = preg_replace('/[^0-9]/', '', $planDetails['plan']->renew_price);
+            /** @var User $authUser */
+            $authUser = Auth::user();
+            $planDetails = userCurrencyAndPrice($authUser->id, $plan);
+            $price = $planDetails['plan']->renew_price;
             $currency = $planDetails['currency'];
-            $noOfAgentsPerPlan = $planDetails['plan']->no_of_agents;
+            $noOfAgentsPerPlan = (int) $planDetails['plan']->no_of_agents;
 
-            $sub = Subscription::find($id);
-            $orderId = $sub->order_id;
+            $agents = InvoiceItem::whereHas('invoice', fn (Builder $q) => $q->whereHas('orders', fn (Builder $q) => $q->where('orders.id', $sub->order_id)) // @phpstan-ignore argument.templateType
+            )
+                ->orderByDesc('id')
+                ->value('agents');
 
-            // Get old agent count from serial key
-            $serialKey = Order::where('id', $orderId)->value('serial_key');
-            $oldAgents = intval(substr($serialKey, 12));
+            $cost = ($agents > 0 && $noOfAgentsPerPlan > 0)
+                ? ($price / $noOfAgentsPerPlan) * (int) $agents
+                : $price;
 
-            // If agents are not provided
-            $agents = null;
+            $items = $this->invoiceBySubscriptionId($id, $planId, $cost, $currency, $agents ?: null);
+            $invoiceid = $items->invoice_id; // @phpstan-ignore property.notFound
 
-            // Handle custom agent input
-            if ($agentsInput !== null) {
-                $agents = (int) $agentsInput;
-
-                // Check agent modification restrictions
-                $installationPath = InstallationDetail::where('order_id', $orderId)
-                    ->where('installation_path', '!=', cloudCentralDomain())
-                    ->latest()
-                    ->value('installation_path');
-
-                if ($oldAgents != $agents) {
-                    if (empty($installationPath)) {
-                        return redirect()->back()->with('fails', trans('message.without_installation_found'));
-                    }
-
-                    if ($this->checktheAgent($agents, $installationPath)) {
-                        return redirect()->back()->with('fails', trans('message.agent_reduce'));
-                    }
-                }
-            } else {
-                $product = Product::find($plan->product);
-
-                if ($product && $product->show_agent) {
-                    $agents = $oldAgents;
-                }
-            }
-
-            // If agent count is available, adjust cost accordingly
-            if (isset($agents) && $noOfAgentsPerPlan > 0) {
-                $cost = ($cost / $noOfAgentsPerPlan) * $agents;
-            }
-
-            $items = $this->invoiceBySubscriptionId($id, $planId, $cost, $currency, $agents);
-            $invoiceid = $items->invoice_id;
-            $this->setSession($id, $planId);
-
-            return redirect('paynow/'.$invoiceid);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+            return successResponse('', ['invoice_id' => $invoiceid]);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    private function checkExistingUnpaidInvoice($subscription, $planId)
+    private function checkExistingUnpaidInvoice(Subscription $subscription, int $planId): ?InvoiceItem
     {
         $invoice_id = OrderInvoiceRelation::where('order_id', $subscription->order_id)->latest()->value('invoice_id');
 
-        $latestInvoiceItem = InvoiceItem::whereHas('invoice', function ($query) use ($invoice_id, $planId) {
+        return InvoiceItem::whereHas('invoice', function (Builder $query) use ($invoice_id, $planId): void {
             $query->where('invoice_id', $invoice_id)
                 ->where('is_renewed', 1)
                 ->where('status', 'pending')
@@ -411,81 +263,47 @@ class RenewController extends BaseRenewController
         })
             ->latest('created_at')
             ->first();
-
-        return $latestInvoiceItem;
     }
 
-    public function setSession($sub_id, $planid)
+    public function setSession(int $sub_id, int $planid): void
     {
         Session::put('subscription_id', $sub_id);
         Session::put('plan_id', $planid);
     }
 
-    public function removeSession()
-    {
-        Session::forget('subscription_id');
-        Session::forget('plan_id');
-        Session::forget('invoiceid');
-    }
-
-    public function checkRenew($flag = 1)
-    {
-        $res = false;
-        if (Session::has('subscription_id') && Session::has('plan_id') && $flag) {
-            $res = true;
-        }
-
-        return $res;
-    }
-
-    //Update License Expiry Date
-    public function getExpiryDate($permissions, $sub, int $days)
+    // Update License Expiry Date
+    public function getExpiryDate(mixed $permissions, Subscription $sub, int $days): string|Carbon
     {
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
-            $date = \Carbon\Carbon::parse($sub->ends_at);
+            $date = Date::parse($sub->ends_at);
             $expiry_date = $date->addDays($days);
         }
 
         return $expiry_date;
     }
 
-    //Update Updates Expiry Date
-    public function getUpdatesExpiryDate($permissions, $sub, int $days)
+    // Update Updates Expiry Date
+    public function getUpdatesExpiryDate(mixed $permissions, Subscription $sub, int $days): string|Carbon
     {
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
-            $date = \Carbon\Carbon::parse($sub->update_ends_at);
+            $date = Date::parse($sub->update_ends_at);
             $expiry_date = $date->addDays($days);
         }
 
         return $expiry_date;
     }
 
-    //Update Support Expiry Date
-    public function getSupportExpiryDate($permissions, $sub, int $days)
+    // Update Support Expiry Date
+    public function getSupportExpiryDate(mixed $permissions, Subscription $sub, int $days): string|Carbon
     {
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
-            $date = \Carbon\Carbon::parse($sub->support_ends_at);
+            $date = Date::parse($sub->support_ends_at);
             $expiry_date = $date->addDays($days);
         }
 
         return $expiry_date;
-    }
-
-    private function checktheAgent($numberOfAgents, $domain)
-    {
-        $client = new Client([]);
-        $data = ['number_of_agents' => $numberOfAgents];
-        $response = $client->request(
-            'POST',
-            'https://'.$domain.'/api/agent-check', ['form_params' => $data]
-        );
-        $response = explode('{', (string) $response->getBody());
-
-        $response = array_first($response);
-
-        return json_decode($response);
     }
 }

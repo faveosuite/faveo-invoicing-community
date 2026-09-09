@@ -5,6 +5,9 @@ namespace App\Console\Commands;
 use App\Console\LoggableCommand;
 use App\Http\Controllers\BillingInstaller\BillingDependencyController;
 use App\Http\Controllers\BillingInstaller\InstallerController;
+use Cache;
+use Exception;
+use Illuminate\Support\Str;
 
 class Install extends LoggableCommand
 {
@@ -42,20 +45,18 @@ class Install extends LoggableCommand
      *
      * @return void
      */
-    protected $install;
+    protected InstallerController $install;
 
     public function __construct()
     {
-        $this->install = new InstallerController();
+        $this->install = new InstallerController;
         parent::__construct();
     }
 
     /**
      * Execute the console command.
-     *
-     * @return void
      */
-    public function handleAndLog()
+    public function handleAndLog(): void
     {
         try {
             $this->displayArtLogo();
@@ -66,58 +67,55 @@ class Install extends LoggableCommand
                 return;
             }
 
-            //Form application URL
+            // Form application URL
             $this->handleAppUrl();
 
             // Check if the URL is valid
-            if (! $this->appReq($this->appUrl)) {
+            if (! $this->appReq($this->appUrl)) { // @phpstan-ignore property.notFound
                 $this->info('Agora cannot be installed on your server. Please configure your server to meet the requirements and try again.');
 
                 return;
             }
 
-            //Check database credentials
+            // Check database credentials
             $this->collectDatabaseCredentials();
 
-            //Check ssl options
+            // Check ssl options
             $this->configureSslOptions();
 
-            \Cache::put('search-driver', 'database');
+            Cache::put('search-driver', 'database');
 
             // Create .env
             $this->install->env(
-                $this->default,
-                $this->host,
-                $this->port,
-                $this->dbname,
-                $this->dbuser,
-                $this->dbpass,
-                $this->appUrl,
-                $this->sslKey,
-                $this->sslCert,
-                $this->sslCa,
-                $this->sslVerify
+                $this->default, // @phpstan-ignore property.notFound
+                $this->host, // @phpstan-ignore property.notFound
+                $this->port, // @phpstan-ignore property.notFound
+                $this->dbname, // @phpstan-ignore property.notFound
+                $this->dbuser, // @phpstan-ignore property.notFound
+                $this->dbpass, // @phpstan-ignore property.notFound
+                $this->appUrl, // @phpstan-ignore property.notFound
+                $this->sslKey, // @phpstan-ignore property.notFound
+                $this->sslCert, // @phpstan-ignore property.notFound
+                $this->sslCa, // @phpstan-ignore property.notFound
+                $this->sslVerify // @phpstan-ignore property.notFound
             );
 
             $this->info('.env file has been created');
             $this->info('');
             $this->call('preinstall:check');
             $this->maybeInstallDb();
-        } catch (\Exception $ex) {
-            $this->error($ex->getMessage());
+        } catch (Exception $exception) {
+            $this->error($exception->getMessage());
         }
     }
 
     /**
      * Removes trailing slash from the url.
-     *
-     * @param  string  $url
-     * @return string
      */
     public function formatAppUrl(string $url): string
     {
-        if (str_finish($url, '/')) {
-            $url = rtrim($url, '/ ');
+        if (Str::finish($url, '/')) {
+            return rtrim($url, '/ ');
         }
 
         return $url;
@@ -131,7 +129,7 @@ class Install extends LoggableCommand
     public function appEnv()
     {
         // Load extension details from billing-dependencies.json
-        $dependencies = json_decode(file_get_contents(storage_path('billing-dependencies.json')), true);
+        $dependencies = json_decode((string) file_get_contents(storage_path('billing-dependencies.json')), associative: true);
         $requiredExtensions = $dependencies['extensions']['required'];
         $minPhpVersion = $dependencies['min_php_version'];
 
@@ -165,18 +163,18 @@ class Install extends LoggableCommand
     /**
      * it checks the url whether the ssl certificate is installed or not.
      *
-     * @param  $appUrl
      * @return bool
      */
-    public function appReq($appUrl)
+    public function appReq(mixed $appUrl)
     {
         $canInstall = true;
         $arrayOfRequisites = [];
         $errorCount = 0;
-        $connectionStatus = (new BillingDependencyController('probe'))->checkSSLCertificateOnDomain($arrayOfRequisites, $errorCount, $appUrl)[0]['connection'];
+        $connectionStatus = new BillingDependencyController('probe')->checkSSLCertificateOnDomain($arrayOfRequisites, $errorCount, $appUrl)[0]['connection'];
         if ($connectionStatus != 'Valid SSL certificate found, application can be served securely over HTTPS') {
             $canInstall = false;
         }
+
         $this->table(['Requisites', 'Status'], [['requisite' => 'ssl_certificate', 'status' => $connectionStatus]]);
 
         return $canInstall;
@@ -184,10 +182,8 @@ class Install extends LoggableCommand
 
     /**
      * Display Faveo's ASCII art logo in CLI.
-     *
-     * @return void
      */
-    public function displayArtLogo()
+    public function displayArtLogo(): void
     {
         $this->line("
                                  _____                 _      _             
@@ -204,65 +200,51 @@ class Install extends LoggableCommand
     /**
      * Handle the application URL input.
      */
-    public function handleAppUrl()
+    public function handleAppUrl(): void
     {
         $url = $this->option('appurl') ?: $this->ask('Enter your app URL (with only https)');
-        $this->appUrl = $this->formatAppUrl($url);
+        $this->appUrl = $this->formatAppUrl($url); // @phpstan-ignore property.notFound
     }
 
     /**
      * Collect database credentials from user input or command options.
      */
-    public function collectDatabaseCredentials()
+    public function collectDatabaseCredentials(): void
     {
         $allowedEngines = ['mysql'];
-        $this->default = in_array($this->option('sqlengine'), $allowedEngines)
+        $this->default = in_array($this->option('sqlengine'), $allowedEngines) // @phpstan-ignore property.notFound
             ? $this->option('sqlengine')
             : $this->choice('Which SQL engine would you like to use?', $allowedEngines, 0);
-        $this->host = $this->option('sqlhost') ?: $this->ask('Enter your SQL host');
-        $this->dbname = $this->option('dbname') ?: $this->ask('Enter your database name');
-        $this->dbuser = $this->option('dbuser') ?: $this->ask('Enter your database username');
-        $this->dbpass = $this->option('dbpass') ?: $this->ask('Enter your database password');
-        $this->port = $this->option('sqlport') !== null
-            ? $this->option('sqlport')
-            : $this->ask('Enter your SQL port (leave blank if none)', null);
+        $this->host = $this->option('sqlhost') ?: $this->ask('Enter your SQL host'); // @phpstan-ignore property.notFound
+        $this->dbname = $this->option('dbname') ?: $this->ask('Enter your database name'); // @phpstan-ignore property.notFound
+        $this->dbuser = $this->option('dbuser') ?: $this->ask('Enter your database username'); // @phpstan-ignore property.notFound
+        $this->dbpass = $this->option('dbpass') ?: $this->ask('Enter your database password'); // @phpstan-ignore property.notFound
+        $this->port = $this->option('sqlport') ?? $this->ask('Enter your SQL port (leave blank if none)'); // @phpstan-ignore property.notFound
     }
 
     /**
      *  Configure SSL options for the database connection.
-     *
-     * @return void
      */
-    public function configureSslOptions()
+    public function configureSslOptions(): void
     {
-        $this->sslKey = $this->sslCert = $this->sslCa = null;
-        $this->sslVerify = false;
-
-        //If want ssl connection enabled then uncomment below code
-
-//        $securecon = filter_var($this->option('securecon') ?? $this->confirm('Does your database allows secure connection? If yes then make sure you have all required files available on the server as pem bundle. (yes/no)'), FILTER_VALIDATE_BOOLEAN);
-
-//        if ($securecon) {
-//            $this->sslKey = $this->option('sslkey') ?: $this->ask('Full path to SSL key file in PEM format (Leave blank if not available)');
-//            $this->sslCert = $this->option('sslcert') ?: $this->ask('Full path to SSL certificate file in PEM format (Leave blank if not available)');
-//            $this->sslCa = $this->option('sslca') ?: $this->ask('Full path to Certificate Authority file in PEM format (Leave blank if not available)');
-//            $this->sslVerify = filter_var($this->option('sslverify') ?? $this->confirm('Verify SSL Peer\'s Certificate?'), FILTER_VALIDATE_BOOLEAN);
-//        }
+        $this->sslKey = null; // @phpstan-ignore property.notFound
+        $this->sslCert = null; // @phpstan-ignore property.notFound
+        $this->sslCa = null; // @phpstan-ignore property.notFound
+        $this->sslVerify = false; // @phpstan-ignore property.notFound
     }
 
     /**
      *  Maybe install the database and run migrations.
-     *
-     * @return void
      */
-    public function maybeInstallDb()
+    public function maybeInstallDb(): void
     {
         $options = [
             'migrate', 'dummy', 'env',
         ];
 
-        if (array_filter($options, fn ($opt) => $this->option($opt))) {
-            $migrateOption = trim((string) $this->option('migrate'));
+        if (array_filter($options, fn ($o): bool => (bool) $this->option($o))) {
+            $migrateOpt = $this->option('migrate');
+            $migrateOption = trim(is_string($migrateOpt) ? $migrateOpt : '');
 
             $migrate = filter_var($migrateOption === '' ? $this->confirm('Do you want to migrate tables now?') : $migrateOption, FILTER_VALIDATE_BOOLEAN);
             $allowedEnvs = ['production', 'development', 'testing'];

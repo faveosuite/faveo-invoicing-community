@@ -11,14 +11,26 @@
         </testsuite>
         <testsuite name="modules">
             <directory>./app/BillingLog</directory>
+            <directory>./app/License</directory>
+        </testsuite>
+        <testsuite name="Zoho">
+            <directory>./app/Plugins/Zoho/Tests</directory>
         </testsuite>
     </testsuites>
     <coverage>
+        <report>
+            <text outputFile="php://stdout"/>
+        </report>
     </coverage>
     <source>
         <include>
             <directory suffix=".php">./app/</directory>
         </include>
+        <exclude>
+            <directory>./app/BillingLog</directory>
+            <directory>./app/License</directory>
+            <directory>./app/Plugins</directory>
+        </exclude>
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>

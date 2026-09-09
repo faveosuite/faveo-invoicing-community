@@ -5,6 +5,8 @@ namespace App\Http\Middleware;
 use App\Http\Controllers\Auth\LoginController;
 use Cache;
 use Closure;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use RateLimiter;
 use Session;
@@ -90,7 +92,7 @@ class BlockFailedVerifications
      * @param  string  ...$onlyTypes  Optional — if provided, only these types are checked.
      *                                Used by verify OTP routes to skip OTP send limits.
      */
-    public function handle(Request $request, Closure $next, string $context = 'verify', string ...$onlyTypes)
+    public function handle(Request $request, Closure $next, string $context = 'verify', string ...$onlyTypes): mixed
     {
         $identifier = $this->getIdentifier($context);
 
@@ -100,7 +102,7 @@ class BlockFailedVerifications
 
         $limits = self::CONFIGS[$context]['limits'];
 
-        if (! empty($onlyTypes)) {
+        if ($onlyTypes !== []) {
             $limits = array_intersect_key($limits, array_flip($onlyTypes));
         }
 
@@ -130,9 +132,9 @@ class BlockFailedVerifications
      * Checks if the given rate limit type has been exceeded.
      * If yes, applies a progressive penalty (if not already applied) and returns a 429 response.
      */
-    private function enforce(string $context, string $type, string $identifier, int $maxAttempts, Request $request)
+    private function enforce(string $context, string $type, string $identifier, int $maxAttempts, Request $request): mixed
     {
-        $key = "{$type}:{$identifier}";
+        $key = sprintf('%s:%s', $type, $identifier);
 
         if (! RateLimiter::tooManyAttempts($key, $maxAttempts)) {
             return null;
@@ -160,15 +162,15 @@ class BlockFailedVerifications
      */
     private function applyProgressivePenalty(string $context, string $type, string $identifier, string $key, int $maxAttempts): void
     {
-        $penaltyKey = "penalty_level:{$context}:{$identifier}";
-        $appliedKey = "penalty_applied:{$context}:{$type}:{$identifier}";
+        $penaltyKey = sprintf('penalty_level:%s:%s', $context, $identifier);
+        $appliedKey = sprintf('penalty_applied:%s:%s:%s', $context, $type, $identifier);
 
         if (Cache::get($appliedKey, false)) {
             return;
         }
 
         $level = min(Cache::get($penaltyKey, 0) + 1, count(self::PENALTIES));
-        $minutes = self::PENALTIES[$level];
+        $minutes = self::PENALTIES[$level]; // @phpstan-ignore offsetAccess.invalidOffset
 
         Cache::put($penaltyKey, $level, now()->addHours(24));
         Cache::put($appliedKey, true, now()->addMinutes($minutes));
@@ -183,7 +185,7 @@ class BlockFailedVerifications
      * Returns a 429 JSON error for AJAX requests, or redirects to login with
      * an error flash message for standard page requests.
      */
-    private function respond(Request $request, string $type, string $waitTime)
+    private function respond(Request $request, string $type, string $waitTime): JsonResponse|RedirectResponse
     {
         $message = __($this->getMessageKey($type), ['time' => $waitTime]);
 

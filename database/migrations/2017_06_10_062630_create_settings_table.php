@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('settings')) {
-            Schema::create('settings', function (Blueprint $table) {
+            Schema::create('settings', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('company')->default('Ladybird web solution');
                 $table->string('website')->default('http://www.ladybirdweb.com/');
@@ -44,10 +42,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('settings');
     }

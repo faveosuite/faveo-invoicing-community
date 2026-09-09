@@ -2,18 +2,20 @@
 
 namespace App\Http\Requests;
 
+use App\Traits\RequestJsonValidation;
 use App\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Hash;
+use Override;
 
 class verifyOtp extends FormRequest
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -21,20 +23,18 @@ class verifyOtp extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         $email = $this->request->get('newemail');
         $pass = User::where('email', $email)->value('password');
 
         return [
-            'verify_email' => 'sometimes|required|verify_email|email',
-            'verify_email' => 'sometimes|required||verify_country_code|numeric',
-            'verify_email' => 'sometimes|required|verify_number|numeric',
+            'verify_email' => ['sometimes', 'required', 'verify_number', 'numeric'],
             'password' => [
 
-                function ($attribute, $value, $fail) use ($pass) {
+                function ($_attribute, $value, $fail) use ($pass) { // NOSONAR
                     if (! Hash::check($value, $pass)) {
                         return $fail(__('validation.password_otp.invalid'));
                     }
@@ -43,6 +43,7 @@ class verifyOtp extends FormRequest
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

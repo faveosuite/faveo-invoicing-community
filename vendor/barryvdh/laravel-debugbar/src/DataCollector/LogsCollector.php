@@ -1,9 +1,10 @@
 <?php
 
-namespace Barryvdh\Debugbar\DataCollector;
+declare(strict_types=1);
+
+namespace Fruitcake\LaravelDebugbar\DataCollector;
 
 use DebugBar\DataCollector\MessagesCollector;
-use Illuminate\Support\Arr;
 use Psr\Log\LogLevel;
 use ReflectionClass;
 
@@ -11,29 +12,38 @@ class LogsCollector extends MessagesCollector
 {
     protected $lines = 124;
 
-    public function __construct($path = null, $name = 'logs')
+    protected array $paths = [];
+
+    public function __construct(string|array|null $path = null, string $name = 'logs')
     {
         parent::__construct($name);
 
-        $paths = Arr::wrap($path ?: [
-            storage_path('logs/laravel.log'),
-            storage_path('logs/laravel-' . date('Y-m-d') . '.log'), // for daily driver
-        ]);
-
-        foreach ($paths as $path) {
-            $this->getStorageLogs($path);
+        if (is_array($path) && count($path) > 0) {
+            $this->paths = $path;
+        } elseif (is_string($path)) {
+            $this->paths = [$path];
+        } else {
+            $this->paths = [
+                storage_path('logs/laravel.log'),
+                storage_path('logs/laravel-' . date('Y-m-d') . '.log'), // for daily driver
+            ];
         }
+    }
+
+    public function collect(): array
+    {
+        foreach ($this->paths as $logPath) {
+            $this->getStorageLogs($logPath);
+        }
+
+        return parent::collect();
     }
 
     /**
      * get logs apache in app/storage/logs
      * only 24 last of current day
-     *
-     * @param string $path
-     *
-     * @return array
      */
-    public function getStorageLogs($path)
+    public function getStorageLogs(string $path): void
     {
         if (!file_exists($path)) {
             return;
@@ -57,48 +67,45 @@ class LogsCollector extends MessagesCollector
     /**
      * By Ain Tohvri (ain)
      * http://tekkie.flashbit.net/php/tail-functionality-in-php
-     * @param string $file
-     * @param int $lines
-     * @return array
      */
-    protected function tailFile($file, $lines)
+    protected function tailFile(string $file, int $lines): array
     {
         $handle = fopen($file, "r");
         $linecounter = $lines;
         $pos = -2;
         $beginning = false;
         $text = [];
-        while ($linecounter > 0) {
-            $t = " ";
-            while ($t != "\n") {
-                if (fseek($handle, $pos, SEEK_END) == -1) {
-                    $beginning = true;
+        try {
+            while ($linecounter > 0) {
+                $t = " ";
+                while ($t !== "\n") {
+                    if (fseek($handle, $pos, SEEK_END) === -1) {
+                        $beginning = true;
+                        break;
+                    }
+                    $t = fgetc($handle);
+                    $pos--;
+                }
+                $linecounter--;
+                if ($beginning) {
+                    rewind($handle);
+                }
+                $text[$lines - $linecounter - 1] = fgets($handle);
+                if ($beginning) {
                     break;
                 }
-                $t = fgetc($handle);
-                $pos--;
             }
-            $linecounter--;
-            if ($beginning) {
-                rewind($handle);
-            }
-            $text[$lines - $linecounter - 1] = fgets($handle);
-            if ($beginning) {
-                break;
-            }
+        } finally {
+            fclose($handle);
         }
-        fclose($handle);
         return array_reverse($text);
     }
 
     /**
      * Search a string for log entries
      * Based on https://github.com/mikemand/logviewer/blob/master/src/Kmd/Logviewer/Logviewer.php by mikemand
-     *
-     * @param $file
-     * @return array
      */
-    public function getLogs($file)
+    public function getLogs(string $file): array
     {
         $pattern = "/\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\](?:(?!\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\])[\s\S])*/";
 
@@ -112,7 +119,7 @@ class LogsCollector extends MessagesCollector
         foreach ($headings as $h) {
             for ($i = 0, $j = count($h); $i < $j; $i++) {
                 foreach ($log_levels as $ll) {
-                    if (strpos(strtolower($h[$i]), strtolower('.' . $ll))) {
+                    if (str_contains(strtolower($h[$i]), strtolower('.' . $ll))) {
                         $log[] = ['level' => $ll, 'header' => $h[$i], 'stack' => $log_data[$i] ?? ''];
                     }
                 }
@@ -122,10 +129,7 @@ class LogsCollector extends MessagesCollector
         return $log;
     }
 
-    /**
-     * @return array
-     */
-    public function getMessages()
+    public function getMessages(): array
     {
         return array_reverse(parent::getMessages());
     }
@@ -133,11 +137,8 @@ class LogsCollector extends MessagesCollector
     /**
      * Get the log levels from psr/log.
      * Based on https://github.com/mikemand/logviewer/blob/master/src/Kmd/Logviewer/Logviewer.php by mikemand
-     *
-     * @access public
-     * @return array
      */
-    public function getLevels()
+    public function getLevels(): array
     {
         $class = new ReflectionClass(new LogLevel());
         return $class->getConstants();

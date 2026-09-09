@@ -23,11 +23,13 @@ use PhpParser\NodeVisitorAbstract;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final class IgnoredLinesFindingVisitor extends NodeVisitorAbstract
 {
     /**
-     * @var array<int>
+     * @var array<int, true>
      */
     private array $ignoredLines = [];
     private readonly bool $useAnnotationsForIgnoringCode;
@@ -55,33 +57,49 @@ final class IgnoredLinesFindingVisitor extends NodeVisitorAbstract
             return null;
         }
 
+        if ($node instanceof Interface_) {
+            for ($line = $node->getStartLine(); $line <= $node->getEndLine(); $line++) {
+                $this->ignoredLines[$line] = true;
+            }
+
+            return null;
+        }
+
         if ($node instanceof Class_ ||
             $node instanceof Trait_ ||
-            $node instanceof Interface_ ||
             $node instanceof Attribute) {
-            $this->ignoredLines[] = $node->getStartLine();
+            $this->ignoredLines[$node->getStartLine()] = true;
 
             assert($node->name !== null);
 
             // Workaround for https://github.com/nikic/PHP-Parser/issues/886
-            $this->ignoredLines[] = $node->name->getStartLine();
+            $this->ignoredLines[$node->name->getStartLine()] = true;
         }
 
         if (!$this->useAnnotationsForIgnoringCode) {
             return null;
         }
 
-        if ($node instanceof Interface_) {
-            return null;
-        }
-
         if ($node instanceof Attribute &&
             $node->name->toString() === 'PHPUnit\Framework\Attributes\CodeCoverageIgnore') {
             $attributeGroup = $node->getAttribute('parent');
+
+            if (!$attributeGroup instanceof Node) {
+                // @codeCoverageIgnoreStart
+                return null;
+                // @codeCoverageIgnoreEnd
+            }
+
             $attributedNode = $attributeGroup->getAttribute('parent');
 
+            if (!$attributedNode instanceof Node) {
+                // @codeCoverageIgnoreStart
+                return null;
+                // @codeCoverageIgnoreEnd
+            }
+
             for ($line = $attributedNode->getStartLine(); $line <= $attributedNode->getEndLine(); $line++) {
-                $this->ignoredLines[] = $line;
+                $this->ignoredLines[$line] = true;
             }
 
             return null;
@@ -93,7 +111,7 @@ final class IgnoredLinesFindingVisitor extends NodeVisitorAbstract
     }
 
     /**
-     * @return array<int>
+     * @return array<int, true>
      */
     public function ignoredLines(): array
     {
@@ -108,16 +126,17 @@ final class IgnoredLinesFindingVisitor extends NodeVisitorAbstract
             return;
         }
 
-        if (str_contains($docComment->getText(), '@codeCoverageIgnore')) {
-            for ($line = $node->getStartLine(); $line <= $node->getEndLine(); $line++) {
-                $this->ignoredLines[] = $line;
-            }
+        $text = $docComment->getText();
+
+        $ignore = str_contains($text, '@codeCoverageIgnore') ||
+                  ($this->ignoreDeprecated && str_contains($text, '@deprecated'));
+
+        if (!$ignore) {
+            return;
         }
 
-        if ($this->ignoreDeprecated && str_contains($docComment->getText(), '@deprecated')) {
-            for ($line = $node->getStartLine(); $line <= $node->getEndLine(); $line++) {
-                $this->ignoredLines[] = $line;
-            }
+        for ($line = $node->getStartLine(); $line <= $node->getEndLine(); $line++) {
+            $this->ignoredLines[$line] = true;
         }
     }
 }

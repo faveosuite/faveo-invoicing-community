@@ -16,6 +16,7 @@ Name | Type | Description | Notes
 **origin_id** | **string** | The optional ID to further distinguish the origin of the lead - e.g. Which API integration created this Lead. | [optional]
 **channel** | **int** | The ID of your Marketing channel this Lead was created from. Recognized Marketing channels can be configured in your &lt;a href&#x3D;\&quot;https://app.pipedrive.com/settings/fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;Company settings&lt;/a&gt;. | [optional]
 **channel_id** | **string** | The optional ID to further distinguish the Marketing channel. | [optional]
+**source_deal_id** | **int** | The ID of the deal if the lead was converted from a deal. | [optional]
 **is_archived** | **bool** | A flag indicating whether the lead is archived or not | [optional]
 **was_seen** | **bool** | A flag indicating whether the lead was seen by someone in the Pipedrive UI | [optional]
 **value** | [**\Pipedrive\versions\v1\Model\LeadValue**](LeadValue.md) |  | [optional]

@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('auto_renewals')) {
-            Schema::create('auto_renewals', function (Blueprint $table) {
+            Schema::create('auto_renewals', function (Blueprint $table): void {
                 $table->id();
                 $table->integer('user_id')->unsigned();
                 $table->foreign('user_id')->references('id')->on('users');
@@ -26,10 +24,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('auto_renewals');
     }

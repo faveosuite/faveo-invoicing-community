@@ -17,7 +17,6 @@ use function is_array;
 use function is_dir;
 use function is_file;
 use function is_writable;
-use function phpversion;
 use function sprintf;
 use function strlen;
 use function substr;
@@ -30,6 +29,7 @@ use SebastianBergmann\CodeCoverage\Node\AbstractNode;
 use SebastianBergmann\CodeCoverage\Node\Directory as DirectoryNode;
 use SebastianBergmann\CodeCoverage\Node\File as FileNode;
 use SebastianBergmann\CodeCoverage\PathExistsButIsNotDirectoryException;
+use SebastianBergmann\CodeCoverage\Util\EnsuresUtf8;
 use SebastianBergmann\CodeCoverage\Util\Filesystem;
 use SebastianBergmann\CodeCoverage\Version;
 use SebastianBergmann\CodeCoverage\WriteOperationFailedException;
@@ -39,25 +39,32 @@ use XMLWriter;
 
 /**
  * @phpstan-import-type TestType from CodeCoverage
+ *
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final class Facade
 {
+    use EnsuresUtf8;
+
     public const string XML_NAMESPACE = 'https://schema.phpunit.de/coverage/1.0';
     private string $target;
     private Project $project;
-    private readonly string $phpUnitVersion;
     private readonly bool $includeSource;
 
-    public function __construct(string $version, bool $includeSource = true)
+    public function __construct(bool $includeSource = true)
     {
-        $this->phpUnitVersion = $version;
-        $this->includeSource  = $includeSource;
+        $this->includeSource = $includeSource;
     }
 
     /**
+     * @param non-empty-string                  $target
+     * @param array<non-empty-string, TestType> $tests
+     *
      * @throws XmlException
      */
-    public function process(CodeCoverage $coverage, string $target): void
+    public function process(string $target, DirectoryNode $report, array $tests, ?Runtime $runtime = null, ?DateTimeImmutable $buildDate = null, ?string $phpUnitVersion = null, ?string $coverageVersion = null, ?string $driverExtensionName = null, ?string $driverExtensionVersion = null): void
     {
         if (substr($target, -1, 1) !== DIRECTORY_SEPARATOR) {
             $target .= DIRECTORY_SEPARATOR;
@@ -66,44 +73,58 @@ final class Facade
         $this->target = $target;
         $this->initTargetDirectory($target);
 
-        $report = $coverage->getReport();
-
         $writer = new XMLWriter;
         $writer->openUri($this->targetFilePath('index'));
         $writer->setIndent(true);
         $writer->setIndentString('  ');
-        $this->project = new Project(
-            $writer,
-            $coverage->getReport()->name(),
+
+        $this->project = new Project($writer, $report->name());
+
+        $this->setBuildInformation(
+            $runtime,
+            $buildDate,
+            $phpUnitVersion,
+            $coverageVersion,
+            $driverExtensionName,
+            $driverExtensionVersion,
         );
 
-        $this->setBuildInformation($coverage);
-
         $this->project->startProject();
-        $this->processTests($coverage->getTests());
+        $this->processTests($tests);
         $this->processDirectory($report, $this->project);
         $this->project->finalize();
     }
 
-    private function setBuildInformation(CodeCoverage $coverage): void
+    private function setBuildInformation(?Runtime $runtime, ?DateTimeImmutable $buildDate, ?string $phpUnitVersion, ?string $coverageVersion, ?string $driverExtensionName, ?string $driverExtensionVersion): void
     {
-        if ($coverage->driverIsPcov()) {
-            $driverExtensionName    = 'pcov';
-            $driverExtensionVersion = phpversion('pcov');
-        } elseif ($coverage->driverIsXdebug()) {
-            $driverExtensionName    = 'xdebug';
-            $driverExtensionVersion = phpversion('xdebug');
-        } else {
-            // @codeCoverageIgnoreStart
-            $driverExtensionName    = 'unknown';
+        if ($runtime === null) {
+            return;
+        }
+
+        if ($buildDate === null) {
+            return;
+        }
+
+        if ($phpUnitVersion === null) {
+            return;
+        }
+
+        if ($coverageVersion === null) {
+            return;
+        }
+
+        if ($driverExtensionName === null) {
+            $driverExtensionName = 'unknown';
+        }
+
+        if ($driverExtensionVersion === null) {
             $driverExtensionVersion = 'unknown';
-            // @codeCoverageIgnoreEnd
         }
 
         $this->project->buildInformation(
-            new Runtime,
-            new DateTimeImmutable,
-            $this->phpUnitVersion,
+            $runtime,
+            $buildDate,
+            $phpUnitVersion,
             Version::id(),
             $driverExtensionName,
             $driverExtensionVersion,
@@ -144,7 +165,7 @@ final class Facade
 
         $writer = $this->project->getWriter();
         $writer->startElement('directory');
-        $writer->writeAttribute('name', $directoryName);
+        $writer->writeAttribute('name', $this->ensureUtf8($directoryName));
         $directoryObject = $context->addDirectory();
 
         $this->setTotals($directory, $directoryObject->totals());
@@ -165,7 +186,7 @@ final class Facade
     private function processFile(FileNode $file, Directory $context): void
     {
         $context->getWriter()->startElement('file');
-        $context->getWriter()->writeAttribute('name', $file->name());
+        $context->getWriter()->writeAttribute('name', $this->ensureUtf8($file->name()));
         $context->getWriter()->writeAttribute('href', $file->id() . '.xml');
         $context->getWriter()->writeAttribute('hash', $file->sha1());
 
@@ -209,9 +230,11 @@ final class Facade
         $fileReport->getWriter()->endElement();
 
         if ($this->includeSource) {
-            $fileReport->source()->setSourceCode(
-                file_get_contents($file->pathAsString()),
-            );
+            $source = file_get_contents($file->pathAsString());
+
+            if ($source !== false) {
+                $fileReport->source()->setSourceCode($source);
+            }
         }
 
         $fileReport->finalize();
@@ -254,7 +277,7 @@ final class Facade
                 (string) $method->executableLines,
                 (string) $method->executedLines,
                 (string) $method->coverage,
-                $method->crap,
+                (string) $method->crap,
             );
 
             $report->getWriter()->endElement();
@@ -275,14 +298,14 @@ final class Facade
             (string) $function->executableLines,
             (string) $function->executedLines,
             (string) $function->coverage,
-            $function->crap,
+            (string) $function->crap,
         );
 
         $report->getWriter()->endElement();
     }
 
     /**
-     * @param array<string, TestType> $tests
+     * @param array<non-empty-string, TestType> $tests
      */
     private function processTests(array $tests): void
     {

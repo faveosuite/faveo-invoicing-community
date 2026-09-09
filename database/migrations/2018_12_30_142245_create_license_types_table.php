@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('license_types')) {
-            Schema::create('license_types', function (Blueprint $table) {
+            Schema::create('license_types', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name')->nullable();
                 $table->timestamps();
@@ -24,10 +22,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('license_types');
     }

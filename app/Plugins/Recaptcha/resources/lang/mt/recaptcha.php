@@ -1,9 +1,6 @@
 <?php
 
 return [
-    /*
-    * Recaptcha Settings Page
-    */
     'captcha_settings' => 'Settings tal-reCAPTCHA',
     'captcha_configuration' => 'Konfigurazzjoni tal-reCAPTCHA',
     'captcha_version' => 'Verżjoni tal-reCAPTCHA',
@@ -15,10 +12,6 @@ return [
     'none' => 'Xejn',
     'fallback_v2_checkbox' => 'Fallback għall-Kaxxa tal-Kontroll tal-reCAPTCHA v2',
     'action_if_captcha_fails' => 'Azzjoni li għandha tittieħed jekk il-reCAPTCHA tfalli',
-
-    /*
-    * Recaptcha v3 Settings
-    */
     'recaptcha_v3_settings' => 'Settings tal-reCAPTCHA v3',
     'v3_site_key' => 'Ċavetta tas-Sit v3',
     'enter_v3_site_key' => 'Daħħal iċ-ċavetta tas-sit tiegħek tal-reCAPTCHA v3',
@@ -27,20 +20,12 @@ return [
     'v3_score_threshold' => 'Limitu tal-Punteġġ v3',
     'v3_score_hint' => 'Valur bejn 0.0 u 1.0 (ogħla huwa aħjar)',
     'v3_preview' => 'Previżjoni v3',
-
-    /*
-    * Recaptcha v2 Settings
-    */
     'recaptcha_v2_settings' => 'Settings tal-reCAPTCHA v2',
     'v2_site_key' => 'Ċavetta tas-Sit v2',
     'enter_v2_site_key' => 'Daħħal iċ-ċavetta tas-sit tiegħek tal-reCAPTCHA v2',
     'v2_secret_key' => 'Ċavetta Sigrieta v2',
     'enter_v2_secret_key' => 'Daħħal iċ-ċavetta sigrieta tiegħek tal-reCAPTCHA v2',
     'v2_preview' => 'Previżjoni v2',
-
-    /*
-    * Appearance
-    */
     'appearance_messages' => 'Dehra',
     'theme' => 'Tema',
     'theme_light' => 'Dawl',
@@ -52,28 +37,12 @@ return [
     'badge_bottomright' => 'Lemin t\'isfel',
     'badge_bottomleft' => 'Xellug t\'isfel',
     'badge_inline' => 'Inline',
-
-    /*
-    * Common
-    */
     'save' => 'Issejvja',
     'saving' => 'Issejvjar',
     'home' => 'Home',
     'settings' => 'Settings',
-
-    /*
-    * Success messages
-    */
     'captcha_settings_updated' => 'Settings tal-reCAPTCHA aġġornati b\'suċċess!',
-
-    /*
-    * Error messages
-    */
     'captcha_message' => 'Verifika tal-reCAPTCHA falliet. Jekk jogħġbok erġa\' pprova.',
-
-    /*
-    * JavaScript validation messages
-    */
     'field_required_condition' => 'Dan il-qasam huwa meħtieġ meta l-kundizzjoni tiġi sodisfatta',
     'select_captcha_version' => 'Jekk jogħġbok agħżel verżjoni tal-reCAPTCHA',
     'v3_site_key_required' => 'Iċ-ċavetta tas-sit tal-reCAPTCHA v3 hija meħtieġa',
@@ -90,16 +59,8 @@ return [
     'failed_generate_v2_token' => 'Ma rnexxiliex niġġenera t-token tal-reCAPTCHA v2.',
     'settings_saved' => 'Settings issejvjati.',
     'failed_save_settings' => 'Ma rnexxiliex nissejvja s-settings. Jekk jogħġbok erġa\' pprova.',
-
-    /*
-    * Backend validation messages
-    */
     'invalid_secret_or_token' => 'Ċavetta sigrieta jew token ta\' rispons mhumiex validi',
     'captcha_verification_failed' => 'Verifika tal-reCAPTCHA falliet (nuqqas ta\' qbil fil-punteġġ/azzjoni/isem tal-host)',
-
-    /*
-    * Validation messages
-    */
     'captcha_version_required' => 'Il-verżjoni tal-reCAPTCHA hija meħtieġa',
     'captcha_version_in' => 'Il-verżjoni tal-reCAPTCHA magħżula mhix valida',
     'failover_action_required' => 'L-azzjoni ta\' failover hija meħtieġa',

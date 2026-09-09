@@ -1,6 +1,8 @@
 <?php
 
-//Iso codes for languages
+declare(strict_types=1);
+
+// Iso codes for languages
 return [
     'aa' => ['Afar', 'ʿAfár af'],
     'ab' => ['Abkhazian', 'аҧсшәа'],
@@ -79,7 +81,6 @@ return [
     'mk' => ['Macedonian', 'македонски јазик'],
     'ml' => ['Malayalam', 'മലയാളം'],
     'mn' => ['Mongolian', 'Монгол хэл'],
-    'ro' => ['Moldavian', 'Română'],
     'mr' => ['Marathi', 'मराठी'],
     'ms' => ['Malay', 'Bahasa Melayu'],
     'mt' => ['Maltese', 'Malti'],
@@ -108,7 +109,7 @@ return [
     'si' => ['Singhalese', 'සිංහල'],
     'sk' => ['Slovak', 'Slovenčina'],
     'sl' => ['Slovenian', 'Slovenščina'],
-    'sm' => ['Samoan', 'gagana fa\'a Samoa'],
+    'sm' => ['Samoan', "gagana fa'a Samoa"],
     'sn' => ['Shona', 'chiShona'],
     'so' => ['Somali', 'Soomaaliga'],
     'sq' => ['Albanian', 'Shqip'],

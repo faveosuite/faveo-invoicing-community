@@ -2,21 +2,20 @@
 
 namespace Database\Seeders\v4_0_2_4_RC_1;
 
-use App\ApiKey;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\Msg91Status;
-use App\Http\Controllers\Common\PipedriveController;
 use App\Model\Common\PipedriveGroups;
 use App\Model\Common\PipedriveLocalFields;
-use App\Model\Common\PricingTemplate;
 use App\Model\Github\Github;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
-use Carbon\Carbon;
+use Artisan;
+use DB;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Date;
 
 class DatabaseSeeder extends Seeder
 {
@@ -36,7 +35,7 @@ class DatabaseSeeder extends Seeder
 
     }
 
-    public function addMsgStatus()
+    public function addMsgStatus(): void
     {
         $statuses = [
             ['status_code' => 0, 'status_label' => 'Pending'],
@@ -56,25 +55,26 @@ class DatabaseSeeder extends Seeder
         }
     }
 
-    public function removeOldGitPassword()
+    public function removeOldGitPassword(): void
     {
         Github::where('id', 1)->update(['password' => null]);
     }
 
-    private function updateAppKey()
+    private function updateAppKey(): void
     {
-        $env = base_path() . DIRECTORY_SEPARATOR . '.env';
+        $env = base_path().DIRECTORY_SEPARATOR.'.env';
 
-        if (is_file($env) && config('app.env') !== 'testing' && env('APP_KEY_UPDATED') !== 'true') {
+        if (is_file($env) && config('app.env') !== 'testing' && env('APP_KEY_UPDATED') !== 'true') { // @phpstan-ignore larastan.noEnvCallsOutsideOfConfig
 
             setEnvValue(['APP_PREVIOUS_KEYS' => 'SomeRandomString']);
 
-            \Artisan::call('key:generate', ['--force' => true]);
+            Artisan::call('key:generate', ['--force' => true]);
 
             setEnvValue(['APP_KEY_UPDATED' => 'true']);
         }
     }
-    private function addFielsForPipedrive()
+
+    private function addFielsForPipedrive(): void
     {
         $fields = [
             ['field_name' => 'User Name', 'field_key' => 'user_name'],
@@ -110,7 +110,8 @@ class DatabaseSeeder extends Seeder
             );
         }
     }
-    public function invoiceItemProductIDChange()
+
+    public function invoiceItemProductIDChange(): void
     {
         $orders = Order::all();
         foreach ($orders as $order) {
@@ -127,36 +128,36 @@ class DatabaseSeeder extends Seeder
         }
     }
 
-    public function langSeeder()
+    public function langSeeder(): void
     {
         $languages = [
-            ["locale" => "ar", "name" => "Arabic", "translation" => "العربية"],
-            ["locale" => "bsn", "name" => "Bosnian", "translation" => "босански"],
-            ["locale" => "zh-hans", "name" => "Chinese", "translation" => "中文 [Simplified]"],
-            ["locale" => "zh-hant", "name" => "Chinese", "translation" => "中文 [Traditional]"],
-            ["locale" => "nl", "name" => "Dutch", "translation" => "Vlaams"],
-            ["locale" => "en", "name" => "English  - United States", "translation" => "English"],
-            ["locale" => "en-gb", "name" => "English - United Kingdom", "translation" => "English"],
-            ["locale" => "fr", "name" => "French", "translation" => "français"],
-            ["locale" => "de", "name" => "German", "translation" => "Deutsch"],
-            ["locale" => "he", "name" => "Hebrew", "translation" => "עברית"],
-            ["locale" => "hi", "name" => "Hindi", "translation" => "हिन्दी"],
-            ["locale" => "id", "name" => "Indonesian", "translation" => "Bahasa Indonesia"],
-            ["locale" => "it", "name" => "Italian", "translation" => "Italiano"],
-            ["locale" => "ja", "name" => "Japanese", "translation" => "日本語 [にほんご]"],
-            ["locale" => "kr", "name" => "Korean", "translation" => "한국어"],
-            ["locale" => "mt", "name" => "Maltese", "translation" => "Malti"],
-            ["locale" => "no", "name" => "Norwegian", "translation" => "Norsk"],
-            ["locale" => "pt", "name" => "Portuguese", "translation" => "Português"],
-            ["locale" => "ru", "name" => "Russian", "translation" => "Русский"],
-            ["locale" => "es", "name" => "Spanish", "translation" => "Español"],
-            ["locale" => "ta", "name" => "Tamil", "translation" => "தமிழ்"],
-            ["locale" => "tr", "name" => "Turkish", "translation" => "Türkçe"],
-            ["locale" => "vi", "name" => "Vietnamese", "translation" => "Tiếng Việt"],
+            ['locale' => 'ar', 'name' => 'Arabic', 'translation' => 'العربية'],
+            ['locale' => 'bsn', 'name' => 'Bosnian', 'translation' => 'босански'],
+            ['locale' => 'zh-hans', 'name' => 'Chinese', 'translation' => '中文 [Simplified]'],
+            ['locale' => 'zh-hant', 'name' => 'Chinese', 'translation' => '中文 [Traditional]'],
+            ['locale' => 'nl', 'name' => 'Dutch', 'translation' => 'Vlaams'],
+            ['locale' => 'en', 'name' => 'English  - United States', 'translation' => 'English'],
+            ['locale' => 'en-gb', 'name' => 'English - United Kingdom', 'translation' => 'English'],
+            ['locale' => 'fr', 'name' => 'French', 'translation' => 'français'],
+            ['locale' => 'de', 'name' => 'German', 'translation' => 'Deutsch'],
+            ['locale' => 'he', 'name' => 'Hebrew', 'translation' => 'עברית'],
+            ['locale' => 'hi', 'name' => 'Hindi', 'translation' => 'हिन्दी'],
+            ['locale' => 'id', 'name' => 'Indonesian', 'translation' => 'Bahasa Indonesia'],
+            ['locale' => 'it', 'name' => 'Italian', 'translation' => 'Italiano'],
+            ['locale' => 'ja', 'name' => 'Japanese', 'translation' => '日本語 [にほんご]'],
+            ['locale' => 'kr', 'name' => 'Korean', 'translation' => '한국어'],
+            ['locale' => 'mt', 'name' => 'Maltese', 'translation' => 'Malti'],
+            ['locale' => 'no', 'name' => 'Norwegian', 'translation' => 'Norsk'],
+            ['locale' => 'pt', 'name' => 'Portuguese', 'translation' => 'Português'],
+            ['locale' => 'ru', 'name' => 'Russian', 'translation' => 'Русский'],
+            ['locale' => 'es', 'name' => 'Spanish', 'translation' => 'Español'],
+            ['locale' => 'ta', 'name' => 'Tamil', 'translation' => 'தமிழ்'],
+            ['locale' => 'tr', 'name' => 'Turkish', 'translation' => 'Türkçe'],
+            ['locale' => 'vi', 'name' => 'Vietnamese', 'translation' => 'Tiếng Việt'],
         ];
 
         foreach ($languages as $lang) {
-            \DB::table('languages')->updateOrInsert(
+            DB::table('languages')->updateOrInsert(
                 ['locale' => $lang['locale']],
                 ['name' => $lang['name'], 'translation' => $lang['translation']]
             );
@@ -164,23 +165,23 @@ class DatabaseSeeder extends Seeder
 
     }
 
-    public function update_is_deleted(){
-        $today= Carbon::today();
+    public function update_is_deleted(): void
+    {
+        $today = Date::today();
         $day = ExpiryMailDay::value('cloud_days');
+        // Equivalent to DATE(DATE_ADD(ends_at, INTERVAL $day DAY)) < $today,
+        // rewritten as a sargable range on ends_at itself (verified boundary shift).
         Subscription::whereNotNull('ends_at')
-        ->whereIn('product_id',cloudPopupProducts())->whereDate(
-            \DB::raw("DATE_ADD(ends_at, INTERVAL {$day} DAY)"),
-            '<',
-            $today
-        )->update(['is_deleted'=>1]);
+            ->whereIn('product_id', cloudPopupProducts())
+            ->where('ends_at', '<', $today->copy()->subDays((int) $day))
+            ->update(['is_deleted' => 1]);
     }
 
-
-
-    public function add_providers(){
-        $providers =[ ['provider'=>'reoon','type'=>'email'],
-            ['provider'=>'vonage','type'=>'mobile'],
-            ['provider'=>'abstract','type'=>'mobile'],
+    public function add_providers(): void
+    {
+        $providers = [['provider' => 'reoon', 'type' => 'email'],
+            ['provider' => 'vonage', 'type' => 'mobile'],
+            ['provider' => 'abstract', 'type' => 'mobile'],
         ];
         foreach ($providers as $provider) {
             EmailMobileValidationProviders::updateOrCreate([

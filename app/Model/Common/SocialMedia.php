@@ -1,31 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Model\Common;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
+/**
+ * @property int $id
+ * @property string $class
+ * @property string $fa_class
+ * @property string $name
+ * @property string $link
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia whereClass($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia whereFaClass($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia whereLink($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class SocialMedia extends BaseModel
 {
-    use HasFactory, SystemActivityLogsTrait;
+    /**
+     * @use HasFactory<Factory>
+     */
+    use HasFactory;
+
+    use SystemActivityLogsTrait;
 
     protected $table = 'social_media';
 
     protected $fillable = ['class', 'fa_class', 'name', 'link'];
 
-    protected $logName = 'social_media';
+    protected string $logName = 'social_media';
 
-    protected $logNameColumn = 'name';
+    protected string $logNameColumn = 'name';
 
-    protected $logAttributes = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logAttributes = [
         'name', 'link',
     ];
 
-    protected $logUrl = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logUrl = [
         'segments' => ['social-media', ':id', 'edit'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

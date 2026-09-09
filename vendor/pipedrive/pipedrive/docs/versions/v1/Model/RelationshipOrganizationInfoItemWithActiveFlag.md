@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **owner_id** | **int** | The ID of the owner of the organization that is associated with the item | [optional]
 **address** | **string** | The address of the organization | [optional]
 **cc_email** | **string** | The BCC email of the organization associated with the item | [optional]
+**label_ids** | **int[]** | The IDs of labels assigned to the organization | [optional]
 **value** | **int** | The ID of the organization | [optional]
 **active_flag** | **bool** | Whether the associated organization is active or not | [optional]
 

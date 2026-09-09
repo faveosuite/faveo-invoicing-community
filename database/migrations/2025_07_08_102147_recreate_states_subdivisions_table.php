@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('states_subdivisions');
 
-        Schema::create('states_subdivisions', function (Blueprint $table) {
+        Schema::create('states_subdivisions', function (Blueprint $table): void {
             $table->mediumIncrements('state_subdivision_id');
             $table->string('state_subdivision_name', 255);
             $table->char('country_code', 2);

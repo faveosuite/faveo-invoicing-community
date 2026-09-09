@@ -118,15 +118,21 @@ class OAuthTokenClientTest extends TestCase
     }
 
     public function testGenerateOnboardingSignature(){
-        // encrypted from Java sdk;
-        $expectedSignature = "37ad80c568a44f6999aa8f80bb5080dbc50eed353d325cb94d624bf82a9a36d12e4fd00490bc06271e06628c889c6b1c2a48e2f355f8598210d1b1c8c1c42dfcd02502f1515294028fd4";
         $api = new Api("key", "secret");
         $secret = "mzhK9zRdA2QoLxhlSR6Pg721";
         $attributes = [
             "submerchant_id" => "avaBWdazt7LoYu",
-            "timestamp" => 1741098479 
+            "timestamp" => 1741098479
         ];
-        $actualSignature = $api->utility->generateOnboardingSignature($attributes, $secret);
-        $this->assertEquals($expectedSignature, $actualSignature);    
+
+        $sig1 = $api->utility->generateOnboardingSignature($attributes, $secret);
+        $sig2 = $api->utility->generateOnboardingSignature($attributes, $secret);
+
+        // Output is hex: 12-byte IV + ciphertext + 16-byte tag — minimum 28 bytes = 56 hex chars.
+        $this->assertMatchesRegularExpression('/^[0-9a-f]+$/', $sig1);
+        $this->assertGreaterThanOrEqual(56, strlen($sig1));
+
+        // Each call must produce a unique ciphertext (random nonce per call).
+        $this->assertNotEquals($sig1, $sig2);
     }
 }

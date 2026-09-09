@@ -23,14 +23,14 @@ class ChunksInRequestUploadHandler extends AbstractHandler
      *
      * @static string
      */
-    const KEY_CHUNK_NUMBER = 'chunk';
+    public const KEY_CHUNK_NUMBER = 'chunk';
 
     /**
      * Key for number of all chunks.
      *
      * @static string
      */
-    const KEY_ALL_CHUNKS = 'chunks';
+    public const KEY_ALL_CHUNKS = 'chunks';
 
     /**
      * The current chunk progress.
@@ -97,7 +97,7 @@ class ChunksInRequestUploadHandler extends AbstractHandler
     protected function getCurrentChunkFromRequest(Request $request)
     {
         // the chunk is indexed from zero (for 5 chunks: 0,1,2,3,4)
-        return intval($request->get(static::KEY_CHUNK_NUMBER)) + 1;
+        return intval($request->input(static::KEY_CHUNK_NUMBER)) + 1;
     }
 
     /**
@@ -109,7 +109,7 @@ class ChunksInRequestUploadHandler extends AbstractHandler
      */
     protected function getTotalChunksFromRequest(Request $request)
     {
-        return intval($request->get(static::KEY_ALL_CHUNKS));
+        return intval($request->input(static::KEY_ALL_CHUNKS));
     }
 
     /**
@@ -152,7 +152,7 @@ class ChunksInRequestUploadHandler extends AbstractHandler
      */
     public function getChunkFileName()
     {
-        return $this->createChunkFileName($this->chunksTotal);
+        return $this->createChunkFileName('cnr', $this->chunksTotal);
     }
 
     /**
@@ -179,5 +179,10 @@ class ChunksInRequestUploadHandler extends AbstractHandler
     public function getPercentageDone()
     {
         return ceil($this->currentChunk / $this->chunksTotal * 100);
+    }
+
+    public function requiresFinalChunkOnLastChunk(): bool
+    {
+        return true;
     }
 }

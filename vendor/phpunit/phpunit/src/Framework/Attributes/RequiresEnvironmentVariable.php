@@ -19,15 +19,24 @@ use Attribute;
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
 final readonly class RequiresEnvironmentVariable
 {
+    /**
+     * @var non-empty-string
+     */
     private string $environmentVariableName;
     private null|string $value;
 
+    /**
+     * @param non-empty-string $environmentVariableName
+     */
     public function __construct(string $environmentVariableName, null|string $value = null)
     {
         $this->environmentVariableName = $environmentVariableName;
         $this->value                   = $value;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function environmentVariableName(): string
     {
         return $this->environmentVariableName;

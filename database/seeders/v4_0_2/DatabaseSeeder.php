@@ -2,25 +2,23 @@
 
 namespace Database\Seeders\v4_0_2;
 
-use Illuminate\Database\Seeder;
-use App\Model\Product\ProductUpload;
-use App\ReleaseType;
-use App\Model\License\LicenseType;
-use App\Model\Common\TemplateType;
 use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
+use App\Model\License\LicenseType;
+use App\ReleaseType;
+use DB;
+use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
-        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         ReleaseType::truncate();
-        LicenseType::where('id',7)->delete();
+        LicenseType::where('id', 7)->delete();
 
         $this->call([
             ReleaseTypeSeeder::class,
@@ -29,23 +27,19 @@ class DatabaseSeeder extends Seeder
             TemplateTableSeeder::class,
         ]);
 
-        \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }
-
-
 
 class ReleaseTypeSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
-        ReleaseType::create(['id' => 1, 'type' => 'Pre Release','value' => '1']);
-        ReleaseType::create(['id' => 2, 'type' => 'Official Release','value' => '0']);
+        ReleaseType::create(['id' => 1, 'type' => 'Pre Release', 'value' => '1']);
+        ReleaseType::create(['id' => 2, 'type' => 'Official Release', 'value' => '0']);
     }
 }
 
@@ -53,10 +47,8 @@ class LicenseTypeSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         LicenseType::create(['id' => 7, 'name' => 'Development License']);
     }
@@ -64,19 +56,18 @@ class LicenseTypeSeeder extends Seeder
 
 class TemplateTypeTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        TemplateType::where('id',23)->delete();
+        TemplateType::where('id', 23)->delete();
         TemplateType::create(['id' => 23, 'name' => 'stripe_subscription_authentication']);
     }
 }
 
-
 class TemplateTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        Template::where('id',21)->update(['data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 21)->update(['data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>
@@ -146,9 +137,9 @@ class TemplateTableSeeder extends Seeder
         </table>
         <p>&nbsp;</p>']);
 
-        Template::where('id',23)->delete();
-        
-        Template::create(['id' => 23, 'name' => 'Renew your subscription to continue using our services.', 'type' => 23, 'url' => 'null', 'reply_to' => '{{email}}','data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 23)->delete();
+
+        Template::create(['id' => 23, 'name' => 'Renew your subscription to continue using our services.', 'type' => 23, 'url' => 'null', 'reply_to' => '{{email}}', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>
@@ -219,9 +210,7 @@ class TemplateTableSeeder extends Seeder
         </table>
         <p>&nbsp;</p>']);
 
-     
-
-     Template::where('id',4)->update(['data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 4)->update(['data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
        <tbody>
        <tr>
        <td style="width: 30px;">&nbsp;</td>
@@ -291,8 +280,7 @@ class TemplateTableSeeder extends Seeder
        </table>
        <p>&nbsp;</p>']);
 
-
-     Template::where('id',8)->update(['data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 8)->update(['data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>
@@ -355,12 +343,7 @@ class TemplateTableSeeder extends Seeder
         </tbody>
         </table>
         <p>&nbsp;</p>']);
-        Template::where('id',10)->update(['name' => 'Your New Account Manager']);     
-
-
+        Template::where('id', 10)->update(['name' => 'Your New Account Manager']);
 
     }
 }
-
-
-

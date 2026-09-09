@@ -1,61 +1,27 @@
 <?php
 
-namespace Barryvdh\Debugbar\DataCollector;
+declare(strict_types=1);
 
-use Barryvdh\Debugbar\DataFormatter\SimpleFormatter;
+namespace Fruitcake\LaravelDebugbar\DataCollector;
+
 use DebugBar\DataCollector\MessagesCollector;
+use DebugBar\DataCollector\Resettable;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Router;
-use Symfony\Component\VarDumper\Cloner\VarCloner;
 use Illuminate\Support\Str;
 
 /**
  * Collector for Laravel's gate checks
  */
-class GateCollector extends MessagesCollector
+class GateCollector extends MessagesCollector implements Resettable
 {
-    /** @var int */
-    protected $backtraceLimit = 15;
+    protected array $reflection = [];
+    protected int $backtraceLimit = 20;
 
-    /** @var array */
-    protected $reflection = [];
-
-    /** @var \Illuminate\Routing\Router */
-    protected $router;
-
-    /**
-     * @param Gate $gate
-     */
-    public function __construct(Gate $gate, Router $router)
-    {
-        parent::__construct('gate');
-        $this->router = $router;
-        $this->setDataFormatter(new SimpleFormatter());
-        $gate->after(function ($user, $ability, $result, $arguments = []) {
-            $this->addCheck($user, $ability, $result, $arguments);
-        });
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function customizeMessageHtml($messageHtml, $message)
-    {
-        $pos = strpos((string) $messageHtml, 'array:5');
-        if ($pos !== false) {
-
-            $name = $message['ability'] .' ' . $message['target'] ?? '';
-
-            $messageHtml = substr_replace($messageHtml, $name, $pos, 7);
-        }
-
-        return parent::customizeMessageHtml($messageHtml, $message);
-    }
-
-    public function addCheck($user, $ability, $result, $arguments = [])
+    public function addCheck(mixed $user, string|int $ability, mixed $result, array $arguments = []): void
     {
         $userKey = 'user';
         $userId = null;
@@ -80,26 +46,22 @@ class GateCollector extends MessagesCollector
                 } else {
                     $target = get_class($model);
                 }
-            } else if (is_string($arguments[0])) {
+                $arguments[0] = $target;
+            } elseif (is_string($arguments[0])) {
                 $target = $arguments[0];
             }
         }
 
-        $this->addMessage([
+        $this->addMessage("{ability} {target}", $label, [
             'ability' => $ability,
             'target' => $target,
             'result' => $result,
             $userKey => $userId,
-            'arguments' => $this->getDataFormatter()->formatVar($arguments),
-        ], $label, false);
+            'arguments' => $arguments,
+        ]);
     }
 
-    /**
-     * @param array $stacktrace
-     *
-     * @return array
-     */
-    protected function getStackTraceItem($stacktrace)
+    protected function getStackTraceItem(array $stacktrace): array
     {
         foreach ($stacktrace as $i => $trace) {
             if (!isset($trace['file'])) {
@@ -128,14 +90,11 @@ class GateCollector extends MessagesCollector
 
     /**
      * Find the route action file
-     *
-     * @param  array $trace
-     * @return array
      */
-    protected function findControllerFromDispatcher($trace)
+    protected function findControllerFromDispatcher(array $trace): array
     {
         /** @var \Closure|string|array $action */
-        $action = $this->router->current()->getAction('uses');
+        $action = app(Router::class)->current()->getAction('uses');
 
         if (is_string($action)) {
             [$controller, $method] = explode('@', $action);
@@ -154,11 +113,8 @@ class GateCollector extends MessagesCollector
 
     /**
      * Find the template name from the hash.
-     *
-     * @param  string $hash
-     * @return null|array
      */
-    protected function findViewFromHash($hash)
+    protected function findViewFromHash(string $hash): ?string
     {
         $finder = app('view')->getFinder();
 
@@ -170,12 +126,19 @@ class GateCollector extends MessagesCollector
             $this->reflection['viewfinderViews'] = $property;
         }
 
-        $xxh128Exists = in_array('xxh128', hash_algos());
+        $xxh128Exists = in_array('xxh128', hash_algos(), true);
 
         foreach ($property->getValue($finder) as $name => $path) {
-            if (($xxh128Exists && hash('xxh128', 'v2' . $path) == $hash) || sha1('v2' . $path) == $hash) {
+            if (($xxh128Exists && hash('xxh128', 'v2' . $path) === $hash) || sha1('v2' . $path) === $hash) {
                 return $path;
             }
         }
+
+        return null;
+    }
+
+    public function reset(): void
+    {
+        $this->reflection = [];
     }
 }

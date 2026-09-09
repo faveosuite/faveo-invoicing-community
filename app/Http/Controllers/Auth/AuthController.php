@@ -3,21 +3,24 @@
 namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
-use App\Http\Controllers\Common\PipedriveController;
+use App\Events\UserRegisteredEvent;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\License\LicenseController;
-use App\Jobs\AddUserToExternalService;
+use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
+use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\User\AccountActivate;
 use App\User;
 use App\VerificationAttempt;
-use Carbon\Carbon;
-use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
+use Auth;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Date;
 use RateLimiter;
+use Session;
 
 class AuthController extends BaseAuthController
 {
@@ -32,20 +35,7 @@ class AuthController extends BaseAuthController
       |
      */
 
-    // use AuthenticatesAndRegistersUsers;
-
-    /* to redirect after login */
-
-    //protected $redirectTo = 'home';
-
-    /* Direct After Logout */
-    protected $redirectAfterLogout = 'home';
-
-    protected $loginPath = 'login';
-
-    //protected $loginPath = 'login';
-
-    protected $pipedrive;
+    protected mixed $pipedrive = null;
 
     public function __construct()
     {
@@ -53,14 +43,12 @@ class AuthController extends BaseAuthController
         $this->middleware('blockFailedVerifications:verify,mobile-verify,email-verify,email-verify-new,email-verify-old,email-verify-mobile')->only(['verifyOtp', 'verifyEmail']);
         $this->middleware('recaptcha:mobile_verify')->only('verifyOtp');
         $this->middleware('recaptcha:email_verify')->only('verifyEmail');
-        $license = new LicenseController();
-        $this->licensing = $license;
     }
 
-    public function requestOtp(Request $request)
+    public function requestOtp(Request $request): JsonResponse
     {
         $request->validate([
-            'eid' => 'required|string',
+            'eid' => ['required', 'string'],
         ],
             [
                 'eid.required' => __('validation.eid_required'),
@@ -78,9 +66,9 @@ class AuthController extends BaseAuthController
                 return errorResponse(__('message.mobile_already_verified'));
             }
 
-            RateLimiter::hit("mobile-otp:{$user->id}", 600);
+            RateLimiter::hit('mobile-otp:'.$user->id, 600);
 
-            $response = app(SmsOtpController::class)->sendOtp($user->mobile_code.$user->mobile, $user->id, 'registration-verify');
+            $response = resolve(SmsOtpController::class)->sendOtp($user->mobile_code.$user->mobile, $user->id, 'registration-verify');
 
             if ($response['type'] === 'error') {
                 return errorResponse($response['message']);
@@ -89,22 +77,22 @@ class AuthController extends BaseAuthController
             $this->updateVerificationAttempts($user, 'mobile');
 
             return successResponse(__('message.otp_verification.send_success'));
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.otp_verification.send_failure'));
         }
     }
 
-    public function retryOTP(Request $request)
+    public function retryOTP(Request $request): mixed
     {
         $default_type = $request->input('default_type');
 
-        return match ($default_type) {
+        return match ($default_type) { // @phpstan-ignore match.unhandled
             'email' => $this->sendEmail($request, 'GET'),
             'mobile' => $this->resendOTP($request),
         };
     }
 
-    public function resendOTP($request)
+    public function resendOTP(mixed $request): JsonResponse
     {
         $request->validate([
             'eid' => 'required|string',
@@ -122,9 +110,9 @@ class AuthController extends BaseAuthController
 
             $user = User::where('email', $email)->firstOrFail();
 
-            RateLimiter::hit("mobile-otp:{$user->id}", 600);
+            RateLimiter::hit('mobile-otp:'.$user->id, 600);
 
-            $response = app(SmsOtpController::class)->sendForReOtp($user->mobile_code.$user->mobile, $type, $user->id, 'registration-verify');
+            $response = resolve(SmsOtpController::class)->sendForReOtp($user->mobile_code.$user->mobile, $type, $user->id, 'registration-verify');
 
             if ($response['type'] === 'error') {
                 return errorResponse($response['message']);
@@ -137,15 +125,15 @@ class AuthController extends BaseAuthController
             }
 
             return successResponse(__('message.otp_verification.resend_send_success'));
-        } catch (\Exception $exception) {
+        } catch (Exception) {
             return errorResponse(__('message.otp_verification.resend_send_failure'));
         }
     }
 
-    public function sendEmail(Request $request, $method = 'POST')
+    public function sendEmail(Request $request, mixed $method = 'POST'): JsonResponse
     {
         $request->validate([
-            'eid' => 'required|string',
+            'eid' => ['required', 'string'],
         ], [
             'eid.required' => __('validation.eid_required'),
             'eid.string' => __('validation.eid_string'),
@@ -156,11 +144,11 @@ class AuthController extends BaseAuthController
             $user = User::where('email', $email)->firstOrFail();
 
             $existingToken = AccountActivate::where('email', $email)->latest()->first();
-            if ($existingToken && $method !== 'GET' && ! $existingToken->updated_at->addMinutes(10)->isPast()) {
-                return successResponse(\Lang::get('message.email_verification.already_sent'));
+            if ($existingToken && $method !== 'GET' && ! $existingToken->updated_at?->addMinutes(10)->isPast()) {
+                return successResponse(__('message.email_verification.already_sent'));
             }
 
-            RateLimiter::hit("email-otp:{$user->id}", 600);
+            RateLimiter::hit('email-otp:'.$user->id, 600);
 
             $this->sendActivation($email, $method);
 
@@ -171,16 +159,16 @@ class AuthController extends BaseAuthController
                     ? __('message.email_verification.resend_success')
                     : __('message.email_verification.send_success')
             );
-        } catch (\Exception $exception) {
+        } catch (Exception) {
             return errorResponse(__('message.email_verification.send_failure'));
         }
     }
 
-    public function verifyOtp(Request $request)
+    public function verifyOtp(Request $request): JsonResponse
     {
         $request->validate([
-            'eid' => 'required|string',
-            'otp' => 'required|string|size:6',
+            'eid' => ['required', 'string'],
+            'otp' => ['required', 'string', 'size:6'],
         ],
             [
                 'eid.required' => __('validation.verify_otp.eid_required'),  // Translating for eid field
@@ -198,14 +186,14 @@ class AuthController extends BaseAuthController
 
             // Validate OTP
             if (! is_numeric($request->otp)) {
-                RateLimiter::hit("mobile-verify:{$user->id}", 600);
+                RateLimiter::hit('mobile-verify:'.$user->id, 600);
 
                 return errorResponse(__('message.otp_invalid_format'));
             }
 
-            $response = app(SmsOtpController::class)->sendVerifyOTP($otp, $user->mobile_code.$user->mobile, $user->id, 'registration-verify');
+            $response = resolve(SmsOtpController::class)->sendVerifyOTP($otp, $user->mobile_code.$user->mobile, $user->id, 'registration-verify');
             if ($response['type'] === 'error') {
-                RateLimiter::hit("mobile-verify:{$user->id}", 600);
+                RateLimiter::hit('mobile-verify:'.$user->id, 600);
 
                 return errorResponse($response['message']);
             }
@@ -214,24 +202,24 @@ class AuthController extends BaseAuthController
 
             $user->save();
 
-            if (! \Auth::check() && $this->userNeedVerified($user)) {
-                //dispatch the job to add user to external services
-                AddUserToExternalService::dispatch($user, 'verify');
+            if (! Auth::check() && $this->userNeedVerified($user)) {
+                // dispatch the job to add user to external services
+                event(new UserRegisteredEvent($user, 'verify'));
 
-                \Session::flash('success', __('message.registration_complete'));
+                Session::flash('success', __('message.registration_complete'));
             }
 
             return successResponse(__('message.otp_verified'));
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.error_occurred_while_verify'));
         }
     }
 
-    public function verifyEmail(Request $request)
+    public function verifyEmail(Request $request): JsonResponse
     {
         $request->validate([
-            'eid' => 'required|string',
-            'otp' => 'required|string|size:6',
+            'eid' => ['required', 'string'],
+            'otp' => ['required', 'string', 'size:6'],
         ],
             [
                 'eid.required' => __('validation.verify_otp.eid_required'),  // Translating for eid field
@@ -247,16 +235,16 @@ class AuthController extends BaseAuthController
 
             $user = User::where('email', $email)->firstOrFail();
 
-            $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
+            $account = AccountActivate::where('email', $email)->latest()->firstOrFail(['token', 'updated_at']);
 
             if (! hash_equals((string) $account->token, (string) $otp)) {
-                RateLimiter::hit("email-verify:{$user->id}", 600);
+                RateLimiter::hit('email-verify:'.$user->id, 600);
 
                 return errorResponse(__('message.email_verification.invalid_token'));
             }
 
-            if ($account->updated_at->addMinutes(10) < Carbon::now()) {
-                RateLimiter::hit("email-verify:{$user->id}", 600);
+            if ($account->updated_at?->addMinutes(10) < Date::now()) {
+                RateLimiter::hit('email-verify:'.$user->id, 600);
 
                 return errorResponse(__('message.email_verification.token_expired'));
             }
@@ -266,54 +254,23 @@ class AuthController extends BaseAuthController
             $user->email_verified = 1;
             $user->save();
 
-            if (! \Auth::check() && $this->userNeedVerified($user)) {
-                //dispatch the job to add user to external services
-                AddUserToExternalService::dispatch($user, 'verify');
+            if (! Auth::check() && $this->userNeedVerified($user)) {
+                // dispatch the job to add user to external services
+                event(new UserRegisteredEvent($user, 'verify'));
 
-                \Session::flash('success', __('message.registration_complete'));
+                Session::flash('success', __('message.registration_complete'));
             }
 
             return successResponse(__('message.email_verification.email_verified'));
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.email_verification.invalid_token'));
         }
     }
 
-    public function checkVerify($user)
-    {
-        $check = false;
-        if ($user->active == '1' && $user->mobile_verified == '1') {
-            \Auth::login($user);
-            $check = true;
-        }
-
-        return $check;
-    }
-
-    public function getState(Request $request, $state)
-    {
-        try {
-            $id = $state;
-            $states = \App\Model\Common\State::where('country_code_char2', $id)
-            ->orderBy('state_subdivision_name', 'asc')->get();
-
-            if (count($states) > 0) {
-                echo '<option value="">'.__('message.choose').'</option>';
-                foreach ($states as $stateList) {
-                    echo '<option value='.$stateList->iso2.'>'
-                .$stateList->state_subdivision_name.'</option>';
-                }
-            } else {
-                echo "<option value=''>".__('message.no_states_available').'</option>';
-            }
-        } catch (\Exception $ex) {
-            echo "<option value=''>".__('message.problem_while_loading').'</option>';
-
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function salesManagerMail($user, $bcc = [])
+    /**
+     * @param  array<mixed>  $bcc
+     */
+    public function salesManagerMail(mixed $user, array $bcc = []): void
     {
         $contact = getContactData();
         $manager = $user->manager()
@@ -321,19 +278,20 @@ class AuthController extends BaseAuthController
             ->where('position', 'manager')
             ->select('first_name', 'last_name', 'email', 'mobile_code', 'mobile', 'skype')
             ->first();
-        $settings = new \App\Model\Common\Setting();
+        $settings = new Setting;
+        /** @var Setting $setting */
         $setting = $settings->first();
         $from = $setting->email;
         $to = $user->email;
-        $templates = new \App\Model\Common\Template();
+        $templates = new Template;
+        /** @var Template $template */
         $template = $templates
-                ->join('template_types', 'templates.type', '=', 'template_types.id')
-                ->where('template_types.name', '=', 'sales_manager_email')
-                ->select('templates.data', 'templates.name', 'type')
-                ->first();
+            ->join('template_types', 'templates.type', '=', 'template_types.id')
+            ->where('template_types.name', '=', 'sales_manager_email')
+            ->select('templates.data', 'templates.name', 'type')
+            ->first();
         $template_data = $template->data;
         $template_name = $template->name;
-        $template_controller = new \App\Http\Controllers\Common\TemplateController();
         $replace = [
             'name' => $user->first_name.' '.$user->last_name,
             'manager_first_name' => $manager->first_name,
@@ -346,11 +304,14 @@ class AuthController extends BaseAuthController
             'logo' => $contact['logo'],
             'reply_email' => $setting->company_email,
         ];
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController;
         $mail->SendEmail($from, $to, $template_data, $template_name, 'sales-manager-mail', $replace, TemplateType::where('id', $template->type)->value('name'), $bcc);
     }
 
-    public function accountManagerMail($user, $bcc = [])
+    /**
+     * @param  array<mixed>  $bcc
+     */
+    public function accountManagerMail(mixed $user, array $bcc = []): void
     {
         $contact = getContactData();
         $manager = $user->accountManager()
@@ -358,19 +319,20 @@ class AuthController extends BaseAuthController
             ->where('position', 'account_manager')
             ->select('first_name', 'last_name', 'email', 'mobile_code', 'mobile', 'skype')
             ->first();
-        $settings = new \App\Model\Common\Setting();
+        $settings = new Setting;
+        /** @var Setting $setting */
         $setting = $settings->first();
         $from = $setting->email;
         $to = $user->email;
-        $templates = new \App\Model\Common\Template();
+        $templates = new Template;
+        /** @var Template $template */
         $template = $templates
-                ->join('template_types', 'templates.type', '=', 'template_types.id')
-                ->where('template_types.name', '=', 'account_manager_email')
-                ->select('templates.data', 'templates.name', 'type')
-                ->first();
+            ->join('template_types', 'templates.type', '=', 'template_types.id')
+            ->where('template_types.name', '=', 'account_manager_email')
+            ->select('templates.data', 'templates.name', 'type')
+            ->first();
         $template_data = $template->data;
         $template_name = $template->name;
-        $template_controller = new \App\Http\Controllers\Common\TemplateController();
         $replace = [
             'name' => $user->first_name.' '.$user->last_name,
             'manager_first_name' => $manager->first_name,
@@ -383,132 +345,51 @@ class AuthController extends BaseAuthController
             'logo' => $contact['logo'],
             'reply_email' => $setting->company_email,
         ];
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController;
         $mail->SendEmail($from, $to, $template_data, $template_name, 'account-manager-mail', $replace, TemplateType::where('id', $template->type)->value('name'), $bcc);
     }
 
-    public function verify()
+    /**
+     * JSON config consumed by the Vue guest OTP-verify SPA page.
+     * Mirrors the data that verify() passed to the blade view.
+     */
+    public function verifyConfig(): JsonResponse
     {
-        $sessionUser = \Session::get('user');
-        if (! $sessionUser) {
-            return redirect('login');
+        $userId = Session::get('verification_user_id') ?? Session::get('user')?->id;
+        if (! $userId) {
+            return successResponse('', ['redirect' => url('login')]);
         }
 
-        $user = User::find($sessionUser->id);
+        $user = User::find($userId);
+        if (! $user) {
+            return successResponse('', ['redirect' => url('login')]);
+        }
+
+        /** @var User $user */
         $eid = Crypt::encrypt($user->email);
 
-        $setting = StatusSetting::select(
-            'emailverification_status',
-            'msg91_status',
-        )->first();
+        /** @var StatusSetting $setting */
+        $setting = StatusSetting::select('emailverification_status', 'msg91_status')->first();
 
         $isMobileVerified = ! ($setting->msg91_status == 1 && $user->mobile_verified != 1);
         $isEmailVerified = ! ($setting->emailverification_status == 1 && $user->email_verified != 1);
 
         $verification_preference = ApiKey::value('verification_preference') ?? ($isEmailVerified ? 'email' : 'mobile');
 
-        return view('themes.default1.user.verify', compact(
-            'user', 'eid', 'setting', 'isMobileVerified', 'isEmailVerified', 'verification_preference'
-        ));
-    }
-
-    public function addUserToExternalServices($user, $options = [])
-    {
-        try {
-            $status = StatusSetting::select('mailchimp_status', 'pipedrive_status', 'zoho_status')->first();
-
-            if (! ($options['skip_pipedrive'] ?? false) && $status->pipedrive_status) {
-                (new PipedriveController())->addUserToPipedrive($user);
-            }
-
-            if (! ($options['skip_zoho'] ?? false) && $status->zoho_status) {
-                $this->addUserToZoho($user, $status->zoho_status);
-            }
-
-            if (! ($options['skip_mailchimp'] ?? false) && $status->mailchimp_status) {
-                $this->addUserToMailchimp($user, $status->mailchimp_status);
-            }
-        } catch (\Exception $exception) {
-            \Logger::exception($exception);
-        }
-    }
-
-    public function updateUserWithVerificationStatus($user, $trigger = 'register')
-    {
-        $pipedriveVerificationRequired = ApiKey::first()->value('require_pipedrive_user_verification');
-        $statusSetting = StatusSetting::first([
-            'emailverification_status',
-            'msg91_status',
-            'mailchimp_status',
-            'pipedrive_status',
-            'zoho_status',
+        return successResponse('verify-config', [
+            'eid' => $eid,
+            'mobile' => $user->mobile_code.$user->mobile,
+            'email' => $user->email,
+            'setting' => $setting,
+            'isMobileVerified' => $isMobileVerified,
+            'isEmailVerified' => $isEmailVerified,
+            'verification_preference' => $verification_preference,
         ]);
-
-        $emailRequired = $statusSetting->emailverification_status;
-        $mobileRequired = $statusSetting->msg91_status;
-        $isEmailVerified = ! $emailRequired || $user->email_verified;
-        $isMobileVerified = ! $mobileRequired || $user->mobile_verified;
-        $isFullyVerified = $isEmailVerified && $isMobileVerified;
-
-        // Determine when to sync each service
-        $shouldSync = $this->shouldSyncServices($trigger, $pipedriveVerificationRequired, $isFullyVerified);
-
-        if ($shouldSync['sync_any']) {
-            $this->addUserToExternalServices($user, [
-                'skip_pipedrive' => ! $shouldSync['pipedrive'],
-                'skip_zoho' => ! $shouldSync['zoho'],
-                'skip_mailchimp' => ! $shouldSync['mailchimp'],
-            ]);
-        }
     }
 
-    private function shouldSyncServices($trigger, $pipedriveVerificationRequired, $isFullyVerified)
+    private function updateVerificationAttempts(mixed $user, string $type = 'email'): void
     {
-        $syncPipedrive = false;
-        $syncZoho = false;
-        $syncMailchimp = false;
-
-        if ($pipedriveVerificationRequired) {
-            // Pipedrive verification is required
-            if ($isFullyVerified) {
-                // User just became fully verified - sync all services
-                $syncPipedrive = true;
-                $syncZoho = true;
-                $syncMailchimp = true;
-            }
-        } else {
-            // Pipedrive verification is NOT required
-            if ($trigger === 'register') {
-                // Sync all services at registration
-                $syncPipedrive = true;
-                $syncZoho = true;
-                $syncMailchimp = true;
-            }
-            // For verification triggers when pipedrive verification is disabled, don't sync (already synced at registration)
-        }
-
-        return [
-            'sync_any' => $syncPipedrive || $syncZoho || $syncMailchimp,
-            'pipedrive' => $syncPipedrive,
-            'zoho' => $syncZoho,
-            'mailchimp' => $syncMailchimp,
-        ];
-    }
-
-    private function userNeedVerified($user)
-    {
-        $setting = StatusSetting::first(['emailverification_status', 'msg91_status']);
-
-        return ! (
-            ($setting->emailverification_status && ! $user->email_verified) ||
-            ($setting->msg91_status && ! $user->mobile_verified) ||
-            ! $user->active
-        );
-    }
-
-    private function updateVerificationAttempts($user, $type = 'email')
-    {
-        if (! in_array($type, ['email', 'mobile'])) {
+        if (! in_array($type, ['email', 'mobile'], strict: true)) {
             return;
         }
 
@@ -518,10 +399,5 @@ class AuthController extends BaseAuthController
         $verificationAttempt->{$field}++;
 
         $verificationAttempt->save();
-    }
-
-    public function verifySession()
-    {
-        return successResponse('active');
     }
 }

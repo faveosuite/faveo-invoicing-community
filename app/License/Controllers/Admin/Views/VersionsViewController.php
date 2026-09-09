@@ -1,0 +1,72 @@
+<?php
+
+namespace App\License\Controllers\Admin\Views;
+
+use App\Http\Controllers\Controller;
+use App\License\Helpers\LicenseHelper;
+use App\License\Models\VersionCallback;
+use App\Model\Product\ProductUpload;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class VersionsViewController extends Controller
+{
+    public function getVersionInfo(mixed $version_id): JsonResponse
+    {
+        $version = ProductUpload::with('product:id,name')
+            ->find($version_id);
+
+        if (! $version) {
+            return successResponse(__('license::lang.version_details'), data: null);
+        }
+
+        /** @var ProductUpload $version */
+        return successResponse(__('license::lang.version_details'), [
+            'id' => $version->id,
+            'product_id' => $version->product_id,
+            'version_number' => $version->version,
+            'version_date' => $version->created_at,
+            'version_status' => $version->status,
+            'version_install_count' => $version->version_install_count ?? 0,
+            'product' => [
+                'id' => $version->product?->id,
+                'name' => $version->product?->name,
+            ],
+            'product_title' => $version->product?->name,
+        ]);
+    }
+
+    public function getVersionCallbacks(Request $request, mixed $version_id): JsonResponse
+    {
+        $perPage = $request->input('limit', $request->input('perPage', 10));
+        $page = $request->input('page', 1);
+        $searchQuery = $request->input('search-query', $request->input('search-query', $request->input('search_query', '')));
+        $sortOrder = $request->input('sort-order', $request->input('sort_order', 'desc'));
+        $sortField = $request->input('sort-field', $request->input('sort_field', 'id'));
+        /** @var ProductUpload $productUpload */
+        $productUpload = ProductUpload::find($version_id);
+        $versionInstallation = $productUpload
+            ->callbacks()
+            ->select('id', 'version_id', 'callback_ip', 'callback_date_time', 'callback_status', 'callback_type')
+            ->when($searchQuery, function ($query) use ($searchQuery): void {
+                $query->where(function ($query) use ($searchQuery): void {
+                    $query->where('callback_ip', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('callback_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
+                        ->orWhere('callback_date_time', 'like', '%'.$searchQuery.'%');
+                });
+            })
+            ->orderBy($sortField, $sortOrder)
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        $versionInstallation->getCollection()->transform(fn (VersionCallback $cb): array => [
+            'id' => $cb->id,
+            'version_id' => $cb->version_id,
+            'callback_ip' => $cb->callback_ip,
+            'callback_date_time' => $cb->callback_date_time,
+            'callback_status' => $cb->callback_status,
+            'callback_type' => $cb->callback_type,
+        ]);
+
+        return successResponse(__('license::lang.version_callbacks'), $versionInstallation);
+    }
+}

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pipedrive_field_options', function (Blueprint $table) {
+        Schema::create('pipedrive_field_options', function (Blueprint $table): void {
             $table->id();
             $table->unsignedBigInteger('pipedrive_field_id');
             $table->string('key')->nullable();

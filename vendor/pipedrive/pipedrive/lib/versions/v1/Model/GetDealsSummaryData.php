@@ -2,7 +2,7 @@
 /**
  * GetDealsSummaryData
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -228,7 +228,7 @@ class GetDealsSummaryData implements ModelInterface, ArrayAccess, JsonSerializab
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['values_total'] = $data['values_total'] ?? null;
         $this->container['weighted_values_total'] = $data['weighted_values_total'] ?? null;

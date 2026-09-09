@@ -2,27 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\ApiKey;
-use App\Http\Controllers\License\LicensePermissionsController;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
+use App\Model\Product\Product;
 use App\Model\Product\Subscription;
-use Carbon\Carbon;
-use Razorpay\Api\Api;
+use App\Services\Payment\AutoRenewalActivationService;
+use App\Services\Payment\ProcessingFee;
+use App\Services\SubscriptionRenewalService;
+use App\User;
+use Exception;
+use Illuminate\Support\Facades\Date;
+use Logger;
+use Throwable;
 
 abstract class PostSubscriptionHandleController
 {
-    protected $invoiceModel;
-    protected $orderModel;
-    protected $statusSettingModel;
-    protected $plan;
-    protected $sub;
-    protected $payment;
+    protected Invoice $invoiceModel;
+
+    protected Order $orderModel;
+
+    protected StatusSetting $statusSettingModel;
+
+    protected Plan $plan;
+
+    protected Subscription $sub;
+
+    protected Payment $payment;
 
     public function __construct(Invoice $invoiceModel, Order $orderModel, StatusSetting $statusSettingModel, Plan $plan, Subscription $sub, Payment $payment)
     {
@@ -34,218 +46,163 @@ abstract class PostSubscriptionHandleController
         $this->payment = $payment;
     }
 
-    abstract public function successRenew($invoice, $subscription, $payment_method, $currency);
+    abstract public function successRenew(Invoice $invoice, Subscription $subscription, string $payment_method, string $currency): int;
 
-    abstract public function getExpiryDate($permissions, $sub, $days);
+    abstract public function recordPayment(Invoice $invoice, string $payment_method): Payment;
 
-    abstract public function getUpdatesExpiryDate($permissions, $sub, $days);
+    abstract public function getProcessingFee(string $paymentMethod, string $currency): ?string;
 
-    abstract public function getSupportExpiryDate($permissions, $sub, $days);
+    abstract public function PaymentSuccessMailtoAdmin(Invoice $invoice, float|int $total, User $user, string $productName, Order $order, Payment|string $payment): void;
 
-    abstract public function editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry);
+    abstract public function FailedPaymenttoAdmin(?Invoice $invoice, float|int $total, string $productName, string $exceptionMessage, User $user, string $template, Order $order, Payment $payment): void;
 
-    abstract public function postRazorpayPayment($invoice, $payment_method);
+    abstract public function calculateUnitCost(string $currency, float|int $cost): float;
 
-    abstract public function getProcessingFee($paymentMethod, $currency);
+    abstract public function sendPaymentSuccessMail(int $sub, string $currency, float|int $total, User $user, string $product, string $number): void;
 
-    abstract public function PaymentSuccessMailtoAdmin($invoice, $total, $user, $productName, $template, $order, $payment);
-
-    abstract public function FailedPaymenttoAdmin($invoice, $total, $productName, $exceptionMessage, $user, $template, $order, $payment);
-
-    abstract public function calculateUnitCost($currency, $cost);
-
-    abstract public function sendPaymentSuccessMail($sub, $currency, $total, $user, $product, $number);
-
-    abstract public function sendFailedPayment($total, $exceptionMessage, $user, $number, $end, $currency, $order, $product_details, $invoice, $payment);
+    abstract public function sendFailedPayment(float|int|null $total, string $exceptionMessage, ?User $user, ?string $number, string $end, ?string $currency, ?Order $order, ?Product $product_details, ?Invoice $invoice, Payment|string|null $payment, bool $cancelAtGateway = true, bool $clearSubscribeId = true): void;
 }
 
 class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleController
 {
-    public function __construct(Invoice $invoiceModel, Order $orderModel, StatusSetting $statusSettingModel, Plan $plan, Subscription $sub, Payment $payment)
+    public function successRenew(Invoice $invoice, Subscription $subscription, string $payment_method, string $currency): int
     {
-        parent::__construct($invoiceModel, $orderModel, $statusSettingModel, $plan, $sub, $payment);
+        $sub = $this->sub->find($subscription->id);
+        $plan = $this->plan->find($subscription->plan_id);
+        if (! $sub instanceof Subscription || ! $plan instanceof Plan) {
+            throw new Exception('Subscription or Plan not found');
+        }
+
+        // Extend dates first — if this fails, invoice remains pending (safe to retry)
+        resolve(SubscriptionRenewalService::class)->extendDates($sub, (int) $plan->days, fromNowIfExpired: true);
+
+        $processingFee = $this->getProcessingFee($payment_method, $currency);
+        $invoice->update(['processing_fee' => $processingFee, 'status' => 'success']);
+
+        return $sub->id;
     }
 
-    public function successRenew($invoice, $subscription, $payment_method, $currency)
+    public function recordPayment(Invoice $invoice, string $payment_method): Payment
+    {
+        $invoice->update(['status' => 'success']);
+
+        $payment = $this->payment->create([
+            'invoice_id' => 0,
+            'parent_id' => 0,
+            'user_id' => $invoice->user_id,
+            'amount' => $invoice->grand_total,
+            'payment_method' => $payment_method,
+            'payment_status' => 'success',
+            'created_at' => Date::now()->toDateTimeString(),
+            'currency' => $invoice->currency,
+        ]);
+
+        $payment->invoices()->attach($invoice->id, ['amount' => $invoice->grand_total]);
+
+        return $payment;
+    }
+
+    public function getProcessingFee(string $paymentMethod, string $currency): ?string
+    {
+        $percent = ProcessingFee::percent($paymentMethod);
+
+        // Stored as the same "2.5%" label the checkout/pay flow uses, so the
+        // invoice's grand_total (already fee-inclusive) reconciles on display.
+        return $percent > 0 ? ProcessingFee::label($percent) : null;
+    }
+
+    /**
+     * Notifies the admin of a successful renewal payment. Never lets a
+     * failure here propagate — by the time this runs, the payment has
+     * already been recorded, and a notification-email hiccup must not
+     * affect that.
+     */
+    public function PaymentSuccessMailtoAdmin(Invoice $invoice, float|int $total, User $user, string $productName, Order $order, Payment|string $payment): void
     {
         try {
-            $processingFee = $this->getProcessingFee($payment_method, $currency);
-            Invoice::where('id', $invoice->invoice_id)->update(['processing_fee' => $processingFee, 'status' => 'success']);
-            $id = $subscription->id;
-            $planid = $subscription->plan_id;
-            $plan = $this->plan->find($planid);
-            $days = $plan->days;
-            $sub = $this->sub->find($id);
-            $permissions = LicensePermissionsController::getPermissionsForProduct($sub->product_id);
-            $licenseExpiry = $this->getExpiryDate($permissions['generateLicenseExpiryDate'], $sub, $days);
-            $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $sub, $days);
-            $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $sub, $days);
-            $sub->ends_at = $licenseExpiry;
-            $sub->update_ends_at = $updatesExpiry;
-            $sub->support_ends_at = $supportExpiry;
-            $sub->save();
-            if (Order::where('id', $sub->order_id)->value('license_mode') == 'File') {
-                Order::where('id', $sub->order_id)->update(['is_downloadable' => 0]);
-            } else {
-                $licenseStatus = StatusSetting::pluck('license_status')->first();
-                if ($licenseStatus == 1) {
-                    $this->editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry);
-                }
+            $setting = Setting::find(1);
+            if (! $setting instanceof Setting) {
+                return;
             }
 
-            return $id;
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+            $template = TemplateType::getSelectedTemplate('payment_successfull');
+            if (! $template instanceof Template) {
+                return;
+            }
+
+            $amount = currencyFormat($total, getCurrencyForClient($user->country));
+            $currency = getCurrencyForClient($user->country);
+            $paymentSuccessdata = 'Payment for '.$productName.' of '.$currency.' '.$total.' successful by '.$user->first_name.' '.$user->last_name.' Email: '.$user->email;
+
+            $mail = new PhpMailController;
+            $mail->SendEmail((string) $setting->email, (string) $setting->company_email, $paymentSuccessdata, 'payment-success', $template->type()->value('name'));
+            $mail->payment_log($user->email, $payment, 'success', $order->number, amount: $amount, payment_type: 'Product renew');
+        } catch (Throwable $throwable) {
+            Logger::exception($throwable);
         }
     }
 
-    public function getExpiryDate($permissions, $sub, $days)
-    {
-        $expiry_date = '';
-        if ($days > 0 && $permissions == 1) {
-            $date = \Carbon\Carbon::parse($sub->ends_at);
-            if ($date->isPast()) {
-                $date = now();
-            }
-            $expiry_date = $date->addDays((int) $days);
-        }
-
-        return $expiry_date;
-    }
-
-    public function getUpdatesExpiryDate($permissions, $sub, $days)
-    {
-        $expiry_date = '';
-        if ($days > 0 && $permissions == 1) {
-            $date = \Carbon\Carbon::parse($sub->update_ends_at);
-            if ($date->isPast()) {
-                $date = now();
-            }
-            $expiry_date = $date->addDays((int) $days);
-        }
-
-        return $expiry_date;
-    }
-
-    public function getSupportExpiryDate($permissions, $sub, $days)
-    {
-        $expiry_date = '';
-        if ($days > 0 && $permissions == 1) {
-            $date = \Carbon\Carbon::parse($sub->support_ends_at);
-            if ($date->isPast()) {
-                $date = now();
-            }
-            $expiry_date = $date->addDays((int) $days);
-        }
-
-        return $expiry_date;
-    }
-
-    public function editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry)
-    {
-        $productId = $sub->product_id;
-        $domain = $sub->order->domain;
-        $orderNo = $sub->order->number;
-        $licenseCode = $sub->order->serial_key;
-        $expiryDate = $updatesExpiry ? Carbon::parse($updatesExpiry)->format('Y-m-d') : '';
-        $licenseExpiry = $licenseExpiry ? Carbon::parse($licenseExpiry)->format('Y-m-d') : '';
-        $supportExpiry = $supportExpiry ? Carbon::parse($supportExpiry)->format('Y-m-d') : '';
-        $noOfAllowedInstallation = '';
-        $getInstallPreference = '';
-        $cont = new \App\Http\Controllers\License\LicenseController();
-        $noOfAllowedInstallation = $cont->getNoOfAllowedInstallation($licenseCode, $productId);
-        $getInstallPreference = $cont->getInstallPreference($licenseCode, $productId);
-        $updateLicensedDomain = $cont->updateExpirationDate($licenseCode, $expiryDate, $productId, $domain, $orderNo, $licenseExpiry, $supportExpiry, $noOfAllowedInstallation, $getInstallPreference);
-    }
-
-    public function postRazorpayPayment($invoice, $payment_method)
+    /**
+     * Notifies the admin of a failed renewal payment. Never lets a failure
+     * here propagate — by the time this runs, the subscription has already
+     * been deactivated and the customer already notified; a missing
+     * Settings/Template row must not turn into an uncaught exception that
+     * takes the whole webhook request down (Razorpay/Stripe would retry the
+     * webhook, but the retry finds nothing left to act on since the
+     * subscription's already been reset — so the failure would otherwise go
+     * completely unrecorded).
+     */
+    public function FailedPaymenttoAdmin(?Invoice $invoice, float|int $total, string $productName, string $exceptionMessage, User $user, string $template, Order $order, Payment $payment): void
     {
         try {
-            $invoice = Invoice::where('id', $invoice->invoice_id)->first();
-
-            $payment_status = 'success';
-            $payment_date = \Carbon\Carbon::now()->toDateTimeString();
-
-            $invoice = Invoice::find($invoice->id);
-
-            $invoice->status = 'success';
-            $invoice->save();
-
-            $payment = $this->payment->create([
-                'invoice_id' => $invoice->id,
-                'user_id' => $invoice->user_id,
-                'amount' => $invoice->grand_total,
-                'payment_method' => $payment_method,
-                'payment_status' => $payment_status,
-                'created_at' => $payment_date,
-            ]);
-            $all_payments = $this->payment
-            ->where('invoice_id', $invoice->id)
-            ->where('payment_status', 'success')
-            ->pluck('amount')->toArray();
-            $total_paid = array_sum($all_payments);
-            if ($total_paid >= $invoice->grand_total) {
-                $invoice_status = 'success';
+            $amount = currencyFormat($total, getCurrencyForClient($user->country));
+            $setting = Setting::find(1);
+            if (! $setting instanceof Setting) {
+                return;
             }
-
-            return $payment;
-        } catch (\Exception $ex) {
-            echo $ex->getMessage();
+            $currency = getCurrencyForClient($user->country);
+            $paymentFailData = 'Payment for of '.$currency.' '.$total.' '.'failed by'.' '.$user->first_name.' '.$user->last_name.' '.'. User Email:'.' '.$user->email.'<br>'.'Reason:'.$exceptionMessage;
+            $mail = new PhpMailController;
+            $dbTemplate = Template::where('name', $template)->first();
+            if (! $dbTemplate instanceof Template) {
+                return;
+            }
+            $mail->SendEmail((string) $setting->email, (string) $setting->company_email, $paymentFailData, 'payment-failed', $dbTemplate->type()->value('name'));
+            $mail->payment_log($user->email, $payment, 'failed', $order->number, $exceptionMessage, $amount, 'Product renew');
+        } catch (Throwable $throwable) {
+            Logger::exception($throwable);
         }
     }
 
-    public function getProcessingFee($paymentMethod, $currency)
-    {
-        if ($paymentMethod) {
-            $de = $paymentMethod == 'razorpay' ? 0 : \DB::table(strtolower($paymentMethod))->where('currencies', $currency)->value('processing_fee');
-            \DB::table(strtolower($paymentMethod))->where('currencies', $currency)->value('processing_fee');
-        }
-    }
-
-    public function PaymentSuccessMailtoAdmin($invoice, $total, $user, $productName, $template, $order, $payment)
-    {
-        $amount = currencyFormat($total, getCurrencyForClient($user->country));
-        $setting = Setting::find(1);
-        $currency = getCurrencyForClient($user->country);
-        $paymentSuccessdata = 'Payment for '.$productName.' of '.$currency.' '.$total.' successful by '.$user->first_name.' '.$user->last_name.' Email: '.$user->email;
-
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($setting->email, $setting->company_email, $paymentSuccessdata, 'payment-success', $template->type()->value('name'));
-        $mail->payment_log($user->email, $payment, 'success', $order->number, null, $amount, 'Product renew');
-    }
-
-    public function FailedPaymenttoAdmin($invoice, $total, $productName, $exceptionMessage, $user, $template, $order, $payment)
-    {
-        $amount = currencyFormat($total, getCurrencyForClient($user->country));
-        $setting = Setting::find(1);
-        $currency = getCurrencyForClient($user->country);
-        $paymentFailData = 'Payment for'.' '.'of'.' '.$currency.' '.$total.' '.'failed by'.' '.$user->first_name.' '.$user->last_name.' '.'. User Email:'.' '.$user->email.'<br>'.'Reason:'.$exceptionMessage;
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($setting->email, $setting->company_email, $paymentFailData, 'payment-failed', Template::where('name', $template)->type()->value('name'));
-        $mail->payment_log($user->email, $payment, 'failed', $order->number, $exceptionMessage, $amount, 'Product renew');
-    }
-
-    public function sendPaymentSuccessMail($sub, $currency, $total, $user, $product, $number)
+    public function sendPaymentSuccessMail(int $sub, string $currency, float|int $total, User $user, string $product, string $number): void
     {
         $future_expiry = Subscription::find($sub);
+        if (! $future_expiry instanceof Subscription) {
+            return;
+        }
         $contact = getContactData();
-        //check in the settings
-        $settings = new \App\Model\Common\Setting();
-        $setting = $settings::find(1);
+        // check in the settings
+        $setting = Setting::find(1);
+        if (! $setting instanceof Setting) {
+            return;
+        }
 
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
-        //template
-        $templates = new \App\Model\Common\Template();
-        $temp_id = $setting->payment_successfull;
-
-        $template = $templates->where('id', $temp_id)->first();
-        $date = date_create($future_expiry->update_ends_at);
+        $mail = new PhpMailController;
+        // template
+        $template = TemplateType::getSelectedTemplate('payment_successfull');
+        if (! $template instanceof Template) {
+            return;
+        }
+        $date = date_create((string) $future_expiry->update_ends_at);
+        if ($date === false) {
+            return;
+        }
         $end = date_format($date, 'l, F j, Y ');
 
         $replace = [
-            'name' => ucfirst($user->first_name).' '.ucfirst($user->last_name),
+            'name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'product' => $product,
-            'total' => currencyFormat($total, $code = $currency),
+            'total' => currencyFormat($total, $currency),
             'number' => $number,
             'contact' => $contact['contact'],
             'logo' => $contact['logo'],
@@ -253,56 +210,50 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             'reply_email' => $setting->company_email,
         ];
 
-        $type = '';
-        if ($template) {
-            $type_id = $template->type;
-            $temp_type = new \App\Model\Common\TemplateType();
-            $type = $temp_type->where('id', $type_id)->first()->name;
-        }
+        $type = $template->type()->value('name') ?? '';
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
-    public function sendFailedPayment($total, $exceptionMessage, $user, $number, $end, $currency, $order, $product_details, $invoice, $payment)
+    public function sendFailedPayment(float|int|null $total, string $exceptionMessage, ?User $user, ?string $number, string $end, ?string $currency, ?Order $order, ?Product $product_details, ?Invoice $invoice, Payment|string|null $payment, bool $cancelAtGateway = true, bool $clearSubscribeId = true): void
     {
+        if (! $order instanceof Order || ! $product_details instanceof Product || ! $user instanceof User) {
+            return;
+        }
         $contact = getContactData();
-        //check in the settings
-        $settings = new \App\Model\Common\Setting();
-        $setting = $settings::find(1);
+        // check in the settings
+        $setting = Setting::find(1);
+        if (! $setting instanceof Setting) {
+            return;
+        }
 
-        $this->disableAutorenewalStatusByOrderId($order->id);
+        $this->disableAutorenewalStatusByOrderId($order->id, $cancelAtGateway, $clearSubscribeId);
 
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mailer = $mail->setMailConfig($setting);
-        //template
-        $templates = new \App\Model\Common\Template();
-        $temp_id = $setting->payment_failed;
-
-        $template = $templates->where('id', $temp_id)->first();
-        $url = url("autopaynow/$invoice->invoice_id");
-        $type = '';
-        $replace = ['name' => ucfirst($user->first_name).' '.ucfirst($user->last_name),
+        $mail = new PhpMailController;
+        $mail->setMailConfig($setting);
+        // template
+        $template = TemplateType::getSelectedTemplate('payment_failed');
+        if (! $template instanceof Template) {
+            return;
+        }
+        $url = url('my-invoices');
+        $expiryTime = strtotime($end);
+        $replace = ['name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'product' => $product_details->name,
-            'total' => $total ? currencyFormat($total, $code = $currency) : 'N/A',
+            'total' => $total ? currencyFormat($total, $currency) : 'N/A',
             'number' => $number,
-            'expiry' => date('d-m-Y', strtotime($end)),
+            'expiry' => ($expiryTime !== false) ? date('d-m-Y', $expiryTime) : '',
             'exception' => $exceptionMessage,
             'url' => $url,
             'contact' => $contact['contact'],
             'logo' => $contact['logo'],
             'reply_email' => $setting->company_email, ];
-        $type = '';
-
-        if ($template) {
-            $type_id = $template->type;
-            $temp_type = new \App\Model\Common\TemplateType();
-            $type = $temp_type->where('id', $type_id)->first()->name;
-        }
+        $type = $template->type()->value('name') ?? '';
 
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
-        $this->FailedPaymenttoAdmin($invoice, $total, $product_details->name, $exceptionMessage, $user, $template->name, $order, $payment);
+        $this->FailedPaymenttoAdmin($invoice, $total ?? 0, $product_details->name, $exceptionMessage, $user, $template->name, $order, $payment instanceof Payment ? $payment : new Payment);
     }
 
-    public function calculateUnitCost($currency, $cost)
+    public function calculateUnitCost(string $currency, float|int $cost): float
     {
         $decimalPlaces = [
             'BIF' => 0, 'CLP' => 0, 'DJF' => 0, 'GNF' => 0, 'JPY' => 0,
@@ -314,50 +265,26 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
 
         $decimalPlacesForCurrency = $decimalPlaces[$currency] ?? 2;
 
-        if ($decimalPlacesForCurrency === 0) {
-            $unit_cost = round((int) $cost);
-        } elseif ($decimalPlacesForCurrency === 3) {
-            $unit_cost = round((int) $cost) * 1000;
-        } else {
-            $unit_cost = round((int) $cost) * 100;
-        }
-
-        return $unit_cost;
+        // Multiply first, then round — casting to (int) before multiplying
+        // (the previous implementation) truncates the fractional part, e.g.
+        // $19.99 became 1900 (i.e. $19.00), silently dropping $0.99 off every
+        // cron-driven renewal charge. Matches the global calculateUnitCost()
+        // helper's math (app/Http/helpers.php).
+        return round($cost * (10 ** $decimalPlacesForCurrency));
     }
 
-    public function disableAutorenewalStatusByOrderId($orderId)
+    /**
+     * $cancelAtGateway must be false when the caller is reacting to a
+     * gateway-reported failure the gateway itself still considers
+     * recoverable — see {@see AutoRenewalActivationService::deactivate()}.
+     */
+    public function disableAutorenewalStatusByOrderId(int $orderId, bool $cancelAtGateway = true, bool $clearSubscribeId = true): void
     {
-        try {
-            $subscription = Subscription::where('order_id', $orderId)->first();
-
-            $cancellationHandlers = collect([
-                'rzp_subscription' => function ($subscribeId) {
-                    $apiKeys = ApiKey::select('rzp_key', 'rzp_secret')->first();
-                    $api = new Api($apiKeys->rzp_key, $apiKeys->rzp_secret);
-                    $api->subscription->fetch($subscribeId)->cancel();
-                },
-                'autoRenew_status' => function ($subscribeId) {
-                    $stripeSecretKey = ApiKey::value('stripe_secret');
-                    $stripe = new \Stripe\StripeClient($stripeSecretKey);
-                    $stripe->subscriptions->cancel($subscribeId, []);
-                },
-            ]);
-
-            if ($subscription->is_subscribed && $subscription->subscribe_id) {
-                $cancellationHandlers
-                    ->filter(fn ($handler, $field) => $subscription->$field)
-                    ->first()($subscription->subscribe_id);
-            }
-
-            $subscription->update([
-                'is_subscribed' => 0,
-                'autoRenew_status' => 0,
-                'rzp_subscription' => 0,
-            ]);
-        } catch (\Exception $ex) {
-            \Log::error('Subscription cancellation failed: '.$ex->getMessage());
-
+        $subscription = Subscription::where('order_id', $orderId)->first();
+        if (! $subscription instanceof Subscription) {
             return;
         }
+
+        resolve(AutoRenewalActivationService::class)->deactivate($subscription, $cancelAtGateway, $clearSubscribeId);
     }
 }

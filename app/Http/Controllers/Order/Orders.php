@@ -3,82 +3,80 @@
 namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Date;
 
 class Orders extends Controller
 {
-    public $orderid;
-
-    public function __construct($order_id)
+    public function __construct(public mixed $orderid)
     {
-        $this->orderid = $order_id;
     }
 
-    public function getOrder()
+    public function getOrder(): mixed
     {
         /** @scrutinizer ignore-call */
-        $order = self::find($this->orderid);
+        $order = self::find($this->orderid); // @phpstan-ignore staticMethod.notFound
 
         return $order;
     }
 
-    public function getSubscription()
+    public function getSubscription(): mixed
     {
         $order = $this->getOrder();
         if ($order) {
-            $subscription = $order->subscription;
-
-            return $subscription;
+            return $order->subscription;
         }
+
+        return null;
     }
 
-    public function getProduct()
+    public function getProduct(): mixed
     {
         $order = $this->getOrder();
         if ($order) {
-            $product = $order->product;
-
-            return $product;
+            return $order->product;
         }
+
+        return null;
     }
 
-    public function getPlan()
+    public function getPlan(): mixed
     {
         $subscription = $this->getSubscription();
         if ($subscription) {
-            $plan = $subscription->plan;
-
-            return $plan;
+            return $subscription->plan;
         }
+
+        return null;
     }
 
-    public function subscriptionPeriod()
+    public function subscriptionPeriod(): mixed
     {
         $days = '';
         $plan = $this->getPlan();
         if ($plan) {
-            $days = $plan->days;
+            return $plan->days;
         }
 
         return $days;
     }
 
-    public function version()
+    public function version(): mixed
     {
         $subscription = $this->getSubscription();
         if ($subscription) {
-            $version = $subscription->vesion;
+            return $subscription->vesion;
         }
 
-        return $version;
+        return null;
     }
 
-    public function isExpired()
+    public function isExpired(): mixed
     {
         $expired = false;
         $subscription = $this->getSubscription();
         if ($subscription) {
             $end = $subscription->ends_at;
-            $today = \Carbon\Carbon::now();
+            $today = Date::now();
             if ($today->gt($end)) {
                 $expired = true;
             }
@@ -87,18 +85,18 @@ class Orders extends Controller
         return $expired;
     }
 
-    public function productName()
+    public function productName(): mixed
     {
         $name = '';
         $product = $this->getProduct();
         if ($product) {
-            $name = $product->name;
+            return $product->name;
         }
 
         return $name;
     }
 
-    public function isDownloadable()
+    public function isDownloadable(): mixed
     {
         $check = false;
         $product = $this->getProduct();
