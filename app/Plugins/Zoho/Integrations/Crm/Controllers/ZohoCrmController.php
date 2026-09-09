@@ -45,7 +45,8 @@ class ZohoCrmController extends ZohoBaseController
 
             return successResponse('CRM fields synced successfully');
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -77,8 +78,11 @@ class ZohoCrmController extends ZohoBaseController
             $this->addUserDataToCrm($data['email']);
 
             return successResponse('CRM contact created successfully');
-        } catch (Exception $exception) {
+        } catch (\Illuminate\Validation\ValidationException $exception) {
             return errorResponse($exception->getMessage());
+        } catch (Exception $exception) {
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

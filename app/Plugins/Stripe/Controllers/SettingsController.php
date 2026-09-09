@@ -56,7 +56,8 @@ class SettingsController extends Controller
                 'webhook_url' => url('pay/webhook/stripe'),
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -103,7 +104,8 @@ class SettingsController extends Controller
 
             return successResponse(__('message.stripe_settings_updated_successfully'));
         } catch (AuthenticationException|Exception $e) {
-            return errorResponse($e->getMessage());
+            \Logger::exception($e);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

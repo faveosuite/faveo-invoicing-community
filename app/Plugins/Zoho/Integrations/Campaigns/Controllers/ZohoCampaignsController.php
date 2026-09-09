@@ -43,7 +43,8 @@ class ZohoCampaignsController extends ZohoBaseController
 
             return successResponse('Campaigns fields and topics synced successfully');
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -67,8 +68,11 @@ class ZohoCampaignsController extends ZohoBaseController
             $this->subscribe($data['email'], 'newsletter');
 
             return successResponse('Subscribed successfully');
-        } catch (Exception $exception) {
+        } catch (\Illuminate\Validation\ValidationException $exception) {
             return errorResponse($exception->getMessage());
+        } catch (Exception $exception) {
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

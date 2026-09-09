@@ -45,7 +45,8 @@ class EmailSettingsController extends Controller
 
             return successResponse('', $set);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -66,8 +67,11 @@ class EmailSettingsController extends Controller
             $this->emailConfig->save();
 
             return successResponse(__('message.email_settings_saved'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

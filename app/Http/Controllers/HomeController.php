@@ -81,7 +81,8 @@ class HomeController extends BaseHomeController
 
             return self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
         } catch (Exception $exception) {
-            $result = ['status' => 'error', 'message' => $exception->getMessage()];
+            \Logger::exception($exception);
+            $result = ['status' => 'error', 'message' => __('message.sorry_something_wrong')];
 
             $jsonResult = json_encode($result);
 
@@ -336,7 +337,7 @@ class HomeController extends BaseHomeController
             }
         } catch (Exception $exception) {
             Logger::exception($exception);
-            $message = ['error' => $exception->getMessage()];
+            $message = ['error' => __('message.sorry_something_wrong')];
         }
 
         return response()->json($message);
@@ -415,7 +416,8 @@ class HomeController extends BaseHomeController
                 }
             }
         } catch (Exception $exception) {
-            $message = ['error' => $exception->getMessage()];
+            \Logger::exception($exception);
+            $message = ['error' => __('message.sorry_something_wrong')];
         }
 
         return response()->json($message);

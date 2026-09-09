@@ -408,7 +408,8 @@ trait ApiKeySettings
                 'pdf_driver' => $settings->pdf_driver ?? 'chrome',
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -426,7 +427,8 @@ trait ApiKeySettings
 
             return successResponse(trans('message.setting_updated'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -459,7 +461,8 @@ trait ApiKeySettings
 
             return successResponse(__('message.updated_successfully'));
         } catch (\Exception $e) {
-            return errorResponse($e->getMessage());
+            \Logger::exception($e);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 }

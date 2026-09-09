@@ -183,8 +183,11 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
                 'symbol' => $symbol,
                 'currency' => $currency,
             ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 }

@@ -71,7 +71,8 @@ class CurrencyController extends Controller
 
             return successResponse(__('message.currency_list_retrieved_successfully'), $currencyData);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage(), 500);
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'), 500);
         }
     }
 
@@ -132,7 +133,8 @@ class CurrencyController extends Controller
 
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -155,8 +157,11 @@ class CurrencyController extends Controller
                     'status' => $currency->status,
                 ]);
             });
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -173,8 +178,11 @@ class CurrencyController extends Controller
             ]);
 
             return successResponse(__('message.updated-successfully'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 }

@@ -57,7 +57,8 @@ class PaymentSettingsController extends Controller
 
             return $attributes;
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -134,7 +135,8 @@ class PaymentSettingsController extends Controller
 
             return successResponse('', array_values($configs));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage(), 500);
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'), 500);
         }
     }
 

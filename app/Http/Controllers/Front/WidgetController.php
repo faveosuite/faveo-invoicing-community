@@ -54,7 +54,8 @@ class WidgetController extends Controller
 
             return successResponse(__('message.widget_fetched'), $widgets);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -81,7 +82,8 @@ class WidgetController extends Controller
                 200
             );
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -116,7 +118,8 @@ class WidgetController extends Controller
 
             return successResponse(__('message.saved-successfully'), '', 201);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -171,7 +174,8 @@ class WidgetController extends Controller
 
             return successResponse(__('message.updated-successfully'), ['widgets' => $widget], 200);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -206,7 +210,8 @@ class WidgetController extends Controller
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 }

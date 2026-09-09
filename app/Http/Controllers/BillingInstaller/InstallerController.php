@@ -97,7 +97,8 @@ class InstallerController extends Controller
         try {
             Artisan::call('migrate', ['--force' => true]);
         } catch (Exception $exception) {
-            $result = ['error' => $exception->getMessage()];
+            \Logger::exception($exception);
+            $result = ['error' => __('message.sorry_something_wrong')];
 
             return response()->json(compact('result'), 500);
         }
@@ -121,7 +122,8 @@ class InstallerController extends Controller
 
             $this->env($default, $host, $port, $database, $dbusername, $dbpassword, sslKey: $sslKey, sslCert: $sslCert, sslCa: $sslCa, sslVerify: $sslVerify);
         } catch (Exception $exception) {
-            return response()->json(['result' => $exception->getMessage()], 500);
+            \Logger::exception($exception);
+            return response()->json(['result' => __('message.sorry_something_wrong')], 500);
         }
 
         if ($api) {
@@ -354,8 +356,9 @@ class InstallerController extends Controller
             // Return success response
             return successResponse(__('installer_messages.setup_completed'), '201');
         } catch (Exception $exception) {
+            \Logger::exception($exception);
             // Return error response in case of exception
-            return errorResponse($exception->getMessage(), 400);
+            return errorResponse(__('message.sorry_something_wrong'), 400);
         }
     }
 
@@ -412,7 +415,7 @@ class InstallerController extends Controller
         } catch (Exception $exception) {
             Logger::exception($exception);
 
-            return errorResponse($exception->getMessage());
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

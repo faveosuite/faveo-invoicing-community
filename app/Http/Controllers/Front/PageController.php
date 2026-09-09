@@ -67,7 +67,8 @@ class PageController extends Controller
 
             return successResponse('', $page);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -96,8 +97,11 @@ class PageController extends Controller
                 'recaptcha_key' => $apiKeys->nocaptcha_sitekey ?? null,
                 'msg91_status' => (bool) ($status->msg91_status ?? false),
             ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -254,8 +258,11 @@ class PageController extends Controller
             }
 
             return successResponse(__('message.message_sent_successfully_400'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -339,8 +346,11 @@ class PageController extends Controller
             }
 
             return successResponse(__('message.message_sent_successfully_400'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -504,7 +514,8 @@ class PageController extends Controller
 
             return successResponse(__('message.saved-successfully'), $page);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -516,8 +527,11 @@ class PageController extends Controller
             $data['og_image'] = $page->og_image ? Attach::getUrlPath('images/'.$page->og_image) : null;
 
             return successResponse('', $data);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -551,8 +565,11 @@ class PageController extends Controller
             $this->regenerateSeoFiles();
 
             return successResponse(__('message.updated-successfully'), $page);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Throwable $throwable) {
-            return errorResponse($throwable->getMessage());
+            \Logger::exception($throwable);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 }

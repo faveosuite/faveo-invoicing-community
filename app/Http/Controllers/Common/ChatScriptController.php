@@ -46,7 +46,8 @@ class ChatScriptController extends Controller
 
             return successResponse(__('message.scripts_fetched'), $scripts);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -73,7 +74,7 @@ class ChatScriptController extends Controller
         } catch (Exception $exception) {
             Logger::exception($exception);
 
-            return errorResponse($exception->getMessage());
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -93,7 +94,8 @@ class ChatScriptController extends Controller
 
             return successResponse(__('message.chat_fetched'), $chat);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -130,7 +132,7 @@ class ChatScriptController extends Controller
         } catch (Exception $exception) {
             Log::error($exception->getMessage());
 
-            return errorResponse($exception->getMessage(), 500);
+            return errorResponse(__('message.sorry_something_wrong'), 500);
         }
     }
 
@@ -162,7 +164,8 @@ class ChatScriptController extends Controller
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage(), 500);
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'), 500);
         }
     }
 }

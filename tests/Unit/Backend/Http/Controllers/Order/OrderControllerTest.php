@@ -126,7 +126,7 @@ class OrderControllerTest extends DBTestCase
     // GET /getOrderPayments/{orderId} — 400 error shape
     // =========================================================================
 
-    public function test_payments_for_nonexistent_order_returns_400_with_model_not_found_message(): void
+    public function test_payments_for_nonexistent_order_returns_400_with_record_not_found_message(): void
     {
         $this->getLoggedInUser('admin');
         $response = $this->getJson('/getOrderPayments/999999999');
@@ -134,8 +134,7 @@ class OrderControllerTest extends DBTestCase
         $response->assertStatus(400);
         $json = $response->json();
         $this->assertFalse($json['success']);
-        $this->assertArrayHasKey('message', $json);
-        $this->assertStringContainsString('999999999', $json['message']);
+        $this->assertSame(__('message.record_not_found'), $json['message']);
     }
 
     // =========================================================================

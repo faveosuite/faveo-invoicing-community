@@ -67,7 +67,8 @@ trait ChunkUpload
                 'status' => true,
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage(), 500);
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'), 500);
         }
     }
 

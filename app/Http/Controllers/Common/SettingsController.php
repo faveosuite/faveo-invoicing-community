@@ -125,7 +125,8 @@ class SettingsController extends BaseSettingsController
 
             return successResponse('', compact('types', 'templates'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -139,7 +140,8 @@ class SettingsController extends BaseSettingsController
 
             return successResponse($this->langStr('message.updated-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -156,7 +158,8 @@ class SettingsController extends BaseSettingsController
                 'error_email' => $set->error_email ?? '',
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -216,7 +219,8 @@ class SettingsController extends BaseSettingsController
                 ],
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -271,7 +275,8 @@ class SettingsController extends BaseSettingsController
 
             return successResponse($this->langStr('message.updated-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -299,7 +304,8 @@ class SettingsController extends BaseSettingsController
 
             return successResponse($this->langStr('message.updated-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -353,7 +359,8 @@ class SettingsController extends BaseSettingsController
                 'prev_page_url' => $page > 1 ? $base.'?page='.($page - 1).'&limit='.$perPage : null,
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -381,8 +388,11 @@ class SettingsController extends BaseSettingsController
             ]);
 
             return successResponse($this->langStr('message.pipedrive_setting'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -403,7 +413,8 @@ class SettingsController extends BaseSettingsController
                 ],
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -456,7 +467,8 @@ class SettingsController extends BaseSettingsController
                 ],
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -493,8 +505,11 @@ class SettingsController extends BaseSettingsController
             }
 
             return successResponse($this->langStr('message.updated-successfully'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -525,7 +540,8 @@ class SettingsController extends BaseSettingsController
 
             return successResponse($this->langStr('message.updated-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -570,7 +586,8 @@ class SettingsController extends BaseSettingsController
                 'regions' => $regions,
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -581,8 +598,11 @@ class SettingsController extends BaseSettingsController
             $email = Email_log::findOrFail($id);
 
             return successResponse('', ['body' => $email->body, 'subject' => $email->subject]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -650,7 +670,8 @@ class SettingsController extends BaseSettingsController
 
             return successResponse('', $logs);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -671,7 +692,8 @@ class SettingsController extends BaseSettingsController
 
             return successResponse('', ['modules' => $modules, 'users' => $users]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -747,7 +769,8 @@ class SettingsController extends BaseSettingsController
 
             return successResponse('', $logs);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -887,8 +910,11 @@ class SettingsController extends BaseSettingsController
             Payment_log::whereIn('id', $ids)->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $exception) {
+        } catch (\Illuminate\Validation\ValidationException $exception) {
             return errorResponse($exception->getMessage());
+        } catch (Exception $exception) {
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -943,7 +969,8 @@ class SettingsController extends BaseSettingsController
                     'status' => ucwords(str_replace('_', ' ', (string) $r->status)),
                 ])));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -969,7 +996,8 @@ class SettingsController extends BaseSettingsController
 
             return successResponse(trans('message.success'), $final);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -1059,7 +1087,8 @@ class SettingsController extends BaseSettingsController
                 'third_party_apps' => $thirdPartyApps,
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -1073,7 +1102,8 @@ class SettingsController extends BaseSettingsController
                 'password' => $github->password ?? '',
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -1084,7 +1114,8 @@ class SettingsController extends BaseSettingsController
                 'terms_url' => ApiKey::value('terms_url') ?? '',
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -1113,7 +1144,8 @@ class SettingsController extends BaseSettingsController
                 'status_options' => array_map(fn ($b, $n): array => ['bit' => $b, 'name' => ucwords(str_replace('_', ' ', $n))], $statusBits, $statusNames),
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -1135,7 +1167,8 @@ class SettingsController extends BaseSettingsController
                 'mode' => $provider->mode ?? 'basic',
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

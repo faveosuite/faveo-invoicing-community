@@ -335,7 +335,8 @@ class TenantController extends Controller
 
             return ['status' => 'fails', 'message' => 'Invalid token'];
         } catch (Exception $exception) {
-            return ['status' => 'fails', 'message' => $exception->getMessage()];
+            \Logger::exception($exception);
+            return ['status' => 'fails', 'message' => __('message.sorry_something_wrong')];
         }
     }
 
@@ -403,7 +404,7 @@ class TenantController extends Controller
             $message = 'Tenant deletion error, Request '.json_encode($request->all()).'. Reason: '.$exception->getMessage();
             $this->googleChat($message);
 
-            return errorResponse($exception->getMessage());
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -696,10 +697,12 @@ class TenantController extends Controller
             dispatch(new ReportExport('tenats', $selectedColumns, $searchParams, $email))->onQueue('reports');
 
             return successResponse(__('message.system_generating_report'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             Logger::exception($exception);
 
-            return errorResponse($exception->getMessage());
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

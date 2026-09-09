@@ -36,7 +36,8 @@ class SettingsController extends Controller
                 'webhook_url' => url('pay/webhook/razorpay'),
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -88,7 +89,8 @@ class SettingsController extends Controller
 
             return successResponse(__('message.razorpay_settings_updated_successfully'));
         } catch (BadRequestError|Exception $e) {
-            return errorResponse($e->getMessage());
+            \Logger::exception($e);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 }

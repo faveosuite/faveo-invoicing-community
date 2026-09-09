@@ -57,7 +57,8 @@ trait CoupCodeAndInvoiceSearch
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -101,7 +102,8 @@ trait CoupCodeAndInvoiceSearch
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 }

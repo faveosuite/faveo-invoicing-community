@@ -98,7 +98,7 @@ class LicensePermissionsController extends Controller
         } catch (Exception $exception) {
             Logger::exception($exception);
 
-            return errorResponse($exception->getMessage());
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

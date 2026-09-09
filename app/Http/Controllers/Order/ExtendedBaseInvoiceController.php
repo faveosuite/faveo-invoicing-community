@@ -63,8 +63,11 @@ class ExtendedBaseInvoiceController extends Controller
                 'invoices' => $invoices,
                 'currencies' => $currencies,
             ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -89,7 +92,8 @@ class ExtendedBaseInvoiceController extends Controller
 
             return successResponse(__('message.saved-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

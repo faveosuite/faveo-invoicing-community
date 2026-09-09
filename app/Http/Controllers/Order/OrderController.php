@@ -207,7 +207,8 @@ class OrderController extends BaseOrderController
 
             return successResponse('', $paginated);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -282,7 +283,8 @@ class OrderController extends BaseOrderController
 
             return successResponse('', $installationDetails);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -309,7 +311,8 @@ class OrderController extends BaseOrderController
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -404,10 +407,12 @@ class OrderController extends BaseOrderController
                 ->onQueue('reports');
 
             return successResponse(__('message.system_generating_report'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             Logger::exception($exception);
 
-            return errorResponse($exception->getMessage());
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -453,8 +458,11 @@ class OrderController extends BaseOrderController
             ]);
 
             return successResponse('', $payments);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

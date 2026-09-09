@@ -139,7 +139,8 @@ class LanguageController extends Controller
 
             return successResponse(__('message.language_fetched'), $result);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -156,8 +157,13 @@ class LanguageController extends Controller
             $language->save();
 
             return successResponse(__('message.language_status_updated_successfully'));
-        } catch (Exception $exception) {
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
+        } catch (\Illuminate\Validation\ValidationException $exception) {
             return errorResponse($exception->getMessage());
+        } catch (Exception $exception) {
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -172,8 +178,13 @@ class LanguageController extends Controller
             $setting->save();
 
             return successResponse(__('message.language_set_as_default'));
-        } catch (Exception $exception) {
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
+        } catch (\Illuminate\Validation\ValidationException $exception) {
             return errorResponse($exception->getMessage());
+        } catch (Exception $exception) {
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 }

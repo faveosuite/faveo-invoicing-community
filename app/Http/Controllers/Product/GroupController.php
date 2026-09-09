@@ -85,8 +85,11 @@ class GroupController extends Controller
             $data['og_image'] = $group->og_image ? Attach::getUrlPath('images/'.$group->og_image) : null;
 
             return successResponse('', $data);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -130,8 +133,11 @@ class GroupController extends Controller
             $this->regenerateSeoFiles();
 
             return successResponse(__('message.updated-successfully'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -153,7 +159,8 @@ class GroupController extends Controller
 
             return successResponse(__('message.saved-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -178,7 +185,8 @@ class GroupController extends Controller
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

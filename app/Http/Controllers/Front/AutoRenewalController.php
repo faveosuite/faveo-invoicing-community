@@ -165,8 +165,11 @@ class AutoRenewalController extends Controller
             $this->activation->deactivate($subscription, cancelAtGateway: true);
 
             return successResponse(__('message.auto_subscription_disabled'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

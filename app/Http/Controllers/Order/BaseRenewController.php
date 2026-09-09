@@ -139,7 +139,8 @@ class BaseRenewController extends Controller
                 'renewalPrice' => currencyFormat($renewalPrice, $currency, includeSymbol: false),
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

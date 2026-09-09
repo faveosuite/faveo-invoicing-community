@@ -68,7 +68,8 @@ class WhatsappController extends Controller
                 'verify_token' => $verify_token,
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -86,7 +87,8 @@ class WhatsappController extends Controller
 
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -139,7 +141,8 @@ class WhatsappController extends Controller
 
             return successResponse('', $users);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -186,7 +189,8 @@ class WhatsappController extends Controller
 
             return successResponse('', $paginated);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -230,7 +234,8 @@ class WhatsappController extends Controller
 
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -273,7 +278,8 @@ class WhatsappController extends Controller
 
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

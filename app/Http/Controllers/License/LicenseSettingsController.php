@@ -61,7 +61,8 @@ class LicenseSettingsController extends LicensePermissionsController
 
             return successResponse(__('message.saved-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -83,7 +84,8 @@ class LicenseSettingsController extends LicensePermissionsController
 
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -109,7 +111,8 @@ class LicenseSettingsController extends LicensePermissionsController
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -119,8 +122,11 @@ class LicenseSettingsController extends LicensePermissionsController
             $type = $this->licenseType->select('id', 'name')->findOrFail($id);
 
             return successResponse('', $type);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 }

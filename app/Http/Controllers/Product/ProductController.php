@@ -236,7 +236,8 @@ class ProductController extends BaseProductController
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
-            return errorResponse(__('message.errors_occurs_delete_product').' '.$exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.errors_occurs_delete_product'));
         }
     }
 
@@ -256,8 +257,11 @@ class ProductController extends BaseProductController
                 'product' => $product,
                 'github_status' => (bool) $githubStatus,
             ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -292,7 +296,8 @@ class ProductController extends BaseProductController
 
             return successResponse(__('message.product_uploaded_successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -351,7 +356,8 @@ class ProductController extends BaseProductController
 
             return successResponse(__('message.product_uploaded_successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -421,7 +427,8 @@ class ProductController extends BaseProductController
 
             return successResponse('', $uploads);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -445,8 +452,11 @@ class ProductController extends BaseProductController
                 'is_restricted' => (bool) $u->is_restricted,
                 'dependencies' => json_decode((string) $u->getRawOriginal('dependencies'), associative: true) ?: [],
             ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -497,8 +507,11 @@ class ProductController extends BaseProductController
             }
 
             return successResponse(__('message.product_updated_successfully'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -523,7 +536,8 @@ class ProductController extends BaseProductController
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -602,7 +616,8 @@ class ProductController extends BaseProductController
 
             return successResponse(__('message.saved-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -688,8 +703,11 @@ class ProductController extends BaseProductController
             });
 
             return successResponse(__('message.updated-successfully'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 }

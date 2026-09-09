@@ -117,8 +117,11 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             Logger::outgoingMailSent($id);
 
             return successResponse(trans('log::lang.queued_dispatch_successfully'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

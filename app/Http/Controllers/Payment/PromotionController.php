@@ -144,8 +144,11 @@ class PromotionController extends BasePromotionController
                 ->findOrFail($promotionId);
 
             return successResponse('', $promotion);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -183,7 +186,8 @@ class PromotionController extends BasePromotionController
         } catch (UniqueConstraintViolationException) {
             return errorResponse(__('message.coupon-code-exists'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -216,7 +220,8 @@ class PromotionController extends BasePromotionController
         } catch (UniqueConstraintViolationException) {
             return errorResponse(__('message.coupon-code-exists'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -239,7 +244,8 @@ class PromotionController extends BasePromotionController
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 }

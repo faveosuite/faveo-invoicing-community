@@ -77,7 +77,8 @@ class OpenPaymentController extends Controller
                 'order' => $this->formatOrder($order),
             ]);
         } catch (Exception $exception) {
-            return errorResponse(__('message.open_payment_order_create_failed').$exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.open_payment_order_create_failed').__('message.sorry_something_wrong'));
         }
     }
 
@@ -125,7 +126,8 @@ class OpenPaymentController extends Controller
         } catch (ModelNotFoundException) {
             return errorResponse(__('message.order_not_found'), 404);
         } catch (Exception $e) {
-            return errorResponse(__('message.open_payment_order_details_failed').$e->getMessage());
+            \Logger::exception($e);
+            return errorResponse(__('message.open_payment_order_details_failed').__('message.sorry_something_wrong'));
         }
     }
 
@@ -367,7 +369,8 @@ class OpenPaymentController extends Controller
 
             return successResponse('', $orders);
         } catch (Exception $exception) {
-            return errorResponse(__('message.fetch_orders_failed').$exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.fetch_orders_failed').__('message.sorry_something_wrong'));
         }
     }
 }

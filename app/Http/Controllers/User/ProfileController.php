@@ -51,7 +51,8 @@ class ProfileController extends BaseAuthController
 
             return successResponse('', ['bussinesses' => $bussinesses, 'user' => $user, 'timezones' => $timezones, 'state' => $state, 'states' => $states, 'is2faEnabled' => $is2faEnabled, 'dateSinceEnabled' => $dateSinceEnabled]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -73,11 +74,12 @@ class ProfileController extends BaseAuthController
 
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
+            \Logger::exception($exception);
             if ($request->expectsJson()) {
-                return errorResponse($exception->getMessage());
+                return errorResponse(__('message.sorry_something_wrong'));
             }
 
-            return errorResponse($exception->getMessage());
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -110,11 +112,12 @@ class ProfileController extends BaseAuthController
 
             return errorResponse(__('message.incorrect_old_password'));
         } catch (Exception $exception) {
+            \Logger::exception($exception);
             if ($request->expectsJson()) {
-                return errorResponse($exception->getMessage());
+                return errorResponse(__('message.sorry_something_wrong'));
             }
 
-            return errorResponse($exception->getMessage());
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

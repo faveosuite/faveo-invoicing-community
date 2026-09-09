@@ -65,7 +65,8 @@ class SyncBillingToLatestVersion
 
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -84,7 +85,8 @@ class SyncBillingToLatestVersion
 
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

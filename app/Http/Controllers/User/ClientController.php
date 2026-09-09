@@ -139,10 +139,12 @@ class ClientController extends AdvanceSearchController
                 ->onQueue('reports');
 
             return successResponse(__('message.system_generating_report'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             Logger::exception($exception);
 
-            return errorResponse($exception->getMessage());
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -185,10 +187,12 @@ class ClientController extends AdvanceSearchController
             }
 
             return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(shouldDelete: true);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             Log::error('Report Export Failure'.$exception->getMessage());
 
-            return errorResponse(__('message.export_failed').$exception->getMessage());
+            return errorResponse(__('message.export_failed').__('message.sorry_something_wrong'));
         }
     }
 
@@ -389,7 +393,8 @@ class ClientController extends AdvanceSearchController
 
             return successResponse(__('message.user-create-successfully'), $user);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -505,7 +510,8 @@ class ClientController extends AdvanceSearchController
 
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -547,7 +553,8 @@ class ClientController extends AdvanceSearchController
                 'credit_count' => CreditTransaction::where('user_id', $id)->count(),
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -593,7 +600,8 @@ class ClientController extends AdvanceSearchController
 
             return successResponse('', $invoices);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -640,7 +648,8 @@ class ClientController extends AdvanceSearchController
 
             return successResponse('', $transactions);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -703,7 +712,8 @@ class ClientController extends AdvanceSearchController
 
             return successResponse('', $payments);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -725,7 +735,8 @@ class ClientController extends AdvanceSearchController
 
             return successResponse('', $comments);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -751,7 +762,8 @@ class ClientController extends AdvanceSearchController
                 'author' => trim(auth()->user() instanceof User ? auth()->user()->first_name.' '.auth()->user()->last_name : ''),
             ]);
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -764,8 +776,11 @@ class ClientController extends AdvanceSearchController
             $comment->save();
 
             return successResponse(__('message.updated-successfully'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -775,8 +790,11 @@ class ClientController extends AdvanceSearchController
             Comment::where('id', $commentId)->where('user_id', $id)->firstOrFail()->delete();
 
             return successResponse(__('message.deleted-successfully'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

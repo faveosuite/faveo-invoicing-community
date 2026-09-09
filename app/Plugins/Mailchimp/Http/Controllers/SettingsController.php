@@ -46,7 +46,8 @@ class SettingsController extends Controller
                 'lists_has_more' => $listsData['has_more'],
             ]);
         } catch (Throwable $throwable) {
-            return errorResponse($throwable->getMessage());
+            \Logger::exception($throwable);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -92,7 +93,8 @@ class SettingsController extends Controller
                 'lists_has_more' => $listsData['has_more'],
             ]);
         } catch (Throwable $throwable) {
-            return errorResponse($throwable->getMessage());
+            \Logger::exception($throwable);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -110,7 +112,8 @@ class SettingsController extends Controller
 
             return successResponse(__('message.mailchimp_setting_successfully_saved'));
         } catch (Throwable $throwable) {
-            return errorResponse($throwable->getMessage());
+            \Logger::exception($throwable);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -182,7 +185,8 @@ class SettingsController extends Controller
                 'categories' => $categories,
             ]);
         } catch (Throwable $throwable) {
-            return errorResponse($throwable->getMessage());
+            \Logger::exception($throwable);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -195,7 +199,8 @@ class SettingsController extends Controller
 
             return successResponse(__('message.updated-successfully'));
         } catch (Throwable $throwable) {
-            return errorResponse($throwable->getMessage());
+            \Logger::exception($throwable);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -222,7 +227,8 @@ class SettingsController extends Controller
 
             return successResponse(__('message.updated-successfully'));
         } catch (Throwable $throwable) {
-            return errorResponse($throwable->getMessage());
+            \Logger::exception($throwable);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

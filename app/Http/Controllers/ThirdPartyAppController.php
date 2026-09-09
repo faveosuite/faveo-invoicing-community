@@ -85,7 +85,8 @@ class ThirdPartyAppController extends Controller
             $code = Str::random(32);
             echo $code;
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
 
         return null;
@@ -157,7 +158,8 @@ class ThirdPartyAppController extends Controller
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 }

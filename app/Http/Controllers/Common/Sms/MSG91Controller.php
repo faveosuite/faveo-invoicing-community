@@ -220,7 +220,8 @@ class MSG91Controller extends Controller
 
             return successResponse('', compact('statuses', 'sources', 'actions'));
         } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
+            \Logger::exception($exception);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

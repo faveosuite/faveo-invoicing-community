@@ -40,8 +40,11 @@ class DeployController extends Controller
                 ->get();
 
             return successResponse('', $versions->toArray());
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
         } catch (\Exception $e) {
-            return errorResponse($e->getMessage(), 500);
+            \Logger::exception($e);
+            return errorResponse(__('message.sorry_something_wrong'), 500);
         }
     }
 
@@ -96,7 +99,8 @@ class DeployController extends Controller
                 'extract' => $this->stepExtract($request, $credential, $deployPath),
             };
         } catch (\Exception $e) {
-            return errorResponse($e->getMessage());
+            \Logger::exception($e);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 

@@ -172,8 +172,9 @@ class AutomationControllerTest extends TestCase
     {
         $response = $this->getJson('retry/mail-log/999999'); // Non-existent ID
 
+        $response->assertStatus(400);
         $this->assertFalse($response['success']);
-        $this->assertStringContainsString('No query results', $response['message']);
+        $this->assertSame(__('message.record_not_found'), $response['message']);
     }
 
     #[Test]

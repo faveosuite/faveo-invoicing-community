@@ -172,7 +172,8 @@ class BaseHomeController extends Controller
 
             return ['status' => 'fails', 'message' => 'do-not-allow-auto-update'];
         } catch (Exception $exception) {
-            return ['status' => 'fails', 'error' => $exception->getMessage()];
+            \Logger::exception($exception);
+            return ['status' => 'fails', 'error' => __('message.sorry_something_wrong')];
         }
     }
 
@@ -253,7 +254,8 @@ class BaseHomeController extends Controller
 
             return ['status' => 'fails', 'message' => 'version-not updated'];
         } catch (Exception $exception) {
-            return ['status' => 'fails', 'error' => $exception->getMessage()];
+            \Logger::exception($exception);
+            return ['status' => 'fails', 'error' => __('message.sorry_something_wrong')];
         }
     }
 
@@ -315,7 +317,8 @@ class BaseHomeController extends Controller
                 return response()->json($result);
             }
         } catch (Exception $exception) {
-            $result = ['status' => 'fails', 'error' => $exception->getMessage()];
+            \Logger::exception($exception);
+            $result = ['status' => 'fails', 'error' => __('message.sorry_something_wrong')];
 
             return response()->json($result);
         }
