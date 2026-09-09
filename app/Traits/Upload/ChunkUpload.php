@@ -46,6 +46,7 @@ trait ChunkUpload
                     // $filePath is the reassembled upload's own temp path (from the chunk
                     // receiver), not a raw user-supplied path.
                     unlink($filePath); // nosemgrep: php.lang.security.unlink-use.unlink-use
+
                     return errorResponse(__('message.file_invalid'), 500);
                 }
 
