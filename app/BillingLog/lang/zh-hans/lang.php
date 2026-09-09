@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'default' => '默认',
     'cloud-instance-created' => '云实例已创建',
@@ -31,7 +29,6 @@ return [
     'inspire' => '显示励志名言',
     'renewal:cron' => '自动续订计划任务',
     'mail-send-exception' => '邮件发送异常',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => '过期续订通知',
     'renewal:notification' => '自动续订通知',
     'cleanup:msg-reports' => '清理MSG91报告',
@@ -42,11 +39,8 @@ return [
     'droptables' => '删除所有表',
     'install:db' => '安装数据库',
     'testing-setup' => '设置测试环境',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => '队列发送成功',
-    // Added missing UI texts
     'cancel' => '取消',
-    // Added missing messages from blade file
     'system_logs' => '系统日志',
     'filter_logs' => '筛选日志',
     'logs' => '日志',
@@ -103,4 +97,5 @@ return [
     'confirm_old_email' => '确认旧邮箱',
     'confirm_mobile_number_change' => '确认更改手机号',
     'logs:delete' => '删除系统日志',
+    'date' => '日期',
 ];

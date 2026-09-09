@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'default' => 'இயல்பானது',
     'cloud-instance-created' => 'கிளவுட் இன்ஸ்டன்ஸ் உருவாக்கப்பட்டது',
@@ -99,4 +97,5 @@ return [
     'confirm_old_email' => 'பழைய மின்னஞ்சலை உறுதிப்படுத்தவும்',
     'confirm_mobile_number_change' => 'மொபைல் எண்ணை மாற்றுவதை உறுதிப்படுத்தவும்',
     'logs:delete' => 'கணினி பதிவுகளை நீக்கு',
+    'date' => 'தேதி',
 ];

@@ -24,6 +24,7 @@ return [
     'date' => ':attribute एक वैध तारीख नहीं है।',
     'date_equals' => ':attribute को :date के बराबर की तारीख होनी चाहिए।',
     'date_format' => ':attribute :format स्वरूप से मेल नहीं खाता।',
+    'decimal' => ':attribute फ़ील्ड में :decimal दशमलव स्थान होने चाहिए।',
     'declined' => ':attribute को अस्वीकृत किया जाना चाहिए।',
     'declined_if' => ':attribute को अस्वीकृत किया जाना चाहिए जब :other :value हो।',
     'different' => ':attribute और :other अलग होने चाहिए।',
@@ -124,17 +125,27 @@ return [
     'uploaded' => ':attribute अपलोड करने में विफल रहा।',
     'url' => ':attribute को एक वैध URL होना चाहिए।',
     'uuid' => ':attribute को एक वैध UUID होना चाहिए।',
+    'custom_dup' => [
+        'attribute-name' => [
+            'rule-name' => 'कस्टम-संदेश',
+        ],
+    ],
     'attributes' => [],
     'publish_date_required' => 'प्रकाशन तिथि अनिवार्य है',
     'price_numeric_value' => 'कीमत एक संख्यात्मक मान होना चाहिए',
     'quantity_integer_value' => 'मात्रा एक पूर्णांक मान होना चाहिए',
     'order_has_Expired' => 'आदेश समाप्त हो गया है',
     'expired' => 'समाप्त',
-    /*
-    Request file custom validation messages
-    */
-
-    // Common
+    'eid_required' => 'ईआईडी फ़ील्ड आवश्यक है.',
+    'eid_string' => 'ईआईडी एक स्ट्रिंग होनी चाहिए.',
+    'otp_required' => 'ओटीपी फ़ील्ड आवश्यक है।',
+    'amt_required' => 'राशि फ़ील्ड आवश्यक है',
+    'amt_numeric' => 'राशि एक संख्या होनी चाहिए',
+    'payment_date_required' => 'भुगतान तिथि आवश्यक है.',
+    'payment_method_required' => 'भुगतान विधि आवश्यक है.',
+    'total_amount_required' => 'कुल राशि आवश्यक है.',
+    'total_amount_numeric' => 'कुल राशि एक संख्यात्मक मान होनी चाहिए.',
+    'invoice_link_required' => 'कृपया राशि को कम से कम एक चालान के साथ लिंक करें।',
     'settings_form' => [
         'company' => [
             'required' => 'कंपनी क्षेत्र अनिवार्य है।',
@@ -169,7 +180,6 @@ return [
             'email' => 'त्रुटि ईमेल एक वैध ईमेल पता होना चाहिए।',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => 'कंपनी का नाम अनिवार्य है।',
@@ -200,7 +210,7 @@ return [
             'required' => 'देश अनिवार्य है।',
         ],
         'gstin' => [
-            'max' => 'GSTIN 15 अक्षरों से अधिक नहीं हो सकता।',
+            'regex' => 'जीएसटीआईएन प्रारूप अमान्य है।',
         ],
         'default_currency' => [
             'required' => 'डिफ़ॉल्ट मुद्रा अनिवार्य है।',
@@ -218,7 +228,10 @@ return [
             'max' => 'लोगो 2MB से अधिक नहीं हो सकता।',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'ओजी छवि इस प्रकार की फ़ाइल होनी चाहिए: जेपीईजी, पीएनजी, जेपीजी, वेबपी।',
+        'max' => 'OG छवि 2MB से अधिक नहीं हो सकती।',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => 'नाम क्षेत्र अनिवार्य है।',
@@ -230,9 +243,13 @@ return [
             'url' => 'लिंक एक वैध URL होना चाहिए।',
             'regex' => 'लिंक का प्रारूप अवैध है।',
         ],
+        'class' => [
+            'required' => 'आइकन वर्ग फ़ील्ड आवश्यक है.',
+        ],
+        'fa_class' => [
+            'required' => 'आइकन वर्ग फ़ील्ड आवश्यक है.',
+        ],
     ],
-
-    // Email
     'custom' => [
         'password' => [
             'required_if' => 'चयनित मेल ड्राइवर के लिए पासवर्ड क्षेत्र अनिवार्य है।',
@@ -295,7 +312,6 @@ return [
             'unique' => 'यह ईमेल पहले से लिया गया है।',
         ],
     ],
-
     'contact_request' => [
         'conName' => 'नाम क्षेत्र अनिवार्य है।',
         'email' => 'ईमेल क्षेत्र अनिवार्य है।',
@@ -308,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => 'रोबोट सत्यापन विफल हो गया। कृपया पुनः प्रयास करें।',
         'demo-recaptcha-response-1.required' => 'रोबोट सत्यापन विफल हो गया। कृपया पुनः प्रयास करें।',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => 'नाम क्षेत्र अनिवार्य है।',
@@ -321,6 +336,7 @@ return [
         ],
         'slug' => [
             'required' => 'स्लग क्षेत्र अनिवार्य है।',
+            'unique' => 'यह स्लग पहले से मौजूद है.',
         ],
         'url' => [
             'required' => 'URL क्षेत्र अनिवार्य है।',
@@ -333,9 +349,12 @@ return [
         'created_at' => [
             'required' => 'निर्मित तिथि क्षेत्र अनिवार्य है।',
         ],
+        'parent_page_id' => [
+            'exists' => 'चयनित मूल पृष्ठ मौजूद नहीं है.',
+            'self' => 'एक पृष्ठ अपना मूल नहीं हो सकता।',
+            'nested' => 'चयनित पृष्ठ पहले से ही एक उप-पृष्ठ है और इसे मूल पृष्ठ के रूप में उपयोग नहीं किया जा सकता है।',
+        ],
     ],
-
-    // Order form
     'order_form' => [
         'client' => [
             'required' => 'क्लाइंट क्षेत्र अनिवार्य है।',
@@ -362,8 +381,6 @@ return [
             'integer' => 'मात्रा एक पूर्णांक होनी चाहिए।',
         ],
     ],
-
-    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'कूपन कोड क्षेत्र अनिवार्य है।',
@@ -396,9 +413,9 @@ return [
             'required' => 'छूट मूल्य क्षेत्र अनिवार्य है।',
             'numeric' => 'छूट मूल्य क्षेत्र एक संख्या होनी चाहिए।',
             'between' => 'यदि प्रकार प्रतिशत है, तो छूट मूल्य क्षेत्र :min और :max के बीच होना चाहिए।',
+            'max' => 'छूट का मूल्य लागू उत्पाद की कीमत (:max) से अधिक नहीं हो सकता।',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => 'नाम क्षेत्र अनिवार्य है।',
@@ -406,6 +423,12 @@ return [
         'rate' => [
             'required' => 'दर क्षेत्र अनिवार्य है।',
             'numeric' => 'दर एक संख्या होनी चाहिए।',
+            'decimal' => 'दर अधिकतम 3 दशमलव स्थानों पर होनी चाहिए।',
+            'max' => 'दर 999.999 से अधिक नहीं होनी चाहिए।',
+        ],
+        'priority' => [
+            'required' => 'प्राथमिकता फ़ील्ड आवश्यक है.',
+            'min' => 'प्राथमिकता कम से कम 1 होनी चाहिए.',
         ],
         'level' => [
             'required' => 'स्तर क्षेत्र अनिवार्य है।',
@@ -413,14 +436,11 @@ return [
         ],
         'country' => [
             'required' => 'देश क्षेत्र अनिवार्य है।',
-            // 'exists' => 'चयनित देश अमान्य है।',
         ],
         'state' => [
             'required' => 'राज्य क्षेत्र अनिवार्य है।',
-            // 'exists' => 'चयनित राज्य अमान्य है।',
         ],
     ],
-    // Product
     'subscription_form' => [
         'name' => [
             'required' => 'नाम क्षेत्र अनिवार्य है।',
@@ -440,7 +460,6 @@ return [
             'required' => 'उत्पाद क्षेत्र अनिवार्य है।',
         ],
     ],
-
     'bundle' => [
         'name' => [
             'required' => 'नाम क्षेत्र अनिवार्य है।',
@@ -449,10 +468,13 @@ return [
             'required' => 'प्रत्येक आइटम आवश्यक है।',
         ],
     ],
-
     'group' => [
         'name' => [
             'required' => 'नाम आवश्यक है।',
+            'unique' => 'यह नाम पहले से मौजूद है.',
+        ],
+        'pricing_templates_id' => [
+            'required' => 'डिज़ाइन टेम्पलेट आवश्यक है.',
         ],
         'features' => [
             'name' => [
@@ -476,13 +498,15 @@ return [
             'required_with' => 'शीर्षक आवश्यक है।',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => 'नाम क्षेत्र अनिवार्य है।',
         ],
         'type' => [
             'required' => 'प्रकार क्षेत्र अनिवार्य है।',
+        ],
+        'product_type' => [
+            'required' => 'उत्पाद श्रेणी फ़ील्ड आवश्यक है.',
         ],
         'group' => [
             'required' => 'समूह क्षेत्र अनिवार्य है।',
@@ -493,9 +517,6 @@ return [
         'currency' => [
             'required' => 'मुद्रा क्षेत्र अनिवार्य है।',
         ],
-        // 'price' => [
-        //     'required' => 'मूल्य क्षेत्र अनिवार्य है।',
-        // ],
         'file' => [
             'required_without_all' => 'फ़ाइल क्षेत्र तब अनिवार्य है जब github_owner या github_repository में से कोई भी प्रदान नहीं किया गया हो।',
             'mimes' => 'फ़ाइल एक zip फ़ाइल होनी चाहिए।',
@@ -505,15 +526,18 @@ return [
             'mimes' => 'चित्र एक PNG फ़ाइल होनी चाहिए।',
         ],
         'github_owner' => [
+            'required' => 'GitHub स्वामी फ़ील्ड आवश्यक है।',
             'required_without_all' => 'GitHub मालिक क्षेत्र तब अनिवार्य है जब फ़ाइल या चित्र में से कोई भी प्रदान नहीं किया गया हो।',
         ],
         'github_repository' => [
+            'required' => 'GitHub रिपॉजिटरी फ़ील्ड आवश्यक है।',
             'required_without_all' => 'GitHub रिपॉजिटरी क्षेत्र तब अनिवार्य है जब फ़ाइल या चित्र में से कोई भी प्रदान नहीं किया गया हो।',
             'required_if' => 'GitHub रिपॉजिटरी क्षेत्र तब अनिवार्य है जब प्रकार 2 हो।',
         ],
+        'shoping_cart_link' => [
+            'required' => 'शॉपिंग कार्ट लिंक फ़ील्ड आवश्यक है।',
+        ],
     ],
-
-    // User
     'users' => [
         'first_name' => [
             'required' => 'पहला नाम क्षेत्र अनिवार्य है।',
@@ -551,6 +575,9 @@ return [
         ],
         'zip' => [
             'regex' => 'राज्य क्षेत्र तब अनिवार्य है जब देश भारत हो।',
+        ],
+        'gstin' => [
+            'regex' => 'जीएसटीआईएन प्रारूप अमान्य है।',
         ],
     ],
     'profile_form' => [
@@ -595,6 +622,9 @@ return [
         'state' => [
             'required_if' => 'जब देश भारत हो, तो राज्य क्षेत्र आवश्यक है।',
         ],
+        'gstin' => [
+            'regex' => 'जीएसटीआईएन प्रारूप अमान्य है।',
+        ],
         'old_password' => [
             'required' => 'पुराना पासवर्ड आवश्यक है।',
             'min' => 'पुराना पासवर्ड कम से कम :min अंकों का होना चाहिए।',
@@ -621,8 +651,6 @@ return [
             'required' => 'देश कोड (मोबाइल) दर्ज करें।',
         ],
     ],
-
-    // Invoice form
     'invoice' => [
         'user' => [
             'required' => 'क्लाइंट्स क्षेत्र आवश्यक है।',
@@ -632,7 +660,12 @@ return [
             'date' => 'तारीख एक वैध तारीख होनी चाहिए।',
         ],
         'domain' => [
+            'required' => 'डोमेन फ़ील्ड आवश्यक है.',
             'regex' => 'डोमेन प्रारूप अमान्य है।',
+        ],
+        'cloud_domain' => [
+            'required' => 'क्लाउड डोमेन फ़ील्ड आवश्यक है.',
+            'regex' => 'केवल अक्षरों, संख्याओं और हाइफ़न की अनुमति है।',
         ],
         'plan' => [
             'required_if' => 'सदस्यता क्षेत्र आवश्यक है।',
@@ -644,89 +677,86 @@ return [
             'required' => 'उत्पाद क्षेत्र आवश्यक है।',
         ],
     ],
-
-    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'डोमेन क्षेत्र आवश्यक है।',
             'url' => 'डोमेन एक वैध URL होना चाहिए।',
         ],
     ],
-
-    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'डोमेन क्षेत्र आवश्यक है।',
             'no_http' => 'डोमेन में "http" या "https" नहीं होना चाहिए।',
         ],
     ],
-
-    // Language form
     'language' => [
         'required' => 'भाषा क्षेत्र आवश्यक है।',
         'invalid' => 'चयनित भाषा अमान्य है।',
     ],
-
-    // UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'स्टोरेज डिस्क क्षेत्र आवश्यक है।',
             'string' => 'डिस्क एक स्ट्रिंग होनी चाहिए।',
         ],
         'path' => [
+            'required' => 'भंडारण पथ फ़ील्ड आवश्यक है.',
             'string' => 'पथ एक स्ट्रिंग होनी चाहिए।',
             'nullable' => 'पथ क्षेत्र वैकल्पिक है।',
+            'invalid' => 'पथ मौजूद नहीं है या लिखने योग्य नहीं है.',
         ],
     ],
-
-    // ValidateSecretRequest form
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => 'नोड पथ फ़ील्ड आवश्यक है.',
+            'string' => 'नोड पथ एक वैध स्ट्रिंग होना चाहिए।',
+        ],
+        'npm_path' => [
+            'required' => 'एनपीएम पथ फ़ील्ड आवश्यक है।',
+            'string' => 'एनपीएम पथ एक वैध स्ट्रिंग होना चाहिए।',
+        ],
+        'chrome_path' => [
+            'required' => 'क्रोम पथ फ़ील्ड आवश्यक है.',
+            'string' => 'क्रोम पथ एक वैध स्ट्रिंग होना चाहिए।',
+            'invalid' => 'क्रोम पथ मौजूद नहीं है या निष्पादन योग्य नहीं है।',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => 'कृपया कोड दर्ज करें',
             'digits' => 'कृपया 6 अंकों का वैध कोड दर्ज करें',
         ],
     ],
-
-    // VerifyOtp form
     'verify_email' => [
         'required' => 'ईमेल क्षेत्र आवश्यक है।',
         'email' => 'ईमेल एक वैध ईमेल पता होना चाहिए।',
         'verify_email' => 'ईमेल सत्यापन विफल हो गया।',
     ],
-
     'verify_country_code' => [
         'required' => 'देश कोड आवश्यक है।',
         'numeric' => 'देश कोड एक वैध संख्या होनी चाहिए।',
         'verify_country_code' => 'देश कोड सत्यापन विफल हो गया।',
     ],
-
     'verify_number' => [
         'required' => 'संख्या आवश्यक है।',
         'numeric' => 'संख्या एक वैध संख्या होनी चाहिए।',
         'verify_number' => 'संख्या सत्यापन विफल हो गया।',
     ],
-
     'password_otp' => [
         'required' => 'पासवर्ड क्षेत्र आवश्यक है।',
         'password' => 'पासवर्ड गलत है।',
         'invalid' => 'अमान्य पासवर्ड।',
     ],
-
-    // AuthController file
     'auth_controller' => [
         'name_required' => 'नाम आवश्यक है।',
         'name_max' => 'नाम 255 अक्षरों से अधिक नहीं हो सकता।',
-
         'email_required' => 'ईमेल आवश्यक है।',
         'email_email' => 'कृपया एक वैध ईमेल पता दर्ज करें।',
         'email_max' => 'ईमेल 255 अक्षरों से अधिक नहीं हो सकता।',
         'email_unique' => 'यह ईमेल पहले ही पंजीकृत है।',
-
         'password_required' => 'पासवर्ड आवश्यक है।',
         'password_confirmed' => 'पासवर्ड पुष्टि मेल नहीं खाती।',
         'password_min' => 'पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।',
     ],
-
     'resend_otp' => [
         'eid_required' => 'EID फ़ील्ड आवश्यक है।',
         'eid_string' => 'EID एक स्ट्रिंग होना चाहिए।',
@@ -734,7 +764,6 @@ return [
         'type_string' => 'प्रकार एक स्ट्रिंग होना चाहिए।',
         'type_in' => 'चुना गया प्रकार अवैध है।',
     ],
-
     'verify_otp' => [
         'eid_required' => 'कर्मचारी ID आवश्यक है।',
         'eid_string' => 'कर्मचारी ID एक स्ट्रिंग होना चाहिए।',
@@ -743,31 +772,26 @@ return [
         'recaptcha_required' => 'कृपया CAPTCHA पूरा करें।',
         'recaptcha_size' => 'CAPTCHA प्रतिक्रिया अवैध है।',
     ],
-
     'company_validation' => [
         'company_required' => 'कंपनी का नाम आवश्यक है।',
         'company_string' => 'कंपनी एक टेक्स्ट होना चाहिए।',
         'address_required' => 'पता आवश्यक है।',
         'address_string' => 'पता एक टेक्स्ट होना चाहिए।',
     ],
-
     'token_validation' => [
         'token_required' => 'टोकन आवश्यक है।',
         'password_required' => 'पासवर्ड फ़ील्ड आवश्यक है।',
         'password_confirmed' => 'पासवर्ड पुष्टि मेल नहीं खाती।',
     ],
-
     'custom_email' => [
         'required' => 'ईमेल फ़ील्ड आवश्यक है।',
         'email' => 'कृपया एक वैध ईमेल पता दर्ज करें।',
         'exists' => 'यह ईमेल हमारे साथ पंजीकृत नहीं है।',
     ],
-
     'newsletterEmail' => [
         'required' => 'न्यूज़लेटर ईमेल आवश्यक है।',
         'email' => 'न्यूज़लेटर के लिए एक वैध ईमेल पता दर्ज करें।',
     ],
-
     'widget' => [
         'name_required' => 'नाम आवश्यक है।',
         'name_max' => 'नाम 50 अक्षरों से अधिक नहीं हो सकता।',
@@ -775,41 +799,39 @@ return [
         'type_required' => 'प्रकार आवश्यक है।',
         'type_unique' => 'यह प्रकार पहले से मौजूद है।',
     ],
-
     'payment' => [
         'payment_date_required' => 'भुगतान तिथि आवश्यक है।',
         'payment_method_required' => 'भुगतान विधि आवश्यक है।',
         'amount_required' => 'राशि आवश्यक है।',
     ],
-
     'custom_date' => [
         'date_required' => 'तिथि फ़ील्ड आवश्यक है।',
         'total_required' => 'कुल फ़ील्ड आवश्यक है।',
         'status_required' => 'स्थिति फ़ील्ड आवश्यक है।',
     ],
-
     'plan_renewal' => [
         'plan_required' => 'योजना फ़ील्ड आवश्यक है।',
         'payment_method_required' => 'भुगतान विधि फ़ील्ड आवश्यक है।',
         'cost_required' => 'लागत फ़ील्ड आवश्यक है।',
         'code_not_valid' => 'प्रमोशन कोड अवैध है।',
     ],
-
     'rate' => [
         'required' => 'दर आवश्यक है।',
         'numeric' => 'दर एक संख्या होनी चाहिए।',
     ],
-
     'product_validate' => [
         'producttitle_required' => 'उत्पाद का शीर्षक आवश्यक है।',
         'version_required' => 'संस्करण आवश्यक है।',
         'filename_required' => 'कृपया एक फ़ाइल अपलोड करें।',
         'dependencies_required' => 'निर्भरता फ़ील्ड आवश्यक है।',
+        'description_required' => 'विवरण आवश्यक है.',
+        'release_type_required' => 'रिलीज़ प्रकार आवश्यक है.',
     ],
-
     'product_sku_unique' => 'उत्पाद SKU अद्वितीय होना चाहिए',
     'product_name_unique' => 'नाम अद्वितीय होना चाहिए',
     'product_show_agent_required' => 'अपने कार्ट पेज प्राथमिकता का चयन करें',
+    'config_file_path_regex' => 'कोई सापेक्ष पथ होना चाहिए जिसमें कोई ../ खंड न हो।',
+    'license_file_path_regex' => 'कोई सापेक्ष पथ होना चाहिए जिसमें कोई ../ खंड न हो।',
     'product_controller' => [
         'name_required' => 'उत्पाद का नाम आवश्यक है।',
         'name_unique' => 'नाम अद्वितीय होना चाहिए।',
@@ -817,13 +839,13 @@ return [
         'type_required' => 'उत्पाद प्रकार आवश्यक है।',
         'description_required' => 'उत्पाद का विवरण आवश्यक है।',
         'product_description_required' => 'विस्तृत उत्पाद विवरण आवश्यक है।',
+        'short_description_required' => 'संक्षिप्त विवरण आवश्यक है.',
         'image_mimes' => 'चित्र को jpeg, png, jpg प्रकार की फ़ाइल होनी चाहिए।',
         'image_max' => 'चित्र का आकार 2048 किलोबाइट से अधिक नहीं हो सकता।',
         'product_sku_required' => 'उत्पाद SKU आवश्यक है।',
         'group_required' => 'उत्पाद समूह आवश्यक है।',
         'show_agent_required' => 'अपने कार्ट पेज प्राथमिकता का चयन करें।',
     ],
-
     'current_domain_required' => 'वर्तमान डोमेन आवश्यक है।',
     'new_domain_required' => 'नया डोमेन आवश्यक है।',
     'special_characters_not_allowed' => 'डोमेन नाम में विशेष अक्षरों की अनुमति नहीं है।',
@@ -835,7 +857,9 @@ return [
         'cloud_label_field_required' => 'क्लाउड लेबल फ़ील्ड आवश्यक है।',
         'cloud_label_radio_required' => 'क्लाउड लेबल रेडियो आवश्यक है।',
         'cloud_product_required' => 'क्लाउड उत्पाद आवश्यक है।',
+        'cloud_product_unique' => 'इस उत्पाद में पहले से ही क्लाउड कॉन्फ़िगरेशन है।',
         'cloud_free_plan_required' => 'क्लाउड मुफ्त योजना आवश्यक है।',
+        'cloud_free_plan_invalid' => 'चयनित योजना चयनित उत्पाद से संबंधित नहीं है.',
         'cloud_product_key_required' => 'क्लाउड उत्पाद कुंजी आवश्यक है।',
     ],
     'reg_till_after' => 'पंजीकरण तक की तिथि, पंजीकरण से तिथि के बाद होनी चाहिए।',
@@ -861,10 +885,11 @@ return [
     'plan_request' => [
         'name_required' => 'नाम फ़ील्ड आवश्यक है',
         'product_quant_req' => 'उत्पाद मात्रा फ़ील्ड आवश्यक है',
-        'plan_quant_req' => 'योजना मात्रा फ़ील्ड आवश्यक है',
-        'start_date_req' => 'आरंभ तिथि आवश्यक है',
-        'end_date_req' => 'समाप्ति तिथि आवश्यक है',
-        'invalid_date' => 'अमान्य तिथि',
+        'no_agent_req' => 'उत्पाद की मात्रा मौजूद नहीं होने पर एजेंटों की संख्या फ़ील्ड की आवश्यकता होती है।',
+        'pro_req' => 'उत्पाद फ़ील्ड आवश्यक है',
+        'offer_price' => 'ऑफर की कीमतें 100 से अधिक नहीं होनी चाहिए',
+        'currency_duplicate' => 'प्रत्येक मुद्रा का उपयोग केवल एक बार किया जा सकता है।',
+        'non_negative' => 'यह मान ऋणात्मक नहीं हो सकता.',
     ],
     'razorpay_val' => [
         'business_required' => 'व्यवसाय फ़ील्ड आवश्यक है।',
@@ -879,5 +904,36 @@ return [
     'login_failed' => 'लॉगिन विफल, कृपया जांचें कि आपने सही ईमेल/उपयोगकर्ता नाम और पासवर्ड दर्ज किया है।',
     'forgot_email_validation' => 'यदि आपके द्वारा प्रदान किया गया ईमेल पंजीकृत है, तो आपको पासवर्ड रीसेट करने के निर्देशों के साथ एक ईमेल शीघ्र ही प्राप्त होगा।',
     'too_many_login_attempts' => 'बहुत अधिक असफल लॉगिन प्रयासों के कारण आपको एप्लिकेशन से ब्लॉक कर दिया गया है। कृपया :time के बाद पुनः प्रयास करें।',
-
+    'phone_number' => 'कृपया एक वैध मोबाइल फ़ोन नंबर दर्ज करें।',
+    'mobile_number' => ':attribute एक वैध मोबाइल फ़ोन नंबर होना चाहिए।',
+    'license' => [
+        'product' => [
+            'required' => 'उत्पाद फ़ील्ड आवश्यक है.',
+        ],
+        'client' => [
+            'required' => 'क्लाइंट फ़ील्ड आवश्यक है.',
+        ],
+        'license_code' => [
+            'required' => 'लाइसेंस कोड फ़ील्ड आवश्यक है.',
+        ],
+        'license_expire_date' => [
+            'required' => 'लाइसेंस समाप्ति तिथि फ़ील्ड आवश्यक है।',
+        ],
+        'license_updates_date' => [
+            'required' => 'अद्यतन समाप्ति तिथि फ़ील्ड आवश्यक है।',
+        ],
+        'license_support_date' => [
+            'required' => 'समर्थन समाप्ति दिनांक फ़ील्ड आवश्यक है.',
+        ],
+        'banned_host_ip' => [
+            'required' => 'प्रतिबंधित होस्ट आईपी फ़ील्ड आवश्यक है।',
+            'invalid' => 'कृपया एक वैध आईपी पता दर्ज करें।',
+        ],
+        'installation_ip' => [
+            'required' => 'संस्थापन आईपी फ़ील्ड आवश्यक है.',
+        ],
+        'notification_field' => [
+            'required' => 'यह अधिसूचना फ़ील्ड आवश्यक है.',
+        ],
+    ],
 ];

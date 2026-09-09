@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'accepted' => '必須接受 :attribute。',
     'accepted_if' => '當 :other 為 :value 時，必須接受 :attribute。',
     'active_url' => ':attribute 不是有效的 URL。',
@@ -25,6 +24,7 @@ return [
     'date' => ':attribute 不是有效的日期。',
     'date_equals' => ':attribute 必須是與 :date 相等的日期。',
     'date_format' => ':attribute 與格式 :format 不符。',
+    'decimal' => ':attribute 欄位必須有 :decimal 小數位。',
     'declined' => ':attribute 必須被拒絕。',
     'declined_if' => '當 :other 為 :value 時，:attribute 必須被拒絕。',
     'different' => ':attribute 和 :other 必須不同。',
@@ -91,11 +91,11 @@ return [
     'not_regex' => ':attribute 格式無效。',
     'numeric' => ':attribute 必須是數字。',
     'password' => [
-        'letters' => ':attribute 必須包含至少一個字母。',
-        'mixed' => ':attribute 必須包含至少一個大寫字母和一個小寫字母。',
-        'numbers' => ':attribute 必須包含至少一個數字。',
-        'symbols' => ':attribute 必須包含至少一個符號。',
-        'uncompromised' => '給定的 :attribute 出現過在資料洩露中。請選擇不同的 :attribute。',
+        'letters' => ':attribute 必須至少包含一個字母。',
+        'mixed' => ':attribute 必須至少包含 1 個大寫字母和 1 個小寫字母。',
+        'numbers' => ':attribute 必須至少包含一個數字。',
+        'symbols' => ':attribute 必須至少包含一個符號。',
+        'uncompromised' => '給定的:attribute出現在資料外洩。請選擇不同的 :attribute。',
     ],
     'present' => ':attribute 欄位必須存在。',
     'prohibited' => ':attribute 欄位被禁止。',
@@ -125,35 +125,11 @@ return [
     'uploaded' => ':attribute 上傳失敗。',
     'url' => ':attribute 必須是有效的 URL。',
     'uuid' => ':attribute 必須是有效的 UUID。',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Validation Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | Here you may specify custom validation messages for attributes using the
-    | convention "attribute.rule" to name the lines. This makes it quick to
-    | specify a specific custom language line for a given attribute rule.
-    |
-    */
-
-    'custom' => [
+    'custom_dup' => [
         'attribute-name' => [
-            'rule-name' => 'custom-message',
+            'rule-name' => '自訂訊息',
         ],
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Validation Attributes
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines are used to swap our attribute placeholder
-    | with something more reader friendly such as "E-Mail Address" instead
-    | of "email". This simply helps us make our message more expressive.
-    |
-    */
-
     'attributes' => [],
     'publish_date_required' => '發布日期為必填項',
     'price_numeric_value' => '價格必須為數值',
@@ -170,12 +146,6 @@ return [
     'total_amount_required' => '總金額為必填項。',
     'total_amount_numeric' => '總金額必須為數值。',
     'invoice_link_required' => '請將金額連結至至少一張發票。',
-
-    /*
-    Request file custom validation messages
-    */
-
-    // Common
     'settings_form' => [
         'company' => [
             'required' => '公司欄位為必填項。',
@@ -210,7 +180,6 @@ return [
             'email' => '錯誤電子郵件必須是有效的電子郵件地址。',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => '公司名稱為必填項。',
@@ -241,7 +210,7 @@ return [
             'required' => '國家為必填項。',
         ],
         'gstin' => [
-            'max' => 'GSTIN 不得超過 15 個字元。',
+            'regex' => 'GSTIN 格式無效。',
         ],
         'default_currency' => [
             'required' => '預設貨幣為必填項。',
@@ -259,7 +228,10 @@ return [
             'max' => 'Logo 不得大於 2MB。',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'OG影像必須是以下類型的檔案：jpeg、png、jpg、webp。',
+        'max' => 'OG圖像不得大於2MB。',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => '名稱欄位為必填項。',
@@ -271,9 +243,13 @@ return [
             'url' => '連結必須是有效的 URL。',
             'regex' => '連結格式無效。',
         ],
+        'class' => [
+            'required' => '圖示類別欄位為必填項。',
+        ],
+        'fa_class' => [
+            'required' => '圖示類別欄位為必填項。',
+        ],
     ],
-
-    // Email
     'custom' => [
         'password' => [
             'required_if' => '為所選的郵件驅動，密碼欄位為必填項。',
@@ -336,7 +312,6 @@ return [
             'unique' => '該電子郵件已被使用。',
         ],
     ],
-
     'contact_request' => [
         'conName' => '姓名欄位為必填項。',
         'email' => '電子郵件欄位為必填項。',
@@ -349,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => '機器人驗證失敗，請再試一次。',
         'demo-recaptcha-response-1.required' => '機器人驗證失敗，請再試一次。',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => '名稱欄位為必填項。',
@@ -362,6 +336,7 @@ return [
         ],
         'slug' => [
             'required' => 'Slug 欄位為必填項。',
+            'unique' => '這個 slug 已經存在。',
         ],
         'url' => [
             'required' => 'URL 欄位為必填項。',
@@ -374,9 +349,12 @@ return [
         'created_at' => [
             'required' => '建立時間欄位為必填項。',
         ],
+        'parent_page_id' => [
+            'exists' => '所選的父頁面不存在。',
+            'self' => '頁面不能是自己的父頁面。',
+            'nested' => '所選頁面已經是子頁面，不能用作父頁面。',
+        ],
     ],
-
-    // Order form
     'order_form' => [
         'client' => [
             'required' => '客戶欄位為必填項。',
@@ -403,8 +381,6 @@ return [
             'integer' => '數量必須為整數。',
         ],
     ],
-
-    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => '優惠碼欄位為必填項。',
@@ -437,9 +413,9 @@ return [
             'required' => '折扣值欄位為必填項。',
             'numeric' => '折扣值必須為數字。',
             'between' => '如果類型為百分比，折扣值必須介於 :min 到 :max 之間。',
+            'max' => '折扣金額不能超過申請商品的價格（:max）。',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => '名稱欄位為必填項。',
@@ -447,6 +423,12 @@ return [
         'rate' => [
             'required' => '稅率欄位為必填項。',
             'numeric' => '稅率必須為數字。',
+            'decimal' => '匯率最多保留 3 位小數。',
+            'max' => '比率不得大於999.999。',
+        ],
+        'priority' => [
+            'required' => '優先權欄位為必填項。',
+            'min' => '優先順序必須至少為1。',
         ],
         'level' => [
             'required' => '層級欄位為必填項。',
@@ -454,14 +436,11 @@ return [
         ],
         'country' => [
             'required' => '國家欄位為必填項。',
-            // 'exists' => '所選國家無效。',
         ],
         'state' => [
             'required' => '州/省欄位為必填項。',
-            // 'exists' => '所選州/省無效。',
         ],
     ],
-    // Product
     'subscription_form' => [
         'name' => [
             'required' => '名稱欄位為必填項。',
@@ -481,7 +460,6 @@ return [
             'required' => '產品欄位為必填項。',
         ],
     ],
-
     'bundle' => [
         'name' => [
             'required' => '名稱欄位為必填項。',
@@ -490,10 +468,13 @@ return [
             'required' => '每項產品都是必填的。',
         ],
     ],
-
     'group' => [
         'name' => [
             'required' => '名稱為必填項',
+            'unique' => '該名稱已存在。',
+        ],
+        'pricing_templates_id' => [
+            'required' => '需要設計模板。',
         ],
         'features' => [
             'name' => [
@@ -517,13 +498,15 @@ return [
             'required_with' => '標題為必填項',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => '名稱欄位為必填項。',
         ],
         'type' => [
             'required' => '類型欄位為必填項。',
+        ],
+        'product_type' => [
+            'required' => '產品類別欄位為必填項。',
         ],
         'group' => [
             'required' => '群組欄位為必填項。',
@@ -543,15 +526,18 @@ return [
             'mimes' => '圖片必須是 PNG 檔案。',
         ],
         'github_owner' => [
+            'required' => 'GitHub 所有者欄位為必填項。',
             'required_without_all' => '如果未提供檔案或圖片，GitHub 擁有者欄位為必填項。',
         ],
         'github_repository' => [
+            'required' => 'GitHub 儲存庫欄位為必填項。',
             'required_without_all' => '如果未提供檔案或圖片，GitHub 儲存庫欄位為必填項。',
             'required_if' => '當類型為 2 時，GitHub 儲存庫欄位為必填項。',
         ],
+        'shoping_cart_link' => [
+            'required' => '購物車連結欄位為必填項。',
+        ],
     ],
-
-    // User
     'users' => [
         'first_name' => [
             'required' => '名字欄位為必填項。',
@@ -590,8 +576,10 @@ return [
         'zip' => [
             'regex' => '當國家為印度時，州欄位為必填項。',
         ],
+        'gstin' => [
+            'regex' => 'GSTIN 格式無效。',
+        ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => '名字為必填項。',
@@ -620,48 +608,49 @@ return [
         'address' => [
             'required' => '地址為必填項。',
         ],
+        'user_name' => [
+            'required' => '需要輸入使用者名稱。',
+            'unique' => '該用戶名已被使用。',
+        ],
+        'timezone_id' => [
+            'required' => '需要時區。',
+        ],
+        'country' => [
+            'required' => '國家為必填項。',
+            'exists' => '選擇的國家無效。',
+        ],
+        'state' => [
+            'required_if' => '該國家需要州字段。',
+        ],
+        'gstin' => [
+            'regex' => 'GSTIN 格式無效。',
+        ],
+        'old_password' => [
+            'required' => '需要舊密碼。',
+            'min' => '舊密碼必須至少包含 :min 個字元。',
+        ],
+        'new_password' => [
+            'required' => '需要新密碼。',
+            'different' => '新密碼必須與舊密碼不同。',
+        ],
+        'confirm_password' => [
+            'required' => '需要確認密碼。',
+            'same' => '確認密碼必須與新密碼一致。',
+        ],
+        'terms' => [
+            'required' => '您必須接受條款。',
+        ],
+        'password' => [
+            'required' => '需要密碼。',
+        ],
+        'password_confirmation' => [
+            'required' => '需要確認密碼。',
+            'same' => '密碼不符。',
+        ],
+        'mobile_code' => [
+            'required' => '輸入國家代碼（手機）',
+        ],
     ],
-    'user_name' => [
-        'required' => '必須輸入使用者名稱。',
-        'unique' => '此使用者名稱已被佔用。',
-    ],
-    'timezone_id' => [
-        'required' => '必須選擇時區。',
-    ],
-    'country' => [
-        'required' => '必須選擇國家。',
-        'exists' => '選擇的國家無效。',
-    ],
-    'state' => [
-        'required_if' => '當國家是印度時，必須填寫州欄位。',
-    ],
-    'old_password' => [
-        'required' => '必須輸入舊密碼。',
-        'min' => '舊密碼必須至少包含 :min 個字符。',
-    ],
-    'new_password' => [
-        'required' => '必須輸入新密碼。',
-        'different' => '新密碼必須與舊密碼不同。',
-    ],
-    'confirm_password' => [
-        'required' => '必須確認密碼。',
-        'same' => '確認密碼必須與新密碼匹配。',
-    ],
-    'terms' => [
-        'required' => '您必須接受條款。',
-    ],
-    'password' => [
-        'required' => '必須輸入密碼。',
-    ],
-    'password_confirmation' => [
-        'required' => '必須確認密碼。',
-        'same' => '密碼不匹配。',
-    ],
-    'mobile_code' => [
-        'required' => '請輸入國家代碼（手機）。',
-    ],
-
-    // Invoice form
     'invoice' => [
         'user' => [
             'required' => '必須填寫客戶欄位。',
@@ -671,7 +660,12 @@ return [
             'date' => '日期必須是有效的日期格式。',
         ],
         'domain' => [
+            'required' => '域字段為必填項。',
             'regex' => '域名格式無效。',
+        ],
+        'cloud_domain' => [
+            'required' => '雲域欄位為必填項。',
+            'regex' => '只能使用字母、數字和連字號。',
         ],
         'plan' => [
             'required_if' => '訂閱欄位必須填寫。',
@@ -683,56 +677,60 @@ return [
             'required' => '必須填寫產品欄位。',
         ],
     ],
-
-    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => '必須填寫域名欄位。',
             'url' => '域名必須是有效的URL。',
         ],
     ],
-
-    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => '必須填寫域名欄位。',
             'no_http' => '域名不得包含 "http" 或 "https"。',
         ],
     ],
-
-    // Language form
     'language' => [
         'required' => '必須填寫語言欄位。',
         'invalid' => '選擇的語言無效。',
     ],
-
-    // UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => '必須填寫存儲磁碟欄位。',
             'string' => '磁碟必須是字串。',
         ],
         'path' => [
+            'required' => '儲存路徑欄位為必填項。',
             'string' => '路徑必須是字串。',
             'nullable' => '路徑欄位是可選的。',
+            'invalid' => '路徑不存在或不可寫入。',
         ],
     ],
-
-    // ValidateSecretRequest form
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => '節點路徑欄位為必填項。',
+            'string' => '節點路徑必須是有效的字串。',
+        ],
+        'npm_path' => [
+            'required' => 'npm 路徑欄位是必需的。',
+            'string' => 'npm 路徑必須是有效的字串。',
+        ],
+        'chrome_path' => [
+            'required' => '鍍鉻路徑欄位是必需的。',
+            'string' => 'chrome 路徑必須是有效的字串。',
+            'invalid' => 'chrome路徑不存在或不可執行。',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => '請輸入驗證碼',
             'digits' => '請輸入有效的6位數驗證碼',
         ],
     ],
-
-    // VerifyOtp form
     'verify_email' => [
         'required' => '必須填寫電子郵件欄位。',
         'email' => '電子郵件必須是有效的電子郵件地址。',
         'verify_email' => '電子郵件驗證失敗。',
     ],
-
     'verify_country_code' => [
         'required' => '必須填寫國家代碼。',
         'numeric' => '國家代碼必須是有效的數字。',
@@ -743,28 +741,22 @@ return [
         'numeric' => '數字必須是有效的數字。',
         'verify_number' => '數字驗證失敗。',
     ],
-
     'password_otp' => [
         'required' => '必須輸入密碼。',
         'password' => '密碼不正確。',
         'invalid' => '密碼無效。',
     ],
-
-    // AuthController file
     'auth_controller' => [
         'name_required' => '必須輸入姓名。',
         'name_max' => '姓名不得超過255個字符。',
-
         'email_required' => '必須輸入電子郵件。',
         'email_email' => '請輸入有效的電子郵件地址。',
         'email_max' => '電子郵件不得超過255個字符。',
         'email_unique' => '此電子郵件已被註冊。',
-
         'password_required' => '必須輸入密碼。',
         'password_confirmed' => '密碼確認不匹配。',
         'password_min' => '密碼必須至少包含6個字符。',
     ],
-
     'resend_otp' => [
         'eid_required' => '必須填寫EID欄位。',
         'eid_string' => 'EID必須是字串。',
@@ -772,7 +764,6 @@ return [
         'type_string' => '類型必須是字串。',
         'type_in' => '選擇的類型無效。',
     ],
-
     'verify_otp' => [
         'eid_required' => '必須填寫員工ID。',
         'eid_string' => '員工ID必須是字串。',
@@ -781,31 +772,26 @@ return [
         'recaptcha_required' => '請完成驗證碼。',
         'recaptcha_size' => '驗證碼回應無效。',
     ],
-
     'company_validation' => [
         'company_required' => '公司名稱是必填欄位。',
         'company_string' => '公司名稱必須是文本。',
         'address_required' => '地址是必填欄位。',
         'address_string' => '地址必須是文本。',
     ],
-
     'token_validation' => [
         'token_required' => '必須填寫令牌。',
         'password_required' => '必須填寫密碼欄位。',
         'password_confirmed' => '密碼確認不匹配。',
     ],
-
     'custom_email' => [
         'required' => '必須填寫電子郵件欄位。',
         'email' => '請輸入有效的電子郵件地址。',
         'exists' => '此電子郵件未在我們這裡註冊。',
     ],
-
     'newsletterEmail' => [
         'required' => '必須填寫電子報電子郵件欄位。',
         'email' => '請輸入有效的電子郵件地址來訂閱電子報。',
     ],
-
     'widget' => [
         'name_required' => '必須輸入名稱。',
         'name_max' => '名稱不得超過50個字符。',
@@ -813,40 +799,39 @@ return [
         'type_required' => '必須選擇類型。',
         'type_unique' => '此類型已存在。',
     ],
-
     'payment' => [
         'payment_date_required' => '必須填寫付款日期。',
         'payment_method_required' => '必須選擇付款方式。',
         'amount_required' => '必須填寫金額。',
     ],
-
     'custom_date' => [
         'date_required' => '必須填寫日期欄位。',
         'total_required' => '必須填寫總金額欄位。',
         'status_required' => '必須填寫狀態欄位。',
     ],
-
     'plan_renewal' => [
         'plan_required' => '必須選擇方案。',
         'payment_method_required' => '必須選擇付款方式。',
         'cost_required' => '必須填寫費用欄位。',
         'code_not_valid' => '促銷代碼無效。',
     ],
-
     'rate' => [
         'required' => '必須填寫費率。',
         'numeric' => '費率必須是數字。',
     ],
-
     'product_validate' => [
         'producttitle_required' => '產品標題是必需的。',
         'version_required' => '版本是必需的。',
         'filename_required' => '請上傳文件。',
         'dependencies_required' => '依賴欄位是必需的。',
+        'description_required' => '需要描述。',
+        'release_type_required' => '需要釋放類型。',
     ],
     'product_sku_unique' => '產品 SKU 必須是唯一的。',
     'product_name_unique' => '名稱必須是唯一的。',
     'product_show_agent_required' => '選擇您的購物車頁面偏好。',
+    'config_file_path_regex' => '必須是不帶 ../ 段的相對路徑。',
+    'license_file_path_regex' => '必須是不帶 ../ 段的相對路徑。',
     'product_controller' => [
         'name_required' => '產品名稱是必需的。',
         'name_unique' => '名稱必須是唯一的。',
@@ -854,6 +839,7 @@ return [
         'type_required' => '產品類型是必需的。',
         'description_required' => '產品描述是必需的。',
         'product_description_required' => '詳細的產品描述是必需的。',
+        'short_description_required' => '需要簡短描述。',
         'image_mimes' => '圖片必須是以下類型的文件：jpeg, png, jpg。',
         'image_max' => '圖片大小不能超過 2048 KB。',
         'product_sku_required' => '產品 SKU 是必需的。',
@@ -871,7 +857,9 @@ return [
         'cloud_label_field_required' => '雲端標籤欄位是必需的。',
         'cloud_label_radio_required' => '雲端標籤單選框是必需的。',
         'cloud_product_required' => '雲端產品是必需的。',
+        'cloud_product_unique' => '本產品已有雲端配置。',
         'cloud_free_plan_required' => '雲端免費方案是必需的。',
+        'cloud_free_plan_invalid' => '所選方案不屬於所​​選產品。',
         'cloud_product_key_required' => '雲端產品金鑰是必需的。',
     ],
     'reg_till_after' => '註冊結束日期必須晚於註冊開始日期。',
@@ -900,6 +888,8 @@ return [
         'no_agent_req' => '當未填寫產品數量時，代理人數欄位為必填項目。',
         'pro_req' => '產品欄位為必填項目',
         'offer_price' => '優惠價格不得高於 100',
+        'currency_duplicate' => '每種貨幣只能使用一次。',
+        'non_negative' => '該值不能為負數。',
     ],
     'razorpay_val' => [
         'business_required' => '商業欄位為必填。',
@@ -914,5 +904,36 @@ return [
     'login_failed' => '登入失敗，請檢查您輸入的電子郵件/使用者名稱和密碼是否正確。',
     'forgot_email_validation' => '如果您提供的電子郵件已註冊，您將很快收到一封包含重設密碼指示的電子郵件。',
     'too_many_login_attempts' => '由於多次登入失敗，您已被鎖定，請在 :time 後重試。',
-
+    'phone_number' => '請輸入有效的手機號碼。',
+    'mobile_number' => ':attribute 必須是有效的手機號碼。',
+    'license' => [
+        'product' => [
+            'required' => '產品欄位為必填項。',
+        ],
+        'client' => [
+            'required' => '客戶欄位為必填項。',
+        ],
+        'license_code' => [
+            'required' => '許可證代碼欄位為必填項。',
+        ],
+        'license_expire_date' => [
+            'required' => '許可證到期日欄位為必填項。',
+        ],
+        'license_updates_date' => [
+            'required' => '更新到期日欄位為必填項。',
+        ],
+        'license_support_date' => [
+            'required' => '支援到期日期欄位為必填項。',
+        ],
+        'banned_host_ip' => [
+            'required' => '禁止的主機IP 欄位為必填項。',
+            'invalid' => '請輸入有效的IP位址。',
+        ],
+        'installation_ip' => [
+            'required' => '安裝IP 欄位為必填項。',
+        ],
+        'notification_field' => [
+            'required' => '此通知欄位為必填項。',
+        ],
+    ],
 ];

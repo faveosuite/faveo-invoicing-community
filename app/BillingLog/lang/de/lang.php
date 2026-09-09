@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'default' => 'Standard',
     'cloud-instance-created' => 'Cloud-Instanz erstellt',
@@ -31,7 +29,6 @@ return [
     'inspire' => 'Ein inspirierendes Zitat anzeigen',
     'renewal:cron' => 'Automatische Verlängerung Cron',
     'mail-send-exception' => 'Mail-Sendeausnahme',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => 'Abgelaufene Verlängerungsbenachrichtigung',
     'renewal:notification' => 'Automatische Verlängerungsbenachrichtigung',
     'cleanup:msg-reports' => 'MSG91-Berichte bereinigen',
@@ -42,11 +39,8 @@ return [
     'droptables' => 'Alle Tabellen löschen',
     'install:db' => 'Datenbank installieren',
     'testing-setup' => 'Testumgebung einrichten',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'Warteschlangenversand erfolgreich',
-    // Added missing UI texts
     'cancel' => 'Abbrechen',
-    // Added missing messages from blade file
     'system_logs' => 'Systemprotokolle',
     'filter_logs' => 'Protokolle filtern',
     'logs' => 'Protokolle',
@@ -103,4 +97,5 @@ return [
     'confirm_old_email' => 'Alte E-Mail bestätigen',
     'confirm_mobile_number_change' => 'Änderung der Mobilnummer bestätigen',
     'logs:delete' => 'Systemprotokolle löschen',
+    'date' => 'Datum',
 ];

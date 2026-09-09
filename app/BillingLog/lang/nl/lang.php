@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'default' => 'Standaard',
     'cloud-instance-created' => 'Cloudinstantie aangemaakt',
@@ -99,4 +97,5 @@ return [
     'confirm_old_email' => 'Oud e-mailadres bevestigen',
     'confirm_mobile_number_change' => 'Wijziging van mobiel nummer bevestigen',
     'logs:delete' => 'Systeemlogboeken verwijderen',
+    'date' => 'Datum',
 ];

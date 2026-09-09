@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'default' => 'Standard',
     'cloud-instance-created' => 'Skyinstans opprettet',
@@ -99,4 +97,5 @@ return [
     'confirm_old_email' => 'Bekreft gammel e-post',
     'confirm_mobile_number_change' => 'Bekreft endring av mobilnummer',
     'logs:delete' => 'Slett systemlogger',
+    'date' => 'Dato',
 ];

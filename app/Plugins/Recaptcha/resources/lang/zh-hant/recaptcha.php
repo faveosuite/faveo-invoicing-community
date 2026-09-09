@@ -1,11 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
 return [
-    /*
-    * Recaptcha Settings Page
-    */
     'captcha_settings' => 'reCAPTCHA 設定',
     'captcha_configuration' => 'reCAPTCHA 組態',
     'captcha_version' => 'reCAPTCHA 版本',
@@ -17,10 +12,6 @@ return [
     'none' => '無',
     'fallback_v2_checkbox' => '回復到 reCAPTCHA v2 核取方塊',
     'action_if_captcha_fails' => 'reCAPTCHA 失敗時要採取的動作',
-
-    /*
-    * Recaptcha v3 Settings
-    */
     'recaptcha_v3_settings' => 'reCAPTCHA v3 設定',
     'v3_site_key' => 'v3 網站金鑰',
     'enter_v3_site_key' => '輸入您的 reCAPTCHA v3 網站金鑰',
@@ -29,20 +20,12 @@ return [
     'v3_score_threshold' => 'v3 分數閾值',
     'v3_score_hint' => '介於 0.0 和 1.0 之間的值（越高越好）',
     'v3_preview' => 'v3 預覽',
-
-    /*
-    * Recaptcha v2 Settings
-    */
     'recaptcha_v2_settings' => 'reCAPTCHA v2 設定',
     'v2_site_key' => 'v2 網站金鑰',
     'enter_v2_site_key' => '輸入您的 reCAPTCHA v2 網站金鑰',
     'v2_secret_key' => 'v2 秘密金鑰',
     'enter_v2_secret_key' => '輸入您的 reCAPTCHA v2 秘密金鑰',
     'v2_preview' => 'v2 預覽',
-
-    /*
-    * Appearance
-    */
     'appearance_messages' => '外觀',
     'theme' => '主題',
     'theme_light' => '淺色',
@@ -54,28 +37,12 @@ return [
     'badge_bottomright' => '右下角',
     'badge_bottomleft' => '左下角',
     'badge_inline' => '內嵌',
-
-    /*
-    * Common
-    */
     'save' => '儲存',
     'saving' => '正在儲存',
     'home' => '首頁',
     'settings' => '設定',
-
-    /*
-    * Success messages
-    */
     'captcha_settings_updated' => 'reCAPTCHA 設定已成功更新！',
-
-    /*
-    * Error messages
-    */
     'captcha_message' => 'reCAPTCHA 驗證失敗。請再試一次。',
-
-    /*
-    * JavaScript validation messages
-    */
     'field_required_condition' => '滿足條件時，此為必填欄位',
     'select_captcha_version' => '請選取 reCAPTCHA 版本',
     'v3_site_key_required' => '需要 reCAPTCHA v3 網站金鑰',
@@ -92,16 +59,8 @@ return [
     'failed_generate_v2_token' => '無法產生 reCAPTCHA v2 權杖。',
     'settings_saved' => '設定已儲存。',
     'failed_save_settings' => '無法儲存設定。請再試一次。',
-
-    /*
-    * Backend validation messages
-    */
     'invalid_secret_or_token' => '秘密金鑰或回應權杖無效',
     'captcha_verification_failed' => 'reCAPTCHA 驗證失敗（分數/動作/主機名稱不符）',
-
-    /*
-    * Validation messages
-    */
     'captcha_version_required' => '需要 reCAPTCHA 版本',
     'captcha_version_in' => '選取的 reCAPTCHA 版本無效',
     'failover_action_required' => '需要容錯移轉動作',

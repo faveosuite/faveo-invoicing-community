@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'accepted' => 'Das :attribute muss akzeptiert werden.',
     'accepted_if' => 'Das :attribute muss akzeptiert werden, wenn :other :value ist.',
     'active_url' => 'Das :attribute ist keine gültige URL.',
@@ -25,6 +24,7 @@ return [
     'date' => 'Das :attribute ist kein gültiges Datum.',
     'date_equals' => 'Das :attribute muss ein Datum gleich :date sein.',
     'date_format' => 'Das :attribute entspricht nicht dem Format :format.',
+    'decimal' => 'Das Feld :attribute muss :decimal Dezimalstellen haben.',
     'declined' => 'Das :attribute muss abgelehnt werden.',
     'declined_if' => 'Das :attribute muss abgelehnt werden, wenn :other :value ist.',
     'different' => 'Das :attribute und :other müssen unterschiedlich sein.',
@@ -37,7 +37,7 @@ return [
     'ends_with' => 'Das :attribute muss mit einem der folgenden Werte enden: :values.',
     'enum' => 'Das gewählte :attribute ist ungültig.',
     'exists' => 'Das gewählte :attribute ist ungültig.',
-    'file' => 'Das :attribute muss eine Datei sein.',
+    'file' => 'Der :attribute muss eine Datei sein.',
     'filled' => 'Das :attribute-Feld muss einen Wert enthalten.',
     'gt' => [
         'array' => 'Das :attribute muss mehr als :value Elemente enthalten.',
@@ -51,7 +51,7 @@ return [
         'numeric' => 'Das :attribute muss größer oder gleich :value sein.',
         'string' => 'Das :attribute muss mindestens :value Zeichen lang sein.',
     ],
-    'image' => 'Das :attribute muss ein Bild sein.',
+    'image' => 'Der :attribute muss ein Bild sein.',
     'in' => 'Das gewählte :attribute ist ungültig.',
     'in_array' => 'Das :attribute-Feld existiert nicht in :other.',
     'integer' => 'Das :attribute muss eine ganze Zahl sein.',
@@ -71,6 +71,56 @@ return [
         'numeric' => 'Das :attribute muss kleiner oder gleich :value sein.',
         'string' => 'Das :attribute muss höchstens :value Zeichen lang sein.',
     ],
+    'mac_address' => ':attribute muss eine gültige MAC-Adresse sein.',
+    'max' => [
+        'array' => 'Der :attribute darf nicht mehr als :max Elemente enthalten.',
+        'file' => 'Der :attribute darf nicht größer als :max Kilobyte sein.',
+        'numeric' => 'Der :attribute darf nicht größer als :max sein.',
+        'string' => 'Der :attribute darf nicht länger als :max Zeichen sein.',
+    ],
+    'mimes' => 'Der :attribute muss eine Datei des Typs sein: :values.',
+    'mimetypes' => 'Der :attribute muss eine Datei des Typs sein: :values.',
+    'min' => [
+        'array' => 'Der :attribute muss mindestens :min Elemente enthalten.',
+        'file' => 'Der :attribute muss mindestens :min Kilobyte groß sein.',
+        'numeric' => 'Der :attribute muss mindestens :min sein.',
+        'string' => 'Der :attribute muss mindestens :min Zeichen lang sein.',
+    ],
+    'multiple_of' => 'Der :attribute muss ein Vielfaches von :value sein.',
+    'not_in' => 'Der ausgewählte :attribute ist ungültig.',
+    'not_regex' => 'Das Format :attribute ist ungültig.',
+    'numeric' => 'Der :attribute muss eine Zahl sein.',
+    'password' => [
+        'letters' => 'Der :attribute muss mindestens einen Buchstaben enthalten.',
+        'mixed' => 'Der :attribute muss mindestens einen Groß- und einen Kleinbuchstaben enthalten.',
+        'numbers' => 'Der :attribute muss mindestens eine Zahl enthalten.',
+        'symbols' => 'Der :attribute muss mindestens ein Symbol enthalten.',
+        'uncompromised' => 'Der angegebene :attribute ist in einem Datenleck aufgetaucht. Bitte wählen Sie einen anderen :attribute.',
+    ],
+    'present' => 'Das Feld :attribute muss vorhanden sein.',
+    'prohibited' => 'Das Feld :attribute ist verboten.',
+    'prohibited_if' => 'Das Feld :attribute ist verboten, wenn :other :value ist.',
+    'prohibited_unless' => 'Das Feld :attribute ist verboten, es sei denn, :other befindet sich in :values.',
+    'prohibits' => 'Das Feld :attribute verhindert, dass :other vorhanden ist.',
+    'regex' => 'Das Format :attribute ist ungültig.',
+    'required' => 'Das Feld :attribute ist erforderlich.',
+    'required_array_keys' => 'Das Feld :attribute muss Einträge enthalten für: :values.',
+    'required_if' => 'Das Feld :attribute ist erforderlich, wenn :other :value ist.',
+    'required_unless' => 'Das Feld :attribute ist erforderlich, es sei denn, :other befindet sich in :values.',
+    'required_with' => 'Das Feld :attribute ist erforderlich, wenn :values vorhanden ist.',
+    'required_with_all' => 'Das Feld :attribute ist erforderlich, wenn :values vorhanden sind.',
+    'required_without' => 'Das Feld :attribute ist erforderlich, wenn :values nicht vorhanden ist.',
+    'required_without_all' => 'Das Feld :attribute ist erforderlich, wenn keines von :values vorhanden ist.',
+    'same' => ':attribute und :other müssen übereinstimmen.',
+    'size' => [
+        'array' => 'Der :attribute muss :size Elemente enthalten.',
+        'file' => 'Der :attribute muss :size Kilobyte groß sein.',
+        'numeric' => 'Der :attribute muss :size sein.',
+        'string' => 'Der :attribute muss aus :size Zeichen bestehen.',
+    ],
+    'starts_with' => 'Der :attribute muss mit einem der folgenden Punkte beginnen: :values.',
+    'string' => 'Der :attribute muss eine Zeichenfolge sein.',
+    'timezone' => 'Der :attribute muss eine gültige Zeitzone sein.',
     'unique' => 'Das :attribute wurde bereits vergeben.',
     'uploaded' => 'Das :attribute konnte nicht hochgeladen werden.',
     'url' => 'Das :attribute muss eine gültige URL sein.',
@@ -80,18 +130,6 @@ return [
             'rule-name' => 'benutzerdefinierte Nachricht',
         ],
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Validation Attributes
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines are used to swap our attribute placeholder
-    | with something more reader friendly such as "E-Mail Address" instead
-    | of "email". This simply helps us make our message more expressive.
-    |
-    */
-
     'attributes' => [],
     'publish_date_required' => 'Veröffentlichungsdatum ist erforderlich',
     'price_numeric_value' => 'Der Preis muss ein numerischer Wert sein',
@@ -108,12 +146,6 @@ return [
     'total_amount_required' => 'Gesamtbetrag ist erforderlich.',
     'total_amount_numeric' => 'Der Gesamtbetrag muss ein numerischer Wert sein.',
     'invoice_link_required' => 'Bitte verknüpfen Sie den Betrag mit mindestens einer Rechnung.',
-
-    /*
-    Request file custom validation messages
-    */
-
-    // Common
     'settings_form' => [
         'company' => [
             'required' => 'Das Firmenfeld ist erforderlich.',
@@ -148,7 +180,6 @@ return [
             'email' => 'Die Fehler-E-Mail muss eine gültige E-Mail-Adresse sein.',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => 'Der Firmenname ist erforderlich.',
@@ -179,7 +210,7 @@ return [
             'required' => 'Das Land ist erforderlich.',
         ],
         'gstin' => [
-            'max' => 'Die GSTIN darf 15 Zeichen nicht überschreiten.',
+            'regex' => 'Das GSTIN-Format ist ungültig.',
         ],
         'default_currency' => [
             'required' => 'Die Standardwährung ist erforderlich.',
@@ -197,7 +228,10 @@ return [
             'max' => 'Das Logo darf nicht größer als 2 MB sein.',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'Das OG-Bild muss eine Datei des folgenden Typs sein:jpeg, png, jpg, webp.',
+        'max' => 'Das OG-Bild darf nicht größer als 2 MB sein.',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => 'Das Namensfeld ist erforderlich.',
@@ -209,8 +243,13 @@ return [
             'url' => 'Der Link muss eine gültige URL sein.',
             'regex' => 'Das Linkformat ist ungültig.',
         ],
+        'class' => [
+            'required' => 'Das Feld „Symbolklasse“ ist erforderlich.',
+        ],
+        'fa_class' => [
+            'required' => 'Das Feld „Symbolklasse“ ist erforderlich.',
+        ],
     ],
-    // Email
     'custom' => [
         'password' => [
             'required_if' => 'Das Passwortfeld ist für den ausgewählten Mail-Treiber erforderlich.',
@@ -246,7 +285,6 @@ return [
             'required' => 'Das Treiberfeld ist erforderlich.',
         ],
     ],
-
     'customer_form' => [
         'first_name' => [
             'required' => 'Das Vornamefeld ist erforderlich.',
@@ -274,7 +312,6 @@ return [
             'unique' => 'Diese E-Mail ist bereits vergeben.',
         ],
     ],
-
     'contact_request' => [
         'conName' => 'Das Namensfeld ist erforderlich.',
         'email' => 'Das E-Mail-Feld ist erforderlich.',
@@ -287,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => 'Roboterüberprüfung fehlgeschlagen. Bitte versuchen Sie es erneut.',
         'demo-recaptcha-response-1.required' => 'Roboterüberprüfung fehlgeschlagen. Bitte versuchen Sie es erneut.',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => 'Das Namensfeld ist erforderlich.',
@@ -300,6 +336,7 @@ return [
         ],
         'slug' => [
             'required' => 'Das Slug-Feld ist erforderlich.',
+            'unique' => 'Diese Schnecke existiert bereits.',
         ],
         'url' => [
             'required' => 'Das URL-Feld ist erforderlich.',
@@ -312,9 +349,12 @@ return [
         'created_at' => [
             'required' => 'Das Erstellungsdatumfeld ist erforderlich.',
         ],
+        'parent_page_id' => [
+            'exists' => 'Die ausgewählte übergeordnete Seite existiert nicht.',
+            'self' => 'Eine Seite kann nicht ihre eigene übergeordnete Seite sein.',
+            'nested' => 'Die ausgewählte Seite ist bereits eine Unterseite und kann nicht als übergeordnete Seite verwendet werden.',
+        ],
     ],
-
-    // Order form
     'order_form' => [
         'client' => [
             'required' => 'Das Kundenfeld ist erforderlich.',
@@ -341,7 +381,6 @@ return [
             'integer' => 'Die Menge muss eine ganze Zahl sein.',
         ],
     ],
-    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'Das Gutscheincode-Feld ist erforderlich.',
@@ -374,9 +413,9 @@ return [
             'required' => 'Das Rabattwert-Feld ist erforderlich.',
             'numeric' => 'Das Rabattwert-Feld muss eine Zahl sein.',
             'between' => 'Der Rabattwert muss zwischen :min und :max liegen, wenn der Typ "percentage" ist.',
+            'max' => 'Der Rabattwert darf den Preis des angewendeten Produkts (:max) nicht überschreiten.',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => 'Das Namensfeld ist erforderlich.',
@@ -384,6 +423,12 @@ return [
         'rate' => [
             'required' => 'Das Steuersatzfeld ist erforderlich.',
             'numeric' => 'Der Steuersatz muss eine Zahl sein.',
+            'decimal' => 'Der Kurs darf höchstens 3 Dezimalstellen haben.',
+            'max' => 'Der Kurs darf nicht größer als 999,999 sein.',
+        ],
+        'priority' => [
+            'required' => 'Das Prioritätsfeld ist erforderlich.',
+            'min' => 'Die Priorität muss mindestens 1 sein.',
         ],
         'level' => [
             'required' => 'Das Ebenenfeld ist erforderlich.',
@@ -391,15 +436,11 @@ return [
         ],
         'country' => [
             'required' => 'Das Länderauswahlfeld ist erforderlich.',
-            // 'exists' => 'Das ausgewählte Land ist ungültig.',
         ],
         'state' => [
             'required' => 'Das Bundeslandfeld ist erforderlich.',
-            // 'exists' => 'Das ausgewählte Bundesland ist ungültig.',
         ],
     ],
-
-    // Product
     'subscription_form' => [
         'name' => [
             'required' => 'Das Namensfeld ist erforderlich.',
@@ -419,7 +460,6 @@ return [
             'required' => 'Das Produktfeld ist erforderlich.',
         ],
     ],
-
     'bundle' => [
         'name' => [
             'required' => 'Das Namensfeld ist erforderlich.',
@@ -428,10 +468,13 @@ return [
             'required' => 'Jeder Artikel ist erforderlich.',
         ],
     ],
-
     'group' => [
         'name' => [
             'required' => 'Der Name ist erforderlich.',
+            'unique' => 'Dieser Name existiert bereits.',
+        ],
+        'pricing_templates_id' => [
+            'required' => 'Die Designvorlage ist erforderlich.',
         ],
         'features' => [
             'name' => [
@@ -455,13 +498,15 @@ return [
             'required_with' => 'Der Titel ist erforderlich.',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => 'Das Namensfeld ist erforderlich.',
         ],
         'type' => [
             'required' => 'Das Typfeld ist erforderlich.',
+        ],
+        'product_type' => [
+            'required' => 'Das Feld „Produktkategorie“ ist erforderlich.',
         ],
         'group' => [
             'required' => 'Das Gruppierungsfeld ist erforderlich.',
@@ -472,27 +517,27 @@ return [
         'currency' => [
             'required' => 'Das Währungsfeld ist erforderlich.',
         ],
+        'file' => [
+            'required_without_all' => 'Das Dateifeld ist erforderlich, wenn weder github_owner noch github_repository angegeben sind.',
+            'mimes' => 'Die Datei muss eine ZIP-Datei sein.',
+        ],
+        'image' => [
+            'required_without_all' => 'Das Bildfeld ist erforderlich, wenn weder github_owner noch github_repository angegeben sind.',
+            'mimes' => 'Das Bild muss eine PNG-Datei sein.',
+        ],
+        'github_owner' => [
+            'required' => 'Das Feld GitHub-Besitzer ist erforderlich.',
+            'required_without_all' => 'Das GitHub-Eigentümerfeld ist erforderlich, wenn keine Datei oder kein Bild bereitgestellt wird.',
+        ],
+        'github_repository' => [
+            'required' => 'Das GitHub-Repository-Feld ist erforderlich.',
+            'required_without_all' => 'Das GitHub-Repository-Feld ist erforderlich, wenn keine Datei oder kein Bild bereitgestellt wird.',
+            'required_if' => 'Das GitHub-Repository-Feld ist erforderlich, wenn der Typ 2 ist.',
+        ],
+        'shoping_cart_link' => [
+            'required' => 'Das Feld „Warenkorb-Link“ ist erforderlich.',
+        ],
     ],
-    // 'price' => [
-    //     'required' => 'The price field is required.',
-    // ],
-    'file' => [
-        'required_without_all' => 'Das Dateifeld ist erforderlich, wenn weder github_owner noch github_repository angegeben sind.',
-        'mimes' => 'Die Datei muss eine ZIP-Datei sein.',
-    ],
-    'image' => [
-        'required_without_all' => 'Das Bildfeld ist erforderlich, wenn weder github_owner noch github_repository angegeben sind.',
-        'mimes' => 'Das Bild muss eine PNG-Datei sein.',
-    ],
-    'github_owner' => [
-        'required_without_all' => 'Das GitHub-Eigentümerfeld ist erforderlich, wenn weder Datei noch Bild angegeben sind.',
-    ],
-    'github_repository' => [
-        'required_without_all' => 'Das GitHub-Repository-Feld ist erforderlich, wenn weder Datei noch Bild angegeben sind.',
-        'required_if' => 'Das GitHub-Repository-Feld ist erforderlich, wenn der Typ 2 ist.',
-    ],
-
-    // User
     'users' => [
         'first_name' => [
             'required' => 'Das Vornamefeld ist erforderlich.',
@@ -531,8 +576,10 @@ return [
         'zip' => [
             'regex' => 'Das Bundeslandfeld ist erforderlich, wenn das Land Indien ist.',
         ],
+        'gstin' => [
+            'regex' => 'Das GSTIN-Format ist ungültig.',
+        ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => 'Vorname ist erforderlich.',
@@ -575,6 +622,9 @@ return [
         'state' => [
             'required_if' => 'Das Bundeslandfeld ist erforderlich, wenn das Land Indien ist.',
         ],
+        'gstin' => [
+            'regex' => 'Das GSTIN-Format ist ungültig.',
+        ],
         'old_password' => [
             'required' => 'Altes Passwort ist erforderlich.',
             'min' => 'Das alte Passwort muss mindestens :min Zeichen lang sein.',
@@ -601,8 +651,6 @@ return [
             'required' => 'Bitte geben Sie den Ländercode (Mobil) ein.',
         ],
     ],
-
-    // Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Das Kundenfeld ist erforderlich.',
@@ -612,7 +660,12 @@ return [
             'date' => 'Das Datum muss ein gültiges Datum sein.',
         ],
         'domain' => [
+            'required' => 'Das Domänenfeld ist erforderlich.',
             'regex' => 'Das Domain-Format ist ungültig.',
+        ],
+        'cloud_domain' => [
+            'required' => 'Das Feld „Cloud-Domäne“ ist erforderlich.',
+            'regex' => 'Es sind nur Buchstaben, Zahlen und Bindestriche erlaubt.',
         ],
         'plan' => [
             'required_if' => 'Das Abonnementfeld ist erforderlich.',
@@ -624,88 +677,86 @@ return [
             'required' => 'Das Produktfeld ist erforderlich.',
         ],
     ],
-
-    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Das Domainfeld ist erforderlich.',
             'url' => 'Die Domain muss eine gültige URL sein.',
         ],
     ],
-    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Das Domainfeld ist erforderlich.',
             'no_http' => 'Die Domain darf kein "http" oder "https" enthalten.',
         ],
     ],
-
-    // Language form
     'language' => [
         'required' => 'Das Sprachfeld ist erforderlich.',
         'invalid' => 'Die ausgewählte Sprache ist ungültig.',
     ],
-
-    // UpdateStoragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Das Speicherlaufwerksfeld ist erforderlich.',
             'string' => 'Das Laufwerk muss ein String sein.',
         ],
         'path' => [
+            'required' => 'Das Feld „Speicherpfad“ ist erforderlich.',
             'string' => 'Der Pfad muss ein String sein.',
             'nullable' => 'Das Pfadfeld ist optional.',
+            'invalid' => 'Der Pfad existiert nicht oder ist nicht beschreibbar.',
         ],
     ],
-
-    // ValidateSecretRequest form
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => 'Das Feld „Knotenpfad“ ist erforderlich.',
+            'string' => 'Der Knotenpfad muss eine gültige Zeichenfolge sein.',
+        ],
+        'npm_path' => [
+            'required' => 'Das NPM-Pfadfeld ist erforderlich.',
+            'string' => 'Der npm-Pfad muss eine gültige Zeichenfolge sein.',
+        ],
+        'chrome_path' => [
+            'required' => 'Das Feld „Chrome-Pfad“ ist erforderlich.',
+            'string' => 'Der Chrome-Pfad muss eine gültige Zeichenfolge sein.',
+            'invalid' => 'Der Chrome-Pfad existiert nicht oder ist nicht ausführbar.',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => 'Bitte Code eingeben',
             'digits' => 'Bitte geben Sie einen gültigen 6-stelligen Code ein',
         ],
     ],
-
-    // VerifyOtp form
     'verify_email' => [
         'required' => 'Das E-Mail-Feld ist erforderlich.',
         'email' => 'Die E-Mail muss eine gültige E-Mail-Adresse sein.',
         'verify_email' => 'Die E-Mail-Verifizierung ist fehlgeschlagen.',
     ],
-
     'verify_country_code' => [
         'required' => 'Der Ländercode ist erforderlich.',
         'numeric' => 'Der Ländercode muss eine gültige Zahl sein.',
         'verify_country_code' => 'Die Verifizierung des Ländercodes ist fehlgeschlagen.',
     ],
-
     'verify_number' => [
         'required' => 'Die Nummer ist erforderlich.',
         'numeric' => 'Die Nummer muss eine gültige Zahl sein.',
         'verify_number' => 'Die Nummernverifizierung ist fehlgeschlagen.',
     ],
-
     'password_otp' => [
         'required' => 'Das Passwortfeld ist erforderlich.',
         'password' => 'Das Passwort ist falsch.',
         'invalid' => 'Ungültiges Passwort.',
     ],
-
-    // AuthController file
     'auth_controller' => [
         'name_required' => 'Name ist erforderlich.',
         'name_max' => 'Name darf nicht länger als 255 Zeichen sein.',
-
         'email_required' => 'E-Mail ist erforderlich.',
         'email_email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
         'email_max' => 'E-Mail darf nicht länger als 255 Zeichen sein.',
         'email_unique' => 'Diese E-Mail ist bereits registriert.',
-
         'password_required' => 'Passwort ist erforderlich.',
         'password_confirmed' => 'Die Passwortbestätigung stimmt nicht überein.',
         'password_min' => 'Das Passwort muss mindestens 6 Zeichen lang sein.',
     ],
-
     'resend_otp' => [
         'eid_required' => 'Das EID-Feld ist erforderlich.',
         'eid_string' => 'Die EID muss ein String sein.',
@@ -713,7 +764,6 @@ return [
         'type_string' => 'Der Typ muss ein String sein.',
         'type_in' => 'Der ausgewählte Typ ist ungültig.',
     ],
-
     'verify_otp' => [
         'eid_required' => 'Die Mitarbeiter-ID ist erforderlich.',
         'eid_string' => 'Die Mitarbeiter-ID muss ein String sein.',
@@ -722,31 +772,26 @@ return [
         'recaptcha_required' => 'Bitte vervollständigen Sie das CAPTCHA.',
         'recaptcha_size' => 'Die CAPTCHA-Antwort ist ungültig.',
     ],
-
     'company_validation' => [
         'company_required' => 'Der Firmenname ist erforderlich.',
         'company_string' => 'Das Unternehmen muss ein Text sein.',
         'address_required' => 'Die Adresse ist erforderlich.',
         'address_string' => 'Die Adresse muss ein Text sein.',
     ],
-
     'token_validation' => [
         'token_required' => 'Das Token ist erforderlich.',
         'password_required' => 'Das Passwortfeld ist erforderlich.',
         'password_confirmed' => 'Die Passwortbestätigung stimmt nicht überein.',
     ],
-
     'custom_email' => [
         'required' => 'Das E-Mail-Feld ist erforderlich.',
         'email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
         'exists' => 'Diese E-Mail ist bei uns nicht registriert.',
     ],
-
     'newsletterEmail' => [
         'required' => 'Die Newsletter-E-Mail ist erforderlich.',
         'email' => 'Bitte geben Sie eine gültige E-Mail-Adresse für den Newsletter ein.',
     ],
-
     'widget' => [
         'name_required' => 'Name ist erforderlich.',
         'name_max' => 'Name darf nicht länger als 50 Zeichen sein.',
@@ -754,40 +799,39 @@ return [
         'type_required' => 'Typ ist erforderlich.',
         'type_unique' => 'Dieser Typ existiert bereits.',
     ],
-
     'payment' => [
         'payment_date_required' => 'Zahlungsdatum ist erforderlich.',
         'payment_method_required' => 'Zahlungsmethode ist erforderlich.',
         'amount_required' => 'Betrag ist erforderlich.',
     ],
-
     'custom_date' => [
         'date_required' => 'Das Datumsfeld ist erforderlich.',
         'total_required' => 'Das Gesamtsummenfeld ist erforderlich.',
         'status_required' => 'Das Statusfeld ist erforderlich.',
     ],
-
     'plan_renewal' => [
         'plan_required' => 'Das Abonnementfeld ist erforderlich.',
         'payment_method_required' => 'Das Zahlungsmethodenfeld ist erforderlich.',
         'cost_required' => 'Das Kostenfeld ist erforderlich.',
         'code_not_valid' => 'Der Aktionscode ist ungültig.',
     ],
-
     'rate' => [
         'required' => 'Der Satz ist erforderlich.',
         'numeric' => 'Der Satz muss eine Zahl sein.',
     ],
-
     'product_validate' => [
         'producttitle_required' => 'Produktbezeichnung ist erforderlich.',
         'version_required' => 'Version ist erforderlich.',
         'filename_required' => 'Bitte laden Sie eine Datei hoch.',
         'dependencies_required' => 'Das Abhängigkeitsfeld ist erforderlich.',
+        'description_required' => 'Beschreibung ist erforderlich.',
+        'release_type_required' => 'Release-Typ ist erforderlich.',
     ],
     'product_sku_unique' => 'Die Produkt-SKU muss eindeutig sein.',
     'product_name_unique' => 'Der Name muss eindeutig sein.',
     'product_show_agent_required' => 'Wählen Sie Ihre Cart-Seitenpräferenz.',
+    'config_file_path_regex' => 'Muss ein relativer Pfad ohne ../-Segmente sein.',
+    'license_file_path_regex' => 'Muss ein relativer Pfad ohne ../-Segmente sein.',
     'product_controller' => [
         'name_required' => 'Der Produktname ist erforderlich.',
         'name_unique' => 'Der Name muss eindeutig sein.',
@@ -795,6 +839,7 @@ return [
         'type_required' => 'Der Produkttyp ist erforderlich.',
         'description_required' => 'Die Produktbeschreibung ist erforderlich.',
         'product_description_required' => 'Die detaillierte Produktbeschreibung ist erforderlich.',
+        'short_description_required' => 'Die Kurzbeschreibung ist erforderlich.',
         'image_mimes' => 'Das Bild muss eine Datei vom Typ: jpeg, png, jpg sein.',
         'image_max' => 'Das Bild darf nicht größer als 2048 Kilobytes sein.',
         'product_sku_required' => 'Die Produkt-SKU ist erforderlich.',
@@ -812,7 +857,9 @@ return [
         'cloud_label_field_required' => 'Cloud-Beschriftungsfeld ist erforderlich.',
         'cloud_label_radio_required' => 'Cloud-Beschriftungsradio ist erforderlich.',
         'cloud_product_required' => 'Cloud-Produkt ist erforderlich.',
+        'cloud_product_unique' => 'Dieses Produkt verfügt bereits über eine Cloud-Konfiguration.',
         'cloud_free_plan_required' => 'Cloud Free Plan ist erforderlich.',
+        'cloud_free_plan_invalid' => 'Der ausgewählte Plan gehört nicht zum ausgewählten Produkt.',
         'cloud_product_key_required' => 'Cloud-Produkt-Schlüssel ist erforderlich.',
     ],
     'reg_till_after' => 'Das Registrierungs-Bis-Datum muss nach dem Registrierungs-Von-Datum liegen.',
@@ -841,6 +888,8 @@ return [
         'no_agent_req' => 'Das Feld Agentenanzahl ist erforderlich, wenn keine Produktmenge vorhanden ist.',
         'pro_req' => 'Das Produktfeld ist erforderlich',
         'offer_price' => 'Der Angebotspreis darf 100 nicht überschreiten',
+        'currency_duplicate' => 'Jede Währung kann nur einmal verwendet werden.',
+        'non_negative' => 'Dieser Wert darf nicht negativ sein.',
     ],
     'razorpay_val' => [
         'business_required' => 'Das Feld Geschäft ist erforderlich.',
@@ -855,5 +904,36 @@ return [
     'login_failed' => 'Anmeldung fehlgeschlagen, bitte überprüfen Sie die eingegebene E-Mail/Benutzername und das Passwort.',
     'forgot_email_validation' => 'Wenn die von Ihnen angegebene E-Mail registriert ist, erhalten Sie in Kürze eine E-Mail mit Anweisungen zum Zurücksetzen des Passworts.',
     'too_many_login_attempts' => 'Sie wurden aufgrund zu vieler fehlgeschlagener Anmeldeversuche aus der Anwendung ausgesperrt. Bitte versuchen Sie es nach :time erneut.',
-
+    'phone_number' => 'Bitte geben Sie eine gültige Mobiltelefonnummer ein.',
+    'mobile_number' => ':attribute muss eine gültige Mobiltelefonnummer sein.',
+    'license' => [
+        'product' => [
+            'required' => 'Das Produktfeld ist erforderlich.',
+        ],
+        'client' => [
+            'required' => 'Das Kundenfeld ist erforderlich.',
+        ],
+        'license_code' => [
+            'required' => 'Das Feld „Lizenzcode“ ist erforderlich.',
+        ],
+        'license_expire_date' => [
+            'required' => 'Das Feld für das Ablaufdatum der Lizenz ist erforderlich.',
+        ],
+        'license_updates_date' => [
+            'required' => 'Das Feld „Ablaufdatum der Updates“ ist erforderlich.',
+        ],
+        'license_support_date' => [
+            'required' => 'Das Feld für das Ablaufdatum des Supports ist erforderlich.',
+        ],
+        'banned_host_ip' => [
+            'required' => 'Das Feld „Gesperrte Host-IP“ ist erforderlich.',
+            'invalid' => 'Bitte geben Sie eine gültige IP-Adresse ein.',
+        ],
+        'installation_ip' => [
+            'required' => 'Das Installations-IP-Feld ist erforderlich.',
+        ],
+        'notification_field' => [
+            'required' => 'Dieses Benachrichtigungsfeld ist erforderlich.',
+        ],
+    ],
 ];

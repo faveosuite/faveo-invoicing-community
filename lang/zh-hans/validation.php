@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'accepted' => '必须接受 :attribute。',
     'accepted_if' => '当 :other 为 :value 时，必须接受 :attribute。',
     'active_url' => ':attribute 不是一个有效的URL。',
@@ -25,6 +24,7 @@ return [
     'date' => ':attribute 不是一个有效的日期。',
     'date_equals' => ':attribute 必须是一个与 :date 相等的日期。',
     'date_format' => ':attribute 不匹配格式 :format。',
+    'decimal' => ':attribute 字段必须有 :decimal 小数位。',
     'declined' => ':attribute 必须被拒绝。',
     'declined_if' => ':attribute 必须在 :other 为 :value 时被拒绝。',
     'different' => ':attribute 和 :other 必须不同。',
@@ -91,11 +91,11 @@ return [
     'not_regex' => ':attribute 格式无效。',
     'numeric' => ':attribute 必须是一个数字。',
     'password' => [
-        'letters' => ':attribute 必须包含至少一个字母。',
-        'mixed' => ':attribute 必须包含至少一个大写字母和一个小写字母。',
-        'numbers' => ':attribute 必须包含至少一个数字。',
-        'symbols' => ':attribute 必须包含至少一个符号。',
-        'uncompromised' => '给定的 :attribute 在数据泄露中出现过。请选择一个不同的 :attribute。',
+        'letters' => ':attribute 必须至少包含一个字母。',
+        'mixed' => ':attribute 必须至少包含 1 个大写字母和 1 个小写字母。',
+        'numbers' => ':attribute 必须至少包含一个数字。',
+        'symbols' => ':attribute 必须至少包含一个符号。',
+        'uncompromised' => '给定的:attribute出现在数据泄漏中。请选择不同的 :attribute。',
     ],
     'present' => ':attribute 字段必须存在。',
     'prohibited' => ':attribute 字段是禁止的。',
@@ -125,14 +125,12 @@ return [
     'uploaded' => ':attribute 上传失败。',
     'url' => ':attribute 必须是一个有效的URL。',
     'uuid' => ':attribute 必须是一个有效的UUID。',
-    'custom' => [
+    'custom_dup' => [
         'attribute-name' => [
             'rule-name' => '自定义消息',
         ],
     ],
-
     'attributes' => [],
-
     'publish_date_required' => '发布日期为必填项',
     'price_numeric_value' => '价格应为数字值',
     'quantity_integer_value' => '数量应为整数值',
@@ -148,12 +146,6 @@ return [
     'total_amount_required' => '总金额为必填项。',
     'total_amount_numeric' => '总金额必须为数字值。',
     'invoice_link_required' => '请将金额关联到至少一张发票。',
-
-    /*
-    Request file custom validation messages
-    */
-
-    // Common
     'settings_form' => [
         'company' => [
             'required' => '公司字段为必填项。',
@@ -188,7 +180,6 @@ return [
             'email' => '错误邮箱必须是有效的邮箱地址。',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => '公司名称为必填项。',
@@ -219,7 +210,7 @@ return [
             'required' => '国家为必填项。',
         ],
         'gstin' => [
-            'max' => 'GSTIN不能超过15个字符。',
+            'regex' => 'GSTIN 格式无效。',
         ],
         'default_currency' => [
             'required' => '默认货币为必填项。',
@@ -237,7 +228,10 @@ return [
             'max' => 'Logo不能超过2MB。',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'OG图像必须是以下类型的文件：jpeg、png、jpg、webp。',
+        'max' => 'OG图像不得大于2MB。',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => '名称字段为必填项。',
@@ -249,9 +243,13 @@ return [
             'url' => '链接必须是有效的URL地址。',
             'regex' => '链接格式无效。',
         ],
+        'class' => [
+            'required' => '图标类别字段为必填项。',
+        ],
+        'fa_class' => [
+            'required' => '图标类别字段为必填项。',
+        ],
     ],
-
-    // Email
     'custom' => [
         'password' => [
             'required_if' => '所选邮件驱动器需要密码字段。',
@@ -314,7 +312,6 @@ return [
             'unique' => '该邮箱已被使用。',
         ],
     ],
-
     'contact_request' => [
         'conName' => '姓名字段为必填项。',
         'email' => '邮箱字段为必填项。',
@@ -327,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => '机器人验证失败。请重试。',
         'demo-recaptcha-response-1.required' => '机器人验证失败。请重试。',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => '名称字段为必填项。',
@@ -340,6 +336,7 @@ return [
         ],
         'slug' => [
             'required' => '短链接字段为必填项。',
+            'unique' => '这个 slug 已经存在。',
         ],
         'url' => [
             'required' => 'URL字段为必填项。',
@@ -352,9 +349,12 @@ return [
         'created_at' => [
             'required' => '创建时间字段为必填项。',
         ],
+        'parent_page_id' => [
+            'exists' => '所选的父页面不存在。',
+            'self' => '页面不能是其自己的父页面。',
+            'nested' => '所选页面已经是子页面，不能用作父页面。',
+        ],
     ],
-
-    // Order form
     'order_form' => [
         'client' => [
             'required' => '客户字段为必填项。',
@@ -381,8 +381,6 @@ return [
             'integer' => '数量必须是整数。',
         ],
     ],
-
-    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => '优惠码字段为必填项。',
@@ -415,9 +413,9 @@ return [
             'required' => '折扣值字段为必填项。',
             'numeric' => '折扣值字段必须是数字。',
             'between' => '如果类型为百分比，折扣值字段必须在:min和:max之间。',
+            'max' => '折扣金额不能超过申请商品的价格（:max）。',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => '名称字段为必填项。',
@@ -425,6 +423,12 @@ return [
         'rate' => [
             'required' => '税率字段为必填项。',
             'numeric' => '税率必须为数字。',
+            'decimal' => '汇率最多保留 3 位小数。',
+            'max' => '比率不得大于999.999。',
+        ],
+        'priority' => [
+            'required' => '优先级字段为必填项。',
+            'min' => '优先级必须至少为1。',
         ],
         'level' => [
             'required' => '级别字段为必填项。',
@@ -432,14 +436,11 @@ return [
         ],
         'country' => [
             'required' => '国家字段为必填项。',
-            // 'exists' => '所选国家无效。',
         ],
         'state' => [
             'required' => '州字段为必填项。',
-            // 'exists' => '所选州无效。',
         ],
     ],
-    // Product
     'subscription_form' => [
         'name' => [
             'required' => '名称字段为必填项。',
@@ -459,7 +460,6 @@ return [
             'required' => '产品字段为必填项。',
         ],
     ],
-
     'bundle' => [
         'name' => [
             'required' => '名称字段为必填项。',
@@ -468,10 +468,13 @@ return [
             'required' => '每个项目都是必填项。',
         ],
     ],
-
     'group' => [
         'name' => [
             'required' => '名称为必填项',
+            'unique' => '该名称已存在。',
+        ],
+        'pricing_templates_id' => [
+            'required' => '7、需要设计模板。',
         ],
         'features' => [
             'name' => [
@@ -495,13 +498,15 @@ return [
             'required_with' => '标题为必填项',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => '名称字段为必填项。',
         ],
         'type' => [
             'required' => '类型字段为必填项。',
+        ],
+        'product_type' => [
+            'required' => '产品类别字段为必填项。',
         ],
         'group' => [
             'required' => '分组字段为必填项。',
@@ -512,9 +517,6 @@ return [
         'currency' => [
             'required' => '货币字段为必填项。',
         ],
-        // 'price' => [
-        //     'required' => '价格字段为必填项。',
-        // ],
         'file' => [
             'required_without_all' => '如果未提供github_owner或github_repository，则文件字段为必填项。',
             'mimes' => '文件必须为ZIP格式。',
@@ -524,15 +526,18 @@ return [
             'mimes' => '图片必须为PNG格式。',
         ],
         'github_owner' => [
+            'required' => 'GitHub 所有者字段为必填项。',
             'required_without_all' => '如果未提供文件或图片，则GitHub拥有者字段为必填项。',
         ],
         'github_repository' => [
+            'required' => 'GitHub 存储库字段为必填项。',
             'required_without_all' => '如果未提供文件或图片，则GitHub仓库字段为必填项。',
             'required_if' => '当类型为2时，GitHub仓库字段为必填项。',
         ],
+        'shoping_cart_link' => [
+            'required' => '购物车链接字段为必填项。',
+        ],
     ],
-
-    // User
     'users' => [
         'first_name' => [
             'required' => '名字字段为必填项。',
@@ -571,8 +576,10 @@ return [
         'zip' => [
             'regex' => '当国家为印度时，州字段为必填项。',
         ],
+        'gstin' => [
+            'regex' => 'GSTIN 格式无效。',
+        ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => '名字为必填项。',
@@ -601,48 +608,49 @@ return [
         'address' => [
             'required' => '地址为必填项。',
         ],
+        'user_name' => [
+            'required' => '需要输入用户名。',
+            'unique' => '该用户名已被使用。',
+        ],
+        'timezone_id' => [
+            'required' => '需要时区。',
+        ],
+        'country' => [
+            'required' => '国家/地区为必填项。',
+            'exists' => '选择的国家无效。',
+        ],
+        'state' => [
+            'required_if' => '该国家/地区需要州字段。',
+        ],
+        'gstin' => [
+            'regex' => 'GSTIN 格式无效。',
+        ],
+        'old_password' => [
+            'required' => '需要旧密码。',
+            'min' => '旧密码必须至少包含 :min 个字符。',
+        ],
+        'new_password' => [
+            'required' => '需要新密码。',
+            'different' => '新密码必须与旧密码不同。',
+        ],
+        'confirm_password' => [
+            'required' => '需要确认密码。',
+            'same' => '确认密码必须与新密码一致。',
+        ],
+        'terms' => [
+            'required' => '您必须接受条款。',
+        ],
+        'password' => [
+            'required' => '需要密码。',
+        ],
+        'password_confirmation' => [
+            'required' => '需要确认密码。',
+            'same' => '密码不匹配。',
+        ],
+        'mobile_code' => [
+            'required' => '输入国家代码（手机）',
+        ],
     ],
-    'user_name' => [
-        'required' => '用户名是必填项。',
-        'unique' => '该用户名已被使用。',
-    ],
-    'timezone_id' => [
-        'required' => '时区是必填项。',
-    ],
-    'country' => [
-        'required' => '国家是必填项。',
-        'exists' => '所选国家无效。',
-    ],
-    'state' => [
-        'required_if' => '当国家为印度时，州字段是必填项。',
-    ],
-    'old_password' => [
-        'required' => '旧密码是必填项。',
-        'min' => '旧密码至少需要 :min 个字符。',
-    ],
-    'new_password' => [
-        'required' => '新密码是必填项。',
-        'different' => '新密码必须与旧密码不同。',
-    ],
-    'confirm_password' => [
-        'required' => '确认密码是必填项。',
-        'same' => '确认密码必须与新密码一致。',
-    ],
-    'terms' => [
-        'required' => '您必须接受条款。',
-    ],
-    'password' => [
-        'required' => '密码是必填项。',
-    ],
-    'password_confirmation' => [
-        'required' => '密码确认是必填项。',
-        'same' => '两次输入的密码不一致。',
-    ],
-    'mobile_code' => [
-        'required' => '请输入国家区号（手机）。',
-    ],
-
-    // Invoice form
     'invoice' => [
         'user' => [
             'required' => '客户字段是必填项。',
@@ -652,7 +660,12 @@ return [
             'date' => '日期格式无效。',
         ],
         'domain' => [
+            'required' => '域字段为必填项。',
             'regex' => '域名格式无效。',
+        ],
+        'cloud_domain' => [
+            'required' => '云域字段为必填项。',
+            'regex' => '只能使用字母、数字和连字符。',
         ],
         'plan' => [
             'required_if' => '订阅字段是必填项。',
@@ -664,56 +677,60 @@ return [
             'required' => '产品字段是必填项。',
         ],
     ],
-
-    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => '域名字段是必填项。',
             'url' => '域名必须是有效的 URL。',
         ],
     ],
-
-    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => '域名字段是必填项。',
             'no_http' => '域名不能包含 "http" 或 "https"。',
         ],
     ],
-
-    // Language form
     'language' => [
         'required' => '语言字段是必填项。',
         'invalid' => '所选语言无效。',
     ],
-
-    // UpdateStoragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => '存储磁盘字段是必填项。',
             'string' => '磁盘必须是字符串。',
         ],
         'path' => [
+            'required' => '存储路径字段为必填项。',
             'string' => '路径必须是字符串。',
             'nullable' => '路径字段是可选的。',
+            'invalid' => '路径不存在或不可写。',
         ],
     ],
-
-    // ValidateSecretRequest form
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => '节点路径字段为必填项。',
+            'string' => '节点路径必须是有效的字符串。',
+        ],
+        'npm_path' => [
+            'required' => 'npm 路径字段是必需的。',
+            'string' => 'npm 路径必须是有效的字符串。',
+        ],
+        'chrome_path' => [
+            'required' => '镀铬路径字段是必需的。',
+            'string' => 'chrome 路径必须是有效的字符串。',
+            'invalid' => 'chrome路径不存在或不可执行。',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => '请输入验证码。',
             'digits' => '请输入有效的6位验证码。',
         ],
     ],
-
-    // VerifyOtp form
     'verify_email' => [
         'required' => '电子邮件字段是必填项。',
         'email' => '电子邮件必须是有效的电子邮件地址。',
         'verify_email' => '电子邮件验证失败。',
     ],
-
     'verify_country_code' => [
         'required' => '国家代码是必填项。',
         'numeric' => '国家代码必须是有效的数字。',
@@ -724,28 +741,22 @@ return [
         'numeric' => '号码必须是有效的数字。',
         'verify_number' => '号码验证失败。',
     ],
-
     'password_otp' => [
         'required' => '密码字段是必填项。',
         'password' => '密码不正确。',
         'invalid' => '密码无效。',
     ],
-
-    // AuthController file
     'auth_controller' => [
         'name_required' => '姓名是必填项。',
         'name_max' => '姓名不能超过 255 个字符。',
-
         'email_required' => '电子邮件是必填项。',
         'email_email' => '请输入有效的电子邮件地址。',
         'email_max' => '电子邮件不能超过 255 个字符。',
         'email_unique' => '该电子邮件已被注册。',
-
         'password_required' => '密码是必填项。',
         'password_confirmed' => '密码确认不匹配。',
         'password_min' => '密码必须至少包含 6 个字符。',
     ],
-
     'resend_otp' => [
         'eid_required' => 'EID 字段是必填项。',
         'eid_string' => 'EID 必须是一个字符串。',
@@ -753,7 +764,6 @@ return [
         'type_string' => '类型必须是一个字符串。',
         'type_in' => '所选类型无效。',
     ],
-
     'verify_otp' => [
         'eid_required' => '员工ID是必填项。',
         'eid_string' => '员工ID必须是字符串。',
@@ -762,31 +772,26 @@ return [
         'recaptcha_required' => '请完成验证码。',
         'recaptcha_size' => '验证码响应无效。',
     ],
-
     'company_validation' => [
         'company_required' => '公司名称是必填项。',
         'company_string' => '公司名称必须是文本。',
         'address_required' => '地址是必填项。',
         'address_string' => '地址必须是文本。',
     ],
-
     'token_validation' => [
         'token_required' => '令牌是必填项。',
         'password_required' => '密码字段是必填项。',
         'password_confirmed' => '密码确认不匹配。',
     ],
-
     'custom_email' => [
         'required' => '电子邮件字段是必填项。',
         'email' => '请输入有效的电子邮件地址。',
         'exists' => '该电子邮件未在我们的系统中注册。',
     ],
-
     'newsletterEmail' => [
         'required' => '新闻通讯电子邮件是必填项。',
         'email' => '请输入有效的电子邮件地址用于新闻通讯。',
     ],
-
     'widget' => [
         'name_required' => '名称是必填项。',
         'name_max' => '名称不能超过 50 个字符。',
@@ -794,40 +799,39 @@ return [
         'type_required' => '类型是必填项。',
         'type_unique' => '该类型已存在。',
     ],
-
     'payment' => [
         'payment_date_required' => '支付日期是必填项。',
         'payment_method_required' => '支付方式是必填项。',
         'amount_required' => '金额是必填项。',
     ],
-
     'custom_date' => [
         'date_required' => '日期字段是必填项。',
         'total_required' => '总额字段是必填项。',
         'status_required' => '状态字段是必填项。',
     ],
-
     'plan_renewal' => [
         'plan_required' => '计划字段是必填项。',
         'payment_method_required' => '支付方式字段是必填项。',
         'cost_required' => '费用字段是必填项。',
         'code_not_valid' => '优惠码无效。',
     ],
-
     'rate' => [
         'required' => '费率是必填项。',
         'numeric' => '费率必须是数字。',
     ],
-
     'product_validate' => [
         'producttitle_required' => '产品标题是必填的。',
         'version_required' => '版本是必填的。',
         'filename_required' => '请上传一个文件。',
         'dependencies_required' => '依赖字段是必填的。',
+        'description_required' => '需要描述。',
+        'release_type_required' => '需要释放类型。',
     ],
     'product_sku_unique' => '产品SKU必须是唯一的。',
     'product_name_unique' => '名称必须是唯一的。',
     'product_show_agent_required' => '请选择您的购物车页面偏好。',
+    'config_file_path_regex' => '必须是不带 ../ 段的相对路径。',
+    'license_file_path_regex' => '必须是不带 ../ 段的相对路径。',
     'product_controller' => [
         'name_required' => '产品名称是必填的。',
         'name_unique' => '名称必须是唯一的。',
@@ -835,6 +839,7 @@ return [
         'type_required' => '产品类型是必填的。',
         'description_required' => '产品描述是必填的。',
         'product_description_required' => '详细的产品描述是必填的。',
+        'short_description_required' => '需要简短描述。',
         'image_mimes' => '图片必须是jpeg, png, jpg类型的文件。',
         'image_max' => '图片大小不得超过2048KB。',
         'product_sku_required' => '产品SKU是必填的。',
@@ -852,7 +857,9 @@ return [
         'cloud_label_field_required' => '云标签字段是必填的。',
         'cloud_label_radio_required' => '云标签单选框是必填的。',
         'cloud_product_required' => '云产品是必填的。',
+        'cloud_product_unique' => '本产品已有云端配置。',
         'cloud_free_plan_required' => '云免费计划是必填的。',
+        'cloud_free_plan_invalid' => '所选方案不属于所选产品。',
         'cloud_product_key_required' => '云产品密钥是必填的。',
     ],
     'reg_till_after' => '注册截止日期必须晚于注册起始日期。',
@@ -881,6 +888,8 @@ return [
         'no_agent_req' => '当未填写产品数量时，代理人数字段是必填项。',
         'pro_req' => '产品字段是必填项',
         'offer_price' => '优惠价格不能大于 100',
+        'currency_duplicate' => '每种货币只能使用一次。',
+        'non_negative' => '该值不能为负数。',
     ],
     'razorpay_val' => [
         'business_required' => '业务字段是必填项。',
@@ -895,5 +904,36 @@ return [
     'login_failed' => '登录失败，请检查您输入的电子邮件/用户名和密码是否正确。',
     'forgot_email_validation' => '如果您提供的电子邮件已注册，您将很快收到一封包含重置密码说明的电子邮件。',
     'too_many_login_attempts' => '由于多次登录失败，您已被锁定，请在 :time 后重试。',
-
+    'phone_number' => '请输入有效的手机号码。',
+    'mobile_number' => ':attribute 必须是有效的手机号码。',
+    'license' => [
+        'product' => [
+            'required' => '产品字段为必填项。',
+        ],
+        'client' => [
+            'required' => '客户字段为必填项。',
+        ],
+        'license_code' => [
+            'required' => '许可证代码字段为必填项。',
+        ],
+        'license_expire_date' => [
+            'required' => '许可证到期日期字段为必填项。',
+        ],
+        'license_updates_date' => [
+            'required' => '更新到期日期字段为必填项。',
+        ],
+        'license_support_date' => [
+            'required' => '支持到期日期字段为必填项。',
+        ],
+        'banned_host_ip' => [
+            'required' => '禁止的主机IP 字段为必填项。',
+            'invalid' => '请输入有效的IP地址。',
+        ],
+        'installation_ip' => [
+            'required' => '安装IP 字段为必填项。',
+        ],
+        'notification_field' => [
+            'required' => '此通知字段为必填项。',
+        ],
+    ],
 ];

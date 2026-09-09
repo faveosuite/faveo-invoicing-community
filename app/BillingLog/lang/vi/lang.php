@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'default' => 'Mặc định',
     'cloud-instance-created' => 'Đã tạo phiên bản đám mây',
@@ -31,7 +29,6 @@ return [
     'inspire' => 'Hiển thị câu nói truyền cảm hứng',
     'renewal:cron' => 'Cron tự động gia hạn',
     'mail-send-exception' => 'Lỗi gửi email',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => 'Thông báo gia hạn đã hết hạn',
     'renewal:notification' => 'Thông báo tự động gia hạn',
     'cleanup:msg-reports' => 'Dọn dẹp báo cáo MSG91',
@@ -42,11 +39,8 @@ return [
     'droptables' => 'Xóa tất cả bảng',
     'install:db' => 'Cài đặt cơ sở dữ liệu',
     'testing-setup' => 'Thiết lập môi trường kiểm thử',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'Gửi hàng đợi thành công',
-    // Added missing UI texts
     'cancel' => 'Hủy',
-    // Added missing messages from blade file
     'system_logs' => 'Nhật ký hệ thống',
     'filter_logs' => 'Lọc nhật ký',
     'logs' => 'Nhật ký',
@@ -103,4 +97,5 @@ return [
     'confirm_old_email' => 'Xác nhận email cũ',
     'confirm_mobile_number_change' => 'Xác nhận thay đổi số điện thoại',
     'logs:delete' => 'Xóa nhật ký hệ thống',
+    'date' => 'Ngày',
 ];

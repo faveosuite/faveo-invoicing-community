@@ -1,11 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
 return [
-    /*
-    * Recaptcha Settings Page
-    */
     'captcha_settings' => 'reCAPTCHA 설정',
     'captcha_configuration' => 'reCAPTCHA 구성',
     'captcha_version' => 'reCAPTCHA 버전',
@@ -17,10 +12,6 @@ return [
     'none' => '없음',
     'fallback_v2_checkbox' => 'reCAPTCHA v2 확인란으로 대체',
     'action_if_captcha_fails' => 'reCAPTCHA 실패 시 수행할 작업',
-
-    /*
-    * Recaptcha v3 Settings
-    */
     'recaptcha_v3_settings' => 'reCAPTCHA v3 설정',
     'v3_site_key' => 'v3 사이트 키',
     'enter_v3_site_key' => 'reCAPTCHA v3 사이트 키를 입력하세요',
@@ -29,20 +20,12 @@ return [
     'v3_score_threshold' => 'v3 점수 임계값',
     'v3_score_hint' => '0.0에서 1.0 사이의 값(높을수록 좋음)',
     'v3_preview' => 'v3 미리보기',
-
-    /*
-    * Recaptcha v2 Settings
-    */
     'recaptcha_v2_settings' => 'reCAPTCHA v2 설정',
     'v2_site_key' => 'v2 사이트 키',
     'enter_v2_site_key' => 'reCAPTCHA v2 사이트 키를 입력하세요',
     'v2_secret_key' => 'v2 비밀 키',
     'enter_v2_secret_key' => 'reCAPTCHA v2 비밀 키를 입력하세요',
     'v2_preview' => 'v2 미리보기',
-
-    /*
-    * Appearance
-    */
     'appearance_messages' => '모양',
     'theme' => '테마',
     'theme_light' => '밝게',
@@ -54,28 +37,12 @@ return [
     'badge_bottomright' => '오른쪽 하단',
     'badge_bottomleft' => '왼쪽 하단',
     'badge_inline' => '인라인',
-
-    /*
-    * Common
-    */
     'save' => '저장',
     'saving' => '저장 중',
     'home' => '홈',
     'settings' => '설정',
-
-    /*
-    * Success messages
-    */
     'captcha_settings_updated' => 'reCAPTCHA 설정이 성공적으로 업데이트되었습니다!',
-
-    /*
-    * Error messages
-    */
     'captcha_message' => 'reCAPTCHA 확인에 실패했습니다. 다시 시도해 주세요.',
-
-    /*
-    * JavaScript validation messages
-    */
     'field_required_condition' => '조건이 충족되면 이 필드는 필수입니다',
     'select_captcha_version' => 'reCAPTCHA 버전을 선택하세요',
     'v3_site_key_required' => 'reCAPTCHA v3 사이트 키가 필요합니다',
@@ -92,16 +59,8 @@ return [
     'failed_generate_v2_token' => 'reCAPTCHA v2 토큰을 생성하지 못했습니다.',
     'settings_saved' => '설정이 저장되었습니다.',
     'failed_save_settings' => '설정을 저장하지 못했습니다. 다시 시도해 주세요.',
-
-    /*
-    * Backend validation messages
-    */
     'invalid_secret_or_token' => '비밀 키 또는 응답 토큰이 잘못되었습니다',
     'captcha_verification_failed' => 'reCAPTCHA 확인 실패(점수/작업/호스트 이름 불일치)',
-
-    /*
-    * Validation messages
-    */
     'captcha_version_required' => 'reCAPTCHA 버전이 필요합니다',
     'captcha_version_in' => '선택한 reCAPTCHA 버전이 잘못되었습니다',
     'failover_action_required' => '장애 조치 작업이 필요합니다',

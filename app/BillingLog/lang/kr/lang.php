@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'default' => '기본값',
     'cloud-instance-created' => '클라우드 인스턴스 생성됨',
@@ -98,6 +96,6 @@ return [
     'verify_new_email' => '새 이메일 확인',
     'confirm_old_email' => '기존 이메일 확인',
     'confirm_mobile_number_change' => '휴대폰 번호 변경 확인',
-
     'logs:delete' => '시스템 로그 삭제',
+    'date' => '날짜',
 ];

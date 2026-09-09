@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'default' => 'Padrão',
     'cloud-instance-created' => 'Instância na Nuvem Criada',
@@ -31,7 +29,6 @@ return [
     'inspire' => 'Exibir uma citação inspiradora',
     'renewal:cron' => 'Cron de Renovação Automática',
     'mail-send-exception' => 'Exceção no Envio de E-mail',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => 'Notificação de Renovação Expirada',
     'renewal:notification' => 'Notificação de Renovação Automática',
     'cleanup:msg-reports' => 'Limpeza de Relatórios MSG91',
@@ -42,11 +39,8 @@ return [
     'droptables' => 'Excluir Todas as Tabelas',
     'install:db' => 'Instalar Banco de Dados',
     'testing-setup' => 'Configurar Ambiente de Teste',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'Envio em fila realizado com sucesso',
-    // Added missing UI texts
     'cancel' => 'Cancelar',
-    // Added missing messages from blade file
     'system_logs' => 'Logs do Sistema',
     'filter_logs' => 'Filtrar Logs',
     'logs' => 'Logs',
@@ -103,4 +97,5 @@ return [
     'confirm_old_email' => 'Confirmar e-mail antigo',
     'confirm_mobile_number_change' => 'Confirmar alteração do número de telemóvel',
     'logs:delete' => 'Excluir logs do sistema',
+    'date' => 'Data',
 ];

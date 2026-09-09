@@ -1,14 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'default' => 'Default',
     'cloud-instance-created' => 'Cloud Instance Created',
-    'sales-manager-mail' => 'Sales Manager Email',
-    'account-manager-mail' => 'Account Manager Email',
+    'sales-manager-mail' => 'Sales Manager Mail',
+    'account-manager-mail' => 'Account Manager Mail',
     'user-mail-verify' => 'User Email Verification',
-    'forgot-mail-send' => 'Forgotten Password Email Sent',
+    'forgot-mail-send' => 'Forgot Password Email Sent',
     'replace' => 'Replace',
     'expiry-notification' => 'Expiry Notification',
     'autorenewal-notification' => 'Auto-Renewal Notification',
@@ -19,14 +17,14 @@ return [
     'contact-us' => 'Contact Us',
     'demo-request' => 'Demo Request',
     'order-confirm' => 'Order Confirmation',
-    'invoice-mail' => 'Invoice Email',
+    'invoice-mail' => 'Invoice Mail',
     'user-report' => 'User Report',
     'invoice-report' => 'Invoice Report',
     'order-report' => 'Order Report',
     'tenant-report' => 'Tenant Report',
     'review-notification' => 'Review Notification',
     'cloud-created' => 'Cloud Created',
-    'welcome-mail' => 'Welcome Email',
+    'welcome-mail' => 'Welcome Mail',
     'expiry:notification' => 'Renewal Notification',
     'inspire' => 'Display an inspiring quote',
     'renewal:cron' => 'Auto Renewal Cron',
@@ -92,7 +90,6 @@ return [
     'failed' => 'Failed',
     'send' => 'Send',
     'queued' => 'Queued',
-
     'delete_logs_entries' => 'Delete logs entries before',
     'sent' => 'Sent',
     'failed_jobs' => 'Failed Jobs',
@@ -100,4 +97,5 @@ return [
     'confirm_old_email' => 'Confirm Old Email',
     'confirm_mobile_number_change' => 'Confirm Mobile Number Change',
     'logs:delete' => 'Delete System Logs',
+    'date' => 'Date',
 ];

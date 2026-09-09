@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'default' => 'Varsayılan',
     'cloud-instance-created' => 'Bulut örneği oluşturuldu',
@@ -99,4 +97,5 @@ return [
     'confirm_old_email' => 'Eski e-postayı onaylayın',
     'confirm_mobile_number_change' => 'Mobil numara değişikliğini onaylayın',
     'logs:delete' => 'Sistem günlüklerini sil',
+    'date' => 'Tarih',
 ];

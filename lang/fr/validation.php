@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'accepted' => 'Le :attribute doit être accepté.',
     'accepted_if' => 'Le :attribute doit être accepté lorsque :other est :value.',
     'active_url' => 'Le :attribute n\'est pas une URL valide.',
@@ -25,6 +24,7 @@ return [
     'date' => 'Le :attribute n\'est pas une date valide.',
     'date_equals' => 'Le :attribute doit être une date égale à :date.',
     'date_format' => 'Le :attribute ne correspond pas au format :format.',
+    'decimal' => 'Le champ :attribute doit contenir :decimal décimales.',
     'declined' => 'Le :attribute doit être refusé.',
     'declined_if' => 'Le :attribute doit être refusé lorsque :other est :value.',
     'different' => 'Le :attribute et :other doivent être différents.',
@@ -92,7 +92,7 @@ return [
     'numeric' => 'Le :attribute doit être un nombre.',
     'password' => [
         'letters' => 'Le :attribute doit contenir au moins une lettre.',
-        'mixed' => 'Le :attribute doit contenir au moins une majuscule et une minuscule.',
+        'mixed' => 'Le :attribute doit contenir au moins une lettre majuscule et une lettre minuscule.',
         'numbers' => 'Le :attribute doit contenir au moins un chiffre.',
         'symbols' => 'Le :attribute doit contenir au moins un symbole.',
         'uncompromised' => 'Le :attribute donné est apparu dans une fuite de données. Veuillez choisir un autre :attribute.',
@@ -125,15 +125,11 @@ return [
     'uploaded' => 'Le :attribute n\'a pas pu être téléchargé.',
     'url' => 'Le :attribute doit être une URL valide.',
     'uuid' => 'Le :attribute doit être un UUID valide.',
-
-    // Custom Validation Language Lines
     'custom_dup' => [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
     ],
-
-    // Custom Validation Attributes
     'attributes' => [],
     'publish_date_required' => 'La date de publication est requise',
     'price_numeric_value' => 'Le prix doit être une valeur numérique',
@@ -141,7 +137,7 @@ return [
     'order_has_Expired' => 'La commande a expiré',
     'expired' => 'Expiré',
     'eid_required' => 'Le champ EID est requis.',
-    'eid_string' => "L'EID doit être une chaîne de caractères.",
+    'eid_string' => 'L\'EID doit être une chaîne de caractères.',
     'otp_required' => 'Le champ OTP est requis.',
     'amt_required' => 'Le champ montant est requis',
     'amt_numeric' => 'Le montant doit être un nombre',
@@ -150,7 +146,6 @@ return [
     'total_amount_required' => 'Le montant total est requis.',
     'total_amount_numeric' => 'Le montant total doit être une valeur numérique.',
     'invoice_link_required' => 'Veuillez lier le montant à au moins une facture.',
-    // Common
     'settings_form' => [
         'company' => [
             'required' => 'Le champ société est requis.',
@@ -163,7 +158,7 @@ return [
         ],
         'address' => [
             'required' => 'Le champ adresse est requis.',
-            'max' => "L'adresse ne peut pas dépasser 300 caractères.",
+            'max' => 'L\'adresse ne peut pas dépasser 300 caractères.',
         ],
         'logo' => [
             'mimes' => 'Le logo doit être un fichier PNG.',
@@ -176,30 +171,29 @@ return [
         ],
         'email' => [
             'required' => 'Le champ email est requis.',
-            'email' => "L'adresse email doit être valide.",
+            'email' => 'L\'adresse email doit être valide.',
         ],
         'password' => [
             'required' => 'Le champ mot de passe est requis.',
         ],
         'error_email' => [
-            'email' => "L'adresse email d'erreur doit être valide.",
+            'email' => 'L\'adresse email d\'erreur doit être valide.',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => 'Le nom de la société est requis.',
             'max' => 'Le nom de la société ne doit pas dépasser 50 caractères.',
         ],
         'company_email' => [
-            'required' => "L'email de la société est requis.",
-            'email' => "L'email de la société doit être une adresse valide.",
+            'required' => 'L\'email de la société est requis.',
+            'email' => 'L\'email de la société doit être une adresse valide.',
         ],
         'title' => [
             'max' => 'Le titre ne doit pas dépasser 50 caractères.',
         ],
         'website' => [
-            'required' => "L'URL du site Web est requise.",
+            'required' => 'L\'URL du site Web est requise.',
             'url' => 'Le site Web doit être une URL valide.',
             'regex' => 'Le format du site Web est invalide.',
         ],
@@ -207,7 +201,7 @@ return [
             'required' => 'Le numéro de téléphone est requis.',
         ],
         'address' => [
-            'required' => "L'adresse est requise.",
+            'required' => 'L\'adresse est requise.',
         ],
         'state' => [
             'required' => 'L’état est requis.',
@@ -216,14 +210,14 @@ return [
             'required' => 'Le pays est requis.',
         ],
         'gstin' => [
-            'max' => 'Le GSTIN ne doit pas dépasser 15 caractères.',
+            'regex' => 'Le format GSTIN n\'est pas valide.',
         ],
         'default_currency' => [
             'required' => 'La devise par défaut est requise.',
         ],
         'admin_logo' => [
-            'mimes' => "Le logo d'administration doit être un fichier de type : jpeg, png, jpg.",
-            'max' => "Le logo d'administration ne doit pas dépasser 2 Mo.",
+            'mimes' => 'Le logo d\'administration doit être un fichier de type : jpeg, png, jpg.',
+            'max' => 'Le logo d\'administration ne doit pas dépasser 2 Mo.',
         ],
         'fav_icon' => [
             'mimes' => 'Le fav icon doit être un fichier de type : jpeg, png, jpg.',
@@ -234,7 +228,10 @@ return [
             'max' => 'Le logo ne doit pas dépasser 2 Mo.',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'L\'image OG doit être un fichier de type :jpeg, png, jpg, webp.',
+        'max' => 'L\'image OG ne doit pas dépasser 2 Mo.',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => 'Le champ nom est requis.',
@@ -246,9 +243,13 @@ return [
             'url' => 'Le lien doit être une URL valide.',
             'regex' => 'Le format du lien est invalide.',
         ],
+        'class' => [
+            'required' => 'Le champ Classe d\'icône est obligatoire.',
+        ],
+        'fa_class' => [
+            'required' => 'Le champ Classe d\'icône est obligatoire.',
+        ],
     ],
-
-    // Email
     'custom' => [
         'password' => [
             'required_if' => 'Le champ mot de passe est requis pour le pilote de messagerie sélectionné.',
@@ -257,7 +258,7 @@ return [
             'required_if' => 'Le champ port est requis pour SMTP.',
         ],
         'encryption' => [
-            'required_if' => "Le champ d'encodage est requis pour SMTP.",
+            'required_if' => 'Le champ d\'encodage est requis pour SMTP.',
         ],
         'host' => [
             'required_if' => 'Le champ hôte est requis pour SMTP.',
@@ -278,13 +279,12 @@ return [
             'required_if' => 'Le champ email est requis pour le pilote de messagerie sélectionné.',
             'required' => 'Le champ email est requis.',
             'email' => 'Veuillez entrer une adresse email valide.',
-            'not_matching' => "Le domaine de l'email doit correspondre au domaine du site actuel.",
+            'not_matching' => 'Le domaine de l\'email doit correspondre au domaine du site actuel.',
         ],
         'driver' => [
             'required' => 'Le champ pilote est requis.',
         ],
     ],
-
     'customer_form' => [
         'first_name' => [
             'required' => 'Le champ prénom est requis.',
@@ -308,7 +308,7 @@ return [
         ],
         'email' => [
             'required' => 'Le champ email est requis.',
-            'email' => "L'email doit être une adresse valide.",
+            'email' => 'L\'email doit être une adresse valide.',
             'unique' => 'Cet email est déjà utilisé.',
         ],
     ],
@@ -324,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => 'Échec de la vérification du robot. Veuillez réessayer.',
         'demo-recaptcha-response-1.required' => 'Échec de la vérification du robot. Veuillez réessayer.',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => 'Le champ nom est requis.',
@@ -337,11 +336,12 @@ return [
         ],
         'slug' => [
             'required' => 'Le champ slug est requis.',
+            'unique' => 'Cette limace existe déjà.',
         ],
         'url' => [
             'required' => 'Le champ URL est requis.',
-            'url' => "L'URL doit être un lien valide.",
-            'regex' => "Le format de l'URL est invalide.",
+            'url' => 'L\'URL doit être un lien valide.',
+            'regex' => 'Le format de l\'URL est invalide.',
         ],
         'content' => [
             'required' => 'Le champ contenu est requis.',
@@ -349,9 +349,12 @@ return [
         'created_at' => [
             'required' => 'Le champ date de création est requis.',
         ],
+        'parent_page_id' => [
+            'exists' => 'La page parent sélectionnée n\'existe pas.',
+            'self' => 'Une page ne peut pas être son propre parent.',
+            'nested' => 'La page sélectionnée est déjà une sous-page et ne peut pas être utilisée comme parent.',
+        ],
     ],
-
-    // Order form
     'order_form' => [
         'client' => [
             'required' => 'Le champ client est requis.',
@@ -378,8 +381,6 @@ return [
             'integer' => 'La quantité doit être un entier.',
         ],
     ],
-
-    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'Le champ code promo est requis.',
@@ -406,15 +407,15 @@ return [
         'expiry' => [
             'required' => 'Le champ expiration est requis.',
             'date' => 'Le champ expiration doit être une date valide.',
-            'after' => "La date d'expiration doit être postérieure à la date de début.",
+            'after' => 'La date d\'expiration doit être postérieure à la date de début.',
         ],
         'value' => [
             'required' => 'Le champ valeur de la remise est requis.',
             'numeric' => 'Le champ valeur de la remise doit être un nombre.',
             'between' => 'La valeur de la remise doit être entre :min et :max si le type est pourcentage.',
+            'max' => 'La valeur de la remise ne peut pas dépasser le prix du produit appliqué (:max).',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => 'Le champ nom est requis.',
@@ -422,6 +423,12 @@ return [
         'rate' => [
             'required' => 'Le champ taux est requis.',
             'numeric' => 'Le taux doit être un nombre.',
+            'decimal' => 'Le taux doit comporter au plus 3 décimales.',
+            'max' => 'Le taux ne doit pas être supérieur à 999,999.',
+        ],
+        'priority' => [
+            'required' => 'Le champ priorité est obligatoire.',
+            'min' => 'La priorité doit être d\'au moins 1.',
         ],
         'level' => [
             'required' => 'Le champ niveau est requis.',
@@ -429,15 +436,11 @@ return [
         ],
         'country' => [
             'required' => 'Le champ pays est requis.',
-            // 'exists' => 'Le pays sélectionné est invalide.',
         ],
         'state' => [
             'required' => 'Le champ état est requis.',
-            // 'exists' => 'L’état sélectionné est invalide.',
         ],
     ],
-
-    // Product
     'subscription_form' => [
         'name' => [
             'required' => 'Le champ nom est requis.',
@@ -465,10 +468,13 @@ return [
             'required' => 'Chaque élément est requis.',
         ],
     ],
-
     'group' => [
         'name' => [
             'required' => 'Le nom est requis.',
+            'unique' => 'Ce nom existe déjà.',
+        ],
+        'pricing_templates_id' => [
+            'required' => 'Le modèle de conception est requis.',
         ],
         'features' => [
             'name' => [
@@ -492,13 +498,15 @@ return [
             'required_with' => 'Le titre est requis.',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => 'Le champ nom est requis.',
         ],
         'type' => [
             'required' => 'Le champ type est requis.',
+        ],
+        'product_type' => [
+            'required' => 'Le champ Catégorie de produit est obligatoire.',
         ],
         'group' => [
             'required' => 'Le champ groupe est requis.',
@@ -509,26 +517,27 @@ return [
         'currency' => [
             'required' => 'Le champ devise est requis.',
         ],
-        // 'price' => [
-        //     'required' => 'Le champ prix est requis.',
-        // ],
         'file' => [
             'required_without_all' => 'Le champ fichier est requis si github_owner ou github_repository ne sont pas fournis.',
             'mimes' => 'Le fichier doit être une archive zip.',
         ],
         'image' => [
             'required_without_all' => 'Le champ image est requis si github_owner ou github_repository ne sont pas fournis.',
-            'mimes' => "L'image doit être un fichier PNG.",
+            'mimes' => 'L\'image doit être un fichier PNG.',
         ],
         'github_owner' => [
-            'required_without_all' => "Le champ propriétaire GitHub est requis si ni le fichier ni l'image ne sont fournis.",
+            'required' => 'Le champ Propriétaire GitHub est obligatoire.',
+            'required_without_all' => 'Le champ propriétaire GitHub est requis si ni le fichier ni l\'image ne sont fournis.',
         ],
         'github_repository' => [
-            'required_without_all' => "Le champ dépôt GitHub est requis si ni le fichier ni l'image ne sont fournis.",
+            'required' => 'Le champ du référentiel GitHub est obligatoire.',
+            'required_without_all' => 'Le champ dépôt GitHub est requis si ni le fichier ni l\'image ne sont fournis.',
             'required_if' => 'Le champ dépôt GitHub est requis si le type est 2.',
         ],
+        'shoping_cart_link' => [
+            'required' => 'Le champ du lien vers le panier est obligatoire.',
+        ],
     ],
-
     'users' => [
         'first_name' => [
             'required' => 'Le champ prénom est requis.',
@@ -541,7 +550,7 @@ return [
         ],
         'email' => [
             'required' => 'Le champ email est requis.',
-            'email' => "L'adresse email doit être valide.",
+            'email' => 'L\'adresse email doit être valide.',
             'unique' => 'Cette adresse email est déjà utilisée.',
         ],
         'address' => [
@@ -555,20 +564,22 @@ return [
             'exists' => 'Le pays sélectionné est invalide.',
         ],
         'state' => [
-            'required_if' => "Le champ état est requis lorsque le pays est l'Inde.",
+            'required_if' => 'Le champ état est requis lorsque le pays est l\'Inde.',
         ],
         'timezone_id' => [
             'required' => 'Le champ fuseau horaire est requis.',
         ],
         'user_name' => [
-            'required' => "Le champ nom d'utilisateur est requis.",
-            'unique' => "Le nom d'utilisateur est déjà utilisé.",
+            'required' => 'Le champ nom d\'utilisateur est requis.',
+            'unique' => 'Le nom d\'utilisateur est déjà utilisé.',
         ],
         'zip' => [
-            'regex' => "Le champ état est requis lorsque le pays est l'Inde.",
+            'regex' => 'Le champ état est requis lorsque le pays est l\'Inde.',
+        ],
+        'gstin' => [
+            'regex' => 'Le format GSTIN n\'est pas valide.',
         ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => 'Le prénom est requis.',
@@ -586,7 +597,7 @@ return [
         'email' => [
             'required' => 'L’adresse email est requise.',
             'email' => 'Entrez une adresse email valide.',
-            'unique' => "L'adresse email est déjà utilisée. Veuillez en choisir une autre.",
+            'unique' => 'L\'adresse email est déjà utilisée. Veuillez en choisir une autre.',
         ],
         'mobile' => [
             'required' => 'Le numéro de mobile est requis.',
@@ -598,47 +609,48 @@ return [
             'required' => 'L’adresse est requise.',
         ],
         'user_name' => [
-            'required' => "Le nom d'utilisateur est requis.",
+            'required' => 'Le nom d\'utilisateur est requis.',
             'unique' => 'Ce nom d’utilisateur est déjà utilisé.',
         ],
+        'timezone_id' => [
+            'required' => 'Le fuseau horaire est requis.',
+        ],
+        'country' => [
+            'required' => 'Le pays est requis.',
+            'exists' => 'Le pays sélectionné n\'est pas valide.',
+        ],
+        'state' => [
+            'required_if' => 'Le champ État est obligatoire pour ce pays.',
+        ],
+        'gstin' => [
+            'regex' => 'Le format GSTIN n\'est pas valide.',
+        ],
+        'old_password' => [
+            'required' => 'L\'ancien mot de passe est requis.',
+            'min' => 'L\'ancien mot de passe doit contenir au moins :min caractères.',
+        ],
+        'new_password' => [
+            'required' => 'Un nouveau mot de passe est requis.',
+            'different' => 'Le nouveau mot de passe doit être différent de l\'ancien mot de passe.',
+        ],
+        'confirm_password' => [
+            'required' => 'Confirmez que le mot de passe est requis.',
+            'same' => 'Confirmez que le mot de passe doit correspondre au nouveau mot de passe.',
+        ],
+        'terms' => [
+            'required' => 'Vous devez accepter les conditions.',
+        ],
+        'password' => [
+            'required' => 'Un mot de passe est requis.',
+        ],
+        'password_confirmation' => [
+            'required' => 'Une confirmation du mot de passe est requise.',
+            'same' => 'Les mots de passe ne correspondent pas.',
+        ],
+        'mobile_code' => [
+            'required' => 'Entrez le code du pays (mobile)',
+        ],
     ],
-    'timezone_id' => [
-        'required' => 'Le fuseau horaire est requis.',
-    ],
-    'country' => [
-        'required' => 'Le pays est requis.',
-        'exists' => 'Le pays sélectionné est invalide.',
-    ],
-    'state' => [
-        'required_if' => 'Le champ état est requis lorsque le pays est l\'Inde.',
-    ],
-    'old_password' => [
-        'required' => 'L\'ancien mot de passe est requis.',
-        'min' => 'L\'ancien mot de passe doit comporter au moins :min caractères.',
-    ],
-    'new_password' => [
-        'required' => 'Le nouveau mot de passe est requis.',
-        'different' => 'Le nouveau mot de passe doit être différent de l\'ancien mot de passe.',
-    ],
-    'confirm_password' => [
-        'required' => 'La confirmation du mot de passe est requise.',
-        'same' => 'La confirmation du mot de passe doit correspondre au nouveau mot de passe.',
-    ],
-    'terms' => [
-        'required' => 'Vous devez accepter les conditions.',
-    ],
-    'password' => [
-        'required' => 'Le mot de passe est requis.',
-    ],
-    'password_confirmation' => [
-        'required' => 'La confirmation du mot de passe est requise.',
-        'same' => 'Les mots de passe ne correspondent pas.',
-    ],
-    'mobile_code' => [
-        'required' => 'Entrez le code pays (mobile)',
-    ],
-
-    // Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Le champ client est requis.',
@@ -648,7 +660,12 @@ return [
             'date' => 'La date doit être une date valide.',
         ],
         'domain' => [
+            'required' => 'Le champ domaine est obligatoire.',
             'regex' => 'Le format du domaine est invalide.',
+        ],
+        'cloud_domain' => [
+            'required' => 'Le champ Domaine cloud est obligatoire.',
+            'regex' => 'Seuls les lettres, chiffres et traits d\'union sont autorisés.',
         ],
         'plan' => [
             'required_if' => 'Le champ abonnement est requis.',
@@ -660,89 +677,86 @@ return [
             'required' => 'Le champ produit est requis.',
         ],
     ],
-
-    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Le champ domaine est requis.',
             'url' => 'Le domaine doit être une URL valide.',
         ],
     ],
-
-    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Le champ domaine est requis.',
             'no_http' => 'Le domaine ne doit pas contenir "http" ou "https".',
         ],
     ],
-
-    // Language form
     'language' => [
         'required' => 'Le champ langue est requis.',
         'invalid' => 'La langue sélectionnée est invalide.',
     ],
-
-    // UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Le champ disque de stockage est requis.',
             'string' => 'Le disque doit être une chaîne de caractères.',
         ],
         'path' => [
+            'required' => 'Le champ Chemin de stockage est obligatoire.',
             'string' => 'Le chemin doit être une chaîne de caractères.',
             'nullable' => 'Le champ chemin est optionnel.',
+            'invalid' => 'Le chemin n\'existe pas ou n\'est pas accessible en écriture.',
         ],
     ],
-
-    // ValidateSecretRequest form
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => 'Le champ Chemin du nœud est obligatoire.',
+            'string' => 'Le chemin du nœud doit être une chaîne valide.',
+        ],
+        'npm_path' => [
+            'required' => 'Le champ chemin npm est obligatoire.',
+            'string' => 'Le chemin npm doit être une chaîne valide.',
+        ],
+        'chrome_path' => [
+            'required' => 'Le champ du chemin Chrome est obligatoire.',
+            'string' => 'Le chemin Chrome doit être une chaîne valide.',
+            'invalid' => 'Le chemin Chrome n\'existe pas ou n\'est pas exécutable.',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => 'Veuillez entrer le code',
             'digits' => 'Veuillez entrer un code valide de 6 chiffres',
         ],
     ],
-
-    // VerifyOtp form
     'verify_email' => [
         'required' => 'Le champ email est requis.',
         'email' => 'L\'email doit être une adresse email valide.',
         'verify_email' => 'La vérification de l\'email a échoué.',
     ],
-
     'verify_country_code' => [
         'required' => 'Le code pays est requis.',
         'numeric' => 'Le code pays doit être un nombre valide.',
         'verify_country_code' => 'La vérification du code pays a échoué.',
     ],
-
     'verify_number' => [
         'required' => 'Le numéro est requis.',
         'numeric' => 'Le numéro doit être un nombre valide.',
         'verify_number' => 'La vérification du numéro a échoué.',
     ],
-
     'password_otp' => [
         'required' => 'Le champ mot de passe est requis.',
         'password' => 'Le mot de passe est incorrect.',
         'invalid' => 'Mot de passe invalide.',
     ],
-
-    // AuthController file
     'auth_controller' => [
         'name_required' => 'Le nom est requis.',
         'name_max' => 'Le nom ne peut pas dépasser 255 caractères.',
-
         'email_required' => 'L\'email est requis.',
         'email_email' => 'Entrez une adresse email valide.',
         'email_max' => 'L\'email ne peut pas dépasser 255 caractères.',
         'email_unique' => 'Cet email est déjà enregistré.',
-
         'password_required' => 'Le mot de passe est requis.',
         'password_confirmed' => 'La confirmation du mot de passe ne correspond pas.',
         'password_min' => 'Le mot de passe doit comporter au moins 6 caractères.',
     ],
-
     'resend_otp' => [
         'eid_required' => 'Le champ EID est requis.',
         'eid_string' => 'L\'EID doit être une chaîne de caractères.',
@@ -750,7 +764,6 @@ return [
         'type_string' => 'Le type doit être une chaîne de caractères.',
         'type_in' => 'Le type sélectionné est invalide.',
     ],
-
     'verify_otp' => [
         'eid_required' => 'L\'ID de l\'employé est requis.',
         'eid_string' => 'L\'ID de l\'employé doit être une chaîne de caractères.',
@@ -759,31 +772,26 @@ return [
         'recaptcha_required' => 'Veuillez compléter le CAPTCHA.',
         'recaptcha_size' => 'La réponse CAPTCHA est invalide.',
     ],
-
     'company_validation' => [
         'company_required' => 'Le nom de l\'entreprise est requis.',
         'company_string' => 'L\'entreprise doit être un texte.',
         'address_required' => 'L\'adresse est requise.',
         'address_string' => 'L\'adresse doit être un texte.',
     ],
-
     'token_validation' => [
         'token_required' => 'Le jeton est requis.',
         'password_required' => 'Le champ mot de passe est requis.',
         'password_confirmed' => 'La confirmation du mot de passe ne correspond pas.',
     ],
-
     'custom_email' => [
         'required' => 'Le champ email est requis.',
         'email' => 'Veuillez entrer une adresse email valide.',
         'exists' => 'Cet email n\'est pas enregistré chez nous.',
     ],
-
     'newsletterEmail' => [
         'required' => 'L\'email de la newsletter est requis.',
         'email' => 'Veuillez entrer une adresse email valide pour la newsletter.',
     ],
-
     'widget' => [
         'name_required' => 'Le nom est requis.',
         'name_max' => 'Le nom ne peut pas dépasser 50 caractères.',
@@ -791,40 +799,39 @@ return [
         'type_required' => 'Le type est requis.',
         'type_unique' => 'Ce type existe déjà.',
     ],
-
     'payment' => [
         'payment_date_required' => 'La date de paiement est requise.',
         'payment_method_required' => 'Le mode de paiement est requis.',
         'amount_required' => 'Le montant est requis.',
     ],
-
     'custom_date' => [
         'date_required' => 'Le champ date est requis.',
         'total_required' => 'Le champ total est requis.',
         'status_required' => 'Le champ statut est requis.',
     ],
-
     'plan_renewal' => [
         'plan_required' => 'Le champ plan est requis.',
         'payment_method_required' => 'Le champ mode de paiement est requis.',
         'cost_required' => 'Le champ coût est requis.',
         'code_not_valid' => 'Le code de promotion n\'est pas valide.',
     ],
-
     'rate' => [
         'required' => 'Le taux est requis.',
         'numeric' => 'Le taux doit être un nombre.',
     ],
-
     'product_validate' => [
         'producttitle_required' => 'Le titre du produit est requis.',
         'version_required' => 'La version est requise.',
         'filename_required' => 'Veuillez télécharger un fichier.',
         'dependencies_required' => 'Le champ des dépendances est requis.',
+        'description_required' => 'Une description est requise.',
+        'release_type_required' => 'Le type de version est requis.',
     ],
     'product_sku_unique' => 'Le SKU du produit doit être unique',
     'product_name_unique' => 'Le nom doit être unique',
     'product_show_agent_required' => 'Sélectionnez votre préférence de page de panier',
+    'config_file_path_regex' => 'Doit être un chemin relatif sans segments ../.',
+    'license_file_path_regex' => 'Doit être un chemin relatif sans segments ../.',
     'product_controller' => [
         'name_required' => 'Le nom du produit est requis.',
         'name_unique' => 'Le nom doit être unique.',
@@ -832,6 +839,7 @@ return [
         'type_required' => 'Le type de produit est requis.',
         'description_required' => 'La description du produit est requise.',
         'product_description_required' => 'La description détaillée du produit est requise.',
+        'short_description_required' => 'La brève description est requise.',
         'image_mimes' => 'L\'image doit être un fichier de type : jpeg, png, jpg.',
         'image_max' => 'L\'image ne doit pas dépasser 2048 kilobytes.',
         'product_sku_required' => 'Le SKU du produit est requis.',
@@ -849,7 +857,9 @@ return [
         'cloud_label_field_required' => 'Le champ de l\'étiquette du cloud est requis.',
         'cloud_label_radio_required' => 'Le bouton radio de l\'étiquette du cloud est requis.',
         'cloud_product_required' => 'Le produit cloud est requis.',
+        'cloud_product_unique' => 'Ce produit dispose déjà d\'une configuration cloud.',
         'cloud_free_plan_required' => 'Le plan gratuit du cloud est requis.',
+        'cloud_free_plan_invalid' => 'Le plan sélectionné n\'appartient pas au produit sélectionné.',
         'cloud_product_key_required' => 'La clé du produit cloud est requise.',
     ],
     'reg_till_after' => 'La date d\'inscription jusqu\'à doit être après la date d\'inscription de.',
@@ -874,10 +884,12 @@ return [
     ],
     'plan_request' => [
         'name_required' => 'Le champ nom est obligatoire',
-        'product_quant_req' => "Le champ quantité du produit est obligatoire si le nombre d'agents n'est pas renseigné.",
-        'no_agent_req' => "Le champ nombre d'agents est obligatoire si la quantité du produit n'est pas renseignée.",
+        'product_quant_req' => 'Le champ quantité du produit est obligatoire si le nombre d\'agents n\'est pas renseigné.',
+        'no_agent_req' => 'Le champ nombre d\'agents est obligatoire si la quantité du produit n\'est pas renseignée.',
         'pro_req' => 'Le champ produit est obligatoire',
-        'offer_price' => "Le prix de l'offre ne doit pas être supérieur à 100",
+        'offer_price' => 'Le prix de l\'offre ne doit pas être supérieur à 100',
+        'currency_duplicate' => 'Chaque devise ne peut être utilisée qu’une seule fois.',
+        'non_negative' => 'Cette valeur ne peut pas être négative.',
     ],
     'razorpay_val' => [
         'business_required' => 'Le champ entreprise est obligatoire.',
@@ -892,5 +904,36 @@ return [
     'login_failed' => 'Échec de la connexion, veuillez vérifier l\'email/nom d\'utilisateur et le mot de passe que vous avez saisis.',
     'forgot_email_validation' => 'Si l\'email que vous avez fourni est enregistré, vous recevrez un email avec les instructions pour réinitialiser le mot de passe sous peu.',
     'too_many_login_attempts' => 'Vous avez été bloqué de l\'application en raison de trop nombreuses tentatives de connexion échouées. Veuillez réessayer après :time.',
-
+    'phone_number' => 'Veuillez saisir un numéro de téléphone mobile valide.',
+    'mobile_number' => 'Le :attribute doit être un numéro de téléphone mobile valide.',
+    'license' => [
+        'product' => [
+            'required' => 'Le champ produit est obligatoire.',
+        ],
+        'client' => [
+            'required' => 'Le champ client est obligatoire.',
+        ],
+        'license_code' => [
+            'required' => 'Le champ du code de licence est obligatoire.',
+        ],
+        'license_expire_date' => [
+            'required' => 'Le champ de date d\'expiration de la licence est obligatoire.',
+        ],
+        'license_updates_date' => [
+            'required' => 'Le champ Date d\'expiration des mises à jour est obligatoire.',
+        ],
+        'license_support_date' => [
+            'required' => 'Le champ de date d\'expiration du support est obligatoire.',
+        ],
+        'banned_host_ip' => [
+            'required' => 'Le champ IP de l\'hôte interdit est obligatoire.',
+            'invalid' => 'Veuillez saisir une adresse IP valide.',
+        ],
+        'installation_ip' => [
+            'required' => 'Le champ IP d\'installation est obligatoire.',
+        ],
+        'notification_field' => [
+            'required' => 'Ce champ de notification est obligatoire.',
+        ],
+    ],
 ];

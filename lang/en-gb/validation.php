@@ -1,18 +1,6 @@
 <?php
 
 return [
-
-    /*
-    |--------------------------------------------------------------------------
-    | Validation Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines contain the default error messages used by
-    | the validator class. Some of these rules have multiple versions such
-    | as the size rules. Feel free to tweak each of these messages here.
-    |
-    */
-
     'accepted' => 'The :attribute must be accepted.',
     'accepted_if' => 'The :attribute must be accepted when :other is :value.',
     'active_url' => 'The :attribute is not a valid URL.',
@@ -36,6 +24,7 @@ return [
     'date' => 'The :attribute is not a valid date.',
     'date_equals' => 'The :attribute must be a date equal to :date.',
     'date_format' => 'The :attribute does not match the format :format.',
+    'decimal' => 'The :attribute field must have :decimal decimal places.',
     'declined' => 'The :attribute must be declined.',
     'declined_if' => 'The :attribute must be declined when :other is :value.',
     'different' => 'The :attribute and :other must be different.',
@@ -136,35 +125,11 @@ return [
     'uploaded' => 'The :attribute failed to upload.',
     'url' => 'The :attribute must be a valid URL.',
     'uuid' => 'The :attribute must be a valid UUID.',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Validation Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | Here you may specify custom validation messages for attributes using the
-    | convention "attribute.rule" to name the lines. This makes it quick to
-    | specify a specific custom language line for a given attribute rule.
-    |
-    */
-
     'custom_dup' => [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Validation Attributes
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines are used to swap our attribute placeholder
-    | with something more reader friendly such as "E-Mail Address" instead
-    | of "email". This simply helps us make our message more expressive.
-    |
-    */
-
     'attributes' => [],
     'publish_date_required' => 'Publish Date is required',
     'price_numeric_value' => 'Price should be a numeric value',
@@ -181,11 +146,6 @@ return [
     'total_amount_required' => 'Total amount is required.',
     'total_amount_numeric' => 'Total amount must be a numeric value.',
     'invoice_link_required' => 'Please link the amount with at least one Invoice.',
-    /*
-   Request file custom validation messages
-   */
-
-    // Common
     'settings_form' => [
         'company' => [
             'required' => 'The company field is required.',
@@ -220,7 +180,6 @@ return [
             'email' => 'The error email must be a valid email address.',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => 'The company name is required.',
@@ -251,7 +210,7 @@ return [
             'required' => 'The country is required.',
         ],
         'gstin' => [
-            'max' => 'The GSTIN must not exceed 15 characters.',
+            'regex' => 'The GSTIN format is invalid.',
         ],
         'default_currency' => [
             'required' => 'The default currency is required.',
@@ -269,7 +228,10 @@ return [
             'max' => 'The logo may not be greater than 2MB.',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'The OG image must be a file of type: jpeg, png, jpg, webp.',
+        'max' => 'The OG image may not be greater than 2MB.',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => 'The name field is required.',
@@ -281,9 +243,13 @@ return [
             'url' => 'The link must be a valid URL.',
             'regex' => 'The link format is invalid.',
         ],
+        'class' => [
+            'required' => 'The icon class field is required.',
+        ],
+        'fa_class' => [
+            'required' => 'The icon class field is required.',
+        ],
     ],
-
-    // Email
     'custom' => [
         'password' => [
             'required_if' => 'The password field is required for the selected mail driver.',
@@ -319,7 +285,6 @@ return [
             'required' => 'The driver field is required.',
         ],
     ],
-
     'customer_form' => [
         'first_name' => [
             'required' => 'The first name field is required.',
@@ -347,7 +312,6 @@ return [
             'unique' => 'This email is already taken.',
         ],
     ],
-
     'contact_request' => [
         'conName' => 'The name field is required.',
         'email' => 'The email field is required.',
@@ -360,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => 'Robot Verification Failed. Please Try Again.',
         'demo-recaptcha-response-1.required' => 'Robot Verification Failed. Please Try Again.',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => 'The name field is required.',
@@ -373,6 +336,7 @@ return [
         ],
         'slug' => [
             'required' => 'The slug field is required.',
+            'unique' => 'This slug already exists.',
         ],
         'url' => [
             'required' => 'The URL field is required.',
@@ -385,9 +349,12 @@ return [
         'created_at' => [
             'required' => 'The created at field is required.',
         ],
+        'parent_page_id' => [
+            'exists' => 'The selected parent page does not exist.',
+            'self' => 'A page cannot be its own parent.',
+            'nested' => 'The selected page is already a sub-page and cannot be used as a parent.',
+        ],
     ],
-
-    // Order form
     'order_form' => [
         'client' => [
             'required' => 'The client field is required.',
@@ -414,8 +381,6 @@ return [
             'integer' => 'The quantity must be an integer.',
         ],
     ],
-
-    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'The coupon code field is required.',
@@ -448,9 +413,9 @@ return [
             'required' => 'The discount value field is required.',
             'numeric' => 'The discount value field must be a number.',
             'between' => 'The discount value field must be between :min and :max if the type is percentage.',
+            'max' => 'The discount value cannot exceed the applied product\'s price (:max).',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => 'The name field is required.',
@@ -458,6 +423,12 @@ return [
         'rate' => [
             'required' => 'The rate field is required.',
             'numeric' => 'The rate must be a number.',
+            'decimal' => 'The rate must have at most 3 decimal places.',
+            'max' => 'The rate must not be greater than 999.999.',
+        ],
+        'priority' => [
+            'required' => 'The priority field is required.',
+            'min' => 'The priority must be at least 1.',
         ],
         'level' => [
             'required' => 'The level field is required.',
@@ -465,15 +436,11 @@ return [
         ],
         'country' => [
             'required' => 'The country field is required.',
-            // 'exists' => 'The selected country is invalid.',
         ],
         'state' => [
             'required' => 'The state field is required.',
-            // 'exists' => 'The selected state is invalid.',
         ],
     ],
-
-    // Product
     'subscription_form' => [
         'name' => [
             'required' => 'The name field is required.',
@@ -493,7 +460,6 @@ return [
             'required' => 'The products field is required.',
         ],
     ],
-
     'bundle' => [
         'name' => [
             'required' => 'The name field is required.',
@@ -502,10 +468,13 @@ return [
             'required' => 'Each item is required.',
         ],
     ],
-
     'group' => [
         'name' => [
             'required' => 'The name is required',
+            'unique' => 'This name already exists.',
+        ],
+        'pricing_templates_id' => [
+            'required' => 'The design template is required.',
         ],
         'features' => [
             'name' => [
@@ -529,13 +498,15 @@ return [
             'required_with' => 'The title is required',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => 'The name field is required.',
         ],
         'type' => [
             'required' => 'The type field is required.',
+        ],
+        'product_type' => [
+            'required' => 'The product category field is required.',
         ],
         'group' => [
             'required' => 'The group field is required.',
@@ -546,9 +517,6 @@ return [
         'currency' => [
             'required' => 'The currency field is required.',
         ],
-        // 'price' => [
-        //     'required' => 'The price field is required.',
-        // ],
         'file' => [
             'required_without_all' => 'The file field is required if none of github_owner or github_repository are provided.',
             'mimes' => 'The file must be a zip file.',
@@ -558,15 +526,18 @@ return [
             'mimes' => 'The image must be a PNG file.',
         ],
         'github_owner' => [
+            'required' => 'The GitHub owner field is required.',
             'required_without_all' => 'The GitHub owner field is required if none of file or image are provided.',
         ],
         'github_repository' => [
+            'required' => 'The GitHub repository field is required.',
             'required_without_all' => 'The GitHub repository field is required if none of file or image are provided.',
             'required_if' => 'The GitHub repository field is required if type is 2.',
         ],
+        'shoping_cart_link' => [
+            'required' => 'The shopping cart link field is required.',
+        ],
     ],
-
-    // User
     'users' => [
         'first_name' => [
             'required' => 'The first name field is required.',
@@ -593,7 +564,7 @@ return [
             'exists' => 'The selected country is invalid.',
         ],
         'state' => [
-            'required_if' => 'The state field is required when country is India.',
+            'required_if' => 'The state field is required for this country.',
         ],
         'timezone_id' => [
             'required' => 'The timezone field is required.',
@@ -605,8 +576,10 @@ return [
         'zip' => [
             'regex' => 'The state field is required when country is India.',
         ],
+        'gstin' => [
+            'regex' => 'The GSTIN format is invalid.',
+        ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => 'First name is required.',
@@ -647,7 +620,10 @@ return [
             'exists' => 'Selected country is invalid.',
         ],
         'state' => [
-            'required_if' => 'The state field is required when country is India.',
+            'required_if' => 'The state field is required for this country.',
+        ],
+        'gstin' => [
+            'regex' => 'The GSTIN format is invalid.',
         ],
         'old_password' => [
             'required' => 'Old password is required.',
@@ -675,8 +651,6 @@ return [
             'required' => 'Enter Country code (mobile)',
         ],
     ],
-
-    // Invoice form
     'invoice' => [
         'user' => [
             'required' => 'The clients field is required.',
@@ -686,6 +660,7 @@ return [
             'date' => 'The date must be a valid date.',
         ],
         'domain' => [
+            'required' => 'The domain field is required.',
             'regex' => 'The domain format is invalid.',
         ],
         'cloud_domain' => [
@@ -702,89 +677,86 @@ return [
             'required' => 'The product field is required.',
         ],
     ],
-
-    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'The domain field is required.',
             'url' => 'The domain must be a valid URL.',
         ],
     ],
-
-    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'The domain field is required.',
             'no_http' => 'The domain must not contain "http" or "https".',
         ],
     ],
-
-    // Language form
     'language' => [
         'required' => 'The language field is required.',
         'invalid' => 'The selected language is invalid.',
     ],
-
-    // UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'The storage disk field is required.',
             'string' => 'The disk must be a string.',
         ],
         'path' => [
+            'required' => 'The storage path field is required.',
             'string' => 'The path must be a string.',
             'nullable' => 'The path field is optional.',
+            'invalid' => 'The path does not exist or is not writable.',
         ],
     ],
-
-    // ValidateSecretRequest form
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => 'The node path field is required.',
+            'string' => 'The node path must be a valid string.',
+        ],
+        'npm_path' => [
+            'required' => 'The npm path field is required.',
+            'string' => 'The npm path must be a valid string.',
+        ],
+        'chrome_path' => [
+            'required' => 'The chrome path field is required.',
+            'string' => 'The chrome path must be a valid string.',
+            'invalid' => 'The chrome path does not exist or is not executable.',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => 'Please enter code',
             'digits' => 'Please enter the valid 6 digit code',
         ],
     ],
-
-    // VerifyOtp form
     'verify_email' => [
         'required' => 'The email field is required.',
         'email' => 'The email must be a valid email address.',
-        'verify_email' => 'The email verification failed.', // Custom message for verify_email
+        'verify_email' => 'The email verification failed.',
     ],
-
     'verify_country_code' => [
         'required' => 'The country code is required.',
         'numeric' => 'The country code must be a valid number.',
-        'verify_country_code' => 'The country code verification failed.', // Custom message for verify_country_code
+        'verify_country_code' => 'The country code verification failed.',
     ],
-
     'verify_number' => [
         'required' => 'The number is required.',
         'numeric' => 'The number must be a valid number.',
-        'verify_number' => 'The number verification failed.', // Custom message for verify_number
+        'verify_number' => 'The number verification failed.',
     ],
-
     'password_otp' => [
         'required' => 'The password field is required.',
         'password' => 'The password is incorrect.',
         'invalid' => 'Invalid password.',
     ],
-
-    // AuthController file
     'auth_controller' => [
         'name_required' => 'Name is required.',
         'name_max' => 'Name may not be greater than 255 characters.',
-
         'email_required' => 'Email is required.',
         'email_email' => 'Enter a valid email address.',
         'email_max' => 'Email may not be greater than 255 characters.',
         'email_unique' => 'This email is already registered.',
-
         'password_required' => 'Password is required.',
         'password_confirmed' => 'Password confirmation does not match.',
         'password_min' => 'Password must be at least 6 characters.',
     ],
-
     'resend_otp' => [
         'eid_required' => 'The EID field is required.',
         'eid_string' => 'The EID must be a string.',
@@ -792,7 +764,6 @@ return [
         'type_string' => 'The type must be a string.',
         'type_in' => 'The selected type is invalid.',
     ],
-
     'verify_otp' => [
         'eid_required' => 'The employee ID is required.',
         'eid_string' => 'The employee ID must be a string.',
@@ -801,31 +772,26 @@ return [
         'recaptcha_required' => 'Please complete the CAPTCHA.',
         'recaptcha_size' => 'The CAPTCHA response is invalid.',
     ],
-
     'company_validation' => [
         'company_required' => 'The Company name is required.',
         'company_string' => 'The Company must be text.',
         'address_required' => 'The Address is required.',
         'address_string' => 'The Address must be text.',
     ],
-
     'token_validation' => [
         'token_required' => 'The token is required.',
         'password_required' => 'The password field is required.',
         'password_confirmed' => 'The password confirmation does not match.',
     ],
-
     'custom_email' => [
         'required' => 'The email field is required.',
         'email' => 'Please enter a valid email address.',
         'exists' => 'This email is not registered with us.',
     ],
-
     'newsletterEmail' => [
         'required' => 'The newsletter email is required.',
         'email' => 'Please enter a valid email address for the newsletter.',
     ],
-
     'widget' => [
         'name_required' => 'Name is required.',
         'name_max' => 'Name may not be greater than 50 characters.',
@@ -833,41 +799,39 @@ return [
         'type_required' => 'Type is required.',
         'type_unique' => 'This type already exists.',
     ],
-
     'payment' => [
         'payment_date_required' => 'Payment date is required.',
         'payment_method_required' => 'Payment method is required.',
         'amount_required' => 'Amount is required.',
     ],
-
     'custom_date' => [
         'date_required' => 'The date field is required.',
         'total_required' => 'The total field is required.',
         'status_required' => 'The status field is required.',
-
     ],
-
     'plan_renewal' => [
         'plan_required' => 'The plan field is required.',
         'payment_method_required' => 'The payment method field is required.',
         'cost_required' => 'The cost field is required.',
         'code_not_valid' => 'The promotion code is not valid.',
     ],
-
     'rate' => [
         'required' => 'Rate is required.',
         'numeric' => 'Rate must be a number.',
     ],
-
     'product_validate' => [
         'producttitle_required' => 'Product title is required.',
         'version_required' => 'Version is required.',
         'filename_required' => 'Please upload a file.',
         'dependencies_required' => 'Dependencies field is required.',
+        'description_required' => 'Description is required.',
+        'release_type_required' => 'Release type is required.',
     ],
     'product_sku_unique' => 'Product SKU should be unique',
     'product_name_unique' => 'Name should be unique',
     'product_show_agent_required' => 'Select you Cart Page Preference',
+    'config_file_path_regex' => 'Must be a relative path with no ../ segments.',
+    'license_file_path_regex' => 'Must be a relative path with no ../ segments.',
     'product_controller' => [
         'name_required' => 'The product name is required.',
         'name_unique' => 'Name should be unique.',
@@ -875,6 +839,7 @@ return [
         'type_required' => 'The product type is required.',
         'description_required' => 'The product description is required.',
         'product_description_required' => 'The detailed product description is required.',
+        'short_description_required' => 'The short description is required.',
         'image_mimes' => 'The image must be a file of type: jpeg, png, jpg.',
         'image_max' => 'The image may not be greater than 2048 kilobytes.',
         'product_sku_required' => 'The product SKU is required.',
@@ -892,7 +857,9 @@ return [
         'cloud_label_field_required' => 'Cloud label field is required.',
         'cloud_label_radio_required' => 'Cloud label radio is required.',
         'cloud_product_required' => 'Cloud product is required.',
+        'cloud_product_unique' => 'This product already has a cloud configuration.',
         'cloud_free_plan_required' => 'Cloud free plan is required.',
+        'cloud_free_plan_invalid' => 'Selected plan does not belong to the selected product.',
         'cloud_product_key_required' => 'Cloud product key is required.',
     ],
     'reg_till_after' => 'The registration till date must be after the registration from date.',
@@ -921,6 +888,8 @@ return [
         'no_agent_req' => 'The no of agents field is required when product quantity is not present.',
         'pro_req' => 'The product field is required',
         'offer_price' => 'Offer prices  must not be greater than 100',
+        'currency_duplicate' => 'Each currency can only be used once.',
+        'non_negative' => 'This value cannot be negative.',
     ],
     'razorpay_val' => [
         'business_required' => 'The business field is required.',
@@ -932,5 +901,39 @@ return [
         'notify_url_invalid' => 'The notify URL must be a valid URL.',
         'currencies_required' => 'The currencies field is required.',
     ],
-
+    'login_failed' => 'Login failed, please check email/username and password you entered are correct.',
+    'forgot_email_validation' => 'If the email you provided is registered, you will receive an email with the instructions to reset the password shortly.',
+    'too_many_login_attempts' => 'You have been locked out of application due to too many failed login attempts, Please retry after :time',
+    'phone_number' => 'Please enter a valid mobile phone number.',
+    'mobile_number' => 'The :attribute must be a valid mobile phone number.',
+    'license' => [
+        'product' => [
+            'required' => 'The product field is required.',
+        ],
+        'client' => [
+            'required' => 'The client field is required.',
+        ],
+        'license_code' => [
+            'required' => 'The license code field is required.',
+        ],
+        'license_expire_date' => [
+            'required' => 'The license expiration date field is required.',
+        ],
+        'license_updates_date' => [
+            'required' => 'The updates expiration date field is required.',
+        ],
+        'license_support_date' => [
+            'required' => 'The support expiration date field is required.',
+        ],
+        'banned_host_ip' => [
+            'required' => 'The banned host IP field is required.',
+            'invalid' => 'Please enter a valid IP address.',
+        ],
+        'installation_ip' => [
+            'required' => 'The installation IP field is required.',
+        ],
+        'notification_field' => [
+            'required' => 'This notification field is required.',
+        ],
+    ],
 ];

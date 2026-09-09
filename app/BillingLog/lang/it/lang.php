@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'default' => 'Predefinito',
     'cloud-instance-created' => 'Istanza Cloud creata',
@@ -31,22 +29,18 @@ return [
     'inspire' => 'Mostra una citazione ispiratrice',
     'renewal:cron' => 'Cron di rinnovo automatico',
     'mail-send-exception' => 'Eccezione invio email',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => 'Notifica di rinnovo scaduta',
     'renewal:notification' => 'Notifica di rinnovo automatico',
     'cleanup:msg-reports' => 'Pulizia report MSG91',
     'invoices:delete' => 'Elimina fatture vecchie',
-    'database:sync' => "Sincronizza database all'ultima versione",
+    'database:sync' => 'Sincronizza database all\'ultima versione',
     'install:agora' => 'Installa app di fatturazione Agora',
-    'move:images' => "Sposta immagini nell'archivio",
+    'move:images' => 'Sposta immagini nell\'archivio',
     'droptables' => 'Elimina tutte le tabelle',
     'install:db' => 'Installa database',
     'testing-setup' => 'Configura ambiente di test',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'Invio in coda riuscito',
-    // Added missing UI texts
     'cancel' => 'Annulla',
-    // Added missing messages from blade file
     'system_logs' => 'Log di sistema',
     'filter_logs' => 'Filtra log',
     'logs' => 'Log',
@@ -84,7 +78,7 @@ return [
     'please_select_at_least_one_log_type' => 'Seleziona almeno un tipo di log.',
     'deleting' => 'Eliminazione...',
     'logs_deleted_successfully' => 'Log eliminati con successo',
-    'error_deleting_logs' => "Errore durante l'eliminazione dei log",
+    'error_deleting_logs' => 'Errore durante l\'eliminazione dei log',
     'read_more' => 'Leggi di più',
     'failed_to_copy_code' => 'Impossibile copiare il codice.',
     'retry_log' => 'RIPROVA LOG',
@@ -103,4 +97,5 @@ return [
     'confirm_old_email' => 'Conferma la vecchia email',
     'confirm_mobile_number_change' => 'Conferma la modifica del numero di cellulare',
     'logs:delete' => 'Elimina log di sistema',
+    'date' => 'Data',
 ];

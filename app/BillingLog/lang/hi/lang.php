@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'default' => 'डिफ़ॉल्ट',
     'cloud-instance-created' => 'क्लाउड इंस्टेंस बनाया गया',
@@ -99,4 +97,5 @@ return [
     'confirm_old_email' => 'पुराने ईमेल की पुष्टि करें',
     'confirm_mobile_number_change' => 'मोबाइल नंबर परिवर्तन की पुष्टि करें',
     'logs:delete' => 'सिस्टम लॉग हटाएं',
+    'date' => 'दिनांक',
 ];

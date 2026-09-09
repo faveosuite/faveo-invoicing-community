@@ -1,11 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
 return [
-    /*
-    * Recaptcha Settings Page
-    */
     'captcha_settings' => 'הגדרות reCAPTCHA',
     'captcha_configuration' => 'תצורת reCAPTCHA',
     'captcha_version' => 'גרסת reCAPTCHA',
@@ -17,10 +12,6 @@ return [
     'none' => 'ללא',
     'fallback_v2_checkbox' => 'חזור לתיבת הסימון של reCAPTCHA v2',
     'action_if_captcha_fails' => 'פעולה שיש לנקוט אם reCAPTCHA נכשל',
-
-    /*
-    * Recaptcha v3 Settings
-    */
     'recaptcha_v3_settings' => 'הגדרות reCAPTCHA v3',
     'v3_site_key' => 'מפתח אתר v3',
     'enter_v3_site_key' => 'הזן את מפתח האתר שלך ל-reCAPTCHA v3',
@@ -29,20 +20,12 @@ return [
     'v3_score_threshold' => 'סף ניקוד v3',
     'v3_score_hint' => 'ערך בין 0.0 ל-1.0 (גבוה יותר טוב יותר)',
     'v3_preview' => 'תצוגה מקדימה של v3',
-
-    /*
-    * Recaptcha v2 Settings
-    */
     'recaptcha_v2_settings' => 'הגדרות reCAPTCHA v2',
     'v2_site_key' => 'מפתח אתר v2',
     'enter_v2_site_key' => 'הזן את מפתח האתר שלך ל-reCAPTCHA v2',
     'v2_secret_key' => 'מפתח סודי v2',
     'enter_v2_secret_key' => 'הזן את המפתח הסודי שלך ל-reCAPTCHA v2',
     'v2_preview' => 'תצוגה מקדימה של v2',
-
-    /*
-    * Appearance
-    */
     'appearance_messages' => 'מראה',
     'theme' => 'ערכת נושא',
     'theme_light' => 'בהיר',
@@ -54,28 +37,12 @@ return [
     'badge_bottomright' => 'למטה מימין',
     'badge_bottomleft' => 'למטה משמאל',
     'badge_inline' => 'בשורה',
-
-    /*
-    * Common
-    */
     'save' => 'שמור',
     'saving' => 'שומר',
     'home' => 'בית',
     'settings' => 'הגדרות',
-
-    /*
-    * Success messages
-    */
     'captcha_settings_updated' => 'הגדרות reCAPTCHA עודכנו בהצלחה!',
-
-    /*
-    * Error messages
-    */
     'captcha_message' => 'אימות reCAPTCHA נכשל. אנא נסה שוב.',
-
-    /*
-    * JavaScript validation messages
-    */
     'field_required_condition' => 'שדה זה נדרש כאשר התנאי מתקיים',
     'select_captcha_version' => 'אנא בחר גרסת reCAPTCHA',
     'v3_site_key_required' => 'נדרש מפתח אתר reCAPTCHA v3',
@@ -92,16 +59,8 @@ return [
     'failed_generate_v2_token' => 'יצירת אסימון reCAPTCHA v2 נכשלה.',
     'settings_saved' => 'ההגדרות נשמרו.',
     'failed_save_settings' => 'שמירת ההגדרות נכשלה. אנא נסה שוב.',
-
-    /*
-    * Backend validation messages
-    */
     'invalid_secret_or_token' => 'מפתח סודי או אסימון תגובה אינו חוקי',
     'captcha_verification_failed' => 'אימות reCAPTCHA נכשל (אי התאמה בניקוד/פעולה/שם מארח)',
-
-    /*
-    * Validation messages
-    */
     'captcha_version_required' => 'נדרשת גרסת reCAPTCHA',
     'captcha_version_in' => 'גרסת reCAPTCHA שנבחרה אינה חוקית',
     'failover_action_required' => 'נדרשת פעולת גיבוי',

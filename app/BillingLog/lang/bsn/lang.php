@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'default' => 'Zadano',
     'cloud-instance-created' => 'Instanca oblaka kreirana',
@@ -31,7 +29,6 @@ return [
     'inspire' => 'Prikaži inspirativni citat',
     'renewal:cron' => 'Cron automatskog obnavljanja',
     'mail-send-exception' => 'Izuzetak slanja emaila',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => 'Obavijest o istekloj obnovi',
     'renewal:notification' => 'Obavijest o automatskom obnavljanju',
     'cleanup:msg-reports' => 'Čišćenje MSG91 izvještaja',
@@ -42,11 +39,8 @@ return [
     'droptables' => 'Izbriši sve tabele',
     'install:db' => 'Instaliraj bazu podataka',
     'testing-setup' => 'Postavi testno okruženje',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'Uspješno poslano u red čekanja',
-    // Added missing UI texts
     'cancel' => 'Otkaži',
-    // Added missing messages from blade file
     'system_logs' => 'Sistemski dnevnici',
     'filter_logs' => 'Filtriraj dnevnike',
     'logs' => 'Dnevnici',
@@ -103,4 +97,5 @@ return [
     'confirm_old_email' => 'Potvrdite stari email',
     'confirm_mobile_number_change' => 'Potvrdite promjenu broja mobitela',
     'logs:delete' => 'Hapus Log Sistem',
+    'date' => 'Datum',
 ];
