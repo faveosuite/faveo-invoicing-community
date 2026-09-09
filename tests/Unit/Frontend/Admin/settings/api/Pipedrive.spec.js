@@ -169,22 +169,22 @@ describe('Pipedrive.vue', () => {
     })
 
     // ── syncFields ─────────────────────────────────────────────────────────
-    it('syncFields calls GET /syncing/pipedriveFields', async () => {
+    it('syncFields calls POST /syncing/pipedriveFields', async () => {
         await flushPromises()
-        globalThis.mockHttp.onGet(/\/syncing\/pipedriveFields/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/syncing\/pipedriveFields/).reply(200, { data: {} })
         globalThis.mockHttp.onGet(/\/pipedrive\/mapping\//).reply(200, {
             data: { pipedriveData: { pipedrive_fields: [], local_fields: [] } },
         })
         await wrapper.vm.syncFields()
         await flushPromises()
         expect(
-            globalThis.mockHttp.history.get.some(r => r.url.includes('/syncing/pipedriveFields'))
+            globalThis.mockHttp.history.post.some(r => r.url.includes('/syncing/pipedriveFields'))
         ).toBe(true)
     })
 
     it('syncFields handles 500 error without throwing', async () => {
         await flushPromises()
-        globalThis.mockHttp.onGet(/\/syncing\/pipedriveFields/).reply(500)
+        globalThis.mockHttp.onPost(/\/syncing\/pipedriveFields/).reply(500)
         await expect(wrapper.vm.syncFields()).resolves.not.toThrow()
     })
 

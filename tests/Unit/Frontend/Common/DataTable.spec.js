@@ -98,14 +98,14 @@ describe('DataTable.vue', () => {
         wrapper.vm.perPage = 10
         wrapper.vm.isLoading = false
         await wrapper.vm.$nextTick()
-        expect(wrapper.text()).toContain('5 records')
+        expect(wrapper.text()).toContain('message.x_records')
     })
 
     it('shows "1 record" when total is 1', async () => {
         wrapper.vm.total = 1
         wrapper.vm.isLoading = false
         await wrapper.vm.$nextTick()
-        expect(wrapper.text()).toContain('1 record')
+        expect(wrapper.text()).toContain('message.one_record')
     })
 
     it('shows Showing X to Y of Z records for paginated data', async () => {
@@ -115,7 +115,7 @@ describe('DataTable.vue', () => {
         wrapper.vm.to = 10
         wrapper.vm.isLoading = false
         await wrapper.vm.$nextTick()
-        expect(wrapper.text()).toContain('Showing 1 to 10 of 50 records')
+        expect(wrapper.text()).toContain('message.datatable_info')
     })
 
     it('exposes currentPage ref', () => {

@@ -44,7 +44,8 @@ describe('ActivityLogs.vue', () => {
     })
 
     it('toggles showFilter when filter button is clicked', async () => {
-        const filterBtn = wrapper.find('button.btn-tool')
+        const buttons = wrapper.findAll('button.btn-tool')
+        const filterBtn = buttons[1]
         expect(filterBtn.exists()).toBeTruthy()
         await filterBtn.trigger('click')
         expect(wrapper.vm.showFilter).toBe(true)
@@ -52,7 +53,7 @@ describe('ActivityLogs.vue', () => {
 
     it('opens delete modal when delete button is clicked', async () => {
         const buttons = wrapper.findAll('button.btn-tool')
-        const deleteBtn = buttons[1]
+        const deleteBtn = buttons[2]
         expect(deleteBtn.exists()).toBeTruthy()
         await deleteBtn.trigger('click')
         expect(wrapper.vm.showDeleteModal).toBe(true)

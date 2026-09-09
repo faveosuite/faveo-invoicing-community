@@ -20,7 +20,8 @@ class OpenPaymentRequestTest extends TestCase
             'name' => 'John Doe', 'email' => 'john@example.com', 'mobile' => '9876543210',
             'address' => '123 Main St', 'city' => 'Mumbai', 'state' => 'Maharashtra',
             'zip' => '400001', 'country' => 'IN', 'company' => 'Acme Ltd',
-            'amount' => 100, 'currency' => 'INR', 'gateway' => 'Razorpay',
+            // USD is the only currency seeded as enabled in the test DB.
+            'amount' => 100, 'currency' => 'USD', 'gateway' => 'Razorpay',
         ];
     }
 

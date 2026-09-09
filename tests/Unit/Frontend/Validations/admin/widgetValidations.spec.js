@@ -49,7 +49,7 @@ describe('buildAnalyticsSchema - with Google Analytics', () => {
 })
 
 describe('socialMediaSchema', () => {
-    const valid = { name: 'Facebook', link: 'https://facebook.com/mypage' }
+    const valid = { name: 'Facebook', link: 'https://facebook.com/mypage', class: 'social-icons-facebook', fa_class: 'fab fa-facebook' }
 
     it('passes with valid data', async () => {
         await expect(socialMediaSchema.validate(valid)).resolves.toBeTruthy()

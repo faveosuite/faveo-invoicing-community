@@ -38,12 +38,11 @@ describe('ProductGroupCreate.vue', () => {
         expect(wrapper.find('action-button-stub').exists()).toBe(true)
     })
 
-    it('calls PUT /group on submit (via POST + _method=PUT override)', async () => {
+    it('calls POST /group on submit', async () => {
         await wrapper.vm.submit()
         await flushPromises()
         const call = globalThis.mockHttp.history.post.find(r => /\/group/.test(r.url))
         expect(call).toBeTruthy()
-        expect(call.data.get('_method')).toBe('PUT')
     })
 
     it('calls successHandler on successful create', async () => {

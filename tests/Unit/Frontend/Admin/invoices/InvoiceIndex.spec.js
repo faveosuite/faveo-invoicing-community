@@ -251,7 +251,8 @@ describe('InvoiceIndex.vue', () => {
         })
 
         it('product joins product array', () => {
-            expect(tpl().product(null, { products: ['Product A', 'Product B'] })).toBe('Product A, Product B')
+            const vnode = tpl().product(null, { products: [{ name: 'Product A' }, { name: 'Product B' }] })
+            expect(vnode.children.join('')).toBe('Product A, Product B')
         })
 
         it('date returns — when no date', () => {

@@ -74,13 +74,15 @@ class GroupControllerTest extends DBTestCase
         $this->assertArrayHasKey('name', $response->json('message'));
     }
 
-    public function test_create_missing_pricing_template_returns_422_with_template_error(): void
+    public function test_create_without_pricing_template_defaults_it(): void
     {
+        // Design-template picker was removed from the UI (2026-09) — omitting it now
+        // just defaults to an existing PricingTemplate rather than failing validation.
         $this->getLoggedInUser('admin');
         $response = $this->postJson('/group', ['name' => 'Support']);
 
-        $response->assertStatus(412);
-        $this->assertArrayHasKey('pricing_templates_id', $response->json('message'));
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('product_groups', ['name' => 'Support']);
     }
 
     public function test_create_blocked_for_client_returns_302(): void
@@ -91,10 +93,13 @@ class GroupControllerTest extends DBTestCase
 
     // --- PATCH /group/{group_id} ---
 
-    public function test_update_nonexistent_group_returns_422(): void
+    public function test_update_nonexistent_group_returns_400(): void
     {
+        // updateGroup() catches Exception generically (incl. ModelNotFoundException
+        // from findOrFail) and returns errorResponse()'s default 400 — not a 412
+        // validation error.
         $this->getLoggedInUser('admin');
-        $this->patchJson('/group/999999999', ['name' => 'New'])->assertStatus(412);
+        $this->patchJson('/group/999999999', ['name' => 'New'])->assertStatus(400);
     }
 
     // --- DELETE /group ---

@@ -71,10 +71,8 @@ import { productGroupSchema } from '@/validations/admin/productGroupValidations'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 import SeoFieldsCard from '@/components/Reusable/FormField/SeoFieldsCard.vue'
-import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'groups-edit'
-const baseUrl = useBaseUrl()
 const route = useRoute()
 const router = useRouter()
 

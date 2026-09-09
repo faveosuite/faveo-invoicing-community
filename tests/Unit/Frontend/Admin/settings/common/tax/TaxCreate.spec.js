@@ -160,7 +160,7 @@ describe('TaxCreate.vue — branch coverage', () => {
             },
         })
         await flushPromises()
-        expect(w.vm.classOptions).toEqual([{ id: '', name: 'Standard' }])
+        expect(w.vm.classOptions).toEqual([{ id: '', name: 'message.standard' }])
         w.unmount()
     })
 

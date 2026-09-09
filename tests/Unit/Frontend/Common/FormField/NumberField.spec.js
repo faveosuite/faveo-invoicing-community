@@ -60,7 +60,7 @@ describe('NumberField.vue', () => {
     })
 
     it('defaults placeholder to Enter a value', () => {
-        expect(wrapper.find('input').attributes('placeholder')).toBe('Enter a value')
+        expect(wrapper.find('input').attributes('placeholder')).toBe('message.enter_a_value')
     })
 
     it('sets value from prop', () => {

@@ -21,7 +21,7 @@ describe('QueueSettings.vue', () => {
                 driver: 'database',
             },
         })
-        globalThis.mockHttp.onPost(/\/queue\/1/).reply(200, { message: 'Saved' })
+        globalThis.mockHttp.onPatch(/\/queue\/1/).reply(200, { message: 'Saved' })
 
         wrapper = mount(QueueSettings, {
             global: {
@@ -54,7 +54,7 @@ describe('QueueSettings.vue', () => {
         w.unmount()
     })
 
-    it('submits form via POST to correct endpoint', async () => {
+    it('submits form via PATCH to correct endpoint', async () => {
         await flushPromises()
         const { validateForm } = require('@/helpers/formUtils.js')
         validateForm.mockResolvedValueOnce(true)
@@ -62,7 +62,7 @@ describe('QueueSettings.vue', () => {
         await wrapper.vm.save()
         await flushPromises()
 
-        expect(globalThis.mockHttp.history.post.length).toBeGreaterThan(0)
-        expect(globalThis.mockHttp.history.post[0].url).toMatch(/\/queue\/1/)
+        expect(globalThis.mockHttp.history.patch.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.patch[0].url).toMatch(/\/queue\/1/)
     })
 })

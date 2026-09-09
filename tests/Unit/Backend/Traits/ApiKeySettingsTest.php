@@ -271,9 +271,8 @@ class ApiKeySettingsTest extends DBTestCase
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
         $data = $response->json('data');
-        $this->assertArrayHasKey('node_path', $data);
-        $this->assertArrayHasKey('npm_path', $data);
         $this->assertArrayHasKey('chrome_path', $data);
+        $this->assertArrayHasKey('pdf_driver', $data);
     }
 
     // =========================================================================
@@ -282,14 +281,14 @@ class ApiKeySettingsTest extends DBTestCase
 
     public function test_update_pdf_settings_persists_to_database(): void
     {
+        // chrome_path must point to a real file — the request validator checks is_file().
         $response = $this->postJson('/pdf-settings', [
-            'node_path' => '/usr/bin/node',
-            'npm_path' => '/usr/bin/npm',
-            'chrome_path' => '/usr/bin/chromium',
+            'pdf_driver' => 'chrome',
+            'chrome_path' => PHP_BINARY,
         ]);
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
-        $this->assertDatabaseHas('settings_filesystem', ['node_path' => '/usr/bin/node']);
+        $this->assertDatabaseHas('settings_filesystem', ['chrome_path' => PHP_BINARY, 'pdf_driver' => 'chrome']);
     }
 
     // =========================================================================

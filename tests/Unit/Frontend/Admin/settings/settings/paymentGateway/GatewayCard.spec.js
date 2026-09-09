@@ -1,4 +1,4 @@
-jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: jest.fn(() => 0) }))
+jest.mock('@/helpers/extraLogics', () => ({ ...jest.requireActual('@/helpers/extraLogics'), lang: (key) => key, getIdFromUrl: jest.fn(() => 0) }))
 jest.mock('@/helpers/responseHandler', () => ({ successHandler: jest.fn(), errorHandler: jest.fn() }))
 jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)), scrollToFirstError: jest.fn() }))
 jest.mock('vue-router', () => ({ useRouter: () => ({ push: jest.fn() }), useRoute: () => ({ params: {}, query: {} }), RouterLink: { template: '<a><slot/></a>' } }))
@@ -45,8 +45,7 @@ describe('GatewayCard.vue', () => {
     })
 
     it('emits toggle event when toggle button is clicked', async () => {
-        const buttons = wrapper.findAll('button')
-        await buttons[1].trigger('click')
+        await wrapper.find('.toggle').trigger('click')
         expect(wrapper.emitted('toggle')).toBeTruthy()
     })
 

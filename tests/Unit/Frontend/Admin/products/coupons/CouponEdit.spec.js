@@ -26,7 +26,7 @@ describe('CouponEdit.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        globalThis.mockHttp.onGet(/\/promotion\/0/).reply(200, couponResponse)
+        globalThis.mockHttp.onGet(/\/promotion\/0/).reply(200, { data: couponResponse })
         globalThis.mockHttp.onGet(/\/dependency\/promotion-types/).reply(200, { data: { promotion_types: [] } })
         globalThis.mockHttp.onGet(/\/getPromotionCode/).reply(200, { data: 'NEWCODE' })
         globalThis.mockHttp.onPatch(/\/updatePromotion\/0/).reply(200, { data: { message: 'Updated' } })

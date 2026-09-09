@@ -29,7 +29,7 @@ describe('OpenPaymentsList.vue', () => {
     })
 
     it('renders the Open Payments card title', () => {
-        expect(wrapper.html()).toContain('Open Payments')
+        expect(wrapper.html()).toContain('message.open_payments')
     })
 
     it('showFilter defaults to false', () => {

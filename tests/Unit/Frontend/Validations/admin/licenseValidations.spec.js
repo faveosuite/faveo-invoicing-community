@@ -1,7 +1,6 @@
 import {
     licenseSchema,
     bannedHostSchema,
-    whitelistSchema,
     installationSchema,
     buildNotificationsSchema,
 } from '@/validations/admin/licenseValidations'
@@ -29,8 +28,8 @@ describe('licenseSchema', () => {
         await expect(licenseSchema.validate(rest)).rejects.toThrow()
     })
 
-    it('fails when client is empty', async () => {
-        await expect(licenseSchema.validate({ ...valid, client: '' })).rejects.toThrow()
+    it('passes when client is empty (client is optional)', async () => {
+        await expect(licenseSchema.validate({ ...valid, client: '' })).resolves.toBeTruthy()
     })
 
     it('fails when license_code is empty', async () => {
@@ -73,20 +72,6 @@ describe('bannedHostSchema', () => {
 
     it('fails when banned_host_ip is not a valid IP format', async () => {
         await expect(bannedHostSchema.validate({ banned_host_ip: 'not-an-ip' })).rejects.toThrow()
-    })
-})
-
-describe('whitelistSchema', () => {
-    it('passes with a valid IP', async () => {
-        await expect(whitelistSchema.validate({ whitelist_host_ip: '10.0.0.1' })).resolves.toBeTruthy() // NOSONAR
-    })
-
-    it('fails when whitelist_host_ip is empty', async () => {
-        await expect(whitelistSchema.validate({ whitelist_host_ip: '' })).rejects.toThrow()
-    })
-
-    it('fails when whitelist_host_ip is missing', async () => {
-        await expect(whitelistSchema.validate({})).rejects.toThrow()
     })
 })
 

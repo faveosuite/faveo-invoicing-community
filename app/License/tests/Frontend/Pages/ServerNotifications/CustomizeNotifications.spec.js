@@ -60,10 +60,10 @@ describe('CustomizeNotifications.vue', () => {
     })
 
     it('calls submit API on onSubmit', async () => {
-        axiosMock.onPost(/\/api\/admin\/notifications\//).reply(200, { data: {}, message: 'Updated' })
+        axiosMock.onPatch(/\/api\/admin\/notifications\//).reply(200, { data: {}, message: 'Updated' })
         wrapper.vm.onSubmit()
         await flushPromises()
-        expect(axiosMock.history.post.length).toBeGreaterThan(0)
+        expect(axiosMock.history.patch.length).toBeGreaterThan(0)
     })
 
     it('onChange updates a notification field', async () => {

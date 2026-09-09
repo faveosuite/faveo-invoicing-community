@@ -257,9 +257,11 @@ class CronController extends BaseCronController
                 ->toArray(); // Convert the collection to an array
 
             $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
-        } // nosemgrep: php.lang.security.unserialize-use.unserialize-use
+        }
 
-        return array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions)));
+        // Values just came from serialize() two lines up (DB-row arrays), never from
+        // untrusted input — this is a dedupe trick, not real deserialization of external data.
+        return array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions))); // nosemgrep: php.lang.security.unserialize-use.unserialize-use
     }
 
     /**
@@ -298,9 +300,11 @@ class CronController extends BaseCronController
                 ->toArray(); // Convert the collection to an array
 
             $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
-        } // nosemgrep: php.lang.security.unserialize-use.unserialize-use
+        }
 
-        return array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions)));
+        // Values just came from serialize() two lines up (DB-row arrays), never from
+        // untrusted input — this is a dedupe trick, not real deserialization of external data.
+        return array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions))); // nosemgrep: php.lang.security.unserialize-use.unserialize-use
     }
 
     /**
@@ -339,9 +343,11 @@ class CronController extends BaseCronController
                 ->toArray();
 
             $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
-        } // nosemgrep: php.lang.security.unserialize-use.unserialize-use
+        }
 
-        return array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions)));
+        // Values just came from serialize() two lines up (DB-row arrays), never from
+        // untrusted input — this is a dedupe trick, not real deserialization of external data.
+        return array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions))); // nosemgrep: php.lang.security.unserialize-use.unserialize-use
     }
 
     public function eachSubscription(): void

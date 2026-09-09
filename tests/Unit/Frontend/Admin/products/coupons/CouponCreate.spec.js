@@ -15,7 +15,7 @@ describe('CouponCreate.vue', () => {
     beforeEach(() => {
         globalThis.mockHttp.onGet(/\/dependency\/promotion-types/).reply(200, { data: { promotion_types: [] } })
         globalThis.mockHttp.onGet(/\/getPromotionCode/).reply(200, { data: 'ABC123' })
-        globalThis.mockHttp.onPut(/\/promotionCreate/).reply(200, { data: { message: 'Created' } })
+        globalThis.mockHttp.onPost(/\/promotionCreate/).reply(200, { data: { message: 'Created' } })
         wrapper = mount(CouponCreate, {
             global: {
                 plugins: [createTestingPinia()],
@@ -40,11 +40,11 @@ describe('CouponCreate.vue', () => {
         expect(globalThis.mockHttp.history.get.some(r => /\/dependency\/promotion-types/.test(r.url))).toBe(true)
     })
 
-    it('calls PUT /promotionCreate on submit', async () => {
+    it('calls POST /promotionCreate on submit', async () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(globalThis.mockHttp.history.put.some(r => /\/promotionCreate/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => /\/promotionCreate/.test(r.url))).toBe(true)
     })
 
     it('calls successHandler on successful create', async () => {
@@ -57,7 +57,7 @@ describe('CouponCreate.vue', () => {
     it('calls errorHandler on submit failure', async () => {
         await flushPromises()
         globalThis.mockHttp.reset()
-        globalThis.mockHttp.onPut(/\/promotionCreate/).reply(500)
+        globalThis.mockHttp.onPost(/\/promotionCreate/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -76,6 +76,6 @@ describe('CouponCreate.vue', () => {
         validateForm.mockResolvedValueOnce(false)
         await wrapper.vm.submit()
         await flushPromises()
-        expect(globalThis.mockHttp.history.put.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 })

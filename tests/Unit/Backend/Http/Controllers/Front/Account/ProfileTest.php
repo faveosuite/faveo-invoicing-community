@@ -28,6 +28,7 @@ class ProfileTest extends DBTestCase
             'mobile' => '1234567890',
             'address' => '123 Street',
             'country' => 'In',
+            'timezone_id' => $this->user->timezone_id,
         ]);
 
         $response->assertStatus(200);
@@ -105,6 +106,7 @@ class ProfileTest extends DBTestCase
             'country' => $user->country,
             'mobile' => $user->mobile,
             'address' => $user->address,
+            'timezone_id' => $user->timezone_id,
         ]);
         $response->assertContent('{"success":true,"message":"Updated Successfully"}');
         $response->assertJsonStructure([
@@ -179,6 +181,6 @@ class ProfileTest extends DBTestCase
         $response = $this->call('POST', 'verify-password', ['user_password' => 'passwor', 'login_type' => 'login']);
         $content = $response->json();
         $response->assertStatus(400);
-        $this->assertEquals('password_incorrect', $content['message']);
+        $this->assertEquals(__('message.password_incorrect'), $content['message']);
     }
 }

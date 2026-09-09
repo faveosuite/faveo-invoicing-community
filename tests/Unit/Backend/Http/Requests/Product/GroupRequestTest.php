@@ -25,9 +25,16 @@ class GroupRequestTest extends TestCase
         $this->assertArrayHasKey('name', $v->errors()->toArray());
     }
 
-    public function test_pricing_templates_id_is_required(): void
+    public function test_pricing_templates_id_is_optional(): void
     {
+        // Design-template picker was removed from the UI (2026-09) — nullable now.
         $v = validator(['name' => 'Support'], $this->rules());
+        $this->assertArrayNotHasKey('pricing_templates_id', $v->errors()->toArray());
+    }
+
+    public function test_pricing_templates_id_must_exist_when_given(): void
+    {
+        $v = validator(['name' => 'Support', 'pricing_templates_id' => 999999], $this->rules());
         $this->assertArrayHasKey('pricing_templates_id', $v->errors()->toArray());
     }
 

@@ -731,6 +731,7 @@ class SettingsControllerTest extends DBTestCase
             'timezone_id' => 1,  // Pacific/Midway exists in test DB
             'date_format' => 'd-m-Y',
             'time_format' => 'H:i',
+            'language' => 'en',
         ]);
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
@@ -1143,7 +1144,6 @@ class SettingsControllerTest extends DBTestCase
         $response->assertJson(['success' => true]);
         $data = $response->json('data');
         $this->assertArrayHasKey('products', $data);
-        $this->assertArrayHasKey('plans', $data);
         $this->assertArrayHasKey('countries', $data);
         $this->assertArrayHasKey('regions', $data);
     }

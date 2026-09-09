@@ -43,7 +43,7 @@ describe('MSG91Reports.vue', () => {
     })
 
     it('toggles showFilter when filter button is clicked', async () => {
-        const filterBtn = wrapper.find('button.btn-tool')
+        const filterBtn = wrapper.findAll('button.btn-tool')[1]
         expect(filterBtn.exists()).toBeTruthy()
         await filterBtn.trigger('click')
         expect(wrapper.vm.showFilter).toBe(true)

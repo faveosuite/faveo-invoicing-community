@@ -102,11 +102,11 @@ describe('LicenseCreateEdit.vue', () => {
 
     // ── onChange branches ─────────────────────────────────────────────────────
 
-    it('onChange product branch sets product_id and product_title', async () => {
-        wrapper.vm.onChange({ product_id: 5, product_title: 'Product X' }, 'product')
+    it('onChange product branch sets product_id and product_obj', async () => {
+        wrapper.vm.onChange(5, 'product')
         await wrapper.vm.$nextTick()
         expect(wrapper.vm.product_id).toBe(5)
-        expect(wrapper.vm.product_title).toBe('Product X')
+        expect(wrapper.vm.product_obj).toBe(5)
     })
 
     it('onChange client branch sets client_id and client_name', async () => {

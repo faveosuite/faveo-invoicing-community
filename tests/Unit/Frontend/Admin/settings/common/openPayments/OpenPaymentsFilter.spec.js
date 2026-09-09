@@ -77,9 +77,11 @@ describe('OpenPaymentsFilter.vue', () => {
         expect(wrapper.emitted('close')).toBeTruthy()
     })
 
-    it('makes no HTTP calls — it is a presentational filter component', async () => {
+    it('fetches currency options from GET /pay/config on mount', async () => {
         await flushPromises()
-        expect(globalThis.mockHttp.history.get).toHaveLength(0)
+        expect(
+            globalThis.mockHttp.history.get.some(r => r.url.includes('/pay/config'))
+        ).toBe(true)
         expect(globalThis.mockHttp.history.post).toHaveLength(0)
     })
 })

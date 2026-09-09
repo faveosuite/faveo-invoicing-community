@@ -21,7 +21,7 @@ describe('ProductVersionCreate.vue', () => {
         jest.useFakeTimers()
 
         globalThis.mockHttp.onPost(/\/chunkupload/).reply(200, { name: 'uploaded-file.zip' })
-        globalThis.mockHttp.onPut(/\/product\/upload\/42/).reply(200, { data: { message: 'Created' } })
+        globalThis.mockHttp.onPost(/\/product\/upload\/42/).reply(200, { data: { message: 'Created' } })
 
         wrapper = mount(ProductVersionCreate, {
             global: {
@@ -80,6 +80,7 @@ describe('ProductVersionCreate.vue', () => {
     it('pushes to product edit after successful submit', async () => {
         wrapper.vm.form.title = 'Test Title'
         wrapper.vm.form.version = '1.0.0'
+        wrapper.vm.form.description = 'A description'
         wrapper.vm.form.dependencies = '[]'
         // Drive the file through the same chunked-upload flow the DOM input
         // triggers, so uploadedName/uploadedForFile are populated for submit().

@@ -51,7 +51,7 @@ describe('StaticSelect.vue', () => {
 
     it('renders default empty "Select" option', () => {
         const options = wrapper.findAll('option')
-        expect(options[0].text()).toBe('Select')
+        expect(options[0].text()).toBe('message.select')
     })
 
     it('hides empty option when hideEmptySelect is true', () => {

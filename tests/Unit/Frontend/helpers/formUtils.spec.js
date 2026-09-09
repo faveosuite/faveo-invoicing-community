@@ -70,9 +70,9 @@ describe('validateForm', () => {
         expect(result).toBe(true)
     })
 
-    it('does not call setErrors when validation passes', async () => {
+    it('calls setErrors with cleared (undefined) fields when validation passes', async () => {
         await validateForm(nameSchema, { name: 'Alice', email: 'alice@example.com' }, setErrors)
-        expect(setErrors).not.toHaveBeenCalled()
+        expect(setErrors).toHaveBeenCalledWith({ name: undefined, email: undefined })
     })
 
     it('returns false when the schema fails validation', async () => {

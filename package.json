@@ -102,7 +102,7 @@
       "resources/assets/js"
     ],
     "transformIgnorePatterns": [
-      "node_modules/(?!(@vue|axios|pinia|@pinia|nostics)/)"
+      "node_modules/(?!(@vue|axios|pinia|@pinia|nostics|@vueform)/)"
     ],
     "setupFilesAfterEnv": [
       "<rootDir>/jest.setup.js"

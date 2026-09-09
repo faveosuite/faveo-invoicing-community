@@ -14,7 +14,8 @@ import UserPaymentEdit from '@/pages/admin/users/UserPaymentEdit.vue'
 const editDataResponse = {
     data: {
         symbol: '$',
-        available_credit: 200,
+        unapplied: 200,
+        payment: { id: 7, payment_method: 'cash', amount: 200 },
         invoices: [
             { id: 11, date: '2024-01-01', number: 'INV-002', grand_total: 150, pending: 80 },
         ],
@@ -26,7 +27,7 @@ describe('UserPaymentEdit.vue', () => {
 
     beforeEach(() => {
         globalThis.mockHttp.onGet(/\/payments\/7\/edit/).reply(200, { data: editDataResponse.data })
-        globalThis.mockHttp.onPost(/\/newMultiplePayment\/update\/3/).reply(200, { data: { message: 'Updated' } })
+        globalThis.mockHttp.onPost(/\/payments\/7\/apply/).reply(200, { data: { message: 'Updated' } })
         wrapper = mount(UserPaymentEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -52,9 +53,9 @@ describe('UserPaymentEdit.vue', () => {
         expect(wrapper.vm.symbol).toBe('$')
     })
 
-    it('sets availableCredit after fetch', async () => {
+    it('sets unapplied after fetch', async () => {
         await flushPromises()
-        expect(wrapper.vm.availableCredit).toBe(200)
+        expect(wrapper.vm.unapplied).toBe(200)
     })
 
     it('populates invoices after fetch', async () => {
@@ -67,21 +68,20 @@ describe('UserPaymentEdit.vue', () => {
         expect(wrapper.vm.loading).toBe(false)
     })
 
-    it('calls POST /newMultiplePayment/update on submit', async () => {
+    it('calls POST /payments/:id/apply on submit', async () => {
         await flushPromises()
         wrapper.vm.form.payment_date   = '2024-01-20'
-        wrapper.vm.form.payment_method = 'cash'
         wrapper.vm.invoices[0].checked  = true
         wrapper.vm.invoices[0].payAmount = 50
         await wrapper.vm.submit()
         await flushPromises()
-        expect(globalThis.mockHttp.history.post.some(r => /\/newMultiplePayment\/update\/3/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => /\/payments\/7\/apply/.test(r.url))).toBe(true)
     })
 
     it('does not submit when validation fails (empty form)', async () => {
         await flushPromises()
         globalThis.mockHttp.reset()
-        globalThis.mockHttp.onPost(/\/newMultiplePayment\/update\/3/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/payments\/7\/apply/).reply(200, { data: {} })
         await wrapper.vm.submit()
         await flushPromises()
         expect(globalThis.mockHttp.history.post.length).toBe(0)
@@ -92,7 +92,7 @@ describe('UserPaymentEdit.vue', () => {
         expect(wrapper.vm.canSubmit).toBe(false)
     })
 
-    it('canSubmit is true when credit is allocated within available credit', async () => {
+    it('canSubmit is true when payment is allocated within unapplied balance', async () => {
         await flushPromises()
         wrapper.vm.invoices[0].checked   = true
         wrapper.vm.invoices[0].payAmount = 50
@@ -106,11 +106,11 @@ describe('UserPaymentEdit.vue', () => {
         expect(parseFloat(wrapper.vm.totalApplied)).toBe(75)
     })
 
-    it('remainingCredit decreases as credit is applied', async () => {
+    it('remaining decreases as payment is applied', async () => {
         await flushPromises()
         wrapper.vm.invoices[0].checked   = true
         wrapper.vm.invoices[0].payAmount = 100
-        expect(parseFloat(wrapper.vm.remainingCredit)).toBe(100)
+        expect(parseFloat(wrapper.vm.remaining)).toBe(100)
     })
 
     it('onCheck clears payAmount when unchecked', async () => {
@@ -127,13 +127,12 @@ describe('UserPaymentEdit.vue', () => {
         expect(wrapper.find('table').exists()).toBe(true)
     })
 
-    it('submit calls POST /newMultiplePayment/update when canSubmit and validate pass', async () => {
-        globalThis.mockHttp.onPost(/\/newMultiplePayment\/update/).reply(200, { message: 'ok' })
+    it('submit calls POST /payments/:id/apply when canSubmit and validate pass', async () => {
+        globalThis.mockHttp.onPost(/\/payments\/7\/apply/).reply(200, { message: 'ok' })
         await flushPromises()
         wrapper.vm.form.payment_date   = '2025-01-01'
-        wrapper.vm.form.payment_method = 'cash'
-        // Set up canSubmit: totalApplied > 0 and <= availableCredit
-        wrapper.vm.availableCredit = '200'
+        // Set up canSubmit: totalApplied > 0 and <= unapplied
+        wrapper.vm.unapplied = 200
         wrapper.vm.invoices.forEach(inv => { inv.checked = true; inv.payAmount = 10 })
         await wrapper.vm.submit()
         await flushPromises()
@@ -141,11 +140,10 @@ describe('UserPaymentEdit.vue', () => {
     })
 
     it('submit handles API error', async () => {
-        globalThis.mockHttp.onPost(/\/newMultiplePayment\/update/).reply(500, { message: 'Server error' })
+        globalThis.mockHttp.onPost(/\/payments\/7\/apply/).reply(500, { message: 'Server error' })
         await flushPromises()
         wrapper.vm.form.payment_date   = '2025-01-01'
-        wrapper.vm.form.payment_method = 'cash'
-        wrapper.vm.availableCredit = '200'
+        wrapper.vm.unapplied = 200
         wrapper.vm.invoices.forEach(inv => { inv.checked = true; inv.payAmount = 10 })
         await wrapper.vm.submit()
         await flushPromises()

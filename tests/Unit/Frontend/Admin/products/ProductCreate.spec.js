@@ -27,7 +27,7 @@ describe('ProductCreate.vue', () => {
         globalThis.mockHttp.onGet(/\/dependency\/tax-classes/).reply(200, {
             data: { tax_classes: [{ id: 1, name: 'Standard' }] },
         })
-        globalThis.mockHttp.onPut(/\/product$/).reply(201, { data: { id: 1 } })
+        globalThis.mockHttp.onPost(/\/product$/).reply(201, { data: { id: 1 } })
 
         wrapper = mount(ProductCreate, {
             global: {
@@ -59,12 +59,12 @@ describe('ProductCreate.vue', () => {
         ).toBe(true)
     })
 
-    it('submits PUT /product with FormData on valid form', async () => {
+    it('submits POST /product with FormData on valid form', async () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
         expect(
-            globalThis.mockHttp.history.put.some(r => /\/product$/.test(r.url))
+            globalThis.mockHttp.history.post.some(r => /\/product$/.test(r.url))
         ).toBe(true)
     })
 
@@ -78,7 +78,7 @@ describe('ProductCreate.vue', () => {
     it('calls errorHandler on 500 error', async () => {
         await flushPromises()
         globalThis.mockHttp.reset()
-        globalThis.mockHttp.onPut(/\/product$/).reply(500)
+        globalThis.mockHttp.onPost(/\/product$/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()

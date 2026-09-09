@@ -128,11 +128,11 @@ describe('DynamicSelect.vue', () => {
     })
 
     it('defaults placeholder to Search or Select', () => {
-        expect(wrapper.props('placeholder')).toBe('Search or Select')
+        expect(wrapper.props('placeholder')).toBe('message.search_or_select')
     })
 
     it('renders tooltip when tooltip prop is provided', () => {
-        wrapper = mountDynamic({ tooltip: 'Choose a user' })
+        wrapper = mountDynamic({ label: 'User', tooltip: 'Choose a user' })
         expect(wrapper.find('.tooltip-stub').exists()).toBe(true)
     })
 

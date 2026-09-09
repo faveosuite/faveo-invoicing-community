@@ -79,9 +79,10 @@ class OrderControllerTest extends DBTestCase
 
         $response->assertStatus(404);
         $json = $response->json();
-        // Laravel native 404 (route model binding) — has message key, no success key
-        $this->assertArrayHasKey('message', $json);
-        $this->assertStringContainsString('999999999', $json['message']);
+        // Handler::notFoundResponse() catches ModelNotFoundException app-wide and
+        // returns a generic message — it doesn't echo the missing id back.
+        $this->assertFalse($json['success']);
+        $this->assertSame(__('message.record_not_found'), $json['message']);
     }
 
     // =========================================================================

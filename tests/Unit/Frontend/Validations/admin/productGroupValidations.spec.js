@@ -2,8 +2,7 @@ import { productGroupSchema } from '@/validations/admin/productGroupValidations'
 
 describe('productGroupSchema', () => {
     const valid = {
-        name:                 'Cloud Products',
-        pricing_templates_id: { id: 3, name: 'Standard Pricing' },
+        name: 'Cloud Products',
     }
 
     it('passes with valid data', async () => {
@@ -19,19 +18,6 @@ describe('productGroupSchema', () => {
         await expect(productGroupSchema.validate(rest)).rejects.toThrow()
     })
 
-    it('fails when pricing_templates_id is null', async () => {
-        await expect(productGroupSchema.validate({ ...valid, pricing_templates_id: null })).rejects.toThrow()
-    })
-
-    it('fails when pricing_templates_id is empty string', async () => {
-        await expect(productGroupSchema.validate({ ...valid, pricing_templates_id: '' })).rejects.toThrow()
-    })
-
-    it('fails when pricing_templates_id has null id', async () => {
-        await expect(productGroupSchema.validate({ ...valid, pricing_templates_id: { id: null } })).rejects.toThrow()
-    })
-
-    it('passes when pricing_templates_id is a plain string id', async () => {
-        await expect(productGroupSchema.validate({ ...valid, pricing_templates_id: '3' })).resolves.toBeTruthy()
-    })
+    // Design-template picker (pricing_templates_id) was removed from the UI (2026-09) —
+    // the backend keeps the column nullable, so the frontend schema has no rule for it.
 })

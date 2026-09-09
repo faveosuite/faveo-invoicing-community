@@ -44,6 +44,7 @@ describe('SystemSettings.vue', () => {
         wrapper.vm.form.timezone_id = { id: 1, name: 'UTC' }
         wrapper.vm.form.date_format = { id: 'Y-m-d', name: '2024-01-01' }
         wrapper.vm.form.time_format = { id: 'H:i', name: '14:30' }
+        wrapper.vm.form.language = { id: 'en', name: 'English' }
         wrapper.vm.save()
         await flushPromises()
         expect(globalThis.mockHttp.history.post.some(r => r.url.includes('settings/datetime-data'))).toBeTruthy()
@@ -55,6 +56,7 @@ describe('SystemSettings.vue', () => {
         wrapper.vm.form.timezone_id = { id: 1, name: 'UTC' }
         wrapper.vm.form.date_format = { id: 'Y-m-d', name: '2024-01-01' }
         wrapper.vm.form.time_format = { id: 'H:i', name: '14:30' }
+        wrapper.vm.form.language = { id: 'en', name: 'English' }
         wrapper.vm.save()
         await flushPromises()
         expect(successHandler).toHaveBeenCalled()

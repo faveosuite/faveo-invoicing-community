@@ -99,6 +99,15 @@ async function submitPassword() {
         form.new_password = ''
         form.confirm_password = ''
     } catch (e) {
+        if (e?.response?.status === 422) {
+            const serverErrors = e.response.data?.errors ?? {}
+            const map = {}
+            Object.entries(serverErrors).forEach(([k, v]) => { map[k] = Array.isArray(v) ? v[0] : v })
+            if (Object.keys(map).length) {
+                setErrors(map)
+                return
+            }
+        }
         errorHandler(e, COMPONENT, { setErrors })
     } finally {
         saving.value = false

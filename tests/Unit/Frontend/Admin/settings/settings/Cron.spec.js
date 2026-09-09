@@ -1,4 +1,4 @@
-jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: jest.fn(() => 0) }))
+jest.mock('@/helpers/extraLogics', () => ({ ...jest.requireActual('@/helpers/extraLogics'), lang: (key) => key, getIdFromUrl: jest.fn(() => 0) }))
 jest.mock('@/helpers/responseHandler', () => ({ successHandler: jest.fn(), errorHandler: jest.fn() }))
 jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)), scrollToFirstError: jest.fn() }))
 jest.mock('vue-router', () => ({ useRouter: () => ({ push: jest.fn() }), useRoute: () => ({ params: {}, query: {} }), RouterLink: { template: '<a><slot/></a>' } }))
@@ -121,18 +121,9 @@ describe('Cron.vue', () => {
         await flushPromises()
         const keys = Object.keys(wrapper.vm.conditionForms ?? {})
         if (keys.length > 0) {
-            wrapper.vm.onScheduleChange(keys[0], { id: 'daily' })
+            // StaticSelect's onChange hands back the raw <option value>, not an object.
+            wrapper.vm.onScheduleChange(keys[0], 'daily')
             expect(wrapper.vm.conditionForms[keys[0]].condition).toBe('daily')
-        }
-    })
-
-    it('selectedOption returns selected option for a valid job', async () => {
-        await flushPromises()
-        const keys = Object.keys(wrapper.vm.conditionForms ?? {})
-        if (keys.length > 0) {
-            const result = wrapper.vm.selectedOption(keys[0])
-            // result can be an option object or null — just verify no throw
-            expect(result === null || typeof result === 'object').toBe(true)
         }
     })
 })

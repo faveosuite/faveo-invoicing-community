@@ -36,10 +36,8 @@ class WidgetControllerTest extends DBTestCase
             ])
             ->assertJsonStructure([
                 'data' => [
-                    'pages' => [
-                        'data' => [
-                            '*' => ['id', 'name', 'type', 'created_at', 'content', 'action'],
-                        ],
+                    'data' => [
+                        '*' => ['id', 'name', 'type', 'created_at', 'content', 'action'],
                     ],
                     'total',
                 ],

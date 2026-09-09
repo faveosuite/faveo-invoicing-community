@@ -173,15 +173,15 @@ class ClientControllerTest extends DBTestCase
             ->assertJsonStructure(['data']);
     }
 
-    public function test_get_client_order_returns_404_for_unknown_order_id(): void
+    public function test_get_client_order_detail_returns_404_for_unknown_order_id(): void
     {
-        $response = $this->getJson('/get-my-orders?id=999999');
+        $response = $this->getJson('/get-my-order/999999');
 
         $response->assertStatus(404)
             ->assertJson(['success' => false]);
     }
 
-    public function test_get_client_order_returns_single_order_when_id_given(): void
+    public function test_get_client_order_detail_returns_single_order(): void
     {
         $product = Product::first() ?? Product::create(['name' => 'Test Product '.uniqid()]);
 
@@ -193,7 +193,7 @@ class ClientControllerTest extends DBTestCase
             'price_override' => 0,
         ]);
 
-        $response = $this->getJson('/get-my-orders?id='.$order->id);
+        $response = $this->getJson('/get-my-order/'.$order->id);
 
         $response->assertStatus(200)
             ->assertJson(['success' => true]);
@@ -205,7 +205,7 @@ class ClientControllerTest extends DBTestCase
         $this->assertArrayHasKey('status', $data);
     }
 
-    public function test_get_client_order_includes_license_mode_domain_and_machine_id(): void
+    public function test_get_client_order_detail_includes_license_mode_domain_and_machine_id(): void
     {
         $product = Product::first() ?? Product::create(['name' => 'Test Product '.uniqid()]);
 
@@ -228,7 +228,7 @@ class ClientControllerTest extends DBTestCase
             'license_status' => 1,
         ]);
 
-        $response = $this->getJson('/get-my-orders?id='.$order->id);
+        $response = $this->getJson('/get-my-order/'.$order->id);
 
         $response->assertStatus(200);
         $this->assertSame('File', $response->json('data.license_mode'));

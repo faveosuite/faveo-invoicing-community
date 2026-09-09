@@ -123,8 +123,7 @@ describe('buildFileStorageSchema - s3 disk', () => {
 
 describe('pdfSettingsSchema', () => {
     const valid = {
-        node_path:   '/usr/local/bin/node',
-        npm_path:    '/usr/local/bin/npm',
+        pdf_driver:  'chrome',
         chrome_path: '/usr/bin/google-chrome',
     }
 
@@ -132,12 +131,8 @@ describe('pdfSettingsSchema', () => {
         await expect(pdfSettingsSchema.validate(valid)).resolves.toBeTruthy()
     })
 
-    it('fails when node_path is empty', async () => {
-        await expect(pdfSettingsSchema.validate({ ...valid, node_path: '' })).rejects.toThrow()
-    })
-
-    it('fails when npm_path is missing', async () => {
-        const { npm_path: _o, ...rest } = valid // NOSONAR
+    it('fails when pdf_driver is missing', async () => {
+        const { pdf_driver: _o, ...rest } = valid // NOSONAR
         await expect(pdfSettingsSchema.validate(rest)).rejects.toThrow()
     })
 

@@ -4,6 +4,7 @@ describe('planSchema', () => {
     const valid = {
         name:    'Pro Plan',
         product: { id: 1, name: 'My Product' },
+        no_of_agents: 5,
     }
 
     it('passes with valid data', async () => {

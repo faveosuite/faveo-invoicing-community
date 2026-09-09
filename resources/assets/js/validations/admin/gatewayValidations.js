@@ -3,6 +3,7 @@ import * as yup from 'yup'
 export function buildGatewaySchema(fields) {
     const shape = {}
     fields.forEach(f => {
+        const required = f.required !== false
         shape[f.name] = f.type === 'number'
             // yup's built-in cast turns '' (and any non-numeric text) into
             // NaN before this runs; fold that into undefined so an empty/bad
@@ -10,9 +11,8 @@ export function buildGatewaySchema(fields) {
             ? yup.number()
                 .transform(v => (Number.isNaN(v) ? undefined : v))
                 .min(0, () => __('message.processing_fee_invalid'))
-                .max(100, () => __('message.processing_fee_invalid'))
-                .required(() => __('message.field_required'))
-            : yup.string().required(() => __('message.field_required'))
+                .max(100, () => __('message.processing_fee_invalid'))[required ? 'required' : 'notRequired'](() => __('message.field_required'))
+            : yup.string()[required ? 'required' : 'notRequired'](() => __('message.field_required'))
     })
 
     // webhook_secret is always rendered (outside the gateway-specific `fields`

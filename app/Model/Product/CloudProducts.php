@@ -42,6 +42,10 @@ class CloudProducts extends BaseModel
 
     protected $table = 'cloud_products';
 
+    // BaseModel declares $fillable = ['api_key'], which takes precedence over an
+    // empty $guarded — without this override, only 'api_key' is mass-assignable.
+    protected $fillable = [];
+
     protected $guarded = [];
 
     protected string $logName = 'cloud';

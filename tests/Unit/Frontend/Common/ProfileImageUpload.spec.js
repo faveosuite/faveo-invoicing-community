@@ -141,7 +141,7 @@ describe('ProfileImageUpload.vue', () => {
         const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {})
         const file = new File(['content'], 'doc.pdf', { type: 'application/pdf' })
         await wrapper.vm.onFileSelected({ target: { files: [file], value: '' } })
-        expect(alertSpy).toHaveBeenCalledWith('Only PNG and JPEG images are allowed.')
+        expect(alertSpy).toHaveBeenCalledWith('message.only_png_jpeg_allowed')
         alertSpy.mockRestore()
     })
 
@@ -150,7 +150,7 @@ describe('ProfileImageUpload.vue', () => {
         const bigContent = new Uint8Array(2097153)
         const file = new File([bigContent], 'big.png', { type: 'image/png' })
         await wrapper.vm.onFileSelected({ target: { files: [file], value: '' } })
-        expect(alertSpy).toHaveBeenCalledWith('Image must be under 2 MB.')
+        expect(alertSpy).toHaveBeenCalledWith('message.image_max_2mb')
         alertSpy.mockRestore()
     })
 

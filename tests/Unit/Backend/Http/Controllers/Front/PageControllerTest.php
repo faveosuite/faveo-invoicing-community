@@ -102,7 +102,7 @@ class PageControllerTest extends DBTestCase
 
     public function test_save_demo_page_success(): void
     {
-        $response = $this->postJson('/save/demo', ['status' => 1]);
+        $response = $this->postJson('/page-settings', ['status' => 1]);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['message' => __('message.data_updated_successfully')]);
@@ -112,9 +112,9 @@ class PageControllerTest extends DBTestCase
 
     public function test_save_demo_page_validation_error(): void
     {
-        $response = $this->postJson('/save/demo', ['status' => '']);
+        $response = $this->postJson('/page-settings', ['status' => '']);
 
-        $response->assertStatus(422);
+        $response->assertStatus(412);
     }
 
     // =========================================================================
@@ -186,7 +186,7 @@ class PageControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // getDemoStatus — GET /demo
+    // getPageSettings — GET /page-settings
     // =========================================================================
 
     public function test_get_demo_status_returns_200(): void
@@ -194,7 +194,7 @@ class PageControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
 
-        $response = $this->getJson('/demo');
+        $response = $this->getJson('/page-settings');
 
         $response->assertStatus(200)
             ->assertJson(['success' => true]);

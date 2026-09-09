@@ -25,7 +25,7 @@ describe('SuspendedTableActions.vue', () => {
         })
 
     beforeEach(() => {
-        globalThis.mockHttp.onGet(/\/user\/restore\//).reply(200, { data: { message: 'Restored' } })
+        globalThis.mockHttp.onPost(/\/user\/restore\//).reply(200, { data: { message: 'Restored' } })
         wrapper = mountComponent()
     })
 
@@ -42,7 +42,7 @@ describe('SuspendedTableActions.vue', () => {
         const [restoreBtn] = wrapper.findAll('button')
         await restoreBtn.trigger('click')
         await flushPromises()
-        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.post.length).toBeGreaterThan(0)
     })
 
     it('emits restored event after successful restore', async () => {
@@ -61,7 +61,7 @@ describe('SuspendedTableActions.vue', () => {
 
     it('calls errorHandler on restore failure', async () => {
         globalThis.mockHttp.reset()
-        globalThis.mockHttp.onGet(/\/user\/restore\//).reply(500)
+        globalThis.mockHttp.onPost(/\/user\/restore\//).reply(500)
         const [restoreBtn] = wrapper.findAll('button')
         await restoreBtn.trigger('click')
         await flushPromises()

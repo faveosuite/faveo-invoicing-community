@@ -36,15 +36,15 @@ describe('PaymentTableActions.vue', () => {
         expect(buttons.length).toBeGreaterThan(0)
     })
 
-    it('shows edit link when invoiceId is 0 (default)', () => {
-        // invoiceId defaults to 0 — edit router-link should be rendered
-        expect(wrapper.find('router-link-stub').exists()).toBe(true)
+    it('hides edit link when unapplied is 0 (default)', () => {
+        // unapplied defaults to 0 — edit router-link should not be rendered
+        expect(wrapper.find('router-link-stub').exists()).toBe(false)
     })
 
-    it('hides edit link when invoiceId is provided', () => {
-        wrapper = mountComponent({ invoiceId: 5 })
-        // v-if="!invoiceId" means no router-link-stub when invoiceId is truthy
-        expect(wrapper.find('router-link-stub').exists()).toBe(false)
+    it('shows edit link when unapplied is provided', () => {
+        wrapper = mountComponent({ unapplied: 5 })
+        // v-if="unapplied > 0" means router-link-stub renders when unapplied is truthy
+        expect(wrapper.find('router-link-stub').exists()).toBe(true)
     })
 
     it('shows DeleteModal when delete button is clicked', async () => {
@@ -58,8 +58,8 @@ describe('PaymentTableActions.vue', () => {
         expect(wrapper.exists()).toBeTruthy()
     })
 
-    it('accepts invoiceId prop to suppress edit link', () => {
-        wrapper = mountComponent({ paymentId: 10, userId: 1, invoiceId: 3 })
-        expect(wrapper.find('router-link-stub').exists()).toBe(false)
+    it('accepts unapplied prop to show edit link', () => {
+        wrapper = mountComponent({ paymentId: 10, userId: 1, unapplied: 3 })
+        expect(wrapper.find('router-link-stub').exists()).toBe(true)
     })
 })

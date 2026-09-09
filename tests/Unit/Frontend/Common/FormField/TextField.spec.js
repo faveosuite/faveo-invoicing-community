@@ -53,19 +53,19 @@ describe('TextField.vue', () => {
 
     it('renders toggle password button for password type', () => {
         wrapper = mountTextField({ type: 'password' })
-        expect(wrapper.find('button.btn-secondary').exists()).toBe(true)
+        expect(wrapper.find('.input-group-text.cursor-pointer').exists()).toBe(true)
     })
 
     it('toggles password visibility when eye button clicked', async () => {
         wrapper = mountTextField({ type: 'password' })
-        const toggleBtn = wrapper.find('button.btn-secondary')
+        const toggleBtn = wrapper.find('.input-group-text.cursor-pointer')
         await toggleBtn.trigger('click')
         expect(wrapper.find('input[type="text"]').exists()).toBe(true)
     })
 
     it('hides password again when eye button clicked twice', async () => {
         wrapper = mountTextField({ type: 'password' })
-        const toggleBtn = wrapper.find('button.btn-secondary')
+        const toggleBtn = wrapper.find('.input-group-text.cursor-pointer')
         await toggleBtn.trigger('click')
         await toggleBtn.trigger('click')
         expect(wrapper.find('input[type="password"]').exists()).toBe(true)

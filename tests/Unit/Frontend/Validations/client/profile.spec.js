@@ -9,6 +9,7 @@ describe('profileSchema', () => {
         mobile:     '+1234567890',
         address:    '456 Oak Ave',
         country:    { id: 1, name: 'USA' },
+        timezone_id: { id: 1, name: 'UTC' },
     }
 
     it('passes with valid data', async () => {
@@ -55,33 +56,33 @@ describe('profileSchema', () => {
 
 describe('passwordChangeSchema', () => {
     const valid = {
-        current_password:      'OldPass1',
-        password:              'NewPass!1',
-        password_confirmation: 'NewPass!1',
+        old_password:     'OldPass1',
+        new_password:     'NewPass!1',
+        confirm_password: 'NewPass!1',
     }
 
     it('passes with matching passwords', async () => {
         await expect(passwordChangeSchema.validate(valid)).resolves.toBeTruthy()
     })
 
-    it('fails when current_password is empty', async () => {
-        await expect(passwordChangeSchema.validate({ ...valid, current_password: '' })).rejects.toThrow()
+    it('fails when old_password is empty', async () => {
+        await expect(passwordChangeSchema.validate({ ...valid, old_password: '' })).rejects.toThrow()
     })
 
-    it('fails when current_password is missing', async () => {
-        const { current_password: _o, ...rest } = valid // NOSONAR
+    it('fails when old_password is missing', async () => {
+        const { old_password: _o, ...rest } = valid // NOSONAR
         await expect(passwordChangeSchema.validate(rest)).rejects.toThrow()
     })
 
-    it('fails when password is empty', async () => {
-        await expect(passwordChangeSchema.validate({ ...valid, password: '' })).rejects.toThrow()
+    it('fails when new_password is empty', async () => {
+        await expect(passwordChangeSchema.validate({ ...valid, new_password: '' })).rejects.toThrow()
     })
 
-    it('fails when password_confirmation is empty', async () => {
-        await expect(passwordChangeSchema.validate({ ...valid, password_confirmation: '' })).rejects.toThrow()
+    it('fails when confirm_password is empty', async () => {
+        await expect(passwordChangeSchema.validate({ ...valid, confirm_password: '' })).rejects.toThrow()
     })
 
-    it('fails when password_confirmation does not match password', async () => {
-        await expect(passwordChangeSchema.validate({ ...valid, password_confirmation: 'DifferentPass!' })).rejects.toThrow()
+    it('fails when confirm_password does not match new_password', async () => {
+        await expect(passwordChangeSchema.validate({ ...valid, confirm_password: 'DifferentPass!' })).rejects.toThrow()
     })
 })

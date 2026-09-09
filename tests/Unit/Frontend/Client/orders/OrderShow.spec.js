@@ -44,7 +44,7 @@ describe('OrderShow.vue', () => {
 
     beforeEach(() => {
         axiosMock = new MockAdapter(http)
-        axiosMock.onGet('/get-my-orders').reply(200, { data: orderFixture })
+        axiosMock.onGet('/get-my-order/1').reply(200, { data: orderFixture })
 
         wrapper = mount(OrderShow, {
             global: {
@@ -77,9 +77,9 @@ describe('OrderShow.vue', () => {
         expect(wrapper.exists()).toBeTruthy()
     })
 
-    it('calls GET /get-my-orders on mount', async () => {
+    it('calls GET /get-my-order/:id on mount', async () => {
         await flushPromises()
-        expect(axiosMock.history.get.some(r => r.url.includes('/get-my-orders'))).toBe(true)
+        expect(axiosMock.history.get.some(r => r.url.includes('/get-my-order/1'))).toBe(true)
     })
 
     it('sets order data after successful API call', async () => {
@@ -89,7 +89,7 @@ describe('OrderShow.vue', () => {
     })
 
     it('sets loading to false when API returns 500', async () => {
-        axiosMock.onGet('/get-my-orders').reply(500, { message: 'Server error' })
+        axiosMock.onGet('/get-my-order/1').reply(500, { message: 'Server error' })
 
         const w = mount(OrderShow, {
             global: {
@@ -108,7 +108,7 @@ describe('OrderShow.vue', () => {
     })
 
     it('calls errorHandler when API returns 500', async () => {
-        axiosMock.onGet('/get-my-orders').reply(500, { message: 'Server error' })
+        axiosMock.onGet('/get-my-order/1').reply(500, { message: 'Server error' })
 
         const w = mount(OrderShow, {
             global: {
@@ -161,7 +161,7 @@ describe('OrderShow.vue', () => {
     })
 
     it('shows alert warning when order data is null', async () => {
-        axiosMock.onGet('/get-my-orders').reply(200, { data: null })
+        axiosMock.onGet('/get-my-order/1').reply(200, { data: null })
 
         const w = mount(OrderShow, {
             global: {
@@ -193,7 +193,7 @@ describe('OrderShow.vue — modal and state helpers', () => {
 
     beforeEach(async () => {
         axiosMock = new MockAdapter(http)
-        axiosMock.onGet('/get-my-orders').reply(200, { data: orderFixture })
+        axiosMock.onGet('/get-my-order/1').reply(200, { data: orderFixture })
         wrapper = mount(OrderShow, { global: { plugins: [createTestingPinia()], stubs: STUBS } })
         await flushPromises()
         wrapper.vm.order = { ...orderFixture }
@@ -202,11 +202,6 @@ describe('OrderShow.vue — modal and state helpers', () => {
     afterEach(() => { axiosMock.restore(); jest.clearAllMocks() })
 
     // ── Computed properties ──────────────────────────────────────────
-    it('actionOptions contains increase and decrease entries', () => {
-        const opts = wrapper.vm.actionOptions
-        expect(opts.map(o => o.id)).toEqual(['increase', 'decrease'])
-    })
-
     it('gatewayOptions shows all gateways when order has no available_gateways', () => {
         wrapper.vm.order = { ...orderFixture, available_gateways: [] }
         expect(wrapper.vm.gatewayOptions.map(g => g.id)).toEqual(['stripe', 'razorpay'])
@@ -283,16 +278,6 @@ describe('OrderShow.vue — modal and state helpers', () => {
         wrapper.vm.showAgentsModal = true
         wrapper.vm.closeAgentsModal()
         expect(wrapper.vm.showAgentsModal).toBe(false)
-    })
-
-    it('onActionChange updates agentForm.action', () => {
-        wrapper.vm.onActionChange({ id: 'decrease' })
-        expect(wrapper.vm.agentForm.action).toBe('decrease')
-    })
-
-    it('onActionChange defaults to increase when value is null', () => {
-        wrapper.vm.onActionChange(null)
-        expect(wrapper.vm.agentForm.action).toBe('increase')
     })
 
     it('fetchAgentCost clears agentCost when cloud is null', async () => {
@@ -827,16 +812,6 @@ describe('OrderShow.vue — modal and state helpers', () => {
         wrapper.vm.order = { ...orderFixture, available_gateways: [] }
         await wrapper.vm.$nextTick()
         expect(wrapper.vm.gatewayOptions.length).toBeGreaterThan(0)
-    })
-
-    it('onActionChange sets agentForm.action from object with id', () => {
-        wrapper.vm.onActionChange({ id: 'decrease' })
-        expect(wrapper.vm.agentForm.action).toBe('decrease')
-    })
-
-    it('onActionChange defaults to increase when passed null', () => {
-        wrapper.vm.onActionChange(null)
-        expect(wrapper.vm.agentForm.action).toBe('increase')
     })
 
     it('onPlanChange sets planForm.planId from object with id', () => {

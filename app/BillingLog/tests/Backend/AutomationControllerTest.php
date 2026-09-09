@@ -34,8 +34,8 @@ class AutomationControllerTest extends TestCase
     {
         $response = $this->getJson('/log-category-list');
 
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['date', 'log_type']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['date', 'log_type'], 'message');
     }
 
     #[Test]
@@ -44,8 +44,8 @@ class AutomationControllerTest extends TestCase
     {
         $response = $this->getJson('/log-category-list?date=2023-01-01&log_type=invalid');
 
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['log_type']);
+        $response->assertStatus(412);
+        $response->assertJsonValidationErrors(['log_type'], 'message');
     }
 
     #[Test]

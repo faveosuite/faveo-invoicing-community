@@ -874,11 +874,15 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $request->validate([
-                'ids' => 'required|array',
+                'ids' => 'array',
                 'ids.*' => 'integer|exists:payment_logs,id',
             ]);
 
             $ids = $request->input('ids', []);
+
+            if (empty($ids)) {
+                return errorResponse(__('message.select-a-row'), 400);
+            }
 
             Payment_log::whereIn('id', $ids)->delete();
 

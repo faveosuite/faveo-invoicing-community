@@ -111,23 +111,16 @@ describe('OrderIndex.vue', () => {
         expect(wrapper.vm.downloadVersionsUrl).toContain('/get-versions/99')
     })
 
-    it('confirmDelete redirects when deleteRow has a number', () => {
-        const { location } = window
-        delete globalThis.location
-        globalThis.location = { href: '' }
+    it('confirmDelete calls DELETE /delete/domain/:number/1 when deleteRow has a number', async () => {
+        axiosMock.onDelete(/\/delete\/domain\/ORD-001\/1/).reply(200, { data: { message: 'Deleted' } })
         wrapper.vm.deleteRow = { number: 'ORD-001' }
-        wrapper.vm.confirmDelete()
-        expect(globalThis.location.href).toContain('/delete/domain/ORD-001/1')
-        globalThis.location = location
+        await wrapper.vm.confirmDelete()
+        expect(axiosMock.history.delete.some(r => r.url.includes('/delete/domain/ORD-001/1'))).toBe(true)
     })
 
-    it('confirmDelete does nothing when deleteRow has no number', () => {
-        const { location } = window
-        delete globalThis.location
-        globalThis.location = { href: 'http://original.test' }
+    it('confirmDelete does nothing when deleteRow has no number', async () => {
         wrapper.vm.deleteRow = { number: null }
-        wrapper.vm.confirmDelete()
-        expect(globalThis.location.href).toBe('http://original.test')
-        globalThis.location = location
+        await wrapper.vm.confirmDelete()
+        expect(axiosMock.history.delete.length).toBe(0)
     })
 })

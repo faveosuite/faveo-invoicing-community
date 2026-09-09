@@ -14,7 +14,7 @@ describe('Suspended.vue', () => {
 
     beforeEach(() => {
         globalThis.mockHttp.onGet(/\/soft-delete/).reply(200, { data: [] })
-        globalThis.mockHttp.onGet(/\/user\/restore\//).reply(200, { data: { message: 'Restored' } })
+        globalThis.mockHttp.onPost(/\/user\/restore\//).reply(200, { data: { message: 'Restored' } })
         wrapper = mount(Suspended, {
             global: {
                 plugins: [createTestingPinia()],
@@ -47,12 +47,12 @@ describe('Suspended.vue', () => {
         wrapper.vm.selected = [1, 2]
         await wrapper.vm.bulkRestore()
         await flushPromises()
-        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.post.length).toBeGreaterThan(0)
     })
 
     it('calls errorHandler when bulkRestore fails', async () => {
         globalThis.mockHttp.reset()
-        globalThis.mockHttp.onGet(/\/user\/restore\//).reply(500)
+        globalThis.mockHttp.onPost(/\/user\/restore\//).reply(500)
         wrapper.vm.selected = [1]
         await wrapper.vm.bulkRestore()
         await flushPromises()

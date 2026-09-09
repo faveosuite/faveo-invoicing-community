@@ -318,7 +318,7 @@ describe('OpenPaymentPage.vue — extended coverage', () => {
     // ── createOrder ──────────────────────────────────────────────────
     it('createOrder posts to /pay/create and sets order', async () => {
         axiosMock.onPost('/pay/create').reply(200, { data: { order: { id: 99, amount: '100', currency: 'USD', gateway: 'Razorpay' } } })
-        wrapper.vm.captchaRef = { getPayload: () => Promise.resolve({ 'g-recaptcha-response': 'tok' }), disabled: false }
+        wrapper.vm.captchaRef = { getPayload: () => Promise.resolve({ 'g-recaptcha-response': 'tok' }), disabled: false, reset: jest.fn(), triggerFallback: jest.fn() }
         await wrapper.vm.createOrder()
         await flushPromises()
         expect(wrapper.vm.order).toEqual(expect.objectContaining({ id: 99 }))
@@ -416,7 +416,7 @@ describe('OpenPaymentPage.vue — extended coverage', () => {
 
     it('payNow createOrder failure with generic error sets alert and paying=false', async () => {
         axiosMock.onPost('/pay/create').reply(500, { message: 'Server error' })
-        wrapper.vm.captchaRef = { getPayload: () => Promise.resolve({ 'g-recaptcha-response': 'tok' }), disabled: false }
+        wrapper.vm.captchaRef = { getPayload: () => Promise.resolve({ 'g-recaptcha-response': 'tok' }), disabled: false, reset: jest.fn(), triggerFallback: jest.fn() }
         wrapper.vm.order = null
         await wrapper.vm.payNow()
         await flushPromises()
@@ -425,7 +425,7 @@ describe('OpenPaymentPage.vue — extended coverage', () => {
 
     it('payNow createOrder failure with 422 validation error redirects to form', async () => {
         axiosMock.onPost('/pay/create').reply(422, { errors: { name: ['Required'] }, message: 'Validation failed' })
-        wrapper.vm.captchaRef = { getPayload: () => Promise.resolve({ 'g-recaptcha-response': 'tok' }), disabled: false }
+        wrapper.vm.captchaRef = { getPayload: () => Promise.resolve({ 'g-recaptcha-response': 'tok' }), disabled: false, reset: jest.fn(), triggerFallback: jest.fn() }
         wrapper.vm.order = null
         await wrapper.vm.payNow()
         await flushPromises()
@@ -540,7 +540,7 @@ describe('OpenPaymentPage.vue — extended coverage', () => {
 
     it('payNow handles 429 rate-limit error on createOrder', async () => {
         axiosMock.onPost('/pay/create').reply(429, { message: 'Too many attempts' })
-        wrapper.vm.captchaRef = { getPayload: () => Promise.resolve({ 'g-recaptcha-response': 'tok' }), disabled: false }
+        wrapper.vm.captchaRef = { getPayload: () => Promise.resolve({ 'g-recaptcha-response': 'tok' }), disabled: false, reset: jest.fn(), triggerFallback: jest.fn() }
         wrapper.vm.order = null
         await wrapper.vm.payNow()
         await flushPromises()
@@ -549,7 +549,7 @@ describe('OpenPaymentPage.vue — extended coverage', () => {
 
     it('payNow handles generic server error on createOrder', async () => {
         axiosMock.onPost('/pay/create').reply(500, { message: 'Server error' })
-        wrapper.vm.captchaRef = { getPayload: () => Promise.resolve({ 'g-recaptcha-response': 'tok' }), disabled: false }
+        wrapper.vm.captchaRef = { getPayload: () => Promise.resolve({ 'g-recaptcha-response': 'tok' }), disabled: false, reset: jest.fn(), triggerFallback: jest.fn() }
         wrapper.vm.order = null
         await wrapper.vm.payNow()
         await flushPromises()

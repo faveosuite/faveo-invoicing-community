@@ -29,7 +29,7 @@ describe('CacheDriverSettings.vue', () => {
 
     beforeEach(() => {
         globalThis.mockHttp.onGet(/\/cache-settings\//).reply(200, FORM_RESPONSE)
-        globalThis.mockHttp.onPost(/\/cache-settings\//).reply(200, { data: {} })
+        globalThis.mockHttp.onPatch(/\/cache-settings\//).reply(200, { data: {} })
         wrapper = mount(CacheDriverSettings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -71,12 +71,12 @@ describe('CacheDriverSettings.vue', () => {
         expect(wrapper.vm.form.port).toBe('6379')
     })
 
-    it('calls POST /cache-settings/:driver when save is invoked', async () => {
+    it('calls PATCH /cache-settings/:driver when save is invoked', async () => {
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()
         expect(
-            globalThis.mockHttp.history.post.some(r => /\/cache-settings\//.test(r.url))
+            globalThis.mockHttp.history.patch.some(r => /\/cache-settings\//.test(r.url))
         ).toBe(true)
     })
 

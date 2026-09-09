@@ -46,7 +46,7 @@ describe('ProductBuildApply.vue', () => {
 
         globalThis.mockHttp.onGet(/\/dependency\/products/).reply(200, PRODUCTS_RESPONSE)
         globalThis.mockHttp.onPost(/\/chunkupload/).reply(200, { name: 'uploaded-file.zip' })
-        globalThis.mockHttp.onPut(/\/product\/upload-build\/apply/).reply(200, { data: { message: 'Applied' } })
+        globalThis.mockHttp.onPost(/\/product\/upload-build\/apply/).reply(200, { data: { message: 'Applied' } })
 
         wrapper = mount(ProductBuildApply, {
             global: {
@@ -197,7 +197,7 @@ describe('ProductBuildApply.vue', () => {
         await wrapper.vm.submit()
         await flushPromises()
         expect(wrapper.vm.errors.products).toBeTruthy()
-        expect(globalThis.mockHttp.history.put.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     it('submit sets a products error when a selected product has no version', async () => {
@@ -230,7 +230,7 @@ describe('ProductBuildApply.vue', () => {
         wrapper.vm.form.description = 'A description'
         await wrapper.vm.submit()
         expect(wrapper.vm.fileError).toBeTruthy()
-        expect(globalThis.mockHttp.history.put.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     // ── submit() success ─────────────────────────────────────────────────
@@ -240,8 +240,9 @@ describe('ProductBuildApply.vue', () => {
         await wrapper.vm.submit()
         await flushPromises()
 
-        expect(globalThis.mockHttp.history.put.length).toBe(1)
-        const body = JSON.parse(globalThis.mockHttp.history.put[0].data)
+        const applyCalls = globalThis.mockHttp.history.post.filter(r => /\/product\/upload-build\/apply/.test(r.url))
+        expect(applyCalls.length).toBe(1)
+        const body = JSON.parse(applyCalls[0].data)
         expect(body.filename).toBe('uploaded-file.zip')
         expect(body.products).toEqual([{ id: 1, version: '1.0.0' }])
         expect(successHandler).toHaveBeenCalled()
@@ -252,7 +253,7 @@ describe('ProductBuildApply.vue', () => {
     })
 
     it('calls errorHandler with setErrors on API failure', async () => {
-        globalThis.mockHttp.onPut(/\/product\/upload-build\/apply/).reply(422, {
+        globalThis.mockHttp.onPost(/\/product\/upload-build\/apply/).reply(422, {
             errors: { description: ['Description is required.'] },
         })
         await makeSubmitValid()

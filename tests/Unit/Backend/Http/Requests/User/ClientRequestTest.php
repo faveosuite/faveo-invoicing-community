@@ -14,10 +14,12 @@ class ClientRequestTest extends TestCase
         $this->assertTrue((new ClientRequest())->authorize());
     }
 
-    public function test_put_rules_contain_required_keys(): void
+    public function test_post_rules_contain_required_keys(): void
     {
+        // POST /users is the actual create route (routes/web.php) — rules() must
+        // key off 'POST', not the no-longer-used 'PUT'.
         $request = new ClientRequest();
-        $request->setMethod('PUT');
+        $request->setMethod('POST');
         $rules = $request->rules();
 
         $this->assertArrayHasKey('first_name', $rules);

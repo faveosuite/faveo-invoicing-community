@@ -40,7 +40,7 @@ describe('DeleteModal.vue', () => {
     })
 
     it('renders the modal title', () => {
-        expect(wrapper.find('.modal-title').text()).toBe('Delete')
+        expect(wrapper.find('.modal-title').text()).toBe('message.delete')
     })
 
     it('renders custom title when provided', () => {
@@ -49,7 +49,7 @@ describe('DeleteModal.vue', () => {
     })
 
     it('renders the modal message', () => {
-        expect(wrapper.find('.modal-body p').text()).toBe('Are you sure you want to delete this record?')
+        expect(wrapper.find('.modal-body p').text()).toBe('message.confirm_delete_record')
     })
 
     it('renders custom message when provided', () => {

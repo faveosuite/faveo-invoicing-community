@@ -27,7 +27,7 @@ class ClientRequest extends Request
     public function rules(): array
     {
         switch ($this->method()) {
-            case 'PUT':
+            case 'POST':
                 return [
                     'first_name' => ['required'],
                     'last_name' => ['required'],

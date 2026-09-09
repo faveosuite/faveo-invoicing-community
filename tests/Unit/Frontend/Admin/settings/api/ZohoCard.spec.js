@@ -1,4 +1,4 @@
-jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: jest.fn(() => 0) }))
+jest.mock('@/helpers/extraLogics', () => ({ ...jest.requireActual('@/helpers/extraLogics'), lang: (key) => key, getIdFromUrl: jest.fn(() => 0) }))
 jest.mock('@/helpers/responseHandler', () => ({ successHandler: jest.fn(), errorHandler: jest.fn() }))
 jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)), scrollToFirstError: jest.fn() }))
 jest.mock('vue-router', () => ({ useRouter: () => ({ push: jest.fn() }), useRoute: () => ({ params: {}, query: {} }), RouterLink: { template: '<a><slot/></a>' } }))
@@ -10,11 +10,11 @@ import ZohoCard from '@/pages/admin/settings/api/ZohoCard.vue'
 const STUBS = [
     'DataTable', 'AppAlert', 'inline-loader', 'action-button', 'DeleteModal',
     'DynamicSelect', 'TextField', 'StaticSelect', 'DatePicker', 'RadioButton',
-    'NumberField', 'TinyMCE', 'loader', 'ColumnSelector', 'Switch', 'Checkbox',
+    'NumberField', 'TinyMCE', 'loader', 'ColumnSelector', 'Checkbox',
     'Tooltip', 'DynamicSelect', 'AppModal', 'ImageUpload', 'PhoneField',
     'RecaptchaProvider', 'RecaptchaCheckbox', 'RecaptchaV2Invisible', 'RecaptchaV3',
     'spinner-loader', 'router-link',
-]
+] // NOTE: 'Switch' intentionally not stubbed — toggle tests below click its real .toggle element
 
 const makeIntegration = (overrides = {}) => ({
     is_active: false,
@@ -47,7 +47,7 @@ describe('ZohoCard.vue', () => {
             props: { integration: makeIntegration() },
             global: { plugins: [createTestingPinia()], stubs: STUBS },
         })
-        const btn = wrapper.find('button')
+        const btn = wrapper.find('.toggle')
         await btn.trigger('click')
         expect(wrapper.emitted('toggle')).toBeTruthy()
     })
@@ -58,7 +58,7 @@ describe('ZohoCard.vue', () => {
             props: { integration },
             global: { plugins: [createTestingPinia()], stubs: STUBS },
         })
-        const btn = wrapper.find('button')
+        const btn = wrapper.find('.toggle')
         await btn.trigger('click')
         const emitted = wrapper.emitted('toggle')
         expect(emitted[0][0]).toMatchObject({ platform: 'campaigns' })
@@ -132,8 +132,8 @@ describe('ZohoCard.vue', () => {
             props: { integration: makeIntegration(), toggling: true },
             global: { plugins: [createTestingPinia()], stubs: STUBS },
         })
-        const btn = wrapper.find('button')
-        expect(btn.attributes('disabled')).toBeDefined()
+        const input = wrapper.find('input[type="checkbox"]')
+        expect(input.attributes('disabled')).toBeDefined()
     })
 
     it('toggle button is not disabled when toggling prop is false', () => {
@@ -141,8 +141,8 @@ describe('ZohoCard.vue', () => {
             props: { integration: makeIntegration(), toggling: false },
             global: { plugins: [createTestingPinia()], stubs: STUBS },
         })
-        const btn = wrapper.find('button')
-        expect(btn.attributes('disabled')).toBeUndefined()
+        const input = wrapper.find('input[type="checkbox"]')
+        expect(input.attributes('disabled')).toBeUndefined()
     })
 
     // ── settings RouterLink shown only when active ─────────────────────────
@@ -171,7 +171,7 @@ describe('ZohoCard.vue', () => {
             props: { integration: makeIntegration() },
             global: { plugins: [createTestingPinia()], stubs: STUBS },
         })
-        const btn = wrapper.find('button')
+        const btn = wrapper.find('.toggle')
         await btn.trigger('click')
         await btn.trigger('click')
         expect(wrapper.emitted('toggle').length).toBe(2)
