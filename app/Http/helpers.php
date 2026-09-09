@@ -1189,7 +1189,7 @@ function authorizeOwnership(int $userID, bool $allowAdmin = false): bool
 /**
  * Format exception response with exception details.
  *
- * @param  Exception  $exception  Exception instance
+ * @param  Throwable  $exception  Exception instance
  * @return JsonResponse json response
  */
 function exceptionResponse(Throwable $exception): JsonResponse

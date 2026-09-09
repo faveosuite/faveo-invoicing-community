@@ -88,6 +88,8 @@ class OpenPaymentController extends Controller
      * must go through here, or the same order shows a different-looking
      * amount depending which step rendered it (e.g. the review step read
      * this formatting, but a raw model on the success page didn't).
+     *
+     * @return array<string, mixed>
      */
     private function formatOrder(OpenPaymentOrder $order): array
     {
@@ -203,7 +205,7 @@ class OpenPaymentController extends Controller
             ]));
 
             return $paid
-                ? successResponse(__('message.op_payment_successful'), ['order' => $this->formatOrder($order->fresh())])
+                ? successResponse(__('message.op_payment_successful'), ['order' => $this->formatOrder($order->fresh() ?? $order)])
                 : errorResponse(__('message.payment_verification_failed'), 400);
         } catch (SignatureVerificationException) {
             return errorResponse(__('message.payment_verification_failed').' '.__('message.invalid_signature'), 400);
@@ -229,7 +231,7 @@ class OpenPaymentController extends Controller
             $paid = $this->payments->confirm($order, ['payment_intent' => $request->payment_intent_id]);
 
             return $paid
-                ? successResponse(__('message.op_payment_successful'), ['order' => $this->formatOrder($order->fresh())])
+                ? successResponse(__('message.op_payment_successful'), ['order' => $this->formatOrder($order->fresh() ?? $order)])
                 : errorResponse(__('message.payment_not_completed'), 400);
         } catch (Exception $exception) {
             return errorResponse(__('message.payment_verification_failed').' '.$exception->getMessage(), 500);

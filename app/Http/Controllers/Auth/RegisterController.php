@@ -183,7 +183,10 @@ class RegisterController extends Controller
             $user->active = 1;
             $user->role = 'user';
             $user->account_manager = $managerSettings->get('account') ? (string) $user->assignManagerByPosition('account_manager') : null;
-            $user->manager = $managerSettings->get('sales') ? $user->assignManagerByPosition('manager') : null;
+            // setAttribute(), not the magic property, because `manager` names both
+            // the FK column (an int) and the manager() BelongsTo relation — Larastan
+            // infers the magic property as the relation's User|null, not the column.
+            $user->setAttribute('manager', $managerSettings->get('sales') ? $user->assignManagerByPosition('manager') : null);
             $user->save();
 
             $need_verify = ($status->emailverification_status || $status->msg91_status) ? 1 : 0;

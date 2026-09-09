@@ -472,7 +472,7 @@ class OrderController extends BaseOrderController
             ->orderBy($sortField, $sortOrder)
             ->paginate($limit);
 
-        $invoices->getCollection()->transform(fn ($invoice): array => [ // @phpstan-ignore method.notFound
+        $invoices->getCollection()->transform(fn ($invoice): array => [
             'id' => $invoice->id,
             'number' => $invoice->number,
             'amount' => currencyFormat($invoice->grand_total, $invoice->currency),

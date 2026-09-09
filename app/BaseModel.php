@@ -25,11 +25,15 @@ use Override;
 class BaseModel extends Model
 {
     /**
-     * @var array<mixed>
+     * @var list<string>
      */
     protected $fillable = [
         'api_key',
     ];
+
+    /**
+     * @var list<string>
+     */
     protected array $purifyExcept = [
         'short_description',
         'description',

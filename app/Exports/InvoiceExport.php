@@ -21,7 +21,7 @@ class InvoiceExport implements FromCollection, WithHeadings, WithTitle
      */
     public function collection(): Collection
     {
-        return collect($this->invoicesData);
+        return collect((array) $this->invoicesData);
     }
 
     /**
