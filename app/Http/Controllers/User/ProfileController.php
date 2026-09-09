@@ -52,6 +52,7 @@ class ProfileController extends BaseAuthController
             return successResponse('', ['bussinesses' => $bussinesses, 'user' => $user, 'timezones' => $timezones, 'state' => $state, 'states' => $states, 'is2faEnabled' => $is2faEnabled, 'dateSinceEnabled' => $dateSinceEnabled]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

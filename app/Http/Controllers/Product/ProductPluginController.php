@@ -42,6 +42,7 @@ class ProductPluginController extends Controller
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -76,6 +77,7 @@ class ProductPluginController extends Controller
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

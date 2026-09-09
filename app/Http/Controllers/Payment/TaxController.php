@@ -42,6 +42,7 @@ class TaxController extends Controller
             ]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'), 500);
         }
     }
@@ -86,6 +87,7 @@ class TaxController extends Controller
             return successResponse(__('message.tax_fetched'), $rates);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -114,6 +116,7 @@ class TaxController extends Controller
             ]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -132,6 +135,7 @@ class TaxController extends Controller
             return successResponse(__('message.created-successfully'), ['tax' => $rate]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'), 500);
         }
     }
@@ -156,6 +160,7 @@ class TaxController extends Controller
             return successResponse(__('message.tax_updated_successfully'), ['tax' => $rate]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -179,6 +184,7 @@ class TaxController extends Controller
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'), 500);
         }
     }
@@ -194,6 +200,7 @@ class TaxController extends Controller
             return successResponse('', ['states' => $states]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -218,6 +225,7 @@ class TaxController extends Controller
             return successResponse(__('message.tax_settings_saved_successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

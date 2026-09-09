@@ -47,6 +47,7 @@ class SettingsController extends Controller
             ]);
         } catch (Throwable $throwable) {
             \Logger::exception($throwable);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -94,6 +95,7 @@ class SettingsController extends Controller
             ]);
         } catch (Throwable $throwable) {
             \Logger::exception($throwable);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -113,6 +115,7 @@ class SettingsController extends Controller
             return successResponse(__('message.mailchimp_setting_successfully_saved'));
         } catch (Throwable $throwable) {
             \Logger::exception($throwable);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -186,6 +189,7 @@ class SettingsController extends Controller
             ]);
         } catch (Throwable $throwable) {
             \Logger::exception($throwable);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -200,6 +204,7 @@ class SettingsController extends Controller
             return successResponse(__('message.updated-successfully'));
         } catch (Throwable $throwable) {
             \Logger::exception($throwable);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -228,6 +233,7 @@ class SettingsController extends Controller
             return successResponse(__('message.updated-successfully'));
         } catch (Throwable $throwable) {
             \Logger::exception($throwable);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

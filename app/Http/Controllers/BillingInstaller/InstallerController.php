@@ -123,6 +123,7 @@ class InstallerController extends Controller
             $this->env($default, $host, $port, $database, $dbusername, $dbpassword, sslKey: $sslKey, sslCert: $sslCert, sslCa: $sslCa, sslVerify: $sslVerify);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return response()->json(['result' => __('message.sorry_something_wrong')], 500);
         }
 
@@ -357,6 +358,7 @@ class InstallerController extends Controller
             return successResponse(__('installer_messages.setup_completed'), '201');
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             // Return error response in case of exception
             return errorResponse(__('message.sorry_something_wrong'), 400);
         }

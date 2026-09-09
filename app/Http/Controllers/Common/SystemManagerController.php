@@ -62,6 +62,7 @@ class SystemManagerController extends Controller
             return successResponse('', $response);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -91,6 +92,7 @@ class SystemManagerController extends Controller
             return successResponse('', $users);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -121,6 +123,7 @@ class SystemManagerController extends Controller
             return successResponse(__('message.manager_settings_updated_successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

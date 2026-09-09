@@ -44,6 +44,7 @@ class DeployController extends Controller
             return errorResponse(__('message.record_not_found'));
         } catch (\Exception $e) {
             \Logger::exception($e);
+
             return errorResponse(__('message.sorry_something_wrong'), 500);
         }
     }
@@ -100,6 +101,7 @@ class DeployController extends Controller
             };
         } catch (\Exception $e) {
             \Logger::exception($e);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

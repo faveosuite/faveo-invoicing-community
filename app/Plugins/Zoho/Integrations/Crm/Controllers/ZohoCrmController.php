@@ -46,6 +46,7 @@ class ZohoCrmController extends ZohoBaseController
             return successResponse('CRM fields synced successfully');
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -82,6 +83,7 @@ class ZohoCrmController extends ZohoBaseController
             return errorResponse($exception->getMessage());
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

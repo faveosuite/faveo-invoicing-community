@@ -86,6 +86,7 @@ class ThirdPartyAppController extends Controller
             echo $code;
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
 
@@ -159,6 +160,7 @@ class ThirdPartyAppController extends Controller
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

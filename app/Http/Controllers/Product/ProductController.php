@@ -237,6 +237,7 @@ class ProductController extends BaseProductController
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.errors_occurs_delete_product'));
         }
     }
@@ -261,6 +262,7 @@ class ProductController extends BaseProductController
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -297,6 +299,7 @@ class ProductController extends BaseProductController
             return successResponse(__('message.product_uploaded_successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -357,6 +360,7 @@ class ProductController extends BaseProductController
             return successResponse(__('message.product_uploaded_successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -428,6 +432,7 @@ class ProductController extends BaseProductController
             return successResponse('', $uploads);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -456,6 +461,7 @@ class ProductController extends BaseProductController
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -511,6 +517,7 @@ class ProductController extends BaseProductController
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -537,6 +544,7 @@ class ProductController extends BaseProductController
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -617,6 +625,7 @@ class ProductController extends BaseProductController
             return successResponse(__('message.saved-successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -707,6 +716,7 @@ class ProductController extends BaseProductController
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

@@ -208,6 +208,7 @@ class OrderController extends BaseOrderController
             return successResponse('', $paginated);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -284,6 +285,7 @@ class OrderController extends BaseOrderController
             return successResponse('', $installationDetails);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -312,6 +314,7 @@ class OrderController extends BaseOrderController
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -462,6 +465,7 @@ class OrderController extends BaseOrderController
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

@@ -75,6 +75,7 @@ class QueueController extends Controller
             return successResponse('', $queueIdData);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }

@@ -409,6 +409,7 @@ trait ApiKeySettings
             ]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -428,6 +429,7 @@ trait ApiKeySettings
             return successResponse(trans('message.setting_updated'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
@@ -462,6 +464,7 @@ trait ApiKeySettings
             return successResponse(__('message.updated_successfully'));
         } catch (\Exception $e) {
             \Logger::exception($e);
+
             return errorResponse(__('message.sorry_something_wrong'));
         }
     }
