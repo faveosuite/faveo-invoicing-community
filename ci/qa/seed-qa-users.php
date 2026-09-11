@@ -36,11 +36,11 @@
  * before the workspace was switched to the pull request's code (see
  * executeForPr's tools-snapshot step in the pipeline script).
  */
-$appRoot = getenv('QA_APP_ROOT') ?: __DIR__ . '/../..';
+$appRoot = getenv('QA_APP_ROOT') ?: __DIR__.'/../..';
 
-require $appRoot . '/vendor/autoload.php';
+require $appRoot.'/vendor/autoload.php';
 
-$app = require_once $appRoot . '/bootstrap/app.php';
+$app = require_once $appRoot.'/bootstrap/app.php';
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 use App\User;
@@ -76,24 +76,24 @@ function ensure_user(string $email, string $password, string $role, string $user
     $user = User::updateOrCreate(
         ['email' => $email],
         [
-            'user_name'       => $userName,
-            'first_name'      => 'QA',
-            'last_name'       => ucfirst($role),
-            'password'        => Hash::make($password),
-            'company'         => 'QA Instance',
-            'mobile'          => '',
-            'mobile_code'     => '',
-            'address'         => '',
-            'town'            => '',
-            'country'         => 'IN',
-            'state'           => 'IN-KA',
-            'zip'             => '',
-            'currency'        => 'INR',
-            'role'            => $role,
-            'active'          => 1,
+            'user_name' => $userName,
+            'first_name' => 'QA',
+            'last_name' => ucfirst($role),
+            'password' => Hash::make($password),
+            'company' => 'QA Instance',
+            'mobile' => '',
+            'mobile_code' => '',
+            'address' => '',
+            'town' => '',
+            'country' => 'IN',
+            'state' => 'IN-KA',
+            'zip' => '',
+            'currency' => 'INR',
+            'role' => $role,
+            'active' => 1,
             'mobile_verified' => 1,
-            'email_verified'  => 1,
-            'is_2fa_enabled'  => 0,
+            'email_verified' => 1,
+            'is_2fa_enabled' => 0,
         ]
     );
 
@@ -103,7 +103,7 @@ function ensure_user(string $email, string $password, string $role, string $user
 }
 
 $cast = [
-    'admin'  => ['email' => env_required('QA_ADMIN_EMAIL'),  'password' => env_required('QA_ADMIN_PASSWORD'),  'role' => 'admin', 'user_name' => 'qa_admin'],
+    'admin' => ['email' => env_required('QA_ADMIN_EMAIL'),  'password' => env_required('QA_ADMIN_PASSWORD'),  'role' => 'admin', 'user_name' => 'qa_admin'],
     'client' => ['email' => env_required('QA_CLIENT_EMAIL'), 'password' => env_required('QA_CLIENT_PASSWORD'), 'role' => 'user',  'user_name' => 'qa_client'],
 ];
 
@@ -126,8 +126,8 @@ if ($usersFile) {
     foreach ($ids as $name => $id) {
         $published[$name] = [
             'email' => $cast[$name]['email'],
-            'id'    => $id,
-            'role'  => $cast[$name]['role'],
+            'id' => $id,
+            'role' => $cast[$name]['role'],
         ];
     }
 
