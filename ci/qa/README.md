@@ -11,9 +11,9 @@ deterministic security/API probes underneath the agent. QA Touch (project key
 
 **The top-level pipeline definition is deliberately NOT in this repo.** It is
 pasted directly into a Jenkins job's "Pipeline script" field (Jenkins' own
-config, not SCM) — see `JENKINS-PIPELINE-SCRIPT.groovy` and `SETUP.md`,
-produced alongside this directory but not committed. Everything else — the
-helper scripts, prompts, and this file — lives here under `ci/qa/`.
+config, not SCM) — see whoever administers that job for its current copy.
+Everything else — the helper scripts, prompts, and this file — lives here
+under `ci/qa/`.
 
 ```
 Issue created
@@ -202,6 +202,6 @@ issue.
 
 Then run the offline tests locally: `bash ci/qa/tests/run.sh`.
 
-See `SETUP.md` (produced alongside `JENKINS-PIPELINE-SCRIPT.groovy`, not in
-this repo) for the Jenkins job configuration, credentials, and node
-requirements.
+Jenkins job configuration, credentials, and node requirements are documented
+alongside the pipeline script itself, not in this repo — ask whoever set up
+the job.
