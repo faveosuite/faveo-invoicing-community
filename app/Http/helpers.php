@@ -1222,4 +1222,4 @@ function exceptionResponse(Throwable $exception): \Illuminate\Http\JsonResponse
     );
 }
 
-// This is test
+// This is tests
