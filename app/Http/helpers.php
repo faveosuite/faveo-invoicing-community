@@ -1223,4 +1223,3 @@ function exceptionResponse(Throwable $exception): \Illuminate\Http\JsonResponse
 }
 
 // This is test
-
