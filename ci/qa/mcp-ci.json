@@ -1,0 +1,39 @@
+{
+  "_comment": [
+    "MCP servers for the Stage 3 executor. The Chrome extension used for local",
+    "browser work does not exist on a build node, so headless Playwright is the",
+    "driver here.",
+    "",
+    "--browser chrome is deliberate. Without it Playwright MCP launches its own",
+    "bundled chromium, which is a second browser to install and keep matched on a",
+    "node that already has Google Chrome for the Dusk suite (Dusk requires a real",
+    "Chrome plus a version-matched chromedriver). One browser, three consumers:",
+    "this server and php artisan dusk. On a node with no",
+    "system Chrome, drop the flag and run `playwright install chromium` instead.",
+    "",
+    "--ignore-https-errors is kept as cheap insurance, not because this app forces",
+    "HTTPS — it doesn't (no URL::forceScheme('https'), no tls-proxy in front of the",
+    "disposable instance). If a future instance ever sits behind self-signed TLS",
+    "for an unrelated reason, this flag is what keeps the agent from silently",
+    "falling back to driving specs through Bash instead of the browser.",
+    "",
+    "The QA Touch MCP server is deliberately NOT used: Stage 3 calls the API",
+    "through ci/qa/qatouch-client.sh so both stages share one client and one set",
+    "of documented workarounds. See ci/qa/qatouch-facts.md."
+  ],
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest",
+        "--browser",
+        "chrome",
+        "--headless",
+        "--ignore-https-errors",
+        "--isolated",
+        "--viewport-size=1440,900"
+      ]
+    }
+  }
+}
