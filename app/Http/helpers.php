@@ -1221,3 +1221,6 @@ function exceptionResponse(Throwable $exception): \Illuminate\Http\JsonResponse
         500
     );
 }
+
+// This is test
+
