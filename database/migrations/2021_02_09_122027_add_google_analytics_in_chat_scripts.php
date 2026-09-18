@@ -8,12 +8,10 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('chat_scripts', function (Blueprint $table) {
+        Schema::table('chat_scripts', function (Blueprint $table): void {
             $table->boolean('on_registration')->default(0);
             $table->boolean('on_every_page')->default(1);
             $table->boolean('google_analytics')->default(1);
@@ -23,12 +21,10 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('chat_scripts', function (Blueprint $table) {
+        Schema::table('chat_scripts', function (Blueprint $table): void {
             $table->dropColumn('on_registration');
             $table->dropColumn('on_every_page');
             $table->dropColumn('google_analytics');

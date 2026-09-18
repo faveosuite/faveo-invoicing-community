@@ -27,10 +27,13 @@ use Aws\Endpoint\UseFipsEndpoint\ConfigurationProvider as UseFipsConfigProvider;
 use Aws\EndpointDiscovery\ConfigurationInterface;
 use Aws\EndpointDiscovery\ConfigurationProvider;
 use Aws\EndpointV2\EndpointDefinitionProvider;
+use Aws\EndpointV2\EndpointProviderV2;
 use Aws\Exception\AwsException;
 use Aws\Exception\InvalidRegionException;
 use Aws\Retry\ConfigurationInterface as RetryConfigInterface;
 use Aws\Retry\ConfigurationProvider as RetryConfigProvider;
+use Aws\Retry\V3\OptIn as NewRetriesOptIn;
+use Aws\Retry\V3\RetryMiddleware as RetryV3Middleware;
 use Aws\Signature\SignatureProvider;
 use Aws\Token\Token;
 use Aws\Token\TokenInterface;
@@ -547,28 +550,42 @@ class ClientResolver
     public static function _apply_retries($value, array &$args, HandlerList $list)
     {
         // A value of 0 for the config option disables retries
-        if ($value) {
-            $config = RetryConfigProvider::unwrap($value);
-
-            if ($config->getMode() === 'legacy') {
-                // # of retries is 1 less than # of attempts
-                $decider = RetryMiddleware::createDefaultDecider(
-                    $config->getMaxAttempts() - 1
-                );
-                $list->appendSign(
-                    Middleware::retry($decider, null, $args['stats']['retries']),
-                    'retry'
-                );
-            } else {
-                $list->appendSign(
-                    RetryMiddlewareV2::wrap(
-                        $config,
-                        ['collect_stats' => $args['stats']['retries']]
-                    ),
-                    'retry'
-                );
-            }
+        if (!$value) {
+            return;
         }
+
+        $config = RetryConfigProvider::unwrap($value);
+
+        if ($config->getMode() === 'legacy') {
+            // # of retries is 1 less than # of attempts
+            $decider = RetryMiddleware::createDefaultDecider(
+                $config->getMaxAttempts() - 1
+            );
+            $list->appendSign(
+                Middleware::retry($decider, null, $args['stats']['retries']),
+                'retry'
+            );
+            return;
+        }
+
+        if (NewRetriesOptIn::isEnabled()) {
+            $list->appendSign(
+                RetryV3Middleware::wrap($config, [
+                    'collect_stats' => $args['stats']['retries'],
+                    'service'       => $args['service'],
+                ]),
+                'retry'
+            );
+            return;
+        }
+
+        $list->appendSign(
+            RetryMiddlewareV2::wrap(
+                $config,
+                ['collect_stats' => $args['stats']['retries']]
+            ),
+            'retry'
+        );
     }
 
     public static function _apply_defaults($value, array &$args, HandlerList $list)
@@ -791,7 +808,7 @@ class ClientResolver
     public static function _apply_endpoint_provider($value, array &$args)
     {
         if (!isset($args['endpoint'])) {
-            if ($value instanceof \Aws\EndpointV2\EndpointProviderV2) {
+            if ($value instanceof EndpointProviderV2) {
                 $options = self::getEndpointProviderOptions($args);
                 $value = PartitionEndpointProvider::defaultProvider($options)
                     ->getPartition($args['region'], $args['service']);
@@ -1112,14 +1129,13 @@ class ClientResolver
         if (self::isValidService($serviceName)
             && self::isValidApiVersion($serviceName, $apiVersion)
         ) {
-            $ruleset = EndpointDefinitionProvider::getEndpointRuleset(
+            $partitions = EndpointDefinitionProvider::getPartitions();
+            $parsed = EndpointDefinitionProvider::getParsedRuleset(
                 $service->getServiceName(),
-                $service->getApiVersion()
+                $service->getApiVersion(),
+                $partitions
             );
-            return new \Aws\EndpointV2\EndpointProviderV2(
-                $ruleset,
-                EndpointDefinitionProvider::getPartitions()
-            );
+            return new EndpointProviderV2($parsed, $partitions);
         }
         $options = self::getEndpointProviderOptions($args);
         return PartitionEndpointProvider::defaultProvider($options)
@@ -1167,7 +1183,7 @@ class ClientResolver
         }
 
         // Assign user's preferred auth scheme list
-        $args['auth_scheme_preference'] = $value;
+        $args['config']['auth_scheme_preference'] = $value;
     }
 
     public static function _default_signature_version(array &$args)
@@ -1246,12 +1262,6 @@ class ClientResolver
         } elseif (!empty($_ENV["AWS_SUPPRESS_PHP_DEPRECATION_WARNING"])) {
             $args['suppress_php_deprecation_warning'] =
                 \Aws\boolean_value($_ENV["AWS_SUPPRESS_PHP_DEPRECATION_WARNING"]);
-        }
-
-        if ($args['suppress_php_deprecation_warning'] === false
-            && PHP_VERSION_ID < 80100
-        ) {
-            self::emitDeprecationWarning();
         }
     }
 
@@ -1438,23 +1448,6 @@ EOT;
         }
         return is_dir(
             __DIR__ . "/data/{$service}/$apiVersion"
-        );
-    }
-
-    private static function emitDeprecationWarning()
-    {
-        $phpVersionString = phpversion();
-        trigger_error(
-            "This installation of the SDK is using PHP version"
-            .  " {$phpVersionString}, which will be deprecated on January"
-            .  " 13th, 2025.\nPlease upgrade your PHP version to a minimum of"
-            .  " 8.1.x to continue receiving updates for the AWS"
-            .  " SDK for PHP.\nTo disable this warning, set"
-            .  " suppress_php_deprecation_warning to true on the client constructor"
-            .  " or set the environment variable AWS_SUPPRESS_PHP_DEPRECATION_WARNING"
-            .  " to true.\nMore information can be found at: "
-            .   "https://aws.amazon.com/blogs/developer/announcing-the-end-of-support-for-php-runtimes-8-0-x-and-below-in-the-aws-sdk-for-php/\n",
-            E_USER_DEPRECATED
         );
     }
 }

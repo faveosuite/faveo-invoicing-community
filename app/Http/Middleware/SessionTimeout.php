@@ -4,10 +4,10 @@ namespace App\Http\Middleware;
 
 use Carbon\Carbon;
 use Closure;
-use HTTP;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Session;
 
 class SessionTimeout
@@ -15,15 +15,14 @@ class SessionTimeout
     /**
      * Handle an incoming request and manage session timeout for verification/2FA.
      *
-     * @param  Request  $request
      * @param  Closure(Request): (Response|RedirectResponse)  $next
      * @param  int  $timeoutMinutes  The session timeout threshold in minutes (default: 10).
      * @param  string  $sessionKey  The session key used to track verification activity.
-     * @return HTTP|RedirectResponse
+     * @return Response|RedirectResponse
      */
     public function handle(Request $request, Closure $next, int $timeoutMinutes = 10, string $sessionKey = 'lastVerificationActivity')
     {
-        $now = Carbon::now();
+        $now = Date::now();
 
         // Reset timer if new verification/2FA flow just started
         if ($this->shouldResetTimer()) {
@@ -40,14 +39,14 @@ class SessionTimeout
         }
 
         // Check for timeout
-        $lastActivity = Carbon::createFromTimestampUTC(Session::get($sessionKey));
-        $elapsedMinutes = (int) $lastActivity->diffInMinutes($now, true);
+        $lastActivity = Date::createFromTimestampUTC(Session::get($sessionKey));
+        $elapsedMinutes = (int) $lastActivity->diffInMinutes($now, absolute: true);
         if ($elapsedMinutes >= $timeoutMinutes) {
             $this->expireSession($sessionKey);
 
-            return $request->expectsJson()
+            return $request->expectsJson() // @phpstan-ignore return.type
                 ? errorResponse('Your session has expired. Please log in again to continue.', 401)
-                : redirect()->route('login')->with('fails', 'Your session has expired. Please log in again to continue.');
+                : to_route('login')->with('fails', 'Your session has expired. Please log in again to continue.');
         }
 
         return $next($request);
@@ -55,8 +54,6 @@ class SessionTimeout
 
     /**
      * Determine if the timer should be reset due to fresh verification or 2FA start.
-     *
-     * @return bool
      */
     private function shouldResetTimer(): bool
     {
@@ -65,21 +62,14 @@ class SessionTimeout
 
     /**
      * Reset or start a new verification session timer.
-     *
-     * @param  string  $sessionKey
-     * @param  Carbon|null  $time
-     * @return void
      */
     private function resetVerificationTimer(string $sessionKey, ?Carbon $time = null): void
     {
-        Session::put($sessionKey, ($time ?? Carbon::now())->timestamp);
+        Session::put($sessionKey, ($time ?? Date::now())->timestamp);
     }
 
     /**
      * Expire the current verification session and notify the user.
-     *
-     * @param  string  $sessionKey
-     * @return void
      */
     private function expireSession(string $sessionKey): void
     {

@@ -11,6 +11,7 @@ namespace PHPUnit\TextUI\Command;
 
 use const E_ALL;
 use const PHP_EOL;
+use function assert;
 use function extension_loaded;
 use function in_array;
 use function ini_get;
@@ -54,7 +55,13 @@ final readonly class CheckPhpConfigurationCommand implements Command
             if (in_array($actualValue, $setting['expectedValues'], true)) {
                 $check = $this->ok();
             } else {
-                $check         = $this->notOk($actualValue);
+                $actualValueAsString = '';
+
+                if ($actualValue !== false) {
+                    $actualValueAsString = $actualValue;
+                }
+
+                $check         = $this->notOk($actualValueAsString);
                 $shellExitCode = 1;
             }
 
@@ -100,7 +107,11 @@ final readonly class CheckPhpConfigurationCommand implements Command
         }
 
         // @codeCoverageIgnoreStart
-        return Color::colorizeTextBox('fg-green, bold', 'ok');
+        $result = Color::colorizeTextBox('fg-green, bold', 'ok');
+
+        assert($result !== '');
+
+        return $result;
         // @codeCoverageIgnoreEnd
     }
 
@@ -116,7 +127,11 @@ final readonly class CheckPhpConfigurationCommand implements Command
         }
 
         // @codeCoverageIgnoreStart
-        return Color::colorizeTextBox('fg-red, bold', $message);
+        $result = Color::colorizeTextBox('fg-red, bold', $message);
+
+        assert($result !== '');
+
+        return $result;
         // @codeCoverageIgnoreEnd
     }
 

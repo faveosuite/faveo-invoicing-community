@@ -8,14 +8,12 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('mobile')) {
-            Schema::create('mobile', function (Blueprint $table) {
-                $table->integer('id', true);
+            Schema::create('mobile', function (Blueprint $table): void {
+                $table->integer('id', autoIncrement: true);
                 $table->char('iso', 2);
                 $table->string('name', 80);
                 $table->string('nicename', 80);
@@ -28,10 +26,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('mobile');
     }

@@ -31,6 +31,10 @@ final class Factory
      */
     private array $defaultComparators = [];
 
+    /** @var positive-int */
+    private int $contextLines               = 3;
+    private bool $closureComparisonOccurred = false;
+
     public static function getInstance(): self
     {
         if (self::$instance === null) {
@@ -43,6 +47,40 @@ final class Factory
     public function __construct()
     {
         $this->registerDefaultComparators();
+    }
+
+    /**
+     * @return positive-int
+     */
+    public function contextLines(): int
+    {
+        return $this->contextLines;
+    }
+
+    /**
+     * @param positive-int $contextLines
+     */
+    public function setContextLines(int $contextLines): void
+    {
+        $this->contextLines = $contextLines;
+    }
+
+    /**
+     * @internal this method is called by ClosureComparator and is not part of the consumer-facing API
+     */
+    public function recordClosureComparison(): void
+    {
+        $this->closureComparisonOccurred = true;
+    }
+
+    public function closureComparisonOccurred(): bool
+    {
+        return $this->closureComparisonOccurred;
+    }
+
+    public function resetClosureComparisonTracking(): void
+    {
+        $this->closureComparisonOccurred = false;
     }
 
     public function getComparatorFor(mixed $expected, mixed $actual): Comparator
@@ -103,6 +141,7 @@ final class Factory
         $this->registerDefaultComparator(new ClosureComparator);
         $this->registerDefaultComparator(new MockObjectComparator);
         $this->registerDefaultComparator(new DateTimeComparator);
+        $this->registerDefaultComparator(new DateIntervalComparator);
         $this->registerDefaultComparator(new DOMNodeComparator);
         $this->registerDefaultComparator(new SplObjectStorageComparator);
         $this->registerDefaultComparator(new ExceptionComparator);

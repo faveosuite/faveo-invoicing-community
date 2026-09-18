@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 **add_time** | **string** | The date and time when the person was added/created. Format: YYYY-MM-DD HH:MM:SS | [optional]
 **update_time** | **string** | The last updated date and time of the person. Format: YYYY-MM-DD HH:MM:SS | [optional]
 **visible_to** | **string** | The visibility group ID of who can see the person | [optional]
-**picture_id** | [**\Pipedrive\versions\v1\Model\PictureDataWithID**](PictureDataWithID.md) |  | [optional]
+**picture_id** | [**\Pipedrive\versions\v1\Model\PictureDataWithID1**](PictureDataWithID1.md) |  | [optional]
 **label** | **int** | The label assigned to the person. When the &#x60;label&#x60; field is updated, the &#x60;label_ids&#x60; field value will be overwritten by the &#x60;label&#x60; field value. | [optional]
 **label_ids** | **int[]** | The IDs of labels assigned to the person. When the &#x60;label_ids&#x60; field is updated, the &#x60;label&#x60; field value will be set to the first value of the &#x60;label_ids&#x60; field. | [optional]
 **org_name** | **string** | The name of the organization associated with the person | [optional]

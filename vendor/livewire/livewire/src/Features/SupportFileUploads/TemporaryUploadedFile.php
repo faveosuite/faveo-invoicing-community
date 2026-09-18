@@ -176,7 +176,7 @@ class TemporaryUploadedFile extends UploadedFile
     {
         $options = $this->parseOptions($options);
 
-        $disk = Arr::pull($options, 'disk') ?: $this->disk;
+        $disk = Arr::pull($options, 'disk') ?: config('filesystems.default');
 
         $newPath = trim($path.'/'.$name, '/');
 
@@ -235,7 +235,9 @@ class TemporaryUploadedFile extends UploadedFile
         if (is_null($this->metaFileData)) {
             $this->metaFileData = [];
 
-            if ($contents = $this->storage->get($this->path.'.json')) {
+            // S3 uploads don't have a meta file — the original filename is
+            // embedded in the file path instead, so skip the lookup entirely.
+            if (! $this->isActuallyUsingS3() && $contents = $this->storage->get($this->path.'.json')) {
                 $contents = json_decode($contents, true);
 
                 $this->metaFileData = $contents;
@@ -244,18 +246,21 @@ class TemporaryUploadedFile extends UploadedFile
         return $this->metaFileData;
     }
 
+    protected function isActuallyUsingS3(): bool
+    {
+        $diskConfig = config('filesystems.disks.' . $this->disk);
+
+        return is_array($diskConfig) && ($diskConfig['driver'] ?? null) === 's3';
+    }
+
     public static function createFromLivewire($filePath)
     {
         return new static($filePath, FileUploadConfiguration::disk());
     }
 
-    /**
-     * Generate a short token for a given path using the app key and session ID.
-     * This ensures tokens are unique per session and cannot be forged without the app key.
-     */
     protected static function generateToken(string $path): string
     {
-        return substr(hash_hmac('sha256', $path, app('encrypter')->getKey() . session()->getId()), 0, 8);
+        return substr(hash_hmac('sha256', $path, app('encrypter')->getKey()), 0, 8);
     }
 
     public static function signPath(string $path): string

@@ -14,12 +14,12 @@ namespace Stripe;
  * @property string $id Unique identifier for the object.
  * @property string $object String representing the object's type. Objects of the same type share the same value.
  * @property bool $active Whether the promotion code is currently active. A promotion code is only active if the coupon is also valid.
- * @property string $code The customer-facing code. Regardless of case, this code must be unique across all active promotion codes for each customer. Valid characters are lower case letters (a-z), upper case letters (A-Z), and digits (0-9).
+ * @property string $code The customer-facing code. Regardless of case, this code must be unique across all active promotion codes for each customer. Valid characters are lower case letters (a-z), upper case letters (A-Z), digits (0-9), and dashes (-).
  * @property int $created Time at which the object was created. Measured in seconds since the Unix epoch.
  * @property null|Customer|string $customer The customer who can use this promotion code.
  * @property null|string $customer_account The account representing the customer who can use this promotion code.
  * @property null|int $expires_at Date at which the promotion code can no longer be redeemed.
- * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
+ * @property bool $livemode If the object exists in live mode, the value is <code>true</code>. If the object exists in test mode, the value is <code>false</code>.
  * @property null|int $max_redemptions Maximum number of times this promotion code can be redeemed.
  * @property null|StripeObject $metadata Set of <a href="https://docs.stripe.com/api/metadata">key-value pairs</a> that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
  * @property (object{coupon: null|Coupon|string, type: string}&StripeObject) $promotion

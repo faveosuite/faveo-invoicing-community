@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'accepted' => ':attribute må godtas.',
     'accepted_if' => ':attribute må godtas når :other er :value.',
     'active_url' => ':attribute er ikke en gyldig URL.',
@@ -25,6 +24,7 @@ return [
     'date' => ':attribute er ikke en gyldig dato.',
     'date_equals' => ':attribute må være en dato lik :date.',
     'date_format' => ':attribute samsvarer ikke med formatet :format.',
+    'decimal' => 'Feltet :attribute må ha :decimal desimaler.',
     'declined' => ':attribute må avslås.',
     'declined_if' => ':attribute må avslås når :other er :value.',
     'different' => ':attribute og :other må være forskjellige.',
@@ -91,11 +91,11 @@ return [
     'not_regex' => ':attribute formatet er ugyldig.',
     'numeric' => ':attribute må være et tall.',
     'password' => [
-        'letters' => ':attribute må inneholde minst ett bokstav.',
-        'mixed' => ':attribute må inneholde minst en stor bokstav og en liten bokstav.',
+        'letters' => ':attribute må inneholde minst én bokstav.',
+        'mixed' => ':attribute må inneholde minst én stor og én liten bokstav.',
         'numbers' => ':attribute må inneholde minst ett tall.',
         'symbols' => ':attribute må inneholde minst ett symbol.',
-        'uncompromised' => 'Den gitte :attribute har dukket opp i et datalekkasjearkiv. Velg et annet :attribute.',
+        'uncompromised' => 'Den gitte :attribute har dukket opp i en datalekkasje. Velg en annen :attribute.',
     ],
     'present' => ':attribute-feltet må være til stede.',
     'prohibited' => ':attribute-feltet er forbudt.',
@@ -125,6 +125,11 @@ return [
     'uploaded' => ':attribute feilet under opplastingen.',
     'url' => ':attribute må være en gyldig URL.',
     'uuid' => ':attribute må være et gyldig UUID.',
+    'custom_dup' => [
+        'attribute-name' => [
+            'rule-name' => 'tilpasset melding',
+        ],
+    ],
     'attributes' => [],
     'publish_date_required' => 'Publiseringsdato er påkrevd',
     'price_numeric_value' => 'Prisen må være et numerisk verdi',
@@ -141,11 +146,6 @@ return [
     'total_amount_required' => 'Totalbeløp er påkrevd.',
     'total_amount_numeric' => 'Totalbeløp må være et numerisk verdi.',
     'invoice_link_required' => 'Vennligst koble beløpet med minst én faktura.',
-    /*
-    Request file custom validation messages
-    */
-
-    //Common
     'settings_form' => [
         'company' => [
             'required' => 'Firmafeltet er påkrevd.',
@@ -180,7 +180,6 @@ return [
             'email' => 'Feil e-post må være en gyldig e-postadresse.',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => 'Firmanavnet er påkrevd.',
@@ -211,7 +210,7 @@ return [
             'required' => 'Landet er påkrevd.',
         ],
         'gstin' => [
-            'max' => 'GSTIN kan ikke overstige 15 tegn.',
+            'regex' => 'GSTIN-formatet er ugyldig.',
         ],
         'default_currency' => [
             'required' => 'Standardvalutaen er påkrevd.',
@@ -229,7 +228,10 @@ return [
             'max' => 'Logoen kan ikke være større enn 2 MB.',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'OG-bildet må være en fil av typen:jpeg, png, jpg, webp.',
+        'max' => 'OG-bildet kan ikke være større enn 2 MB.',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => 'Navnfeltet er påkrevd.',
@@ -241,9 +243,13 @@ return [
             'url' => 'Lenken må være en gyldig URL.',
             'regex' => 'Lenkeformat er ugyldig.',
         ],
+        'class' => [
+            'required' => 'Ikonklassefeltet er obligatorisk.',
+        ],
+        'fa_class' => [
+            'required' => 'Ikonklassefeltet er obligatorisk.',
+        ],
     ],
-
-    //Email
     'custom' => [
         'password' => [
             'required_if' => 'Passordfeltet er påkrevd for den valgte e-postdriveren.',
@@ -279,7 +285,6 @@ return [
             'required' => 'Driver-feltet er påkrevd.',
         ],
     ],
-
     'customer_form' => [
         'first_name' => [
             'required' => 'Fornavnfeltet er påkrevd.',
@@ -319,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => 'Robotverifisering mislyktes. Vennligst prøv igjen.',
         'demo-recaptcha-response-1.required' => 'Robotverifisering mislyktes. Vennligst prøv igjen.',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => 'Navnfeltet er påkrevd.',
@@ -332,6 +336,7 @@ return [
         ],
         'slug' => [
             'required' => 'Slug-feltet er påkrevd.',
+            'unique' => 'Denne sneglen eksisterer allerede.',
         ],
         'url' => [
             'required' => 'URL-feltet er påkrevd.',
@@ -344,8 +349,12 @@ return [
         'created_at' => [
             'required' => 'Opprettelsesfeltet er påkrevd.',
         ],
+        'parent_page_id' => [
+            'exists' => 'Den valgte overordnede siden eksisterer ikke.',
+            'self' => 'En side kan ikke være sin egen forelder.',
+            'nested' => 'Den valgte siden er allerede en underside og kan ikke brukes som forelder.',
+        ],
     ],
-
     'order_form' => [
         'client' => [
             'required' => 'Kunde-feltet er påkrevd.',
@@ -372,7 +381,6 @@ return [
             'integer' => 'Antallet må være et heltall.',
         ],
     ],
-
     'coupon_form' => [
         'code' => [
             'required' => 'Kampanjekode-feltet er påkrevd.',
@@ -405,9 +413,9 @@ return [
             'required' => 'Feltet for rabattverdi er påkrevd.',
             'numeric' => 'Feltet for rabattverdi må være et tall.',
             'between' => 'Feltet for rabattverdi må være mellom :min og :max hvis typen er prosentandel.',
+            'max' => 'Rabattverdien kan ikke overstige produktets pris (:max).',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => 'Navnfeltet er påkrevd.',
@@ -415,6 +423,12 @@ return [
         'rate' => [
             'required' => 'Satsfeltet er påkrevd.',
             'numeric' => 'Satsen må være et tall.',
+            'decimal' => 'Satsen må ha maksimalt 3 desimaler.',
+            'max' => 'Satsen må ikke være høyere enn 999.999.',
+        ],
+        'priority' => [
+            'required' => 'Prioritetsfeltet er obligatorisk.',
+            'min' => 'Prioriteten må være minst 1.',
         ],
         'level' => [
             'required' => 'Nivåfeltet er påkrevd.',
@@ -422,14 +436,11 @@ return [
         ],
         'country' => [
             'required' => 'Land-feltet er påkrevd.',
-            // 'exists' => 'Det valgte landet er ugyldig.',
         ],
         'state' => [
             'required' => 'Stat-feltet er påkrevd.',
-            // 'exists' => 'Det valgte staten er ugyldig.',
         ],
     ],
-    //Product
     'subscription_form' => [
         'name' => [
             'required' => 'Navnfeltet er påkrevd.',
@@ -449,7 +460,6 @@ return [
             'required' => 'Produktfeltet er påkrevd.',
         ],
     ],
-
     'bundle' => [
         'name' => [
             'required' => 'Navnfeltet er påkrevd.',
@@ -458,10 +468,13 @@ return [
             'required' => 'Hvert element er påkrevd.',
         ],
     ],
-
     'group' => [
         'name' => [
             'required' => 'Navnet er påkrevd.',
+            'unique' => 'Dette navnet finnes allerede.',
+        ],
+        'pricing_templates_id' => [
+            'required' => 'Designmalen er påkrevd.',
         ],
         'features' => [
             'name' => [
@@ -485,13 +498,15 @@ return [
             'required_with' => 'Tittel-feltet er påkrevd.',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => 'Navnfeltet er påkrevd.',
         ],
         'type' => [
             'required' => 'Type-feltet er påkrevd.',
+        ],
+        'product_type' => [
+            'required' => 'Feltet for produktkategori er obligatorisk.',
         ],
         'group' => [
             'required' => 'Gruppefeltet er påkrevd.',
@@ -502,9 +517,6 @@ return [
         'currency' => [
             'required' => 'Valutafeltet er påkrevd.',
         ],
-        // 'price' => [
-        //     'required' => 'Feltet for pris er påkrevd.',
-        // ],
         'file' => [
             'required_without_all' => 'Fil-feltet er påkrevd hvis ingen av github_owner eller github_repository er oppgitt.',
             'mimes' => 'Filen må være en zip-fil.',
@@ -514,15 +526,18 @@ return [
             'mimes' => 'Bildet må være en PNG-fil.',
         ],
         'github_owner' => [
+            'required' => 'GitHub-eierfeltet er obligatorisk.',
             'required_without_all' => 'GitHub-eier-feltet er påkrevd hvis ingen av fil eller bilde er oppgitt.',
         ],
         'github_repository' => [
+            'required' => 'GitHub-depotfeltet er obligatorisk.',
             'required_without_all' => 'GitHub-repositoriefeltet er påkrevd hvis ingen av fil eller bilde er oppgitt.',
             'required_if' => 'GitHub-repositoriefeltet er påkrevd hvis typen er 2.',
         ],
+        'shoping_cart_link' => [
+            'required' => 'Feltet for handlekurvlenke er obligatorisk.',
+        ],
     ],
-
-    //User
     'users' => [
         'first_name' => [
             'required' => 'Fornavn-feltet er påkrevd.',
@@ -561,8 +576,10 @@ return [
         'zip' => [
             'regex' => 'Postnummer-feltet er påkrevd når landet er India.',
         ],
+        'gstin' => [
+            'regex' => 'GSTIN-formatet er ugyldig.',
+        ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => 'Fornavn er påkrevd.',
@@ -605,34 +622,35 @@ return [
         'state' => [
             'required_if' => 'Stat-feltet er påkrevd når landet er India.',
         ],
+        'gstin' => [
+            'regex' => 'GSTIN-formatet er ugyldig.',
+        ],
+        'old_password' => [
+            'required' => 'Gammelt passord kreves.',
+            'min' => 'Gammelt passord må være på minst :min tegn.',
+        ],
+        'new_password' => [
+            'required' => 'Nytt passord kreves.',
+            'different' => 'Det nye passordet må være forskjellig fra det gamle passordet.',
+        ],
+        'confirm_password' => [
+            'required' => 'Bekreft at passord kreves.',
+            'same' => 'Bekreft at passordet må samsvare med det nye passordet.',
+        ],
+        'terms' => [
+            'required' => 'Du må godta vilkårene.',
+        ],
+        'password' => [
+            'required' => 'Passord kreves.',
+        ],
+        'password_confirmation' => [
+            'required' => 'Passordbekreftelse er nødvendig.',
+            'same' => 'Passord stemmer ikke.',
+        ],
+        'mobile_code' => [
+            'required' => 'Skriv inn landskode (mobil)',
+        ],
     ],
-    'old_password' => [
-        'required' => 'Gamle passord er påkrevd.',
-        'min' => 'Det gamle passordet må være minst :min tegn.',
-    ],
-    'new_password' => [
-        'required' => 'Nytt passord er påkrevd.',
-        'different' => 'Det nye passordet må være forskjellig fra det gamle passordet.',
-    ],
-    'confirm_password' => [
-        'required' => 'Bekreft passord er påkrevd.',
-        'same' => 'Bekreft passord må matche nytt passord.',
-    ],
-    'terms' => [
-        'required' => 'Du må godta vilkårene.',
-    ],
-    'password' => [
-        'required' => 'Passord er påkrevd.',
-    ],
-    'password_confirmation' => [
-        'required' => 'Bekreftelse av passord er påkrevd.',
-        'same' => 'Passordene samsvarer ikke.',
-    ],
-    'mobile_code' => [
-        'required' => 'Oppgi landskode (mobil).',
-    ],
-
-    //Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Klientfeltet er påkrevd.',
@@ -642,7 +660,12 @@ return [
             'date' => 'Datoen må være en gyldig dato.',
         ],
         'domain' => [
+            'required' => 'Domenefeltet er obligatorisk.',
             'regex' => 'Domeneformatet er ugyldig.',
+        ],
+        'cloud_domain' => [
+            'required' => 'Skydomenefeltet er obligatorisk.',
+            'regex' => 'Bare bokstaver, tall og bindestreker er tillatt.',
         ],
         'plan' => [
             'required_if' => 'Abonnementsfeltet er påkrevd.',
@@ -654,89 +677,86 @@ return [
             'required' => 'Produkt-feltet er påkrevd.',
         ],
     ],
-
-    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Domene-feltet er påkrevd.',
             'url' => 'Domene må være en gyldig URL.',
         ],
     ],
-
-    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Domene-feltet er påkrevd.',
             'no_http' => 'Domene må ikke inneholde "http" eller "https".',
         ],
     ],
-
-    //Language form
     'language' => [
         'required' => 'Språk-feltet er påkrevd.',
         'invalid' => 'Det valgte språket er ugyldig.',
     ],
-
-    //UpdateStoragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Lagringsdisk-feltet er påkrevd.',
             'string' => 'Disken må være en streng.',
         ],
         'path' => [
+            'required' => 'Feltet for lagringsbane er obligatorisk.',
             'string' => 'Stien må være en streng.',
             'nullable' => 'Sti-feltet er valgfritt.',
+            'invalid' => 'Banen finnes ikke eller er ikke skrivbar.',
         ],
     ],
-
-    //ValidateSecretRequest form
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => 'Nodebanefeltet er obligatorisk.',
+            'string' => 'Nodebanen må være en gyldig streng.',
+        ],
+        'npm_path' => [
+            'required' => 'Feltet npm-bane er obligatorisk.',
+            'string' => 'npm-banen må være en gyldig streng.',
+        ],
+        'chrome_path' => [
+            'required' => 'Krombanefeltet er obligatorisk.',
+            'string' => 'Krombanen må være en gyldig streng.',
+            'invalid' => 'Krombanen finnes ikke eller er ikke kjørbar.',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => 'Vennligst oppgi kode.',
             'digits' => 'Vennligst oppgi en gyldig 6-sifret kode.',
         ],
     ],
-
-    //VerifyOtp form
     'verify_email' => [
         'required' => 'E-post-feltet er påkrevd.',
         'email' => 'E-posten må være en gyldig e-postadresse.',
-        'verify_email' => 'E-postverifiseringen feilet.', // Custom message for verify_email
+        'verify_email' => 'E-postverifiseringen feilet.',
     ],
-
     'verify_country_code' => [
         'required' => 'Landskode er påkrevd.',
         'numeric' => 'Landskode må være et gyldig nummer.',
-        'verify_country_code' => 'Verifisering av landskode feilet.', // Custom message for verify_country_code
+        'verify_country_code' => 'Verifisering av landskode feilet.',
     ],
-
     'verify_number' => [
         'required' => 'Nummeret er påkrevd.',
         'numeric' => 'Nummeret må være et gyldig nummer.',
-        'verify_number' => 'Verifisering av nummeret feilet.', // Custom message for verify_number
+        'verify_number' => 'Verifisering av nummeret feilet.',
     ],
-
     'password_otp' => [
         'required' => 'Passord-feltet er påkrevd.',
         'password' => 'Passordet er feil.',
         'invalid' => 'Ugyldig passord.',
     ],
-
-    //AuthController file
     'auth_controller' => [
         'name_required' => 'Navn er påkrevd.',
         'name_max' => 'Navn kan ikke være lengre enn 255 tegn.',
-
         'email_required' => 'E-post er påkrevd.',
         'email_email' => 'Vennligst skriv inn en gyldig e-postadresse.',
         'email_max' => 'E-post kan ikke være lengre enn 255 tegn.',
         'email_unique' => 'Denne e-posten er allerede registrert.',
-
         'password_required' => 'Passord er påkrevd.',
         'password_confirmed' => 'Passordbekreftelsen samsvarer ikke.',
         'password_min' => 'Passordet må være minst 6 tegn.',
     ],
-
     'resend_otp' => [
         'eid_required' => 'EID-feltet er påkrevd.',
         'eid_string' => 'EID må være en streng.',
@@ -744,7 +764,6 @@ return [
         'type_string' => 'Type må være en streng.',
         'type_in' => 'Den valgte typen er ugyldig.',
     ],
-
     'verify_otp' => [
         'eid_required' => 'Ansatt-ID er påkrevd.',
         'eid_string' => 'Ansatt-ID må være en streng.',
@@ -753,31 +772,26 @@ return [
         'recaptcha_required' => 'Vennligst fullfør CAPTCHA.',
         'recaptcha_size' => 'CAPTCHA-responsen er ugyldig.',
     ],
-
     'company_validation' => [
         'company_required' => 'Firmanavn er påkrevd.',
         'company_string' => 'Firma må være tekst.',
         'address_required' => 'Adresse er påkrevd.',
         'address_string' => 'Adresse må være tekst.',
     ],
-
     'token_validation' => [
         'token_required' => 'Token er påkrevd.',
         'password_required' => 'Passord-feltet er påkrevd.',
         'password_confirmed' => 'Passordbekreftelsen samsvarer ikke.',
     ],
-
     'custom_email' => [
         'required' => 'E-post-feltet er påkrevd.',
         'email' => 'Vennligst skriv inn en gyldig e-postadresse.',
         'exists' => 'Denne e-posten er ikke registrert hos oss.',
     ],
-
     'newsletterEmail' => [
         'required' => 'Nyhetsbrev-e-post er påkrevd.',
         'email' => 'Vennligst skriv inn en gyldig e-postadresse for nyhetsbrevet.',
     ],
-
     'widget' => [
         'name_required' => 'Navn er påkrevd.',
         'name_max' => 'Navn kan ikke være lengre enn 50 tegn.',
@@ -785,40 +799,39 @@ return [
         'type_required' => 'Type er påkrevd.',
         'type_unique' => 'Denne typen finnes allerede.',
     ],
-
     'payment' => [
         'payment_date_required' => 'Betalingsdato er påkrevd.',
         'payment_method_required' => 'Betalingsmetode er påkrevd.',
         'amount_required' => 'Beløp er påkrevd.',
     ],
-
     'custom_date' => [
         'date_required' => 'Dato-feltet er påkrevd.',
         'total_required' => 'Totalt-feltet er påkrevd.',
         'status_required' => 'Status-feltet er påkrevd.',
     ],
-
     'plan_renewal' => [
         'plan_required' => 'Abonnement-feltet er påkrevd.',
         'payment_method_required' => 'Betalingsmetode-feltet er påkrevd.',
         'cost_required' => 'Kostnad-feltet er påkrevd.',
         'code_not_valid' => 'Rabattkoden er ugyldig.',
     ],
-
     'rate' => [
         'required' => 'Rente er påkrevd.',
         'numeric' => 'Rente må være et tall.',
     ],
-
     'product_validate' => [
         'producttitle_required' => 'Produkttittel er påkrevd.',
         'version_required' => 'Versjon er påkrevd.',
         'filename_required' => 'Vennligst last opp en fil.',
         'dependencies_required' => 'Avhengigheter-feltet er påkrevd.',
+        'description_required' => 'Beskrivelse kreves.',
+        'release_type_required' => 'Utgivelsestype kreves.',
     ],
     'product_sku_unique' => 'Produktets SKU må være unikt.',
     'product_name_unique' => 'Navnet må være unikt.',
     'product_show_agent_required' => 'Velg preferanse for handlekurvside.',
+    'config_file_path_regex' => 'Må være en relativ bane uten ../-segmenter.',
+    'license_file_path_regex' => 'Må være en relativ bane uten ../-segmenter.',
     'product_controller' => [
         'name_required' => 'Produktnavnet er påkrevd.',
         'name_unique' => 'Navnet må være unikt.',
@@ -826,6 +839,7 @@ return [
         'type_required' => 'Produkttypen er påkrevd.',
         'description_required' => 'Produktbeskrivelsen er påkrevd.',
         'product_description_required' => 'Detaljert produktbeskrivelse er påkrevd.',
+        'short_description_required' => 'Den korte beskrivelsen kreves.',
         'image_mimes' => 'Bildet må være en fil av typen: jpeg, png, jpg.',
         'image_max' => 'Bildet må ikke være større enn 2048 kilobyte.',
         'product_sku_required' => 'Produktets SKU er påkrevd.',
@@ -843,7 +857,9 @@ return [
         'cloud_label_field_required' => 'Etikettfeltet er påkrevd.',
         'cloud_label_radio_required' => 'Radioknappetiketten er påkrevd.',
         'cloud_product_required' => 'Cloud-produkt er påkrevd.',
+        'cloud_product_unique' => 'Dette produktet har allerede en skykonfigurasjon.',
         'cloud_free_plan_required' => 'Gratisplan for Cloud er påkrevd.',
+        'cloud_free_plan_invalid' => 'Valgt plan tilhører ikke det valgte produktet.',
         'cloud_product_key_required' => 'Produktnøkkel for Cloud er påkrevd.',
     ],
     'reg_till_after' => 'Registrering til-dato må være etter registrering fra-dato.',
@@ -872,6 +888,8 @@ return [
         'no_agent_req' => 'Antall agenter-feltet er påkrevd når produktmengde ikke er til stede.',
         'pro_req' => 'Produktfeltet er påkrevd',
         'offer_price' => 'Tilbudspriser må ikke være større enn 100',
+        'currency_duplicate' => 'Hver valuta kan bare brukes én gang.',
+        'non_negative' => 'Denne verdien kan ikke være negativ.',
     ],
     'razorpay_val' => [
         'business_required' => 'Feltet for virksomhet er påkrevd.',
@@ -886,5 +904,36 @@ return [
     'login_failed' => 'Innlogging mislyktes, vennligst sjekk at e-post/brukernavn og passord du har skrevet inn er korrekte.',
     'forgot_email_validation' => 'Hvis e-posten du oppga er registrert, vil du snart motta en e-post med instruksjoner for å tilbakestille passordet.',
     'too_many_login_attempts' => 'Du har blitt låst ute av applikasjonen på grunn av for mange mislykkede innloggingsforsøk. Vennligst prøv igjen etter :time.',
-
+    'phone_number' => 'Vennligst skriv inn et gyldig mobiltelefonnummer.',
+    'mobile_number' => ':attribute må være et gyldig mobiltelefonnummer.',
+    'license' => [
+        'product' => [
+            'required' => 'Produktfeltet er obligatorisk.',
+        ],
+        'client' => [
+            'required' => 'Klientfeltet er obligatorisk.',
+        ],
+        'license_code' => [
+            'required' => 'Lisenskodefeltet er obligatorisk.',
+        ],
+        'license_expire_date' => [
+            'required' => 'Feltet for lisensens utløpsdato er obligatorisk.',
+        ],
+        'license_updates_date' => [
+            'required' => 'Feltet for oppdateringers utløpsdato er obligatorisk.',
+        ],
+        'license_support_date' => [
+            'required' => 'Feltet for utløpsdato for støtte er obligatorisk.',
+        ],
+        'banned_host_ip' => [
+            'required' => 'Feltet for forbudt verts-IP er obligatorisk.',
+            'invalid' => 'Vennligst skriv inn en gyldig IP-adresse.',
+        ],
+        'installation_ip' => [
+            'required' => 'Installasjons-IP-feltet er obligatorisk.',
+        ],
+        'notification_field' => [
+            'required' => 'Dette varslingsfeltet er obligatorisk.',
+        ],
+    ],
 ];

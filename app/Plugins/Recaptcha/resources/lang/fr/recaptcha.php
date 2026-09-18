@@ -1,9 +1,6 @@
 <?php
 
 return [
-    /*
-    * Recaptcha Settings Page
-    */
     'captcha_settings' => 'Paramètres reCAPTCHA',
     'captcha_configuration' => 'Configuration reCAPTCHA',
     'captcha_version' => 'Version reCAPTCHA',
@@ -15,10 +12,6 @@ return [
     'none' => 'Aucun',
     'fallback_v2_checkbox' => 'Revenir à la case à cocher reCAPTCHA v2',
     'action_if_captcha_fails' => 'Action à entreprendre en cas d\'échec de reCAPTCHA',
-
-    /*
-    * Recaptcha v3 Settings
-    */
     'recaptcha_v3_settings' => 'Paramètres reCAPTCHA v3',
     'v3_site_key' => 'Clé de site v3',
     'enter_v3_site_key' => 'Entrez votre clé de site reCAPTCHA v3',
@@ -27,20 +20,12 @@ return [
     'v3_score_threshold' => 'Seuil de score v3',
     'v3_score_hint' => 'Valeur comprise entre 0,0 et 1,0 (plus la valeur est élevée, mieux c\'est)',
     'v3_preview' => 'Aperçu v3',
-
-    /*
-    * Recaptcha v2 Settings
-    */
     'recaptcha_v2_settings' => 'Paramètres reCAPTCHA v2',
     'v2_site_key' => 'Clé de site v2',
     'enter_v2_site_key' => 'Entrez votre clé de site reCAPTCHA v2',
     'v2_secret_key' => 'Clé secrète v2',
     'enter_v2_secret_key' => 'Entrez votre clé secrète reCAPTCHA v2',
     'v2_preview' => 'Aperçu v2',
-
-    /*
-    * Appearance
-    */
     'appearance_messages' => 'Apparence',
     'theme' => 'Thème',
     'theme_light' => 'Clair',
@@ -52,28 +37,12 @@ return [
     'badge_bottomright' => 'En bas à droite',
     'badge_bottomleft' => 'En bas à gauche',
     'badge_inline' => 'En ligne',
-
-    /*
-    * Common
-    */
     'save' => 'Enregistrer',
     'saving' => 'Enregistrement en cours',
     'home' => 'Accueil',
     'settings' => 'Paramètres',
-
-    /*
-    * Success messages
-    */
     'captcha_settings_updated' => 'Paramètres reCAPTCHA mis à jour avec succès !',
-
-    /*
-    * Error messages
-    */
     'captcha_message' => 'La vérification reCAPTCHA a échoué. Veuillez réessayer.',
-
-    /*
-    * JavaScript validation messages
-    */
     'field_required_condition' => 'Ce champ est obligatoire lorsque la condition est remplie',
     'select_captcha_version' => 'Veuillez sélectionner une version de reCAPTCHA',
     'v3_site_key_required' => 'La clé de site reCAPTCHA v3 est requise',
@@ -90,16 +59,8 @@ return [
     'failed_generate_v2_token' => 'Échec de la génération du jeton reCAPTCHA v2.',
     'settings_saved' => 'Paramètres enregistrés.',
     'failed_save_settings' => 'Échec de l\'enregistrement des paramètres. Veuillez réessayer.',
-
-    /*
-    * Backend validation messages
-    */
     'invalid_secret_or_token' => 'La clé secrète ou le jeton de réponse n\'est pas valide',
     'captcha_verification_failed' => 'La vérification reCAPTCHA a échoué (non-concordance du score/de l\'action/du nom d\'hôte)',
-
-    /*
-    * Validation messages
-    */
     'captcha_version_required' => 'La version de reCAPTCHA est requise',
     'captcha_version_in' => 'La version de reCAPTCHA sélectionnée n\'est pas valide',
     'failover_action_required' => 'Une action de basculement est requise',

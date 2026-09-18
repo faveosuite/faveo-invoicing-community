@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasColumn('highlight', 'status')) {
-            Schema::table('products', function (Blueprint $table) {
+            Schema::table('products', function (Blueprint $table): void {
                 $table->string('highlight')->default(0);
                 $table->string('status')->default(0);
             });
@@ -23,12 +21,10 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
+        Schema::table('products', function (Blueprint $table): void {
             $table->dropColumn('status');
             $table->dropColumn('highlight');
         });

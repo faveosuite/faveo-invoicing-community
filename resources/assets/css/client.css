@@ -1,0 +1,285 @@
+/* ───────────────────────────────────────────────────────────────────────────
+ * Client panel global styles
+ * Imported once in client.js (the client SPA entry). Keep client-only,
+ * cross-component rules here — not admin styles (those live in app.css).
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+/* Remove Bootstrap's validation icon / extra padding so invalid fields show
+   only the red border + feedback message (and don't collide with input-group
+   buttons such as the password show/hide toggle). */
+.form-control.is-invalid,
+.form-select.is-invalid {
+    background-image: none;
+    padding-right: 0.75rem;
+}
+
+/* Porto sets border:0 on .input-group-rounded .form-control; restore it for invalid state. */
+.input-group-rounded .form-control.is-invalid {
+    border: 1px solid var(--bs-form-invalid-border-color, #dc3545) !important;
+}
+
+
+.grecaptcha-badge {
+    bottom: 14px !important;
+}
+/* ── Tooltip (floating-vue) — match admin panel appearance ─────────────── */
+.v-popper__inner { text-align: center !important; }
+.v-popper__inner div { max-width: 300px !important; word-break: break-word !important; }
+.tooltip-inner { max-width: 600px; }
+
+/* ── Client sidebar ─────────────────────────────────────────────────────────
+ * Shared by the account sidebar (themes/porto/components/common/Sidebar.vue)
+ * and the order page's tab nav (pages/client/orders/OrderShow.vue). Both mark
+ * their <aside> .client-sidebar and their <ul> .nav-list.no-arrows.
+ * ─────────────────────────────────────────────────────────────────────────── */
+/* The row is taller than the nav, so the column has to shrink to its content
+   before it has any room to stick within. */
+@media (min-width: 992px) {
+    #app-client .client-sidebar-col {
+        flex: 0 0 23%;
+        width: 23%;
+        position: sticky;
+        top: 1rem;
+        align-self: flex-start;
+    }
+    #app-client .client-content-col {
+        flex: 0 0 77%;
+        width: 77%;
+    }
+}
+
+#app-client .client-sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.625rem;
+    font-size: 0.875rem;
+    line-height: 1.35;
+    color: #555;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-left: 3px solid transparent;
+    transition: background 0.15s, color 0.15s;
+}
+
+#app-client .client-sidebar .nav-link:hover {
+    background: rgba(0, 0, 0, 0.02);
+    color: var(--primary, #0088cc);
+}
+
+/* The one loud thing in the sidebar: where you are now. */
+#app-client .client-sidebar .nav-link.active {
+    border-left-color: var(--primary, #0088cc);
+    background: var(--primary-rgba-10, rgba(0, 136, 204, 0.1));
+    color: var(--primary, #0088cc);
+    font-weight: 600;
+}
+
+#app-client .client-sidebar .nav-icon {
+    font-size: 0.875rem;
+    color: #9a9a9a;
+}
+
+#app-client .client-sidebar .nav-link:hover .nav-icon,
+#app-client .client-sidebar .nav-link.active .nav-icon {
+    color: inherit;
+}
+
+#app-client .client-sidebar .nav-section {
+    width: 100%;
+    background: none;
+    border-right: 0;
+    border-top: 0;
+    color: #555;
+    text-align: left;
+    cursor: pointer;
+}
+
+/* Collapsed sections still say whether the current page lives inside them. */
+#app-client .client-sidebar .nav-section-current {
+    color: var(--primary, #0088cc);
+    font-weight: 600;
+}
+
+#app-client .client-sidebar .nav-caret {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: #b0b0b0;
+    transition: transform 0.15s;
+}
+
+#app-client .client-sidebar .nav-caret-open {
+    transform: rotate(180deg);
+}
+
+/* Indent and a smaller type size mark the children as subordinate. */
+#app-client .client-sidebar .nav-sublist {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#app-client .client-sidebar .nav-sublist .nav-link {
+    padding-left: 1.25rem;
+    font-size: 0.8125rem;
+}
+
+/* Logout ends the session, so it carries the skin's warning colour. */
+#app-client .client-sidebar .nav-exit,
+#app-client .client-sidebar .nav-exit .nav-icon {
+    color: var(--secondary, #e36159);
+}
+
+#app-client .client-sidebar .nav-exit:hover,
+#app-client .client-sidebar .nav-exit:hover .nav-icon {
+    color: var(--secondary-200, #dd4238);
+}
+
+/* ── Client Action Buttons in Tables ────────────────────────────────────────── */
+#app-client .table_btn.action-btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+#app-client .table_btn.action-btn .action-btn-icon {
+    margin-right: 0 !important;
+}
+
+/* ── Client Orders / Tables ─────────────────────────────────────────────────── */
+#app-client .dt-product-col { min-width: 140px; }
+#app-client .dt-date-col    { min-width: 105px; max-width: 125px; white-space: nowrap; }
+#app-client .dt-number-col  { min-width: 100px; max-width: 130px; }
+#app-client .dt-number-col a { white-space: nowrap; }
+#app-client .dt-number-col .badge { white-space: nowrap; font-size: 0.72rem; }
+#app-client .dt-agents-col  { min-width: 65px;  max-width: 80px; text-align: center; }
+#app-client .dt-action-col  { min-width: 140px; max-width: 155px; }
+
+/* ── Client Invoices Table ──────────────────────────────────────────────────── */
+#app-client .dt-inv-num     { min-width: 90px; max-width: 115px; white-space: nowrap; }
+#app-client .dt-inv-date    { min-width: 85px; max-width: 105px; white-space: nowrap; }
+#app-client .dt-inv-order   { min-width: 80px; max-width: 105px; white-space: nowrap; }
+#app-client .dt-inv-amount  { min-width: 70px; max-width: 90px; white-space: nowrap; }
+#app-client .dt-inv-status  { min-width: 65px; max-width: 80px; text-align: center; white-space: nowrap; }
+#app-client .dt-inv-action  { min-width: 120px; max-width: 135px; white-space: nowrap; }
+
+#app-client .VueTables__table {
+    font-size: 13px !important;
+}
+
+#app-client .VueTables__table th,
+#app-client .VueTables__table td {
+    padding: 0.55rem 0.45rem;
+    vertical-align: middle;
+}
+
+/* ── Social Icons Layout & Spacing (Shared between Navbar & Footer) ── */
+.social-icons {
+    display: inline-flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px !important;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.social-icons li {
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-icons li a {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+    color: #495057 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.social-icons li:hover a {
+    border-color: transparent !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* ── Social Icons Hover Colors (Shared between Navbar & Footer) ─── */
+.social-icons li:hover.social-icons-x a,
+.social-icons li:hover.social-icons-twitter a { background: #000000 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-facebook a { background: #1877f2 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-instagram a { background: #e4405f !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-linkedin a { background: #0a66c2 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-youtube a { background: #ff0000 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-tiktok a { background: #000000 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-whatsapp a { background: #25d366 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-telegram a { background: #229ed9 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-discord a { background: #5865f2 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-github a { background: #24292e !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-reddit a { background: #ff4500 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-threads a { background: #000000 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-bluesky a { background: #0285ff !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-twitch a { background: #9146ff !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-pinterest a { background: #bd081c !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-snapchat a { background: #fffc00 !important; color: #000000 !important; }
+
+.social-icons li:hover.social-icons-tumblr a { background: #36465d !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-vimeo a { background: #1ab7ea !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-dribbble a { background: #ea4c89 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-behance a { background: #1769ff !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-slack a { background: #4a154b !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-gitlab a { background: #fc6d26 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-spotify a { background: #1ed760 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-soundcloud a { background: #ff5500 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-stackoverflow a { background: #f48024 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-medium a { background: #000000 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-mastodon a { background: #6364ff !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-wechat a { background: #07c160 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-patreon a { background: #ff424d !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-phone a { background: #28a745 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-email a,
+.social-icons li:hover.social-icons-envelope a { background: #ea4335 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-globe a { background: #0077b6 !important; color: #ffffff !important; }
+
+.social-icons li:hover.social-icons-custom a { background: #6c757d !important; color: #ffffff !important; }
+
+
+

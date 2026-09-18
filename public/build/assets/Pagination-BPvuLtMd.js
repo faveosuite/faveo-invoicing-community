@@ -1,0 +1,1 @@
+import{_ as o,o as t,c as a,V as n}from"./dateTime-BRlL7CfL.js";const s={},r={class:"pagination-wrapper"};function c(e,_){return t(),a("div",r,[n(e.$slots,"default")])}const l=o(s,[["render",c]]);export{l as default};

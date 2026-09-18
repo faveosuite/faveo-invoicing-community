@@ -51,10 +51,15 @@ class ClearChunksCommand extends Command
             $this->comment('> '.$file, $verbouse);
 
             // delete the file
-            if ($file->delete()) {
-                ++$deleted;
-            } else {
-                $this->error('> chunk not deleted: '.$file);
+            try {
+                if ($file->delete()) {
+                    ++$deleted;
+                    $storage->deleteEmptyDirectories(dirname($file->getPath()));
+                } else {
+                    $this->error('> chunk not deleted: '.$file);
+                }
+            } catch (\RuntimeException $err) {
+                $this->error('> chunk not deleted: '.$file.' due an error: '.$err->getMessage());
             }
         }
 

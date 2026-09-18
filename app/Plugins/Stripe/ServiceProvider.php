@@ -2,14 +2,18 @@
 
 namespace App\Plugins\Stripe;
 
+use Override;
+
 class ServiceProvider extends \App\Plugins\ServiceProvider
 {
-    public function register()
+    #[Override]
+    public function register(): void
     {
         parent::register('Stripe');
     }
 
-    public function boot()
+    #[Override]
+    public function boot(): void
     {
         parent::boot('Stripe');
     }

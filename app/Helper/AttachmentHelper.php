@@ -3,12 +3,17 @@
 namespace App\Helper;
 
 use App\FileSystemSettings;
+use Exception;
+use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
+use Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AttachmentHelper
 {
-    public function put($directory, $contents, $disk = null, $uniqueFilename = null, $visibility = 'private')
+    public function put(string $directory, UploadedFile $contents, ?string $disk = null, mixed $uniqueFilename = null, string $visibility = 'private'): string|false
     {
         $adapter = $this->getStorageAdapter($disk);
 
@@ -27,58 +32,55 @@ class AttachmentHelper
         return $adapter->putFileAs($directory, $contents, $fileUniqueName, ['visibility' => $visibility]);
     }
 
-    public function delete($path, $disk = null): bool
+    public function delete(string $path, ?string $disk = null): bool
     {
         return $this->getStorageAdapter($disk)->delete($path);
     }
 
-    public function deleteDirectory($path, $disk = null): bool
+    public function deleteDirectory(string $path, ?string $disk = null): bool
     {
         return $this->getStorageAdapter($disk)->deleteDirectory($path);
     }
 
-    public function download($path, $disk = null)
+    public function download(string $path, ?string $disk = null): RedirectResponse|StreamedResponse
     {
         $adapter = $this->getStorageAdapter($disk);
 
         $filename = Str::ascii(basename($path)) ?: basename($path);
 
         if (isS3Enabled()) {
-            return $adapter->temporaryUrl($path, now()->addHour());
+            return redirect($adapter->temporaryUrl($path, now()->addHour()));
         }
 
         return $adapter->download($path, $filename);
     }
 
-    private function getStorageAdapter($disk = null): \Illuminate\Filesystem\FilesystemAdapter
+    private function getStorageAdapter(?string $disk = null): Filesystem
     {
         $disk = $disk ?: FileSystemSettings::value('disk');
 
         if (! $disk) {
-            throw new \Exception(trans('message.attach_helper_no_default_disk'));
+            throw new Exception(trans('message.attach_helper_no_default_disk'));
         }
 
-        return \Storage::disk($disk);
+        return Storage::disk($disk);
     }
 
     /**
      * Create unique filename for uploaded file.
-     *
-     * @param  UploadedFile  $file
-     * @return string
      */
-    public function createFilename(UploadedFile $file)
+    public function createFilename(UploadedFile $file): string
     {
         $extension = $file->getClientOriginalExtension();
         $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME); // Filename without extension
 
-        $safeName = Str::slug($filename) ? Str::slug($filename) : 'file';
+        $safeName = Str::slug($filename) ?: 'file';
 
         // Add timestamp hash to name of the file
-        return $safeName.'_'.md5(time()).'.'.$extension;
+        return $safeName.'_'.md5((string) time()).'.'.$extension;
     }
 
-    public function getUrlPath($path, $disk = null)
+    public function getUrlPath(string $path, ?string $disk = null): string
     {
         $adapter = $this->getStorageAdapter($disk);
 
@@ -89,14 +91,14 @@ class AttachmentHelper
         return asset($adapter->url($path));
     }
 
-    public function exists($path, $disk = null)
+    public function exists(string $path, ?string $disk = null): bool
     {
         $adapter = $this->getStorageAdapter($disk);
 
         return $adapter->exists($path);
     }
 
-    public function readStream($path, $disk = null)
+    public function readStream(string $path, ?string $disk = null): mixed
     {
         $adapter = $this->getStorageAdapter($disk);
 
@@ -106,11 +108,12 @@ class AttachmentHelper
     /**
      * get file meta data.
      *
-     * @return array
      *
-     * @throws \Exception
+     * @return array<mixed>
+     *
+     * @throws Exception
      */
-    public function getMetadata($path, $disk = null)
+    public function getMetadata(string $path, ?string $disk = null): array
     {
         $disk = $this->getStorageAdapter($disk);
 

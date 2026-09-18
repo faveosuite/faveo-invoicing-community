@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'title' => 'Instalador do Agora Invoicing',
     'probe' => 'Sondas do Agora Invoicing',
     'magic_phrase' => 'Qual é a frase mágica',
@@ -20,7 +19,6 @@ return [
     'off_apache' => 'DESLIGADO (Se você estiver usando o apache, certifique-se de que <var><strong>AllowOverride</strong></var> está configurado como <var><strong>All</strong></var> na configuração do apache)',
     'rewrite_engine' => 'Motor de Reescrita',
     'user_url' => 'URL Amigável ao Usuário',
-
     'host' => 'Hospedar',
     'host_tooltip' => 'Se o seu MySQL estiver instalado no mesmo servidor que o Agora Invoicing, deixe como localhost',
     'database_name_label' => 'Nome do Banco de Dados',
@@ -30,7 +28,6 @@ return [
     'password_label' => 'Senha',
     'test_prerequisites_message' => 'Este teste verificará os pré-requisitos necessários para instalar o Agora Invoicing',
     'previous' => 'Anterior',
-
     'sign_up_as_admin' => 'Cadastrar como Admin',
     'first_name' => 'Primeiro Nome',
     'first_name_required' => 'Primeiro Nome é obrigatório',
@@ -44,14 +41,27 @@ return [
     'confirm_password_required' => 'Confirmar Senha é obrigatória',
     'password_requirements' => 'Sua senha deve ter:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => 'Entre 8-16 caracteres'],
-        ['id' => 'letter', 'text' => 'Caracteres minúsculos (a-z)'],
-        ['id' => 'capital', 'text' => 'Caracteres maiúsculos (A-Z)'],
-        ['id' => 'number', 'text' => 'Números (0-9)'],
-        ['id' => 'space', 'text' => 'Caracteres especiais (~*!@$#%_+.?:,{ })'],
+        [
+            'id' => 'length',
+            'text' => 'Entre 8-16 caracteres',
+        ],
+        [
+            'id' => 'letter',
+            'text' => 'Caracteres minúsculos (a-z)',
+        ],
+        [
+            'id' => 'capital',
+            'text' => 'Caracteres maiúsculos (A-Z)',
+        ],
+        [
+            'id' => 'number',
+            'text' => 'Números (0-9)',
+        ],
+        [
+            'id' => 'space',
+            'text' => 'Caracteres especiais (~*!@$#%_+.?:,{ })',
+        ],
     ],
-
-    // Informações do Sistema
     'system_information' => 'Informações do Sistema',
     'environment' => 'Ambiente',
     'environment_required' => 'Ambiente é obrigatório',
@@ -63,42 +73,29 @@ return [
     'file' => 'Arquivo',
     'redis' => 'Redis',
     'password' => 'Senha',
-
-    // Configuração do Redis
     'redis_setup' => 'Configuração do Redis',
     'redis_host' => 'Host do Redis',
     'redis_port' => 'Porta do Redis',
     'redis_password' => 'Senha do Redis',
-
-    // Botões
     'continue' => 'Continuar',
-
-    // Configuração Final
     'final_setup' => 'Sua Aplicação Agora Invoicing Está Pronta!',
     'installation_complete' => 'Tudo certo, sparky! Você completou a instalação.',
-
-    // Aprender Mais
     'learn_more' => 'Saiba mais',
     'knowledge_base' => 'Base de Conhecimento',
     'email_support' => 'Suporte por E-mail',
-
-    // Próximo Passo
     'next_step' => 'Próximo Passo',
     'login_button' => 'Entrar no Agora Invoicing',
-
     'pre_migration_success' => 'A pré-migração foi testada com sucesso',
     'migrating_tables' => 'Migrando tabelas no banco de dados',
     'db_connection_error' => 'A conexão com o banco de dados não foi atualizada.',
     'database_setup_success' => 'Banco de dados configurado com sucesso.',
     'env_file_created' => 'Arquivo de configuração do ambiente criado com sucesso',
     'pre_migration_test' => 'Executando teste de pré-migração',
-
     'redis_host_required' => 'Host do Redis é obrigatório.',
     'redis_password_required' => 'Senha do Redis é obrigatória.',
     'redis_port_required' => 'Porta do Redis é obrigatória.',
     'password_regex' => 'A senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial.',
     'setup_completed' => 'Configuração concluída com sucesso!',
-
     'database' => 'Banco de Dados',
     'selected' => 'Selecionado',
     'mysql_version_is' => 'A versão do MySQL é',
@@ -114,8 +111,6 @@ return [
     'user_name' => 'Nome de Usuário',
     'user_email' => 'E-mail do Usuário',
     'password_not_match' => 'As senhas não coincidem',
-
-    // Novos
     'installation_check' => 'Este teste verificará os pré-requisitos necessários para instalar o Agora Invoice Community',
     'db_setup_error_1' => 'Isso significa que as informações de nome de usuário e senha estão incorretas ou seu host não está acessível.',
     'db_setup_error_2' => 'Você tem certeza de que já possui um banco de dados com o nome fornecido?',
@@ -145,17 +140,11 @@ return [
     'i_accept' => 'Eu aceito o',
     'enter_license' => 'Por favor, insira o seu Código de Licença para',
     'find_license_in_billing' => 'Você pode encontrar seu código de licença no nosso portal de faturamento',
-    'sign_up_as_admin' => 'Cadastrar como Admin',
-    'system_information' => 'Informações do Sistema',
     'close' => 'Fechar',
     'port_number' => 'Número da Porta',
     'is_required' => 'é obrigatório',
     'firstname' => 'Primeiro Nome',
     'lastname' => 'Último Nome',
-    'username' => 'Nome de Usuário',
-    'email' => 'E-mail',
-    'password' => 'Senha',
-    'confirm_password' => 'Confirmar Senha',
     'copyright' => 'Copyright',
     'powered_by' => 'Todos os direitos reservados. Desenvolvido por',
     'invalid_email' => 'E-mail inválido',
@@ -165,5 +154,4 @@ return [
     'tooltip_timezone' => 'O fuso horário do navegador é usado inicialmente. Se necessário, selecione um fuso horário diferente.',
     'tooltip_language' => 'Idioma padrão carregado inicialmente. Se necessário, selecione um idioma diferente.',
     'enter_magic_phrase' => 'Digite a frase mágica',
-
 ];

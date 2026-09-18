@@ -65,7 +65,7 @@ abstract class EventNotification
 
     /**
      * Helper for constructing an Event Notification. Doesn't perform signature validation, so you
-     * should use \Stripe\BaseStripeClient#parseEventNotification instead for
+     * should use \Stripe\BaseStripeClient::parseEventNotification instead for
      * initial handling. This is useful in unit tests and working with EventNotifications that you've
      * already validated the authenticity of.
      *
@@ -77,6 +77,12 @@ abstract class EventNotification
     public static function fromJson($jsonStr, $client)
     {
         $json = json_decode($jsonStr, true);
+
+        if (isset($json['object']) && 'event' === $json['object']) {
+            throw new \Stripe\Exception\UnexpectedValueException(
+                'You passed a webhook payload to StripeClient::parseEventNotification, which expects an event notification. Use Webhook::constructEvent instead.'
+            );
+        }
 
         $class = UnknownEventNotification::class;
         $eventNotificationTypes = EventNotificationTypes::v2EventMapping;
@@ -98,7 +104,10 @@ abstract class EventNotification
             'get',
             "/v2/core/events/{$this->id}",
             null,
-            ['stripe_context' => $this->context],
+            [
+                'stripe_context' => $this->context,
+                'headers' => ['Stripe-Request-Trigger' => 'event=' . $this->id],
+            ],
             null,
             ['fetch_event']
         );
@@ -112,7 +121,9 @@ abstract class EventNotification
             return null;
         }
 
-        $options = [];
+        $options = [
+            'headers' => ['Stripe-Request-Trigger' => 'event=' . $this->id],
+        ];
         if (null !== $this->context) {
             $options['stripe_context'] = $this->context;
         }

@@ -1,0 +1,154 @@
+<?php
+
+namespace RectorLaravel\Rector\StaticCall;
+
+use PhpParser\Node;
+use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Name;
+use PhpParser\Node\Name\FullyQualified;
+use PHPStan\Broker\ClassNotFoundException;
+use PHPStan\Reflection\ClassReflection;
+use PHPStan\Reflection\ReflectionProvider;
+use RectorLaravel\AbstractRector;
+use RectorLaravel\Tests\Rector\StaticCall\DispatchToHelperFunctionsRector\DispatchToHelperFunctionsRectorTest;
+use Symplify\RuleDocGenerator\Exception\PoorDocumentationException;
+use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
+use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
+
+/**
+ * @see DispatchToHelperFunctionsRectorTest
+ */
+final class DispatchToHelperFunctionsRector extends AbstractRector
+{
+    /**
+     * @readonly
+     */
+    private ReflectionProvider $reflectionProvider;
+    public function __construct(ReflectionProvider $reflectionProvider)
+    {
+        $this->reflectionProvider = $reflectionProvider;
+    }
+
+    /**
+     * @throws PoorDocumentationException
+     */
+    public function getRuleDefinition(): RuleDefinition
+    {
+        return new RuleDefinition(
+            'Use the event or dispatch helpers instead of the static dispatch method.',
+            [
+                new CodeSample(
+                    'ExampleEvent::dispatch($email);',
+                    'event(new ExampleEvent($email));'
+                ),
+                new CodeSample(
+                    'ExampleJob::dispatch($email);',
+                    'dispatch(new ExampleJob($email));'
+                ),
+                new CodeSample(
+                    'ExampleJob::dispatchSync($email);',
+                    'dispatch_sync(new ExampleJob($email));'
+                ),
+            ],
+        );
+    }
+
+    /**
+     * @return array<class-string<Node>>
+     */
+    public function getNodeTypes(): array
+    {
+        return [StaticCall::class];
+    }
+
+    /** @param StaticCall $node */
+    public function refactor(Node $node): ?Node
+    {
+        if ($node->isFirstClassCallable()) {
+            return null;
+        }
+
+        if (! $this->isName($node->name, 'dispatch') && ! $this->isName($node->name, 'dispatchSync')) {
+            return null;
+        }
+
+        $class = $node->class;
+
+        if (! $class instanceof Name) {
+            return null;
+        }
+
+        $classReflection = $this->getClassReflection($node);
+        if (! $classReflection instanceof ClassReflection) {
+            return null;
+        }
+
+        if ($this->usesBusDispatchable($classReflection)) {
+            if ($this->isName($node->name, 'dispatchSync')) {
+                return $this->createDispatchableCall($node, 'dispatch_sync');
+            }
+
+            return $this->createDispatchableCall($node, 'dispatch');
+        }
+
+        if ($this->usesEventDispatchable($classReflection)) {
+            return $this->createDispatchableCall($node, 'event');
+        }
+
+        return null;
+    }
+
+    private function getClassReflection(StaticCall $staticCall): ?ClassReflection
+    {
+        $type = $this->getType($staticCall->class);
+        if (! $type->isObject()->yes()) {
+            return null;
+        }
+
+        $objectClassNames = $type->getObjectClassNames();
+
+        if (count($objectClassNames) !== 1) {
+            return null;
+        }
+
+        try {
+            return $this->reflectionProvider->getClass($objectClassNames[0]);
+        } catch (ClassNotFoundException $exception) {
+        }
+
+        return null;
+    }
+
+    private function usesBusDispatchable(ClassReflection $classReflection): bool
+    {
+        $traits = array_keys($classReflection->getTraits(true));
+
+        return in_array('Illuminate\Foundation\Bus\Dispatchable', $traits, true);
+    }
+
+    private function usesEventDispatchable(ClassReflection $classReflection): bool
+    {
+        $traits = array_keys($classReflection->getTraits(true));
+
+        return in_array('Illuminate\Foundation\Events\Dispatchable', $traits, true);
+    }
+
+    private function createDispatchableCall(StaticCall $staticCall, string $method): ?FuncCall
+    {
+        $class = $staticCall->class;
+        if (! $class instanceof Name) {
+            return null;
+        }
+
+        $className = $class->isSpecialClassName()
+            ? $class
+            : new FullyQualified($class);
+
+        return $this->nodeFactory->createFuncCall(
+            $method,
+            [new New_($className, $staticCall->args)],
+        );
+    }
+}

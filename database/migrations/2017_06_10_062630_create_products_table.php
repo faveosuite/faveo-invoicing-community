@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('products')) {
-            Schema::create('products', function (Blueprint $table) {
+            Schema::create('products', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name')->unique('name');
                 $table->string('description', 2000);
@@ -22,8 +20,6 @@ return new class extends Migration
                 $table->integer('parent');
                 $table->integer('type')->nullable();
                 $table->integer('group')->nullable();
-                // $table->foreign('group')->references('id')->on('product_groups');
-                // $table->foreign('type')->references('id')->on('license_types');
                 $table->string('welcome_email');
                 $table->integer('require_domain');
                 $table->boolean('can_modify_agent')->nullable();
@@ -54,10 +50,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('products');
     }

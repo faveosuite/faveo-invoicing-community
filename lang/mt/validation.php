@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'accepted' => 'Irid jiġi aċċettat il-kamp :attribute.',
     'accepted_if' => 'Irid jiġi aċċettat il-kamp :attribute meta :other ikun :value.',
     'active_url' => 'Il-kamp :attribute mhuwiex URL validu.',
@@ -25,6 +24,7 @@ return [
     'date' => 'Il-kamp :attribute mhuwiex data valida.',
     'date_equals' => 'Il-kamp :attribute irid ikun data ugwali għal :date.',
     'date_format' => 'Il-kamp :attribute ma jikkorrispondi xejn mal-format :format.',
+    'decimal' => 'Il-qasam :attribute għandu jkollu :decimal postijiet deċimali.',
     'declined' => 'Il-kamp :attribute irid jiġi rrifjutat.',
     'declined_if' => 'Il-kamp :attribute irid jiġi rrifjutat meta :other ikun :value.',
     'different' => 'Il-kamp :attribute u :other irid ikunu differenti.',
@@ -33,7 +33,7 @@ return [
     'dimensions' => 'Il-kamp :attribute għandu dimensjonijiet ta\' immaġni invalidi.',
     'distinct' => 'Il-kamp :attribute għandu valur duplikat.',
     'doesnt_start_with' => 'Il-kamp :attribute ma jistax jibda b’waħda mill-fowlling: :values.',
-    'email' => 'Il-kamp :attribute irid ikun indirizz tal-email validu.',
+    'email' => 'Il-:attribute għandu jkun indirizz elettroniku validu.',
     'ends_with' => 'Il-kamp :attribute irid jintemm b’waħda mill-fowlling: :values.',
     'enum' => 'Il-valur magħżul għal :attribute huwa invalidu.',
     'exists' => 'Il-valur magħżul għal :attribute huwa invalidu.',
@@ -91,11 +91,11 @@ return [
     'not_regex' => 'Il-format ta\' :attribute huwa invalidu.',
     'numeric' => 'Il-kamp :attribute irid ikun numru.',
     'password' => [
-        'letters' => 'Il-kamp :attribute irid ikollu mill-inqas ittra waħda.',
-        'mixed' => 'Il-kamp :attribute irid ikollu mill-inqas ittra kbar u ittra żgħira waħda.',
-        'numbers' => 'Il-kamp :attribute irid ikollu mill-inqas numru wieħed.',
-        'symbols' => 'Il-kamp :attribute irid ikollu mill-inqas simbolu wieħed.',
-        'uncompromised' => 'Il-kamp :attribute ma deherx f\'data leak. Jekk jogħġbok agħżel :attribute differenti.',
+        'letters' => 'Il-:attribute għandu jkun fih mill-inqas ittra waħda.',
+        'mixed' => 'Il-:attribute għandu jkun fih mill-inqas ittra waħda kbira u ittra żgħira waħda.',
+        'numbers' => 'Il-:attribute għandu jkun fih mill-inqas numru wieħed.',
+        'symbols' => 'Il-:attribute għandu jkun fih mill-inqas simbolu wieħed.',
+        'uncompromised' => 'Il-:attribute mogħti deher fi tnixxija tad-dejta. Jekk jogħġbok agħżel :attribute differenti.',
     ],
     'present' => 'Il-kamp :attribute irid ikun preżenti.',
     'prohibited' => 'Il-kamp :attribute huwa pprojbilt.',
@@ -125,9 +125,12 @@ return [
     'uploaded' => 'Il-kamp :attribute ma nbidilx.',
     'url' => 'Il-kamp :attribute irid ikun URL validu.',
     'uuid' => 'Il-kamp :attribute irid ikun UUID validu.',
-    'uuid' => 'Il-kamp :attribute irid ikun UUID validu.',
+    'custom_dup' => [
+        'attribute-name' => [
+            'rule-name' => 'custom-messaġġ',
+        ],
+    ],
     'attributes' => [],
-
     'publish_date_required' => 'Id-data tal-pubblikazzjoni hija meħtieġa',
     'price_numeric_value' => 'Il-prezz għandu jkun valur numeriku',
     'quantity_integer_value' => 'Il-kwantità għandha tkun valur sħiħ',
@@ -143,7 +146,6 @@ return [
     'total_amount_required' => 'L-ammont totali huwa meħtieġ.',
     'total_amount_numeric' => 'L-ammont totali għandu jkun valur numeriku.',
     'invoice_link_required' => 'Jekk jogħġbok irreferi l-ammont ma’ fattura waħda mill-inqas.',
-
     'settings_form' => [
         'company' => [
             'required' => 'Il-qasam tal-kumpanija huwa meħtieġ.',
@@ -178,7 +180,6 @@ return [
             'email' => 'L-email tal-iżball għandha tkun indirizz validu.',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => 'L-isem tal-kumpanija huwa meħtieġ.',
@@ -209,7 +210,7 @@ return [
             'required' => 'Il-pajjiż huwa meħtieġ.',
         ],
         'gstin' => [
-            'max' => 'Il-GSTIN m’għandux jaqbeż 15-il karattru.',
+            'regex' => 'Il-format GSTIN mhuwiex validu.',
         ],
         'default_currency' => [
             'required' => 'Il-munita awtomatika hija meħtieġa.',
@@ -227,7 +228,10 @@ return [
             'max' => 'Il-logo m’għandux jaqbeż 2MB.',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'L-immaġni OG għandha tkun fajl tat-tip:jpeg, png, jpg, webp.',
+        'max' => 'L-immaġni OG ma tistax tkun akbar minn 2MB.',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => 'Il-qasam tal-isem huwa meħtieġ.',
@@ -239,8 +243,13 @@ return [
             'url' => 'Il-link għandha tkun URL validu.',
             'regex' => 'Il-format tal-link huwa invalidu.',
         ],
+        'class' => [
+            'required' => 'Il-qasam tal-klassi tal-ikona huwa meħtieġ.',
+        ],
+        'fa_class' => [
+            'required' => 'Il-qasam tal-klassi tal-ikona huwa meħtieġ.',
+        ],
     ],
-
     'custom' => [
         'password' => [
             'required_if' => 'Il-password hija meħtieġa għad-driver magħżul tal-posta.',
@@ -276,7 +285,6 @@ return [
             'required' => 'Il-qasam tad-driver huwa meħtieġ.',
         ],
     ],
-
     'customer_form' => [
         'first_name' => [
             'required' => 'Il-qasam tal-isem huwa meħtieġ.',
@@ -316,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => 'Il-verifika tar-robot falliet. Jekk jogħġbok erġa’ ipprova.',
         'demo-recaptcha-response-1.required' => 'Il-verifika tar-robot falliet. Jekk jogħġbok erġa’ ipprova.',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => 'Il-qasam tal-isem huwa meħtieġ.',
@@ -329,6 +336,7 @@ return [
         ],
         'slug' => [
             'required' => 'Il-qasam tas-slug huwa meħtieġ.',
+            'unique' => 'Din il-bugħarwien diġà teżisti.',
         ],
         'url' => [
             'required' => 'Il-qasam tal-URL huwa meħtieġ.',
@@ -341,8 +349,12 @@ return [
         'created_at' => [
             'required' => 'Il-qasam tal-ħolqien huwa meħtieġ.',
         ],
+        'parent_page_id' => [
+            'exists' => 'Il-paġna prinċipali magħżula ma teżistix.',
+            'self' => 'Paġna ma tistax tkun il-ġenitur tagħha stess.',
+            'nested' => 'Il-paġna magħżula hija diġà sub-paġna u ma tistax tintuża bħala ġenitur.',
+        ],
     ],
-
     'order_form' => [
         'client' => [
             'required' => 'Il-qasam tal-klijent huwa meħtieġ.',
@@ -369,7 +381,6 @@ return [
             'integer' => 'Il-kwantità għandha tkun numru sħiħ.',
         ],
     ],
-
     'coupon_form' => [
         'code' => [
             'required' => 'Il-kodiċi tal-kupun huwa meħtieġ.',
@@ -402,9 +413,9 @@ return [
             'required' => 'Il-valur tad-discount huwa meħtieġ.',
             'numeric' => 'Il-valur tad-discount għandu jkun numru.',
             'between' => 'Il-valur tad-discount għandu jkun bejn :min u :max jekk it-tip hu percentage.',
+            'max' => 'Il-valur tal-iskont ma jistax jaqbeż il-prezz tal-prodott applikat (:max).',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => 'Il-qasam tal-isem huwa meħtieġ.',
@@ -412,6 +423,12 @@ return [
         'rate' => [
             'required' => 'Il-qasam tar-rata huwa meħtieġ.',
             'numeric' => 'Ir-rata għandha tkun numru.',
+            'decimal' => 'Ir-rata għandu jkollha mhux aktar minn 3 postijiet deċimali.',
+            'max' => 'Ir-rata m\'għandhiex tkun akbar minn 999.999.',
+        ],
+        'priority' => [
+            'required' => 'Il-qasam prijoritarju huwa meħtieġ.',
+            'min' => 'Il-prijorità trid tkun mill-inqas 1.',
         ],
         'level' => [
             'required' => 'Il-qasam tal-livell huwa meħtieġ.',
@@ -424,7 +441,6 @@ return [
             'required' => 'Il-qasam tal-istat huwa meħtieġ.',
         ],
     ],
-    //Product
     'subscription_form' => [
         'name' => [
             'required' => 'Il-qasam tal-isem huwa meħtieġ.',
@@ -444,7 +460,6 @@ return [
             'required' => 'Il-qasam tal-prodotti huwa meħtieġ.',
         ],
     ],
-
     'bundle' => [
         'name' => [
             'required' => 'Il-qasam tal-isem huwa meħtieġ.',
@@ -453,10 +468,13 @@ return [
             'required' => 'Kull oġġett huwa meħtieġ.',
         ],
     ],
-
     'group' => [
         'name' => [
             'required' => 'L-isem huwa meħtieġ',
+            'unique' => 'Dan l-isem diġà jeżisti.',
+        ],
+        'pricing_templates_id' => [
+            'required' => 'Il-mudell tad-disinn huwa meħtieġ.',
         ],
         'features' => [
             'name' => [
@@ -480,13 +498,15 @@ return [
             'required_with' => 'It-titolu huwa meħtieġ',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => 'Il-qasam tal-isem huwa meħtieġ.',
         ],
         'type' => [
             'required' => 'Il-qasam tat-tip huwa meħtieġ.',
+        ],
+        'product_type' => [
+            'required' => 'Il-qasam tal-kategorija tal-prodott huwa meħtieġ.',
         ],
         'group' => [
             'required' => 'Il-qasam tal-grupp huwa meħtieġ.',
@@ -506,15 +526,18 @@ return [
             'mimes' => 'Il-immaġni għandha tkun fajl PNG.',
         ],
         'github_owner' => [
+            'required' => 'Il-qasam tas-sid tal-GitHub huwa meħtieġ.',
             'required_without_all' => 'Il-qasam tal-proprjetarju GitHub huwa meħtieġ jekk l-ebda waħda mill-fajl jew immaġni ma tkun ipprovduta.',
         ],
         'github_repository' => [
+            'required' => 'Il-qasam tar-repożitorju GitHub huwa meħtieġ.',
             'required_without_all' => 'Il-qasam tar-repożitorju GitHub huwa meħtieġ jekk l-ebda waħda mill-fajl jew immaġni ma tkun ipprovduta.',
             'required_if' => 'Il-qasam tar-repożitorju GitHub huwa meħtieġ jekk it-tip hu 2.',
         ],
+        'shoping_cart_link' => [
+            'required' => 'Il-qasam tal-link shopping cart huwa meħtieġ.',
+        ],
     ],
-
-    //User
     'users' => [
         'first_name' => [
             'required' => 'Il-qasam tal-isem huwa meħtieġ.',
@@ -553,8 +576,10 @@ return [
         'zip' => [
             'regex' => 'Il-qasam tal-istat huwa meħtieġ meta l-pajjiż ikun l-Indja.',
         ],
+        'gstin' => [
+            'regex' => 'Il-format GSTIN mhuwiex validu.',
+        ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => 'Il-prenoms huwa meħtieġ.',
@@ -569,75 +594,63 @@ return [
             'required' => 'Il-isem tal-kumpanija huwa meħtieġ.',
             'max' => 'Il-isem tal-kumpanija ma jistax ikun aktar minn :max karattri.',
         ],
+        'email' => [
+            'required' => 'Email hija meħtieġa.',
+            'email' => 'Daħħal indirizz elettroniku validu.',
+            'unique' => 'L-indirizz elettroniku diġà ttieħed. Jekk jogħġbok agħżel email differenti.',
+        ],
+        'mobile' => [
+            'required' => 'In-numru tal-mowbajl huwa meħtieġ.',
+            'regex' => 'Daħħal numru mobbli validu.',
+            'min' => 'In-numru tal-mobile għandu jkun mill-inqas :min karattri.',
+            'max' => 'In-numru tal-mobile ma jistax ikun akbar minn :max karattri.',
+        ],
+        'address' => [
+            'required' => 'L-indirizz huwa meħtieġ.',
+        ],
+        'user_name' => [
+            'required' => 'Isem tal-utent huwa meħtieġ.',
+            'unique' => 'Dan l-isem tal-utent diġà ttieħed.',
+        ],
+        'timezone_id' => [
+            'required' => 'Timezone hija meħtieġa.',
+        ],
+        'country' => [
+            'required' => 'Il-pajjiż huwa meħtieġ.',
+            'exists' => 'Il-pajjiż magħżul mhuwiex validu.',
+        ],
+        'state' => [
+            'required_if' => 'Il-qasam tal-istat huwa meħtieġ għal dan il-pajjiż.',
+        ],
+        'gstin' => [
+            'regex' => 'Il-format GSTIN mhuwiex validu.',
+        ],
+        'old_password' => [
+            'required' => 'Password l-antika hija meħtieġa.',
+            'min' => 'Il-password l-antika trid tkun mill-inqas :min karattri.',
+        ],
+        'new_password' => [
+            'required' => 'Password ġdida hija meħtieġa.',
+            'different' => 'Il-password il-ġdida trid tkun differenti mill-password l-antika.',
+        ],
+        'confirm_password' => [
+            'required' => 'Ikkonferma l-password hija meħtieġa.',
+            'same' => 'Ikkonferma l-password għandha taqbel mal-password ġdida.',
+        ],
+        'terms' => [
+            'required' => 'Trid taċċetta t-termini.',
+        ],
+        'password' => [
+            'required' => 'Password hija meħtieġa.',
+        ],
+        'password_confirmation' => [
+            'required' => 'Il-konferma tal-password hija meħtieġa.',
+            'same' => 'Il-passwords ma jaqblux.',
+        ],
+        'mobile_code' => [
+            'required' => 'Daħħal il-kodiċi tal-pajjiż (mobbli)',
+        ],
     ],
-    'email' => [
-        'required' => 'Il-email hija meħtieġa.',
-        'email' => 'Daħħal indirizz email validu.',
-        'unique' => 'L-indirizz email diġà ġie miżmum. Għarbel email oħra.',
-    ],
-
-    'mobile' => [
-        'required' => 'In-numru tal-mobile huwa meħtieġ.',
-        'regex' => 'Daħħal numru validu tal-mobile.',
-        'min' => 'In-numru tal-mobile irid ikun mill-inqas :min karattri.',
-        'max' => 'In-numru tal-mobile ma jistax ikun aktar minn :max karattri.',
-    ],
-
-    'address' => [
-        'required' => 'L-indirizz huwa meħtieġ.',
-    ],
-
-    'user_name' => [
-        'required' => 'L-isem tal-utent huwa meħtieġ.',
-        'unique' => 'Dan l-isem tal-utent diġà ġie miżmum.',
-    ],
-
-    'timezone_id' => [
-        'required' => 'Il-qasam tat-tferrigħ huwa meħtieġ.',
-    ],
-
-    'country' => [
-        'required' => 'Il-pajjiż huwa meħtieġ.',
-        'exists' => 'Il-pajjiż magħżul huwa invalidu.',
-    ],
-
-    'state' => [
-        'required_if' => 'Il-qasam tal-istat huwa meħtieġ meta l-pajjiż ikun l-Indja.',
-    ],
-
-    'old_password' => [
-        'required' => 'Il-password qodma hija meħtieġa.',
-        'min' => 'Il-password qodma għandha tkun mill-inqas :min karattri.',
-    ],
-
-    'new_password' => [
-        'required' => 'Il-password ġdida hija meħtieġa.',
-        'different' => 'Il-password ġdida għandha tkun differenti mill-password qodma.',
-    ],
-
-    'confirm_password' => [
-        'required' => 'Il-konferma tal-password hija meħtieġa.',
-        'same' => 'Il-konferma tal-password trid tikkorrispondi mal-password ġdida.',
-    ],
-
-    'terms' => [
-        'required' => 'Int trid taċċetta t-termini.',
-    ],
-
-    'password' => [
-        'required' => 'Il-password hija meħtieġa.',
-    ],
-
-    'password_confirmation' => [
-        'required' => 'Il-konferma tal-password hija meħtieġa.',
-        'same' => 'Il-passwords ma jikkorrispondux.',
-    ],
-
-    'mobile_code' => [
-        'required' => 'Daħħal il-kodiċi tal-pajjiż (mobile).',
-    ],
-
-    //Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Il-qasam tal-klijenti huwa meħtieġ.',
@@ -647,7 +660,12 @@ return [
             'date' => 'Id-data trid tkun data valida.',
         ],
         'domain' => [
+            'required' => 'Il-qasam tad-dominju huwa meħtieġ.',
             'regex' => 'Il-format tal-dominju huwa invalidu.',
+        ],
+        'cloud_domain' => [
+            'required' => 'Il-qasam tad-dominju tal-cloud huwa meħtieġ.',
+            'regex' => 'Ittri, numri u singijiet biss huma permessi.',
         ],
         'plan' => [
             'required_if' => 'Il-qasam tas-sottoskrizzjoni huwa meħtieġ.',
@@ -659,88 +677,86 @@ return [
             'required' => 'Il-qasam tal-prodott huwa meħtieġ.',
         ],
     ],
-
-    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Il-qasam tal-dominju huwa meħtieġ.',
             'url' => 'Il-dominju għandu jkun URL validu.',
         ],
     ],
-
-    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Il-qasam tal-dominju huwa meħtieġ.',
             'no_http' => 'Il-dominju m’għandux ikun fih "http" jew "https".',
         ],
     ],
-
-    //Language form
     'language' => [
         'required' => 'Il-qasam tal-lingwa huwa meħtieġ.',
         'invalid' => 'Il-lingwa magħżula hija invalidu.',
     ],
-
-    //UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Il-qasam tad-disk tal-ħażna huwa meħtieġ.',
             'string' => 'Id-disk għandu jkun stringa.',
         ],
         'path' => [
+            'required' => 'Il-qasam tal-mogħdija tal-ħażna huwa meħtieġ.',
             'string' => 'Il-patħ għandu jkun stringa.',
             'nullable' => 'Il-qasam tal-patħ huwa fakultattiv.',
+            'invalid' => 'It-triq ma teżistix jew ma tistax tinkiteb.',
         ],
     ],
-
-    //ValidateSecretRequest form
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => 'Il-qasam tal-mogħdija tan-node huwa meħtieġ.',
+            'string' => 'Il-mogħdija tan-node trid tkun string valida.',
+        ],
+        'npm_path' => [
+            'required' => 'Il-qasam tal-passaġġ npm huwa meħtieġ.',
+            'string' => 'Il-mogħdija npm għandha tkun string valida.',
+        ],
+        'chrome_path' => [
+            'required' => 'Il-qasam tal-mogħdija tal-kromju huwa meħtieġ.',
+            'string' => 'Il-mogħdija tal-kromju għandha tkun string valida.',
+            'invalid' => 'Il-mogħdija tal-kromju ma teżistix jew mhix eżekutibbli.',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => 'Daħħal il-kodiċi.',
             'digits' => 'Daħħal il-kodiċi validu ta 6 ċifri.',
         ],
     ],
-
-    //VerifyOtp form
     'verify_email' => [
         'required' => 'Il-qasam tal-email huwa meħtieġ.',
         'email' => 'L-email għandha tkun indirizz email validu.',
-        'verify_email' => 'Il-verifika tal-email falliet.', // Custom message for verify_email
+        'verify_email' => 'Il-verifika tal-email falliet.',
     ],
-
     'verify_country_code' => [
         'required' => 'Il-kodiċi tal-pajjiż huwa meħtieġ.',
         'numeric' => 'Il-kodiċi tal-pajjiż għandu jkun numru validu.',
-        'verify_country_code' => 'Il-verifika tal-kodiċi tal-pajjiż falliet.', // Custom message for verify_country_code
+        'verify_country_code' => 'Il-verifika tal-kodiċi tal-pajjiż falliet.',
     ],
-
     'verify_number' => [
         'required' => 'In-numru huwa meħtieġ.',
         'numeric' => 'In-numru għandu jkun numru validu.',
-        'verify_number' => 'Il-verifika tan-numru falliet.', // Custom message for verify_number
+        'verify_number' => 'Il-verifika tan-numru falliet.',
     ],
-
     'password_otp' => [
         'required' => 'Il-qasam tal-password huwa meħtieġ.',
         'password' => 'Il-password hija ħażina.',
         'invalid' => 'Password invalidu.',
     ],
-    //AuthController file
     'auth_controller' => [
         'name_required' => 'L-isem huwa meħtieġ.',
         'name_max' => 'L-isem ma jistax ikun aktar minn 255 karattri.',
-
         'email_required' => 'L-email hija meħtieġa.',
         'email_email' => 'Daħħal indirizz email validu.',
         'email_max' => 'L-email ma jistax ikun aktar minn 255 karattri.',
         'email_unique' => 'Din l-email diġà hija rreġistrata.',
-
         'password_required' => 'Il-password hija meħtieġa.',
         'password_confirmed' => 'Il-konferma tal-password ma tikkorrispondux.',
         'password_min' => 'Il-password għandha tkun mill-inqas 6 karattri.',
     ],
-
     'resend_otp' => [
         'eid_required' => 'Il-qasam EID huwa meħtieġ.',
         'eid_string' => 'L-EID għandu jkun stringa.',
@@ -748,7 +764,6 @@ return [
         'type_string' => 'It-tip għandu jkun stringa.',
         'type_in' => 'It-tip magħżul huwa invalidu.',
     ],
-
     'verify_otp' => [
         'eid_required' => 'L-ID tal-impjegat huwa meħtieġ.',
         'eid_string' => 'L-ID tal-impjegat għandu jkun stringa.',
@@ -757,31 +772,26 @@ return [
         'recaptcha_required' => 'Jekk jogħġbok tlesti l-CAPTCHA.',
         'recaptcha_size' => 'Ir-risposta tal-CAPTCHA hija invalida.',
     ],
-
     'company_validation' => [
         'company_required' => 'Is-sempliċi tal-kumpanija huwa meħtieġ.',
         'company_string' => 'Il-kumpanija għandha tkun test.',
         'address_required' => 'L-indirizz huwa meħtieġ.',
         'address_string' => 'L-indirizz għandu jkun test.',
     ],
-
     'token_validation' => [
         'token_required' => 'Il-token huwa meħtieġ.',
         'password_required' => 'Il-qasam tal-password huwa meħtieġ.',
         'password_confirmed' => 'Il-konferma tal-password ma tikkorrispondux.',
     ],
-
     'custom_email' => [
         'required' => 'Il-qasam tal-email huwa meħtieġ.',
         'email' => 'Jekk jogħġbok daħħal indirizz email validu.',
         'exists' => 'Din l-email mhix irreġistrata magħna.',
     ],
-
     'newsletterEmail' => [
         'required' => 'Il-email għall-Newsletter hija meħtieġa.',
         'email' => 'Jekk jogħġbok daħħal indirizz email validu għall-Newsletter.',
     ],
-
     'widget' => [
         'name_required' => 'L-isem huwa meħtieġ.',
         'name_max' => 'L-isem ma jistax ikun aktar minn 50 karattri.',
@@ -789,40 +799,39 @@ return [
         'type_required' => 'It-tip huwa meħtieġ.',
         'type_unique' => 'Dan it-tip diġà jeżisti.',
     ],
-
     'payment' => [
         'payment_date_required' => 'Id-data tal-pagament hija meħtieġa.',
         'payment_method_required' => 'Il-metodu tal-pagament huwa meħtieġ.',
         'amount_required' => 'L-ammont huwa meħtieġ.',
     ],
-
     'custom_date' => [
         'date_required' => 'Il-qasam tad-data huwa meħtieġ.',
         'total_required' => 'Il-qasam tat-total huwa meħtieġ.',
         'status_required' => 'Il-qasam tal-istat huwa meħtieġ.',
     ],
-
     'plan_renewal' => [
         'plan_required' => 'Il-qasam tal-pjan huwa meħtieġ.',
         'payment_method_required' => 'Il-qasam tal-metodu tal-pagament huwa meħtieġ.',
         'cost_required' => 'Il-qasam tal-ispejjeż huwa meħtieġ.',
         'code_not_valid' => 'Il-kodiċi tal-promozzjoni mhux validu.',
     ],
-
     'rate' => [
         'required' => 'Il-rata hija meħtieġa.',
         'numeric' => 'Ir-rata għandha tkun numru.',
     ],
-
     'product_validate' => [
         'producttitle_required' => 'It-titlu tal-prodott huwa meħtieġ.',
         'version_required' => 'Il-verżjoni hija meħtieġa.',
         'filename_required' => 'Jekk jogħġbok, ibgħat fajl.',
         'dependencies_required' => 'Il-kamp tad-dependenzi huwa meħtieġ.',
+        'description_required' => 'Deskrizzjoni hija meħtieġa.',
+        'release_type_required' => 'It-tip ta \'rilaxx huwa meħtieġ.',
     ],
     'product_sku_unique' => 'Il-SKU tal-prodott għandu jkun uniku',
     'product_name_unique' => 'Ismijiet għandhom ikunu uniku',
     'product_show_agent_required' => 'Agħżel il-preferenza tal-paġna tal-karrettun tiegħek',
+    'config_file_path_regex' => 'Trid tkun mogħdija relattiva mingħajr ../ segmenti.',
+    'license_file_path_regex' => 'Għandu jkun mogħdija relattiva mingħajr ../ segmenti.',
     'product_controller' => [
         'name_required' => 'L-isem tal-prodott huwa meħtieġ.',
         'name_unique' => 'L-isem għandu jkun uniku.',
@@ -830,6 +839,7 @@ return [
         'type_required' => 'It-tip tal-prodott huwa meħtieġ.',
         'description_required' => 'Il-deskrizzjoni tal-prodott hija meħtieġa.',
         'product_description_required' => 'Il-deskrizzjoni dettaljata tal-prodott hija meħtieġa.',
+        'short_description_required' => 'Id-deskrizzjoni qasira hija meħtieġa.',
         'image_mimes' => 'L-immaġni trid tkun fajl minn tipi: jpeg, png, jpg.',
         'image_max' => 'L-immaġni ma tistax tkun ikbar minn 2048 kilobytes.',
         'product_sku_required' => 'Il-SKU tal-prodott huwa meħtieġ.',
@@ -847,7 +857,9 @@ return [
         'cloud_label_field_required' => 'Il-kamp tal-etiketta tal-cloud huwa meħtieġ.',
         'cloud_label_radio_required' => 'Il-radju tal-etiketta tal-cloud huwa meħtieġ.',
         'cloud_product_required' => 'Il-prodott tal-cloud huwa meħtieġ.',
+        'cloud_product_unique' => 'Dan il-prodott diġà għandu konfigurazzjoni ta \'sħaba.',
         'cloud_free_plan_required' => 'Il-pjan b\'xejn tal-cloud huwa meħtieġ.',
+        'cloud_free_plan_invalid' => 'Il-pjan magħżul ma jappartjenix għall-prodott magħżul.',
         'cloud_product_key_required' => 'Il-chiavi tal-prodott tal-cloud huma meħtieġa.',
     ],
     'reg_till_after' => 'Il-data tal-irreġistrazzjoni sal-lum trid tkun wara d-data tal-irreġistrazzjoni mill.',
@@ -876,6 +888,8 @@ return [
         'no_agent_req' => 'Il-qasam tan-numru ta’ aġenti huwa meħtieġ jekk il-kwantità tal-prodott mhijiex preżenti.',
         'pro_req' => 'Il-qasam tal-prodott huwa meħtieġ',
         'offer_price' => 'Il-prezz tal-offerta ma jistax ikun ogħla minn 100',
+        'currency_duplicate' => 'Kull munita tista \'tintuża darba biss.',
+        'non_negative' => 'Dan il-valur ma jistax ikun negattiv.',
     ],
     'razorpay_val' => [
         'business_required' => 'Il-kamp tan-negozju huwa meħtieġ.',
@@ -890,5 +904,36 @@ return [
     'login_failed' => 'Login fallut, jekk jogħġbok iċċekkja li l-email/username u l-password li daħħalt huma korretti.',
     'forgot_email_validation' => 'Jekk l-email li pprovdejt hija rreġistrata, tirċievi email bl-istruzzjonijiet biex tirrisettja l-password dalwaqt.',
     'too_many_login_attempts' => 'Inti ġejt imblukkat mill-applikazzjoni minħabba wisq tentattivi ta\' login falluti. Jekk jogħġbok erġa\' ipprova wara :time.',
-
+    'phone_number' => 'Jekk jogħġbok daħħal numru validu tat-telefon ċellulari.',
+    'mobile_number' => 'Il-:attribute għandu jkun numru validu tat-telefon ċellulari.',
+    'license' => [
+        'product' => [
+            'required' => 'Il-qasam tal-prodott huwa meħtieġ.',
+        ],
+        'client' => [
+            'required' => 'Il-qasam tal-klijent huwa meħtieġ.',
+        ],
+        'license_code' => [
+            'required' => 'Il-qasam tal-kodiċi tal-liċenzja huwa meħtieġ.',
+        ],
+        'license_expire_date' => [
+            'required' => 'Il-qasam tad-data tal-iskadenza tal-liċenzja huwa meħtieġ.',
+        ],
+        'license_updates_date' => [
+            'required' => 'Il-qasam tad-data tal-iskadenza tal-aġġornamenti huwa meħtieġ.',
+        ],
+        'license_support_date' => [
+            'required' => 'Il-qasam tad-data tal-iskadenza tal-appoġġ huwa meħtieġ.',
+        ],
+        'banned_host_ip' => [
+            'required' => 'Il-qasam tal-IP ospitanti pprojbit huwa meħtieġ.',
+            'invalid' => 'Jekk jogħġbok daħħal indirizz IP validu.',
+        ],
+        'installation_ip' => [
+            'required' => 'Il-qasam tal-IP tal-installazzjoni huwa meħtieġ.',
+        ],
+        'notification_field' => [
+            'required' => 'Dan il-qasam tan-notifika huwa meħtieġ.',
+        ],
+    ],
 ];

@@ -3,298 +3,266 @@
 namespace App\Http\Controllers\License;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\LocalizedLicenseRequest;
+use App\License\Models\License;
+use App\License\Services\InstallationService;
+use App\License\Services\LicenseFileService;
+use App\License\Services\LicenseService;
 use App\Model\Order\Order;
-use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\URL;
+use SodiumException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LocalizedLicenseController extends Controller
 {
-    private LicenseService $licenseService;
-
-    public function __construct()
-    {
+    public function __construct(
+        protected InstallationService $installationService,
+        protected LicenseFileService $licenseFileService,
+    ) {
         $this->middleware('auth');
-        $this->middleware('admin', ['except' => ['downloadFile', 'downloadPrivate', 'storeFile']]);
-        $this->licenseService = new LicenseService();
+        $this->middleware('admin', ['except' => ['downloadFile', 'submitLicenseBinding', 'pluginsForOrder']]);
     }
 
-    private function postCurl($post_url, $post_info, $token = null)
+    /**
+     * Builds the signed license file on the fly and streams it as a download.
+     * Only the order's own client may download it this way. Pass `productId`
+     * (one of the order's attached plugins/add-ons) to get that plugin's
+     * license file instead of the main product's.
+     *
+     * @throws SodiumException
+     */
+    public function downloadFile(Request $request): StreamedResponse|JsonResponse
     {
-        if (! empty($token)) {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $post_url);
-            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BEARER);
-            curl_setopt($ch, CURLOPT_XOAUTH2_BEARER, $token);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_info);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-            $result = curl_exec($ch);
-            curl_close($ch);
-
-            return $result;
-        } else {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $post_url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_info);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-            $result = curl_exec($ch);
-            curl_close($ch);
-
-            return $result;
+        if (! Auth::check()) {
+            return errorResponse(__('message.access_denied'), 401);
         }
-    }
 
-    /**
-     * Downloads the license file.
-     * */
-    public function downloadFile(Request $request)
-    {
-        if (Auth::check()) {
-            $orderNo = $request->get('orderNo');
-            $fileName = 'faveo-license-{'.$orderNo.'}.txt';
-            $filePath = storage_path('app/public/'.$fileName);
+        $orderNo = (string) $request->query('orderNo');
 
-            return response()->download($filePath);
-        } else {
-            return redirect(url('login'));
+        if (! $this->findOwnedOrder($orderNo)) {
+            return errorResponse(__('message.access_denied'), 403);
         }
+
+        $productId = $request->query('productId');
+
+        return $this->streamFile($this->buildSignedLicenseFile($orderNo, $productId !== null ? (int) $productId : null));
     }
 
     /**
-     * Downloads the license file through admin.
-     * */
-    public function downloadFileAdmin($fileName)
+     * Submits an order's domain/IP and machine ID together, binding future
+     * downloads of the offline license file to that specific server. Either
+     * the order's own client, or an admin acting on their behalf, may call
+     * this — required once, before the first download.
+     */
+    public function submitLicenseBinding(Request $request): JsonResponse
     {
-        $filePath = storage_path('app/public/'.$fileName);
+        if (! Auth::check()) {
+            return errorResponse(__('message.access_denied'), 401);
+        }
 
-        return response()->download($filePath);
+        $orderNo = (string) $request->input('orderNo');
+        $order = Order::where('number', $orderNo)->first();
+        $isAdmin = Auth::user()?->role === 'admin';
+
+        if (! $order || (! $isAdmin && $order->client !== Auth::id())) {
+            return errorResponse(__('message.access_denied'), 403);
+        }
+
+        return $this->updateLicenseBinding($orderNo, $request);
+    }
+
+    private function updateLicenseBinding(string $orderNo, Request $request): JsonResponse
+    {
+        $domain = trim((string) $request->input('domain'));
+        $machineId = trim((string) $request->input('machine_id'));
+
+        if ($domain === '' || $machineId === '' || strlen($domain) > 255 || strlen($machineId) > 255) {
+            return errorResponse(__('message.invalid'));
+        }
+
+        $ipAndDomain = LicenseService::parseIpAndDomain($domain);
+
+        // Not a recognised IP, so it must be a syntactically valid hostname —
+        // rejects things like "invalid domain!!" before they get baked into
+        // the signed license file. Hyphens/subdomains are fine (FILTER_FLAG_HOSTNAME).
+        if ($ipAndDomain['requireDomain'] && ! filter_var($ipAndDomain['domain'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+            return errorResponse(__('message.invalid_domain'));
+        }
+
+        $updated = License::where('license_order_number', $orderNo)->update([
+            'license_domain' => $ipAndDomain['domain'],
+            'license_ip' => $ipAndDomain['ip'],
+            'license_require_domain' => $ipAndDomain['requireDomain'],
+            'license_machine_id' => $machineId,
+        ]);
+
+        if (! $updated) {
+            return errorResponse(__('message.not_found', ['file' => __('message.localized_license')]), 404);
+        }
+
+        return successResponse(__('message.saved-successfully'));
+    }
+
+    private function findOwnedOrder(string $orderNo): ?Order
+    {
+        $order = Order::where('number', $orderNo)->first();
+
+        return $order && $order->client === Auth::id() ? $order : null;
     }
 
     /**
-     * Downloads the private key for the license.
-     * */
-    public function downloadPrivate($orderNo)
+     * Builds the signed license file on the fly and streams it as a download, via the admin panel.
+     * Pass `$productId` (one of the order's attached plugins/add-ons) to get that
+     * plugin's license file instead of the main product's.
+     *
+     * @throws SodiumException
+     */
+    public function downloadFileAdmin(string $orderNo, ?string $productId = null): StreamedResponse|JsonResponse
     {
-        $fileName = storage_path('app/public/privateKey-'.$orderNo.'.txt');
-
-        return response()->download($fileName);
+        return $this->streamFile($this->buildSignedLicenseFile($orderNo, $productId !== null ? (int) $productId : null));
     }
 
     /**
-     * Downloads the private key for the license through admin panel.
-     * */
-    public function downloadPrivateKeyAdmin($fileName)
+     * Lists the add-on products attached to an order's license (bundled or
+     * separately purchased - both end up as a license_plugins row the same
+     * way), so the admin panel and the client's own order page can each offer
+     * a per-plugin license file download. Callable by the order's own client
+     * or an admin acting on their behalf, same access rule as license binding.
+     */
+    public function pluginsForOrder(string $orderNo): JsonResponse
     {
-        $value = explode('}', $fileName);
-        $orderNo = substr($value[0], 15);
-        $fileName = storage_path('app/public/privateKey-'.$orderNo.'.txt');
+        if (! Auth::check()) {
+            return errorResponse(__('message.access_denied'), 401);
+        }
 
-        return response()->download($fileName);
+        $order = Order::where('number', $orderNo)->first();
+        $isAdmin = Auth::user()?->role === 'admin';
+
+        if (! $order || (! $isAdmin && $order->client !== Auth::id())) {
+            return errorResponse(__('message.access_denied'), 403);
+        }
+
+        $license = License::where('license_order_number', $orderNo)->first();
+
+        if (! $license instanceof License) {
+            return errorResponse(__('message.not_found', ['file' => __('message.localized_license')]), 404);
+        }
+
+        return successResponse('', $license->addonProducts()->get(['products.id', 'products.name']));
+    }
+
+    private function streamFile(?string $file): StreamedResponse|JsonResponse
+    {
+        if ($file === null) {
+            return errorResponse(__('message.not_found', ['file' => __('message.localized_license')]), 404);
+        }
+
+        return response()->streamDownload(
+            fn () => print($file),
+            'license.json',
+            ['Content-Type' => 'application/json']
+        );
+    }
+
+    /**
+     * Lists every order currently in File (offline) license mode, with its
+     * binding status, so an admin can see who's configured vs. still pending
+     * without opening each order individually.
+     */
+    public function listFileModeOrders(Request $request): JsonResponse
+    {
+        $perPage = $request->input('limit', $request->input('perPage', 10));
+        $page = $request->input('page', 1);
+        $searchQuery = $request->input('search-query', $request->input('search_query', ''));
+        $sortOrder = strtolower((string) $request->input('sort-order', $request->input('sort_order', 'desc'))) === 'asc' ? 'asc' : 'desc';
+        $sortField = in_array($request->input('sort-field', $request->input('sort_field', 'id')), ['id', 'number', 'created_at'], strict: true)
+            ? $request->input('sort-field', $request->input('sort_field', 'id'))
+            : 'id';
+
+        $orders = Order::with(['user:id,email', 'productRelation:id,name'])
+            ->where('license_mode', 'File')
+            ->when($searchQuery, function ($query) use ($searchQuery): void {
+                $query->where(function ($q) use ($searchQuery): void {
+                    $q->where('number', 'like', '%'.$searchQuery.'%')
+                        ->orWhereHas('user', fn ($u) => $u->where('email', 'like', '%'.$searchQuery.'%'))
+                        ->orWhereHas('productRelation', fn ($p) => $p->where('name', 'like', '%'.$searchQuery.'%'));
+                });
+            })
+            ->orderBy($sortField, $sortOrder)
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        $licenses = License::whereIn('license_order_number', $orders->getCollection()->pluck('number'))
+            ->get(['license_order_number', 'license_domain', 'license_machine_id', 'license_expire_date'])
+            ->keyBy('license_order_number');
+
+        $orders->getCollection()->transform(function (Order $order) use ($licenses) {
+            $license = $licenses->get($order->number);
+
+            return (object) [
+                'id' => $order->id,
+                'number' => $order->number,
+                'client_id' => $order->client,
+                'client_email' => $order->user?->email,
+                'product_id' => $order->productRelation?->id,
+                'product_name' => $order->productRelation?->name,
+                'license_domain' => $license?->license_domain,
+                'license_machine_id' => $license?->license_machine_id,
+                'license_expire_date' => $license?->license_expire_date,
+                'is_bound' => (bool) ($license && $license->license_domain && $license->license_machine_id),
+            ];
+        });
+
+        return successResponse('', $orders);
+    }
+
+    /**
+     * Bulk-disables File (offline) license mode for the given orders,
+     * switching them back to Database mode.
+     */
+    public function bulkDisableLicenseMode(Request $request): JsonResponse
+    {
+        $ids = (array) $request->input('select');
+
+        if (empty($ids)) {
+            return errorResponse(__('message.select-a-row'));
+        }
+
+        Order::whereIn('id', $ids)->update(['license_mode' => 'Database']);
+
+        return successResponse(__('message.status_change_successfully'));
     }
 
     /**
      * Chooses which license mode is applicable File/Database.
      * */
-    public function chooseLicenseMode(Request $request)
+    public function chooseLicenseMode(Request $request): JsonResponse
     {
-        $chose = $request->input('choose');
         $orderNo = $request->input('orderNo');
-        if ($chose) {
-            $encrypt = new EncryptDecryptController();
-            $encrypt->generateKeys($orderNo);
-            Order::where('number', $orderNo)->update(['license_mode' => 'File']);
+        $chose = $request->boolean('choose');
 
-            return response()->json(['success' => __('message.status_change_successfully')]); //return redirect()->back()->with('success', Lang::get('Private and Public Keys generated for this order number: '.$orderNo));
-        } else {
-            Order::where('number', $orderNo)->update(['license_mode' => 'Database']);
-            Storage::disk('public')->delete('publicKey-'.$orderNo.'.txt');
-            Storage::disk('public')->delete('privateKey-'.$orderNo.'.txt');
-            Storage::disk('public')->delete('faveo-license-{'.$orderNo.'}.txt');
+        Order::where('number', $orderNo)->update(['license_mode' => $chose ? 'File' : 'Database']);
 
-            return response()->json(['success' => __('message.status_change_successfully')]); //return redirect()->back()->with('success',Lang::get('Reverted back to database license mode' .$orderNo));
-        }
+        return successResponse(__('message.status_change_successfully'));
     }
 
     /**
-     * Stores the license file after the client has entered a domain and downloads the license.
-     * */
-    public function storeFile(LocalizedLicenseRequest $request)
+     * Builds and signs the offline license file for an order on the fly, so
+     * it can be verified locally without any internet interaction and never
+     * needs to be persisted anywhere. Returns null when there is no license
+     * record to build it from. Pass `$pluginProductId` to build the file for
+     * one of the order's attached plugins/add-ons instead of the main product.
+     *
+     * @throws SodiumException
+     */
+    private function buildSignedLicenseFile(string $orderNo, ?int $pluginProductId = null): ?string
     {
-        if (Auth::check()) {
-            $userID = $request->input('userId');
-            if (! empty($userID) && ! empty(Auth::user()->id)) {
-                $domain = $request->input('domain');
-                $orderNo = $request->input('orderNo');
-                $licenseCode = Order::where('number', $orderNo)->value('serial_key');
-                $id = Order::where('number', $orderNo)->value('id');
-                $productId = DB::table('subscriptions')->where('order_id', $id)->value('product_id');
-                $Latestversion = DB::table('product_uploads')->where('product_id', $productId)->latest()->value('version');
+        $license = License::where('license_order_number', $orderNo)->first();
 
-                $licenseExpiry = DB::table('subscriptions')->where('order_id', $id)->value('ends_at');
-                $updatesExpiry = DB::table('subscriptions')->where('order_id', $id)->value('update_ends_at');
-                $supportExpiry = DB::table('subscriptions')->where('order_id', $id)->value('support_ends_at');
-                if (Carbon::parse($licenseExpiry)->format('Y-m-d') < 1) {
-                    $licenseExpiry = '--';
-                } else {
-                    $licenseExpiry = Carbon::parse($licenseExpiry)->format('Y-m-d');
-                }
-                if (Carbon::parse($updatesExpiry)->format('Y-m-d') < 1) {
-                    $updatesExpiry = '--';
-                } else {
-                    $updatesExpiry = Carbon::parse($updatesExpiry)->format('Y-m-d');
-                }
-                if (Carbon::parse($supportExpiry)->format('Y-m-d') < 1) {
-                    $supportExpiry = '--';
-                } else {
-                    $supportExpiry = Carbon::parse($supportExpiry)->format('Y-m-d');
-                }
-                DB::table('installation_details')->insertOrIgnore(['installation_path' => $domain, 'order_id' => $id, 'last_active' => date('Y-m-d'), 'version' => $Latestversion]);
-                $this->localizedLicenseInstallLM($orderNo, $domain, $licenseCode);
-
-                $userData = '<root_url>'.$domain.'</root_url><license_code>'.$licenseCode.'</license_code><license_expiry>'.$licenseExpiry.'</license_expiry><updates_expiry>'.$updatesExpiry.'</updates_expiry><support_expiry>'.$supportExpiry.'</support_expiry>';
-
-                $encrypt = new EncryptDecryptController();
-                $encryptData = $encrypt->encrypt($userData, $orderNo);
-
-                $fileName = 'faveo-license-{'.$orderNo.'}.txt';
-                Storage::disk('public')->put($fileName, $encryptData);
-
-                $link = $this->tempOrderLink($orderNo, $userID);
-
-                return Redirect::to($link);
-            } else {
-                return redirect(url('login'));
-            }
-        } else {
-            return redirect(url('login'));
-        }
-    }
-
-    /**
-     * Generates a temporary link to download the license file with a time constraint.
-     * */
-    public function tempOrderLink($orderNo, $userID)
-    {
-        if (! empty($userID) && ! empty(Auth::user()->id)) {
-            $url = URL::temporarySignedRoute('event.rsvp', now()->addSeconds(30), [
-                'orderNo' => $orderNo,
-            ]);
-
-            return $url;
-        } else {
-            return redirect(url('login'));
-        }
-    }
-
-    private function localizedLicenseInstallLM($orderNo, $domain, $licenseCode)
-    {
-        $client_email = '';
-        $url = $this->licenseService->getUrl();
-        $api_key_secret = $this->licenseService->getApiKeySecret();
-        $productId = Order::where('number', $orderNo)->value('product');
-        $installation_date = date('Y-m-d');
-        $installation_hash = hash('sha256', $domain.$client_email.$licenseCode);
-        $token = $this->licenseService->getValidToken();
-        $addLocalizedInstallation = $this->postCurl($url.'api/admin/addInstallation', "api_key_secret=$api_key_secret&product_id=$productId&license_code=$licenseCode&installation_domain=$domain&installation_date=$installation_date&installation_status=1&installation_hash=$installation_hash", $token);
-    }
-
-    /**
-     * Edits the license details without showing the pre-existing license data.
-     * */
-    /*public function fileEdit(Request $request,$fileName)
-    {
-      $value = explode("}",$fileName);
-      $orderNo = substr($value[0], 15);
-      $fileName = "faveo-license-{".$orderNo."}.txt";
-      dd($orderNo,$fileName);
-      extract($this->getLicenseData($fileName,$orderNo));
-
-      if(!is_null($request->get('root_url')))
-      {
-        $root_url = $request->get('root_url');
-      }
-      if(!is_null($request->get('license_expiry')))
-      {
-        $license_expiry = $request->get('license_expiry');
-      }
-      if(!is_null($request->get('updates_expiry')))
-      {
-        $updates_expiry = $request->get('updates_expiry');
-      }
-      if(!is_null($request->get('support_expiry')))
-      {
-        $support_expiry = $request->get('support_expiry');
-      }
-
-      $stored=Storage::disk('public')->path($fileName);
-      $handle=@fopen($stored, "w+");
-       $fwrite=@fwrite($handle,"<root_url>$root_url</root_url><license_code>$license_code</license_code><license_expiry>$license_expiry</license_expiry><updates_expiry>$updates_expiry</updates_expiry><support_expiry>$support_expiry</support_expiry>");
-          if ($fwrite===false) //updating file failed
-           {
-            echo "Update was not performed";
-            exit();
-            }
-       $encrypt = new EncryptDecryptController();
-       $data=$encrypt->encrypt($fileName,$orderNo);
-       Storage::disk('public')->put($fileName,$data);
-       @fclose($handle);
-       return redirect()->back()->with('success', Lang::get('License data is updated'.$orderNo));
-    }*/
-
-    /**
-     * Deletes the license file.
-     * */
-    public function deleteFile($fileName)
-    {
-        Storage::disk('public')->delete($fileName);
-
-        return redirect()->back()->with('success', Lang::get('message.license_file_deleted', ['file' => $fileName]));
-    }
-
-    //return an array with license data
-    private function getLicenseData($fileName, $orderNo)
-    {
-        $settings_row = [];
-        $settings_row = $this->parseLicenseFile($fileName, $orderNo);
-
-        return $settings_row;
-    }
-
-    //parse license file and make an array with license data
-    private function parseLicenseFile($fileName, $orderNo)
-    {
-        $license_data_array = [];
-        $stored = Storage::disk('public')->path($fileName);
-        if (@is_readable($stored)) {
-            $decrypt = new EncryptDecryptController();
-            $contents = $decrypt->decrypt($orderNo);
-            Storage::disk('public')->put($fileName, $contents);
-            $stored = Storage::disk('public')->path($fileName);
-            $file_content = file_get_contents($stored);
-            preg_match_all("/<([a-z_]+)>(.*?)<\/([a-z_]+)>/", $file_content, $matches, PREG_SET_ORDER);
-            if (! empty($matches)) {
-                foreach ($matches as $value) {
-                    if (! empty($value[1]) && $value[1] == $value[3]) {
-                        $license_data_array[$value[1]] = $value[2];
-                    }
-                }
-            }
+        if (! $license instanceof License) {
+            return null;
         }
 
-        return $license_data_array;
+        return $this->licenseFileService->buildSignedLicenseFile($license, $pluginProductId);
     }
 }

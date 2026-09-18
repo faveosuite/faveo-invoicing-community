@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     [
         'country_id' => '1',
@@ -134,7 +136,7 @@ return [
         'country_name' => 'Antigua and Barbuda',
         'numcode' => '028',
         'phonecode' => '1',
-        'capital' => 'St. John\'s',
+        'capital' => "St. John's",
         'latitude' => '17.05000000',
         'longitude' => '-61.80000000',
         'emoji' => '🇦🇬',
@@ -596,7 +598,7 @@ return [
         'country_name' => 'Chad',
         'numcode' => '148',
         'phonecode' => '235',
-        'capital' => 'N\'Djamena',
+        'capital' => "N'Djamena",
         'latitude' => '15.00000000',
         'longitude' => '19.00000000',
         'emoji' => '🇹🇩',
@@ -747,7 +749,7 @@ return [
         'country_id' => '54',
         'country_code_char2' => 'CI',
         'country_code_char3' => 'CIV',
-        'country_name' => 'Cote D\'Ivoire (Ivory Coast)',
+        'country_name' => "Cote D'Ivoire (Ivory Coast)",
         'numcode' => '384',
         'phonecode' => '225',
         'capital' => 'Yamoussoukro',
@@ -1212,7 +1214,7 @@ return [
         'country_name' => 'Grenada',
         'numcode' => '308',
         'phonecode' => '1',
-        'capital' => 'St. George\'s',
+        'capital' => "St. George's",
         'latitude' => '12.11666666',
         'longitude' => '-61.66666666',
         'emoji' => '🇬🇩',
@@ -3102,7 +3104,7 @@ return [
         'country_name' => 'Tonga',
         'numcode' => '776',
         'phonecode' => '676',
-        'capital' => 'Nuku\'alofa',
+        'capital' => "Nuku'alofa",
         'latitude' => '-20.00000000',
         'longitude' => '-175.00000000',
         'emoji' => '🇹🇴',

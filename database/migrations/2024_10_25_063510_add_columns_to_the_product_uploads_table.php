@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('product_uploads', function (Blueprint $table) {
+        Schema::table('product_uploads', function (Blueprint $table): void {
             $table->string('release_type')->default('official');
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('product_uploads', function (Blueprint $table) {
+        Schema::table('product_uploads', function (Blueprint $table): void {
             $table->dropColumn('release_type');
         });
     }

@@ -25,6 +25,9 @@ final readonly class PreConditionCalled implements Event
     private Code\TestMethod $test;
     private Code\ClassMethod $calledMethod;
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(Telemetry\Info $telemetryInfo, Code\TestMethod $test, Code\ClassMethod $calledMethod)
     {
         $this->telemetryInfo = $telemetryInfo;
@@ -40,16 +43,6 @@ final readonly class PreConditionCalled implements Event
     public function test(): Code\TestMethod
     {
         return $this->test;
-    }
-
-    /**
-     * @return class-string
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
-     */
-    public function testClassName(): string
-    {
-        return $this->test->className();
     }
 
     public function calledMethod(): Code\ClassMethod

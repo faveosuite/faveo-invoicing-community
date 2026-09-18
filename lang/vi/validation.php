@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'accepted' => ':attribute phải được chấp nhận.',
     'accepted_if' => ':attribute phải được chấp nhận khi :other là :value.',
     'active_url' => ':attribute không phải là một URL hợp lệ.',
@@ -25,6 +24,7 @@ return [
     'date' => ':attribute không phải là một ngày hợp lệ.',
     'date_equals' => ':attribute phải là một ngày bằng với :date.',
     'date_format' => ':attribute không khớp với định dạng :format.',
+    'decimal' => 'Trường :attribute phải có :decimal chữ số thập phân.',
     'declined' => ':attribute phải bị từ chối.',
     'declined_if' => ':attribute phải bị từ chối khi :other là :value.',
     'different' => ':attribute và :other phải khác nhau.',
@@ -92,10 +92,10 @@ return [
     'numeric' => ':attribute phải là một số.',
     'password' => [
         'letters' => ':attribute phải chứa ít nhất một chữ cái.',
-        'mixed' => ':attribute phải chứa ít nhất một chữ cái viết hoa và một chữ cái viết thường.',
+        'mixed' => ':attribute phải chứa ít nhất một chữ hoa và một chữ cái viết thường.',
         'numbers' => ':attribute phải chứa ít nhất một số.',
-        'symbols' => ':attribute phải chứa ít nhất một ký tự đặc biệt.',
-        'uncompromised' => ':attribute đã xuất hiện trong một vụ rò rỉ dữ liệu. Vui lòng chọn :attribute khác.',
+        'symbols' => ':attribute phải chứa ít nhất một ký hiệu.',
+        'uncompromised' => ':attribute đã cho đã xuất hiện trong một vụ rò rỉ dữ liệu. Vui lòng chọn :attribute khác.',
     ],
     'present' => 'Trường :attribute phải có mặt.',
     'prohibited' => 'Trường :attribute bị cấm.',
@@ -125,35 +125,11 @@ return [
     'uploaded' => ':attribute đã tải lên không thành công.',
     'url' => ':attribute phải là một URL hợp lệ.',
     'uuid' => ':attribute phải là một UUID hợp lệ.',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Validation Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | Bạn có thể chỉ định các thông báo xác thực tùy chỉnh cho các thuộc tính sử dụng
-    | quy tắc "attribute.rule" để đặt tên các dòng. Điều này giúp bạn nhanh chóng
-    | chỉ định một dòng ngôn ngữ tùy chỉnh cho một quy tắc thuộc tính nhất định.
-    |
-    */
-
     'custom_dup' => [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Validation Attributes
-    |--------------------------------------------------------------------------
-    |
-    | Các dòng ngôn ngữ sau được sử dụng để thay thế các placeholder thuộc tính
-    | bằng một cái tên dễ đọc hơn như "Địa chỉ email" thay vì "email".
-    | Điều này giúp chúng ta làm cho thông báo dễ hiểu hơn.
-    |
-    */
-
     'attributes' => [],
     'publish_date_required' => 'Ngày xuất bản là bắt buộc',
     'price_numeric_value' => 'Giá phải là một giá trị số',
@@ -170,12 +146,6 @@ return [
     'total_amount_required' => 'Tổng số tiền là bắt buộc.',
     'total_amount_numeric' => 'Tổng số tiền phải là một giá trị số.',
     'invoice_link_required' => 'Vui lòng liên kết số tiền với ít nhất một hóa đơn.',
-
-    /*
-    Request file custom validation messages
-    */
-
-    // Common
     'settings_form' => [
         'company' => [
             'required' => 'Trường công ty là bắt buộc.',
@@ -210,7 +180,6 @@ return [
             'email' => 'Email lỗi phải là một địa chỉ email hợp lệ.',
         ],
     ],
-
     'settings_forms' => [
         'company' => [
             'required' => 'Tên công ty là bắt buộc.',
@@ -241,7 +210,7 @@ return [
             'required' => 'Quốc gia là bắt buộc.',
         ],
         'gstin' => [
-            'max' => 'GSTIN không được vượt quá 15 ký tự.',
+            'regex' => 'Định dạng GSTIN không hợp lệ.',
         ],
         'default_currency' => [
             'required' => 'Loại tiền tệ mặc định là bắt buộc.',
@@ -259,7 +228,10 @@ return [
             'max' => 'Logo không được vượt quá 2MB.',
         ],
     ],
-
+    'og_image' => [
+        'mimes' => 'Hình ảnh OG phải là tệp thuộc loại:jpeg, png, jpg, webp.',
+        'max' => 'Hình ảnh OG không được lớn hơn 2MB.',
+    ],
     'social_media_form' => [
         'name' => [
             'required' => 'Trường tên là bắt buộc.',
@@ -271,9 +243,13 @@ return [
             'url' => 'Liên kết phải là một URL hợp lệ.',
             'regex' => 'Định dạng liên kết không hợp lệ.',
         ],
+        'class' => [
+            'required' => 'Trường lớp biểu tượng là bắt buộc.',
+        ],
+        'fa_class' => [
+            'required' => 'Trường lớp biểu tượng là bắt buộc.',
+        ],
     ],
-
-    // Email
     'custom' => [
         'password' => [
             'required_if' => 'Trường mật khẩu là bắt buộc đối với driver thư đã chọn.',
@@ -305,11 +281,10 @@ return [
             'email' => 'Vui lòng nhập một địa chỉ email hợp lệ.',
             'not_matching' => 'Tên miền email phải khớp với tên miền của trang web hiện tại.',
         ],
+        'driver' => [
+            'required' => 'Trường trình điều khiển là bắt buộc.',
+        ],
     ],
-    'driver' => [
-        'required' => 'Trường driver là bắt buộc.',
-    ],
-
     'customer_form' => [
         'first_name' => [
             'required' => 'Trường tên là bắt buộc.',
@@ -337,7 +312,6 @@ return [
             'unique' => 'Email này đã được sử dụng.',
         ],
     ],
-
     'contact_request' => [
         'conName' => 'Trường tên là bắt buộc.',
         'email' => 'Trường email là bắt buộc.',
@@ -350,7 +324,6 @@ return [
         'congg-recaptcha-response-1.required' => 'Xác minh robot không thành công. Vui lòng thử lại.',
         'demo-recaptcha-response-1.required' => 'Xác minh robot không thành công. Vui lòng thử lại.',
     ],
-
     'frontend_pages' => [
         'name' => [
             'required' => 'Trường tên là bắt buộc.',
@@ -363,6 +336,7 @@ return [
         ],
         'slug' => [
             'required' => 'Trường đường dẫn là bắt buộc.',
+            'unique' => 'Con sên này đã tồn tại.',
         ],
         'url' => [
             'required' => 'Trường URL là bắt buộc.',
@@ -375,9 +349,12 @@ return [
         'created_at' => [
             'required' => 'Trường ngày tạo là bắt buộc.',
         ],
+        'parent_page_id' => [
+            'exists' => 'Trang mẹ đã chọn không tồn tại.',
+            'self' => 'Một trang không thể là trang mẹ của chính nó.',
+            'nested' => 'Trang được chọn đã là trang con và không thể dùng làm trang mẹ.',
+        ],
     ],
-
-    // Order form
     'order_form' => [
         'client' => [
             'required' => 'Trường khách hàng là bắt buộc.',
@@ -404,8 +381,6 @@ return [
             'integer' => 'Số lượng phải là một số nguyên.',
         ],
     ],
-
-    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'Trường mã giảm giá là bắt buộc.',
@@ -438,9 +413,9 @@ return [
             'required' => 'Trường giá trị giảm giá là bắt buộc.',
             'numeric' => 'Giá trị giảm giá phải là một số.',
             'between' => 'Giá trị giảm giá phải nằm trong khoảng từ :min đến :max nếu loại là phần trăm.',
+            'max' => 'Giá trị chiết khấu không được vượt quá giá sản phẩm áp dụng (:max).',
         ],
     ],
-
     'tax_form' => [
         'name' => [
             'required' => 'Trường tên là bắt buộc.',
@@ -448,22 +423,24 @@ return [
         'rate' => [
             'required' => 'Trường thuế suất là bắt buộc.',
             'numeric' => 'Thuế suất phải là một số.',
+            'decimal' => 'Tỷ giá phải có tối đa 3 chữ số thập phân.',
+            'max' => 'Tỷ lệ không được lớn hơn 999,999.',
+        ],
+        'priority' => [
+            'required' => 'Trường ưu tiên là bắt buộc.',
+            'min' => 'Mức độ ưu tiên ít nhất phải là 1.',
         ],
         'level' => [
             'required' => 'Trường cấp độ là bắt buộc.',
             'integer' => 'Cấp độ phải là một số nguyên.',
         ],
+        'country' => [
+            'required' => 'Trường quốc gia là bắt buộc.',
+        ],
+        'state' => [
+            'required' => 'Trường trạng thái là bắt buộc.',
+        ],
     ],
-    'country' => [
-        'required' => 'Trường quốc gia là bắt buộc.',
-        // 'exists' => 'Quốc gia đã chọn không hợp lệ.',
-    ],
-    'state' => [
-        'required' => 'Trường tiểu bang là bắt buộc.',
-        // 'exists' => 'Tiểu bang đã chọn không hợp lệ.',
-    ],
-
-    // Product
     'subscription_form' => [
         'name' => [
             'required' => 'Trường tên là bắt buộc.',
@@ -483,7 +460,6 @@ return [
             'required' => 'Trường sản phẩm là bắt buộc.',
         ],
     ],
-
     'bundle' => [
         'name' => [
             'required' => 'Trường tên là bắt buộc.',
@@ -492,10 +468,13 @@ return [
             'required' => 'Mỗi mục là bắt buộc.',
         ],
     ],
-
     'group' => [
         'name' => [
             'required' => 'Tên là bắt buộc',
+            'unique' => 'Tên này đã tồn tại.',
+        ],
+        'pricing_templates_id' => [
+            'required' => 'Cần có mẫu thiết kế.',
         ],
         'features' => [
             'name' => [
@@ -519,13 +498,15 @@ return [
             'required_with' => 'Tiêu đề là bắt buộc',
         ],
     ],
-
     'product' => [
         'name' => [
             'required' => 'Trường tên là bắt buộc.',
         ],
         'type' => [
             'required' => 'Trường loại là bắt buộc.',
+        ],
+        'product_type' => [
+            'required' => 'Trường danh mục sản phẩm là bắt buộc.',
         ],
         'group' => [
             'required' => 'Trường nhóm là bắt buộc.',
@@ -536,9 +517,6 @@ return [
         'currency' => [
             'required' => 'Trường tiền tệ là bắt buộc.',
         ],
-        // 'price' => [
-        //     'required' => 'Trường giá là bắt buộc.',
-        // ],
         'file' => [
             'required_without_all' => 'Trường tệp là bắt buộc nếu không có github_owner hoặc github_repository.',
             'mimes' => 'Tệp phải là tệp zip.',
@@ -548,15 +526,18 @@ return [
             'mimes' => 'Hình ảnh phải là tệp PNG.',
         ],
         'github_owner' => [
+            'required' => 'Trường chủ sở hữu GitHub là bắt buộc.',
             'required_without_all' => 'Trường chủ sở hữu GitHub là bắt buộc nếu không có tệp hoặc hình ảnh.',
         ],
         'github_repository' => [
+            'required' => 'Trường kho lưu trữ GitHub là bắt buộc.',
             'required_without_all' => 'Trường kho GitHub là bắt buộc nếu không có tệp hoặc hình ảnh.',
             'required_if' => 'Trường kho GitHub là bắt buộc nếu loại là 2.',
         ],
+        'shoping_cart_link' => [
+            'required' => 'Trường liên kết giỏ hàng là bắt buộc.',
+        ],
     ],
-
-    // User
     'users' => [
         'first_name' => [
             'required' => 'Trường tên là bắt buộc.',
@@ -595,8 +576,10 @@ return [
         'zip' => [
             'regex' => 'Trường tiểu bang là bắt buộc khi quốc gia là Ấn Độ.',
         ],
+        'gstin' => [
+            'regex' => 'Định dạng GSTIN không hợp lệ.',
+        ],
     ],
-
     'profile_form' => [
         'first_name' => [
             'required' => 'Tên là bắt buộc.',
@@ -625,48 +608,49 @@ return [
         'address' => [
             'required' => 'Địa chỉ là bắt buộc.',
         ],
+        'user_name' => [
+            'required' => 'Tên người dùng là bắt buộc.',
+            'unique' => 'Tên người dùng này đã được sử dụng.',
+        ],
+        'timezone_id' => [
+            'required' => 'Múi giờ là bắt buộc.',
+        ],
+        'country' => [
+            'required' => 'Quốc gia là bắt buộc.',
+            'exists' => 'Quốc gia được chọn không hợp lệ.',
+        ],
+        'state' => [
+            'required_if' => 'Trường tiểu bang là bắt buộc đối với quốc gia này.',
+        ],
+        'gstin' => [
+            'regex' => 'Định dạng GSTIN không hợp lệ.',
+        ],
+        'old_password' => [
+            'required' => 'Cần phải có mật khẩu cũ.',
+            'min' => 'Mật khẩu cũ phải có ít nhất :min ký tự.',
+        ],
+        'new_password' => [
+            'required' => 'Cần có mật khẩu mới.',
+            'different' => 'Mật khẩu mới phải khác với mật khẩu cũ.',
+        ],
+        'confirm_password' => [
+            'required' => 'Cần phải xác nhận mật khẩu.',
+            'same' => 'Xác nhận mật khẩu phải trùng với mật khẩu mới.',
+        ],
+        'terms' => [
+            'required' => 'Bạn phải chấp nhận các điều khoản.',
+        ],
+        'password' => [
+            'required' => 'Cần có mật khẩu.',
+        ],
+        'password_confirmation' => [
+            'required' => 'Cần phải xác nhận mật khẩu.',
+            'same' => 'Mật khẩu không khớp.',
+        ],
+        'mobile_code' => [
+            'required' => 'Nhập mã quốc gia (di động)',
+        ],
     ],
-    'user_name' => [
-        'required' => 'Tên người dùng là bắt buộc.',
-        'unique' => 'Tên người dùng này đã được sử dụng.',
-    ],
-    'timezone_id' => [
-        'required' => 'Múi giờ là bắt buộc.',
-    ],
-    'country' => [
-        'required' => 'Quốc gia là bắt buộc.',
-        'exists' => 'Quốc gia đã chọn không hợp lệ.',
-    ],
-    'state' => [
-        'required_if' => 'Trường tiểu bang là bắt buộc khi quốc gia là Ấn Độ.',
-    ],
-    'old_password' => [
-        'required' => 'Mật khẩu cũ là bắt buộc.',
-        'min' => 'Mật khẩu cũ phải có ít nhất :min ký tự.',
-    ],
-    'new_password' => [
-        'required' => 'Mật khẩu mới là bắt buộc.',
-        'different' => 'Mật khẩu mới phải khác mật khẩu cũ.',
-    ],
-    'confirm_password' => [
-        'required' => 'Xác nhận mật khẩu là bắt buộc.',
-        'same' => 'Xác nhận mật khẩu phải khớp với mật khẩu mới.',
-    ],
-    'terms' => [
-        'required' => 'Bạn phải chấp nhận điều khoản.',
-    ],
-    'password' => [
-        'required' => 'Mật khẩu là bắt buộc.',
-    ],
-    'password_confirmation' => [
-        'required' => 'Xác nhận mật khẩu là bắt buộc.',
-        'same' => 'Mật khẩu không khớp.',
-    ],
-    'mobile_code' => [
-        'required' => 'Nhập mã quốc gia (điện thoại)',
-    ],
-
-    // Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Trường khách hàng là bắt buộc.',
@@ -676,7 +660,12 @@ return [
             'date' => 'Ngày không hợp lệ.',
         ],
         'domain' => [
+            'required' => 'Trường tên miền là bắt buộc.',
             'regex' => 'Định dạng tên miền không hợp lệ.',
+        ],
+        'cloud_domain' => [
+            'required' => 'Trường tên miền đám mây là bắt buộc.',
+            'regex' => 'Chỉ cho phép chữ cái, số và dấu gạch nối.',
         ],
         'plan' => [
             'required_if' => 'Trường đăng ký là bắt buộc.',
@@ -688,88 +677,86 @@ return [
             'required' => 'Trường sản phẩm là bắt buộc.',
         ],
     ],
-
-    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Trường tên miền là bắt buộc.',
             'url' => 'Tên miền phải là một URL hợp lệ.',
         ],
     ],
-
-    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Trường tên miền là bắt buộc.',
             'no_http' => 'Tên miền không được chứa "http" hoặc "https".',
         ],
     ],
-
-    // Language form
     'language' => [
         'required' => 'Trường ngôn ngữ là bắt buộc.',
         'invalid' => 'Ngôn ngữ đã chọn không hợp lệ.',
     ],
-
-    // UpdateStoragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Trường đĩa lưu trữ là bắt buộc.',
             'string' => 'Đĩa lưu trữ phải là chuỗi.',
         ],
         'path' => [
+            'required' => 'Trường đường dẫn lưu trữ là bắt buộc.',
             'string' => 'Đường dẫn phải là chuỗi.',
             'nullable' => 'Trường đường dẫn là tùy chọn.',
+            'invalid' => 'Đường dẫn không tồn tại hoặc không thể ghi được.',
         ],
     ],
-
-    // ValidateSecretRequest form
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => 'Trường đường dẫn nút là bắt buộc.',
+            'string' => 'Đường dẫn nút phải là một chuỗi hợp lệ.',
+        ],
+        'npm_path' => [
+            'required' => 'Trường đường dẫn npm là bắt buộc.',
+            'string' => 'Đường dẫn npm phải là một chuỗi hợp lệ.',
+        ],
+        'chrome_path' => [
+            'required' => 'Trường đường dẫn chrome là bắt buộc.',
+            'string' => 'Đường dẫn chrome phải là một chuỗi hợp lệ.',
+            'invalid' => 'Đường dẫn chrome không tồn tại hoặc không thể thực thi được.',
+        ],
+    ],
     'validate_secret' => [
         'totp' => [
             'required' => 'Vui lòng nhập mã',
             'digits' => 'Vui lòng nhập mã gồm 6 chữ số hợp lệ',
         ],
     ],
-
-    // VerifyOtp form
     'verify_email' => [
         'required' => 'Trường email là bắt buộc.',
         'email' => 'Email phải là một địa chỉ hợp lệ.',
         'verify_email' => 'Xác minh email không thành công.',
     ],
-
     'verify_country_code' => [
         'required' => 'Trường mã quốc gia là bắt buộc.',
         'numeric' => 'Mã quốc gia phải là một số hợp lệ.',
         'verify_country_code' => 'Xác minh mã quốc gia không thành công.',
     ],
-
     'verify_number' => [
         'required' => 'Trường số là bắt buộc.',
         'numeric' => 'Số phải là một số hợp lệ.',
         'verify_number' => 'Xác minh số không thành công.',
     ],
-
     'password_otp' => [
         'required' => 'Trường mật khẩu là bắt buộc.',
         'password' => 'Mật khẩu không chính xác.',
         'invalid' => 'Mật khẩu không hợp lệ.',
     ],
-    //AuthController file
     'auth_controller' => [
         'name_required' => 'Tên là bắt buộc.',
         'name_max' => 'Tên không được vượt quá 255 ký tự.',
-
         'email_required' => 'Email là bắt buộc.',
         'email_email' => 'Vui lòng nhập một địa chỉ email hợp lệ.',
         'email_max' => 'Email không được vượt quá 255 ký tự.',
         'email_unique' => 'Email này đã được đăng ký.',
-
         'password_required' => 'Mật khẩu là bắt buộc.',
         'password_confirmed' => 'Xác nhận mật khẩu không khớp.',
         'password_min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
     ],
-
     'resend_otp' => [
         'eid_required' => 'Trường EID là bắt buộc.',
         'eid_string' => 'EID phải là một chuỗi ký tự.',
@@ -777,7 +764,6 @@ return [
         'type_string' => 'Loại phải là một chuỗi ký tự.',
         'type_in' => 'Loại được chọn không hợp lệ.',
     ],
-
     'verify_otp' => [
         'eid_required' => 'Mã nhân viên là bắt buộc.',
         'eid_string' => 'Mã nhân viên phải là một chuỗi ký tự.',
@@ -786,31 +772,26 @@ return [
         'recaptcha_required' => 'Vui lòng hoàn thành CAPTCHA.',
         'recaptcha_size' => 'Phản hồi CAPTCHA không hợp lệ.',
     ],
-
     'company_validation' => [
         'company_required' => 'Tên công ty là bắt buộc.',
         'company_string' => 'Tên công ty phải là dạng văn bản.',
         'address_required' => 'Địa chỉ là bắt buộc.',
         'address_string' => 'Địa chỉ phải là dạng văn bản.',
     ],
-
     'token_validation' => [
         'token_required' => 'Token là bắt buộc.',
         'password_required' => 'Trường mật khẩu là bắt buộc.',
         'password_confirmed' => 'Xác nhận mật khẩu không khớp.',
     ],
-
     'custom_email' => [
         'required' => 'Trường email là bắt buộc.',
         'email' => 'Vui lòng nhập địa chỉ email hợp lệ.',
         'exists' => 'Email này chưa được đăng ký với chúng tôi.',
     ],
-
     'newsletterEmail' => [
         'required' => 'Email bản tin là bắt buộc.',
         'email' => 'Vui lòng nhập địa chỉ email hợp lệ cho bản tin.',
     ],
-
     'widget' => [
         'name_required' => 'Tên là bắt buộc.',
         'name_max' => 'Tên không được vượt quá 50 ký tự.',
@@ -818,40 +799,39 @@ return [
         'type_required' => 'Loại là bắt buộc.',
         'type_unique' => 'Loại này đã tồn tại.',
     ],
-
     'payment' => [
         'payment_date_required' => 'Ngày thanh toán là bắt buộc.',
         'payment_method_required' => 'Phương thức thanh toán là bắt buộc.',
         'amount_required' => 'Số tiền là bắt buộc.',
     ],
-
     'custom_date' => [
         'date_required' => 'Trường ngày là bắt buộc.',
         'total_required' => 'Trường tổng là bắt buộc.',
         'status_required' => 'Trường trạng thái là bắt buộc.',
     ],
-
     'plan_renewal' => [
         'plan_required' => 'Trường gói là bắt buộc.',
         'payment_method_required' => 'Trường phương thức thanh toán là bắt buộc.',
         'cost_required' => 'Trường chi phí là bắt buộc.',
         'code_not_valid' => 'Mã khuyến mãi không hợp lệ.',
     ],
-
     'rate' => [
         'required' => 'Tỷ lệ là bắt buộc.',
         'numeric' => 'Tỷ lệ phải là một số.',
     ],
-
     'product_validate' => [
         'producttitle_required' => 'Tiêu đề sản phẩm là bắt buộc.',
         'version_required' => 'Phiên bản là bắt buộc.',
         'filename_required' => 'Vui lòng tải lên một tệp.',
         'dependencies_required' => 'Trường phụ thuộc là bắt buộc.',
+        'description_required' => 'Mô tả là bắt buộc.',
+        'release_type_required' => 'Loại phát hành là bắt buộc.',
     ],
     'product_sku_unique' => 'SKU sản phẩm phải là duy nhất.',
     'product_name_unique' => 'Tên phải là duy nhất.',
     'product_show_agent_required' => 'Chọn tùy chọn trang giỏ hàng của bạn.',
+    'config_file_path_regex' => 'Phải là đường dẫn tương đối không có phân đoạn ../.',
+    'license_file_path_regex' => 'Phải là đường dẫn tương đối không có phân đoạn ../.',
     'product_controller' => [
         'name_required' => 'Tên sản phẩm là bắt buộc.',
         'name_unique' => 'Tên phải là duy nhất.',
@@ -859,6 +839,7 @@ return [
         'type_required' => 'Loại sản phẩm là bắt buộc.',
         'description_required' => 'Mô tả sản phẩm là bắt buộc.',
         'product_description_required' => 'Mô tả chi tiết sản phẩm là bắt buộc.',
+        'short_description_required' => 'Cần mô tả ngắn gọn.',
         'image_mimes' => 'Hình ảnh phải là tệp có loại: jpeg, png, jpg.',
         'image_max' => 'Kích thước hình ảnh không được vượt quá 2048 kilobytes.',
         'product_sku_required' => 'SKU sản phẩm là bắt buộc.',
@@ -876,7 +857,9 @@ return [
         'cloud_label_field_required' => 'Trường nhãn đám mây là bắt buộc.',
         'cloud_label_radio_required' => 'Radio nhãn đám mây là bắt buộc.',
         'cloud_product_required' => 'Sản phẩm đám mây là bắt buộc.',
+        'cloud_product_unique' => 'Sản phẩm này đã có cấu hình đám mây.',
         'cloud_free_plan_required' => 'Kế hoạch miễn phí đám mây là bắt buộc.',
+        'cloud_free_plan_invalid' => 'Gói đã chọn không thuộc sản phẩm đã chọn.',
         'cloud_product_key_required' => 'Khóa sản phẩm đám mây là bắt buộc.',
     ],
     'reg_till_after' => 'Ngày đăng ký đến phải sau ngày đăng ký từ.',
@@ -905,6 +888,8 @@ return [
         'no_agent_req' => 'Trường số lượng đại lý là bắt buộc khi không có số lượng sản phẩm.',
         'pro_req' => 'Trường sản phẩm là bắt buộc',
         'offer_price' => 'Giá ưu đãi không được lớn hơn 100',
+        'currency_duplicate' => 'Mỗi loại tiền chỉ được sử dụng một lần.',
+        'non_negative' => 'Giá trị này không thể âm.',
     ],
     'razorpay_val' => [
         'business_required' => 'Trường doanh nghiệp là bắt buộc.',
@@ -919,5 +904,36 @@ return [
     'login_failed' => 'Đăng nhập không thành công, vui lòng kiểm tra email/tên người dùng và mật khẩu bạn đã nhập có chính xác không.',
     'forgot_email_validation' => 'Nếu email bạn cung cấp đã được đăng ký, bạn sẽ nhận được email với hướng dẫn để đặt lại mật khẩu trong thời gian ngắn.',
     'too_many_login_attempts' => 'Bạn đã bị khóa khỏi ứng dụng do quá nhiều lần đăng nhập không thành công. Vui lòng thử lại sau :time.',
-
+    'phone_number' => 'Vui lòng nhập số điện thoại di động hợp lệ.',
+    'mobile_number' => ':attribute phải là số điện thoại di động hợp lệ.',
+    'license' => [
+        'product' => [
+            'required' => 'Trường sản phẩm là bắt buộc.',
+        ],
+        'client' => [
+            'required' => 'Trường khách hàng là bắt buộc.',
+        ],
+        'license_code' => [
+            'required' => 'Trường mã giấy phép là bắt buộc.',
+        ],
+        'license_expire_date' => [
+            'required' => 'Trường ngày hết hạn giấy phép là bắt buộc.',
+        ],
+        'license_updates_date' => [
+            'required' => 'Trường ngày hết hạn cập nhật là bắt buộc.',
+        ],
+        'license_support_date' => [
+            'required' => 'Trường ngày hết hạn hỗ trợ là bắt buộc.',
+        ],
+        'banned_host_ip' => [
+            'required' => 'Trường IP máy chủ bị cấm là bắt buộc.',
+            'invalid' => 'Vui lòng nhập địa chỉ IP hợp lệ.',
+        ],
+        'installation_ip' => [
+            'required' => 'Trường IP cài đặt là bắt buộc.',
+        ],
+        'notification_field' => [
+            'required' => 'Trường thông báo này là bắt buộc.',
+        ],
+    ],
 ];

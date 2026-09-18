@@ -3,7 +3,6 @@
 namespace Tests;
 
 use App\User;
-use DB;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use ReflectionClass;
 
@@ -19,12 +18,11 @@ class DBTestCase extends TestCase
     protected $token;
 
     protected $organization;
-    //NOTE: For logging into api, we require token but for web we don't need any
+
+    // NOTE: For logging into api, we require token but for web we don't need any
 
     /**
      * creates user for db testing for web.
-     *
-     * @return
      */
     protected function getLoggedInUser($role = 'user')
     {
@@ -40,11 +38,10 @@ class DBTestCase extends TestCase
      * @param  $arguments  Array => method arguments
      * @return ReflectionMethod
      */
-    protected function getPrivateMethod(&$classObject, $methodName, $arguments = [])
+    protected function getPrivateMethod(&$classObject, $methodName, array $arguments = []): mixed
     {
-        $reflector = new ReflectionClass(get_class($classObject));
+        $reflector = new ReflectionClass($classObject::class);
         $method = $reflector->getMethod($methodName);
-        $method->setAccessible(true);
 
         return $method->invokeArgs($classObject, $arguments);
     }
@@ -61,7 +58,6 @@ class DBTestCase extends TestCase
     {
         $reflector = new ReflectionClass($classObject);
         $property = $reflector->getProperty($propertyName);
-        $property->setAccessible(true);
         $property->setValue($classObject, $value);
     }
 
@@ -73,11 +69,10 @@ class DBTestCase extends TestCase
      * @param  any  $value  new value of the property
      * @return any returns the value of the property
      */
-    protected function getPrivateProperty(&$classObject, $propertyName)
+    protected function getPrivateProperty(&$classObject, $propertyName): mixed
     {
         $reflector = new ReflectionClass($classObject);
         $property = $reflector->getProperty($propertyName);
-        $property->setAccessible(true);
 
         return $property->getValue($classObject);
     }
@@ -90,10 +85,10 @@ class DBTestCase extends TestCase
      * @param  string  $value  the value that need to be checked for assertion
      * @return bool true if $value is an alphabet else false
      */
-    protected function assertAlpha($value)
+    protected function assertAlpha(string $value)
     {
-        $isAlpha = preg_match('/[a-zA-Z]/', $value) ? true : false;
-        $message = "$value is not an alphabet";
+        $isAlpha = (bool) preg_match('/[a-zA-Z]/', $value);
+        $message = $value.' is not an alphabet';
         self::assertThat($isAlpha, self::isTrue(), $message);
     }
 
@@ -103,10 +98,10 @@ class DBTestCase extends TestCase
      * @param  string  $value  the value that need to be checked for assertion
      * @return bool true if $value is an number else false
      */
-    protected function assertNumber($value)
+    protected function assertNumber(string $value)
     {
-        $isNumber = preg_match('/\d/', $value) ? true : false;
-        $message = "$value is not a number";
+        $isNumber = (bool) preg_match('/\d/', $value);
+        $message = $value.' is not a number';
         self::assertThat($isNumber, self::isTrue(), $message);
     }
 
@@ -124,13 +119,14 @@ class DBTestCase extends TestCase
         $notFoundKeys = [];
         foreach ($arrayOfKeys as $key) {
             if (! array_key_exists($key, $targetArray)) {
-                array_push($notFoundKeys, $key);
+                $notFoundKeys[] = $key;
             }
         }
-        //if not found key is empty, it means all the keys are found. else not
-        $hasKeys = ! $notFoundKeys ? true : false;
+
+        // if not found key is empty, it means all the keys are found. else not
+        $hasKeys = ! $notFoundKeys;
         $notFoundKeysJson = json_encode($notFoundKeys);
-        $message = "$notFoundKeysJson not found in target array";
+        $message = $notFoundKeysJson.' not found in target array';
         self::assertThat($hasKeys, self::isTrue(), $message);
     }
 
@@ -141,12 +137,12 @@ class DBTestCase extends TestCase
      * @param  string  $substring  string that is to be found (needle)
      * @return void
      */
-    protected function assertStringContainsSubstring($string, $substring)
+    protected function assertStringContainsSubstring($string, string $substring)
     {
-        $message = "'$substring' not found in target string";
-        $hasSubstring = (strpos($string, $substring) !== false) ? true : false;
+        $message = sprintf("'%s' not found in target string", $substring);
+        $hasSubstring = str_contains($string, $substring);
         self::assertThat($hasSubstring, self::isTrue(), $message);
     }
 
-    /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+    /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
 }

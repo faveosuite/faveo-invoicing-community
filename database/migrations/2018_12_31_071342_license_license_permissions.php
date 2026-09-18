@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('license_license_permissions')) {
-            Schema::create('license_license_permissions', function (Blueprint $table) {
+            Schema::create('license_license_permissions', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->unsignedInteger('license_type_id');
                 $table->unsignedInteger('license_permission_id');
@@ -28,10 +26,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('license_license_permissions');
     }

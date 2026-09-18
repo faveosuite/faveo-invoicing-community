@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('api_keys', function (Blueprint $table) {
-            $table->boolean('require_pipedrive_user_verification')->default(false)->after('pipedrive_api_key');
+        Schema::table('api_keys', function (Blueprint $table): void {
+            $table->boolean('require_pipedrive_user_verification')->default(value: false)->after('pipedrive_api_key');
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('api_keys', function (Blueprint $table) {
+        Schema::table('api_keys', function (Blueprint $table): void {
             $table->dropColumn('require_pipedrive_user_verification');
         });
     }

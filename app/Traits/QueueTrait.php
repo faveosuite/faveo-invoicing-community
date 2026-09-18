@@ -6,7 +6,7 @@ use Illuminate\Queue\SyncQueue;
 
 class QueueTrait extends SyncQueue
 {
-    public function getPayloadData($job)
+    public function getPayloadData(mixed $job): mixed
     {
         return $this->createPayload($job, 'default');
     }
