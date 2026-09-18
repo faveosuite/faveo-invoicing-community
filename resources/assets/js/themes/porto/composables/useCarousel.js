@@ -240,9 +240,12 @@ class Carousel {
         this._updateActiveItems()
         this._updateDots()
 
-        // Fewer items than fit at this breakpoint — nothing to scroll, so let
-        // CSS center them instead of leaving them stuck against the left edge.
-        this.el.classList.toggle('owl-underfilled', !this.options.loop && this._originals.length <= N)
+        // Strictly fewer items than fit at this breakpoint — nothing to scroll,
+        // so let CSS center them instead of leaving them stuck against the left
+        // edge. A row that's exactly full (originals === N) must NOT get this:
+        // it doesn't need centering, and forcing flex on .owl-stage-outer for
+        // that case is what caused the last item to wrap onto its own row.
+        this.el.classList.toggle('owl-underfilled', !this.options.loop && this._originals.length < N)
     }
 
     _translateX(stagePos) {
