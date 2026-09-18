@@ -239,6 +239,10 @@ class Carousel {
         this._setTransform(this._translateX(this._stagePos), animate)
         this._updateActiveItems()
         this._updateDots()
+
+        // Fewer items than fit at this breakpoint — nothing to scroll, so let
+        // CSS center them instead of leaving them stuck against the left edge.
+        this.el.classList.toggle('owl-underfilled', !this.options.loop && this._originals.length <= N)
     }
 
     _translateX(stagePos) {

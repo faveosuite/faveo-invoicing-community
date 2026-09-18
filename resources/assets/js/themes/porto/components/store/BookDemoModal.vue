@@ -86,9 +86,9 @@ import { demoSchema } from '@/validations/client/demoValidations'
 import http from '@/plugins/axios'
 import Modal from '../common/Modal.vue'
 import Alert from '@/components/Reusable/Alert.vue'
-import ClientField from '../forms/ClientField.vue'
-import PhoneField from '@/components/Reusable/FormField/PhoneField.vue'
-import Honeypot from '@/components/Reusable/Honeypot.vue'
+// ClientField/PhoneField/Honeypot resolve via global registration (themes/porto/index.js).
+// A local static import here would skip Vite's dynamic-import CSS preload for
+// this eagerly-loaded modal, leaving the component unstyled on some pages.
 import { RecaptchaField } from '@recaptcha'
 
 const props = defineProps({

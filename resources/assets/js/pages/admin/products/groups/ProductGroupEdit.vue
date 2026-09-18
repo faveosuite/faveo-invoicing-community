@@ -24,13 +24,13 @@
 
                     <div class="row">
                         <div class="col-md-4">
-                            <RadioButton
-                                name="status"
-                                :label="__('message.status')"
-                                :options="[{ name: __('message.active'), value: 1 }, { name: __('message.inactive'), value: 0 }]"
-                                :value="form.status"
-                                :onChange="(val) => form.status = val"
-                            />
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center gap-1 mb-1">
+                                    <label class="form-label fw-bold mb-0">{{ __('message.toggle_status') }}</label>
+                                    <ToolTip :message="__('message.check-this-box_to_toggle_status')" size="small" />
+                                </div>
+                                <Switch name="status" :value="!!form.status" :onChange="(val) => form.status = val ? 1 : 0" />
+                            </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
@@ -68,8 +68,8 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { validateForm } from '@/helpers/formUtils.js'
 import { productGroupSchema } from '@/validations/admin/productGroupValidations'
-import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
+import ToolTip from '@/components/Reusable/Tooltip.vue'
 import SeoFieldsCard from '@/components/Reusable/FormField/SeoFieldsCard.vue'
 
 const COMPONENT = 'groups-edit'

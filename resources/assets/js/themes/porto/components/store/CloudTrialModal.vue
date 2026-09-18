@@ -85,8 +85,9 @@ import { buildCloudTrialSchema } from '@/validations/client/cloudTrialValidation
 import http from '@/plugins/axios'
 import Modal from '../common/Modal.vue'
 import Alert from '@/components/Reusable/Alert.vue'
-import ClientField from '../forms/ClientField.vue'
-import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
+// ClientField/DynamicSelect resolve via global registration (themes/porto/index.js).
+// A local static import here would skip Vite's dynamic-import CSS preload for
+// this eagerly-loaded modal, leaving the component unstyled on some pages.
 
 const props = defineProps({
   show: { type: Boolean, default: false },

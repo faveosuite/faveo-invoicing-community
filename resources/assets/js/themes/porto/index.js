@@ -28,6 +28,7 @@ const FileUpload    = defineAsyncComponent(() => import('@/components/Reusable/F
 const ToggleSwitch  = defineAsyncComponent(() => import('@/components/Reusable/FormField/ToggleSwitch.vue'))
 const DynamicSelect = defineAsyncComponent(() => import('@/components/Reusable/FormField/DynamicSelect.vue'))
 const PhoneField    = defineAsyncComponent(() => import('@/components/Reusable/FormField/PhoneField.vue'))
+const Honeypot      = defineAsyncComponent(() => import('@/components/Reusable/Honeypot.vue'))
 
 const PricingTable = defineAsyncComponent(() => import('./components/store/PricingTable.vue'))
 const PlanCard     = defineAsyncComponent(() => import('./components/store/PlanCard.vue'))
@@ -56,6 +57,7 @@ export const components = {
     ToggleSwitch,
     DynamicSelect,
     PhoneField,
+    Honeypot,
     PricingTable,
     PlanCard,
 }

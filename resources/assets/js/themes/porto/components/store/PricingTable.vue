@@ -49,21 +49,21 @@ const isYearly     = ref(props.defaultCycle === 'yearly')
 const billingCycle = computed(() => isYearly.value ? 'yearly' : 'monthly')
 
 
-const carouselOptions = computed(() => {
-    const n = props.products.length
-    const maxItems = Math.min(n, 3)
-    return JSON.stringify({
-        responsive: {
-            0:    { items: 1 },
-            600:  { items: Math.min(n, 2) },
-            992:  { items: maxItems },
-        },
-        margin: 20,
-        loop:   false,
-        nav:    true,
-        dots:   false,
-    })
-})
+// Card width = stage width / items at the current breakpoint (see useCarousel's
+// _layout()) — clamping items to the product count made each card stretch to
+// fill the row when there were fewer than 3 products. Keeping items fixed
+// keeps card width consistent regardless of how many products there are.
+const carouselOptions = computed(() => JSON.stringify({
+    responsive: {
+        0:   { items: 1 },
+        600: { items: 2 },
+        992: { items: 3 },
+    },
+    margin: 20,
+    loop:   false,
+    nav:    true,
+    dots:   false,
+}))
 </script>
 
 <style scoped>
@@ -77,5 +77,12 @@ const carouselOptions = computed(() => {
 .pricing-carousel :deep(.owl-nav) {
     top: 300px;
     transform: none;
+}
+
+/* Fewer products than fit at this breakpoint — center them instead of
+   leaving them stuck at the left edge with empty space on the right. */
+.pricing-carousel.owl-underfilled :deep(.owl-stage-outer) {
+    display: flex;
+    justify-content: center;
 }
 </style>
