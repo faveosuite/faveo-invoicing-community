@@ -106,6 +106,28 @@ class FrontendPage extends BaseModel
     }
 
     /**
+     * Where this page lives. Empty means it is a content page served at
+     * /pages/{slug}; set means it is a link to that URL and its stored
+     * content never renders (see routes/web.php, Navbar.vue, SeoFileGenerator).
+     *
+     * A "contactus" page always lives at the built-in /contact-us route, so
+     * its URL is derived on read instead of trusted from the column: the
+     * stored value is absolute, and seeded/imported rows carry the install
+     * they came from (the admin form disables the field but still resubmits
+     * whatever it loaded). Deriving also survives an APP_URL change, which a
+     * stored value would not.
+     *
+     * Reading `url` therefore needs `type` loaded too: partial selects must
+     * ask for both columns.
+     *
+     * @return Attribute<string, string>
+     */
+    protected function url(): Attribute
+    {
+        return Attribute::get(fn ($value): string => $this->type === 'contactus' ? url('/contact-us') : (string) $value);
+    }
+
+    /**
      * @return Attribute<mixed, mixed>
      */
     protected function slug(): Attribute

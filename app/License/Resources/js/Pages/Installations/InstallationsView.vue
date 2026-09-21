@@ -29,6 +29,20 @@
                         </div>
                         <div class="col-sm-6 mb-3">
                             <div class="d-flex">
+                                <span class="fw-bold me-2">{{ lang('client_email') }}:</span>
+                                <router-link v-if="client_email && client_id" :to="'/users/' + client_id">{{ client_email }}</router-link>
+                                <span v-else class="text-muted">—</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="d-flex">
+                                <span class="fw-bold me-2">{{ lang('order_number') }}:</span>
+                                <router-link v-if="license_order_id" :to="'/orders/' + license_order_id">{{ license_order_number }}</router-link>
+                                <span v-else class="text-muted">{{ license_order_number || '—' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="d-flex">
                                 <span class="fw-bold me-2">{{ lang('installation_date') }}:</span>
                                 <span>{{ installation_date || '—' }}</span>
                             </div>
@@ -110,6 +124,10 @@ const endPoint = ref('')
 const product_title = ref('')
 const license_code = ref('')
 const license_id = ref('')
+const license_order_number = ref('')
+const license_order_id = ref(null)
+const client_email = ref('')
+const client_id = ref('')
 const installation_date = ref('')
 const installation_domain = ref('')
 const installation_ip = ref('')
@@ -136,6 +154,10 @@ function updateStatesWithData(data) {
     installation_date.value = data.installation_date || ''
     license_code.value = data.license_code || ''
     license_id.value = data.license_id || ''
+    license_order_number.value = data.license_order_number || ''
+    license_order_id.value = data.license_order_id ?? null
+    client_email.value = data.client_email || ''
+    client_id.value = data.client_id || ''
     if (data.installation_domain) installation_domain.value = data.installation_domain
     if (data.installation_ip) installation_ip.value = data.installation_ip
     if (data.installation_disable_ip_verification !== undefined) installation_disable_ip_verification.value = data.installation_disable_ip_verification

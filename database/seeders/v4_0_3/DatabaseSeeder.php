@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
         $this->seedSentrySettings();
         $this->seedCacheSessionDefaults();
         $this->seedLicensesReportColumns();
+        $this->seedInvoiceTypeColumn();
         $this->seedSeoDefaultPages();
         $this->razorpayAutoRenewSetupEmailTemplate();
         $this->removeDeadEmailEventTemplateTypes();
@@ -114,6 +115,19 @@ class DatabaseSeeder extends Seeder
                 ['label' => $col['label'], 'default' => 1]
             );
         }
+    }
+
+    /**
+     * "Type" column for the admin Invoices list — purchase / renewal / upgrade /
+     * agent change. Keyed `type` so the export's default branch (`$invoice->$column`)
+     * picks up the Invoice::type accessor with no extra mapping.
+     */
+    public function seedInvoiceTypeColumn(): void
+    {
+        ReportColumn::firstOrCreate(
+            ['type' => 'invoices', 'key' => 'type'],
+            ['label' => 'type', 'default' => 1]
+        );
     }
 
     public function faveoLocalFieldsSeeder(): void

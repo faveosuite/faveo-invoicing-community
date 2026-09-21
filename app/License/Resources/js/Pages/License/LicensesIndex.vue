@@ -148,11 +148,9 @@ const options = reactive({
                 row.license_status ? lang('active') : lang('inactive'))
         },
         license_order_number: (f, row) => {
-            if (row.license_order_number) {
-                return h('a', { href: baseUrl + '/admin/orders/license/' + row.license_order_number, target: '_blank' },
-                    [row.license_order_number])
-            }
-            return '—'
+            if (!row.license_order_number) return '—'
+            if (!row.license_order_id) return row.license_order_number
+            return h(RouterLink, { to: '/orders/' + row.license_order_id }, () => row.license_order_number)
         }
     },
     headings: {

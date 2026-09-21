@@ -161,10 +161,19 @@ const REPORT_TO_COL = {
     date:        'date',
     grand_total: 'grand_total',
     status:      'status',
+    type:        'type',
     action:      'action',
 }
 
 // Labels shown in the ColumnSelector dropdown (keyed by report_columns key).
+// bg-info/bg-warning need text-dark to stay readable in Bootstrap 5.
+const TYPE_BADGE = {
+    purchase:          'badge bg-primary',
+    renewal:           'badge bg-info text-dark',
+    upgrade_downgrade: 'badge bg-warning text-dark',
+    agent_alteration:  'badge bg-secondary',
+}
+
 const columnLabels = {
     user_id:     __('message.user'),
     email:       __('message.email'),
@@ -175,9 +184,10 @@ const columnLabels = {
     date:        __('message.date'),
     grand_total: __('message.total'),
     status:      __('message.status'),
+    type:        __('message.type'),
 }
 
-const DEFAULT_COLUMNS = ['select', 'user', 'email', 'mobile', 'country', 'number', 'product', 'date', 'grand_total', 'status', 'action']
+const DEFAULT_COLUMNS = ['select', 'user', 'email', 'mobile', 'country', 'number', 'product', 'date', 'grand_total', 'status', 'type', 'action']
 const columns = ref([...DEFAULT_COLUMNS])
 
 // Report_columns keys currently selected in the ColumnSelector — this is what
@@ -187,7 +197,10 @@ const selectedReportColumns = ref([])
 function onColumnsChange(reportKeys) {
     selectedReportColumns.value = reportKeys.filter(k => k !== 'checkbox' && k !== 'action')
     const mapped = reportKeys.map(k => REPORT_TO_COL[k]).filter(Boolean)
-    columns.value = mapped.length ? mapped : [...DEFAULT_COLUMNS]
+    // The selector sinks columns it has never seen to the bottom, which would
+    // otherwise land a new one after the actions cell.
+    const ordered = [...mapped.filter(c => c !== 'action'), ...mapped.filter(c => c === 'action')]
+    columns.value = ordered.length ? ordered : [...DEFAULT_COLUMNS]
 }
 
 const tableOptions = reactive({
@@ -202,6 +215,7 @@ const tableOptions = reactive({
         date:          __('message.date'),
         grand_total:   __('message.total'),
         status:        __('message.status'),
+        type:          __('message.type'),
         action:        __('message.actions'),
     },
 
@@ -216,6 +230,7 @@ const tableOptions = reactive({
         date: 'dt-date',
         grand_total: 'dt-amount',
         status: 'dt-status',
+        type: 'dt-status',
         action: 'dt-action',
     },
 
@@ -251,6 +266,11 @@ const tableOptions = reactive({
             if (row.status === 'Paid') badgeClass = 'badge bg-success'
             else if (row.status === 'Partially Paid') badgeClass = 'badge bg-info text-dark'
             return h('span', { class: badgeClass }, row.status)
+        },
+        type:         (f, row) => {
+            if (!row.type) return '—'
+            const badgeClass = TYPE_BADGE[row.type] ?? 'badge bg-secondary'
+            return h('span', { class: badgeClass }, __('message.invoice_type_' + row.type))
         },
         action:       (f, row) => h(InvoiceTableActions, { invoiceId: row.id, isExecuted: !!row.is_executed, isPaid: ['Paid', 'Success'].includes(row.status), showDelete: true }),
     },

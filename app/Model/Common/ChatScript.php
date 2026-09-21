@@ -18,8 +18,6 @@ use Spatie\Activitylog\Models\Activity;
  * @property Carbon|null $updated_at
  * @property int $on_registration
  * @property int $on_every_page
- * @property int $google_analytics
- * @property string|null $google_analytics_tag
  * @property int $non_authenticated
  * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
@@ -28,8 +26,6 @@ use Spatie\Activitylog\Models\Activity;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ChatScript newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ChatScript query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ChatScript whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ChatScript whereGoogleAnalytics($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ChatScript whereGoogleAnalyticsTag($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ChatScript whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ChatScript whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ChatScript whereNonAuthenticated($value)
@@ -46,7 +42,7 @@ class ChatScript extends Model
 
     protected $table = 'chat_scripts';
 
-    protected $fillable = ['name', 'script', 'on_registration', 'on_every_page', 'google_analytics', 'google_analytics_tag'];
+    protected $fillable = ['name', 'script', 'on_registration', 'on_every_page'];
 
     protected string $logName = 'chat-script';
 
@@ -56,7 +52,7 @@ class ChatScript extends Model
      * @var array<mixed>
      */
     protected array $logAttributes = [
-        'name', 'script', 'on_registration', 'on_every_page', 'google_analytics', 'google_analytics_tag',
+        'name', 'script', 'on_registration', 'on_every_page',
     ];
 
     /**
@@ -76,8 +72,6 @@ class ChatScript extends Model
             'script' => ['Script', fn ($value) => $value],
             'on_registration' => ['On Registration', fn ($value): array|string => (int) $value === 1 ? __('message.active') : __('message.inactive')],
             'on_every_page' => ['On Every Page', fn ($value): array|string => (int) $value === 1 ? __('message.active') : __('message.inactive')],
-            'google_analytics' => ['Google Analytics', fn ($value): array|string => (int) $value === 1 ? __('message.active') : __('message.inactive')],
-            'google_analytics_tag' => ['Google Analytics Tag', fn ($value) => $value],
         ];
     }
 }

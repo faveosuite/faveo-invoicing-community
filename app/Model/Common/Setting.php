@@ -290,7 +290,7 @@ class Setting extends Model
     protected function logo(): Attribute
     {
         return Attribute::make(get: function (?string $value) {
-            return $this->getImage($value, 'images', asset('images/agora-invoicing.png'));
+            return $this->getImage($value, 'images', asset('images/faveo_invoicing.png'));
         });
     }
 
@@ -300,7 +300,7 @@ class Setting extends Model
     protected function adminLogo(): Attribute
     {
         return Attribute::make(get: function (?string $value) {
-            return $this->getImage($value, 'admin/images', asset('images/agora_admin_logo.png'));
+            return $this->getImage($value, 'admin/images', asset('images/faveo_invoicing.png'));
         });
     }
 

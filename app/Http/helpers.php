@@ -1220,3 +1220,26 @@ function commonSettings(string $option, string $optionField, string $returnColum
         ->where('optional_field', $optionField)
         ->value($returnColumn);
 }
+
+/**
+ * invoice_items.agents as a plain int for JSON payloads. The column is a
+ * varchar, so a raw value reaches the browser as a string — and JS treats "0"
+ * as truthy, which is why 0 (the "unlimited" sentinel) rendered as 0 instead
+ * of Unlimited. 0 still means unlimited; the display side decides the wording.
+ *
+ * Rows written between 2022-12 and 2023-10 hold a JSON array instead
+ * ("[\"0\"]", "[\"1\",\"1\",\"1\"]"): the old free-trial signup stored
+ * planPrice::…->pluck('no_of_agents') without ->value(), so the plan's single
+ * agent count got repeated once per matched row. Every such array is
+ * homogeneous, so the first element is the real count — never the sum.
+ */
+function agentCount(mixed $agents): int
+{
+    if (is_string($agents) && str_starts_with(trim($agents), '[')) {
+        $decoded = json_decode($agents, true);
+
+        return is_array($decoded) && $decoded !== [] ? (int) reset($decoded) : 0;
+    }
+
+    return (int) $agents;
+}

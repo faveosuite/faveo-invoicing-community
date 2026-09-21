@@ -102,8 +102,8 @@ class SeoFileGenerator
         $hasContactUsPage = false;
         $contactUsSlug = $this->contactUsSlug();
 
-        foreach (FrontendPage::where('publish', 1)->get(['name', 'slug', 'type', 'meta_title', 'meta_description']) as $page) {
-            $loc = $page->type === 'contactus' ? url('/contact-us') : url('/pages/'.$page->slug);
+        foreach (FrontendPage::where('publish', 1)->get(['name', 'slug', 'url', 'type', 'meta_title', 'meta_description']) as $page) {
+            $loc = $page->url ?: url('/pages/'.$page->slug);
             $hasContactUsPage = $hasContactUsPage || $page->type === 'contactus' || $page->slug === $contactUsSlug;
             $title = $formatter->resolveShortcodes($page->meta_title, $page->name) ?: $formatter->title($page->name);
             $description = $formatter->resolveShortcodes($page->meta_description, $page->name) ?: $formatter->description($page->name);
@@ -157,8 +157,8 @@ class SeoFileGenerator
         $hasContactUsPage = false;
         $contactUsSlug = $this->contactUsSlug();
 
-        foreach (FrontendPage::where('publish', 1)->get(['slug', 'type', 'updated_at']) as $page) {
-            $loc = $page->type === 'contactus' ? url('/contact-us') : url('/pages/'.$page->slug);
+        foreach (FrontendPage::where('publish', 1)->get(['slug', 'url', 'type', 'updated_at']) as $page) {
+            $loc = $page->url ?: url('/pages/'.$page->slug);
             $hasContactUsPage = $hasContactUsPage || $page->type === 'contactus' || $page->slug === $contactUsSlug;
             $urls[] = ['loc' => $loc, 'lastmod' => optional($page->updated_at)->toAtomString()];
         }

@@ -16,7 +16,7 @@ class LicenseViewController extends Controller
 {
     public function getLicenseDetails(mixed $license_id): JsonResponse
     {
-        $license = License::with(['product:id,name', 'user:id,email'])
+        $license = License::with(['product:id,name', 'user:id,email', 'order:id,number'])
             ->withCount(['installations as installation_counts', 'callbacks as call_backs_count'])
             ->withMax('callbacks as latest_call_backs', 'callback_date_time')
             ->find($license_id);
@@ -43,7 +43,7 @@ class LicenseViewController extends Controller
             'license_status' => $license->license_status,
             'product_title' => $license->product->name,
             'client_email' => $license->user?->email,
-            'license_order_url' => $license->license_order_number ?? '',
+            'license_order_id' => $license->order?->id,
             'installation_counts' => $license->installation_counts, // @phpstan-ignore property.notFound
             'latest_call_backs' => $license->latest_call_backs, // @phpstan-ignore property.notFound
             'call_backs_count' => $license->call_backs_count,

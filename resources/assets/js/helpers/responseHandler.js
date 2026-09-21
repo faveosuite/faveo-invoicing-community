@@ -1,4 +1,5 @@
 import { useAlertStore } from '@/core/stores/alert.js'
+import { __ } from '@/plugins/i18n'
 
 const DEFAULT_ERROR_MESSAGE = 'Something went wrong.'
 
@@ -68,6 +69,14 @@ export const errorHandler = (err, componentName = '', { setErrors, excludeFields
     // No null-guard here on purpose — every real caller passes a caught error object;
     // a bare `null`/`undefined` is a caller bug that should surface, not be swallowed.
     if (err.duplicateRequestRejection) return
+
+    // Flagged by handleAuthError: a 401 that did not come from this app, i.e. a
+    // proxy/WAF/captive portal answering while the connection is broken. Say so
+    // instead of leaking the raw axios "Request failed with status code 401".
+    if (err.networkError) {
+        useAlertStore().setAlert({ type: 'danger', message: __('message.network_error_retry'), component_name: componentName })
+        return
+    }
 
     const status = err?.response?.status
     const data   = err?.response?.data

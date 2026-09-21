@@ -251,7 +251,7 @@ class ClientController extends BaseClientController
             'invoice_id' => $latestInvoice?->id,
             'invoice_number' => $latestInvoice?->number,
             'sub_id' => $order->subscription?->id,
-            'agents' => $order->invoiceItem?->agents,
+            'agents' => agentCount($order->invoiceItem?->agents),
             'current_plan' => $order->subscription?->plan?->name,
             'client_id' => $order->client,
             'is_cloud' => in_array($order->productRelation?->id, cloudPopupProducts()),
@@ -273,6 +273,11 @@ class ClientController extends BaseClientController
                 'email' => $user->email,
                 'mobile' => ($user->mobile_code ? '(+'.$user->mobile_code.') ' : '').($user->mobile ?? ''),
                 'address' => $user->address ?? '',
+                'town' => $user->town ?? '',
+                // Stored as codes, shown as names — same lookups the invoice uses.
+                'state' => getStateByCode((string) $user->country, (string) $user->state)['name'] ?: (string) $user->state,
+                'country' => getCountryByCode((string) $user->country) ?: (string) $user->country,
+                'zip' => $user->zip ?? '',
             ],
             'has_deployable_uploads' => ProductUpload::where('product_id', $order->productRelation?->id)
                 ->where('is_private', 0)
@@ -336,6 +341,7 @@ class ClientController extends BaseClientController
         $paginated->getCollection()->transform(function ($order) use ($downloadPerms): array {
             $hasDownload = $downloadPerms[$order->productRelation?->id] ?? false;
             $latestInvoice = $order->invoices->first();
+            $updateEndsAt = (string) $order->subscription?->update_ends_at;
 
             return [
                 'id' => $order->id,
@@ -345,7 +351,7 @@ class ClientController extends BaseClientController
                 'status' => $order->order_status,
                 'order_date' => $order->created_at,
                 'update_ends_at' => $order->subscription?->update_ends_at,
-                'agents' => $order->invoiceItem?->agents,
+                'agents' => agentCount($order->invoiceItem?->agents),
                 'current_plan' => $order->subscription?->plan?->name,
                 'product_id' => $order->productRelation?->id,
                 'client_id' => $order->client,
@@ -354,6 +360,8 @@ class ClientController extends BaseClientController
                 'show_download' => $hasDownload,
                 'show_cloud_delete' => ! $hasDownload,
                 'is_terminated' => $order->order_status === 'Terminated',
+                // Same label the admin order page badges expiry dates with.
+                'expiry_status' => strtotime($updateEndsAt) > 1 ? getExpiryLabel($updateEndsAt)['status'] : null,
             ];
         });
 

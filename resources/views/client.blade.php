@@ -9,7 +9,7 @@ $cartCount = resolve(\App\Http\Controllers\Front\Cart\CartService::class)->resol
 $social = App\Model\Common\SocialMedia::get(['name', 'link', 'class', 'fa_class']);
 
 $widgets = \App\Model\Front\Widgets::where('publish', 1)->get(['id', 'name', 'type', 'content', 'allow_mailchimp', 'allow_social_media', 'allow_tweets']);
-$chatScripts = \App\Model\Common\ChatScript::get(['id', 'script', 'google_analytics', 'google_analytics_tag', 'on_registration', 'on_every_page']);
+$chatScripts = \App\Model\Common\ChatScript::get(['id', 'script', 'on_registration', 'on_every_page']);
 
 $languageList = array_map('basename', \Illuminate\Support\Facades\File::directories(lang_path()));
 $dbLanguages = \App\Model\Common\Language::all()->keyBy('locale');

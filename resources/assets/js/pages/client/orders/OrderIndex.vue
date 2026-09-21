@@ -9,7 +9,14 @@
                     </div>
                 </template>
                 <template #order_date="{ row }">{{ formatDate(row.order_date) }}</template>
-                <template #update_ends_at="{ row }">{{ formatDate(row.update_ends_at) }}</template>
+                <!-- 0/null agents is the "unlimited" sentinel, same as the invoice views. -->
+                <template #agents="{ row }">{{ row.agents || __('message.unlimited') }}</template>
+                <template #update_ends_at="{ row }">
+                    <div class="d-flex flex-column align-items-start">
+                        <span :class="row.expiry_status ? 'text-danger' : ''">{{ formatDate(row.update_ends_at) }}</span>
+                        <span v-if="row.expiry_status" class="badge bg-danger mt-1 w-auto">{{ row.expiry_status }}</span>
+                    </div>
+                </template>
                 <template #action="{ row }">
                     <div class="d-flex align-items-center gap-1 flex-nowrap">
                         <action-button action="view" :to="'/my-order/' + row.id"

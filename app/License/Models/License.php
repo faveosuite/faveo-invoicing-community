@@ -2,6 +2,7 @@
 
 namespace App\License\Models;
 
+use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -115,6 +116,16 @@ class License extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    /**
+     * The order this license was issued against (licenses.license_order_number = orders.number).
+     *
+     * @return BelongsTo<Order, $this>
+     */
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class, 'license_order_number', 'number');
     }
 
     /**

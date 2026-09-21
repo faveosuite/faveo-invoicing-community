@@ -275,6 +275,18 @@ class Invoice extends BaseModel
         });
     }
 
+    /**
+     * What this invoice does when it is paid: purchase | renewal | upgrade_downgrade
+     * | agent_alteration. One source for both the payment handler's branch and the
+     * admin list badge, so the label can never disagree with the actual behaviour.
+     *
+     * @return Attribute<string, never>
+     */
+    protected function type(): Attribute
+    {
+        return Attribute::get(fn (): string => $this->metadata['type'] ?? ($this->is_renewed == 1 ? 'renewal' : 'purchase'));
+    }
+
     #[Override]
     public function delete()
     {

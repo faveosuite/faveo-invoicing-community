@@ -17,7 +17,7 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
                     <span class="text-muted">{{ __('message.agents') }}</span>
-                    <span class="fw-bold text-dark">{{ order?.agents || '—' }}</span>
+                    <span class="fw-bold text-dark">{{ order?.agents || __('message.unlimited') }}</span>
                 </div>
 
                 <DynamicSelect name="plan"

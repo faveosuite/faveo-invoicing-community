@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\ApiKey;
 use App\DefaultPage;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Model\Common\ChatScript;
 use App\Model\Common\Country;
 use App\Model\Common\StatusSetting;
 use App\SocialLogin;
@@ -67,7 +66,6 @@ class LoginController extends BaseAuthController
             }
 
             $apiKeys = ApiKey::select('nocaptcha_sitekey', 'terms_url')->first();
-            $analyticsTag = ChatScript::where('google_analytics', 1)->where('on_registration', 1)->value('google_analytics_tag');
             $location = getLocation();
 
             $social = SocialLogin::whereIn('type', ['google', 'github', 'twitter', 'linkedin'])
@@ -78,7 +76,6 @@ class LoginController extends BaseAuthController
             return successResponse('login-config', [
                 'status' => $status,
                 'apiKeys' => $apiKeys,
-                'analyticsTag' => $analyticsTag,
                 'location' => $location,
                 'social' => $social,
             ]);

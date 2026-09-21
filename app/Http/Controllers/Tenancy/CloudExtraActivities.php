@@ -83,7 +83,7 @@ class CloudExtraActivities extends Controller
         return Date::now() >= Date::parse($ends_at);
     }
 
-    private function checktheAgent(mixed $numberOfAgents, string $domain): mixed
+    public function checktheAgent(mixed $numberOfAgents, string $domain): mixed
     {
         $response = $this->client->request('POST', 'https://'.$domain.'/api/agent-check', [
             'form_params' => ['number_of_agents' => $numberOfAgents],
@@ -226,10 +226,7 @@ class CloudExtraActivities extends Controller
                 return errorResponse(trans('message.nothing_changed'));
             }
 
-            $installationPath = Installation::where('license_code', $order->serial_key)
-                ->where('installation_path', '!=', cloudCentralDomain())
-                ->latest('updated_at')
-                ->value('installation_path');
+            $installationPath = $this->installationPathFor((string) $order->serial_key);
 
             if (empty($installationPath)) {
                 return errorResponse(trans('message.installation_path_not_found'));
@@ -291,10 +288,7 @@ class CloudExtraActivities extends Controller
             // the price is multiplied by.
             $order = $this->authorizedOrder((int) $request->input('orderId'));
 
-            $installationPath = Installation::where('license_code', $order->serial_key)
-                ->where('installation_path', '!=', cloudCentralDomain())
-                ->latest('updated_at')
-                ->value('installation_path');
+            $installationPath = $this->installationPathFor((string) $order->serial_key);
 
             $calc = $this->calculatePlanChange($order, $planId);
             $price = abs(round($calc['price']));
@@ -463,6 +457,18 @@ class CloudExtraActivities extends Controller
     private function licenseAgents(?string $serialKey): int
     {
         return (int) substr((string) $serialKey, 12, 16);
+    }
+
+    /**
+     * The tenant install this license is running on, or null when there isn't
+     * one — a self-hosted order has no cloud installation to talk to.
+     */
+    public function installationPathFor(string $licenseCode): ?string
+    {
+        return Installation::where('license_code', $licenseCode)
+            ->where('installation_path', '!=', cloudCentralDomain())
+            ->latest('updated_at')
+            ->value('installation_path');
     }
 
     /**
@@ -674,7 +680,7 @@ class CloudExtraActivities extends Controller
         return ['price' => 0, 'priceRemaining' => 0, 'priceToBePaid' => 0, 'discount' => null];
     }
 
-    public function doTheAgentAltering(string $newAgents, string $oldLicense, int $orderId, string $installation_path, int $product_id): JsonResponse
+    public function doTheAgentAltering(string $newAgents, string $oldLicense, int $orderId, ?string $installation_path, int $product_id): JsonResponse
     {
         try {
             $len = strlen($newAgents);
@@ -690,16 +696,20 @@ class CloudExtraActivities extends Controller
             resolve(LicenseService::class)->updateLicenseCode($oldLicense, $licenseCode);
             Order::where('id', $orderId)->update(['serial_key' => Crypt::encrypt(substr($licenseCode, 0, 12).$lastFour)]);
 
-            $result = $this->cloudApiPost('/performAgentUpgradeOrDowngrade', [
-                'licenseCode' => $licenseCode,
-                'installation_path' => $installation_path,
-                'product_id' => $product_id,
-                'old_lic_code' => $oldLicense,
-            ]);
+            // Self-hosted orders have no tenant to push to — rewriting the
+            // license above is the whole job for them.
+            if (! empty($installation_path)) {
+                $result = $this->cloudApiPost('/performAgentUpgradeOrDowngrade', [
+                    'licenseCode' => $licenseCode,
+                    'installation_path' => $installation_path,
+                    'product_id' => $product_id,
+                    'old_lic_code' => $oldLicense,
+                ]);
 
-            $resultArray = (array) $result;
-            if (($resultArray['status'] ?? null) == 'fails') {
-                return errorResponse(trans('message.change_agents_failed'));
+                $resultArray = (array) $result;
+                if (($resultArray['status'] ?? null) == 'fails') {
+                    return errorResponse(trans('message.change_agents_failed'));
+                }
             }
 
             return successResponse(trans('message.agent_updated'));

@@ -126,7 +126,7 @@ $langConfig = require dirname(__DIR__) . '/config/languages.php';
         <div class="container">
             <div class="col-xl-10 mx-auto d-flex align-items-center">
             <a href="javascript:;" class="navbar-brand">
-                <img src="./images/agora-invoicing.png" alt="Agora Logo" style="height:50px;">
+                <img src="./images/faveo_invoicing.png" alt="Faveo Logo" style="height:50px;">
             </a>
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item dropdown">

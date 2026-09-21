@@ -899,6 +899,12 @@ Route::middleware('installAgora')->group(function (): void {
         Route::get('payment-success', $clientShell);
     });
 
+
+    // /pages/{slug}: a Pages entry with a URL configured is a link, not a
+    // content page, so it redirects there instead of rendering a second,
+    // indexable copy. See PageController::showPage().
+    Route::get('pages/{slug}', [PageController::class, 'showPage']);
+
     // Client SPA catch-all — Route::fallback() always matches last, even
     // after routes registered by service providers. Everything that
     // reaches here is guest-accessible (login, store, contact-us,

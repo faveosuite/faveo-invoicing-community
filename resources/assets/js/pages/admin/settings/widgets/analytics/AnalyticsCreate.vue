@@ -29,27 +29,6 @@
                             :searchable="false"
                         />
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <DynamicSelect
-                            name="google_analytics"
-                            :label="__('message.google_analytics')"
-                            :elements="yesNoOptions"
-                            :value="yesNoOptions.find(o => o.id === form.google_analytics) ?? null"
-                            :onChange="(val) => form.google_analytics = val?.id ?? 0"
-                            :clearable="false"
-                            :searchable="false"
-                        />
-                    </div>
-                    <div v-if="form.google_analytics" class="col-md-4 mb-3">
-                        <TextField
-                            name="google_analytics_tag"
-                            :label="__('message.chat_google_analytics_tag')"
-                            :required="true"
-                            :value="form.google_analytics_tag"
-                            :onChange="onChange"
-                            :error="errors.google_analytics_tag"
-                        />
-                    </div>
                 </div>
                 <TextField
                     name="script"
@@ -78,7 +57,7 @@ import { useForm } from 'vee-validate'
 import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { buildAnalyticsSchema } from '@/validations/admin/widgetValidations'
+import { analyticsSchema } from '@/validations/admin/widgetValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const COMPONENT = 'analytics-create'
@@ -91,17 +70,10 @@ const showScriptOptions = [
     { id: 0, name: __('message.on_every_page') },
 ]
 
-const yesNoOptions = [
-    { id: 1, name: __('message.yes') },
-    { id: 0, name: __('message.no') },
-]
-
 const saving = ref(false)
 const form = reactive({
     name:                 '',
     on_registration:      1,
-    google_analytics:     0,
-    google_analytics_tag: '',
     script:               '',
 })
 
@@ -111,15 +83,13 @@ function onChange(val, name) {
 }
 
 async function submit() {
-    if (!await validateForm(buildAnalyticsSchema(!!form.google_analytics), form, setErrors)) return
+    if (!await validateForm(analyticsSchema, form, setErrors)) return
 
     saving.value = true
     try {
         const res = await http.post(`/chat/create`, {
             name:                 form.name,
             on_registration:      form.on_registration,
-            google_analytics:     form.google_analytics,
-            google_analytics_tag: form.google_analytics ? form.google_analytics_tag : '',
             script:               form.script,
         })
         successHandler(res, COMPONENT)

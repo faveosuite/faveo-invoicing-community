@@ -3,7 +3,7 @@
         <div v-if="loadingGroups" class="row justify-content-center py-3"><loader /></div>
 
         <template v-else>
-            <!-- Tagline only — group name shown in the page header via setPageTitle() -->
+            <!-- Tagline only — the group heading is shown in the page header via setPageTitle() -->
             <div v-if="currentGroup?.tagline" class="text-center mb-5">
                 <p class="text-muted">{{ currentGroup.tagline }}</p>
             </div>
@@ -89,7 +89,8 @@ async function selectGroup(groupId) {
         cloudSubdomain.value  = data.cloud_subdomain ?? ''
         dataCenters.value     = data.data_centers ?? []
 
-        setPageTitle(data.group?.name)
+        // heading = headline, falling back to name (resolved server-side).
+        setPageTitle(data.group?.heading)
 
         const groupTitle = data.group?.meta_title || data.group?.name
         // No " | Company" suffix — this group has its own real SEO title

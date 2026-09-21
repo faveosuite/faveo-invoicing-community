@@ -60,11 +60,9 @@ class ChatScriptController extends Controller
         $request->validate([
             'name' => ['required', 'max:50'],
             'script' => ['required'],
-            'google_analytics_tag' => ['required_if:google_analytics,1'],
         ], [
             'name.required' => __('validation.widget.name_required'),
             'script.required' => __('message.script_required'),
-            'google_analytics_tag.required_if' => __('message.google_analytics_tag_required_if'),
         ]);
         try {
             $request['on_every_page'] = $request->on_registration ? 0 : 1;
@@ -111,10 +109,8 @@ class ChatScriptController extends Controller
         $request->validate([
             'name' => ['required', 'max:50'],
             'script' => ['required'],
-            'google_analytics_tag' => ['required_if:google_analytics,1'],
         ], [
             'script.required' => __('message.script_required'),
-            'google_analytics_tag.required_if' => __('message.google_analytics_tag_required_if'),
         ]);
 
         try {

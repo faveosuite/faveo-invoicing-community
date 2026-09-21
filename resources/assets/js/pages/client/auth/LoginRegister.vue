@@ -141,6 +141,7 @@ import SocialButtons from './partials/SocialButtons.vue'
 import Honeypot from '@/components/Reusable/Honeypot.vue'
 import { RecaptchaField } from '@recaptcha'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { useAlertStore } from '@/core/stores/alert.js'
 
 const route     = useRoute()
 const COMPONENT = 'client-page'
@@ -183,6 +184,18 @@ const checklist = computed(() => {
 const passwordFocused = ref(false)
 
 onMounted(async () => {
+  // The axios interceptor sends an expired session here with ?session_expired=1
+  // rather than a message, so the wording stays translated. Strip the flag so a
+  // refresh or a failed login attempt doesn't show it again.
+  if (new URLSearchParams(globalThis.location.search).has('session_expired')) {
+    useAlertStore().setAlert({
+      type: 'warning',
+      message: __('message.session_expired'),
+      component_name: COMPONENT,
+    })
+    globalThis.history.replaceState({}, '', globalThis.location.pathname)
+  }
+
   try {
     const res = await http.get(`/auth/login-config`)
     const data = res.data?.data ?? {}

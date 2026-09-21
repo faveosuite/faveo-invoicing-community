@@ -9,7 +9,7 @@
     <AppCard :title="__('message.my_invoices')">
       <DataTable :url="apiUrl" :dataColumns="columns" :option="tableOptions">
         <template #number="{ row }">
-          <div class="d-flex flex-column">
+          <div class="d-flex flex-column align-items-start">
             <RouterLink :to="'/my-invoice/' + row.id" class="fw-semibold">{{ row.number || '—' }}</RouterLink>
             <span v-if="row.is_renewed" class="badge bg-primary mt-1 w-auto">
               {{ __('message.renewed') }}

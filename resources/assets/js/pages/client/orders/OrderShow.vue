@@ -22,6 +22,10 @@
                             {{ formatDate(order.order_date) }}
                         </div>
                         <div class="mt-3 mt-md-0">
+                            <strong>{{ __('message.product') }}</strong><br>
+                            {{ order.product_name || '—' }}
+                        </div>
+                        <div class="mt-3 mt-md-0">
                             <strong>{{ __('message.status') }}</strong><br>
                             {{ order.status || '—' }}
                         </div>
@@ -140,7 +144,7 @@
                                 <span>{{ order.serial_key || '—' }}</span>
                                 <button v-if="order.serial_key"
                                         class="btn btn-light btn-sm ms-2 table_btn"
-                                        v-tooltip="copied ? __('message.copied') : __('message.copy')"
+                                        v-tooltip="{ content: copied ? __('message.copied') : __('message.copy'), hideTriggers: t => t }"
                                         @click="copyLicense">
                                     <i :class="copied ? 'fas fa-check text-success' : 'fas fa-copy'"></i>
                                 </button>
@@ -264,6 +268,46 @@
                                 </div>
                                 <div class="col-sm-7">{{ order.user.address || '—' }}</div>
                             </div>
+                            <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                            <div class="row align-items-center">
+                                <div class="col-sm-5">
+                                    <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                        <span class="fw-bold">{{ __('message.town') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">{{ order.user.town || '—' }}</div>
+                            </div>
+                            <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                            <div class="row align-items-center">
+                                <div class="col-sm-5">
+                                    <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                        <span class="fw-bold">{{ __('message.state') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">{{ order.user.state || '—' }}</div>
+                            </div>
+                            <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                            <div class="row align-items-center">
+                                <div class="col-sm-5">
+                                    <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                        <span class="fw-bold">{{ __('message.country') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">{{ order.user.country || '—' }}</div>
+                            </div>
+                            <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                            <div class="row align-items-center">
+                                <div class="col-sm-5">
+                                    <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                        <span class="fw-bold">{{ __('message.zip') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">{{ order.user.zip || '—' }}</div>
+                            </div>
                         </template>
                     </div>
 
@@ -271,7 +315,7 @@
                     <div v-if="activeTab === 'invoice'">
                         <DataTable :key="orderId" :url="invoicesUrl" :dataColumns="invoiceColumns" :option="invoiceOptions">
                             <template #number="{ row }">
-                                <div class="d-flex flex-column">
+                                <div class="d-flex flex-column align-items-start">
                                     <RouterLink :to="'/my-invoice/' + row.id" class="fw-semibold">{{ row.number || '—' }}</RouterLink>
                                     <span v-if="row.is_renewed" class="badge bg-primary mt-1 w-auto">
                                         {{ __('message.renewed') }}
@@ -342,7 +386,7 @@
                                                 </div>
                                                 <div class="feature-box-info">
                                                     <h4 class="text-4 mt-3 mb-2 text-color-grey">{{ __('message.increase_decrease_agents') }}</h4>
-                                                    <p class="mb-2"><strong class="text-black text-2">{{ __('message.current_no_agents') }} </strong>{{ cloud.current_agents }}</p>
+                                                    <p class="mb-2"><strong class="text-black text-2">{{ __('message.current_no_agents') }}</strong> {{ cloud.current_agents }}</p>
                                                     <p class="mb-0 text-2">{{ __('message.update_agent_count') }}</p>
                                                 </div>
                                             </div>

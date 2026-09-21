@@ -239,7 +239,9 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                     'created_at' => $invoice->created_at,
                     'grand_total' => currencyFormat($invoice->grand_total, $invoice->currency),
                     'status' => $statusMapping[$status] ?? $invoice->status,
-                    'is_executed' => $invoice->order_relation_count > 0,
+                    // Same rule as executeInvoice(): only an unfulfilled purchase.
+                    'is_executed' => $invoice->order_relation_count > 0 || $invoice->type !== 'purchase',
+                    'type' => $invoice->type,
                 ];
             });
 
@@ -349,6 +351,17 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             // and RenewController::successRenew().
             if (! in_array($invoice->status, ['Paid', 'Success'], true)) {
                 return errorResponse(__('message.invoice-not-paid'));
+            }
+
+            // executeOrder() mints a brand-new order + serial key. That is only ever
+            // right for a first purchase: renewals/upgrades/agent changes attach to an
+            // order that already exists and are fulfilled by PostPaymentService.
+            if ($invoice->orders()->exists()) {
+                return errorResponse(__('message.invoice_order_already_executed'));
+            }
+
+            if ($invoice->type !== 'purchase') {
+                return errorResponse(__('message.invoice_execute_purchase_only'));
             }
 
             (new OrderController)->executeOrder($id);
@@ -544,6 +557,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $query = Invoice::with([
                 'user:id,first_name,last_name,email,company,address,town,state,country,zip,mobile_code,mobile,gstin',
                 'invoiceItem.order:id,number,invoice_item_id',
+                'orders:id,number',
                 'allocations.payment',
             ])->findOrFail($id);
 
@@ -574,6 +588,11 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             $result = static::calculateInvoice($id, formatCurrency: true);
 
+            // Renewal items own no order — `orders.invoice_item_id` stays on the original
+            // purchase — so fall back to the invoice's order when there's exactly one.
+            // ponytail: single-order invoices only; match by product if multi-order needs it.
+            $linkedOrder = $query->orders->count() === 1 ? $query->orders->first() : null;
+
             $invoice = [
                 'invoice' => [
                     'id' => $query->id,
@@ -587,7 +606,11 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 ],
                 'from' => $setting,
                 'to' => $query->user,
-                'items' => $query->invoiceItem,
+                'items' => $query->invoiceItem->each(function ($item) use ($linkedOrder): void {
+                    $item->setRelation('order', $item->order ?? $linkedOrder);
+                    // varchar column; JS sees "0" as truthy, so hand the view an int.
+                    $item->setAttribute('agents', agentCount($item->agents));
+                }),
                 'totals' => $result,
                 // Each payment with the slice of itself that landed here — a
                 // payment covering three invoices must not show its full amount

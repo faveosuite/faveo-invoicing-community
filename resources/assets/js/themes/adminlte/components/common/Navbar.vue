@@ -101,6 +101,7 @@ import {useSidebar} from '@/core/composables/useSidebar.js'
 import {useNotification} from '@/core/composables/useNotification.js'
 import http, {parseErrorMessage} from '@/plugins/axios.js'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import {nativeName} from '@/core/utils/language.js'
 
 const {isOpen, toggle} = useSidebar()
 const {notify} = useNotification()
@@ -165,15 +166,6 @@ function flagCode(locale) {
   // then the bare 2-letter language code as a last resort.
   const lc = locale.toLowerCase()
   return LOCALE_TO_CC[lc] ?? LOCALE_TO_CC[lc.slice(0, 2)] ?? 'un'
-}
-
-function nativeName(locale) {
-  try {
-    const display = new Intl.DisplayNames([locale], {type: 'language'})
-    return display.of(locale) ?? ''
-  } catch {
-    return ''
-  }
 }
 
 async function loadLanguages() {

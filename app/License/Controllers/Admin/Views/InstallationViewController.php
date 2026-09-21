@@ -14,7 +14,7 @@ class InstallationViewController extends Controller
     public function getInstallation(mixed $id): JsonResponse
     {
         /** @var Installation|null $installation */
-        $installation = Installation::with(['product:id,name', 'user:id,email', 'license:id,license_code'])
+        $installation = Installation::with(['product:id,name', 'user:id,email', 'license:id,license_code,license_order_number', 'license.order:id,number'])
             ->find($id);
 
         if ($installation) {
@@ -30,6 +30,8 @@ class InstallationViewController extends Controller
                 'product_title' => $installation->product->name,
                 'client_email' => $installation->user?->email,
                 'license_id' => $installation->license?->id,
+                'license_order_number' => $installation->license?->license_order_number,
+                'license_order_id' => $installation->license?->order?->id,
             ];
         }
 

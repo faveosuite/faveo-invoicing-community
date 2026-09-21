@@ -43,7 +43,11 @@ export const useDateTimeStore = defineStore('dateTime', {
         // UTC fallback stays active until this resolves (or forever, on failure).
         async bootstrap() {
             try {
-                const res = await http.get('/settings/system-data')
+                // _skipAuthRedirect: this endpoint is admin-only, so a guest on any
+                // public page (store, /pages/*, contact-us) gets a 401 here. Without
+                // the flag the interceptor reads that as an expired session and sends
+                // them to /login. The catch below already falls back to UTC.
+                const res = await http.get('/settings/system-data', { _skipAuthRedirect: true })
                 const s = res.data?.data?.settings ?? {}
                 this.init({
                     timezone:   s.timezone?.name ?? 'UTC',

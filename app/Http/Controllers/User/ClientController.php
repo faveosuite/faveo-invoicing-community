@@ -597,7 +597,9 @@ class ClientController extends AdvanceSearchController
                     'balance' => $invoice->outstanding(),
                     'currency' => $invoice->currency,
                     'status' => $invoice->status,
-                    'is_executed' => $invoice->order_relation_count > 0,
+                    // Same rule as InvoiceController::executeInvoice(): only an
+                    // unfulfilled purchase can be executed.
+                    'is_executed' => $invoice->order_relation_count > 0 || $invoice->type !== 'purchase',
                 ];
             });
 

@@ -248,6 +248,9 @@ class OrderController extends BaseOrderController
             'license_details' => [
                 'licence_code' => $order->serial_key,
                 'expiry_dates' => $expiryDates,
+                // Last four digits of the license, 0 meaning unlimited — same
+                // derivation the orders list column uses.
+                'agents' => (int) substr((string) $order->serial_key, 12, 16),
                 'installation_limit' => $license?->license_limit,
                 'license_domain' => $license?->license_domain,
                 'license_ip' => $license?->license_ip,
@@ -453,6 +456,12 @@ class OrderController extends BaseOrderController
             $payments->getCollection()->transform(fn ($payment): array => [
                 'id' => $payment->id,
                 'invoice_number' => $payment->invoices->pluck('number')->implode(', '),
+                // id + number per invoice so the table can link each one; a payment
+                // can be allocated across more than one invoice.
+                'invoices' => $payment->invoices->map(fn ($invoice): array => [
+                    'id' => (int) $invoice->id,
+                    'number' => (string) $invoice->number,
+                ])->values()->all(),
                 'user_id' => $payment->user_id,
                 'amount' => currencyFormat($payment->amount, $payment->currency ?: $payment->invoices->first()?->currency),
                 'payment_method' => $payment->payment_method,

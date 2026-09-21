@@ -84,6 +84,13 @@
 
                                             <li class="list-group-item py-3 px-3">
                                                 <div class="row align-items-center">
+                                                    <div class="col-4 fw-semibold">{{ __('message.agents') }}</div>
+                                                    <div class="col-8">{{ agentsLabel }}</div>
+                                                </div>
+                                            </li>
+
+                                            <li class="list-group-item py-3 px-3">
+                                                <div class="row align-items-center">
                                                     <div class="col-4 fw-semibold">{{ __('message.updates_expiry') }}</div>
                                                     <div class="col-8">
                                                         <span :class="expiryStatus('update_end') ? 'text-danger' : ''">{{ expiryDate('update_end') || '—' }}</span>
@@ -309,6 +316,18 @@
                     />
                     <div v-if="errors.limit" class="invalid-feedback">{{ errors.limit }}</div>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">{{ __('message.agents') }}</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        :class="{ 'is-invalid': errors.agents }"
+                        v-model="licenseEditModal.agents"
+                        min="0"
+                    />
+                    <div v-if="errors.agents" class="invalid-feedback">{{ errors.agents }}</div>
+                    <small class="text-muted">{{ __('message.agents_unlimited_hint') }}</small>
+                </div>
                 <DatePicker
                     v-if="canEditExpiry.update_end"
                     name="update_end"
@@ -459,6 +478,7 @@ const saving = reactive({
 const licenseEditModal = reactive({
     show:             false,
     limit:            null,
+    agents:           null,
     update_end:       null,
     subscription_end: null,
     support_end:      null,
@@ -491,6 +511,13 @@ const canEditExpiry = computed(() => ({
 }))
 
 const someExpiryFieldsHidden = computed(() => Object.values(canEditExpiry.value).some(v => !v))
+
+// 0 in the license's last four digits means unlimited seats, not zero seats.
+const agentsLabel = computed(() => {
+    const a = licenseDetails.value?.agents
+    if (a === null || a === undefined) return '—'
+    return a === 0 ? __('message.unlimited') : a
+})
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 function capitalize(str) {
@@ -653,6 +680,7 @@ async function submitBinding() {
 // ── License details edit modal ─────────────────────────────────────────────
 function openLicenseEditModal() {
     licenseEditModal.limit            = licenseDetails.value?.installation_limit ?? null
+    licenseEditModal.agents           = licenseDetails.value?.agents ?? null
     licenseEditModal.update_end       = expiryRaw('update_end')
     licenseEditModal.subscription_end = expiryRaw('subscription_end')
     licenseEditModal.support_end      = expiryRaw('support_end')
@@ -670,6 +698,7 @@ async function saveLicenseEdit() {
         const res = await http.post(`/update-license-details`, {
             orderid:          orderId,
             limit:            licenseEditModal.limit,
+            agents:           licenseEditModal.agents,
             ...(canEditExpiry.value.update_end       ? { update_end: licenseEditModal.update_end } : {}),
             ...(canEditExpiry.value.subscription_end ? { subscription_end: licenseEditModal.subscription_end } : {}),
             ...(canEditExpiry.value.support_end      ? { support_end: licenseEditModal.support_end } : {}),
@@ -811,6 +840,12 @@ const paymentTableOptions = reactive({
         created_at:     'dt-date',
     },
     templates: {
+        invoice_number: (f, row) => (row.invoices ?? []).length
+            ? h('span', (row.invoices ?? []).flatMap((inv, i) => [
+                ...(i ? [', '] : []),
+                h(RouterLink, { to: '/invoices/' + inv.id }, () => inv.number),
+            ]))
+            : (row.invoice_number || '—'),
         payment_status: (f, row) => h('span', {
             class: row.payment_status?.toLowerCase() === 'success' ? 'badge bg-success' : 'badge bg-secondary',
         }, row.payment_status),

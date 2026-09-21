@@ -11,6 +11,7 @@ use App\Http\Middleware\CheckPulseEnabled;
 use App\Http\Middleware\Install;
 use App\Http\Middleware\IsInstalled;
 use App\Http\Middleware\LanguageMiddleware;
+use App\Http\Middleware\MarkAppResponse;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\SecurityEnforcer;
 use App\Http\Middleware\SessionTimeout;
@@ -50,6 +51,7 @@ class Kernel extends HttpKernel
         // \Torann\Currency\Middleware\CurrencyMiddleware::class,
         // \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         LanguageMiddleware::class,
+        MarkAppResponse::class,
         SecurityEnforcer::class,
         AddCspHeaders::class,
     ];

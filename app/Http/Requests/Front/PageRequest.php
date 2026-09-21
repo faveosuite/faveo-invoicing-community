@@ -50,7 +50,7 @@ class PageRequest extends Request
         return [
             'name' => [$requiredRule, 'string', Rule::unique('frontend_pages', 'name')->ignore($this->route('id'))],
             'slug' => [$requiredRule, 'string', Rule::unique('frontend_pages', 'slug')->ignore($this->route('id'))],
-            'url' => ['nullable', 'string'],
+            'url' => ['nullable', 'url'],
             'type' => ['nullable', 'string'],
             'publish' => ['nullable', 'boolean'],
             // The public nav only ever renders two levels (top-level page + its direct

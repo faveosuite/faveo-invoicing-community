@@ -71,6 +71,10 @@ class StoreController extends Controller
             'group' => array_merge(
                 $group->only(['id', 'name', 'headline', 'tagline']),
                 [
+                    // The page's <h1>. headline is the customer-facing title
+                    // ("Helpdesk Pricing"); name is the internal one the Store
+                    // dropdown links by ("Helpdesk Perpetual").
+                    'heading' => $group->headline ?: $group->name,
                     'status' => (bool) $group->status,
                     'meta_title' => $groupMetaTitle,
                     'meta_description' => $groupMetaDescription,

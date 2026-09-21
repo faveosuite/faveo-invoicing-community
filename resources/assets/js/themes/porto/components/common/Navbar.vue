@@ -82,7 +82,7 @@
                           <!-- Page with children -> the page itself is still a real link;
                                a separate caret toggles the dropdown of its sub-pages. -->
                           <li v-if="childPages(page.id).length" class="dropdown page-dropdown-item" :class="{ open: openDropdownKey === page.id }">
-                            <RouterLink :to="pageLink(page)" class="nav-link pe-0">&nbsp;{{ ucfirst(page.name) }}</RouterLink>
+                            <component :is="pageTag(page)" v-bind="pageHref(page)" class="nav-link pe-0">&nbsp;{{ ucfirst(page.name) }}</component>
                             <!-- Desktop (>=992px): theme draws its own arrow via CSS (li > a.dropdown-toggle:after)
                                  and hides this icon. Mobile (<992px): theme shows/positions this icon instead
                                  and disables the CSS arrow — so the icon still has to be here for mobile.
@@ -97,13 +97,13 @@
                             </a>
                             <ul class="dropdown-menu border-light mt-n1">
                               <li v-for="child in childPages(page.id)" :key="child.id">
-                                <RouterLink :to="pageLink(child)" class="dropdown-item">{{ ucfirst(child.name) }}</RouterLink>
+                                <component :is="pageTag(child)" v-bind="pageHref(child)" class="dropdown-item">{{ ucfirst(child.name) }}</component>
                               </li>
                             </ul>
                           </li>
                           <!-- Simple page -->
                           <li v-else>
-                            <RouterLink :to="pageLink(page)" class="nav-link">&nbsp;{{ ucfirst(page.name) }}&nbsp;</RouterLink>
+                            <component :is="pageTag(page)" v-bind="pageHref(page)" class="nav-link">&nbsp;{{ ucfirst(page.name) }}&nbsp;</component>
                           </li>
                         </template>
 
@@ -154,7 +154,7 @@
                         </li>
 
                         <!-- Free Trial / Demo (mobile only, shown in collapsed nav) -->
-                        <li v-if="cloudEnabled || demoEnabled" class="mobile-nav-cta-wrapper d-lg-none mt-2 pt-2 border-top">
+                        <li v-if="cloudEnabled || demoEnabled" class="mobile-nav-cta-wrapper d-lg-none mt-2">
                           <div class="d-flex flex-column flex-sm-row gap-2">
                             <a v-if="cloudEnabled"
                                class="btn btn-dark text-white w-100 py-2 px-3 text-2 fw-semibold d-flex align-items-center justify-content-center text-center text-decoration-none"
@@ -172,7 +172,7 @@
                         </li>
 
                         <!-- Mobile Contact Info & Social Links -->
-                        <li v-if="phone || companyEmail || socialMedia.length" class="mobile-nav-contact d-lg-none mt-2 pt-2 border-top">
+                        <li v-if="phone || companyEmail || socialMedia.length" class="mobile-nav-contact d-lg-none mt-2">
                           <div class="py-2">
                             <div v-if="phone" class="mb-2">
                               <a class="text-color-default text-2 text-decoration-none d-flex align-items-center gap-2"
@@ -291,7 +291,7 @@
                                   :class="{ active: lang.locale.toLowerCase() === currentLocale }"
                                   @click.prevent="selectLang(lang)">
                                 <span :class="`fi fi-${flagCodeFor(lang.locale)}`"></span>
-                                <span class="flex-grow-1">{{ lang.name }}</span>
+                                <span class="flex-grow-1">{{ lang.name }}{{ nativeName(lang.locale) ? ` (${nativeName(lang.locale)})` : '' }}</span>
                                 <i v-if="lang.locale.toLowerCase() === currentLocale" class="fas fa-check lang-active-check"></i>
                               </a>
                             </li>
@@ -361,10 +361,11 @@ import {useAlertStore} from '@/core/stores/alert'
 import {isStickyActive} from '../../composables/useStickyHeader.js'
 import CloudTrialModal from '../store/CloudTrialModal.vue'
 import BookDemoModal from '../store/BookDemoModal.vue'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { __ } from '@/plugins/i18n'
 import { useAuthStore } from '@/core/stores/auth'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { nativeName } from '@/core/utils/language.js'
 
 const router     = useRouter()
 const cartStore  = useCartStore()
@@ -525,7 +526,16 @@ const topLevelPages = computed(() =>
 )
 const childPages = (parentId) =>
     publishedPages.value.filter(p => p.parent_page_id === parentId)
-const pageLink = (page) => page.type === 'contactus' ? '/contact-us' : '/pages/' + page.slug
+// A page with a URL configured is a link to that URL, not a /pages/{slug}
+// content page - same rule as PageController::showPage() and SeoFileGenerator.
+// Same-origin URLs (e.g. the built-in "contactus" page's /contact-us) stay
+// in-SPA as RouterLinks; anything else is a plain external anchor.
+const pageHref = (page) => {
+    if (!page.url) return { to: '/pages/' + page.slug }
+    if (page.url.startsWith(baseUrl)) return { to: page.url.slice(baseUrl.length) || '/' }
+    return { href: page.url, target: '_blank', rel: 'noopener' }
+}
+const pageTag = (page) => (pageHref(page).to ? RouterLink : 'a')
 
 function onWindowResize() {
   if (globalThis.innerWidth >= 992) {
@@ -1076,6 +1086,9 @@ onUnmounted(() => {
 /* Language dropdown */
 .lang-dropdown {
   min-width: 200px;
+  /* Porto anchors this dropdown at right: 100%, so it grows leftward — into
+     the logo. Cap it and let long labels wrap instead of widening the box. */
+  max-width: 320px;
   max-height: 320px;
   overflow-y: auto;
   padding: 6px;
@@ -1116,7 +1129,6 @@ onUnmounted(() => {
   color: #333;
   text-decoration: none;
   font-size: 0.9rem;
-  white-space: nowrap;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1136,6 +1148,7 @@ onUnmounted(() => {
 .lang-dropdown .fi {
   width: 1.33em;
   line-height: 1em;
+  flex-shrink: 0;
 }
 
 .lang-active-check {
@@ -1292,32 +1305,32 @@ onUnmounted(() => {
   list-style: none;
 }
 
-/* Mobile Social Media Icons: Force true circle shape */
-:deep(#header .mobile-nav-contact .social-media-circle-btn),
-.mobile-nav-contact .social-media-circle-btn {
-  width: 36px !important;
-  height: 36px !important;
-  min-width: 36px !important;
-  min-height: 36px !important;
-  max-width: 36px !important;
-  max-height: 36px !important;
-  border-radius: 50% !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background-color: #f8f9fa !important;
-  border: 1px solid #e2e8f0 !important;
-  color: #495057 !important;
-  transition: all 0.2s ease;
+/* The CTA buttons and the contact card are layout blocks that happen to be
+   <li>s in the menu <ul>, not nav items - Porto's menu item separator
+   (#header .header-nav-main nav > ul li) underlines them anyway. The contact
+   card escapes it only by being :last-child, so the line lands under the
+   "Request for demo" button. Drop it on both. */
+#header .header-nav-main nav > ul > li.mobile-nav-cta-wrapper,
+#header .header-nav-main nav > ul > li.mobile-nav-contact {
+  border-bottom: 0 !important;
 }
 
-:deep(#header .mobile-nav-contact .social-media-circle-btn:hover),
-.mobile-nav-contact .social-media-circle-btn:hover {
-  background-color: var(--primary, #0088CC) !important;
-  border-color: var(--primary, #0088CC) !important;
-  color: #ffffff !important;
+/* The mobile contact block lives inside the nav <ul>, so two Porto nav rules
+   bleed onto the social icons:
+     - .header-nav-main-square zeroes the anchor's border-radius, squaring it;
+     - the item separator (#header .header-nav-main nav > ul li) is a descendant
+       selector, so it also puts a 1px bottom border on each social <li> - and
+       those are border-radius:100%, so it curves into a phantom circle behind
+       the icon.
+   Undo both. Size, colours and brand hover states still come from client.css's
+   .social-icons rules, same as desktop. Selectors need the nav > ul > li chain
+   to out-specify Porto's. */
+#header .header-nav-main nav > ul > li.mobile-nav-contact :deep(.social-icons li) {
+  border: 0 !important;
+}
+
+#header .header-nav-main nav > ul > li.mobile-nav-contact :deep(.social-icons li a) {
+  border-radius: 50% !important;
 }
 
 .mini-products-list .product-details .btn-remove {

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { handleAuthError } from '@/helpers/authErrorHandler.js'
 
 // Pick whichever app mount is present: admin (#app-root) or client (#app-client).
 const el = document.getElementById('app-root') ?? document.getElementById('app-client')
@@ -31,10 +32,15 @@ http.interceptors.response.use(
         const status    = error.response?.status
         const loginUrl  = (el?.dataset?.baseUrl ?? '') + '/login'
 
-        // 401 — session expired; skip if the caller flagged this request
-        // (e.g. auth.hydrate() which expects 401 for guests)
-        if (status === 401 && !error.config?._skipAuthRedirect && !globalThis.location.pathname.endsWith('/login')) {
-            globalThis.location.href = loginUrl
+        // 401 — expired session, or a 401 faked by a proxy/WAF. handleAuthError
+        // decides which; requests flagged _skipAuthRedirect (e.g. auth.hydrate(),
+        // which expects a 401 for guests) are left alone.
+        if (handleAuthError(error, loginUrl) === 'redirect') {
+            // Deliberately never settles. We are navigating to /login, and any
+            // rejection reaching the caller runs its catch first — that is what
+            // used to flash "Request failed with status code 401" over the page
+            // being torn down. The pending promise dies with the document.
+            return new Promise(() => {})
         }
 
         // 419 — CSRF token expired; refresh the token and retry the request once

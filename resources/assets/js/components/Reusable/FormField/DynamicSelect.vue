@@ -253,9 +253,12 @@ watch(
 /* vue-select's own default renders placeholder text in the same solid
    color as a real selected value (--vs-search-input-color/-placeholder-color
    both default to "inherit", so the placeholder inherits ambient dark text).
-   favMer fades its placeholder via opacity, not color — matching that here. */
+   Match the app-wide placeholder grey from common.scss instead — fading with
+   opacity alone left it far lighter than the plain inputs beside it.
+   opacity: 1 is needed because Firefox dims ::placeholder by default. */
 .faveo-dynamic-select input.vs__search::placeholder {
-    opacity: 0.3;
+    color: #959494;
+    opacity: 1;
 }
 
 .faveo-dynamic-select .vs__dropdown-toggle {

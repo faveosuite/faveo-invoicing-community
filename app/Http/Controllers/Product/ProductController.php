@@ -563,6 +563,7 @@ class ProductController extends BaseProductController
             'license_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
             'description' => ['required'],
             'product_description' => ['required'],
+            'short_description' => ['nullable', 'string'],
             'image' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
             'product_sku' => ['required', 'unique:products,product_sku'],
             'group' => ['required'],
@@ -641,6 +642,7 @@ class ProductController extends BaseProductController
             'license_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
             'description' => ['required'],
             'product_description' => ['required'],
+            'short_description' => ['nullable', 'string'],
             'image' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
             'file' => ['sometimes', 'file', 'max:102400'], // NOSONAR — 100 MB limit is intentional for product file downloads
             'product_sku' => ['required', Rule::unique('products', 'product_sku')->ignore($productId)],

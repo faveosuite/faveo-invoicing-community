@@ -51,14 +51,12 @@ class PostPaymentService
         $this->recordPayment($invoice, $gateway);
 
         $metadata = $invoice->metadata ?? [];
-        $type = $metadata['type'] ?? 'purchase';
 
-        $result = match ($type) {
+        $result = match ($invoice->type) {
             'agent_alteration' => $this->handleAgentAlteration($invoice, $metadata),
             'upgrade_downgrade' => $this->handleUpgradeDowngrade($invoice, $metadata),
-            default => $invoice->is_renewed == 1
-                                       ? $this->handleRenewal($invoice)
-                                       : $this->handlePurchase($invoice, $gateway),
+            'renewal' => $this->handleRenewal($invoice),
+            default => $this->handlePurchase($invoice, $gateway),
         };
 
         if ($invoice->grand_total && emailSendingStatus()) {

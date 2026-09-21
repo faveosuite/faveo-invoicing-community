@@ -53,10 +53,10 @@
                         <div class="col-sm-6 mb-3">
                             <div class="d-flex">
                                 <span class="fw-bold me-2">{{ lang('order_number') }}:</span>
-                                <a v-if="license_order_number" :href="baseUrl + '/admin/orders/license/' + license_order_number" target="_blank">
+                                <router-link v-if="license_order_id" :to="'/orders/' + license_order_id">
                                     {{ license_order_number }}
-                                </a>
-                                <span v-else class="text-muted">—</span>
+                                </router-link>
+                                <span v-else class="text-muted">{{ license_order_number || '—' }}</span>
                             </div>
                         </div>
                         <div class="col-sm-6 mb-3">
@@ -204,6 +204,7 @@ const license_code = ref('')
 const product_title = ref('')
 const call_backs_count = ref(null)
 const license_order_number = ref('')
+const license_order_id = ref(null)
 const license_domain = ref('')
 const license_machine_id = ref('')
 const license_date = ref('')
@@ -251,6 +252,7 @@ function updateStatesWithData(data) {
     if (data.installation_counts) installation_counts.value = data.installation_counts
     if (data.call_backs_count) call_backs_count.value = data.call_backs_count
     if (data.license_order_number) license_order_number.value = data.license_order_number
+    license_order_id.value = data.license_order_id ?? null
     if (data.product_id) product_id.value = data.product_id
     if (data.id) license_id.value = data.id
 }

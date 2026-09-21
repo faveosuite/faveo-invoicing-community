@@ -23,7 +23,9 @@ use App\Services\Seo\SeoTemplateFormatter;
 use Config;
 use DateTime;
 use Exception;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Logger;
@@ -38,11 +40,32 @@ class PageController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['auth', 'admin'], ['except' => ['postDemoReq', 'postContactUs', 'pageBySlug', 'contactUsInfo']]);
+        $this->middleware(['auth', 'admin'], ['except' => ['postDemoReq', 'postContactUs', 'pageBySlug', 'contactUsInfo', 'showPage']]);
         $this->middleware('recaptcha:contact')->only('postContactUs');
         $this->middleware('recaptcha:demo')->only('postDemoReq');
         $page = new FrontendPage;
         $this->page = $page;
+    }
+
+    /**
+     * Public: serve /pages/{slug}.
+     *
+     * A Pages entry with a URL configured is a link, not a content page: it
+     * lives at that URL and its stored content is never meant to render.
+     * Without this redirect /pages/{slug} served a second, indexable copy
+     * alongside the real one - most visibly the built-in "contactus" page,
+     * whose form lives at /contact-us while /pages/contact-us rendered its
+     * placeholder content. Same rule as Navbar.vue's pageLinkProps() and
+     * SeoFileGenerator; unpublished slugs keep 404-ing through the SPA.
+     */
+    public function showPage(string $slug): RedirectResponse|View
+    {
+        // url is derived from type for 'contactus' pages, so select both.
+        $target = FrontendPage::where('slug', $slug)->where('publish', 1)->first(['url', 'type'])?->url;
+
+        return $target && $target !== url('/pages/'.$slug)
+            ? redirect()->away($target, 301)
+            : view('client');
     }
 
     /**
@@ -390,7 +413,7 @@ class PageController extends Controller
 
         $defaultPageId = $request->input('default_page_id');
         $defaultUrl = $defaultPageId
-            ? FrontendPage::where('id', $defaultPageId)->value('url')
+            ? FrontendPage::where('id', $defaultPageId)->first(['url', 'type'])?->url
             : url('my-invoices');
 
         DefaultPage::findOrFail(1)->update([
@@ -410,7 +433,7 @@ class PageController extends Controller
         $sortField = $request->input('sort-field', 'created_at');
         $limit = $request->input('limit', 10);
 
-        $pages = FrontendPage::select('id', 'name', 'url', 'created_at')
+        $pages = FrontendPage::select('id', 'name', 'url', 'type', 'created_at')
             ->when($searchQuery, function ($query) use ($searchQuery): void {
                 $query->where(function ($q) use ($searchQuery): void {
                     $q->where('name', 'like', sprintf('%%%s%%', $searchQuery))
@@ -488,10 +511,8 @@ class PageController extends Controller
     public function createPage(PageRequest $request): JsonResponse
     {
         try {
+            // 'contactus' pages get their url derived in FrontendPage::booted().
             $url = $request->validated('url');
-            if ($request->validated('type') === 'contactus') {
-                $url = url('/contact-us');
-            }
 
             $ogImage = null;
             if ($request->hasFile('og_image')) {

@@ -155,7 +155,6 @@
 #app-client .dt-date-col    { min-width: 105px; max-width: 125px; white-space: nowrap; }
 #app-client .dt-number-col  { min-width: 100px; max-width: 130px; }
 #app-client .dt-number-col a { white-space: nowrap; }
-#app-client .dt-number-col .badge { white-space: nowrap; font-size: 0.72rem; }
 #app-client .dt-agents-col  { min-width: 65px;  max-width: 80px; text-align: center; }
 #app-client .dt-action-col  { min-width: 140px; max-width: 155px; }
 
@@ -193,9 +192,18 @@
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
+    /* Porto shadows the <li> and leaves the <a> bare; we paint the chip on the
+       <a> below instead. Without this the li's shadow shows as a second circle
+       behind each icon - most visibly in the mobile nav, where the li is a few
+       px taller than the anchor. */
+    box-shadow: none !important;
 }
 
 .social-icons li a {
+    /* Porto's a:not(.btn):hover adds text-decoration: underline, which draws a
+       line under the glyph inside the circle on hover - clearest on X, where
+       the white line lands on the black hover background. */
+    text-decoration: none !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;

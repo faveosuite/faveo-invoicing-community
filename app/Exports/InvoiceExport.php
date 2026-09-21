@@ -39,6 +39,7 @@ class InvoiceExport implements FromCollection, WithHeadings, WithTitle
             'product' => 'Product',
             'date' => 'Date',
             'status' => 'Status',
+            'type' => 'Type',
         ];
 
         return array_map(fn ($column) => $headingsMap[$column] ?? $column, $this->selectedColumns);
