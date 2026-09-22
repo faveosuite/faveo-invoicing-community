@@ -98,7 +98,7 @@ const dtRef = ref(null)
 const { selected: selectedInvoices, allSelected, toggleRow, toggleAll } = useTableSelection(dtRef)
 const showFilter = ref(false)
 
-const allowedInvoiceFilters = ['name', 'invoice_no', 'status', 'currency', 'from_date', 'to_date']
+const allowedInvoiceFilters = ['name', 'invoice_no', 'status', 'currency', 'product', 'from_date', 'to_date']
 
 function parseInvoiceQuery(query) {
     const params = {}

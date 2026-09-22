@@ -4,6 +4,9 @@
             <h4 class="card-title">{{ __('message.filter') }}</h4>
         </div>
         <div class="card-body">
+            <!-- One wrapping row: the fields keep a single 3-per-line grid and
+                 stay left-aligned as they wrap, instead of each hand-made row
+                 ending in a ragged gap. -->
             <div class="row">
                 <div class="col-md-4">
                     <TextField
@@ -32,8 +35,17 @@
                         :onChange="(val) => form.status = val"
                     />
                 </div>
-            </div>
-            <div class="row">
+                <div class="col-md-4">
+                    <TreeSelect
+                        name="product"
+                        :label="__('message.product')"
+                        :apiEndpoint="`${baseUrl}/dependency/products`"
+                        dataKey="products"
+                        :value="form.product"
+                        :onChange="(val) => form.product = val"
+                        :placeholder="__('message.choose')"
+                    />
+                </div>
                 <div class="col-md-4">
                     <DynamicSelect
                         name="currency"
@@ -75,6 +87,7 @@
 <script setup>
 import { reactive } from 'vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
+import TreeSelect from '@/components/Reusable/FormField/TreeSelect.vue'
 
 const props = defineProps({
     show:          { type: Boolean, default: false },
@@ -91,7 +104,7 @@ const statusOptions = [
 ]
 
 const empty = () => ({
-    name: '', invoice_no: '', status: null, currency: null, from_date: null, to_date: null,
+    name: '', invoice_no: '', status: null, currency: null, product: null, from_date: null, to_date: null,
 })
 
 const form = reactive({

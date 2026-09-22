@@ -538,7 +538,9 @@ function activateTab(key) {
 // ── Mount ─────────────────────────────────────────────────────────────────────
 onMounted(async () => {
     await loadUser()
-    tabMounted.orders = true
+    const tab = route.query.tab
+    if (tab && tabMounted[tab] !== undefined) activateTab(tab)
+    else tabMounted.orders = true
     await Promise.all([loadSummary(), loadComments()])
 })
 

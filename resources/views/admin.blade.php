@@ -90,6 +90,12 @@ $adminRoutesSeo = $seoMeta->resolveAdminRoutes();
 
     </div>
 
+    {{-- Force light theme: no dark-mode toggle exists in this app, so stop AdminLTE from
+         following the OS prefers-color-scheme. Must run before AdminLTE's script. --}}
+    <script>
+        try { if (!localStorage.getItem('lte-theme')) localStorage.setItem('lte-theme', 'light'); } catch (e) {}
+    </script>
+
     {{-- Layout JS — strict load order: bootstrap (includes popper) → overlayscrollbars → adminlte --}}
     <script src="{{ assetLink('js', 'bootstrap') }}"></script>
     <script src="{{ assetLink('js', 'overlayscrollbars') }}"></script>

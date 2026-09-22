@@ -303,6 +303,7 @@
 
 <script setup>
 import { h, ref, reactive, onMounted, nextTick, watch } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
@@ -694,7 +695,9 @@ const tenantTableOptions = reactive({
         action: 'dt-action',
     },
     templates: {
-        order:       (f, row) => row.order?.order_number        || '—',
+        order:       (f, row) => row.order?.order_number && row.order?.order_id
+            ? h(RouterLink, { to: '/orders/' + row.order.order_id }, () => row.order.order_number)
+            : '—',
         user:        (f, row) => row.user?.name                 || '—',
         email:       (f, row) => row.user?.email                || '—',
         mobile:      (f, row) => row.user?.mobile               || '—',

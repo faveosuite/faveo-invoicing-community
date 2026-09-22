@@ -37,6 +37,11 @@ trait CoupCodeAndInvoiceSearch
             )
             ->when($request->currency, fn ($query, $currency) => $query->where('currency', $currency)
             )
+            ->when($request->product, function ($query, $product): void {
+                $query->whereHas('invoiceItem', function (Builder $q) use ($product): void {
+                    $q->where('product_id', $product);
+                });
+            })
             ->when($request->from_date && $request->to_date, function ($query) use ($request): void {
                 $from = Date::parse($request->from_date)->startOfDay();
                 $to = Date::parse($request->to_date)->endOfDay();

@@ -719,6 +719,7 @@ onUnmounted(() => {
 .navbar-info-bar {
   max-height: 60px;
   opacity: 1;
+  overflow: hidden;
   transition: max-height 0.3s ease, opacity 0.2s ease;
 }
 

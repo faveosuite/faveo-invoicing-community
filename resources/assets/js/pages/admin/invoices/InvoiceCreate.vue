@@ -17,6 +17,7 @@
                                 :required="true"
                                 :apiEndpoint="`${baseUrl}/dependency/users`"
                                 dataKey="managers"
+                                :disabled="!!route.query.clientid"
                                 :value="form.user"
                                 :onChange="onChange"
                                 :error="errors.user"
@@ -216,6 +217,9 @@ onMounted(async () => {
 function onChange(val, name) {
     setFieldError(name, undefined)
     form[name] = val
+    // price is user-specific, so switching the client must re-price the
+    // already-picked plan instead of keeping the previous client's price.
+    if (name === 'user' && form.plan) fetchPrice()
 }
 
 function onProductChange(val) {
@@ -316,7 +320,10 @@ async function submit() {
     try {
         const res = await http.post(`/generate/invoice`, payload)
         successHandler(res, COMPONENT)
-        setTimeout(() => router.push('/invoices'), 2000)
+        // came in from a contact -> go back to that contact's invoices tab,
+        // not the global list where the new invoice is a needle in a haystack.
+        const clientid = route.query.clientid
+        setTimeout(() => router.push(clientid ? `/users/${clientid}?tab=invoices` : '/invoices'), 2000)
     } catch (e) {
         errorHandler(e, COMPONENT, { setErrors })
     } finally {
