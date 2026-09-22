@@ -306,7 +306,6 @@ class ProductController extends BaseProductController
         }
     }
 
-
     /**
      * Paginated list of a product's version uploads, for the DataTable on the
      * product edit page's "Versions" tab.
