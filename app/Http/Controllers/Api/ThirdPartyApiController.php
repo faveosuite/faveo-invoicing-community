@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Model\Product\Product;
-use App\Model\Product\ProductUpload;
+use App\Traits\Product\AppliesBuildToProducts;
 use App\Traits\Upload\ChunkUpload;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -14,21 +13,12 @@ use Illuminate\Http\Request;
 
 class ThirdPartyApiController extends Controller
 {
+    use AppliesBuildToProducts;
     use ChunkUpload;
-
-    private ProductUpload $product_upload; // @phpstan-ignore property.onlyWritten
-
-    private Product $product; // @phpstan-ignore property.onlyWritten
 
     public function __construct()
     {
         $this->middleware('validateThirdParty');
-
-        $product_upload = new ProductUpload;
-        $this->product_upload = $product_upload;
-
-        $product = new Product;
-        $this->product = $product;
     }
 
     public function chunkUploadFile(Request $request): JsonResponse

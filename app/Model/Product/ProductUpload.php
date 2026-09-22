@@ -116,6 +116,32 @@ class ProductUpload extends Model
     }
 
     /**
+     * Creates a release row and bumps the product's current version. Shared by
+     * the admin single-product screen (ProductController::productUploadCreate)
+     * and the one-build-many-products path (AppliesBuildToProducts), which the
+     * admin screen and the third-party API both reach, so one release contract
+     * serves every caller.
+     *
+     * @param  array<mixed>  $validated
+     */
+    public static function createRelease(Product $product, string $title, string $file, string $version, array $validated, bool $isPrivate, bool $isRestricted): void
+    {
+        self::create([
+            'product_id' => $product->id,
+            'title' => $title,
+            'description' => $validated['description'],
+            'version' => $version,
+            'file' => $file,
+            'is_private' => $isPrivate,
+            'is_restricted' => $isRestricted,
+            'release_type' => $validated['release_type'],
+            'dependencies' => json_encode($validated['dependencies']),
+        ]);
+
+        $product->update(['version' => $version]);
+    }
+
+    /**
      * @return BelongsTo<Product, $this>
      */
     public function product(): BelongsTo
