@@ -1,0 +1,1 @@
+import{o,c as s,e as t,V as a,j as r}from"./dateTime-BRlL7CfL.js";const d={class:"card"},c={class:"card-body"},l={key:0,class:"card-footer"},p={__name:"Card",props:{title:{type:String,default:""}},setup(n){return(e,i)=>(o(),s("div",null,[t("div",d,[t("div",c,[a(e.$slots,"default")]),e.$slots.footer?(o(),s("div",l,[a(e.$slots,"footer")])):r("",!0)])]))}};export{p as default};

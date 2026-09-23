@@ -13,6 +13,7 @@ namespace Symfony\Component\HttpClient;
 
 use Symfony\Component\HttpClient\Exception\InvalidArgumentException;
 use Symfony\Component\HttpClient\Exception\TransportException;
+use Symfony\Component\HttpClient\Internal\Dechunker;
 use Symfony\Component\HttpClient\Response\StreamableInterface;
 use Symfony\Component\HttpClient\Response\StreamWrapper;
 use Symfony\Component\Mime\MimeTypes;
@@ -186,6 +187,7 @@ trait HttpClientTrait
         }
 
         $options['max_duration'] = isset($options['max_duration']) ? (float) $options['max_duration'] : 0;
+        $options['max_connect_duration'] = isset($options['max_connect_duration']) ? (float) $options['max_connect_duration'] : 0;
         $options['headers'] = array_merge(...array_values($options['normalized_headers']));
 
         return [$url, $options];
@@ -509,14 +511,15 @@ trait HttpClientTrait
 
     private static function dechunk(string $body): string
     {
-        $h = fopen('php://temp', 'w+');
-        stream_filter_append($h, 'dechunk', \STREAM_FILTER_WRITE);
-        fwrite($h, $body);
-        $body = stream_get_contents($h, -1, 0);
-        rewind($h);
-        ftruncate($h, 0);
+        $dechunker = new Dechunker();
 
-        if (fwrite($h, '-') && '' !== stream_get_contents($h, -1, 0)) {
+        try {
+            $body = $dechunker->dechunk($body);
+        } catch (TransportException) {
+            $dechunker = null;
+        }
+
+        if (!$dechunker?->isFinished()) {
             throw new TransportException('Request body has broken chunked encoding.');
         }
 
@@ -697,11 +700,11 @@ trait HttpClientTrait
 
             if (str_contains($parts[$part], '%')) {
                 // https://tools.ietf.org/html/rfc3986#section-2.3
-                $parts[$part] = preg_replace_callback('/%(?:2[DE]|3[0-9]|[46][1-9A-F]|5F|[57][0-9A]|7E)++/i', fn ($m) => rawurldecode($m[0]), $parts[$part]);
+                $parts[$part] = preg_replace_callback('/%(?:2[DE]|3[0-9]|[46][1-9A-F]|5F|[57][0-9A]|7E)++/i', static fn ($m) => rawurldecode($m[0]), $parts[$part]);
             }
 
             // https://tools.ietf.org/html/rfc3986#section-3.3
-            $parts[$part] = preg_replace_callback("#[^-A-Za-z0-9._~!$&/'()[\]*+,;=:@{}%]++#", fn ($m) => rawurlencode($m[0]), $parts[$part]);
+            $parts[$part] = preg_replace_callback("#[^-A-Za-z0-9._~!$&/'()[\]*+,;=:@{}%]++#", static fn ($m) => rawurlencode($m[0]), $parts[$part]);
         }
 
         return [

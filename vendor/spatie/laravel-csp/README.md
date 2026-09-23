@@ -9,7 +9,7 @@
 <h1>Set content security policy headers in a Laravel app</h1>
     
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/laravel-csp.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-csp)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/spatie/laravel-csp/run-tests.yml?branch=main&label=tests&style=flat-square)
+![GitHub Workflow Status](https://github.com/spatie/laravel-csp/actions/workflows/run-tests.yml/badge.svg)
 ![Check & fix styling](https://github.com/spatie/laravel-csp/workflows/Check%20&%20fix%20styling/badge.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-csp.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-csp)
     
@@ -86,6 +86,33 @@ return [
      * A great service you could use for this is https://report-uri.com/
      */
     'report_uri' => env('CSP_REPORT_URI', ''),
+
+    /*
+     * Optional separate report url for the report-only policy. When empty,
+     * the report-only policy falls back to `report_uri` above.
+     */
+    'report_only_uri' => env('CSP_REPORT_ONLY_URI', ''),
+
+    /*
+     * The name of the reporting endpoint that violations should be sent to.
+     * The endpoint itself must be defined in `reporting_endpoints` below.
+     */
+    'report_to' => env('CSP_REPORT_TO', ''),
+
+    /*
+     * Optional separate reporting endpoint name for the report-only policy.
+     * When empty, the report-only policy falls back to `report_to` above.
+     */
+    'report_only_to' => env('CSP_REPORT_ONLY_TO', ''),
+
+    /*
+     * Reporting endpoints that will be sent in the `Reporting-Endpoints` HTTP
+     * header. The keys are the endpoint names that can be referenced from
+     * `report_to` above.
+     */
+    'reporting_endpoints' => [
+        // 'default' => 'https://example.com/csp-reports',
+    ],
 
     /*
      * Headers will only be added if this setting is set to true.
@@ -190,6 +217,7 @@ This package ships with a few commonly used presets to get your started. *We're 
 | `Sentry`                   | [sentry.io](https://sentry.io/)                                                                |
 | `Stripe`                   | [stripe.com](https://stripe.com/)                                                              |
 | `SurveyMonkey`             | [surveymonkey.com](https://www.surveymonkey.com/)                                              |
+| `ThereThere`               | [there-there.app](https://there-there.app) (support bubble widget)                            |
 | `TicketTailor`             | [tickettailor.com](https://www.tickettailor.com)                                               |
 | `Tolt`                     | [tolt.io](https://tolt.io)                                                                     |
 | `TrackJS`                  | [trackjs.com](https://trackjs.com)                                                             |
@@ -256,20 +284,19 @@ public function configure(Policy $policy): void
 }
 ```
 
-There are also a few cases where you don't have to or don't need to specify a value, eg. upgrade-insecure-requests, block-all-mixed-content, ... In this case you can use the following value:
+There are also a few cases where you don't have to or don't need to specify a value, eg. upgrade-insecure-requests, ... In this case you can use the following value:
 
 ```php
 public function configure(Policy $policy): void
 {
     $policy
-        ->add(Directive::UPGRADE_INSECURE_REQUESTS, Value::NO_VALUE)
-        ->add(Directive::BLOCK_ALL_MIXED_CONTENT, Value::NO_VALUE);
+        ->add(Directive::UPGRADE_INSECURE_REQUESTS, Value::NO_VALUE);
 }
 ```
 
 This will output a CSP like this:
 ```
-Content-Security-Policy: upgrade-insecure-requests;block-all-mixed-content
+Content-Security-Policy: upgrade-insecure-requests
 ```
 
 The `presets` key of the `csp` config file is set to `[\Spatie\Csp\Presets\Basic::class]` by default. This class allows your site to only use images, scripts, form actions of your own site.
@@ -340,14 +367,15 @@ First you must add the nonce to the right directives in your policy:
 public function configure(Policy $policy): void
 {
     $policy
-        ->add(Directive::SCRIPT, 'self')
-        ->add(Directive::STYLE, 'self')
+         // alternatively use Keyword::STRICT_DYNAMIC on Livewire or Inertia.js
+        ->add(Directive::SCRIPT, Keyword::SELF)
+        ->add(Directive::STYLE, Keyword::SELF)
         ->addNonce(Directive::SCRIPT)
         ->addNonce(Directive::STYLE);
 }
 ```
 
-Next you must add the nonce to the html:
+Next add the nonce to style and script tags:
 
 ```blade
 <style @cspNonce>
@@ -359,11 +387,17 @@ Next you must add the nonce to the html:
 </script>
 ```
 
+To pass or retrieve the nonce for directives that generate scripts dynamically, use `app('csp-nonce')`:
+
+```blade
+@googlefonts(['nonce' => app('csp-nonce')])
+```
+
 There are few other options to use inline styles and scripts. Take a look at the [CSP docs on the Mozilla developer site](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src) to know more.
 
 ### Integration with Vite
 
-When building assets, Laravel's Vite plugin can [generate a nonce](https://laravel.com/docs/9.x/vite#content-security-policy-csp-nonce) that you can retrieve with `Vite::cspNonce`.  You can use in your own `NonceGenerator`.
+When building assets, the Laravel Vite plugin can [handle nonce](https://laravel.com/docs/12.x/vite#content-security-policy-csp-nonce), that can be generated with `Vite::useCspNonce()` and retrieved using `Vite::cspNonce()`:
 
 ```php
 namespace App\Support;
@@ -375,38 +409,46 @@ class LaravelViteNonceGenerator implements NonceGenerator
 {
     public function generate(): string
     {
-        return Vite::cspNonce();
+        return Vite::useCspNonce();
     }
 }
 ```
 
-Don't forget to specify the fully qualified class name of your `NonceGenerator` in the `nonce_generator` key of the `csp` config file.
-
-Alternatively, you can instruct Vite to use a specific value that it should use as nonce.
+Alternatively, you can instruct Vite to use a specific nonce value:
 
 ```php
 namespace App\Support;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Vite;
+use Spatie\Csp\Nonce\NonceGenerator;
 
-class RandomString implements NonceGenerator
+class LaravelViteNonceGenerator implements NonceGenerator
 {
     public function generate(): string
     {
         // Determine the value for `$myNonce` however you want
         $myNonce = '';
     
-        Vite::useCspNonce($myNonce);
-        
-        return $myNonce;
+        return Vite::useCspNonce($myNonce);
     }
 }
 ```
 
 The generated nonce should be a **base64-value** derived from at least **16 bytes of secure random data**
 This limits the character set to characters safe for use in HTML attributes and HTTP headers.
-For more details, see the [W3C Content Security Policy Level 3 specification](https://www.w3.org/TR/CSP3/#grammardef-base64-value)
+For more details, see the [W3C Content Security Policy Level 3 specification](https://www.w3.org/TR/CSP3/#grammardef-base64-value).
+
+Change the default `nonce_generator` key of the `config/csp.php` config file to the Vite nonce generator:
+
+```php
+/*
+* The class responsible for generating the nonces used in inline tags and headers.
+*/
+'nonce_generator' => App\Support\LaravelViteNonceGenerator::class,
+```
+
+The Vite nonce value will now be used when you call `app('csp-nonce')`  or `Vite::cspNonce()`.
 
 ### Outputting a CSP Policy as a meta tag
 
@@ -444,7 +486,35 @@ Instead of outright blocking all violations, you can put configure a CSP policy 
 
 #### To an external url
 
-Any violations against the policy can be reported to a given url. You can set that url in the `report_uri` key of the `csp` config file. A great service that is specifically built for handling these violation reports is [http://report-uri.io/](http://report-uri.io/). 
+Any violations against the policy can be reported to a given url. There are two CSP directives for this:
+
+* `report-uri`: the original directive. It is deprecated, but still supported by most browsers. Set the url in the `report_uri` key of the `csp` config file.
+* `report-to`: the modern replacement. It points to a named endpoint defined in the `Reporting-Endpoints` HTTP header. Set the endpoint name in the `report_to` key, and define the endpoint url in the `reporting_endpoints` array.
+
+While the new directive is rolling out across browsers, you can configure both at the same time. Older browsers will use `report-uri`, newer ones will use `report-to`.
+
+```php
+// config/csp.php
+'report_uri' => env('CSP_REPORT_URI', 'https://example.com/csp-reports'),
+
+'report_to' => env('CSP_REPORT_TO', 'default'),
+
+'reporting_endpoints' => [
+    'default' => 'https://example.com/csp-reports',
+],
+```
+
+A great service that is specifically built for handling these violation reports is [http://report-uri.io/](http://report-uri.io/).
+
+If you are running an enforcing and a report-only policy side-by-side and need them to report to different endpoints (for example, report-uri.com requires `/enforce` for `Content-Security-Policy` and `/reportOnly` for `Content-Security-Policy-Report-Only`), you can configure `report_only_uri` and/or `report_only_to`:
+
+```php
+// config/csp.php
+'report_uri' => env('CSP_REPORT_URI', 'https://example.report-uri.com/r/d/csp/enforce'),
+'report_only_uri' => env('CSP_REPORT_ONLY_URI', 'https://example.report-uri.com/r/d/csp/reportOnly'),
+```
+
+When `report_only_uri` (or `report_only_to`) is empty, the report-only policy reuses `report_uri` (or `report_to`).
 
 ### Testing
 

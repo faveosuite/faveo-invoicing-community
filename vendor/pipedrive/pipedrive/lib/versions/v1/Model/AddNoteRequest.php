@@ -2,7 +2,7 @@
 /**
  * AddNoteRequest
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -72,13 +72,15 @@ class AddNoteRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'person_id' => 'int',
         'org_id' => 'int',
         'project_id' => 'int',
+        'task_id' => 'int',
         'user_id' => 'int',
         'add_time' => 'string',
         'pinned_to_lead_flag' => '\Pipedrive\versions\v1\Model\NumberBoolean',
         'pinned_to_deal_flag' => '\Pipedrive\versions\v1\Model\NumberBoolean',
         'pinned_to_organization_flag' => '\Pipedrive\versions\v1\Model\NumberBoolean',
         'pinned_to_person_flag' => '\Pipedrive\versions\v1\Model\NumberBoolean',
-        'pinned_to_project_flag' => '\Pipedrive\versions\v1\Model\NumberBoolean'
+        'pinned_to_project_flag' => '\Pipedrive\versions\v1\Model\NumberBoolean',
+        'pinned_to_task_flag' => '\Pipedrive\versions\v1\Model\NumberBoolean'
     ];
 
     /**
@@ -95,13 +97,15 @@ class AddNoteRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'person_id' => null,
         'org_id' => null,
         'project_id' => null,
+        'task_id' => null,
         'user_id' => null,
         'add_time' => null,
         'pinned_to_lead_flag' => null,
         'pinned_to_deal_flag' => null,
         'pinned_to_organization_flag' => null,
         'pinned_to_person_flag' => null,
-        'pinned_to_project_flag' => null
+        'pinned_to_project_flag' => null,
+        'pinned_to_task_flag' => null
     ];
 
     /**
@@ -141,13 +145,15 @@ class AddNoteRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'person_id' => 'person_id',
         'org_id' => 'org_id',
         'project_id' => 'project_id',
+        'task_id' => 'task_id',
         'user_id' => 'user_id',
         'add_time' => 'add_time',
         'pinned_to_lead_flag' => 'pinned_to_lead_flag',
         'pinned_to_deal_flag' => 'pinned_to_deal_flag',
         'pinned_to_organization_flag' => 'pinned_to_organization_flag',
         'pinned_to_person_flag' => 'pinned_to_person_flag',
-        'pinned_to_project_flag' => 'pinned_to_project_flag'
+        'pinned_to_project_flag' => 'pinned_to_project_flag',
+        'pinned_to_task_flag' => 'pinned_to_task_flag'
     ];
 
     /**
@@ -162,13 +168,15 @@ class AddNoteRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'person_id' => 'setPersonId',
         'org_id' => 'setOrgId',
         'project_id' => 'setProjectId',
+        'task_id' => 'setTaskId',
         'user_id' => 'setUserId',
         'add_time' => 'setAddTime',
         'pinned_to_lead_flag' => 'setPinnedToLeadFlag',
         'pinned_to_deal_flag' => 'setPinnedToDealFlag',
         'pinned_to_organization_flag' => 'setPinnedToOrganizationFlag',
         'pinned_to_person_flag' => 'setPinnedToPersonFlag',
-        'pinned_to_project_flag' => 'setPinnedToProjectFlag'
+        'pinned_to_project_flag' => 'setPinnedToProjectFlag',
+        'pinned_to_task_flag' => 'setPinnedToTaskFlag'
     ];
 
     /**
@@ -183,13 +191,15 @@ class AddNoteRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'person_id' => 'getPersonId',
         'org_id' => 'getOrgId',
         'project_id' => 'getProjectId',
+        'task_id' => 'getTaskId',
         'user_id' => 'getUserId',
         'add_time' => 'getAddTime',
         'pinned_to_lead_flag' => 'getPinnedToLeadFlag',
         'pinned_to_deal_flag' => 'getPinnedToDealFlag',
         'pinned_to_organization_flag' => 'getPinnedToOrganizationFlag',
         'pinned_to_person_flag' => 'getPinnedToPersonFlag',
-        'pinned_to_project_flag' => 'getPinnedToProjectFlag'
+        'pinned_to_project_flag' => 'getPinnedToProjectFlag',
+        'pinned_to_task_flag' => 'getPinnedToTaskFlag'
     ];
 
     /**
@@ -257,7 +267,7 @@ class AddNoteRequest implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['content'] = $data['content'] ?? null;
         $this->container['lead_id'] = $data['lead_id'] ?? null;
@@ -265,6 +275,7 @@ class AddNoteRequest implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['person_id'] = $data['person_id'] ?? null;
         $this->container['org_id'] = $data['org_id'] ?? null;
         $this->container['project_id'] = $data['project_id'] ?? null;
+        $this->container['task_id'] = $data['task_id'] ?? null;
         $this->container['user_id'] = $data['user_id'] ?? null;
         $this->container['add_time'] = $data['add_time'] ?? null;
         $this->container['pinned_to_lead_flag'] = $data['pinned_to_lead_flag'] ?? null;
@@ -272,6 +283,7 @@ class AddNoteRequest implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['pinned_to_organization_flag'] = $data['pinned_to_organization_flag'] ?? null;
         $this->container['pinned_to_person_flag'] = $data['pinned_to_person_flag'] ?? null;
         $this->container['pinned_to_project_flag'] = $data['pinned_to_project_flag'] ?? null;
+        $this->container['pinned_to_task_flag'] = $data['pinned_to_task_flag'] ?? null;
     }
 
     /**
@@ -340,7 +352,7 @@ class AddNoteRequest implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets lead_id
      *
-     * @param string|null $lead_id The ID of the lead the note will be attached to. This property is required unless one of (`deal_id/person_id/org_id/project_id`) is specified.
+     * @param string|null $lead_id The ID of the lead the note will be attached to. This property is required unless one of (`deal_id/person_id/org_id/project_id/task_id`) is specified.
      *
      * @return self
      */
@@ -364,7 +376,7 @@ class AddNoteRequest implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets deal_id
      *
-     * @param int|null $deal_id The ID of the deal the note will be attached to. This property is required unless one of (`lead_id/person_id/org_id/project_id`) is specified.
+     * @param int|null $deal_id The ID of the deal the note will be attached to. This property is required unless one of (`lead_id/person_id/org_id/project_id/task_id`) is specified.
      *
      * @return self
      */
@@ -388,7 +400,7 @@ class AddNoteRequest implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets person_id
      *
-     * @param int|null $person_id The ID of the person this note will be attached to. This property is required unless one of (`deal_id/lead_id/org_id/project_id`) is specified.
+     * @param int|null $person_id The ID of the person this note will be attached to. This property is required unless one of (`deal_id/lead_id/org_id/project_id/task_id`) is specified.
      *
      * @return self
      */
@@ -412,7 +424,7 @@ class AddNoteRequest implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets org_id
      *
-     * @param int|null $org_id The ID of the organization this note will be attached to. This property is required unless one of (`deal_id/lead_id/person_id/project_id`) is specified.
+     * @param int|null $org_id The ID of the organization this note will be attached to. This property is required unless one of (`deal_id/lead_id/person_id/project_id/task_id`) is specified.
      *
      * @return self
      */
@@ -436,13 +448,37 @@ class AddNoteRequest implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets project_id
      *
-     * @param int|null $project_id The ID of the project the note will be attached to. This property is required unless one of (`deal_id/lead_id/person_id/org_id`) is specified.
+     * @param int|null $project_id The ID of the project the note will be attached to. This property is required unless one of (`deal_id/lead_id/person_id/org_id/task_id`) is specified.
      *
      * @return self
      */
     public function setProjectId($project_id): self
     {
         $this->container['project_id'] = $project_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets task_id
+     *
+     * @return int|null
+     */
+    public function getTaskId()
+    {
+        return $this->container['task_id'];
+    }
+
+    /**
+     * Sets task_id
+     *
+     * @param int|null $task_id The ID of the task the note will be attached to. This property is required unless one of (`deal_id/lead_id/person_id/org_id/project_id`) is specified.
+     *
+     * @return self
+     */
+    public function setTaskId($task_id): self
+    {
+        $this->container['task_id'] = $task_id;
 
         return $this;
     }
@@ -611,6 +647,30 @@ class AddNoteRequest implements ModelInterface, ArrayAccess, JsonSerializable
     public function setPinnedToProjectFlag($pinned_to_project_flag): self
     {
         $this->container['pinned_to_project_flag'] = $pinned_to_project_flag;
+
+        return $this;
+    }
+
+    /**
+     * Gets pinned_to_task_flag
+     *
+     * @return \Pipedrive\versions\v1\Model\NumberBoolean|null
+     */
+    public function getPinnedToTaskFlag()
+    {
+        return $this->container['pinned_to_task_flag'];
+    }
+
+    /**
+     * Sets pinned_to_task_flag
+     *
+     * @param \Pipedrive\versions\v1\Model\NumberBoolean|null $pinned_to_task_flag If set, the results are filtered by note to task pinning state (`task_id` is also required)
+     *
+     * @return self
+     */
+    public function setPinnedToTaskFlag($pinned_to_task_flag): self
+    {
+        $this->container['pinned_to_task_flag'] = $pinned_to_task_flag;
 
         return $this;
     }

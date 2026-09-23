@@ -10,7 +10,6 @@
 namespace PHPUnit\Framework;
 
 use function assert;
-use function count;
 use RecursiveIterator;
 
 /**
@@ -44,7 +43,7 @@ final class TestSuiteIterator implements RecursiveIterator
 
     public function valid(): bool
     {
-        return $this->position < count($this->tests);
+        return isset($this->tests[$this->position]);
     }
 
     /**
@@ -57,6 +56,8 @@ final class TestSuiteIterator implements RecursiveIterator
 
     public function current(): Test
     {
+        assert(isset($this->tests[$this->position]));
+
         return $this->tests[$this->position];
     }
 

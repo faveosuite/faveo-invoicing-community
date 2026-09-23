@@ -7,20 +7,25 @@ use Illuminate\Http\UploadedFile;
 use Pion\Laravel\ChunkUpload\Config\AbstractConfig;
 use Pion\Laravel\ChunkUpload\Handler\Traits\HandleParallelUploadTrait;
 
+/**
+ * The data is sent using query parameters in URL and form data (same data!), see:
+ * - fixtures/ResumabelUploadHandler-body.txt
+ * - fixtures/ResumableUploadHandler-url.txt
+ */
 class ResumableJSUploadHandler extends ChunksInRequestUploadHandler
 {
     use HandleParallelUploadTrait;
 
-    const CHUNK_UUID_INDEX = 'resumableIdentifier';
-    const CHUNK_NUMBER_INDEX = 'resumableChunkNumber';
-    const TOTAL_CHUNKS_INDEX = 'resumableTotalChunks';
+    public const CHUNK_UUID_INDEX = 'resumableIdentifier';
+    public const CHUNK_NUMBER_INDEX = 'resumableChunkNumber';
+    public const TOTAL_CHUNKS_INDEX = 'resumableTotalChunks';
 
     /**
      * The Resumable file uuid for unique chunk upload session.
      *
      * @var string|null
      */
-    protected $fileUuid = null;
+    protected $fileUuid;
 
     /**
      * AbstractReceiver constructor.
@@ -33,7 +38,7 @@ class ResumableJSUploadHandler extends ChunksInRequestUploadHandler
     {
         parent::__construct($request, $file, $config);
 
-        $this->fileUuid = $request->get(self::CHUNK_UUID_INDEX);
+        $this->fileUuid = $request->input(self::CHUNK_UUID_INDEX);
     }
 
     /**
@@ -43,7 +48,7 @@ class ResumableJSUploadHandler extends ChunksInRequestUploadHandler
      */
     public function getChunkFileName()
     {
-        return $this->createChunkFileName(substr($this->fileUuid,0,40), $this->getCurrentChunk());
+        return $this->createChunkFileName('rjs', $this->fileUuid, $this->getCurrentChunk());
     }
 
     /**
@@ -55,7 +60,7 @@ class ResumableJSUploadHandler extends ChunksInRequestUploadHandler
      */
     protected function getCurrentChunkFromRequest(Request $request)
     {
-        return $request->get(self::CHUNK_NUMBER_INDEX);
+        return $request->input(self::CHUNK_NUMBER_INDEX);
     }
 
     /**
@@ -67,7 +72,7 @@ class ResumableJSUploadHandler extends ChunksInRequestUploadHandler
      */
     protected function getTotalChunksFromRequest(Request $request)
     {
-        return $request->get(self::TOTAL_CHUNKS_INDEX);
+        return $request->input(self::TOTAL_CHUNKS_INDEX);
     }
 
     /**
@@ -79,7 +84,12 @@ class ResumableJSUploadHandler extends ChunksInRequestUploadHandler
      */
     public static function canBeUsedForRequest(Request $request)
     {
-        return $request->has(self::CHUNK_NUMBER_INDEX) && $request->has(self::TOTAL_CHUNKS_INDEX) &&
-            $request->has(self::CHUNK_UUID_INDEX);
+        return $request->has(self::CHUNK_NUMBER_INDEX) && $request->has(self::TOTAL_CHUNKS_INDEX)
+            && $request->has(self::CHUNK_UUID_INDEX);
+    }
+
+    public function requiresFinalChunkOnLastChunk(): bool
+    {
+        return true;
     }
 }

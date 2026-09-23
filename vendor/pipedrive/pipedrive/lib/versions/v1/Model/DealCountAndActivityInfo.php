@@ -2,7 +2,7 @@
 /**
  * DealCountAndActivityInfo
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -257,7 +257,7 @@ class DealCountAndActivityInfo implements ModelInterface, ArrayAccess, JsonSeria
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['open_deals_count'] = $data['open_deals_count'] ?? null;
         $this->container['related_open_deals_count'] = $data['related_open_deals_count'] ?? null;

@@ -28,6 +28,8 @@ use Generator;
  * @method \GuzzleHttp\Promise\Promise createLogGroupAsync(array $args = [])
  * @method \Aws\Result createLogStream(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createLogStreamAsync(array $args = [])
+ * @method \Aws\Result createLookupTable(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createLookupTableAsync(array $args = [])
  * @method \Aws\Result createScheduledQuery(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createScheduledQueryAsync(array $args = [])
  * @method \Aws\Result deleteAccountPolicy(array $args = [])
@@ -54,6 +56,8 @@ use Generator;
  * @method \GuzzleHttp\Promise\Promise deleteLogGroupAsync(array $args = [])
  * @method \Aws\Result deleteLogStream(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteLogStreamAsync(array $args = [])
+ * @method \Aws\Result deleteLookupTable(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteLookupTableAsync(array $args = [])
  * @method \Aws\Result deleteMetricFilter(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteMetricFilterAsync(array $args = [])
  * @method \Aws\Result deleteQueryDefinition(array $args = [])
@@ -66,6 +70,8 @@ use Generator;
  * @method \GuzzleHttp\Promise\Promise deleteScheduledQueryAsync(array $args = [])
  * @method \Aws\Result deleteSubscriptionFilter(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteSubscriptionFilterAsync(array $args = [])
+ * @method \Aws\Result deleteSyslogConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteSyslogConfigurationAsync(array $args = [])
  * @method \Aws\Result deleteTransformer(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteTransformerAsync(array $args = [])
  * @method \Aws\Result describeAccountPolicies(array $args = [])
@@ -94,6 +100,8 @@ use Generator;
  * @method \GuzzleHttp\Promise\Promise describeLogGroupsAsync(array $args = [])
  * @method \Aws\Result describeLogStreams(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeLogStreamsAsync(array $args = [])
+ * @method \Aws\Result describeLookupTables(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeLookupTablesAsync(array $args = [])
  * @method \Aws\Result describeMetricFilters(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeMetricFiltersAsync(array $args = [])
  * @method \Aws\Result describeQueries(array $args = [])
@@ -134,12 +142,16 @@ use Generator;
  * @method \GuzzleHttp\Promise\Promise getLogObjectAsync(array $args = [])
  * @method \Aws\Result getLogRecord(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getLogRecordAsync(array $args = [])
+ * @method \Aws\Result getLookupTable(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getLookupTableAsync(array $args = [])
  * @method \Aws\Result getQueryResults(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getQueryResultsAsync(array $args = [])
  * @method \Aws\Result getScheduledQuery(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getScheduledQueryAsync(array $args = [])
  * @method \Aws\Result getScheduledQueryHistory(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getScheduledQueryHistoryAsync(array $args = [])
+ * @method \Aws\Result getStorageTierPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getStorageTierPolicyAsync(array $args = [])
  * @method \Aws\Result getTransformer(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getTransformerAsync(array $args = [])
  * @method \Aws\Result listAggregateLogGroupSummaries(array $args = [])
@@ -158,12 +170,16 @@ use Generator;
  * @method \GuzzleHttp\Promise\Promise listScheduledQueriesAsync(array $args = [])
  * @method \Aws\Result listSourcesForS3TableIntegration(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listSourcesForS3TableIntegrationAsync(array $args = [])
+ * @method \Aws\Result listSyslogConfigurations(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listSyslogConfigurationsAsync(array $args = [])
  * @method \Aws\Result listTagsForResource(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listTagsForResourceAsync(array $args = [])
  * @method \Aws\Result listTagsLogGroup(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listTagsLogGroupAsync(array $args = [])
  * @method \Aws\Result putAccountPolicy(array $args = [])
  * @method \GuzzleHttp\Promise\Promise putAccountPolicyAsync(array $args = [])
+ * @method \Aws\Result putBearerTokenAuthentication(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putBearerTokenAuthenticationAsync(array $args = [])
  * @method \Aws\Result putDataProtectionPolicy(array $args = [])
  * @method \GuzzleHttp\Promise\Promise putDataProtectionPolicyAsync(array $args = [])
  * @method \Aws\Result putDeliveryDestination(array $args = [])
@@ -192,8 +208,12 @@ use Generator;
  * @method \GuzzleHttp\Promise\Promise putResourcePolicyAsync(array $args = [])
  * @method \Aws\Result putRetentionPolicy(array $args = [])
  * @method \GuzzleHttp\Promise\Promise putRetentionPolicyAsync(array $args = [])
+ * @method \Aws\Result putStorageTierPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putStorageTierPolicyAsync(array $args = [])
  * @method \Aws\Result putSubscriptionFilter(array $args = [])
  * @method \GuzzleHttp\Promise\Promise putSubscriptionFilterAsync(array $args = [])
+ * @method \Aws\Result putSyslogConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putSyslogConfigurationAsync(array $args = [])
  * @method \Aws\Result putTransformer(array $args = [])
  * @method \GuzzleHttp\Promise\Promise putTransformerAsync(array $args = [])
  * @method \Aws\Result startLiveTail(array $args = [])
@@ -220,41 +240,12 @@ use Generator;
  * @method \GuzzleHttp\Promise\Promise updateDeliveryConfigurationAsync(array $args = [])
  * @method \Aws\Result updateLogAnomalyDetector(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateLogAnomalyDetectorAsync(array $args = [])
+ * @method \Aws\Result updateLookupTable(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateLookupTableAsync(array $args = [])
  * @method \Aws\Result updateScheduledQuery(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateScheduledQueryAsync(array $args = [])
  */
 class CloudWatchLogsClient extends AwsClient {
-    static $streamingCommands = [
-        'StartLiveTail' => true
-    ];
-
-    public function __construct(array $args)
-    {
-        parent::__construct($args);
-        $this->addStreamingFlagMiddleware();
-    }
-
-    private function addStreamingFlagMiddleware()
-    {
-        $this->getHandlerList()
-            -> appendInit(
-                $this->getStreamingFlagMiddleware(),
-                'streaming-flag-middleware'
-            );
-    }
-
-    private function getStreamingFlagMiddleware(): callable
-    {
-        return function (callable $handler) {
-            return function (CommandInterface $command, $request = null) use ($handler) {
-                if (!empty(self::$streamingCommands[$command->getName()])) {
-                    $command['@http']['stream'] = true;
-                }
-
-                return $handler($command, $request);
-            };
-        };
-    }
 
     /**
      * Helper method for 'startLiveTail' operation that checks for results.

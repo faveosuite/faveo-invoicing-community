@@ -2,324 +2,89 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\License\LicenseController;
-use App\Http\Controllers\Order\BaseOrderController;
-use App\Http\Controllers\Tenancy\TenantController;
-use App\Model\Common\FaveoCloud;
-use App\Model\Common\StatusSetting;
-use App\Model\Order\Invoice;
-use App\Model\Order\InvoiceItem;
-use App\Model\Order\Order;
-use App\Model\Payment\Plan;
-use App\Model\Payment\PlanPrice;
-use App\Model\Payment\TaxOption;
+use App\Model\CloudDataCenters;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
-use App\Model\Product\Subscription;
+use App\Services\Payment\FreeTrialService;
 use App\User;
-use Auth;
-use Crypt;
-use DB;
-use GuzzleHttp\Client;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Logger;
+use RuntimeException;
+use Throwable;
 
 class FreeTrailController extends Controller
 {
-    public $orderNo = null;
-    public $tenantController;
-
-    public function __construct(?TenantController $tenantController = null)
-    {
-        $this->middleware('auth');
-
-        $this->invoice = new Invoice();
-
-        $this->invoiceItem = new InvoiceItem();
-
-        $this->order = new Order();
-
-        $this->subscription = new Subscription();
-
-        $this->tenantController = $tenantController ?: new TenantController(new Client, new FaveoCloud);
-        $this->product = new Product();
+    public function __construct(
+        private readonly FreeTrialService $freeTrialService,
+    ) {
+        $this->middleware('auth')->except('getCloudProducts');
     }
 
-    /**
-     * Get the auth user id
-     * Check the first_time_login is not equal to zero in DB to correspaonding,if its not change into one.
-     *
-     * @return order
-     */
-    public function firstLoginAttempt(Request $request)
+    public function startTrial(Request $request): JsonResponse
     {
-        $this->validate($request, [
-            'domain' => 'required|regex:/^[a-zA-Z0-9]+$/u',
+        $request->validate([
+            'domain' => ['required', 'regex:/^[a-zA-Z0-9]+$/u'],
+            'product_id' => ['required', 'integer'],
         ], [
             'domain.regex' => __('validation.special_characters_not_allowed'),
         ]);
+
+        $cloudProduct = CloudProducts::where('cloud_product', $request->integer('product_id'))->first();
+
+        if (! $cloudProduct) {
+            return errorResponse(__('message.cannot_find_product'));
+        }
+
+        /** @var User $user */
+        $user = auth()->user();
+
         try {
-            if (! Auth::check()) {
-                return redirect('login')->back()->with('fails', \Lang::get('message.free-login'));
-            }
+            $this->freeTrialService->checkEligibility($user, $cloudProduct);
+            $result = $this->freeTrialService->provision($user, $request->input('domain'), $cloudProduct);
 
-            $userId = $request->get('id');
-            if (Auth::user()->id == $userId) {
-                $product_is = CloudProducts::where('cloud_product_key', $request->product)->value('cloud_product');
-                if (\DB::table('free_trial_allowed')->where('user_id', $userId)->where('product_id', $product_is)->count() >= 1) {
-                    return errorResponse(__('message.limit_is_up'));
-                }
-
-                DB::beginTransaction(); // Start a database transaction
-
-                try {
-                    $cloudProduct = CloudProducts::where('cloud_product_key', $request->get('product'))
-                        ->select('cloud_free_plan', 'cloud_product')
-                        ->first();
-                    $product = Product::with(['planRelation' => function ($query) use ($cloudProduct) {
-                        $query->where('id', $cloudProduct->cloud_free_plan);
-                    }])->find($cloudProduct->cloud_product);
-                    $plan_id = $product->planRelation()->where('days', '<', 30)->value('id');
-
-                    // Here we check weather the plan price is available for user currency or not
-                    if (PlanPrice::wherePlanId($plan_id)->whereCurrency(getCurrencyForClient(\Auth::user()->country))->doesntExist()) {
-                        return errorResponse(__('message.no_available_plans_for_user_currency'));
-                    }
-
-                    $this->generateFreetrailInvoice($product, $plan_id);
-                    $this->createFreetrailInvoiceItems($product, $plan_id);
-                    $serial_key = $this->executeFreetrailOrder();
-                    $isSuccess = $this->tenantController->createTenant(new Request(['orderNo' => $this->orderNo, 'domain' => $request->domain]));
-                    if ($isSuccess['status'] == 'false') {
-                        (new LicenseController())->deActivateTheLicense($serial_key);
-
-                        DB::rollback(); // Rollback the transaction
-
-                        return $isSuccess;
-                    }
-
-                    \DB::table('free_trial_allowed')->insert([
-                        'user_id' => $userId,
-                        'product_id' => CloudProducts::where('cloud_product_key', $request->product)->value('cloud_product'),
-                        'domain' => $isSuccess['Free_trial_domain'],
-                    ]);
-                    \Session::forget('planDays');
-
-                    DB::commit(); // Commit the transaction
-
-                    return $isSuccess;
-                } catch (\Exception $ex) {
-                    DB::rollback(); // Rollback the transaction
-                    \Logger::exception($ex);
-
-                    return errorResponse(__('message.cannot_generate_freetrial_cloud_instance'));
-                }
-            }
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+            return successResponse(__('message.free_trial_started'), $result);
+        } catch (RuntimeException $e) {
+            return errorResponse($e->getMessage());
+        } catch (Throwable $e) {
+            Logger::exception($e);
 
             return errorResponse(__('message.cannot_generate_freetrial_cloud_instance'));
         }
     }
 
-    /**
-     * Generate invoice from client panel for free trial.
-     *
-     * @throws \Exception
-     */
-    private function generateFreetrailInvoice($product, $plan_id)
+    public function getCloudProducts(): JsonResponse
     {
-        try {
-//            $cloudProduct = CloudProducts::where('cloud_product_key', $product_type)
-//                ->select('cloud_free_plan', 'cloud_product')
-//                ->first();
-//            $product = Product::with(['planRelation' => function ($query) use ($cloudProduct) {
-//                $query->where('id', $cloudProduct->cloud_free_plan);
-//            }])->find($cloudProduct->cloud_product);
-//            $plan_id = $product->planRelation()->where('days', '<', 30)->value('id');
-            $price = planPrice::where('plan_id', $plan_id)
-                ->where('currency', getCurrencyForClient(\Auth::user()->country))->pluck('add_price');
-            $tax_rule = new TaxOption();
-            $rule = $tax_rule->findOrFail(1);
-            $rounding = $rule->rounding;
-            $user_id = \Auth::user()->id;
-            $grand_total = $rounding ? round($price[0]) : $price[0];
-            $number = rand(11111111, 99999999);
-            $date = \Carbon\Carbon::now();
-            $currency = \Session::has('cart_currency') ? \Session::get('cart_currency') : getCurrencyForClient(\Auth::user()->country);
-            $invoice = $this->invoice->create(['user_id' => $user_id, 'number' => $number, 'date' => $date, 'grand_total' => $grand_total, 'status' => 'success',
-                'currency' => $currency, ]);
+        $cloudProductIds = cloudPopupProducts();
 
-            return $invoice;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-            throw new \Exception(__('message.cannot_generate_invoice'));
-        }
-    }
-
-    /**
-     * Generate invoice items for free trial.
-     *
-     * @throws \Exception
-     */
-    private function createFreetrailInvoiceItems($product, $plan_id)
-    {
-        try {
-//            $cloudProduct = CloudProducts::where('cloud_product_key', $product_type)
-//                ->select('cloud_free_plan', 'cloud_product')
-//                ->first();
-//            $product = Product::with(['planRelation' => function ($query) use ($cloudProduct) {
-//                $query->where('id', $cloudProduct->cloud_free_plan);
-//            }])->find($cloudProduct->cloud_product);
-
-            if ($product) {
-//                $plan_id = $product->planRelation()->where('days', '<', 30)->value('id');
-                $cart = \Cart::getContent();
-                $userId = \Auth::user()->id;
-                $invoice = $this->invoice->where('user_id', $userId)->latest()->first();
-                $invoiceid = $invoice->id;
-                $invoiceItem = $this->invoiceItem->create([
-                    'invoice_id' => $invoiceid,
-                    'product_name' => $product->name,
-                    'product_id' => $product->id,
-                    'regular_price' => planPrice::where('plan_id', $plan_id)
-                        ->where('currency', getCurrencyForClient(\Auth::user()->country))->value('add_price'),
-                    'quantity' => 1,
-                    'tax_name' => 'null',
-                    'tax_percentage' => $product->planRelation()->where('days', '<', 30)->value('allow_tax'),
-                    'subtotal' => 0,
-                    'domain' => '',
-                    'plan_id' => $plan_id,
-                    'agents' => planPrice::where('plan_id', $plan_id)->value('no_of_agents'),
-                ]);
-
-                return $invoiceItem;
-            } else {
-                throw new \Exception(__('message.cannot_find_product'));
-            }
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-            throw new \Exception(__('message.cannot_generate_invoice_items'));
-        }
-    }
-
-    /**
-     * Generate Order from client panel for free trial.
-     *
-     * @throws \Exception
-     */
-    private function executeFreetrailOrder()
-    {
-        try {
-            $order_status = 'executed';
-            $userId = \Auth::user()->id;
-            $invoice = $this->invoice->where('user_id', $userId)->latest()->first();
-            $invoiceid = $invoice->id;
-            $item = $this->invoiceItem->where('invoice_id', $invoiceid)->latest()->first();
-            $user_id = $this->invoice->find($invoiceid)->user_id;
-            $items = $this->getIfFreetrailItemPresent($item, $invoiceid, $user_id, $order_status);
-
-            return $items;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            throw new \Exception(__('message.cannot_generate_order'));
-        }
-    }
-
-    /**
-     * Create order for free trial if the invoice items present in the DB.
-     *
-     * @throws \Exception
-     */
-    private function getIfFreetrailItemPresent($item, $invoiceid, $user_id, $order_status)
-    {
-        try {
-            $product = Product::where('id', $item->product_id)->first();
-            $version = $product->version; //Send Product Id and Agents to generate Serial Key
-            $domain = $item->domain;
-            $plan_id = Plan::where('product', $product->id)->where('name', 'LIKE', '%free%')
-                ->value('id');
-            $serial_key = $this->generateFreetrailSerialKey($product->id, planPrice::where('plan_id', $plan_id)->value('no_of_agents'));
-
-            $order = $this->order->create([
-
-                'invoice_id' => $invoiceid,
-                'invoice_item_id' => $item->id,
-                'client' => $user_id,
-                'order_status' => $order_status,
-                'serial_key' => Crypt::encrypt($serial_key),
-                'product' => $product->id,
-                'price_override' => $item->subtotal,
-                'qty' => $item->quantity,
-                'domain' => $domain,
-                'number' => $this->generateFreetrailNumber(),
+        if (empty($cloudProductIds)) {
+            return successResponse('', [
+                'cloud_subdomain' => cloudSubDomain() ?? '',
+                'data_centers' => [],
+                'products' => [],
             ]);
-            $this->orderNo = $order->number;
-            $baseorder = new BaseOrderController();
-            $baseorder->addOrderInvoiceRelation($invoiceid, $order->id);
-            \Session::put('planDays', 'freeTrial');
-
-            if ($plan_id) {
-                $baseorder->addSubscription($order->id, $plan_id, $version, $product->id, $serial_key);
-
-                $addOnIds = implode(',', $this->product->find($product->id)->productPluginGroupsAsProduct->pluck('plugin_id')->toArray());
-                $options = $baseorder->formatConfigurableOptions($product->id);
-                $cont = app(\App\Http\Controllers\License\LicenseController::class);
-
-                $cont->syncTheAddonForALicense($addOnIds, $serial_key, $options);
-            }
-            $mailchimpStatus = StatusSetting::pluck('mailchimp_status')->first();
-
-            if ($mailchimpStatus) {
-                $baseorder->addtoMailchimp($product->id, $user_id, $item);
-            }
-            \Session::forget('planDays');
-
-            return $serial_key;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            throw new \Exception(__('message.cannot_generate_free_trial_order'));
         }
-    }
 
-    /**
-     * Generate serial key for free trial.
-     *
-     * @throws \Exception
-     */
-    private function generateFreetrailSerialKey(int $productid, $agents)
-    {
-        try {
-            $len = strlen($agents);
-            switch ($len) {//Get Last Four digits based on No.Of Agents
-                case '1':
-                    $lastFour = '000'.$agents;
-                    break;
-                case '2':
-                    $lastFour = '00'.$agents;
-                    break;
-                case '3':
-                    $lastFour = '0'.$agents;
-                    break;
-                case '4':
-                    $lastFour = $agents;
-                    break;
-                default:
-                    $lastFour = '0000';
-            }
-            $str = strtoupper(str_random(12));
-            $licCode = $str.$lastFour;
+        $cloudPlans = CloudProducts::whereIn('cloud_product', $cloudProductIds)
+            ->pluck('cloud_free_plan', 'cloud_product');
 
-            return $licCode;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-            throw new \Exception(__('message.cannot_generate_free_trial_serialkey'));
-        }
-    }
+        $products = Product::whereIn('id', $cloudProductIds)
+            ->where('hidden', '!=', 1)
+            ->orderBy('id')
+            ->get();
 
-    private function generateFreetrailNumber()
-    {
-        return rand('10000000', '99999999');
+        return successResponse('', [
+            'cloud_subdomain' => cloudSubDomain() ?? '',
+            'data_centers' => CloudDataCenters::select('id', 'cloud_countries', 'cloud_state')->get()
+                ->map(fn ($dc): array => [
+                    'id' => $dc->id,
+                    'name' => trim($dc->cloud_countries.($dc->cloud_state ? ', '.$dc->cloud_state : '')),
+                ])->values(),
+            'products' => $products->map(fn ($p): array => [
+                'id' => $p->id,
+                'name' => $p->name,
+                'default_plan_id' => $cloudPlans->get($p->id),
+            ])->values(),
+        ]);
     }
 }

@@ -4,8 +4,8 @@ All URIs are relative to https://api.pipedrive.com/api/v2.
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**convertLeadToDeal()**](LeadsApi.md#convertLeadToDeal) | **POST** /leads/{id}/convert/deal | Convert a lead to a deal (BETA)
-[**getLeadConversionStatus()**](LeadsApi.md#getLeadConversionStatus) | **GET** /leads/{id}/convert/status/{conversion_id} | Get Lead conversion status (BETA)
+[**convertLeadToDeal()**](LeadsApi.md#convertLeadToDeal) | **POST** /leads/{id}/convert/deal | Convert a lead to a deal
+[**getLeadConversionStatus()**](LeadsApi.md#getLeadConversionStatus) | **GET** /leads/{id}/convert/status/{conversion_id} | Get Lead conversion status
 [**searchLeads()**](LeadsApi.md#searchLeads) | **GET** /leads/search | Search leads
 
 
@@ -15,7 +15,7 @@ Method | HTTP request | Description
 convertLeadToDeal($id, $inline_object): \Pipedrive\versions\v2\Model\AddConvertLeadToDealResponse
 ```
 
-Convert a lead to a deal (BETA)
+Convert a lead to a deal
 
 Initiates a conversion of a lead to a deal. The return value is an ID of a job that was assigned to perform the conversion. Related entities (notes, files, emails, activities, ...) are transferred during the process to the target entity. If the conversion is successful, the lead is marked as deleted. To retrieve the created entity ID and the result of the conversion, call the <a href=\"https://developers.pipedrive.com/docs/api/v1/Leads#getLeadConversionStatus\">/api/v2/leads/{lead_id}/convert/status/{conversion_id}</a> endpoint.
 
@@ -82,7 +82,7 @@ Name | Type | Description  | Notes
 getLeadConversionStatus($id, $conversion_id)
 ```
 
-Get Lead conversion status (BETA)
+Get Lead conversion status
 
 Returns data about the conversion. Status is always present and its value (not_started, running, completed, failed, rejected) represents the current state of the conversion. Deal ID is only present if the conversion was successfully finished. This data is only temporary and removed after a few days.
 

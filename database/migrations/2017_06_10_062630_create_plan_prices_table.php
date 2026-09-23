@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('plan_prices')) {
-            Schema::create('plan_prices', function (Blueprint $table) {
+            Schema::create('plan_prices', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('plan_id')->unsigned();
                 $table->string('currency');
@@ -27,10 +25,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('plan_prices');
     }

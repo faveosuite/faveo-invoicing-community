@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('countries');
 
-        Schema::create('countries', function (Blueprint $table) {
+        Schema::create('countries', function (Blueprint $table): void {
             $table->mediumIncrements('country_id');
             $table->char('country_code_char2', 2)->nullable();
             $table->char('country_code_char3', 3)->nullable();
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('emoji', 191)->nullable();
             $table->string('emojiU', 191)->nullable();
             $table->unsignedInteger('currency_id');
-            $table->boolean('status')->default(true);
+            $table->boolean('status')->default(value: true);
             $table->foreign('currency_id')->references('id')->on('currencies')->onDelete('cascade');
             $table->timestamps();
         });
@@ -37,7 +37,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('states_subdivisions', function (Blueprint $table) {
+        Schema::table('states_subdivisions', function (Blueprint $table): void {
             $table->dropForeign(['country_id']);
         });
 

@@ -1,9 +1,6 @@
 <?php
 
 return [
-    /*
-    * Recaptcha Settings Page
-    */
     'captcha_settings' => 'reCAPTCHA सेटिंग्स',
     'captcha_configuration' => 'reCAPTCHA कॉन्फ़िगरेशन',
     'captcha_version' => 'reCAPTCHA संस्करण',
@@ -15,10 +12,6 @@ return [
     'none' => 'कोई नहीं',
     'fallback_v2_checkbox' => 'reCAPTCHA v2 चेकबॉक्स पर वापस जाएं',
     'action_if_captcha_fails' => 'reCAPTCHA विफल होने पर की जाने वाली कार्रवाई',
-
-    /*
-    * Recaptcha v3 Settings
-    */
     'recaptcha_v3_settings' => 'reCAPTCHA v3 सेटिंग्स',
     'v3_site_key' => 'v3 साइट कुंजी',
     'enter_v3_site_key' => 'अपनी reCAPTCHA v3 साइट कुंजी दर्ज करें',
@@ -27,20 +20,12 @@ return [
     'v3_score_threshold' => 'v3 स्कोर थ्रेसहोल्ड',
     'v3_score_hint' => '0.0 और 1.0 के बीच का मान (उच्च बेहतर है)',
     'v3_preview' => 'v3 पूर्वावलोकन',
-
-    /*
-    * Recaptcha v2 Settings
-    */
     'recaptcha_v2_settings' => 'reCAPTCHA v2 सेटिंग्स',
     'v2_site_key' => 'v2 साइट कुंजी',
     'enter_v2_site_key' => 'अपनी reCAPTCHA v2 साइट कुंजी दर्ज करें',
     'v2_secret_key' => 'v2 गुप्त कुंजी',
     'enter_v2_secret_key' => 'अपनी reCAPTCHA v2 गुप्त कुंजी दर्ज करें',
     'v2_preview' => 'v2 पूर्वावलोकन',
-
-    /*
-    * Appearance
-    */
     'appearance_messages' => 'दिखावट',
     'theme' => 'थीम',
     'theme_light' => 'हलका',
@@ -52,28 +37,12 @@ return [
     'badge_bottomright' => 'नीचे दाएं',
     'badge_bottomleft' => 'नीचे बाएं',
     'badge_inline' => 'इनलाइन',
-
-    /*
-    * Common
-    */
     'save' => 'सहेजें',
     'saving' => 'सहेजा जा रहा है',
     'home' => 'होम',
     'settings' => 'सेटिंग्स',
-
-    /*
-    * Success messages
-    */
     'captcha_settings_updated' => 'reCAPTCHA सेटिंग्स सफलतापूर्वक अपडेट की गईं!',
-
-    /*
-    * Error messages
-    */
     'captcha_message' => 'reCAPTCHA सत्यापन विफल रहा। कृपया पुन: प्रयास करें।',
-
-    /*
-    * JavaScript validation messages
-    */
     'field_required_condition' => 'शर्त पूरी होने पर यह फ़ील्ड आवश्यक है',
     'select_captcha_version' => 'कृपया एक reCAPTCHA संस्करण चुनें',
     'v3_site_key_required' => 'reCAPTCHA v3 साइट कुंजी आवश्यक है',
@@ -90,16 +59,8 @@ return [
     'failed_generate_v2_token' => 'reCAPTCHA v2 टोकन बनाने में विफल।',
     'settings_saved' => 'सेटिंग्स सहेजी गईं।',
     'failed_save_settings' => 'सेटिंग्स सहेजने में विफल। कृपया पुन: प्रयास करें।',
-
-    /*
-    * Backend validation messages
-    */
     'invalid_secret_or_token' => 'गुप्त कुंजी या प्रतिक्रिया टोकन अमान्य है',
     'captcha_verification_failed' => 'reCAPTCHA सत्यापन विफल (स्कोर/कार्रवाई/होस्टनाम बेमेल)',
-
-    /*
-    * Validation messages
-    */
     'captcha_version_required' => 'reCAPTCHA संस्करण आवश्यक है',
     'captcha_version_in' => 'चयनित reCAPTCHA संस्करण अमान्य है',
     'failover_action_required' => 'विफलता पर कार्रवाई आवश्यक है',

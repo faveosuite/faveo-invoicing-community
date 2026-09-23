@@ -2,7 +2,9 @@
 
 namespace App\Plugins\Recaptcha;
 
+use App\Plugins\Recaptcha\Middleware\RecaptchaMiddleware;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class RecaptchaServiceProvider extends ServiceProvider
 {
@@ -22,8 +24,6 @@ class RecaptchaServiceProvider extends ServiceProvider
         // Register plugin routes
         $this->loadRoutesFrom(__DIR__.'/routes/routes.php');
 
-        $this->loadViewsFrom(__DIR__.'/resources/views', 'recaptcha');
-
         // Load language files from plugin directory
         $this->loadTranslationsFrom(__DIR__.'/resources/lang', 'recaptcha');
 
@@ -37,12 +37,16 @@ class RecaptchaServiceProvider extends ServiceProvider
     protected function registerMiddleware(): void
     {
         // Register recaptcha middleware
-        $this->app['router']->aliasMiddleware('recaptcha', \App\Plugins\Recaptcha\Middleware\RecaptchaMiddleware::class);
+        $this->app['router']->aliasMiddleware('recaptcha', RecaptchaMiddleware::class); // @phpstan-ignore offsetAccess.nonOffsetAccessible
     }
 
     /**
      * Get the services provided by the provider.
      */
+    /**
+     * @return array<mixed>
+     */
+    #[Override]
     public function provides(): array
     {
         return ['recaptcha'];

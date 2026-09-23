@@ -12,7 +12,6 @@ namespace PHPUnit\Framework\Constraint;
 use function count;
 use function is_countable;
 use function iterator_count;
-use function spl_object_id;
 use function sprintf;
 use EmptyIterator;
 use Generator;
@@ -20,6 +19,7 @@ use Iterator;
 use IteratorAggregate;
 use PHPUnit\Framework\Exception;
 use PHPUnit\Framework\GeneratorNotSupportedException;
+use SebastianBergmann\RecursionContext\Context;
 use Traversable;
 
 /**
@@ -38,6 +38,23 @@ class Count extends Constraint
     {
         return sprintf(
             'count matches %d',
+            $this->expectedCount,
+        );
+    }
+
+    /**
+     * Returns the negated description when this constraint is wrapped in a
+     * LogicalNot operator. The guard ensures that LogicalAnd, LogicalOr, and
+     * LogicalXor keep using the affirmative toString().
+     */
+    protected function toStringInContext(Operator $operator, mixed $role): string
+    {
+        if (!$operator instanceof LogicalNot) {
+            return '';
+        }
+
+        return sprintf(
+            'count does not match %d',
             $this->expectedCount,
         );
     }
@@ -67,16 +84,14 @@ class Count extends Constraint
         }
 
         if ($other instanceof Traversable) {
-            $traversableSeen = [];
+            $context = new Context;
 
             while ($other instanceof IteratorAggregate) {
-                $id = spl_object_id($other);
-
-                if (isset($traversableSeen[$id])) {
+                if ($context->contains($other) !== false) {
                     throw new Exception('IteratorAggregate::getIterator() returned an object that was already seen');
                 }
 
-                $traversableSeen[$id] = true;
+                $context->add($other);
 
                 try {
                     $other = $other->getIterator();
@@ -96,7 +111,9 @@ class Count extends Constraint
             }
 
             if (!$iterator instanceof Iterator) {
+                // @codeCoverageIgnoreStart
                 return iterator_count($iterator);
+                // @codeCoverageIgnoreEnd
             }
 
             $key   = $iterator->key();
@@ -130,6 +147,24 @@ class Count extends Constraint
     {
         return sprintf(
             'actual size %d matches expected size %d',
+            (int) $this->getCountOf($other),
+            $this->expectedCount,
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function failureDescriptionInContext(Operator $operator, mixed $role, mixed $other): string
+    {
+        // @codeCoverageIgnoreStart
+        if (!$operator instanceof LogicalNot) {
+            return '';
+        }
+        // @codeCoverageIgnoreEnd
+
+        return sprintf(
+            'actual size %d does not match expected size %d',
             (int) $this->getCountOf($other),
             $this->expectedCount,
         );

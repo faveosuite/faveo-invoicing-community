@@ -9,6 +9,7 @@
  */
 namespace PHPUnit\Framework\MockObject\Rule;
 
+use function assert;
 use function count;
 use function sprintf;
 use Exception;
@@ -19,6 +20,8 @@ use PHPUnit\Framework\Constraint\IsEqual;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\MockObject\Invocation as BaseInvocation;
 use PHPUnit\Util\Test;
+use ReflectionException;
+use ReflectionMethod;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -33,6 +36,7 @@ final class Parameters implements ParametersRule
     private array $parameters           = [];
     private ?BaseInvocation $invocation = null;
     private null|bool|ExpectationFailedException $parameterVerificationResult;
+    private bool $useAssertionCount = true;
 
     /**
      * @param array<mixed> $parameters
@@ -81,6 +85,11 @@ final class Parameters implements ParametersRule
         $this->doVerify();
     }
 
+    public function useAssertionCount(bool $useAssertionCount): void
+    {
+        $this->useAssertionCount = $useAssertionCount;
+    }
+
     /**
      * @throws ExpectationFailedException
      */
@@ -94,7 +103,10 @@ final class Parameters implements ParametersRule
             throw new ExpectationFailedException('Doubled method does not exist.');
         }
 
-        if (count($this->invocation->parameters()) < count($this->parameters)) {
+        $invocation           = $this->invocation;
+        $invocationParameters = $invocation->parameters();
+
+        if (count($invocationParameters) < count($this->parameters)) {
             $message = 'Parameter count for invocation %s is too low.';
 
             // The user called `->with($this->anything())`, but may have meant
@@ -109,15 +121,19 @@ final class Parameters implements ParametersRule
             $this->incrementAssertionCount();
 
             throw new ExpectationFailedException(
-                sprintf($message, $this->invocation->toString()),
+                sprintf($message, $invocation->toString()),
             );
         }
 
+        $parameters = $this->parameters($invocation);
+
         foreach ($this->parameters as $i => $parameter) {
+            $other = null;
+
             if ($parameter instanceof Callback && $parameter->isVariadic()) {
-                $other = $this->invocation->parameters();
-            } else {
-                $other = $this->invocation->parameters()[$i];
+                $other = $invocationParameters;
+            } elseif (isset($invocationParameters[$i])) {
+                $other = $invocationParameters[$i];
             }
 
             $this->incrementAssertionCount();
@@ -126,8 +142,8 @@ final class Parameters implements ParametersRule
                 $other,
                 sprintf(
                     'Parameter %s for invocation %s does not match expected value.',
-                    $i,
-                    $this->invocation->toString(),
+                    $parameters[$i] ?? (string) $i,
+                    $invocation->toString(),
                 ),
             );
         }
@@ -149,6 +165,34 @@ final class Parameters implements ParametersRule
 
     private function incrementAssertionCount(): void
     {
+        if ($this->useAssertionCount === false) {
+            return;
+        }
+
         Test::currentTestCase()->addToAssertionCount(1);
+    }
+
+    /**
+     * @return array<non-negative-int, non-empty-string>
+     */
+    private function parameters(BaseInvocation $invocation): array
+    {
+        $parameters = [];
+
+        try {
+            $reflector = new ReflectionMethod(
+                $invocation->className(),
+                $invocation->methodName(),
+            );
+
+            foreach ($reflector->getParameters() as $parameter) {
+                assert($parameter->getPosition() >= 0);
+
+                $parameters[$parameter->getPosition()] = '$' . $parameter->getName();
+            }
+        } catch (ReflectionException) {
+        }
+
+        return $parameters;
     }
 }

@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\ApiKey;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Controller;
-use App\Model\Common\StatusSetting;
+use App\Model\Common\Setting;
+use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
+use App\Model\User\Password;
 use App\Rules\Honeypot;
+use App\User;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Str;
 
 class ForgotPasswordController extends Controller
 {
@@ -26,8 +33,6 @@ class ForgotPasswordController extends Controller
 
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -36,87 +41,64 @@ class ForgotPasswordController extends Controller
         $this->middleware(['recaptcha:forgot'])->only('sendResetLinkEmail');
     }
 
-    public function showLinkRequestForm()
-    {
-        $status = StatusSetting::select('msg91_status', 'emailverification_status', 'terms')->first();
-        $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
-
-        return view('themes.default1.front.auth.password', compact('status', 'apiKeys'));
-    }
-
     /**
      * Send a reset link to the given user.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
-    public function sendResetLinkEmail(Request $request)
+    public function sendResetLinkEmail(Request $request): JsonResponse
     {
+        $this->validate($request,
+            ['email' => 'required|email|exists:users,email',
+                'forgot' => [new Honeypot],
+            ],
+            [
+                'email.required' => __('validation.custom_email.required'),
+                'email.email' => __('validation.custom_email.email'),
+                'email.exists' => __('validation.custom_email.exists'),
+            ]);
+
         try {
-            $this->validate($request,
-                ['email' => 'required|email|exists:users,email',
-                    'forgot' => [new Honeypot()],
-                ],
-                [
-                    'email.required' => __('validation.custom_email.required'),
-                    'email.email' => __('validation.custom_email.email'),
-                    'email.exists' => __('validation.custom_email.exists'),
-                ]);
             $email = $request->email;
 
-            $rateLimit = rateLimitForKeyIp('forgot_password'.$email, 3, 360, $request->ip());
+            $rateLimit = rateLimitForKeyIp('forgot_password'.$email, 3, 360, (string) $request->ip());
 
             if ($rateLimit['status']) {
                 return errorResponse(__('message.too_many_forgot_attempts', ['time' => $rateLimit['remainingTime']]));
             }
 
-            $token = str_random(40);
-            $password = new \App\Model\User\Password();
+            $token = Str::random(40);
+            $password = new Password;
             if ($password->where('email', $email)->first()) {
                 $password->where('email', $email)->delete();
             }
-            $activate = $password->create(['email' => $email, 'token' => $token, 'created_at' => \Carbon\Carbon::now()]);
+
+            $activate = $password->create(['email' => $email, 'token' => $token, 'created_at' => Date::now()]);
             $token = $activate->token;
 
-            $url = url("password/reset/$token");
+            $url = url('password/reset/'.$token);
 
-            $user = new \App\User();
+            $user = new User;
             $user = $user->where('email', $email)->firstOrFail();
 
-            //check in the settings
-            $settings = new \App\Model\Common\Setting();
-            $setting = $settings::find(1);
-            //template
-            $templates = new \App\Model\Common\Template();
-            $temp_id = $setting->forgot_password;
-            $template = $templates->where('id', $temp_id)->first();
+            // check in the settings
+            /** @var Setting $setting */
+            $setting = Setting::find(1);
+            // template
+            /** @var Template $template */
+            $template = TemplateType::getSelectedTemplate('forgot_password_mail');
 
             $contact = getContactData();
             $replace = ['name' => $user->first_name.' '.$user->last_name, 'url' => $url, 'contact_us' => $setting->website, 'contact' => $contact['contact'],
                 'logo' => $contact['logo'], 'reply_email' => $setting->company_email];
-            $from = $setting->email;
-            $to = $user->email;
-            $contactUs = $setting->website;
-            $subject = $template->name;
-            $data = $template->data;
-            $type = '';
-
-            if ($template) {
-                $type_id = $template->type;
-                $temp_type = new \App\Model\Common\TemplateType();
-                $type = $temp_type->where('id', $type_id)->first()->name;
-            }
+            $type = $template->type()->value('name') ?? '';
             if (emailSendingStatus()) {
-                $mail = new \App\Http\Controllers\Common\PhpMailController();
+                $mail = new PhpMailController;
                 $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
 
                 return successResponse(__('validation.forgot_email_validation'));
-            } else {
-                return errorResponse(__('validation.forgot_email_validation'));
             }
 
-            return successResponse(__('validation.forgot_email_validation'));
-        } catch (\Exception $ex) {
+            return errorResponse(__('validation.forgot_email_validation'));
+        } catch (\Throwable) {
             return successResponse(__('validation.forgot_email_validation'));
         }
     }

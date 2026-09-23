@@ -24,10 +24,8 @@ class RenewalCron extends LoggableCommand
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
-    public function handleAndLog()
+    public function handleAndLog(): void
     {
         // Create an instance of ConcretePostSubscriptionHandleController
         $concreteController = app()->make(ConcretePostSubscriptionHandleController::class);

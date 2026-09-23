@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Console\LoggableCommand;
@@ -23,10 +25,8 @@ class Inspire extends LoggableCommand
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handleAndLog()
+    public function handleAndLog(): void
     {
         $this->comment(PHP_EOL.Inspiring::quote().PHP_EOL);
     }

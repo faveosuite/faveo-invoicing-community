@@ -1,9 +1,6 @@
 <?php
 
 return [
-    /*
-    * Recaptcha Settings Page
-    */
     'captcha_settings' => 'reCAPTCHA Ayarları',
     'captcha_configuration' => 'reCAPTCHA Yapılandırması',
     'captcha_version' => 'reCAPTCHA Sürümü',
@@ -15,10 +12,6 @@ return [
     'none' => 'Yok',
     'fallback_v2_checkbox' => 'reCAPTCHA v2 Onay Kutusuna Geri Dön',
     'action_if_captcha_fails' => 'reCAPTCHA başarısız olursa gerçekleştirilecek eylem',
-
-    /*
-    * Recaptcha v3 Settings
-    */
     'recaptcha_v3_settings' => 'reCAPTCHA v3 Ayarları',
     'v3_site_key' => 'v3 Site Anahtarı',
     'enter_v3_site_key' => 'reCAPTCHA v3 site anahtarınızı girin',
@@ -27,20 +20,12 @@ return [
     'v3_score_threshold' => 'v3 Puan Eşiği',
     'v3_score_hint' => '0.0 ile 1.0 arasında bir değer (daha yüksek daha iyidir)',
     'v3_preview' => 'v3 Önizleme',
-
-    /*
-    * Recaptcha v2 Settings
-    */
     'recaptcha_v2_settings' => 'reCAPTCHA v2 Ayarları',
     'v2_site_key' => 'v2 Site Anahtarı',
     'enter_v2_site_key' => 'reCAPTCHA v2 site anahtarınızı girin',
     'v2_secret_key' => 'v2 Gizli Anahtar',
     'enter_v2_secret_key' => 'reCAPTCHA v2 gizli anahtarınızı girin',
     'v2_preview' => 'v2 Önizleme',
-
-    /*
-    * Appearance
-    */
     'appearance_messages' => 'Görünüm',
     'theme' => 'Tema',
     'theme_light' => 'Açık',
@@ -52,28 +37,12 @@ return [
     'badge_bottomright' => 'Sağ Alt',
     'badge_bottomleft' => 'Sol Alt',
     'badge_inline' => 'Satır İçi',
-
-    /*
-    * Common
-    */
     'save' => 'Kaydet',
     'saving' => 'Kaydediliyor',
     'home' => 'Anasayfa',
     'settings' => 'Ayarlar',
-
-    /*
-    * Success messages
-    */
     'captcha_settings_updated' => 'reCAPTCHA ayarları başarıyla güncellendi!',
-
-    /*
-    * Error messages
-    */
     'captcha_message' => 'reCAPTCHA doğrulaması başarısız oldu. Lütfen tekrar deneyin.',
-
-    /*
-    * JavaScript validation messages
-    */
     'field_required_condition' => 'Koşul karşılandığında bu alan zorunludur',
     'select_captcha_version' => 'Lütfen bir reCAPTCHA sürümü seçin',
     'v3_site_key_required' => 'reCAPTCHA v3 site anahtarı gereklidir',
@@ -90,16 +59,8 @@ return [
     'failed_generate_v2_token' => 'reCAPTCHA v2 jetonu oluşturulamadı.',
     'settings_saved' => 'Ayarlar kaydedildi.',
     'failed_save_settings' => 'Ayarlar kaydedilemedi. Lütfen tekrar deneyin.',
-
-    /*
-    * Backend validation messages
-    */
     'invalid_secret_or_token' => 'Gizli anahtar veya yanıt jetonu geçersiz',
     'captcha_verification_failed' => 'reCAPTCHA doğrulaması başarısız oldu (puan/eylem/ana bilgisayar adı uyuşmazlığı)',
-
-    /*
-    * Validation messages
-    */
     'captcha_version_required' => 'reCAPTCHA sürümü gereklidir',
     'captcha_version_in' => 'Seçilen reCAPTCHA sürümü geçersiz',
     'failover_action_required' => 'Yük devretme eylemi gereklidir',

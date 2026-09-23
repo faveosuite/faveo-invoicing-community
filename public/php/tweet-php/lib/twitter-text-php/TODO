@@ -1,7 +1,0 @@
-- Generate PHP Documentation
-- Add a phing build.xml file for generating documentation and running tests.
-- Tidy up regular expressions:
-  - Modularise repeated sections.
-  - Remove unnecessary capturing.
-- Tidy up tests/runtests.php to refactor repeated sections.
-- Check unicode/mbstring handling...

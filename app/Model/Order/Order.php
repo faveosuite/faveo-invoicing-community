@@ -3,165 +3,301 @@
 namespace App\Model\Order;
 
 use App\BaseModel;
+use App\License\Models\Installation;
+use App\License\Models\License;
+use App\Model\Product\Product;
+use App\Model\Product\Subscription;
 use App\Traits\SystemActivityLogsTrait;
-use DateTime;
+use App\User;
+use Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
+use Override;
+use Spatie\Activitylog\Models\Activity;
 
+/**
+ * @property int $id
+ * @property int $number
+ * @property int $invoice_item_id
+ * @property int $client
+ * @property string $order_status
+ * @property string|null $serial_key
+ * @property int|null $product
+ * @property string $domain
+ * @property string $price_override
+ * @property string $qty
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string $license_mode
+ * @property-read Collection<int, Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read Collection<int, Installation> $installation
+ * @property-read int|null $installation_count
+ * @property-read Collection<int, Installation> $licensedInstallations
+ * @property-read int|null $licensed_installations_count
+ * @property-read Collection<int, Invoice> $invoice
+ * @property-read int|null $invoice_count
+ * @property-read Collection<int, InstallationDetail> $installationDetails
+ * @property-read int|null $installation_details_count
+ * @property-read InvoiceItem|null $invoiceItem
+ * @property-read Collection<int, OrderInvoiceRelation> $invoiceRelation
+ * @property-read int|null $invoice_relation_count
+ * @property-read Collection<int, Invoice> $invoices
+ * @property-read int|null $invoices_count
+ * @property-read Product|null $productRelation
+ * @property-read Subscription|null $subscription
+ * @property-read User|null $user
+ *
+ * @method static \Database\Factories\Model\Order\OrderFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereClient($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDomain($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereInvoiceItemId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereLicenseMode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order wherePriceOverride($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereProduct($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereQty($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereSerialKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class Order extends BaseModel
 {
+    /**
+     * @use HasFactory<Factory>
+     */
     use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'orders';
 
-    protected static $logName = 'order';
+    protected string $logName = 'order';
 
     protected $fillable = ['client', 'order_status', 'invoice_item_id',
-        'serial_key', 'product', 'domain', 'subscription', 'price_override', 'qty', 'invoice_id', 'number', ];
+        'serial_key', 'product', 'domain', 'price_override', 'qty', 'number', 'license_mode',
+    ];
 
-    protected $logAttributes = ['client', 'order_status', 'invoice_item_id',
-        'serial_key', 'product', 'domain', 'subscription', 'price_override', 'qty', 'invoice_id', 'number', ];
+    /**
+     * @var array<mixed>
+     */
+    protected array $logAttributes = ['client', 'order_status', 'invoice_item_id',
+        'serial_key', 'product', 'domain', 'price_override', 'qty', 'number', ];
 
-    protected $logNameColumn = 'number';
+    protected string $logNameColumn = 'number';
 
-    protected $logUrl = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logUrl = [
         'segments' => ['orders', ':id'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
-            'client' => ['Client', fn ($value) => \App\User::find($value)?->user_name],
-            'order_status' => ['Order Status', fn ($value) => ucfirst($value)],
+            'client' => ['Client', fn ($value) => User::find($value)?->user_name], // @phpstan-ignore property.notFound
+            'order_status' => ['Order Status', ucfirst(...)],
             'invoice_item_id' => ['Invoice Item ID', fn ($value) => $value],
             'serial_key' => ['Serial Key', fn ($value) => $value],
-            'product' => ['Product', fn ($value) => \App\Model\Product\Product::find($value)?->name],
+            'product' => ['Product', fn ($value) => Product::find($value)?->name], // @phpstan-ignore property.notFound
             'domain' => ['Domain', fn ($value) => $value],
-            'subscription' => ['Subscription', fn ($value) => \App\Model\Product\Subscription::find($value)?->name],
             'price_override' => ['Price Override', fn ($value) => $value],
             'qty' => ['Quantity', fn ($value) => $value],
-            'invoice_id' => ['Invoice ID', fn ($value) => $value],
             'number' => ['Order Number', fn ($value) => $value],
         ];
     }
 
-    public function invoice()
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\Model\Order\Invoice::class, 'invoice_id');
+        return $this->belongsTo(User::class, 'client');
     }
 
-    public function user()
+    /**
+     * @return HasOne<Subscription, $this>
+     */
+    public function subscription(): HasOne
     {
-        return $this->belongsTo(\App\User::class, 'client');
+        return $this->hasOne(Subscription::class, 'order_id');
     }
 
-    public function subscription()
+    /**
+     * @return BelongsTo<Product, $this>
+     */
+    public function productRelation(): BelongsTo
     {
-        return $this->hasOne(\App\Model\Product\Subscription::class);
+        return $this->belongsTo(Product::class, 'product');
     }
 
-    public function productUpload()
+    // Many-to-many: one order can appear on multiple invoices (original + renewals)
+    /**
+     * @return BelongsToMany<Invoice, $this, Pivot>
+     */
+    public function invoices(): BelongsToMany
     {
-        return $this->hasMany(\App\Model\Product\ProductUpload::class);
+        return $this->belongsToMany(
+            Invoice::class,
+            'order_invoice_relations',
+            'order_id',
+            'invoice_id'
+        );
     }
 
-    public function product()
+    public function invoice(): BelongsToMany // @phpstan-ignore missingType.generics
     {
-        return $this->belongsTo(\App\Model\Product\Product::class, 'product');
+        return $this->invoices();
     }
 
-    public function invoiceRelation()
+    /**
+     * @return HasMany<OrderInvoiceRelation, $this>
+     */
+    public function invoiceRelation(): HasMany
     {
-        return $this->hasMany(\App\Model\Order\OrderInvoiceRelation::class);
+        return $this->hasMany(OrderInvoiceRelation::class, 'order_id');
     }
 
-    public function invoiceItem()
+    // The invoice item that generated this order
+    /**
+     * @return BelongsTo<InvoiceItem, $this>
+     */
+    public function invoiceItem(): BelongsTo
     {
-        return $this->hasManyThrough(\App\Model\Order\InvoiceItem::class, \App\Model\Order\Invoice::class);
+        return $this->belongsTo(InvoiceItem::class, 'invoice_item_id');
     }
 
-    public function item()
+    /**
+     * Installations activated against this order's issued license(s).
+     *
+     * Goes through License (licenses.license_order_number = orders.number),
+     * not directly against orders.serial_key — Installation rows are created
+     * with license_code copied from a License record
+     * (see InstallationController::installationAdd()), and
+     * orders.serial_key never actually matches installations.license_code.
+     *
+     * @return HasManyThrough<Installation, License, $this>
+     */
+    public function licensedInstallations(): HasManyThrough
     {
-        return $this->belongsTo(\App\Model\Order\InvoiceItem::class);
+        return $this->hasManyThrough(
+            Installation::class,
+            License::class,
+            'license_order_number', // FK on licenses referencing this order
+            'license_code',         // FK on installations referencing licenses.license_code
+            'number',               // local key on orders
+            'license_code'          // local key on licenses
+        );
     }
 
-    public function installationDetail()
+    /**
+     * @return HasMany<Installation, $this>
+     */
+    public function installation(): HasMany
     {
-        return $this->hasMany(\App\Model\Order\InstallationDetail::class);
+        return $this->hasMany(Installation::class, 'order_id');
     }
 
-    public function delete()
+    /** @return HasMany<InstallationDetail, $this> */
+    public function installationDetails(): HasMany
     {
-        $this->invoiceRelation()->delete();
+        return $this->hasMany(InstallationDetail::class, 'order_id');
+    }
+
+    #[Override]
+    public function delete(): bool
+    {
+        $this->invoices()->detach();
         $this->subscription()->delete();
-        parent::delete();
+
+        return (bool) parent::delete();
     }
 
-    public function getOrderStatusAttribute($value)
+    /**
+     * @return Attribute<mixed, mixed>
+     */
+    protected function orderStatus(): Attribute
     {
-        return ucfirst($value);
+        return Attribute::make(get: function ($value): string {
+            return ucfirst((string) $value);
+        });
     }
 
-    public function getCreatedAtAttribute($value)
+    /**
+     * @return Attribute<mixed, mixed>
+     */
+    protected function serialKey(): Attribute
     {
-        $date1 = new DateTime($value);
-        $date = $date1->format('M j, Y, g:i a ');
-
-        return $date;
+        return Attribute::make(get: function ($value) {
+            try {
+                return Crypt::decrypt($value);
+            } catch (DecryptException) {
+                return $value;
+            }
+        });
     }
 
-    public function getSerialKeyAttribute($value)
+    /**
+     * @return Attribute<mixed, mixed>
+     */
+    protected function domain(): Attribute
     {
-        try {
-            $decrypted = \Crypt::decrypt($value);
-
-            return $decrypted;
-        } catch (DecryptException $ex) {
-            return $value;
-        }
-    }
-
-    public function getDomainAttribute($value)
-    {
-        try {
-            if (ends_with($value, '/')) {
-                $value = substr_replace($value, '', -1, 0);
+        return Attribute::make(get: function ($value) {
+            if (Str::endsWith($value, '/')) {
+                return substr_replace($value, '', -1, 0);
             }
 
             return $value;
-        } catch (DecryptException $ex) {
-            return $value;
-        }
+        }, set: function ($value): array {
+            return ['domain' => $this->get_domain($value)];
+        });
     }
 
-    public function setDomainAttribute($value)
+    public function get_domain(mixed $url): string
     {
-        $this->attributes['domain'] = $this->get_domain($value);
-    }
-
-    public function get_domain($url)
-    {
-        $pieces = parse_url($url);
-        $domain = isset($pieces['host']) ? $pieces['host'] : '';
+        $pieces = parse_url((string) $url);
+        $pieces = is_array($pieces) ? $pieces : [];
+        $domain = $pieces['host'] ?? '';
         if (preg_match('/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', $domain, $regs)) {
             return $regs['domain'];
         }
+
         if (! $domain) {
-            $domain = $pieces['path'];
+            $domain = $pieces['path'] ?? '';
         }
 
         return strtolower($domain);
     }
 
-    public static function getOrderLink($orderId, $url = 'orders')
+    public static function getOrderLink(mixed $orderId, string $url = 'orders'): string
     {
-        $link = '--';
         $order = Order::where('id', $orderId)->select('id', 'number')->first();
         if ($order) {
-            $link = '<a href='.url($url.'/'.$order->id).'>'.$order->number.'</a>';
+            return url($url.'/'.$order->id);
         }
 
-        return $link;
+        return '--';
     }
 }

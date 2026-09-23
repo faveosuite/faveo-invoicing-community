@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('invoice_items', function (Blueprint $table) {
+        Schema::table('invoice_items', function (Blueprint $table): void {
             $table->unsignedInteger('product_id')->nullable()->after('product_name');
             $table->foreign('product_id')->references('id')->on('products');
         });
@@ -22,7 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('invoice_items', function (Blueprint $table) {
+        Schema::table('invoice_items', function (Blueprint $table): void {
             $table->dropForeign(['product_id']);
             $table->dropColumn('product_id');
         });

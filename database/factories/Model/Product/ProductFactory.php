@@ -1,26 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories\Model\Product;
 
 use App\Model\Product\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends Factory<Product>
+ */
 class ProductFactory extends Factory
 {
     /**
      * Define the model's default state.
      *
-     * @return array
-     */
+     * @return array<mixed>     */
     protected $model = Product::class;
 
     public function definition()
     {
         return [
-
-            'name' => $this->faker->name(),
-            'description' => $this->faker->sentence(),
-            // 'type'                => 1,
+            'name' => fake()->name(),
+            'description' => fake()->sentence(),
             'group' => 1,
             'can_modify_agent' => 0,
             'can_modify_quantity' => 0,

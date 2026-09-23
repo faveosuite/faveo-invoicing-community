@@ -2,14 +2,18 @@
 
 namespace App\Plugins\Razorpay;
 
+use Override;
+
 class ServiceProvider extends \App\Plugins\ServiceProvider
 {
-    public function register()
+    #[Override]
+    public function register(): void
     {
         parent::register('Razorpay');
     }
 
-    public function boot()
+    #[Override]
+    public function boot(): void
     {
         parent::boot('Razorpay');
     }

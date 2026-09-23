@@ -2,12 +2,7 @@
 
 namespace Database\Seeders\v4_0_2_6_RC_1;
 
-use App\Model\Common\FaveoCloud;
-use App\Model\Order\InstallationDetail;
-use App\Model\Product\Subscription;
-use App\ThirdPartyApp;
 use File;
-use GuzzleHttp\Client;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -28,17 +23,17 @@ class DatabaseSeeder extends Seeder
             'rachidlaasri/laravel-installer',
             'anhskohbo/no-captcha',
             'torann/currency',
-            'devio/pipedrive'
+            'devio/pipedrive',
         ];
 
         $configs = [
             'currency.php',
-            'log-viewer.php'
+            'log-viewer.php',
         ];
 
         foreach ($packages as $package) {
 
-            $packagePath = base_path("vendor/{$package}");
+            $packagePath = base_path('vendor/'.$package);
 
             if (! File::exists($packagePath)) {
                 continue;

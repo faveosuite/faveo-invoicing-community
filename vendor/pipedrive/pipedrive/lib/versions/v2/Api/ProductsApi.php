@@ -1,7 +1,7 @@
 <?php
 /**
  * ProductsApi
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -83,9 +83,9 @@ class ProductsApi
      * @param int                  $hostIndex (Optional) host index to select the list of hosts if defined in the OpenAPI spec
      */
     public function __construct(
-        ClientInterface $client = null,
-        Configuration $config = null,
-        HeaderSelector $selector = null,
+        ?ClientInterface $client = null,
+        ?Configuration $config = null,
+        ?HeaderSelector $selector = null,
         int $hostIndex = 0
     ) {
         $this->client = $client ?: new Client();
@@ -4113,15 +4113,16 @@ class ProductsApi
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;name&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
+     * @param  string|null $updated_since If set, only products with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $custom_fields Comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for a smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v2\Model\ProductsResponse
      */
-    public function getProducts($owner_id = null, $ids = null, $filter_id = null, $cursor = null, $limit = null, $sort_by = 'id', $sort_direction = 'asc', $custom_fields = null)
+    public function getProducts($owner_id = null, $ids = null, $filter_id = null, $cursor = null, $limit = null, $sort_by = 'id', $sort_direction = 'asc', $updated_since = null, $custom_fields = null)
     {
-        list($response) = $this->getProductsWithHttpInfo($owner_id, $ids, $filter_id, $cursor, $limit, $sort_by, $sort_direction, $custom_fields);
+        list($response) = $this->getProductsWithHttpInfo($owner_id, $ids, $filter_id, $cursor, $limit, $sort_by, $sort_direction, $updated_since, $custom_fields);
         return $response;
     }
 
@@ -4137,15 +4138,16 @@ class ProductsApi
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;name&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
+     * @param  string|null $updated_since If set, only products with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $custom_fields Comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for a smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v2\Model\ProductsResponse, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getProductsWithHttpInfo($owner_id = null, $ids = null, $filter_id = null, $cursor = null, $limit = null, $sort_by = 'id', $sort_direction = 'asc', $custom_fields = null)
+    public function getProductsWithHttpInfo($owner_id = null, $ids = null, $filter_id = null, $cursor = null, $limit = null, $sort_by = 'id', $sort_direction = 'asc', $updated_since = null, $custom_fields = null)
     {
-        $request = $this->getProductsRequest($owner_id, $ids, $filter_id, $cursor, $limit, $sort_by, $sort_direction, $custom_fields);
+        $request = $this->getProductsRequest($owner_id, $ids, $filter_id, $cursor, $limit, $sort_by, $sort_direction, $updated_since, $custom_fields);
 
         try {
             $options = $this->createHttpClientOption();
@@ -4154,7 +4156,7 @@ class ProductsApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->getProductsRequest($owner_id, $ids, $filter_id, $cursor, $limit, $sort_by, $sort_direction, $custom_fields);
+                    $request = $this->getProductsRequest($owner_id, $ids, $filter_id, $cursor, $limit, $sort_by, $sort_direction, $updated_since, $custom_fields);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -4245,14 +4247,15 @@ class ProductsApi
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;name&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
+     * @param  string|null $updated_since If set, only products with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $custom_fields Comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for a smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getProductsAsync($owner_id = null, $ids = null, $filter_id = null, $cursor = null, $limit = null, $sort_by = 'id', $sort_direction = 'asc', $custom_fields = null): PromiseInterface
+    public function getProductsAsync($owner_id = null, $ids = null, $filter_id = null, $cursor = null, $limit = null, $sort_by = 'id', $sort_direction = 'asc', $updated_since = null, $custom_fields = null): PromiseInterface
     {
-        return $this->getProductsAsyncWithHttpInfo($owner_id, $ids, $filter_id, $cursor, $limit, $sort_by, $sort_direction, $custom_fields)
+        return $this->getProductsAsyncWithHttpInfo($owner_id, $ids, $filter_id, $cursor, $limit, $sort_by, $sort_direction, $updated_since, $custom_fields)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -4272,15 +4275,16 @@ class ProductsApi
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;name&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
+     * @param  string|null $updated_since If set, only products with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $custom_fields Comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for a smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getProductsAsyncWithHttpInfo($owner_id = null, $ids = null, $filter_id = null, $cursor = null, $limit = null, $sort_by = 'id', $sort_direction = 'asc', $custom_fields = null): PromiseInterface
+    public function getProductsAsyncWithHttpInfo($owner_id = null, $ids = null, $filter_id = null, $cursor = null, $limit = null, $sort_by = 'id', $sort_direction = 'asc', $updated_since = null, $custom_fields = null): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v2\Model\ProductsResponse';
-        $request = $this->getProductsRequest($owner_id, $ids, $filter_id, $cursor, $limit, $sort_by, $sort_direction, $custom_fields);
+        $request = $this->getProductsRequest($owner_id, $ids, $filter_id, $cursor, $limit, $sort_by, $sort_direction, $updated_since, $custom_fields);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -4326,12 +4330,13 @@ class ProductsApi
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;name&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
+     * @param  string|null $updated_since If set, only products with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $custom_fields Comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for a smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function getProductsRequest($owner_id = null, $ids = null, $filter_id = null, $cursor = null, $limit = null, $sort_by = 'id', $sort_direction = 'asc', $custom_fields = null): Request
+    public function getProductsRequest($owner_id = null, $ids = null, $filter_id = null, $cursor = null, $limit = null, $sort_by = 'id', $sort_direction = 'asc', $updated_since = null, $custom_fields = null): Request
     {
 
         $resourcePath = '/products';
@@ -4396,6 +4401,14 @@ class ProductsApi
         }
         if ($sort_direction !== null) {
             $queryParams['sort_direction'] = $sort_direction;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($updated_since)) {
+            $updated_since = ObjectSerializer::serializeCollection($updated_since, '', true);
+        }
+        if ($updated_since !== null) {
+            $queryParams['updated_since'] = $updated_since;
         }
         // query params
         /* @phpstan-ignore-next-line */
