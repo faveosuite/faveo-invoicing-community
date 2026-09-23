@@ -1,0 +1,1 @@
+function e(){return(document.getElementById(`app-root`)??document.getElementById(`app-client`))?.dataset?.baseUrl??``}function t(e,t){return e?new URL(e).pathname:t}export{e as n,t};

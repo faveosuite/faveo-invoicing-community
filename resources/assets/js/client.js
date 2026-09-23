@@ -1,6 +1,9 @@
 import '../css/client.css'
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
+// Imported at the entry so their CSS gets linked in prod: @vite only links CSS one import level deep.
+import 'flag-icons/css/flag-icons.min.css'
+import '@/components/Reusable/Alert.vue'
 import { createApp } from 'vue'
 import Client from './Client.vue'
 import clientRouter from './routes/client/clientRouter'

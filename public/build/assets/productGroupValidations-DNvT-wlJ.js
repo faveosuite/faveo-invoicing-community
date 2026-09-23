@@ -1,0 +1,1 @@
+import{r as e,t}from"./index.esm-DaGi48hs.js";var n=t({name:e().required(()=>__(`validation.group.name.required`)),meta_title:e().nullable(),meta_description:e().nullable(),og_title:e().nullable(),og_description:e().nullable()});export{n as t};

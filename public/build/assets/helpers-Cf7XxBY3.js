@@ -1,0 +1,1 @@
+import{a as e}from"./index.esm-DaGi48hs.js";var t=t=>e().nullable().test(`required-select`,t,e=>e==null||e===``?!1:typeof e==`object`?e.id!=null&&String(e.id).trim()!==``:String(e).trim()!==``);export{t};

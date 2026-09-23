@@ -161,7 +161,8 @@
 /* ── Client Invoices Table ──────────────────────────────────────────────────── */
 #app-client .dt-inv-num     { min-width: 90px; max-width: 115px; white-space: nowrap; }
 #app-client .dt-inv-date    { min-width: 85px; max-width: 105px; white-space: nowrap; }
-#app-client .dt-inv-order   { min-width: 80px; max-width: 105px; white-space: nowrap; }
+#app-client .dt-inv-order   { min-width: 80px; max-width: 105px; }
+#app-client .dt-inv-order a { white-space: nowrap; }
 #app-client .dt-inv-amount  { min-width: 70px; max-width: 90px; white-space: nowrap; }
 #app-client .dt-inv-status  { min-width: 65px; max-width: 80px; text-align: center; white-space: nowrap; }
 #app-client .dt-inv-action  { min-width: 120px; max-width: 135px; white-space: nowrap; }

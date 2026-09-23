@@ -1,1 +1,0 @@
-import{m as e,q as r}from"./dateTime-BRlL7CfL.js";import{r as a}from"./helpers-Bm2nmENS.js";const p=e({name:r().required(()=>__("validation.plan_request.name_required")),product:a(()=>__("validation.plan_request.pro_req"))});export{p};

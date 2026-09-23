@@ -1,1 +1,0 @@
-import{p as t}from"./dateTime-BRlL7CfL.js";const n=r=>t().nullable().test("required-select",r,e=>e==null||e===""?!1:typeof e=="object"?e.id!=null&&String(e.id).trim()!=="":String(e).trim()!=="");export{n as r};

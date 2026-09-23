@@ -354,7 +354,6 @@
 
 <script setup>
 import {computed, onMounted, onUnmounted, ref} from 'vue'
-import 'flag-icons/css/flag-icons.min.css'
 import http from '@/plugins/axios'
 import {useCartStore} from '@/core/stores/cart'
 import {useAlertStore} from '@/core/stores/alert'
@@ -717,6 +716,9 @@ onUnmounted(() => {
    2. Top Info Bar (Desktop & Scrolled)
    -------------------------------------------------- */
 .navbar-info-bar {
+  /* overflow:hidden lets the flex column shrink it under the h-100 nav row,
+     clipping the social icons against the bottom border */
+  flex-shrink: 0;
   max-height: 60px;
   opacity: 1;
   overflow: hidden;
