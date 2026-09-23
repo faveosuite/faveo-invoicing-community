@@ -5,7 +5,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **int** | The ID of the product image | [optional]
-**product_id** | **float** | The ID of the product associated | [optional]
+**product_id** | **int** | The ID of the product associated | [optional]
 **company_id** | **string** | The ID of the company | [optional]
 **add_time** | **string** | The date of image upload. | [optional]
 

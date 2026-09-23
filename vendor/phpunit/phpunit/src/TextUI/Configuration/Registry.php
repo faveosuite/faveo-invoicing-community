@@ -39,7 +39,7 @@ final class Registry
             serialize(self::get()),
         );
 
-        if ($result) {
+        if ($result !== false) {
             return true;
         }
 
@@ -61,7 +61,7 @@ final class Registry
 
         assert($buffer !== false);
 
-        self::$instance = unserialize(
+        $configuration = unserialize(
             $buffer,
             [
                 'allowed_classes' => [
@@ -79,6 +79,8 @@ final class Registry
                     File::class,
                     FilterDirectoryCollection::class,
                     FilterDirectory::class,
+                    FilterFileCollection::class,
+                    FilterFile::class,
                     TestDirectoryCollection::class,
                     TestDirectory::class,
                     TestFileCollection::class,
@@ -90,6 +92,12 @@ final class Registry
                 ],
             ],
         );
+
+        if (!$configuration instanceof Configuration) {
+            return;
+        }
+
+        self::$instance = $configuration;
     }
 
     public static function get(): Configuration

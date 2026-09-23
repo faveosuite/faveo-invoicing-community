@@ -1,9 +1,6 @@
 <?php
 
 return [
-    /*
-    * Recaptcha Settings Page
-    */
     'captcha_settings' => 'Настройки reCAPTCHA',
     'captcha_configuration' => 'Конфигурация reCAPTCHA',
     'captcha_version' => 'Версия reCAPTCHA',
@@ -15,10 +12,6 @@ return [
     'none' => 'Нет',
     'fallback_v2_checkbox' => 'Вернуться к флажку reCAPTCHA v2',
     'action_if_captcha_fails' => 'Действие, которое необходимо предпринять в случае сбоя reCAPTCHA',
-
-    /*
-    * Recaptcha v3 Settings
-    */
     'recaptcha_v3_settings' => 'Настройки reCAPTCHA v3',
     'v3_site_key' => 'Ключ сайта v3',
     'enter_v3_site_key' => 'Введите ключ вашего сайта reCAPTCHA v3',
@@ -27,20 +20,12 @@ return [
     'v3_score_threshold' => 'Порог оценки v3',
     'v3_score_hint' => 'Значение от 0,0 до 1,0 (чем выше, тем лучше)',
     'v3_preview' => 'Предварительный просмотр v3',
-
-    /*
-    * Recaptcha v2 Settings
-    */
     'recaptcha_v2_settings' => 'Настройки reCAPTCHA v2',
     'v2_site_key' => 'Ключ сайта v2',
     'enter_v2_site_key' => 'Введите ключ вашего сайта reCAPTCHA v2',
     'v2_secret_key' => 'Секретный ключ v2',
     'enter_v2_secret_key' => 'Введите ваш секретный ключ reCAPTCHA v2',
     'v2_preview' => 'Предварительный просмотр v2',
-
-    /*
-    * Appearance
-    */
     'appearance_messages' => 'Внешний вид',
     'theme' => 'Тема',
     'theme_light' => 'Светлая',
@@ -52,28 +37,12 @@ return [
     'badge_bottomright' => 'Внизу справа',
     'badge_bottomleft' => 'Внизу слева',
     'badge_inline' => 'Встроенный',
-
-    /*
-    * Common
-    */
     'save' => 'Сохранить',
     'saving' => 'Сохранение',
     'home' => 'Главная',
     'settings' => 'Настройки',
-
-    /*
-    * Success messages
-    */
     'captcha_settings_updated' => 'Настройки reCAPTCHA успешно обновлены!',
-
-    /*
-    * Error messages
-    */
     'captcha_message' => 'Проверка reCAPTCHA не удалась. Пожалуйста, попробуйте еще раз.',
-
-    /*
-    * JavaScript validation messages
-    */
     'field_required_condition' => 'Это поле обязательно для заполнения при выполнении условия',
     'select_captcha_version' => 'Выберите версию reCAPTCHA',
     'v3_site_key_required' => 'Требуется ключ сайта reCAPTCHA v3',
@@ -90,16 +59,8 @@ return [
     'failed_generate_v2_token' => 'Не удалось сгенерировать токен reCAPTCHA v2.',
     'settings_saved' => 'Настройки сохранены.',
     'failed_save_settings' => 'Не удалось сохранить настройки. Пожалуйста, попробуйте еще раз.',
-
-    /*
-    * Backend validation messages
-    */
     'invalid_secret_or_token' => 'Неверный секретный ключ или токен ответа',
     'captcha_verification_failed' => 'Проверка reCAPTCHA не удалась (несоответствие оценки/действия/имени хоста)',
-
-    /*
-    * Validation messages
-    */
     'captcha_version_required' => 'Требуется версия reCAPTCHA',
     'captcha_version_in' => 'Выбранная версия reCAPTCHA недействительна',
     'failover_action_required' => 'Требуется действие при сбое',

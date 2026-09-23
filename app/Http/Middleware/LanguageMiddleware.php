@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
-// use Illuminate\Contracts\Routing\Middleware;
 use App\Model\Common\Language;
 use App\Model\Common\Setting;
+use App\User;
 use Closure;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -15,13 +15,14 @@ use Illuminate\Support\Facades\Session;
 
 class LanguageMiddleware
 {
-    public function handle($request, Closure $next)
+    public function handle(mixed $request, Closure $next): mixed
     {
         if (Auth::check()) {
+            /** @var User $user */
             $user = Auth::user();
 
             $lang = match (true) {
-                Session::has('language') => tap(Session::get('language'), function ($language) use ($user) {
+                Session::has('language') => tap(Session::get('language'), function ($language) use ($user): void {
                     $user->language = $language;
                     $user->save();
                 }),
@@ -39,27 +40,25 @@ class LanguageMiddleware
         return $next($request);
     }
 
-    protected function setLocale($lang)
+    protected function setLocale(mixed $lang): void
     {
         if ($lang != '' && array_key_exists($lang, Config::get('languages'))) {
-            $availableLanguages = array_map('basename', File::directories(lang_path()));
+            $availableLanguages = array_map(basename(...), File::directories(lang_path()));
             in_array($lang, $availableLanguages) ? App::setLocale($lang) : App::setLocale('en');
         }
     }
 
-    public function getLangFromSessionOrCache()
+    public function getLangFromSessionOrCache(): mixed
     {
-        $lang = match (true) {
+        return match (true) {
             Session::has('language') => Session::get('language'),
             Cache::has('language') => Cache::get('language'),
-            ! Cache::has('language') && isInstall() => Setting::select('content')->where('id', 1)->first()->content,
+            ! Cache::has('language') && isInstall() => Setting::select('content')->where('id', 1)->firstOrFail()->content, // @phpstan-ignore booleanNot.alwaysTrue
             default => 'en',
         };
-
-        return $lang;
     }
 
-    public function checkEnabledLanguage($lang)
+    public function checkEnabledLanguage(mixed $lang): mixed
     {
         if (! empty($lang)) {
             $language = Language::where('locale', $lang)->where('status', 1)->first();

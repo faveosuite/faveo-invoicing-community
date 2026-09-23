@@ -1,0 +1,1 @@
+import{H as e,mt as t,t as n}from"./vue.esm-bundler-BtBz4Xsg.js";n();function r(n=120){let r=t(0),i=null;function a(){r.value=n,clearInterval(i),i=setInterval(()=>{r.value--,r.value<=0&&clearInterval(i)},1e3)}function o(){clearInterval(i),r.value=0}return e(()=>clearInterval(i)),{cooldown:r,start:a,stop:o}}export{r as t};

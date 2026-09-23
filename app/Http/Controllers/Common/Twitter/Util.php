@@ -7,19 +7,21 @@
 
 namespace App\Http\Controllers\Common\Twitter;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Util
 {
     /**
-     * @param  $input
-     * @return array|mixed|string
+     * @return array<mixed>
      */
-    public static function urlencodeRfc3986($input)
+    public static function urlencodeRfc3986(mixed $input): string|array
     {
         $output = '';
         if (is_array($input)) {
             $output = array_map([__NAMESPACE__.'\Util', 'urlencodeRfc3986'], $input);
         } elseif (is_scalar($input)) {
-            $output = rawurlencode($input);
+            $output = rawurlencode((string) $input);
         }
 
         return $output;
@@ -27,9 +29,8 @@ class Util
 
     /**
      * @param  string  $string
-     * @return string
      */
-    public static function urldecodeRfc3986($string)
+    public static function urldecodeRfc3986($string): string
     {
         return urldecode($string);
     }
@@ -40,15 +41,15 @@ class Util
      * array('a' => array('b','c'), 'd' => 'e').
      *
      * @param  mixed  $input
-     * @return array
+     * @return array<mixed>
      */
-    public static function parseParameters($input)
+    public static function parseParameters($input): array
     {
         if (! isset($input) || ! $input) {
             return [];
         }
 
-        $pairs = explode('&', $input);
+        $pairs = explode('&', (string) $input);
 
         $parameters = [];
         foreach ($pairs as $pair) {
@@ -75,11 +76,7 @@ class Util
         return $parameters;
     }
 
-    /**
-     * @param  $params
-     * @return string
-     */
-    public static function buildHttpQuery($params)
+    public static function buildHttpQuery(mixed $params): string
     {
         if (! $params) {
             return '';
@@ -88,11 +85,11 @@ class Util
         // Urlencode both keys and values
         $keys = self::urlencodeRfc3986(array_keys($params));
         $values = self::urlencodeRfc3986(array_values($params));
-        $params = array_combine($keys, $values);
+        $params = array_combine((array) $keys, (array) $values);
 
         // Parameters are sorted by name, using lexicographical byte value ordering.
         // Ref: Spec: 9.1.1 (1)
-        uksort($params, 'strcmp');
+        uksort($params, strcmp(...));
 
         $pairs = [];
         foreach ($params as $parameter => $value) {

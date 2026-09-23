@@ -1,10 +1,37 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App;
 
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
+/**
+ * @property int $id
+ * @property string|null $app_name
+ * @property string|null $app_key
+ * @property string|null $app_secret
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ThirdPartyApp newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ThirdPartyApp newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ThirdPartyApp query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ThirdPartyApp whereAppKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ThirdPartyApp whereAppName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ThirdPartyApp whereAppSecret($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ThirdPartyApp whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ThirdPartyApp whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ThirdPartyApp whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class ThirdPartyApp extends Model
 {
     use SystemActivityLogsTrait;
@@ -13,18 +40,27 @@ class ThirdPartyApp extends Model
 
     protected $fillable = ['app_name', 'app_key', 'app_secret'];
 
-    protected $logName = 'third_party_apps';
+    protected string $logName = 'third_party_apps';
 
-    protected $logNameColumn = 'app_name';
+    protected string $logNameColumn = 'app_name';
 
-    protected $logAttributes = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logAttributes = [
         'app_name', 'app_key', 'app_secret',
     ];
 
-    protected $logUrl = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logUrl = [
         'segments' => ['third-party-keys'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

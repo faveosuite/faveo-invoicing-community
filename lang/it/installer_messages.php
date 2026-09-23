@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'title' => 'Installatore di Agora Invoicing',
     'probe' => 'Prove di Agora Invoicing',
     'magic_phrase' => 'Qual è la frase magica',
@@ -20,7 +19,6 @@ return [
     'off_apache' => 'SPENTO (Se usi apache, assicurati che <var><strong>AllowOverride</strong></var> sia impostato su <var><strong>All</strong></var> nella configurazione di apache)',
     'rewrite_engine' => 'Motore di riscrittura',
     'user_url' => 'URL amichevole per l\'utente',
-
     'host' => 'Ospite',
     'host_tooltip' => 'Se MySQL è installato sullo stesso server di Agora Invoicing, lascialo su localhost',
     'database_name_label' => 'Nome del database',
@@ -30,7 +28,6 @@ return [
     'password_label' => 'Password',
     'test_prerequisites_message' => 'Questo test controllerà i prerequisiti necessari per installare Agora Invoicing',
     'previous' => 'Precedente',
-
     'sign_up_as_admin' => 'Registrati come Amministratore',
     'first_name' => 'Nome',
     'first_name_required' => 'Il nome è obbligatorio',
@@ -44,14 +41,27 @@ return [
     'confirm_password_required' => 'La conferma della password è obbligatoria',
     'password_requirements' => 'La tua password deve contenere:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => 'Tra 8 e 16 caratteri'],
-        ['id' => 'letter', 'text' => 'Caratteri minuscoli (a-z)'],
-        ['id' => 'capital', 'text' => 'Caratteri maiuscoli (A-Z)'],
-        ['id' => 'number', 'text' => 'Numeri (0-9)'],
-        ['id' => 'space', 'text' => 'Caratteri speciali (~*!@$#%_+.?:,{ })'],
+        [
+            'id' => 'length',
+            'text' => 'Tra 8 e 16 caratteri',
+        ],
+        [
+            'id' => 'letter',
+            'text' => 'Caratteri minuscoli (a-z)',
+        ],
+        [
+            'id' => 'capital',
+            'text' => 'Caratteri maiuscoli (A-Z)',
+        ],
+        [
+            'id' => 'number',
+            'text' => 'Numeri (0-9)',
+        ],
+        [
+            'id' => 'space',
+            'text' => 'Caratteri speciali (~*!@$#%_+.?:,{ })',
+        ],
     ],
-
-    // Informazioni di sistema
     'system_information' => 'Informazioni di sistema',
     'environment' => 'Ambiente',
     'environment_required' => 'L\'ambiente è obbligatorio',
@@ -63,42 +73,29 @@ return [
     'file' => 'File',
     'redis' => 'Redis',
     'password' => 'Password',
-
-    // Configurazione Redis
     'redis_setup' => 'Configurazione Redis',
     'redis_host' => 'Ospite Redis',
     'redis_port' => 'Porta Redis',
     'redis_password' => 'Password Redis',
-
-    // Pulsanti
     'continue' => 'Continua',
-
-    // Configurazione finale
     'final_setup' => 'La tua applicazione Agora Invoicing è pronta!',
     'installation_complete' => 'Tutto ok, sparky! Hai completato l\'installazione',
-
-    // Ulteriori informazioni
     'learn_more' => 'Scopri di più',
     'knowledge_base' => 'Base di conoscenza',
     'email_support' => 'Supporto via email',
-
-    // Passaggio successivo
     'next_step' => 'Passaggio successivo',
     'login_button' => 'Accedi a Agora Invoicing',
-
     'pre_migration_success' => 'La pre-migrazione è stata testata con successo',
     'migrating_tables' => 'Migrazione delle tabelle nel database',
     'db_connection_error' => 'La connessione al database non è stata aggiornata',
     'database_setup_success' => 'Il database è stato configurato con successo',
     'env_file_created' => 'Il file di configurazione dell\'ambiente è stato creato con successo',
     'pre_migration_test' => 'Esecuzione del test pre-migrazione',
-
     'redis_host_required' => 'L\'host Redis è obbligatorio',
     'redis_password_required' => 'La password Redis è obbligatoria',
     'redis_port_required' => 'La porta Redis è obbligatoria',
     'password_regex' => 'La password deve contenere almeno 8 caratteri, una lettera maiuscola, una lettera minuscola, un numero e un carattere speciale',
     'setup_completed' => 'Configurazione completata con successo!',
-
     'database' => 'Database',
     'selected' => 'Selezionato',
     'mysql_version_is' => 'La versione di MySQL è',
@@ -114,7 +111,6 @@ return [
     'user_name' => 'Nome utente',
     'user_email' => 'Email utente',
     'password_not_match' => 'Le password non corrispondono',
-    // Nuovo
     'installation_check' => 'Questo test controllerà i prerequisiti necessari per installare Agora Invoice Community',
     'db_setup_error_1' => 'Questo significa che le informazioni su nome utente e password sono errate o che l\'host non è raggiungibile',
     'db_setup_error_2' => 'Sei sicuro di avere già un database con il nome del database fornito?',
@@ -158,5 +154,4 @@ return [
     'tooltip_timezone' => 'Il fuso orario del browser viene utilizzato inizialmente. Se necessario, seleziona un fuso orario diverso',
     'tooltip_language' => 'Lingua predefinita caricata inizialmente. Se necessario, seleziona una lingua diversa',
     'enter_magic_phrase' => 'Inserisci la frase magica',
-
 ];

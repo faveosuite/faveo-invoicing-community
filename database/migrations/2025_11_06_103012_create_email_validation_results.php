@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('email_validation_results', function (Blueprint $table) {
+        Schema::create('email_validation_results', function (Blueprint $table): void {
             $table->id();
             $table->string('email')->index();
             $table->string('method');

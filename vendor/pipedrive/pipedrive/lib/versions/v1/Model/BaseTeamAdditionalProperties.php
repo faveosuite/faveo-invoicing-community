@@ -2,7 +2,7 @@
 /**
  * BaseTeamAdditionalProperties
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -202,7 +202,7 @@ class BaseTeamAdditionalProperties implements ModelInterface, ArrayAccess, JsonS
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['add_time'] = $data['add_time'] ?? null;
         $this->container['created_by_user_id'] = $data['created_by_user_id'] ?? null;

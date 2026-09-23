@@ -272,18 +272,30 @@ Class | Method | HTTP request | Description
 *ActivitiesApi* | [**updateActivity**](Api/ActivitiesApi.md#updateactivity) | **PATCH** /activities/{id} | Update an activity
 *ActivityFieldsApi* | [**getActivityField**](Api/ActivityFieldsApi.md#getactivityfield) | **GET** /activityFields/{field_code} | Get one activity field
 *ActivityFieldsApi* | [**getActivityFields**](Api/ActivityFieldsApi.md#getactivityfields) | **GET** /activityFields | Get all activity fields
-*BetaApi* | [**convertDealToLead**](Api/BetaApi.md#convertdealtolead) | **POST** /deals/{id}/convert/lead | Convert a deal to a lead (BETA)
-*BetaApi* | [**convertLeadToDeal**](Api/BetaApi.md#convertleadtodeal) | **POST** /leads/{id}/convert/deal | Convert a lead to a deal (BETA)
-*BetaApi* | [**deleteInstallment**](Api/BetaApi.md#deleteinstallment) | **DELETE** /deals/{id}/installments/{installment_id} | Delete an installment from a deal
-*BetaApi* | [**deleteProductImage**](Api/BetaApi.md#deleteproductimage) | **DELETE** /products/{id}/images | Delete an image of a product
-*BetaApi* | [**getDealConversionStatus**](Api/BetaApi.md#getdealconversionstatus) | **GET** /deals/{id}/convert/status/{conversion_id} | Get Deal conversion status (BETA)
-*BetaApi* | [**getInstallments**](Api/BetaApi.md#getinstallments) | **GET** /deals/installments | List installments added to a list of deals
-*BetaApi* | [**getLeadConversionStatus**](Api/BetaApi.md#getleadconversionstatus) | **GET** /leads/{id}/convert/status/{conversion_id} | Get Lead conversion status (BETA)
-*BetaApi* | [**getProductImage**](Api/BetaApi.md#getproductimage) | **GET** /products/{id}/images | Get image of a product
-*BetaApi* | [**postInstallment**](Api/BetaApi.md#postinstallment) | **POST** /deals/{id}/installments | Add an installment to a deal
-*BetaApi* | [**updateInstallment**](Api/BetaApi.md#updateinstallment) | **PATCH** /deals/{id}/installments/{installment_id} | Update an installment added to a deal
-*BetaApi* | [**updateProductImage**](Api/BetaApi.md#updateproductimage) | **PUT** /products/{id}/images | Update an image for a product
-*BetaApi* | [**uploadProductImage**](Api/BetaApi.md#uploadproductimage) | **POST** /products/{id}/images | Upload an image for a product
+*BetaApi* | [**addProjectBoard**](Api/BetaApi.md#addprojectboard) | **POST** /boards | Add a project board
+*BetaApi* | [**addProjectField**](Api/BetaApi.md#addprojectfield) | **POST** /projectFields | Create one project field
+*BetaApi* | [**addProjectFieldOptions**](Api/BetaApi.md#addprojectfieldoptions) | **POST** /projectFields/{field_code}/options | Add project field options in bulk
+*BetaApi* | [**addProjectPhase**](Api/BetaApi.md#addprojectphase) | **POST** /phases | Add a project phase
+*BetaApi* | [**addTask**](Api/BetaApi.md#addtask) | **POST** /tasks | Add a task
+*BetaApi* | [**deleteProjectBoard**](Api/BetaApi.md#deleteprojectboard) | **DELETE** /boards/{id} | Delete a project board
+*BetaApi* | [**deleteProjectField**](Api/BetaApi.md#deleteprojectfield) | **DELETE** /projectFields/{field_code} | Delete one project field
+*BetaApi* | [**deleteProjectFieldOptions**](Api/BetaApi.md#deleteprojectfieldoptions) | **DELETE** /projectFields/{field_code}/options | Delete project field options in bulk
+*BetaApi* | [**deleteProjectPhase**](Api/BetaApi.md#deleteprojectphase) | **DELETE** /phases/{id} | Delete a project phase
+*BetaApi* | [**deleteTask**](Api/BetaApi.md#deletetask) | **DELETE** /tasks/{id} | Delete a task
+*BetaApi* | [**getProjectField**](Api/BetaApi.md#getprojectfield) | **GET** /projectFields/{field_code} | Get one project field
+*BetaApi* | [**getProjectFields**](Api/BetaApi.md#getprojectfields) | **GET** /projectFields | Get all project fields
+*BetaApi* | [**getProjectsBoard**](Api/BetaApi.md#getprojectsboard) | **GET** /boards/{id} | Get details of a project board
+*BetaApi* | [**getProjectsBoards**](Api/BetaApi.md#getprojectsboards) | **GET** /boards | Get all project boards
+*BetaApi* | [**getProjectsPhase**](Api/BetaApi.md#getprojectsphase) | **GET** /phases/{id} | Get details of a project phase
+*BetaApi* | [**getProjectsPhases**](Api/BetaApi.md#getprojectsphases) | **GET** /phases | Get project phases
+*BetaApi* | [**getTask**](Api/BetaApi.md#gettask) | **GET** /tasks/{id} | Get details of a task
+*BetaApi* | [**getTasks**](Api/BetaApi.md#gettasks) | **GET** /tasks | Get all tasks
+*BetaApi* | [**searchProjects**](Api/BetaApi.md#searchprojects) | **GET** /projects/search | Search projects
+*BetaApi* | [**updateProjectBoard**](Api/BetaApi.md#updateprojectboard) | **PATCH** /boards/{id} | Update a project board
+*BetaApi* | [**updateProjectField**](Api/BetaApi.md#updateprojectfield) | **PATCH** /projectFields/{field_code} | Update one project field
+*BetaApi* | [**updateProjectFieldOptions**](Api/BetaApi.md#updateprojectfieldoptions) | **PATCH** /projectFields/{field_code}/options | Update project field options in bulk
+*BetaApi* | [**updateProjectPhase**](Api/BetaApi.md#updateprojectphase) | **PATCH** /phases/{id} | Update a project phase
+*BetaApi* | [**updateTask**](Api/BetaApi.md#updatetask) | **PATCH** /tasks/{id} | Update a task
 *DealFieldsApi* | [**addDealField**](Api/DealFieldsApi.md#adddealfield) | **POST** /dealFields | Create one deal field
 *DealFieldsApi* | [**addDealFieldOptions**](Api/DealFieldsApi.md#adddealfieldoptions) | **POST** /dealFields/{field_code}/options | Add deal field options in bulk
 *DealFieldsApi* | [**deleteDealField**](Api/DealFieldsApi.md#deletedealfield) | **DELETE** /dealFields/{field_code} | Delete one deal field
@@ -292,38 +304,38 @@ Class | Method | HTTP request | Description
 *DealFieldsApi* | [**getDealFields**](Api/DealFieldsApi.md#getdealfields) | **GET** /dealFields | Get all deal fields
 *DealFieldsApi* | [**updateDealField**](Api/DealFieldsApi.md#updatedealfield) | **PATCH** /dealFields/{field_code} | Update one deal field
 *DealFieldsApi* | [**updateDealFieldOptions**](Api/DealFieldsApi.md#updatedealfieldoptions) | **PATCH** /dealFields/{field_code}/options | Update deal field options in bulk
+*DealInstallmentsApi* | [**deleteInstallment**](Api/DealInstallmentsApi.md#deleteinstallment) | **DELETE** /deals/{id}/installments/{installment_id} | Delete an installment from a deal
+*DealInstallmentsApi* | [**getInstallments**](Api/DealInstallmentsApi.md#getinstallments) | **GET** /deals/installments | List installments added to a list of deals
+*DealInstallmentsApi* | [**postInstallment**](Api/DealInstallmentsApi.md#postinstallment) | **POST** /deals/{id}/installments | Add an installment to a deal
+*DealInstallmentsApi* | [**updateInstallment**](Api/DealInstallmentsApi.md#updateinstallment) | **PATCH** /deals/{id}/installments/{installment_id} | Update an installment added to a deal
+*DealProductsApi* | [**addDealProduct**](Api/DealProductsApi.md#adddealproduct) | **POST** /deals/{id}/products | Add a product to a deal
+*DealProductsApi* | [**addManyDealProducts**](Api/DealProductsApi.md#addmanydealproducts) | **POST** /deals/{id}/products/bulk | Add multiple products to a deal
+*DealProductsApi* | [**deleteDealProduct**](Api/DealProductsApi.md#deletedealproduct) | **DELETE** /deals/{id}/products/{product_attachment_id} | Delete an attached product from a deal
+*DealProductsApi* | [**deleteManyDealProducts**](Api/DealProductsApi.md#deletemanydealproducts) | **DELETE** /deals/{id}/products | Delete many products from a deal
+*DealProductsApi* | [**getDealProducts**](Api/DealProductsApi.md#getdealproducts) | **GET** /deals/{id}/products | List products attached to a deal
+*DealProductsApi* | [**getDealsProducts**](Api/DealProductsApi.md#getdealsproducts) | **GET** /deals/products | Get deal products of several deals
+*DealProductsApi* | [**updateDealProduct**](Api/DealProductsApi.md#updatedealproduct) | **PATCH** /deals/{id}/products/{product_attachment_id} | Update the product attached to a deal
 *DealsApi* | [**addDeal**](Api/DealsApi.md#adddeal) | **POST** /deals | Add a new deal
 *DealsApi* | [**addDealFollower**](Api/DealsApi.md#adddealfollower) | **POST** /deals/{id}/followers | Add a follower to a deal
-*DealsApi* | [**addDealProduct**](Api/DealsApi.md#adddealproduct) | **POST** /deals/{id}/products | Add a product to a deal
-*DealsApi* | [**addManyDealProducts**](Api/DealsApi.md#addmanydealproducts) | **POST** /deals/{id}/products/bulk | Add multiple products to a deal
-*DealsApi* | [**convertDealToLead**](Api/DealsApi.md#convertdealtolead) | **POST** /deals/{id}/convert/lead | Convert a deal to a lead (BETA)
+*DealsApi* | [**convertDealToLead**](Api/DealsApi.md#convertdealtolead) | **POST** /deals/{id}/convert/lead | Convert a deal to a lead
 *DealsApi* | [**deleteAdditionalDiscount**](Api/DealsApi.md#deleteadditionaldiscount) | **DELETE** /deals/{id}/discounts/{discount_id} | Delete a discount from a deal
 *DealsApi* | [**deleteDeal**](Api/DealsApi.md#deletedeal) | **DELETE** /deals/{id} | Delete a deal
 *DealsApi* | [**deleteDealFollower**](Api/DealsApi.md#deletedealfollower) | **DELETE** /deals/{id}/followers/{follower_id} | Delete a follower from a deal
-*DealsApi* | [**deleteDealProduct**](Api/DealsApi.md#deletedealproduct) | **DELETE** /deals/{id}/products/{product_attachment_id} | Delete an attached product from a deal
-*DealsApi* | [**deleteInstallment**](Api/DealsApi.md#deleteinstallment) | **DELETE** /deals/{id}/installments/{installment_id} | Delete an installment from a deal
-*DealsApi* | [**deleteManyDealProducts**](Api/DealsApi.md#deletemanydealproducts) | **DELETE** /deals/{id}/products | Delete many products from a deal
 *DealsApi* | [**getAdditionalDiscounts**](Api/DealsApi.md#getadditionaldiscounts) | **GET** /deals/{id}/discounts | List discounts added to a deal
 *DealsApi* | [**getArchivedDeals**](Api/DealsApi.md#getarchiveddeals) | **GET** /deals/archived | Get all archived deals
 *DealsApi* | [**getDeal**](Api/DealsApi.md#getdeal) | **GET** /deals/{id} | Get details of a deal
-*DealsApi* | [**getDealConversionStatus**](Api/DealsApi.md#getdealconversionstatus) | **GET** /deals/{id}/convert/status/{conversion_id} | Get Deal conversion status (BETA)
+*DealsApi* | [**getDealConversionStatus**](Api/DealsApi.md#getdealconversionstatus) | **GET** /deals/{id}/convert/status/{conversion_id} | Get Deal conversion status
 *DealsApi* | [**getDealFollowers**](Api/DealsApi.md#getdealfollowers) | **GET** /deals/{id}/followers | List followers of a deal
 *DealsApi* | [**getDealFollowersChangelog**](Api/DealsApi.md#getdealfollowerschangelog) | **GET** /deals/{id}/followers/changelog | List followers changelog of a deal
-*DealsApi* | [**getDealProducts**](Api/DealsApi.md#getdealproducts) | **GET** /deals/{id}/products | List products attached to a deal
 *DealsApi* | [**getDeals**](Api/DealsApi.md#getdeals) | **GET** /deals | Get all deals
-*DealsApi* | [**getDealsProducts**](Api/DealsApi.md#getdealsproducts) | **GET** /deals/products | Get deal products of several deals
-*DealsApi* | [**getInstallments**](Api/DealsApi.md#getinstallments) | **GET** /deals/installments | List installments added to a list of deals
 *DealsApi* | [**postAdditionalDiscount**](Api/DealsApi.md#postadditionaldiscount) | **POST** /deals/{id}/discounts | Add a discount to a deal
-*DealsApi* | [**postInstallment**](Api/DealsApi.md#postinstallment) | **POST** /deals/{id}/installments | Add an installment to a deal
 *DealsApi* | [**searchDeals**](Api/DealsApi.md#searchdeals) | **GET** /deals/search | Search deals
 *DealsApi* | [**updateAdditionalDiscount**](Api/DealsApi.md#updateadditionaldiscount) | **PATCH** /deals/{id}/discounts/{discount_id} | Update a discount added to a deal
 *DealsApi* | [**updateDeal**](Api/DealsApi.md#updatedeal) | **PATCH** /deals/{id} | Update a deal
-*DealsApi* | [**updateDealProduct**](Api/DealsApi.md#updatedealproduct) | **PATCH** /deals/{id}/products/{product_attachment_id} | Update the product attached to a deal
-*DealsApi* | [**updateInstallment**](Api/DealsApi.md#updateinstallment) | **PATCH** /deals/{id}/installments/{installment_id} | Update an installment added to a deal
 *ItemSearchApi* | [**searchItem**](Api/ItemSearchApi.md#searchitem) | **GET** /itemSearch | Perform a search from multiple item types
 *ItemSearchApi* | [**searchItemByField**](Api/ItemSearchApi.md#searchitembyfield) | **GET** /itemSearch/field | Perform a search using a specific field from an item type
-*LeadsApi* | [**convertLeadToDeal**](Api/LeadsApi.md#convertleadtodeal) | **POST** /leads/{id}/convert/deal | Convert a lead to a deal (BETA)
-*LeadsApi* | [**getLeadConversionStatus**](Api/LeadsApi.md#getleadconversionstatus) | **GET** /leads/{id}/convert/status/{conversion_id} | Get Lead conversion status (BETA)
+*LeadsApi* | [**convertLeadToDeal**](Api/LeadsApi.md#convertleadtodeal) | **POST** /leads/{id}/convert/deal | Convert a lead to a deal
+*LeadsApi* | [**getLeadConversionStatus**](Api/LeadsApi.md#getleadconversionstatus) | **GET** /leads/{id}/convert/status/{conversion_id} | Get Lead conversion status
 *LeadsApi* | [**searchLeads**](Api/LeadsApi.md#searchleads) | **GET** /leads/search | Search leads
 *OrganizationFieldsApi* | [**addOrganizationField**](Api/OrganizationFieldsApi.md#addorganizationfield) | **POST** /organizationFields | Create one organization field
 *OrganizationFieldsApi* | [**addOrganizationFieldOptions**](Api/OrganizationFieldsApi.md#addorganizationfieldoptions) | **POST** /organizationFields/{field_code}/options | Add organization field options in bulk
@@ -394,11 +406,46 @@ Class | Method | HTTP request | Description
 *ProductsApi* | [**updateProductImage**](Api/ProductsApi.md#updateproductimage) | **PUT** /products/{id}/images | Update an image for a product
 *ProductsApi* | [**updateProductVariation**](Api/ProductsApi.md#updateproductvariation) | **PATCH** /products/{id}/variations/{product_variation_id} | Update a product variation
 *ProductsApi* | [**uploadProductImage**](Api/ProductsApi.md#uploadproductimage) | **POST** /products/{id}/images | Upload an image for a product
+*ProjectBoardsApi* | [**addProjectBoard**](Api/ProjectBoardsApi.md#addprojectboard) | **POST** /boards | Add a project board
+*ProjectBoardsApi* | [**deleteProjectBoard**](Api/ProjectBoardsApi.md#deleteprojectboard) | **DELETE** /boards/{id} | Delete a project board
+*ProjectBoardsApi* | [**getProjectsBoard**](Api/ProjectBoardsApi.md#getprojectsboard) | **GET** /boards/{id} | Get details of a project board
+*ProjectBoardsApi* | [**getProjectsBoards**](Api/ProjectBoardsApi.md#getprojectsboards) | **GET** /boards | Get all project boards
+*ProjectBoardsApi* | [**updateProjectBoard**](Api/ProjectBoardsApi.md#updateprojectboard) | **PATCH** /boards/{id} | Update a project board
+*ProjectFieldsApi* | [**addProjectField**](Api/ProjectFieldsApi.md#addprojectfield) | **POST** /projectFields | Create one project field
+*ProjectFieldsApi* | [**addProjectFieldOptions**](Api/ProjectFieldsApi.md#addprojectfieldoptions) | **POST** /projectFields/{field_code}/options | Add project field options in bulk
+*ProjectFieldsApi* | [**deleteProjectField**](Api/ProjectFieldsApi.md#deleteprojectfield) | **DELETE** /projectFields/{field_code} | Delete one project field
+*ProjectFieldsApi* | [**deleteProjectFieldOptions**](Api/ProjectFieldsApi.md#deleteprojectfieldoptions) | **DELETE** /projectFields/{field_code}/options | Delete project field options in bulk
+*ProjectFieldsApi* | [**getProjectField**](Api/ProjectFieldsApi.md#getprojectfield) | **GET** /projectFields/{field_code} | Get one project field
+*ProjectFieldsApi* | [**getProjectFields**](Api/ProjectFieldsApi.md#getprojectfields) | **GET** /projectFields | Get all project fields
+*ProjectFieldsApi* | [**updateProjectField**](Api/ProjectFieldsApi.md#updateprojectfield) | **PATCH** /projectFields/{field_code} | Update one project field
+*ProjectFieldsApi* | [**updateProjectFieldOptions**](Api/ProjectFieldsApi.md#updateprojectfieldoptions) | **PATCH** /projectFields/{field_code}/options | Update project field options in bulk
+*ProjectPhasesApi* | [**addProjectPhase**](Api/ProjectPhasesApi.md#addprojectphase) | **POST** /phases | Add a project phase
+*ProjectPhasesApi* | [**deleteProjectPhase**](Api/ProjectPhasesApi.md#deleteprojectphase) | **DELETE** /phases/{id} | Delete a project phase
+*ProjectPhasesApi* | [**getProjectsPhase**](Api/ProjectPhasesApi.md#getprojectsphase) | **GET** /phases/{id} | Get details of a project phase
+*ProjectPhasesApi* | [**getProjectsPhases**](Api/ProjectPhasesApi.md#getprojectsphases) | **GET** /phases | Get project phases
+*ProjectPhasesApi* | [**updateProjectPhase**](Api/ProjectPhasesApi.md#updateprojectphase) | **PATCH** /phases/{id} | Update a project phase
+*ProjectTemplatesApi* | [**getProjectTemplate**](Api/ProjectTemplatesApi.md#getprojecttemplate) | **GET** /projectTemplates/{id} | Get details of a template
+*ProjectTemplatesApi* | [**getProjectTemplates**](Api/ProjectTemplatesApi.md#getprojecttemplates) | **GET** /projectTemplates | Get all project templates
+*ProjectsApi* | [**addProject**](Api/ProjectsApi.md#addproject) | **POST** /projects | Add a project
+*ProjectsApi* | [**archiveProject**](Api/ProjectsApi.md#archiveproject) | **POST** /projects/{id}/archive | Archive a project
+*ProjectsApi* | [**deleteProject**](Api/ProjectsApi.md#deleteproject) | **DELETE** /projects/{id} | Delete a project
+*ProjectsApi* | [**getArchivedProjects**](Api/ProjectsApi.md#getarchivedprojects) | **GET** /projects/archived | Get all archived projects
+*ProjectsApi* | [**getProject**](Api/ProjectsApi.md#getproject) | **GET** /projects/{id} | Get details of a project
+*ProjectsApi* | [**getProjectChangelog**](Api/ProjectsApi.md#getprojectchangelog) | **GET** /projects/{id}/changelog | List updates about project field values
+*ProjectsApi* | [**getProjectUsers**](Api/ProjectsApi.md#getprojectusers) | **GET** /projects/{id}/permittedUsers | List permitted users
+*ProjectsApi* | [**getProjects**](Api/ProjectsApi.md#getprojects) | **GET** /projects | Get all projects
+*ProjectsApi* | [**searchProjects**](Api/ProjectsApi.md#searchprojects) | **GET** /projects/search | Search projects
+*ProjectsApi* | [**updateProject**](Api/ProjectsApi.md#updateproject) | **PATCH** /projects/{id} | Update a project
 *StagesApi* | [**addStage**](Api/StagesApi.md#addstage) | **POST** /stages | Add a new stage
 *StagesApi* | [**deleteStage**](Api/StagesApi.md#deletestage) | **DELETE** /stages/{id} | Delete a stage
 *StagesApi* | [**getStage**](Api/StagesApi.md#getstage) | **GET** /stages/{id} | Get one stage
 *StagesApi* | [**getStages**](Api/StagesApi.md#getstages) | **GET** /stages | Get all stages
 *StagesApi* | [**updateStage**](Api/StagesApi.md#updatestage) | **PATCH** /stages/{id} | Update stage details
+*TasksApi* | [**addTask**](Api/TasksApi.md#addtask) | **POST** /tasks | Add a task
+*TasksApi* | [**deleteTask**](Api/TasksApi.md#deletetask) | **DELETE** /tasks/{id} | Delete a task
+*TasksApi* | [**getTask**](Api/TasksApi.md#gettask) | **GET** /tasks/{id} | Get details of a task
+*TasksApi* | [**getTasks**](Api/TasksApi.md#gettasks) | **GET** /tasks | Get all tasks
+*TasksApi* | [**updateTask**](Api/TasksApi.md#updatetask) | **PATCH** /tasks/{id} | Update a task
 *UsersApi* | [**getUserFollowers**](Api/UsersApi.md#getuserfollowers) | **GET** /users/{id}/followers | List followers of a user
 
 
@@ -420,10 +467,12 @@ Class | Method | HTTP request | Description
  - [AddInstallmentResponse](Model/AddInstallmentResponse.md)
  - [AddProductImageResponse](Model/AddProductImageResponse.md)
  - [AddProductRequestBody](Model/AddProductRequestBody.md)
+ - [AddTaskResponse](Model/AddTaskResponse.md)
  - [AdditionalDataWithCursorPagination](Model/AdditionalDataWithCursorPagination.md)
  - [AdditionalDiscountRequestBody](Model/AdditionalDiscountRequestBody.md)
  - [AdditionalDiscountsResponse](Model/AdditionalDiscountsResponse.md)
  - [ArrayPrices](Model/ArrayPrices.md)
+ - [ArrayPricesPrices](Model/ArrayPricesPrices.md)
  - [BaseAdditionalDiscount](Model/BaseAdditionalDiscount.md)
  - [BaseDealProduct](Model/BaseDealProduct.md)
  - [BaseDealProductAllOf](Model/BaseDealProductAllOf.md)
@@ -438,6 +487,8 @@ Class | Method | HTTP request | Description
  - [BaseResponse](Model/BaseResponse.md)
  - [BillingFrequency](Model/BillingFrequency.md)
  - [BillingFrequency1](Model/BillingFrequency1.md)
+ - [BoardItem](Model/BoardItem.md)
+ - [BoardRequestBody](Model/BoardRequestBody.md)
  - [ConvertEntityResponse](Model/ConvertEntityResponse.md)
  - [CreateDealField](Model/CreateDealField.md)
  - [CreateDealFieldRequest](Model/CreateDealFieldRequest.md)
@@ -450,6 +501,9 @@ Class | Method | HTTP request | Description
  - [CreatePersonFieldRequest](Model/CreatePersonFieldRequest.md)
  - [CreateProductField](Model/CreateProductField.md)
  - [CreateProductFieldRequest](Model/CreateProductFieldRequest.md)
+ - [CreateProjectField](Model/CreateProjectField.md)
+ - [CreateProjectFieldRequest](Model/CreateProjectFieldRequest.md)
+ - [Deal](Model/Deal.md)
  - [DealFieldItem](Model/DealFieldItem.md)
  - [DealFieldItemImportantFields](Model/DealFieldItemImportantFields.md)
  - [DealFieldItemRequiredFields](Model/DealFieldItemRequiredFields.md)
@@ -498,8 +552,18 @@ Class | Method | HTTP request | Description
  - [DeleteProductResponseData](Model/DeleteProductResponseData.md)
  - [DeleteProductVariation](Model/DeleteProductVariation.md)
  - [DeleteProductVariationData](Model/DeleteProductVariationData.md)
+ - [DeleteProjectBoardResponse](Model/DeleteProjectBoardResponse.md)
+ - [DeleteProjectBoardResponseData](Model/DeleteProjectBoardResponseData.md)
+ - [DeleteProjectField](Model/DeleteProjectField.md)
+ - [DeleteProjectFieldData](Model/DeleteProjectFieldData.md)
+ - [DeleteProjectPhaseResponse](Model/DeleteProjectPhaseResponse.md)
+ - [DeleteProjectPhaseResponseData](Model/DeleteProjectPhaseResponseData.md)
+ - [DeleteProjectResponse](Model/DeleteProjectResponse.md)
+ - [DeleteProjectResponseData](Model/DeleteProjectResponseData.md)
  - [DeleteStageResponse](Model/DeleteStageResponse.md)
  - [DeleteStageResponseData](Model/DeleteStageResponseData.md)
+ - [DeleteTaskResponse](Model/DeleteTaskResponse.md)
+ - [DeleteTaskResponseData](Model/DeleteTaskResponseData.md)
  - [FieldOption](Model/FieldOption.md)
  - [FollowerChangelogItem](Model/FollowerChangelogItem.md)
  - [FollowerItem](Model/FollowerItem.md)
@@ -509,6 +573,7 @@ Class | Method | HTTP request | Description
  - [GetActivityField](Model/GetActivityField.md)
  - [GetActivityFields](Model/GetActivityFields.md)
  - [GetActivityFieldsAdditionalData](Model/GetActivityFieldsAdditionalData.md)
+ - [GetBoards](Model/GetBoards.md)
  - [GetConvertResponse](Model/GetConvertResponse.md)
  - [GetDealField](Model/GetDealField.md)
  - [GetDealFields](Model/GetDealFields.md)
@@ -536,11 +601,21 @@ Class | Method | HTTP request | Description
  - [GetPersonFields](Model/GetPersonFields.md)
  - [GetPersons](Model/GetPersons.md)
  - [GetPersonsAllOf](Model/GetPersonsAllOf.md)
+ - [GetPhases](Model/GetPhases.md)
  - [GetPipelines](Model/GetPipelines.md)
  - [GetPipelinesAllOf](Model/GetPipelinesAllOf.md)
  - [GetProductField](Model/GetProductField.md)
  - [GetProductFields](Model/GetProductFields.md)
+ - [GetProjectField](Model/GetProjectField.md)
+ - [GetProjectFields](Model/GetProjectFields.md)
+ - [GetProjectPermittedUsersResponse](Model/GetProjectPermittedUsersResponse.md)
+ - [GetProjectTemplateResponse](Model/GetProjectTemplateResponse.md)
+ - [GetProjectTemplatesResponse](Model/GetProjectTemplatesResponse.md)
+ - [GetProjects](Model/GetProjects.md)
+ - [GetProjectsAllOf](Model/GetProjectsAllOf.md)
  - [GetStages](Model/GetStages.md)
+ - [GetTaskResponse](Model/GetTaskResponse.md)
+ - [GetTasksResponse](Model/GetTasksResponse.md)
  - [InlineObject](Model/InlineObject.md)
  - [InlineResponse200](Model/InlineResponse200.md)
  - [InstallmentRequestBody](Model/InstallmentRequestBody.md)
@@ -565,22 +640,21 @@ Class | Method | HTTP request | Description
  - [OrganizationRequestBody](Model/OrganizationRequestBody.md)
  - [OrganizationSearchItem](Model/OrganizationSearchItem.md)
  - [OrganizationSearchItemItem](Model/OrganizationSearchItemItem.md)
+ - [Person](Model/Person.md)
+ - [PersonEmails](Model/PersonEmails.md)
  - [PersonFieldItem](Model/PersonFieldItem.md)
  - [PersonFieldItemImportantFields](Model/PersonFieldItemImportantFields.md)
  - [PersonFieldItemRequiredFields](Model/PersonFieldItemRequiredFields.md)
  - [PersonFieldItemUiVisibility](Model/PersonFieldItemUiVisibility.md)
  - [PersonFieldItemUiVisibilityShowInAddDealDialog](Model/PersonFieldItemUiVisibilityShowInAddDealDialog.md)
+ - [PersonIm](Model/PersonIm.md)
  - [PersonItem](Model/PersonItem.md)
- - [PersonItemEmails](Model/PersonItemEmails.md)
- - [PersonItemIm](Model/PersonItemIm.md)
- - [PersonItemPhones](Model/PersonItemPhones.md)
- - [PersonItemPostalAddress](Model/PersonItemPostalAddress.md)
+ - [PersonPhones](Model/PersonPhones.md)
  - [PersonPictureItem](Model/PersonPictureItem.md)
  - [PersonPictureItemPictures](Model/PersonPictureItemPictures.md)
  - [PersonPictureResponse](Model/PersonPictureResponse.md)
+ - [PersonPostalAddress](Model/PersonPostalAddress.md)
  - [PersonRequestBody](Model/PersonRequestBody.md)
- - [PersonRequestBodyEmails](Model/PersonRequestBodyEmails.md)
- - [PersonRequestBodyPhones](Model/PersonRequestBodyPhones.md)
  - [PersonSearchItem](Model/PersonSearchItem.md)
  - [PersonSearchItemItem](Model/PersonSearchItemItem.md)
  - [PersonSearchItemItemOrganization](Model/PersonSearchItemItemOrganization.md)
@@ -588,15 +662,21 @@ Class | Method | HTTP request | Description
  - [PersonSearchResponse](Model/PersonSearchResponse.md)
  - [PersonSearchResponseAllOf](Model/PersonSearchResponseAllOf.md)
  - [PersonSearchResponseAllOfData](Model/PersonSearchResponseAllOfData.md)
+ - [PhaseItem](Model/PhaseItem.md)
+ - [PhaseRequestBody](Model/PhaseRequestBody.md)
  - [PipelineItem](Model/PipelineItem.md)
  - [PipelineRequestBody](Model/PipelineRequestBody.md)
  - [PostFollower](Model/PostFollower.md)
  - [PostFollowerAllOf](Model/PostFollowerAllOf.md)
  - [PostPatchGetActivity](Model/PostPatchGetActivity.md)
+ - [PostPatchGetBoard](Model/PostPatchGetBoard.md)
  - [PostPatchGetDeal](Model/PostPatchGetDeal.md)
  - [PostPatchGetOrganization](Model/PostPatchGetOrganization.md)
  - [PostPatchGetPerson](Model/PostPatchGetPerson.md)
+ - [PostPatchGetPhase](Model/PostPatchGetPhase.md)
  - [PostPatchGetPipeline](Model/PostPatchGetPipeline.md)
+ - [PostPatchGetProject](Model/PostPatchGetProject.md)
+ - [PostPatchGetProjectAllOf](Model/PostPatchGetProjectAllOf.md)
  - [PostPatchGetStage](Model/PostPatchGetStage.md)
  - [ProductFieldItem](Model/ProductFieldItem.md)
  - [ProductImageResponse](Model/ProductImageResponse.md)
@@ -615,8 +695,28 @@ Class | Method | HTTP request | Description
  - [ProductVariationsResponse](Model/ProductVariationsResponse.md)
  - [ProductWithArrayPrices](Model/ProductWithArrayPrices.md)
  - [ProductsResponse](Model/ProductsResponse.md)
+ - [ProjectChangelogResponse](Model/ProjectChangelogResponse.md)
+ - [ProjectChangelogResponseData](Model/ProjectChangelogResponseData.md)
+ - [ProjectFieldItem](Model/ProjectFieldItem.md)
+ - [ProjectFieldItemUiVisibility](Model/ProjectFieldItemUiVisibility.md)
+ - [ProjectItem](Model/ProjectItem.md)
+ - [ProjectRequestBody](Model/ProjectRequestBody.md)
+ - [ProjectSearchItem](Model/ProjectSearchItem.md)
+ - [ProjectSearchItemItem](Model/ProjectSearchItemItem.md)
+ - [ProjectSearchItemItemDeal](Model/ProjectSearchItemItemDeal.md)
+ - [ProjectSearchItemItemOrganization](Model/ProjectSearchItemItemOrganization.md)
+ - [ProjectSearchItemItemOwner](Model/ProjectSearchItemItemOwner.md)
+ - [ProjectSearchItemItemPerson](Model/ProjectSearchItemItemPerson.md)
+ - [ProjectSearchItemItemPhase](Model/ProjectSearchItemItemPhase.md)
+ - [ProjectSearchResponse](Model/ProjectSearchResponse.md)
+ - [ProjectSearchResponseAllOf](Model/ProjectSearchResponseAllOf.md)
+ - [ProjectSearchResponseAllOfData](Model/ProjectSearchResponseAllOfData.md)
+ - [ProjectTemplateItem](Model/ProjectTemplateItem.md)
  - [StageItem](Model/StageItem.md)
  - [StageRequestBody](Model/StageRequestBody.md)
+ - [TaskItem](Model/TaskItem.md)
+ - [TaskPatchRequest](Model/TaskPatchRequest.md)
+ - [TaskPostRequest](Model/TaskPostRequest.md)
  - [UpdateAdditionalDiscountResponse](Model/UpdateAdditionalDiscountResponse.md)
  - [UpdateDealFieldRequest](Model/UpdateDealFieldRequest.md)
  - [UpdateDealProductRequestBody](Model/UpdateDealProductRequestBody.md)
@@ -627,6 +727,8 @@ Class | Method | HTTP request | Description
  - [UpdateProductImageResponse](Model/UpdateProductImageResponse.md)
  - [UpdateProductRequestBody](Model/UpdateProductRequestBody.md)
  - [UpdateProductResponse](Model/UpdateProductResponse.md)
+ - [UpdateProjectFieldRequest](Model/UpdateProjectFieldRequest.md)
+ - [UpdateTaskResponse](Model/UpdateTaskResponse.md)
  - [UpsertActivityResponseData](Model/UpsertActivityResponseData.md)
  - [UpsertDealResponseData](Model/UpsertDealResponseData.md)
  - [UpsertOrganizationResponseData](Model/UpsertOrganizationResponseData.md)
@@ -690,4 +792,5 @@ Class | Method | HTTP request | Description
 - **deal-fields:full**: Create, read, update and delete deal fields
 - **product-fields:full**: Create, read, update and delete product fields
 - **contact-fields:full**: Create, read, update and delete person and organization fields
+- **project-fields:full**: Create, read, update and delete project fields
 

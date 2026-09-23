@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('tax_rules')) {
-            Schema::create('tax_rules', function (Blueprint $table) {
+            Schema::create('tax_rules', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('tax_enable');
                 $table->integer('inclusive');
@@ -28,10 +26,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('tax_rules');
     }

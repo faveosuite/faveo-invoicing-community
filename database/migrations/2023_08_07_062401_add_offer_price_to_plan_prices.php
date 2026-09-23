@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasColumn('plan_prices', 'offer_price')) {
-            Schema::table('plan_prices', function (Blueprint $table) {
+            Schema::table('plan_prices', function (Blueprint $table): void {
                 $table->string('offer_price')->nullable();
             });
         }
@@ -22,12 +20,10 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('plan_prices', function (Blueprint $table) {
+        Schema::table('plan_prices', function (Blueprint $table): void {
             $table->dropColumn('offer_price');
         });
     }

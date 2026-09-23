@@ -102,6 +102,8 @@ HELP
 
     private function writeCodeContext(InputInterface $input, OutputInterface $output)
     {
+        $shellOutput = $this->shellOutput($output);
+
         try {
             list($target, $reflector) = $this->getTargetAndReflector($input->getArgument('target'), $output);
         } catch (UnexpectedTargetException $e) {
@@ -116,7 +118,7 @@ HELP
                     ]);
                 }
 
-                $output->page(CodeFormatter::formatCode($code));
+                $shellOutput->page(CodeFormatter::formatCode($code));
 
                 return;
             } else {
@@ -128,7 +130,7 @@ HELP
         $this->setCommandScopeVariables($reflector);
 
         try {
-            $output->page(CodeFormatter::format($reflector));
+            $shellOutput->page(CodeFormatter::format($reflector));
         } catch (RuntimeException $e) {
             $output->writeln(SignatureFormatter::format($reflector));
             throw $e;
@@ -167,9 +169,12 @@ HELP
         $this->lastException = $exception;
         $this->lastExceptionIndex = $index;
 
-        $output->writeln($this->getShell()->formatException($exception));
-        $output->writeln('--');
+        $shell = $this->getShell();
+
+        $shell->writeExceptionHeader($output, $exception);
+        $shell->writeSeparator($output);
         $this->writeTraceLine($output, $trace, $index);
+        $shell->writeSpacer($output);
         $this->writeTraceCodeSnippet($output, $trace, $index);
 
         $this->setCommandScopeVariablesFromContext($trace[$index]);

@@ -43,6 +43,18 @@ final readonly class MethodName
     }
 
     /**
+     * @param class-string $className
+     */
+    public function failureDescription(string $className): string
+    {
+        if ($this->constraint instanceof MethodNameConstraint) {
+            return $className . '::' . $this->constraint->methodName() . '()';
+        }
+
+        return $this->toString();
+    }
+
+    /**
      * @throws ExpectationFailedException
      */
     public function matches(BaseInvocation $invocation): bool

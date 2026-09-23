@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Browser\Pages;
 
 use Laravel\Dusk\Page as BasePage;
+use Override;
 
 abstract class Page extends BasePage
 {
@@ -11,6 +14,7 @@ abstract class Page extends BasePage
      *
      * @return array<string, string>
      */
+    #[Override]
     public static function siteElements(): array
     {
         return [

@@ -1,40 +1,45 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
+/**
+ * @extends Factory<User>
+ */
 class UserFactory extends Factory
 {
     /**
      * Define the model's default state.
      *
-     * @return array
-     */
+     * @return array<mixed>     */
     protected $model = User::class;
 
     public function definition()
     {
         return [
-            'user_name' => $this->faker->userName(),
-            'first_name' => $this->faker->firstName(),
-            'last_name' => $this->faker->lastName(),
-            'email' => $this->faker->unique()->safeEmail(),
-            'company' => $this->faker->company(),
+            'user_name' => fake()->userName(),
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
+            'email' => fake()->unique()->userName().'.'.fake()->unique()->numberBetween(10000, 99999).'@test.invalid',
+            'company' => fake()->company(),
             'bussiness' => 'abcd',
             'company_type' => 'public_company',
             'company_size' => '2-50',
             'country' => 'IN',
-            'mobile' => $this->faker->e164PhoneNumber(),
+            'mobile' => fake()->e164PhoneNumber(),
             'currency' => 'INR',
-            'address' => $this->faker->address(),
-            'town' => $this->faker->city(),
-            'state' => 'IN-TN',
-            'zip' => $this->faker->postcode(),
+            'address' => fake()->address(),
+            'town' => fake()->city(),
+            'state' => 'TN',
+            'zip' => fake()->postcode(),
             'password' => 'Rivara@12',
             'timezone_id' => 79,
-            'remember_token' => str_random(10),
+            'remember_token' => Str::random(10),
             'mobile_verified' => 1,
             'role' => 'user',
             'active' => 1,

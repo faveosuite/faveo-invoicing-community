@@ -7,17 +7,15 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('prices', function (Blueprint $table) {
+        Schema::table('prices', function (Blueprint $table): void {
             // Fetch all indexes for the prices table
             $indexes = DB::select('SHOW INDEX FROM prices');
 
             // Helper function to check if a specific index exists
-            $indexExists = function ($indexName) use ($indexes) {
+            $indexExists = function ($indexName) use ($indexes): bool {
                 foreach ($indexes as $index) {
                     if ($index->Key_name === $indexName) {
                         return true;
@@ -32,20 +30,18 @@ return new class extends Migration
                 $table->foreign('product_id')
                     ->references('id')
                     ->on('products')
-                    ->onUpdate('RESTRICT')
-                    ->onDelete('RESTRICT');
+                    ->onUpdate('restrict')
+                    ->onDelete('restrict');
             }
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('prices', function (Blueprint $table) {
+        Schema::table('prices', function (Blueprint $table): void {
             $table->dropForeign('prices_product_id_foreign');
         });
     }

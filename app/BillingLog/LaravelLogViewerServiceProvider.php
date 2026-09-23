@@ -5,21 +5,20 @@ namespace App\BillingLog;
 use App\BillingLog\Console\Commands\DeleteLogs;
 use Blade;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class LaravelLogViewerServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application events.
-     *
-     * @return void
      */
     public function boot(): void
     {
         $basePath = app_path('BillingLog');
 
-        $this->loadMigrationsFrom("{$basePath}/database/migrations");
-        $this->loadViewsFrom("{$basePath}/views", 'log');
-        $this->loadTranslationsFrom("{$basePath}/lang", 'log');
+        $this->loadMigrationsFrom($basePath.'/database/migrations');
+        $this->loadViewsFrom($basePath.'/views', 'log');
+        $this->loadTranslationsFrom($basePath.'/lang', 'log');
 
         Blade::component('log::components.dynamic-table', 'log-dynamic-table');
 
@@ -29,13 +28,14 @@ class LaravelLogViewerServiceProvider extends ServiceProvider
 
         // Load breadcrumbs if the package exists
         if (class_exists('Breadcrumbs')) {
-            require "{$basePath}/breadcrumbs.php";
+            require $basePath.'/breadcrumbs.php';
         }
     }
 
     /**
      * Register the application services.
      */
+    #[Override]
     public function register(): void
     {
         $routesFile = app_path('BillingLog/routes.php');

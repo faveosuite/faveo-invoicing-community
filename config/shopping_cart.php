@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'format_numbers' => env('SHOPPING_FORMAT_VALUES', false),
+    'format_numbers' => env('SHOPPING_FORMAT_VALUES', default: false),
 
     'decimals' => env('SHOPPING_DECIMALS', 0),
 

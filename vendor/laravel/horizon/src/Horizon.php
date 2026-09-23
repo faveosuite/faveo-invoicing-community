@@ -4,6 +4,7 @@ namespace Laravel\Horizon;
 
 use Closure;
 use Exception;
+use Illuminate\Redis\Connections\Connection;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Js;
 use RuntimeException;
@@ -65,6 +66,13 @@ class Horizon
     ];
 
     /**
+     * The CSP nonce to use for style and script tags.
+     *
+     * @var string
+     */
+    public static $nonceAttribute = '';
+
+    /**
      * Determine if the given request can access the Horizon dashboard.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -100,15 +108,73 @@ class Horizon
      */
     public static function use($connection)
     {
-        if (! is_null($config = config("database.redis.clusters.{$connection}.0"))) {
-            config(["database.redis.{$connection}" => $config]);
-        } elseif (is_null($config) && is_null($config = config("database.redis.{$connection}"))) {
+        if (! is_null($config = config("database.redis.clusters.{$connection}"))) {
+            static::configureClusterConnection($config);
+        } elseif (! is_null($config = config("database.redis.{$connection}"))) {
+            static::configureStandaloneConnection($config);
+        } else {
             throw new Exception("Redis connection [{$connection}] has not been configured.");
         }
+    }
 
-        $config['options']['prefix'] = config('horizon.prefix') ?: 'horizon:';
+    /**
+     * Configure the Horizon Redis connection for a cluster.
+     *
+     * @param  array  $config
+     * @return void
+     */
+    protected static function configureClusterConnection(array $config)
+    {
+        if (! static::supportsClustering()) {
+            return static::configureStandaloneConnection($config[0]);
+        }
 
+        $prefix = static::ensureHashTaggedPrefix(
+            config('horizon.prefix') ?: 'horizon:'
+        );
+
+        config(['horizon.prefix' => $prefix]);
+
+        $config['options']['prefix'] = $prefix;
+
+        config(['database.redis.clusters.horizon' => $config]);
+    }
+
+    /**
+     * Configure the Horizon Redis connection for a standalone server.
+     *
+     * @param  array  $config
+     * @return void
+     */
+    protected static function configureStandaloneConnection(array $config)
+    {
+        $prefix = config('horizon.prefix') ?: 'horizon:';
+
+        $config['options']['prefix'] = $prefix;
+
+        config(['horizon.prefix' => $prefix]);
         config(['database.redis.horizon' => $config]);
+    }
+
+    /**
+     * Ensure the given prefix contains a Redis Cluster hash tag.
+     *
+     * @param  string  $prefix
+     * @return string
+     */
+    protected static function ensureHashTaggedPrefix(string $prefix): string
+    {
+        return Connection::hasHashTag($prefix) ? $prefix : '{'.$prefix.'}';
+    }
+
+    /**
+     * Determine if the framework supports Redis Cluster.
+     *
+     * @return bool
+     */
+    protected static function supportsClustering()
+    {
+        return method_exists(Connection::class, 'hasHashTag');
     }
 
     /**
@@ -130,10 +196,12 @@ class Horizon
             throw new RuntimeException('Unable to load the Horizon dashboard CSS.');
         }
 
+        $nonceAttribute = static::$nonceAttribute;
+
         return new HtmlString(<<<HTML
-            <style data-scheme="light">{$light}</style>
-            <style data-scheme="dark">{$dark}</style>
-            <style>{$app}</style>
+            <style data-scheme="light"{$nonceAttribute}>{$light}</style>
+            <style data-scheme="dark"{$nonceAttribute}>{$dark}</style>
+            <style{$nonceAttribute}>{$app}</style>
             HTML);
     }
 
@@ -150,8 +218,10 @@ class Horizon
 
         $horizon = Js::from(static::scriptVariables());
 
+        $nonceAttribute = static::$nonceAttribute;
+
         return new HtmlString(<<<HTML
-            <script type="module">
+            <script type="module"{$nonceAttribute}>
                 window.Horizon = {$horizon};
                 {$js}
             </script>
@@ -224,5 +294,31 @@ class Horizon
         static::$smsNumber = $number;
 
         return new static;
+    }
+
+    /**
+     * Set the CSP nonce to use for style and script tags.
+     *
+     * @param  string  $nonce
+     * @return static
+     */
+    public static function cspNonce($nonce)
+    {
+        static::$nonceAttribute = " nonce=\"{$nonce}\"";
+
+        return new static;
+    }
+
+    /**
+     * Register the Horizon dev commands.
+     *
+     * @return void
+     */
+    public static function registerDevCommands()
+    {
+        if (class_exists(\Illuminate\Foundation\DevCommands::class)) {
+            \Illuminate\Foundation\DevCommands::artisan('horizon', 'horizon');
+            \Illuminate\Foundation\DevCommands::except('queue');
+        }
     }
 }

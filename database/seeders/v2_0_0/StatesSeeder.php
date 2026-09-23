@@ -9,10 +9,8 @@ class StatesSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         State::create([
             'state_subdivision_id' => 20149,

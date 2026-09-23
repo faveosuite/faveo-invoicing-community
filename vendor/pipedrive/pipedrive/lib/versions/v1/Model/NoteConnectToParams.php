@@ -2,7 +2,7 @@
 /**
  * NoteConnectToParams
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -70,7 +70,8 @@ class NoteConnectToParams implements ModelInterface, ArrayAccess, JsonSerializab
         'deal_id' => 'int',
         'person_id' => 'int',
         'org_id' => 'int',
-        'project_id' => 'int'
+        'project_id' => 'int',
+        'task_id' => 'int'
     ];
 
     /**
@@ -85,7 +86,8 @@ class NoteConnectToParams implements ModelInterface, ArrayAccess, JsonSerializab
         'deal_id' => null,
         'person_id' => null,
         'org_id' => null,
-        'project_id' => null
+        'project_id' => null,
+        'task_id' => null
     ];
 
     /**
@@ -123,7 +125,8 @@ class NoteConnectToParams implements ModelInterface, ArrayAccess, JsonSerializab
         'deal_id' => 'deal_id',
         'person_id' => 'person_id',
         'org_id' => 'org_id',
-        'project_id' => 'project_id'
+        'project_id' => 'project_id',
+        'task_id' => 'task_id'
     ];
 
     /**
@@ -136,7 +139,8 @@ class NoteConnectToParams implements ModelInterface, ArrayAccess, JsonSerializab
         'deal_id' => 'setDealId',
         'person_id' => 'setPersonId',
         'org_id' => 'setOrgId',
-        'project_id' => 'setProjectId'
+        'project_id' => 'setProjectId',
+        'task_id' => 'setTaskId'
     ];
 
     /**
@@ -149,7 +153,8 @@ class NoteConnectToParams implements ModelInterface, ArrayAccess, JsonSerializab
         'deal_id' => 'getDealId',
         'person_id' => 'getPersonId',
         'org_id' => 'getOrgId',
-        'project_id' => 'getProjectId'
+        'project_id' => 'getProjectId',
+        'task_id' => 'getTaskId'
     ];
 
     /**
@@ -217,13 +222,14 @@ class NoteConnectToParams implements ModelInterface, ArrayAccess, JsonSerializab
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['lead_id'] = $data['lead_id'] ?? null;
         $this->container['deal_id'] = $data['deal_id'] ?? null;
         $this->container['person_id'] = $data['person_id'] ?? null;
         $this->container['org_id'] = $data['org_id'] ?? null;
         $this->container['project_id'] = $data['project_id'] ?? null;
+        $this->container['task_id'] = $data['task_id'] ?? null;
     }
 
     /**
@@ -368,6 +374,30 @@ class NoteConnectToParams implements ModelInterface, ArrayAccess, JsonSerializab
     public function setProjectId($project_id): self
     {
         $this->container['project_id'] = $project_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets task_id
+     *
+     * @return int|null
+     */
+    public function getTaskId()
+    {
+        return $this->container['task_id'];
+    }
+
+    /**
+     * Sets task_id
+     *
+     * @param int|null $task_id The ID of the task the note will be attached to
+     *
+     * @return self
+     */
+    public function setTaskId($task_id): self
+    {
+        $this->container['task_id'] = $task_id;
 
         return $this;
     }

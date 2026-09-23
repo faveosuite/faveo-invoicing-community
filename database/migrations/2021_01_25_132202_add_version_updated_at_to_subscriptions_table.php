@@ -8,24 +8,20 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('subscriptions', function (Blueprint $table) {
+        Schema::table('subscriptions', function (Blueprint $table): void {
             $table->timestamp('version_updated_at')->nullable();
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('subscriptions', function (Blueprint $table) {
+        Schema::table('subscriptions', function (Blueprint $table): void {
             $table->dropColumn('version_updated_at');
         });
     }

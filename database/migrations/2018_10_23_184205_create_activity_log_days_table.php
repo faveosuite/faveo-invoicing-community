@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('activity_log_days')) {
-            Schema::create('activity_log_days', function (Blueprint $table) {
+            Schema::create('activity_log_days', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('days', 255)->nullable();
                 $table->timestamps();
@@ -24,10 +22,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('activity_log_days');
     }

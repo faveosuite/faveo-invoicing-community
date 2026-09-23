@@ -17915,6 +17915,83 @@ namespace Anhskohbo\NoCaptcha\Facades {
  
 }
 
+namespace app\Cart{
+
+    class UserCart{
+        public static function remove($id){
+            /** @var \App\Facades\Cart $instance */
+                return $instance->remove($id);
+        }
+
+        public static function clear(){
+            /** @var \App\Facades\Cart $instance */
+            return $instance->clear();
+        }
+
+        public static function update($id,$data,$quantity=null){
+            /** @var \App\Facades\Cart $instance */
+            return $instance->update($id,$data,$quantity);
+        }
+
+        public static function getContent(){
+            /** @var \App\Facades\Cart $instance */
+            return $instance->getContent();
+        }
+
+        public static function getTotal(){
+            /** @var \App\Facades\Cart $instance */
+            return $instance->getTotal();
+        }
+
+        public static function subTotal($id){
+            /** @var \App\Facades\Cart $instance */
+            return $instance->getSubTotal($id);
+        }
+
+        public static function save($cart){
+            /** @var \App\Facades\Cart $instance */
+            return $instance->save($cart);
+        }
+
+        public static function get($id){
+            /** @var \App\Facades\Cart $instance */
+            return $instance->get($id);
+        }
+
+        public static function isEmpty(){
+            /** @var \App\Facades\Cart $instance */
+            return $instance->isEmpty();
+        }
+
+        public static function getPriceSum($id){
+            /** @var \App\Facades\Cart $instance */
+            return $instance->getPriceSum($id);
+        }
+
+        public static function getTotalQuantity(){
+            /** @var \App\Facades\Cart $instance */
+            return $instance->getTotalQuantity();
+        }
+
+        public static function getConditions($id){
+            /** @var \App\Facades\Cart $instance */
+            return $instance->getConditions($id);
+        }
+
+        public static function getConditionsByType($type,$id){
+            /** @var \App\Facades\Cart $instance */
+            return $instance->getConditionsByType($type,$id);
+        }
+
+
+        public static function removeCartCondition($condition){
+            /** @var \App\Facades\Cart $instance */
+            return $instance->removeCartCondition($condition);
+        }
+    }
+}
+
+
 namespace Darryldecode\Cart\Facades { 
 
     /**

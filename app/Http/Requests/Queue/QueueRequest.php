@@ -2,16 +2,17 @@
 
 namespace App\Http\Requests\Queue;
 
+use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class QueueRequest extends FormRequest
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -19,17 +20,19 @@ class QueueRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         $request = $this->except('_token');
-        $rules = $this->setRule($request);
 
-        return $rules;
+        return $this->setRule($request);
     }
 
-    public function setRule($request)
+    /**
+     * @return 'required'[]
+     */
+    public function setRule(mixed $request): array
     {
         $rules = ['input' => 'required'];
         if (count($request) > 0) {

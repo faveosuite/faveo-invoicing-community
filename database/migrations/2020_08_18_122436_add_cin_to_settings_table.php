@@ -8,15 +8,14 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('settings', function (Blueprint $table): void {
             if (! Schema::hasColumn('settings', 'cin_no')) {
                 $table->string('cin_no')->nullable();
             }
+
             if (! Schema::hasColumn('settings', 'gstin')) {
                 $table->string('gstin')->nullable();
             }
@@ -25,12 +24,10 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('settings', function (Blueprint $table): void {
             $table->dropColumn('cin_no');
             $table->dropColumn('gstin');
         });

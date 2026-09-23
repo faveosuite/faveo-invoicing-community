@@ -8,25 +8,21 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('verification_attempts', function (Blueprint $table) {
-            $table->renameColumn('type', 'mobile_attempt')->nullabe();
-            $table->renameColumn('attempt_count', 'email_attempt')->nullable();
+        Schema::table('verification_attempts', function (Blueprint $table): void {
+            $table->renameColumn('type', 'mobile_attempt')->nullable(); // @phpstan-ignore method.notFound
+            $table->renameColumn('attempt_count', 'email_attempt')->nullable(); // @phpstan-ignore method.notFound
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('verification_attempts', function (Blueprint $table) {
+        Schema::table('verification_attempts', function (Blueprint $table): void {
             $table->renameColumn('mobile_attempt', 'type');
             $table->renameColumn('email_attempt', 'attempt_count');
         });

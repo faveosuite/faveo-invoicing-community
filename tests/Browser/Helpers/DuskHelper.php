@@ -6,6 +6,8 @@ use App\ApiKey;
 use App\Http\Controllers\Common\EmailSettingsController;
 use App\Http\Requests\Email\EmailSettingRequest;
 use App\Model\Common\StatusSetting;
+use Artisan;
+use Exception;
 use Illuminate\Http\Request;
 use Laravel\Dusk\Browser;
 use Symfony\Component\Console\Output\NullOutput;
@@ -53,7 +55,7 @@ trait DuskHelper
         try {
             $browser->click('#details-button')
                 ->click('#proceed-link');
-        } catch (\Exception $e) {
+        } catch (Exception) {
             // Silently ignore if the warning does not exist
         }
     }
@@ -77,7 +79,7 @@ trait DuskHelper
             'v3_v2_recaptcha_status' => 1,
         ]);
 
-        \App\ApiKey::first()?->update([
+        ApiKey::first()?->update([
             'nocaptcha_sitekey' => $settings['site_key'],
             'captcha_secretCheck' => $settings['secret_key'],
         ]);
@@ -134,7 +136,7 @@ trait DuskHelper
                     box-shadow:0 0 10px #fef08a;
                     font-family: sans-serif;
                 \">
-                ${escapedMessage}
+                {$escapedMessage}
             </div>`
         );
     ");
@@ -143,7 +145,7 @@ trait DuskHelper
     protected function dbSetupClean()
     {
         ob_start();
-        \Artisan::call('testing-setup', [], new NullOutput);
+        Artisan::call('testing-setup', [], new NullOutput);
         ob_end_clean();
     }
 
@@ -172,7 +174,7 @@ trait DuskHelper
             ]
         );
 
-        (new EmailSettingsController())->postSettingsEmail($request);
+        new EmailSettingsController()->postSettingsEmail($request);
     }
 
     protected function setUpMobile(bool $enable = true): void
@@ -183,7 +185,7 @@ trait DuskHelper
 
         $setting->update(match ($enable) {
             true => $this->configs()['msg91'],
-            false => array_fill_keys(['msg91_auth_key', 'msg91_sender', 'msg91_template_id'], null),
+            false => array_fill_keys(['msg91_auth_key', 'msg91_sender', 'msg91_template_id'], value: null),
         });
     }
 
