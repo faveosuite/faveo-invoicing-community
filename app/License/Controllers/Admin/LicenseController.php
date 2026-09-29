@@ -438,7 +438,7 @@ class LicenseController extends Controller
             'product_description' => $product->product_description,
             'version' => $version->version,
             'license_code' => $licenseCode,
-            'path' => $product->product_path, // @phpstan-ignore property.notFound
+            'path' => $product->product_path,
         ];
     }
 }

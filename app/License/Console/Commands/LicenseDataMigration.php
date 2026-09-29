@@ -736,7 +736,7 @@ class LicenseDataMigration extends Command
                 }
             });
 
-        // 2. Update from AFU products (product_key, product_max_active_versions, product_url_homepage)
+        // 2. Update from AFU products (product_key, product_max_active_versions, product_url_homepage, product_path)
         $billingBySku = DB::table('products')->whereNotNull('product_sku')->pluck('id', 'product_sku');
         $billingByName = DB::table('products')->pluck('id', 'name');
 
@@ -763,6 +763,10 @@ class LicenseDataMigration extends Command
 
                 if (! empty($ap->product_url_homepage)) {
                     $updateData['product_url_homepage'] = $ap->product_url_homepage;
+                }
+
+                if (! empty($ap->product_path)) {
+                    $updateData['product_path'] = $ap->product_path;
                 }
 
                 if ($updateData !== []) {

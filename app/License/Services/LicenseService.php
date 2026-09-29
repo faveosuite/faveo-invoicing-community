@@ -6,6 +6,10 @@ use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Models\LicenseOption;
 use App\License\Models\LicensePlugin;
+use App\Model\Configure\PluginCompatibleWithProducts;
+use App\Model\Configure\ProductPluginGroup;
+use App\Model\Order\Order;
+use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use Illuminate\Support\Facades\DB;
 
@@ -123,6 +127,76 @@ class LicenseService
         }
 
         return $result;
+    }
+
+    /**
+     * Add-ons this licence's customer can install, for the client's "install plugin" list.
+     * Mirrors: POST /api/licensedPlugins (signed, see LicensedPluginsController).
+     *
+     * The customer comes from the licence's own order — never from anything the client sends —
+     * so a licence code only ever reveals its own customer's add-ons. Each row carries what the
+     * client needs to download, license and install the add-on: its product key, the licence
+     * code it's issued on, the latest version and the folder it installs into.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function getLicensedPlugins(License $license): array
+    {
+        $productId = (int) $license->product_id;
+        $clientId = $license->order?->client;
+
+        // Add-ons that work with this product: compatible ones plus the product's plugin group.
+        $candidates = array_unique(array_merge(
+            Product::where('product_type', 'addon')
+                ->whereIn('id', PluginCompatibleWithProducts::where('product_id', $productId)->pluck('plugin_id'))
+                ->pluck('id')->all(),
+            ProductPluginGroup::where('product_id', $productId)->pluck('plugin_id')->all(),
+        ));
+
+        $codes = $clientId === null ? [] : Order::where('client', $clientId)->whereIn('product', $candidates)->pluck('serial_key')->filter()->all();
+
+        $licenses = License::with('plugins')
+            ->whereIn('license_code', array_unique([$license->license_code, ...$codes]))
+            ->where(fn ($q) => $q->whereNull('license_expire_date')->orWhere('license_expire_date', '>', now()))
+            ->get();
+
+        $rows = [];
+        foreach ($licenses as $owned) {
+            $ids = $owned->plugins->pluck('product_id')->all() ?: [$owned->product_id];
+
+            foreach (array_unique($ids) as $id) {
+                $row = $this->licensedPluginRow((int) $id, $owned->license_code);
+                if ($row !== null) {
+                    $rows[$row['product_id']] = $row; // one row per add-on
+                }
+            }
+        }
+
+        return array_values($rows);
+    }
+
+    /**
+     * @return array<string, mixed>|null null when not an add-on, has no active version, or is already installed
+     */
+    private function licensedPluginRow(int $productId, string $licenseCode): ?array
+    {
+        $product = Product::where('product_type', 'addon')->find($productId);
+        $version = ProductUpload::where('product_id', $productId)->active()->orderByDesc('id')->first();
+
+        if (! $product || ! $version || Installation::where('product_id', $productId)->where('license_code', $licenseCode)->exists()) {
+            return null;
+        }
+
+        return [
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'product_key' => $product->product_key,
+            'product_description' => $product->product_description,
+            'version' => $version->version,
+            'license_code' => $licenseCode,
+            'path' => $product->product_path,
+            'dependency' => $version->dependencies,
+        ];
     }
 
     /**

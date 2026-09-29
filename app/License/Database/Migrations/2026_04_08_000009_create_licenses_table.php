@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('license_code')->index();
             $table->string('license_order_number')->nullable();
             $table->string('license_ip')->nullable();
+            $table->string('license_machine_id')->nullable();
             $table->string('license_domain')->nullable();
             $table->boolean('license_require_domain')->default(value: false);
             $table->integer('license_limit')->default(1);

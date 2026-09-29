@@ -74,6 +74,8 @@ return [
     'config_file_path_hint' => 'Where inside a shared build to write this product\'s identity (product key, version, etc). Leave blank to not write one — e.g. for a plugin that doesn\'t need it.',
     'license_file_path' => 'License File Path',
     'license_file_path_hint' => 'Where inside a shared build to attach this product\'s signed license file, for File-mode licensing. Leave blank to not attach one.',
+    'product_path' => 'Plugin Folder',
+    'product_path_hint' => 'Folder this add-on installs into on the client (e.g. Calendar for app/Plugins/Calendar). Needed to offer the add-on for install.',
     'main_version' => 'Main Version',
     'main_version_hint' => 'Applied to every product below. A group\'s own version overrides this for that group; editing a product directly overrides both.',
     'version_required_per_product' => 'Every selected product needs a version.',

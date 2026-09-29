@@ -116,6 +116,13 @@
                                                         :value="form.license_file_path" :onChange="onChange" :error="errors.license_file_path" />
                                                 </div>
                                             </div>
+                                            <div class="row" v-if="form.product_type === 'addon'">
+                                                <div class="col-md-6 mb-3">
+                                                    <TextField name="product_path" :label="__('message.product_path') || 'Plugin Folder'"
+                                                        :hint="__('message.product_path_hint') || 'Folder this add-on installs into on the client, e.g. Calendar for app/Plugins/Calendar.'"
+                                                        :value="form.product_path" :onChange="onChange" :error="errors.product_path" />
+                                                </div>
+                                            </div>
 
                                             <!-- Content fields -->
                                             <div class="mb-3">
@@ -565,6 +572,7 @@ const form = reactive({
     product_type: 'independent',
     config_file_path: '',
     license_file_path: '',
+    product_path: '',
     group: null,
     groupObj: null,
     parent: null,
@@ -628,6 +636,7 @@ onMounted(async () => {
         form.name                 = p.name ?? ''
         form.config_file_path     = p.config_file_path ?? ''
         form.license_file_path    = p.license_file_path ?? ''
+        form.product_path         = p.product_path ?? ''
         form.product_sku          = p.product_sku ?? ''
         form.description          = p.description ?? ''
         form.short_description    = p.short_description ?? ''
@@ -686,6 +695,7 @@ async function submit() {
         fd.append('product_type', form.product_type)
         fd.append('config_file_path', form.config_file_path ?? '')
         fd.append('license_file_path', form.license_file_path ?? '')
+        fd.append('product_path', form.product_type === 'addon' ? (form.product_path ?? '') : '')
         fd.append('group', form.group ?? '')
         fd.append('parent', form.parent ?? '')
         fd.append('description', form.description)

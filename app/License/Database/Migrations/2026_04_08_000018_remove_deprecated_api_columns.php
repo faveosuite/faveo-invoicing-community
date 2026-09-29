@@ -9,7 +9,6 @@ return new class extends Migration
     /**
      * Run the migrations.
      * Remove inter-app OAuth credentials from api_keys table.
-     * Remove license_status toggle from status_settings table.
      */
     public function up(): void
     {
@@ -21,10 +20,6 @@ return new class extends Migration
                 'license_client_secret',
                 'license_grant_type',
             ]);
-        });
-
-        Schema::table('status_settings', function (Blueprint $table): void {
-            $table->dropColumn('license_status');
         });
     }
 
@@ -39,10 +34,6 @@ return new class extends Migration
             $table->string('license_client_id')->nullable()->after('stripe_secret');
             $table->string('license_client_secret')->nullable()->after('license_client_id');
             $table->string('license_grant_type')->nullable()->after('license_client_secret');
-        });
-
-        Schema::table('status_settings', function (Blueprint $table): void {
-            $table->integer('license_status')->after('activity_log_delete');
         });
     }
 };

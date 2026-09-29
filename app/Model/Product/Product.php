@@ -74,6 +74,7 @@ use Spatie\Activitylog\Models\Activity;
  * @property string|null $product_type
  * @property string|null $config_file_path
  * @property string|null $license_file_path
+ * @property string|null $product_path
  * @property string $product_description
  * @property string|null $product_url_homepage
  * @property string|null $product_url_download
@@ -211,7 +212,7 @@ class Product extends BaseModel
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
         'deny_after_subscription', 'version', 'parent', 'subscription', 'product_sku', 'perpetual_license', 'product_description', 'invoice_hidden',
-        'status', 'whatsapp_integration', 'apl_salt', 'product_key', 'product_type', 'config_file_path', 'license_file_path',
+        'status', 'whatsapp_integration', 'apl_salt', 'product_key', 'product_type', 'config_file_path', 'license_file_path', 'product_path',
         'highlight', 'add_to_contact',
     ];
 
@@ -228,7 +229,7 @@ class Product extends BaseModel
         'setup_order_placed', 'setup_first_payment', 'setup_accept_manually',
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
-        'deny_after_subscription', 'version', 'subscription', 'product_sku', 'perpetual_license', 'invoice_hidden', 'product_type', 'config_file_path', 'license_file_path',
+        'deny_after_subscription', 'version', 'subscription', 'product_sku', 'perpetual_license', 'invoice_hidden', 'product_type', 'config_file_path', 'license_file_path', 'product_path',
     ];
 
     /**
@@ -274,6 +275,7 @@ class Product extends BaseModel
             'product_type' => ['Product Category', fn ($value) => $value === 'addon' ? 'Addon' : 'Independent'],
             'config_file_path' => ['Config File Path', fn ($value) => $value],
             'license_file_path' => ['License File Path', fn ($value) => $value],
+            'product_path' => ['Plugin Folder', fn ($value) => $value],
         ];
     }
 

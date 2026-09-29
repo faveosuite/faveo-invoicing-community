@@ -17,7 +17,10 @@ return new class extends Migration
             $table->string('product_url_download')->nullable()->after('product_url_homepage');
             $table->string('product_envato_id')->nullable()->after('product_url_download');
             $table->string('product_key')->nullable()->after('product_envato_id');
-            $table->integer('product_max_active_versions')->default(0)->after('product_key');
+            $table->string('apl_salt')->nullable()->after('product_key');
+            $table->integer('product_max_active_versions')->default(0)->after('apl_salt');
+            // Folder an add-on installs into on the client (app/Plugins/<product_path> in Faveo).
+            $table->string('product_path')->nullable()->after('product_max_active_versions');
         });
     }
 
@@ -32,7 +35,9 @@ return new class extends Migration
                 'product_url_download',
                 'product_envato_id',
                 'product_key',
+                'apl_salt',
                 'product_max_active_versions',
+                'product_path',
             ]);
         });
     }

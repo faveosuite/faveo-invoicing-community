@@ -10,6 +10,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('status_settings', function (Blueprint $table): void {
+            $table->dropColumn('license_status');
             $table->boolean('installation_logs_status')->default(0);
             $table->boolean('license_reports_cleanup_status')->default(0);
             $table->boolean('license_callbacks_cleanup_status')->default(0);
@@ -49,6 +50,7 @@ return new class extends Migration
                 'license_system_reports_cleanup_status',
                 'license_versions_cleanup_status',
             ]);
+            $table->integer('license_status')->after('activity_log_delete');
         });
 
         DB::table('conditions')->whereIn('job', [

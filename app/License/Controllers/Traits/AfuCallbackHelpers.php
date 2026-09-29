@@ -106,6 +106,7 @@ trait AfuCallbackHelpers
     {
         $keysToRemove = array_merge([
             'product_key',
+            'apl_salt', // the product's licence-cache salt: every download carries product_key, so this must never be sent
             'version_install_file',
             'version_install_query',
             'version_raw_install_query',

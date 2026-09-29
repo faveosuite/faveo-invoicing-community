@@ -478,6 +478,7 @@ class ProductController extends BaseProductController
             'product_type' => ['required', 'in:independent,addon'],
             'config_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
             'license_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
+            'product_path' => ['nullable', 'string', 'max:100', 'alpha_dash:ascii'], // add-on's install folder on the client, e.g. Calendar
             'description' => ['required'],
             'product_description' => ['required'],
             'short_description' => ['nullable', 'string'],
@@ -498,6 +499,7 @@ class ProductController extends BaseProductController
         // "don't write one" (see ProductBundleStampingService) behaves correctly.
         $validated['config_file_path'] = empty($validated['config_file_path']) ? null : $validated['config_file_path'];
         $validated['license_file_path'] = empty($validated['license_file_path']) ? null : $validated['license_file_path'];
+        $validated['product_path'] = empty($validated['product_path']) ? null : $validated['product_path'];
 
         try {
             DB::transaction(function () use ($request, $validated): void {
@@ -557,6 +559,7 @@ class ProductController extends BaseProductController
             'product_type' => ['required', 'in:independent,addon'],
             'config_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
             'license_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
+            'product_path' => ['nullable', 'string', 'max:100', 'alpha_dash:ascii'], // add-on's install folder on the client, e.g. Calendar
             'description' => ['required'],
             'product_description' => ['required'],
             'short_description' => ['nullable', 'string'],
@@ -585,6 +588,7 @@ class ProductController extends BaseProductController
         // when left blank.
         $validated['config_file_path'] = empty($validated['config_file_path']) ? null : $validated['config_file_path'];
         $validated['license_file_path'] = empty($validated['license_file_path']) ? null : $validated['license_file_path'];
+        $validated['product_path'] = empty($validated['product_path']) ? null : $validated['product_path'];
 
         try {
             DB::transaction(function () use ($validated, $request, $productId): void {
