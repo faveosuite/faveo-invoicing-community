@@ -20,8 +20,8 @@ use App\License\Controllers\AflCallbacks\LicenseSchemeController;
 use App\License\Controllers\AflCallbacks\LicenseVerifyController;
 use App\License\Controllers\AfuCallbacks\DownloadFileController;
 use App\License\Controllers\AfuCallbacks\GetAllVersionsController;
-use App\License\Controllers\AfuCallbacks\LicensedPluginsController;
 use App\License\Controllers\AfuCallbacks\GetVersionsController;
+use App\License\Controllers\AfuCallbacks\LicensedPluginsController;
 use App\License\Controllers\LicenseApiController;
 use Illuminate\Support\Facades\Route;
 
