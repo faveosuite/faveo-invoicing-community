@@ -142,9 +142,9 @@ class SubscriptionRenewalService
                 'license_domain' => $ipAndDomain['domain'],
                 'license_ip' => $ipAndDomain['ip'],
                 'license_require_domain' => $ipAndDomain['requireDomain'],
-                'license_expire_date' => $licenseExpiry ? Date::parse($licenseExpiry)->format('Y-m-d') : '',
-                'license_updates_date' => $updatesExpiry ? Date::parse($updatesExpiry)->format('Y-m-d') : '',
-                'license_support_date' => $supportExpiry ? Date::parse($supportExpiry)->format('Y-m-d') : '',
+                'license_expire_date' => $licenseExpiry ? Date::parse($licenseExpiry)->format('Y-m-d') : null,
+                'license_updates_date' => $updatesExpiry ? Date::parse($updatesExpiry)->format('Y-m-d') : null,
+                'license_support_date' => $supportExpiry ? Date::parse($supportExpiry)->format('Y-m-d') : null,
                 'license_limit' => $installService->countActiveInstallations($licenseCode) ?: 2,
             ]);
         } catch (Throwable $throwable) {

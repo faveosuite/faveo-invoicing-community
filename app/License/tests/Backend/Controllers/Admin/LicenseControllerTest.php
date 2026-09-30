@@ -10,6 +10,8 @@ use App\License\Models\LicenseOption;
 use App\License\Models\LicensePlugin;
 use App\License\Requests\LicenseRequest;
 use App\License\tests\Backend\LicenseTestCase;
+use App\Model\Order\Order;
+use App\Model\Product\Subscription;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -112,6 +114,40 @@ class LicenseControllerTest extends LicenseTestCase
         $response = $this->controller->licenseAdd($request);
 
         $this->assertErrorJson($response, 400);
+    }
+
+    #[Test]
+    #[Group('license-admin')]
+    public function license_update_copies_changed_dates_to_the_order_subscription(): void
+    {
+        $order = Order::factory()->create();
+        $subscription = Subscription::factory()->create([
+            'order_id' => $order->id,
+            'ends_at' => '2027-01-01 10:30:00',
+            'update_ends_at' => '2027-01-02 10:30:00',
+            'support_ends_at' => '2027-01-03 10:30:00',
+        ]);
+        $license = $this->createLicense(['license_order_number' => $order->number]);
+
+        $response = $this->controller->licenseUpdate($this->moduleRequest([
+            'id' => $license->id,
+            'license_code' => $license->license_code,
+            'license_order_number' => $order->number,
+            'license_ip' => '127.0.0.1',
+            'license_domain' => 'example.test',
+            'license_require_domain' => 0,
+            'license_limit' => 2,
+            'license_expire_date' => '2027-01-01', // same day — time must be kept
+            'license_updates_date' => '2028-05-05',
+            'license_support_date' => '',
+            'license_status' => 1,
+        ], 'POST'));
+
+        $this->assertSuccessfulJson($response);
+        $subscription->refresh();
+        $this->assertSame('2027-01-01 10:30:00', (string) $subscription->ends_at);
+        $this->assertSame('2028-05-05', substr((string) $subscription->update_ends_at, 0, 10));
+        $this->assertNull($subscription->support_ends_at);
     }
 
     #[Test]

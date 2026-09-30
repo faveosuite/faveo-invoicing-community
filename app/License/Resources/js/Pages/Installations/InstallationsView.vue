@@ -99,7 +99,6 @@
                 :deleteUrl="`${baseUrl}/api/admin/installations/delete`"
                 :deleteData="{ id: id }"
                 componentName="installations-view"
-                method="post"
                 @deleted="onDeleted" />
         </transition>
     </div>

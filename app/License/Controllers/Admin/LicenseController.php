@@ -11,6 +11,7 @@ use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseOption;
 use App\License\Models\LicensePlugin;
 use App\License\Requests\LicenseRequest;
+use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\User;
@@ -137,9 +138,39 @@ class LicenseController extends Controller
             'license_status' => $request->input('license_status'),
         ]);
 
+        $this->syncSubscriptionDates($license);
+
         $clientFormatted = LicenseHelper::formatClient($license->license_code, $license->user?->email);
 
         return successResponse(__('license::lang.license_Update'), $clientFormatted, 200);
+    }
+
+    /**
+     * Renewals and order-page edits copy the subscription's dates onto the license, so a date
+     * changed only here would be overwritten by the next one. Keep the order's subscription in step.
+     * Only fields whose day actually changed are written, so an unchanged date keeps its time.
+     */
+    private function syncSubscriptionDates(License $license): void
+    {
+        if (! $license->license_order_number) {
+            return;
+        }
+
+        $subscription = Order::where('number', $license->license_order_number)->first()?->subscription;
+        if (! $subscription) {
+            return;
+        }
+
+        $toDay = fn (mixed $date): ?string => $date && ! str_starts_with((string) $date, '0000') ? Date::parse($date)->toDateString() : null;
+
+        foreach (['license_expire_date' => 'ends_at', 'license_updates_date' => 'update_ends_at', 'license_support_date' => 'support_ends_at'] as $licenseField => $subscriptionField) {
+            $day = $toDay($license->$licenseField);
+            if ($day !== $toDay($subscription->$subscriptionField)) {
+                $subscription->$subscriptionField = $day ? Date::parse($day) : null;
+            }
+        }
+
+        $subscription->save();
     }
 
     public function deleteLicense(Request $request): JsonResponse

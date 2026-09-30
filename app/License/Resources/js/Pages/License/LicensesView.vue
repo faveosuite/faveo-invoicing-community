@@ -284,6 +284,7 @@ function buildInstallationOptions() {
                     data.edit_url = '/installations/' + data.id + '/edit'
                     data.delete_url = baseUrl + '/api/admin/installations/delete'
                     data.view_url = '/installations/' + data.id + '/view'
+                    data.alertComponentName = 'license-view'
                     data.keyVal = 'id'
                     data.idVal = data.id
                     return data
