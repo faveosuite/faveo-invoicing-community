@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'title' => 'अगोरा इनवॉइसिंग इंस्टॉलर',
     'probe' => 'अगोरा इनवॉइसिंग प्रॉब्स',
     'magic_phrase' => 'मैजिक वाक्य क्या है',
@@ -20,8 +19,7 @@ return [
     'off_apache' => 'बंद (यदि आप अपाचे का उपयोग कर रहे हैं, तो सुनिश्चित करें कि <var><strong>AllowOverride</strong></var> को अपाचे कॉन्फ़िगरेशन में <var><strong>All</strong></var> पर सेट किया गया है)',
     'rewrite_engine' => 'राइटराइट इंजन',
     'user_url' => 'उपयोगकर्ता अनुकूल URL',
-
-    'host' => 'होस्ट',
+    'host' => 'होस्ट ',
     'host_tooltip' => 'यदि आपका MySQL सर्वर उसी सर्वर पर इंस्टॉल है जहाँ अगोरा इनवॉइसिंग इंस्टॉल है, तो इसे localhost छोड़ें',
     'database_name_label' => 'डेटाबेस का नाम',
     'mysql_port_label' => 'MySQL पोर्ट संख्या',
@@ -30,7 +28,6 @@ return [
     'password_label' => 'पासवर्ड',
     'test_prerequisites_message' => 'यह परीक्षण अगोरा इनवॉइसिंग को इंस्टॉल करने के लिए आवश्यक पूर्व-आवश्यकताएँ जांचेगा',
     'previous' => 'पिछला',
-
     'sign_up_as_admin' => 'व्यवस्थापक के रूप में साइन अप करें',
     'first_name' => 'पहला नाम',
     'first_name_required' => 'पहला नाम आवश्यक है',
@@ -44,14 +41,27 @@ return [
     'confirm_password_required' => 'पासवर्ड की पुष्टि आवश्यक है',
     'password_requirements' => 'आपके पासवर्ड में होना चाहिए:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => '8-16 वर्ण के बीच'],
-        ['id' => 'letter', 'text' => 'निम्नलिखित वर्ण (a-z)'],
-        ['id' => 'capital', 'text' => 'बड़े वर्ण (A-Z)'],
-        ['id' => 'number', 'text' => 'संख्या (0-9)'],
-        ['id' => 'space', 'text' => 'विशेष पात्र (~*!@$#%_+.?:,{ })'],
+        [
+            'id' => 'length',
+            'text' => '8-16 वर्ण के बीच',
+        ],
+        [
+            'id' => 'letter',
+            'text' => 'निम्नलिखित वर्ण (a-z)',
+        ],
+        [
+            'id' => 'capital',
+            'text' => 'बड़े वर्ण (A-Z)',
+        ],
+        [
+            'id' => 'number',
+            'text' => 'संख्या (0-9)',
+        ],
+        [
+            'id' => 'space',
+            'text' => 'विशेष पात्र (~*!@$#%_+.?:,{ })',
+        ],
     ],
-
-    // System Information
     'system_information' => 'सिस्टम जानकारी',
     'environment' => 'पर्यावरण',
     'environment_required' => 'पर्यावरण आवश्यक है',
@@ -63,42 +73,29 @@ return [
     'file' => 'फ़ाइल',
     'redis' => 'रेडिस',
     'password' => 'पासवर्ड',
-
-    // Redis Setup
     'redis_setup' => 'रेडिस सेटअप',
     'redis_host' => 'रेडिस होस्ट',
     'redis_port' => 'रेडिस पोर्ट',
     'redis_password' => 'रेडिस पासवर्ड',
-
-    // Buttons
     'continue' => 'जारी रखें',
-
-    // Final Setup
     'final_setup' => 'आपका अगोरा इनवॉइसिंग एप्लिकेशन तैयार है!',
     'installation_complete' => 'सभी सही, आपने इंस्टॉलेशन से गुजरने के बाद इसे पूरा किया।',
-
-    // Learn More
     'learn_more' => 'अधिक जानें',
     'knowledge_base' => 'ज्ञान आधार',
     'email_support' => 'ईमेल सहायता',
-
-    // Next Step
     'next_step' => 'अगला कदम',
     'login_button' => 'अगोरा इनवॉइसिंग में लॉगिन करें',
-
     'pre_migration_success' => 'पूर्व-माइग्रेशन सफलतापूर्वक परीक्षण किया गया',
     'migrating_tables' => 'डेटाबेस में तालिकाएँ माइग्रेट हो रही हैं',
     'db_connection_error' => 'डेटाबेस कनेक्शन अपडेट नहीं हुआ।',
     'database_setup_success' => 'डेटाबेस सफलतापूर्वक सेटअप हो गया।',
     'env_file_created' => 'पर्यावरण कॉन्फ़िगरेशन फ़ाइल सफलतापूर्वक बनाई गई',
     'pre_migration_test' => 'पूर्व-माइग्रेशन परीक्षण चल रहा है',
-
     'redis_host_required' => 'रेडिस होस्ट आवश्यक है।',
     'redis_password_required' => 'रेडिस पासवर्ड आवश्यक है।',
     'redis_port_required' => 'रेडिस पोर्ट आवश्यक है।',
     'password_regex' => 'पासवर्ड में कम से कम 8 वर्ण, एक बड़ा अक्षर, एक छोटा अक्षर, एक संख्या, और एक विशेष वर्ण होना चाहिए।',
     'setup_completed' => 'सेटअप सफलतापूर्वक पूरा हुआ!',
-
     'database' => 'डेटाबेस',
     'selected' => 'चयनित',
     'mysql_version_is' => 'MySQL संस्करण है',
@@ -114,7 +111,6 @@ return [
     'user_name' => 'उपयोगकर्ता नाम',
     'user_email' => 'उपयोगकर्ता ईमेल',
     'password_not_match' => 'पासवर्ड मेल नहीं खाते',
-    //new
     'installation_check' => 'यह परीक्षण अगोरा इनवॉइस समुदाय को इंस्टॉल करने के लिए आवश्यक पूर्व-आवश्यकताएँ जांचेगा',
     'db_setup_error_1' => 'यह इसका मतलब हो सकता है कि उपयोगकर्ता नाम और पासवर्ड जानकारी गलत है या आपका होस्ट उपलब्ध नहीं है।',
     'db_setup_error_2' => 'क्या आपको यकीन है कि आपके द्वारा दिए गए डेटाबेस नाम के साथ पहले से एक डेटाबेस मौजूद है?',
@@ -134,7 +130,6 @@ return [
     'click_here' => 'यहाँ क्लिक करें',
     'continue_installation_process' => 'इंस्टॉलेशन प्रक्रिया को जारी रखने के लिए।',
     'database_details' => 'अपने डेटाबेस कनेक्शन विवरण दर्ज करें।',
-    'host' => 'होस्ट ',
     'sql_port' => 'MySQL पोर्ट संख्या',
     'database_name' => 'डेटाबेस नाम ',
     'finishing_setup' => 'कृपया प्रतीक्षा करें, सेटअप समाप्त हो रहा है...',
@@ -145,17 +140,11 @@ return [
     'i_accept' => 'मैं स्वीकार करता हूँ',
     'enter_license' => 'कृपया अपना लाइसेंस कोड दर्ज करें',
     'find_license_in_billing' => 'आप अपना लाइसेंस कोड हमारे बिलिंग पोर्टल में पा सकते हैं',
-    'sign_up_as_admin' => 'व्यवस्थापक के रूप में साइन अप करें',
-    'system_information' => 'सिस्टम जानकारी',
     'close' => 'बंद करें',
     'port_number' => 'पोर्ट संख्या',
     'is_required' => 'आवश्यक है',
     'firstname' => 'पहला नाम',
     'lastname' => 'अंतिम नाम',
-    'username' => 'उपयोगकर्ता नाम',
-    'email' => 'ईमेल',
-    'password' => 'पासवर्ड',
-    'confirm_password' => 'पासवर्ड की पुष्टि करें',
     'copyright' => 'कॉपीराइट',
     'powered_by' => 'सभी अधिकार सुरक्षित। द्वारा संचालित',
     'invalid_email' => 'अमान्य ईमेल',
@@ -165,5 +154,4 @@ return [
     'tooltip_timezone' => 'प्रारंभ में ब्राउज़र का समय क्षेत्र उपयोग किया जाता है। यदि आवश्यकता हो तो अलग समय क्षेत्र चुनें।',
     'tooltip_language' => 'प्रारंभ में लोड की गई डिफ़ॉल्ट भाषा। यदि आवश्यकता हो तो अलग भाषा चुनें।',
     'enter_magic_phrase' => 'मैजिक वाक्यांश दर्ज करें',
-
 ];

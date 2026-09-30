@@ -1,7 +1,10 @@
 <?php
 
-namespace Barryvdh\Debugbar\Support;
+declare(strict_types=1);
 
+namespace Fruitcake\LaravelDebugbar\Support;
+
+use DebugBar\DataCollector\DataCollector;
 use Exception;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\QueryException;
@@ -10,6 +13,16 @@ use Illuminate\Support\Facades\Http;
 
 class Explain
 {
+    public function isReadOnlyQuery(string $query): bool
+    {
+        return (bool) preg_match('/^(SELECT|WITH)\b/i', ltrim($query));
+    }
+
+    public function isRawExplainSupported(string $driver, ?array $bindings): bool
+    {
+        return in_array($driver, ['mariadb', 'mysql', 'pgsql'], true) && $bindings !== null;
+    }
+
     public function isVisualExplainSupported(string $connection): bool
     {
         $driver = DB::connection($connection)->getDriverName();
@@ -43,26 +56,40 @@ class Explain
         };
     }
 
-    public function hash(string $connection, string $sql, array $bindings): string
+    public function hash(string $connection, string $sql, ?array $bindings): string
     {
         $bindings = json_encode($bindings);
 
-        return match (DB::connection($connection)->getDriverName()) {
-            'mariadb', 'mysql', 'pgsql' => hash_hmac('sha256', "{$connection}::{$sql}::{$bindings}", config('app.key')),
-            default => null,
-        };
+        return hash_hmac('sha256', "{$connection}::{$sql}::{$bindings}", config('app.key'));
     }
 
     private function verify(string $connection, string $sql, array $bindings, string $hash): void
     {
-        if (!hash_equals($this->hash($connection, $sql, $bindings), $hash)) {
+        $computedHash = $this->hash($connection, $sql, $bindings);
+
+        if (!hash_equals($computedHash, $hash)) {
             throw new Exception('Query to execute could not be verified.');
         }
+    }
+
+    public function generateSelectResult(string $connection, string $sql, array $bindings, string $hash, ?string $format): array
+    {
+        $this->verify($connection, $sql, $bindings, $hash);
+        $this->validateReadOnlyQuery($sql);
+
+        $result = DB::connection($connection)->select($sql, $bindings);
+
+        if ($format === 'dump') {
+            $result = DataCollector::getDefaultDataFormatter()->formatVar($result);
+        }
+
+        return ['result' => $result];
     }
 
     public function generateRawExplain(string $connection, string $sql, array $bindings, string $hash): array
     {
         $this->verify($connection, $sql, $bindings, $hash);
+        $this->validateReadOnlyQuery($sql);
 
         $connection = DB::connection($connection);
 
@@ -76,6 +103,8 @@ class Explain
     public function generateVisualExplain(string $connection, string $sql, array $bindings, string $hash): string
     {
         $this->verify($connection, $sql, $bindings, $hash);
+        $this->validateReadOnlyQuery($sql);
+
         if (!$this->isVisualExplainSupported($connection)) {
             throw new Exception('Visual explain not available for this connection.');
         }
@@ -85,19 +114,34 @@ class Explain
         return match ($connection->getDriverName()) {
             'mysql' => $this->generateVisualExplainMysql($connection, $sql, $bindings),
             'pgsql' => $this->generateVisualExplainPgsql($connection, $sql, $bindings),
+            default => throw new Exception("Visual explain not available for driver '{$connection->getDriverName()}'."),
         };
+    }
+
+    private function validateReadOnlyQuery(string $sql): void
+    {
+        $normalized = ltrim($sql);
+
+        if (!$this->isReadOnlyQuery($normalized)) {
+            throw new Exception('Only SELECT queries can be explained or executed.');
+        }
+    }
+
+    private static function redactBindings(array $bindings): array
+    {
+        return array_map(fn() => '?', $bindings);
     }
 
     private function generateVisualExplainMysql(ConnectionInterface $connection, string $query, array $bindings): string
     {
         return Http::withHeaders([
-            'User-Agent' => 'barryvdh/laravel-debugbar',
+            'User-Agent' => 'fruitcake/laravel-debugbar',
         ])->post('https://api.mysqlexplain.com/v2/explains', [
             'query' => $query,
-            'bindings' => $bindings,
+            'bindings' => self::redactBindings($bindings),
             'version' => $connection->selectOne("SELECT VERSION()")->{'VERSION()'},
             'explain_json' => $connection->selectOne("EXPLAIN FORMAT=JSON {$query}", $bindings)->EXPLAIN,
-            'explain_tree' => rescue(fn () => $connection->selectOne("EXPLAIN FORMAT=TREE {$query}", $bindings)->EXPLAIN, report: false),
+            'explain_tree' => rescue(fn() => $connection->selectOne("EXPLAIN FORMAT=TREE {$query}", $bindings)->EXPLAIN, report: false),
         ])->throw()->json('url');
     }
 

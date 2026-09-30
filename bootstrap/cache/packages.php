@@ -3,32 +3,15 @@
 return  [
     'barryvdh/laravel-debugbar' => [
         'aliases' => [
-            'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
+            'Debugbar' => 'Fruitcake\\LaravelDebugbar\\Facades\\Debugbar',
         ],
         'providers' => [
-            0 => 'Barryvdh\\Debugbar\\ServiceProvider',
-        ],
-    ],
-    'barryvdh/laravel-dompdf' => [
-        'aliases' => [
-            'PDF' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
-            'Pdf' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
-        ],
-        'providers' => [
-            0 => 'Barryvdh\\DomPDF\\ServiceProvider',
+            0 => 'Fruitcake\\LaravelDebugbar\\ServiceProvider',
         ],
     ],
     'beyondcode/laravel-query-detector' => [
         'providers' => [
             0 => 'BeyondCode\\QueryDetector\\QueryDetectorServiceProvider',
-        ],
-    ],
-    'cartalyst/stripe-laravel' => [
-        'aliases' => [
-            'Stripe' => 'Cartalyst\\Stripe\\Laravel\\Facades\\Stripe',
-        ],
-        'providers' => [
-            0 => 'Cartalyst\\Stripe\\Laravel\\StripeServiceProvider',
         ],
     ],
     'coconutcraig/laravel-postmark' => [
@@ -52,11 +35,6 @@ return  [
             0 => 'Darryldecode\\Cart\\CartServiceProvider',
         ],
     ],
-    'graham-campbell/markdown' => [
-        'providers' => [
-            0 => 'GrahamCampbell\\Markdown\\MarkdownServiceProvider',
-        ],
-    ],
     'itsgoingd/clockwork' => [
         'providers' => [
             0 => 'Clockwork\\Support\\Laravel\\ClockworkServiceProvider',
@@ -78,12 +56,22 @@ return  [
             0 => 'Laravel\\Horizon\\HorizonServiceProvider',
         ],
     ],
+    'laravel/passport' => [
+        'providers' => [
+            0 => 'Laravel\\Passport\\PassportServiceProvider',
+        ],
+    ],
     'laravel/pulse' => [
         'aliases' => [
             'Pulse' => 'Laravel\\Pulse\\Facades\\Pulse',
         ],
         'providers' => [
             0 => 'Laravel\\Pulse\\PulseServiceProvider',
+        ],
+    ],
+    'laravel/sentinel' => [
+        'providers' => [
+            0 => 'Laravel\\Sentinel\\SentinelServiceProvider',
         ],
     ],
     'laravel/socialite' => [
@@ -148,6 +136,15 @@ return  [
             0 => 'PragmaRX\\Google2FALaravel\\ServiceProvider',
         ],
     ],
+    'sentry/sentry-laravel' => [
+        'aliases' => [
+            'Sentry' => 'Sentry\\Laravel\\Facade',
+        ],
+        'providers' => [
+            0 => 'Sentry\\Laravel\\ServiceProvider',
+            1 => 'Sentry\\Laravel\\Tracing\\ServiceProvider',
+        ],
+    ],
     'spatie/laravel-activitylog' => [
         'providers' => [
             0 => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
@@ -174,6 +171,14 @@ return  [
             0 => 'Spatie\\LaravelIgnition\\IgnitionServiceProvider',
         ],
     ],
+    'spatie/laravel-pdf' => [
+        'aliases' => [
+            'LaravelPdf' => 'Pdf',
+        ],
+        'providers' => [
+            0 => 'Spatie\\LaravelPdf\\PdfServiceProvider',
+        ],
+    ],
     'spatie/laravel-referer' => [
         'providers' => [
             0 => 'Spatie\\Referer\\RefererServiceProvider',
@@ -190,39 +195,6 @@ return  [
     'vemcogroup/laravel-sparkpost-driver' => [
         'providers' => [
             0 => 'Vemcogroup\\SparkPostDriver\\SparkPostDriverServiceProvider',
-        ],
-    ],
-    'yajra/laravel-datatables-buttons' => [
-        'providers' => [
-            0 => 'Yajra\\DataTables\\ButtonsServiceProvider',
-        ],
-    ],
-    'yajra/laravel-datatables-editor' => [
-        'providers' => [
-            0 => 'Yajra\\DataTables\\EditorServiceProvider',
-        ],
-    ],
-    'yajra/laravel-datatables-export' => [
-        'providers' => [
-            0 => 'Yajra\\DataTables\\ExportServiceProvider',
-        ],
-    ],
-    'yajra/laravel-datatables-fractal' => [
-        'providers' => [
-            0 => 'Yajra\\DataTables\\FractalServiceProvider',
-        ],
-    ],
-    'yajra/laravel-datatables-html' => [
-        'providers' => [
-            0 => 'Yajra\\DataTables\\HtmlServiceProvider',
-        ],
-    ],
-    'yajra/laravel-datatables-oracle' => [
-        'aliases' => [
-            'DataTables' => 'Yajra\\DataTables\\Facades\\DataTables',
-        ],
-        'providers' => [
-            0 => 'Yajra\\DataTables\\DataTablesServiceProvider',
         ],
     ],
 ];

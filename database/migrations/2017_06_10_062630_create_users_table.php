@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('users')) {
-            Schema::create('users', function (Blueprint $table) {
+            Schema::create('users', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('user_name', 225);
                 $table->string('first_name');
@@ -51,10 +49,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('users');
     }

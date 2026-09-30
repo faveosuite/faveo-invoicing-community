@@ -5,13 +5,18 @@ namespace App\Http\Controllers\Common;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Email\EmailSettingRequest;
 use App\Model\Common\Setting;
+use Config;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Mail;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
+use Throwable;
 
 class EmailSettingsController extends Controller
 {
-    protected $emailConfig;
+    protected mixed $emailConfig = null;
 
-    protected $error;
+    protected mixed $error = null;
 
     public function __construct()
     {
@@ -19,44 +24,55 @@ class EmailSettingsController extends Controller
         $this->middleware('admin');
     }
 
-    protected function checkSConnection(Setting $emailConfig)
+    protected function checkSConnection(Setting $emailConfig): ?bool
     {
         try {
             $this->emailConfig = $emailConfig;
-        } catch (\Exception $e) {
-            $this->error = $e;
+        } catch (Exception $exception) {
+            $this->error = $exception;
 
             return false;
         }
+
+        return null;
     }
 
-    public function settingsEmail(Setting $settings)
+    public function settingsEmail(Setting $settings): JsonResponse
     {
         try {
             $set = $settings->find(1);
 
-            return view('themes.default1.common.setting.email', compact('set'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return successResponse('', $set);
+        } catch (Exception $exception) {
+            \Logger::exception($exception);
+
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
-    public function postSettingsEmail(EmailSettingRequest $request)
+    public function postSettingsEmail(EmailSettingRequest $request): JsonResponse
     {
         try {
             $emailSettings = $request->all();
-            $this->emailConfig = Setting::first();
+            /** @var Setting $emailConfig */
+            $emailConfig = Setting::firstOrFail();
+            $this->emailConfig = $emailConfig;
 
             $this->emailConfig->fill($emailSettings);
             if (! $this->checkSendConnection($this->emailConfig)) {
                 return errorResponse($this->errorhandler());
             }
+
             $this->emailConfig->sending_status = 1;
             $this->emailConfig->save();
 
             return successResponse(__('message.email_settings_saved'));
-        } catch (\Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return errorResponse(__('message.record_not_found'));
+        } catch (Exception $exception) {
+            \Logger::exception($exception);
+
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
 
@@ -71,29 +87,26 @@ class EmailSettingsController extends Controller
      */
     private function errorhandler()
     {
-        $message = method_exists($this->error, 'getMessage') ? $this->error->getMessage() : $this->error;
-
-        return $message;
+        return ($this->error instanceof Throwable) ? $this->error->getMessage() : (string) $this->error;
     }
 
     /**
      * checks send connection based on the mail driver.
      *
      *
-     * @param  Emails  $emailConfig  emailConfig object
-     * @return bool
+     * @param  Setting  $emailConfig  emailConfig object
      */
-    protected function checkSendConnection(Setting $emailConfig)
+    protected function checkSendConnection(Setting $emailConfig): bool
     {
         try {
             $this->emailConfig = $emailConfig;
 
-            //if sending protocol is mail, no connection check is required
+            // if sending protocol is mail, no connection check is required
             if ($this->emailConfig->driver == 'mail') {
                 return $this->checkMailConnection();
             }
 
-            //set outgoing mail configuation to the passed one
+            // set outgoing mail configuation to the passed one
             setServiceConfig($this->emailConfig);
 
             if ($this->emailConfig->driver == 'smtp') {
@@ -101,8 +114,8 @@ class EmailSettingsController extends Controller
             }
 
             return $this->checkServices();
-        } catch (\Exception $e) {
-            $this->error = $e;
+        } catch (Exception $exception) {
+            $this->error = $exception;
 
             return false;
         }
@@ -113,11 +126,12 @@ class EmailSettingsController extends Controller
      *
      * @return bool true if enabled else false
      */
-    private function checkMailConnection()
+    private function checkMailConnection(): bool
     {
         if (function_exists('mail')) {
             return true;
         }
+
         $this->error = __('message.php_mail_disabled');
 
         return false;
@@ -125,20 +139,20 @@ class EmailSettingsController extends Controller
 
     /**
      * Checks services status by raw sending mail and waiting for the response.
-     *
-     * @return \Illuminate\Mail\SentMessage true if success else false
      */
-    private function checkServices()
+    private function checkServices(): bool
     {
         try {
             $protocolName = $this->emailConfig->sending_protocol;
 
-            //sending a text message and checking if respond comes. If yes, connection is considered to be successful
-            return \Mail::raw("This is a test mail for successful $protocolName connection", function ($message) {
+            // sending a text message. If no exception is thrown, connection is considered to be successful
+            Mail::raw(sprintf('This is a test mail for successful %s connection', $protocolName), function ($message): void {
                 $message->to($this->emailConfig->email_address);
             });
-        } catch (\Exception $e) {
-            $this->error = $e;
+
+            return true;
+        } catch (Exception $exception) {
+            $this->error = $exception;
 
             return false;
         }
@@ -151,18 +165,18 @@ class EmailSettingsController extends Controller
      *
      * @return bool true if success else false
      */
-    private function checkSMTPConnection()
+    private function checkSMTPConnection(): bool
     {
         try {
-            $transport = new  EsmtpTransport(\Config::get('mail.host'), \Config::get('mail.port'));
-            $transport->setUsername(\Config::get('mail.username'));
-            $transport->setPassword(\Config::get('mail.password'));
+            $transport = new EsmtpTransport(Config::get('mail.host'), Config::get('mail.port'));
+            $transport->setUsername(Config::get('mail.username'));
+            $transport->setPassword(Config::get('mail.password'));
 
             $transport->start();
 
             return true;
-        } catch (\Throwable $e) {
-            $this->error = $e;
+        } catch (Throwable $throwable) {
+            $this->error = $throwable;
 
             return false;
         }

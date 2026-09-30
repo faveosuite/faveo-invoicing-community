@@ -8,30 +8,34 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             if (! Schema::hasColumn('status_settings', 'license_status')) {
                 $table->integer('license_status');
             }
+
             if (! Schema::hasColumn('status_settings', 'github_status')) {
                 $table->integer('github_status');
             }
+
             if (! Schema::hasColumn('status_settings', 'mailchimp_status')) {
                 $table->integer('mailchimp_status');
             }
+
             if (! Schema::hasColumn('status_settings', 'twitter_status')) {
                 $table->integer('twitter_status');
             }
+
             if (! Schema::hasColumn('status_settings', 'msg91_status')) {
                 $table->integer('msg91_status');
             }
+
             if (! Schema::hasColumn('status_settings', 'emailverification_status')) {
                 $table->integer('emailverification_status');
             }
+
             if (! Schema::hasColumn('status_settings', 'recaptcha_status')) {
                 $table->integer('recaptcha_status');
             }
@@ -40,12 +44,10 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             $table->dropColumn([
                 'github_status',
                 'license_status',

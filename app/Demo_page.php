@@ -1,38 +1,76 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App;
 
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
+/**
+ * @property int $id
+ * @property int $status
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class Demo_page extends Model
 {
-    use HasFactory, SystemActivityLogsTrait;
+    /**
+     * @use HasFactory<Factory>
+     */
+    use HasFactory;
+
+    use SystemActivityLogsTrait;
 
     protected $table = 'demo_pages';
 
     protected $fillable = ['id', 'link', 'email', 'status'];
 
-    protected $logName = 'page';
+    protected string $logName = 'page';
 
-    protected $logNameColumn = 'Demo page';
+    protected string $logNameColumn = 'Demo page';
 
-    protected $logAttributes = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logAttributes = [
         'id', 'link', 'email', 'status',
     ];
 
-    protected $logUrl = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logUrl = [
         'segments' => ['demo', 'page'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
             'id' => ['ID', fn ($value) => $value],
             'link' => ['Link', fn ($value) => $value],
             'email' => ['Email', fn ($value) => $value],
-            'status' => ['Status', fn ($value) => $value === 1 ? __('message.active') : __('message.inactive')],
+            'status' => ['Status', fn ($value): array|string => $value === 1 ? __('message.active') : __('message.inactive')],
         ];
     }
 }

@@ -9,10 +9,15 @@
  */
 namespace PHPUnit\Framework\MockObject\Stub;
 
+use function array_key_exists;
 use function array_pop;
 use function count;
 use function is_array;
+use function sprintf;
+use PHPUnit\Framework\Constraint\Constraint;
+use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\MockObject\Invocation;
+use PHPUnit\Util\Exporter;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -25,15 +30,20 @@ final readonly class ReturnValueMap implements Stub
      * @var array<mixed>
      */
     private array $valueMap;
+    private bool $strict;
 
     /**
      * @param array<mixed> $valueMap
      */
-    public function __construct(array $valueMap)
+    public function __construct(array $valueMap, bool $strict = false)
     {
         $this->valueMap = $valueMap;
+        $this->strict   = $strict;
     }
 
+    /**
+     * @throws ExpectationFailedException
+     */
     public function invoke(Invocation $invocation): mixed
     {
         $parameterCount = count($invocation->parameters());
@@ -45,11 +55,45 @@ final readonly class ReturnValueMap implements Stub
 
             $return = array_pop($map);
 
-            if ($invocation->parameters() === $map) {
+            if ($this->parametersMatch($map, $invocation->parameters())) {
                 return $return;
             }
         }
 
+        if ($this->strict) {
+            throw new ExpectationFailedException(
+                sprintf(
+                    'No entry in the value map matched the invocation of %s::%s() with parameters (%s)',
+                    $invocation->className(),
+                    $invocation->methodName(),
+                    Exporter::shortenedExport($invocation->parameters()),
+                ),
+            );
+        }
+
         return null;
+    }
+
+    /**
+     * @param array<mixed> $mapParameters
+     * @param array<mixed> $invocationParameters
+     */
+    private function parametersMatch(array $mapParameters, array $invocationParameters): bool
+    {
+        foreach ($mapParameters as $i => $expected) {
+            if (!array_key_exists($i, $invocationParameters)) {
+                return false;
+            }
+
+            if ($expected instanceof Constraint) {
+                if ($expected->evaluate($invocationParameters[$i], '', true) === false) {
+                    return false;
+                }
+            } elseif ($expected !== $invocationParameters[$i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

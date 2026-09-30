@@ -23,6 +23,7 @@ class WorkCommand extends BaseWorkCommand
                             {--memory=128 : The memory limit in megabytes}
                             {--once : Only process the next job on the queue}
                             {--stop-when-empty : Stop when the queue is empty}
+                            {--stop-when-empty-for=0 : Stop when no jobs have been processed for the given number of seconds}
                             {--queue= : The names of the queues to work}
                             {--sleep=3 : Number of seconds to sleep when no job is available}
                             {--rest=0 : Number of seconds to rest between jobs}

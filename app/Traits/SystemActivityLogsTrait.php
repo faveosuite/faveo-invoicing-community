@@ -5,9 +5,9 @@ namespace App\Traits;
 use App\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Activity;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 trait SystemActivityLogsTrait
 {
@@ -21,6 +21,10 @@ trait SystemActivityLogsTrait
      *   'email' => ['email_address', fn($val) => strtolower($val)],
      * ].
      */
+    protected ?string $causerID = null;
+
+    protected bool $requireLogUrl = false;
+
     abstract protected function getMappings(): array;
 
     /**
@@ -29,16 +33,16 @@ trait SystemActivityLogsTrait
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly($this->logAttributes ?? [])
+            ->logOnly($this->logAttributes)
             ->logOnlyDirty()
-            ->dontSubmitEmptyLogs()
+            ->dontLogEmptyChanges()
             ->useLogName(__('message.'.$this->getLogName(), [], 'en'));
     }
 
     /**
      * Tap into the activity before saving.
      */
-    public function tapActivity(Activity $activity, string $eventName): void
+    public function beforeActivityLogged(Activity $activity, string $eventName): void
     {
         $this->generateDescriptionForLogs($activity, $eventName);
         $this->tapActivityLogs($activity);
@@ -52,7 +56,7 @@ trait SystemActivityLogsTrait
     {
         $properties = $activity->properties instanceof Collection
             ? $activity->properties
-            : collect($activity->properties);
+            : collect($activity->properties ?? []);
 
         foreach (['attributes', 'old'] as $key) {
             if ($properties->has($key)) {
@@ -65,17 +69,22 @@ trait SystemActivityLogsTrait
         $activity->properties = $properties;
     }
 
-    protected function setCauser(Activity $activity)
+    protected function setCauser(Activity $activity): void
     {
         $userId = $activity->subject->{$this->causerID} ?? null;
 
-        if ($user = User::find($userId)) {
+        $user = User::find($userId);
+        if ($user instanceof User) {
             $activity->causer()->associate($user);
         }
     }
 
     /**
      * Format attributes using mappings.
+     *
+     * @param  array<mixed>  $attributes
+     * @param  array<mixed>  $mappings
+     * @return array<mixed>
      */
     private function formatLoggingAttributes(array $attributes, array $mappings): array
     {
@@ -107,10 +116,10 @@ trait SystemActivityLogsTrait
         $eventName = $this->resolveDeletedEventName($activity, $eventName);
 
         $displayName = in_array($eventName, ['deleted', 'suspended'])
-            ? "<strong>{$name}</strong>"
-            : ($this->requireLogUrl ?? true
-                ? "<a href='{$logUrl}'><strong>{$name}</strong></a>"
-                : "<strong>{$name}</strong>");
+            ? sprintf('<strong>%s</strong>', $name)
+            : ($this->requireLogUrl
+                ? sprintf("<a href='%s'><strong>%s</strong></a>", $logUrl, $name)
+                : sprintf('<strong>%s</strong>', $name));
 
         $activity->description = __('message.log_description', [
             'module' => __('message.'.$logName, [], 'en'),
@@ -129,6 +138,7 @@ trait SystemActivityLogsTrait
     {
         if ($eventName === 'deleted') {
             if (
+                $activity->subject &&
                 method_exists($activity->subject, 'isForceDeleting') &&
                 ! $activity->subject->isForceDeleting()
             ) {
@@ -146,12 +156,12 @@ trait SystemActivityLogsTrait
      */
     private function getLogName(): string
     {
-        return $this->logName ?? $this->getTable();
+        return $this->logName ?? ''; // @phpstan-ignore nullCoalesce.property
     }
 
     private function getLogNameColumn(): string
     {
-        return $this->logNameColumn ?? 'id';
+        return $this->logNameColumn; // @phpstan-ignore property.notFound
     }
 
     /**
@@ -160,7 +170,6 @@ trait SystemActivityLogsTrait
      * If you need to include the ID at the end of the URL, set the logUrl property to an array with two elements:
      *
      * @param  mixed  $id
-     * @return string|null
      */
     protected function getLogUrl($id = null): ?string
     {
@@ -180,7 +189,7 @@ trait SystemActivityLogsTrait
 
         $url = url(implode('/', array_filter($segments)));
 
-        if ($params) {
+        if ($params !== []) {
             $url .= '?'.http_build_query($params);
         }
 

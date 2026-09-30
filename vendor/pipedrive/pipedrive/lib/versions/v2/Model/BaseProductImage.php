@@ -2,7 +2,7 @@
 /**
  * BaseProductImage
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -67,7 +67,7 @@ class BaseProductImage implements ModelInterface, ArrayAccess, JsonSerializable
       */
     protected static array $openAPITypes = [
         'id' => 'int',
-        'product_id' => 'float',
+        'product_id' => 'int',
         'company_id' => 'string',
         'add_time' => 'string'
     ];
@@ -212,7 +212,7 @@ class BaseProductImage implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['id'] = $data['id'] ?? null;
         $this->container['product_id'] = $data['product_id'] ?? null;
@@ -273,7 +273,7 @@ class BaseProductImage implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets product_id
      *
-     * @return float|null
+     * @return int|null
      */
     public function getProductId()
     {
@@ -283,7 +283,7 @@ class BaseProductImage implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets product_id
      *
-     * @param float|null $product_id The ID of the product associated
+     * @param int|null $product_id The ID of the product associated
      *
      * @return self
      */

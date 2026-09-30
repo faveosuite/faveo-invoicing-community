@@ -2,7 +2,7 @@
 /**
  * GoalResults
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -202,7 +202,7 @@ class GoalResults implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['progress'] = $data['progress'] ?? null;
         $this->container['goal'] = $data['goal'] ?? null;

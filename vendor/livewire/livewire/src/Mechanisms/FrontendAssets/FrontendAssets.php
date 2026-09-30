@@ -58,7 +58,7 @@ class FrontendAssets extends Mechanism
 
     function setScriptRoute($callback)
     {
-        $route = $callback([self::class, 'returnJavaScriptAsFile']);
+        $route = $callback([self::class, 'returnJavaScriptAsFile'], EndpointResolver::scriptPath());
 
         $this->javaScriptRoute = $route;
     }
@@ -198,11 +198,16 @@ class FrontendAssets extends Mechanism
 
         $url = rtrim($url, '/');
 
-        $url = (string) str($url)->when(! str($url)->isUrl(), fn($url) => $url->start('/'));
+        // Ensure relative URLs start with "/", but don't touch URLs with protocol schemes (e.g. "php://")...
+        $url = (string) str($url)->when(
+            ! str_contains($url, '://'),
+            fn ($url) => $url->start('/')
+        );
 
         // Add the build manifest hash to it...
-        $manifest = json_decode(file_get_contents(__DIR__.'/../../../dist/manifest.json'), true);
-        $versionHash = $manifest['/livewire.js'];
+        $manifestPath = __DIR__.'/../../../dist/manifest.json';
+        $manifest = file_exists($manifestPath) ? json_decode(file_get_contents($manifestPath), true) : [];
+        $versionHash = $manifest['/livewire.js'] ?? 'dev';
         $url = $url . (parse_url($url, PHP_URL_QUERY) ? '&' : '?') . "id={$versionHash}";
 
         $token = app()->has('session.store') ? csrf_token() : '';
@@ -241,7 +246,7 @@ class FrontendAssets extends Mechanism
             'uri' => url(app('livewire')->getUpdateUri()),
             'moduleUrl' => url(app('livewire')->getUriPrefix()),
             'progressBar' => $progressBar,
-            'nonce' => isset($options['nonce']) ? $options['nonce'] : '',
+            'nonce' => $options['nonce'] ?? Vite::cspNonce() ?? '',
         ]);
 
         return <<<HTML
@@ -287,7 +292,7 @@ class FrontendAssets extends Mechanism
         if ($manifest !== $publishedManifest) {
             $assetWarning = <<<HTML
             <script {$nonce}>
-                console.warn('Livewire: The published Livewire assets are out of date\\n See: https://livewire.laravel.com/docs/installation#publishing-livewires-frontend-assets')
+                console.warn('Livewire: The published Livewire assets are out of date\\n See: https://livewire.laravel.com/docs/installation#publishing-livewires-assets-to-public-directory')
             </script>\n
             HTML;
         }

@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'title' => 'Penginstal Agora Invoicing',
     'probe' => 'Probe Agora Invoicing',
     'magic_phrase' => 'Apa frasa ajaibnya',
@@ -20,7 +19,6 @@ return [
     'off_apache' => 'MATI (Jika Anda menggunakan apache, pastikan <var><strong>AllowOverride</strong></var> disetel ke <var><strong>All</strong></var> dalam konfigurasi apache)',
     'rewrite_engine' => 'Mesin Rewrite',
     'user_url' => 'URL ramah pengguna',
-
     'host' => 'Tuan rumah',
     'host_tooltip' => 'Jika MySQL Anda terinstal di server yang sama dengan Agora Invoicing, biarkan localhost',
     'database_name_label' => 'Nama database',
@@ -30,7 +28,6 @@ return [
     'password_label' => 'Kata Sandi',
     'test_prerequisites_message' => 'Tes ini akan memeriksa prasyarat yang diperlukan untuk menginstal Agora Invoicing',
     'previous' => 'Sebelumnya',
-
     'sign_up_as_admin' => 'Daftar sebagai Admin',
     'first_name' => 'Nama Depan',
     'first_name_required' => 'Nama Depan diperlukan',
@@ -44,14 +41,27 @@ return [
     'confirm_password_required' => 'Konfirmasi Kata Sandi diperlukan',
     'password_requirements' => 'Kata sandi Anda harus memiliki:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => 'Antara 8-16 karakter'],
-        ['id' => 'letter', 'text' => 'Karakter kecil (a-z)'],
-        ['id' => 'capital', 'text' => 'Karakter besar (A-Z)'],
-        ['id' => 'number', 'text' => 'Angka (0-9)'],
-        ['id' => 'space', 'text' => 'Karakter khusus (~*!@$#%_+.?:,{ })'],
+        [
+            'id' => 'length',
+            'text' => 'Antara 8-16 karakter',
+        ],
+        [
+            'id' => 'letter',
+            'text' => 'Karakter kecil (a-z)',
+        ],
+        [
+            'id' => 'capital',
+            'text' => 'Karakter besar (A-Z)',
+        ],
+        [
+            'id' => 'number',
+            'text' => 'Angka (0-9)',
+        ],
+        [
+            'id' => 'space',
+            'text' => 'Karakter khusus (~*!@$#%_+.?:,{ })',
+        ],
     ],
-
-    // System Information
     'system_information' => 'Informasi Sistem',
     'environment' => 'Lingkungan',
     'environment_required' => 'Lingkungan diperlukan',
@@ -63,42 +73,29 @@ return [
     'file' => 'File',
     'redis' => 'Redis',
     'password' => 'Kata Sandi',
-
-    // Redis Setup
     'redis_setup' => 'Pengaturan Redis',
     'redis_host' => 'Tuan rumah Redis',
     'redis_port' => 'Pelabuhan Redis',
     'redis_password' => 'Kata Sandi Redis',
-
-    // Buttons
     'continue' => 'Lanjutkan',
-
-    // Final Setup
     'final_setup' => 'Aplikasi Agora Invoicing Anda Siap!',
     'installation_complete' => 'Baik, sparky! Anda telah menyelesaikan proses instalasi',
-
-    // Learn More
     'learn_more' => 'Pelajari Lebih Lanjut',
     'knowledge_base' => 'Basis Pengetahuan',
     'email_support' => 'Dukungan Email',
-
-    // Next Step
     'next_step' => 'Langkah Berikutnya',
     'login_button' => 'Login ke Agora Invoicing',
-
     'pre_migration_success' => 'Migrasi pra-tes berhasil',
     'migrating_tables' => 'Migrasi tabel di database',
     'db_connection_error' => 'Koneksi database tidak terbarui',
     'database_setup_success' => 'Database telah berhasil diatur',
     'env_file_created' => 'File konfigurasi lingkungan telah berhasil dibuat',
     'pre_migration_test' => 'Menjalankan tes pra-migrasi',
-
     'redis_host_required' => 'Host Redis diperlukan',
     'redis_password_required' => 'Kata sandi Redis diperlukan',
     'redis_port_required' => 'Port Redis diperlukan',
     'password_regex' => 'Kata sandi harus mengandung setidaknya 8 karakter, satu huruf besar, satu huruf kecil, satu angka, dan satu karakter khusus',
     'setup_completed' => 'Setup berhasil diselesaikan!',
-
     'database' => 'Database',
     'selected' => 'Terpilih',
     'mysql_version_is' => 'Versi MySQL adalah',
@@ -114,7 +111,6 @@ return [
     'user_name' => 'Nama Pengguna',
     'user_email' => 'Email Pengguna',
     'password_not_match' => 'Kata sandi tidak cocok',
-    //new
     'installation_check' => 'Tes ini akan memeriksa prasyarat yang diperlukan untuk menginstal Agora Invoice Community',
     'db_setup_error_1' => 'Ini berarti bahwa informasi nama pengguna dan kata sandi salah atau host Anda tidak dapat dijangkau',
     'db_setup_error_2' => 'Apakah Anda yakin sudah memiliki database yang ada dengan nama database yang diberikan?',
@@ -158,5 +154,4 @@ return [
     'tooltip_timezone' => 'Zona waktu browser digunakan sebagai default. Pilih zona waktu lain jika diperlukan',
     'tooltip_language' => 'Bahasa default yang dimuat awalnya. Pilih bahasa lain jika diperlukan',
     'enter_magic_phrase' => 'Masukkan frasa ajaib',
-
 ];

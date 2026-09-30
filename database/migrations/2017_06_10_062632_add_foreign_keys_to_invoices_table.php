@@ -7,24 +7,20 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('invoices', function (Blueprint $table) {
-            $table->foreign('user_id')->references('id')->on('users')->onUpdate('RESTRICT')->onDelete('RESTRICT');
+        Schema::table('invoices', function (Blueprint $table): void {
+            $table->foreign('user_id')->references('id')->on('users')->onUpdate('restrict')->onDelete('restrict');
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('invoices', function (Blueprint $table) {
+        Schema::table('invoices', function (Blueprint $table): void {
             $table->dropForeign('invoices_user_id_foreign');
         });
     }

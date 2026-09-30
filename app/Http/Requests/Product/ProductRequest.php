@@ -1,17 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Product;
 
 use App\Http\Requests\Request;
+use App\Traits\RequestJsonValidation;
+use Override;
 
 class ProductRequest extends Request
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -19,25 +23,26 @@ class ProductRequest extends Request
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'name' => 'required',
-            'type' => 'required',
-            'group' => 'required',
-            'subscription' => 'required',
-            'currency' => 'required',
+            'name' => ['required'],
+            'type' => ['required'],
+            'group' => ['required'],
+            'subscription' => ['required'],
+            'currency' => ['required'],
             // 'price'             => 'required',
-            'file' => 'required_without_all:github_owner,github_repository|mimes:zip',
-            'image' => 'required_without_all:github_owner,github_repository|mimes:png',
-            'github_owner' => 'required_without_all:file,image',
-            'github_repository' => 'required_without_all:file,image|required_if:type,2',
+            'file' => ['required_without_all:github_owner,github_repository', 'mimes:zip'],
+            'image' => ['required_without_all:github_owner,github_repository', 'mimes:png'],
+            'github_owner' => ['required_without_all:file,image'],
+            'github_repository' => ['required_without_all:file,image', 'required_if:type,2'],
 
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

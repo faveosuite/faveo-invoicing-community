@@ -2,242 +2,161 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Http\Controllers\License\LicenseController;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\License\LicensePermissionsController;
-use App\Model\Common\StatusSetting;
+use App\License\Services\LicenseService;
+use App\Model\Common\Setting;
+use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Configure\ProductPluginGroup;
+use App\Model\Order\Invoice;
+use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Plan;
+use App\Model\Product\Price;
 use App\Model\Product\Product;
+use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\Traits\Order\UpdateDates;
 use App\User;
 use Carbon\Carbon;
 use Crypt;
+use Exception;
+use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Date;
 
 class BaseOrderController extends ExtendedOrderController
 {
-    protected $sendMail;
-
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('admin');
-
-        $this->order = new Order();
-
-        $this->product = new Product();
-
-        $this->subscription = new Subscription();
-
-        $this->plan = new Plan();
-    }
+    protected mixed $sendMail = null;
 
     use UpdateDates;
-
-    public function getUrl($model, $status, $subscriptionId, $agents = null)
-    {
-        $url = '';
-        if ($model->order_status != 'Terminated') {
-            if ($status == 'success') {
-                if ($subscriptionId) {
-                    if (! is_null($agents)) {
-                        $url = '<a href='.url('renew/'.$subscriptionId.'/'.$agents)." 
-                class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.renew'))."<i class='fas fa-credit-card'
-                 style='color:white;'> </i></a>";
-                    } else {
-                        $url = '<a href='.url('renew/'.$subscriptionId)." 
-                class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.renew'))."<i class='fas fa-credit-card'
-                 style='color:white;'> </i></a>";
-                    }
-                }
-            }
-        }
-
-        return '<p><a href='.url('orders/'.$model->id)." 
-        class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.view'))."<i class='fas fa-eye'
-         style='color:white;'> </i></a> $url</p>";
-    }
 
     /**
      * inserting the values to orders table.
      *
-     * @param  type  $invoiceid
-     * @param  type  $order_status
-     * @return string
      *
-     * @throws \Exception
+     * @return Collection<int|string, mixed>
+     *
+     * @throws Exception
      */
-    public function executeOrder($invoiceid, $order_status = 'executed', $admin = false)
+    public function executeOrder(int $invoiceId): Collection
     {
-        try {
-            $invoice_items = $this->invoice_items->where('invoice_id', $invoiceid)->get();
+        $userId = Invoice::findOrFail($invoiceId)->user_id;
+        $items = InvoiceItem::where('invoice_id', $invoiceId)->get();
 
-            $user_id = $this->invoice->find($invoiceid)->user_id;
-            if (count($invoice_items) > 0) {
-                foreach ($invoice_items as $item) {
-                    if ($item) {
-                        $items = $this->getIfItemPresent($item, $invoiceid, $user_id, $order_status, $admin);
-                    }
-                }
-            }
-
-            return 'success';
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            throw new \Exception($ex->getMessage());
-        }
+        return $items->map(fn (InvoiceItem $item): Order => $this->processInvoiceItem($item, $userId)); // @phpstan-ignore return.type
     }
 
-    public function getIfItemPresent($item, $invoiceid, $user_id, $order_status, $admin = false)
+    private function processInvoiceItem(InvoiceItem $item, int $userId): Order
     {
-        try {
-            $productModel = $this->product->find($item->product_id);
-            $product = $productModel->id;
-            $version = $productModel->version;
-            if ($version == null) {
-                //Get Version from Product Upload Table
-                $version = $this->product_upload->where('product_id', $product)->pluck('version')->first();
-            }
-            $serial_key = $this->generateSerialKey($product, $item->agents); //Send Product Id and Agents to generate Serial Key
-            \Session::put('upgradeSerialKey', $serial_key);
-            $domain = $item->domain;
-            $plan_id = $this->plan($item->id);
+        $productModel = Product::findOrFail($item->product_id);
+        $product = $productModel->id;
+        $version = ProductUpload::where('product_id', $product)->value('version') ?? '';
 
-            $order = $this->order->create([
-                'invoice_id' => $invoiceid,
-                'invoice_item_id' => $item->id,
-                'client' => $user_id,
-                'order_status' => $order_status,
-                'serial_key' => Crypt::encrypt($serial_key),
-                'product' => $product,
-                'price_override' => $item->subtotal,
-                'qty' => $item->quantity,
-                'domain' => $domain,
-                'number' => $this->generateNumber(),
-                'created_at' => Carbon::now(),
-            ]);
-            \Session::put('upgradeNewActiveOrder', $order->id);
+        $serialKey = $this->generateSerialKey($product, $item->agents); // @phpstan-ignore argument.type
 
-            $this->addOrderInvoiceRelation($invoiceid, $order->id);
-            if ($plan_id != 0) {
-                $this->addSubscription($order->id, $plan_id, $version, $product, $serial_key, $admin);
+        $order = Order::create([
+            'invoice_item_id' => $item->id,
+            'client' => $userId,
+            'order_status' => 'executed',
+            'serial_key' => Crypt::encrypt($serialKey),
+            'product' => $product,
+            'price_override' => $item->subtotal,
+            'qty' => $item->quantity,
+            'domain' => $item->domain,
+            'number' => $this->generateNumber(),
+        ]);
 
-                $addOnIds = implode(',', $this->product->find($product)->productPluginGroupsAsProduct->pluck('plugin_id')->toArray());
+        OrderInvoiceRelation::create([
+            'order_id' => $order->id, 'invoice_id' => $item->invoice_id]
+        );
 
-                $options = $this->formatConfigurableOptions($product);
-
-                (new LicenseController())->syncTheAddonForALicense($addOnIds, $serial_key, $options);
-            }
-
-            if (emailSendingStatus()) {
-                $this->sendOrderMail($user_id, $order->id, $item->id);
-            }
-            //Update Subscriber To Mailchimp
-            $mailchimpStatus = StatusSetting::pluck('mailchimp_status')->first();
-            if ($mailchimpStatus) {
-                $this->addtoMailchimp($product, $user_id, $item);
-            }
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            throw new \Exception($ex->getMessage());
+        if ($item->plan_id) {
+            $this->addSubscription($order->id, $item->plan_id, $version, $product, $serialKey, $item->invoice_id);
+            /** @var Product $productForAddons */
+            $productForAddons = Product::find($product);
+            $addOnIds = $productForAddons->productPluginGroupsAsProduct->pluck('plugin_id')->toArray();
+            $cfgOptions = $this->formatConfigurableOptions($product);
+            $options = is_array($cfgOptions) ? $cfgOptions : $cfgOptions->toArray();
+            resolve(LicenseService::class)->syncAddons($serialKey, $addOnIds, $options);
         }
-    }
 
-    public function addToMailchimp($product, $user_id, $item)
-    {
-        try {
-            $mailchimp = new \App\Http\Controllers\Common\MailChimpController();
-            $email = User::where('id', $user_id)->pluck('email')->first();
-            if ($item->subtotal > 0) {
-                $r = $mailchimp->updateSubscriberForPaidProduct($email, $product);
-            } else {
-                $r = $mailchimp->updateSubscriberForFreeProduct($email, $product);
-            }
-        } catch (\Exception $ex) {
-            return;
+        if (emailSendingStatus()) {
+            $this->sendOrderMail($userId, $order->id, $item->id); // @phpstan-ignore argument.type
         }
+
+        return $order;
     }
 
     /**
      * inserting the values to subscription table.
      *
-     * @param  int  $orderid
-     * @param  int  $planid
-     * @param  string  $version
-     * @param  int  $product
-     * @param  string  $serial_key
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
      */
-    public function addSubscription($orderid, $planid, $version, $product, $serial_key, $admin = false)
+    public function addSubscription(int $orderid, int $planid, string $version, int $product, string $serial_key, ?int $invoiceId = null): void
     {
-        try {
-            $permissions = LicensePermissionsController::getPermissionsForProduct($product);
-            if ($version == null) {
-                $version = '';
-            }
-            $days = null;
-            $status = Product::find($product);
-            if ($status->status && ! $admin) {
-                if (\Session::get('planDays') == 'monthly') {
-                    $days = $this->plan->where('product', $product)->whereIn('days', [30, 31])->first();
-                } elseif (\Session::get('planDays') == 'freeTrial') {
-                    $days = $this->plan->where('product', $product)->where('days', '<', 30)->first();
-                } elseif (\Session::get('planDays') == 'yearly' || \Session::get('planDays') == null) {
-                    $days = $this->plan->where('product', $product)->whereIn('days', [365, 366])->first();
-                }
-            }
+        $permissions = LicensePermissionsController::getPermissionsForProduct($product);
+        $version ??= ''; // @phpstan-ignore nullCoalesce.variable
 
-            if ($days === null) {
-                if (\Session::has('plan_id')) {
-                    $planid = \Session::get('plan_id');
-                }
-                $days = $this->plan->where('id', $planid)->first();
-            }
+        $plan = Plan::findOrFail($planid);
+        $order = Order::findOrFail($orderid);
 
-            if (\Session::has('increase-decrease-days')) {
-                $increaseDate = \Session::get('increase-decrease-days');
-                $licenseExpiry = $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $increaseDate);
-                $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $increaseDate);
-                $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $increaseDate);
-            } elseif (\Session::has('increase-decrease-days-dont-cloud')) {
-                $oldCloudOrderId = \Session::get('increase-decrease-days-dont-cloud');
-                $expiryDate = Subscription::where('order_id', $oldCloudOrderId)->value('ends_at');
-                $licenseExpiry = $expiryDate;
-                $updatesExpiry = $expiryDate;
-                $supportExpiry = $expiryDate;
-            } else {
-                $planid = $days->id;
-                $period = $days->periods()->where('name', 'One Time')->get();
+        $meta = $invoiceId ? (Invoice::find($invoiceId)->metadata ?? []) : [];
 
-                $licenseExpiry = (! $period->isEmpty()) ? '' : $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $days->days);
-                $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $days->days);
-                $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $days->days);
-            }
-
-            $user_id = $this->order->find($orderid)->client;
-            $this->subscription->create(['user_id' => $user_id,
-                'plan_id' => $planid, 'order_id' => $orderid, 'update_ends_at' => $updatesExpiry, 'ends_at' => $licenseExpiry, 'support_ends_at' => $supportExpiry, 'version' => $version, 'product_id' => $product, 'is_subscribed' => '0']);
-
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
-            if ($licenseStatus == 1) {
-                $cont = new \App\Http\Controllers\License\LicenseController();
-                $createNewLicense = $cont->createNewLicene($orderid, $product, $user_id, $licenseExpiry, $updatesExpiry, $supportExpiry, $serial_key);
-            }
-            \Session::forget('increase-decrease-days');
-            \Session::forget('increase-decrease-days-dont-cloud');
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            throw new \Exception(__('message.cannot_generate_subscription').'.'.$ex->getMessage());
+        if (isset($meta['increase-decrease-days'])) {
+            $days = $meta['increase-decrease-days'];
+            $licenseExpiry = $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $days);
+            $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $days);
+            $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $days);
+        } elseif (isset($meta['increase-decrease-days-dont-cloud'])) {
+            $sub = Subscription::where('order_id', $meta['increase-decrease-days-dont-cloud'])->first();
+            $licenseExpiry = $sub?->ends_at;
+            $updatesExpiry = $sub?->ends_at;
+            $supportExpiry = $sub?->ends_at;
+        } else {
+            $isOneTime = $plan->periods()->where('name', 'One Time')->exists();
+            // plans.days is a varchar column; some plans (per-issue support,
+            // non-expiring add-ons) store it as '' rather than '0', which can't
+            // weakly-coerce to int and crashed here (QA bug #42) — cast like
+            // every other caller of $plan->days already does.
+            $licenseExpiry = $isOneTime ? null : $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], (int) $plan->days);
+            $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], (int) $plan->days);
+            $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], (int) $plan->days);
         }
+
+        Subscription::create([
+            'user_id' => $order->client,
+            'plan_id' => $plan->id,
+            'order_id' => $orderid,
+            'update_ends_at' => $updatesExpiry,
+            'ends_at' => $licenseExpiry,
+            'support_ends_at' => $supportExpiry,
+            'version' => $version,
+            'product_id' => $product,
+            'is_subscribed' => '0',
+        ]);
+
+        $ipAndDomain = LicenseService::parseIpAndDomain($order->domain ?? '');
+        resolve(LicenseService::class)->create([
+            'product_id' => $product,
+            'user_id' => $order->client,
+            'license_code' => $serial_key,
+            'license_order_number' => $order->number,
+            'license_domain' => $ipAndDomain['domain'],
+            'license_ip' => $ipAndDomain['ip'],
+            'license_require_domain' => $ipAndDomain['requireDomain'],
+            'license_limit' => 1,
+            'license_expire_date' => $licenseExpiry instanceof Carbon ? $licenseExpiry->toDateString() : null,
+            'license_updates_date' => $updatesExpiry instanceof Carbon ? $updatesExpiry->toDateString() : null,
+            'license_support_date' => $supportExpiry instanceof Carbon ? $supportExpiry->toDateString() : null,
+            'license_status' => 1,
+        ]);
     }
 
     /**
@@ -245,13 +164,13 @@ class BaseOrderController extends ExtendedOrderController
      *
      * @param  bool  $permissions  [Whether Permissons for generating License Expiry Date are there or not]
      * @param  int  $days  [No of days that would get addeed to the current date ]
-     * @return string [The final License Expiry date that is generated]
+     * @return Carbon|null [The final License Expiry date that is generated, null means no expiry]
      */
-    protected function getLicenseExpiryDate(bool $permissions, int $days)
+    protected function getLicenseExpiryDate(bool $permissions, int $days): ?Carbon
     {
-        $ends_at = '';
+        $ends_at = null;
         if ($days > 0 && $permissions == 1) {
-            $dt = \Carbon\Carbon::now();
+            $dt = Date::now();
             $ends_at = $dt->addDays($days);
         }
 
@@ -263,13 +182,13 @@ class BaseOrderController extends ExtendedOrderController
      *
      * @param  bool  $permissions  [Whether Permissons for generating Updates Expiry Date are there or not]
      * @param  int  $days  [No of days that would get added to the current date ]
-     * @return string [The final Updates Expiry date that is generated]
+     * @return Carbon|null [The final Updates Expiry date that is generated, null means no expiry]
      */
-    protected function getUpdatesExpiryDate(bool $permissions, int $days)
+    protected function getUpdatesExpiryDate(bool $permissions, int $days): ?Carbon
     {
-        $update_ends_at = '';
+        $update_ends_at = null;
         if ($days > 0 && $permissions == 1) {
-            $dt = \Carbon\Carbon::now();
+            $dt = Date::now();
             $update_ends_at = $dt->addDays($days);
         }
 
@@ -281,67 +200,64 @@ class BaseOrderController extends ExtendedOrderController
      *
      * @param  bool  $permissions  [Whether Permissons for generating Updates Expiry Date are there or not]
      * @param  int  $days  [No of days that would get added to the current date ]
-     * @return string [The final Suport Expiry date that is generated]
+     * @return Carbon|null [The final Suport Expiry date that is generated, null means no expiry]
      */
-    protected function getSupportExpiryDate(bool $permissions, int $days)
+    protected function getSupportExpiryDate(bool $permissions, int $days): ?Carbon
     {
-        $support_ends_at = '';
+        $support_ends_at = null;
         if ($days > 0 && $permissions == 1) {
-            $dt = \Carbon\Carbon::now();
+            $dt = Date::now();
             $support_ends_at = $dt->addDays($days);
         }
 
         return $support_ends_at;
     }
 
-    public function addOrderInvoiceRelation($invoiceid, $orderid)
+    public function sendOrderMail(int $userid, string $orderid, int $itemid): void
     {
-        try {
-            $relation = new \App\Model\Order\OrderInvoiceRelation();
-            $relation->create(['order_id' => $orderid, 'invoice_id' => $invoiceid]);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
-        }
-    }
-
-    public function sendOrderMail($userid, $orderid, $itemid)
-    {
-        //order
-        $order = $this->order->find($orderid);
-        //product
-        $product = $this->product($itemid);
-        //user
+        // order
+        $order = Order::find($orderid);
+        // product
+        $product = $this->product($itemid); // @phpstan-ignore method.notFound
+        // user
         $productId = Product::where('id', $product)->value('id');
-        $users = new User();
+        $users = new User;
+        /** @var User $user */
         $user = $users->find($userid);
-        //check in the settings
-        $settings = new \App\Model\Common\Setting();
+        // check in the settings
+        $settings = new Setting;
+        /** @var Setting $setting */
         $setting = $settings::find(1);
-        $orders = new Order();
+        $orders = new Order;
+        /** @var Order $order */
         $order = $orders->where('id', $orderid)->first();
-        $invoice = $this->invoice->find($order->invoice_id);
-        $number = $invoice->number;
+        $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
+        /** @var Invoice|null $invoice */
+        $invoice = Invoice::find($invoiceId);
+        $number = $invoice?->number;
         $downloadurl = '';
-        if ($user && $order->order_status == 'Executed') {
-            $downloadurl = url('product/'.'download'.'/'.$productId.'/'.$number);
+        if ($user && $order->order_status == 'Executed') { // @phpstan-ignore booleanAnd.leftAlwaysTrue
+            $downloadurl = url('product/download/'.$productId.'/'.$number);
         }
-        // $downloadurl = $this->downloadUrl($userid, $orderid,$productId);
+
         $myaccounturl = url('my-order/'.$orderid);
-        $invoiceurl = $this->invoiceUrl($orderid);
-        //template
-        $mail = $this->getMail($setting, $user, $downloadurl, $invoiceurl, $order, $productId, $orderid, $myaccounturl, $order->serial_key);
+        $invoiceurl = (string) $this->invoiceUrl($orderid); // @phpstan-ignore argument.type, cast.string
+        // template
+        $this->getMail($setting, $user, $downloadurl, $invoiceurl, $order, $productId, $orderid, $myaccounturl, $order->serial_key);
     }
 
-    public function getMail($setting, $user, $downloadurl, $invoiceurl, $order, $productId, $orderid, $myaccounturl, $licenseCode)
+    public function getMail(Setting $setting, User $user, string $downloadurl, string $invoiceurl, Order $order, ?int $productId, string $orderid, string $myaccounturl, string $licenseCode): void
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();
+        if (! $product) {
+            return;
+        }
+
         $value = $product->type;
 
-        $templates = new \App\Model\Common\Template();
-        $temp_id = TemplateType::where('name', 'order_mail')->value('id');
-
-        $template = $templates->where('type', $temp_id)->first();
+        /** @var Template $template */
+        $template = TemplateType::getSelectedTemplate('order_mail');
 
         $knowledgeBaseUrl = $setting->knowledge_base_url;
 
@@ -353,9 +269,8 @@ class BaseOrderController extends ExtendedOrderController
 
         $orderHeading = ($value != '4') ? 'Download' : 'Order';
         $orderUrl = ($value != '4') ? $downloadurl : url('my-order/'.$orderid);
-        $end = app(\App\Http\Controllers\Order\OrderController::class)->expiry($orderid);
-        $date = date_create($end);
-        $end = date_format($date, 'M d, Y');
+        $end = resolve(OrderController::class)->expiry((int) $orderid);
+        $end = $end ? Date::parse($end)->format('M d, Y') : '';
 
         $replace = [
             'orderHeading' => $orderHeading,
@@ -366,7 +281,7 @@ class BaseOrderController extends ExtendedOrderController
             'product' => $product->name,
             'number' => $order->number,
             'expiry' => $end,
-            'url' => app(\App\Http\Controllers\Order\OrderController::class)->renew($orderid),
+            'url' => resolve(OrderController::class)->renew((int) $orderid),
             'knowledge_base' => $knowledgeBaseUrlFinal,
             'contact' => $contact['contact'],
             'logo' => $contact['logo'],
@@ -374,59 +289,54 @@ class BaseOrderController extends ExtendedOrderController
             'licenseCode' => $licenseCode,
         ];
 
-        $type = '';
-        if ($template) {
-            $type_id = $template->type;
-            $temp_type = new \App\Model\Common\TemplateType();
-            $type = $temp_type->where('id', $type_id)->first()->name;
-        }
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $type = $template->type()->value('name') ?? '';
+        $mail = new PhpMailController;
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
 
-        if ($order->invoice->grand_total) {
-            SettingsController::sendPaymentSuccessMailtoAdmin($order->invoice, $order->invoice->grand_total, $user, $product->name);
+        $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
+        /** @var Invoice|null $orderInvoice */
+        $orderInvoice = $invoiceId ? Invoice::find($invoiceId) : null;
+        if ($orderInvoice?->grand_total) {
+            SettingsController::sendPaymentSuccessMailtoAdmin($orderInvoice, (float) $orderInvoice->grand_total, $user, $product->name);
         }
     }
 
-    public function invoiceUrl($orderid)
+    public function invoiceUrl(int $orderid): UrlGenerator|string
     {
-        $orders = new Order();
-        $order = $orders->where('id', $orderid)->first();
-        $invoiceid = $order->invoice_id;
-        $url = url('my-invoice/'.$invoiceid);
+        $invoiceid = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
 
-        return $url;
+        return url('my-invoice/'.$invoiceid);
     }
 
     /**
      * get the price of a product by id.
      *
-     * @param  type  $product_id
-     * @return type collection
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getPrice($product_id)
+    public function getPrice(int $product_id): ?Price
     {
         try {
-            return $this->price->where('product_id', $product_id)->first();
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+            return Price::where('product_id', $product_id)->first();
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function downloadUrl($userid, $orderid)
+    public function downloadUrl(string $userid, int $orderid): UrlGenerator|string
     {
-        $orders = new Order();
-        $order = $orders->where('id', $orderid)->first();
-        $invoice = $this->invoice->find($order->invoice_id);
-        $number = $invoice->number;
-        $url = url('download/'.$userid.'/'.$number);
+        $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
+        /** @var Invoice|null $invoice */
+        $invoice = Invoice::find($invoiceId);
+        $number = $invoice?->number;
 
-        return $url;
+        return url('download/'.$userid.'/'.$number);
     }
 
-    public function formatConfigurableOptions($productId)
+    /**
+     * @return array<mixed>|Collection<int, array{product_id: int, option_group: string, option_name: string, key: mixed, value: mixed}>
+     */
+    public function formatConfigurableOptions(int $productId): Collection|array
     {
         // Retrieve the product ID and related plugin IDs in one query
         $productIds = ProductPluginGroup::where('product_id', $productId)
@@ -435,7 +345,7 @@ class BaseOrderController extends ExtendedOrderController
             ->toArray();
 
         // Fetch all products with related configurations in one query
-        $products = $this->product->with('configOptions.configOptionValues')
+        $products = Product::with('configOptions.configOptionValues')
             ->whereIn('id', $productIds)
             ->get();
 
@@ -445,18 +355,13 @@ class BaseOrderController extends ExtendedOrderController
         }
 
         // Format the configuration options
-        return $products->flatMap(function ($product) {
-            return $product->configOptions->flatMap(function ($configOption) use ($product) {
-                return $configOption->configOptionValues->map(function ($configOptionValue) use ($product, $configOption) {
-                    return [
-                        'product_id' => $product->id,
-                        'option_group' => $configOption->configGroup->config_group_name,
-                        'option_name' => $configOption->config_option_name,
-                        'key' => $configOptionValue->key,
-                        'value' => $configOptionValue->value,
-                    ];
-                });
-            });
-        });
+        // @phpstan-ignore return.type
+        return $products->flatMap(fn ($product) => $product->configOptions->flatMap(fn ($configOption) => $configOption->configOptionValues->map(fn ($configOptionValue): array => [
+            'product_id' => $product->id,
+            'option_group' => $configOption->configGroup->config_group_name,
+            'option_name' => $configOption->config_option_name,
+            'key' => $configOptionValue->key,
+            'value' => $configOptionValue->value,
+        ])));
     }
 }

@@ -1,12 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Front;
 
 use App\Rules\Honeypot;
+use App\Traits\RequestJsonValidation;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class ContactRequest extends FormRequest
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -18,31 +25,36 @@ class ContactRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         if ($this->is('contact-us')) {
             return [
-                'conName' => 'required',
-                'email' => 'required|email',
-                'conmessage' => 'required',
-                'Mobile' => 'required',
-                'country_code' => 'required',
-                'contact' => [new Honeypot()],
-            ];
-        } elseif ($this->is('demo-request')) {
-            return [
-                'demoname' => 'required',
-                'demoemail' => 'required|email',
-                'country_code' => 'required',
-                'Mobile' => 'required',
-                'demomessage' => 'required',
-                'demo' => [new Honeypot()],
+                'conName' => ['required'],
+                'email' => ['required', 'email'],
+                'conmessage' => ['required'],
+                'Mobile' => ['required'],
+                'country_code' => ['required'],
+                'contact' => [new Honeypot],
             ];
         }
+
+        if ($this->is('demo-request')) {
+            return [
+                'demoname' => ['required'],
+                'demoemail' => ['required', 'email'],
+                'country_code' => ['required'],
+                'Mobile' => ['required'],
+                'demomessage' => ['required'],
+                'demo' => [new Honeypot],
+            ];
+        }
+
+        return [];
     }
 
+    #[Override]
     public function messages()
     {
         return [

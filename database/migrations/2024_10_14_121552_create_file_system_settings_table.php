@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('settings_filesystem', function (Blueprint $table) {
+        Schema::create('settings_filesystem', function (Blueprint $table): void {
             $table->bigIncrements('id');
             $table->string('disk');
             $table->string('local_file_storage_path')->nullable();

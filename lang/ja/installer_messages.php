@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'title' => 'Agora請求インストーラー',
     'probe' => 'Agora請求プローブ',
     'magic_phrase' => 'マジックフレーズは何ですか',
@@ -20,7 +19,6 @@ return [
     'off_apache' => 'OFF（Apacheを使用している場合、Apache設定で <var><strong>AllowOverride</strong></var> を <var><strong>All</strong></var> に設定してください）',
     'rewrite_engine' => 'リライトエンジン',
     'user_url' => 'ユーザーフレンドリーURL',
-
     'host' => 'ホスト',
     'host_tooltip' => 'MySQLがAgora請求と同じサーバーにインストールされている場合は「localhost」としてください',
     'database_name_label' => 'データベース名',
@@ -30,7 +28,6 @@ return [
     'password_label' => 'パスワード',
     'test_prerequisites_message' => 'このテストではAgora請求をインストールするために必要な前提条件を確認します',
     'previous' => '前へ',
-
     'sign_up_as_admin' => '管理者として登録',
     'first_name' => '名',
     'first_name_required' => '名は必須です',
@@ -44,13 +41,27 @@ return [
     'confirm_password_required' => 'パスワードの確認は必須です',
     'password_requirements' => 'パスワードには以下が必要です:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => '8～16文字'],
-        ['id' => 'letter', 'text' => '小文字（a-z）'],
-        ['id' => 'capital', 'text' => '大文字（A-Z）'],
-        ['id' => 'number', 'text' => '数字（0-9）'],
-        ['id' => 'space', 'text' => '特殊文字（~*!@$#%_+.?:,{ }）'],
+        [
+            'id' => 'length',
+            'text' => '8～16文字',
+        ],
+        [
+            'id' => 'letter',
+            'text' => '小文字（a-z）',
+        ],
+        [
+            'id' => 'capital',
+            'text' => '大文字（A-Z）',
+        ],
+        [
+            'id' => 'number',
+            'text' => '数字（0-9）',
+        ],
+        [
+            'id' => 'space',
+            'text' => '特殊文字（~*!@$#%_+.?:,{ }）',
+        ],
     ],
-
     'system_information' => 'システム情報',
     'environment' => '環境',
     'environment_required' => '環境は必須です',
@@ -62,37 +73,29 @@ return [
     'file' => 'ファイル',
     'redis' => 'Redis',
     'password' => 'パスワード',
-
     'redis_setup' => 'Redisの設定',
     'redis_host' => 'Redisホスト',
     'redis_port' => 'Redisポート',
     'redis_password' => 'Redisパスワード',
-
     'continue' => '続行',
-
     'final_setup' => 'Agora請求アプリケーションの準備が整いました！',
     'installation_complete' => 'やったね！インストールが完了しました。',
-
     'learn_more' => '詳細を見る',
     'knowledge_base' => 'ナレッジベース',
     'email_support' => 'メールサポート',
-
     'next_step' => '次のステップ',
     'login_button' => 'Agora請求にログイン',
-
     'pre_migration_success' => '移行前テストが正常に完了しました',
     'migrating_tables' => 'データベースのテーブルを移行中',
     'db_connection_error' => 'データベース接続の更新に失敗しました。',
     'database_setup_success' => 'データベースが正常に設定されました。',
     'env_file_created' => '環境設定ファイルが正常に作成されました',
     'pre_migration_test' => '移行前テストを実行中',
-
     'redis_host_required' => 'Redisホストは必須です。',
     'redis_password_required' => 'Redisパスワードは必須です。',
     'redis_port_required' => 'Redisポートは必須です。',
     'password_regex' => 'パスワードは、8文字以上、大文字・小文字・数字・特殊文字のすべてを含む必要があります。',
     'setup_completed' => 'セットアップが正常に完了しました！',
-
     'database' => 'データベース',
     'selected' => '選択済み',
     'mysql_version_is' => 'MySQLのバージョンは',
@@ -108,8 +111,6 @@ return [
     'user_name' => 'ユーザー名',
     'user_email' => 'ユーザーのメールアドレス',
     'password_not_match' => 'パスワードが一致しません',
-
-    // new
     'installation_check' => 'このテストではAgora Invoice Communityのインストールに必要な前提条件を確認します',
     'db_setup_error_1' => 'ユーザー名とパスワードが間違っているか、ホストに接続できない可能性があります。',
     'db_setup_error_2' => '指定されたデータベース名のデータベースが存在していることを確認しましたか？',
@@ -129,7 +130,6 @@ return [
     'click_here' => 'ここをクリック',
     'continue_installation_process' => 'インストールプロセスを続行します。',
     'database_details' => 'データベース接続の詳細を入力してください。',
-    'host' => 'ホスト',
     'sql_port' => 'MySQLポート番号',
     'database_name' => 'データベース名',
     'finishing_setup' => 'セットアップを完了しています。しばらくお待ちください...',
@@ -140,17 +140,11 @@ return [
     'i_accept' => '同意します',
     'enter_license' => '以下のライセンスコードを入力してください:',
     'find_license_in_billing' => 'ライセンスコードは請求ポータルで確認できます。',
-    'sign_up_as_admin' => '管理者として登録',
-    'system_information' => 'システム情報',
     'close' => '閉じる',
     'port_number' => 'ポート番号',
     'is_required' => 'は必須です',
     'firstname' => '名',
     'lastname' => '姓',
-    'username' => 'ユーザー名',
-    'email' => 'メールアドレス',
-    'password' => 'パスワード',
-    'confirm_password' => 'パスワードの確認',
     'copyright' => '著作権',
     'powered_by' => 'すべての権利を保有。提供:',
     'invalid_email' => '無効なメールアドレスです',
@@ -160,5 +154,4 @@ return [
     'tooltip_timezone' => 'ブラウザのタイムゾーンが最初に使用されます。必要に応じて別のタイムゾーンを選択してください。',
     'tooltip_language' => '最初に読み込まれるデフォルトの言語です。必要に応じて別の言語を選択してください。',
     'enter_magic_phrase' => 'マジックフレーズを入力',
-
 ];

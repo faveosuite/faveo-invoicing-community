@@ -15,10 +15,13 @@ use function realpath;
 use function str_contains;
 use function str_starts_with;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
 final class Filter
 {
     /**
-     * @var array<string,true>
+     * @var array<non-empty-string,true>
      */
     private array $files = [];
 
@@ -41,7 +44,7 @@ final class Filter
     {
         $filename = realpath($filename);
 
-        if (!$filename) {
+        if ($filename === false) {
             return;
         }
 
@@ -79,7 +82,7 @@ final class Filter
     }
 
     /**
-     * @return list<string>
+     * @return list<non-empty-string>
      */
     public function files(): array
     {

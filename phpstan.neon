@@ -1,0 +1,61 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - phpstan-baseline.neon
+
+parameters:
+    paths:
+        - .
+
+    level: 8
+
+    reportUnmatchedIgnoredErrors: true
+    treatPhpDocTypesAsCertain: true
+
+    ignoreErrors:
+        -
+            identifier: larastan.noEnvCallsOutsideOfConfig
+            path: app/Plugins/Zoho/Integrations/Campaigns/config/zoho_campaigns.php
+        -
+            identifier: property.notFound
+            message: '#property Illuminate\\Contracts\\Auth\\Authenticatable#'
+        -
+            identifier: property.notFound
+            message: '#property Illuminate\\Database\\Eloquent\\Model::#'
+        -
+            identifier: property.notFound
+            message: '#property Razorpay\\Api\\Api::#'
+        -
+            message: '#Call to an undefined static method Illuminate\\Support\\Facades\\Schema::getTableListing\(\)#'
+            path: app/Http/Controllers/BillingInstaller/InstallerController.php
+            reportUnmatched: false
+        -
+            message: '#Call to an undefined static method Illuminate\\Support\\Facades\\File::filterFiles\(\)#'
+            path: app/Http/helpers.php
+            reportUnmatched: false
+        -
+            identifier: variable.undefined
+            message: '#Undefined variable: \$result#'
+            path: app/Http/Controllers/Front/AutoRenewalController.php
+            reportUnmatched: false
+        -
+            identifier: argument.type
+            message: '#causedBy\(\)#'
+            path: app/Http/helpers.php
+            reportUnmatched: false
+
+
+    excludePaths:
+        - scripts/*
+        - vendor/*
+        - node_modules/*
+        - storage/*
+        - bootstrap/cache/*
+        - public/*
+        - tests
+        - app/License/tests
+        - lang
+        - resources/lang (?)
+        - resources/views (?)
+        # IDE helper stubs — cause Larastan circular type resolution
+        - _ide_helper.php
+        - .phpstorm.meta.php (?)

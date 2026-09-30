@@ -2,6 +2,14 @@
 
 All notable changes to `laravel-html` will be documented in this file.
 
+## 3.12.3 - 2025-12-22
+
+### What's Changed
+
+* make BaseElement::unless() compatible with Conditionable::unless() by @miken32 in https://github.com/spatie/laravel-html/pull/260
+
+**Full Changelog**: https://github.com/spatie/laravel-html/compare/3.12.2...3.12.3
+
 ## 3.12.2 - 2025-12-22
 
 ### What's Changed

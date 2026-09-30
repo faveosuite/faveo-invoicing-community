@@ -9,7 +9,7 @@
  */
 namespace PHPUnit\Logging\TestDox;
 
-use function count;
+use function assert;
 use Iterator;
 
 /**
@@ -43,7 +43,7 @@ final class TestResultCollectionIterator implements Iterator
 
     public function valid(): bool
     {
-        return $this->position < count($this->testResults);
+        return isset($this->testResults[$this->position]);
     }
 
     /**
@@ -56,6 +56,8 @@ final class TestResultCollectionIterator implements Iterator
 
     public function current(): TestResult
     {
+        assert(isset($this->testResults[$this->position]));
+
         return $this->testResults[$this->position];
     }
 

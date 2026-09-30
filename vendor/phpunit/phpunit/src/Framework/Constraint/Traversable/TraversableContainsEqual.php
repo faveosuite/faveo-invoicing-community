@@ -9,6 +9,9 @@
  */
 namespace PHPUnit\Framework\Constraint;
 
+use function is_iterable;
+use function is_object;
+use SebastianBergmann\Comparator\ComparisonFailure;
 use SplObjectStorage;
 
 /**
@@ -22,14 +25,27 @@ final class TraversableContainsEqual extends TraversableContains
      */
     protected function matches(mixed $other): bool
     {
+        $value = $this->value();
+
         if ($other instanceof SplObjectStorage) {
-            return $other->offsetExists($this->value());
+            if (!is_object($value)) {
+                return false;
+            }
+
+            return $other->offsetExists($value);
+        }
+
+        if (!is_iterable($other)) {
+            return false;
         }
 
         foreach ($other as $element) {
-            /** @phpstan-ignore equal.notAllowed */
-            if ($this->value() == $element) {
+            try {
+                $this->assertEqualsUsingComparator($this->value(), $element);
+
                 return true;
+            } catch (ComparisonFailure) {
+                continue;
             }
         }
 

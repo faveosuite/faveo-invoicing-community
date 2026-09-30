@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('subscriptions', function (Blueprint $table) {
-            $table->boolean('is_deleted')->default(false);
+        Schema::table('subscriptions', function (Blueprint $table): void {
+            $table->boolean('is_deleted')->default(value: false);
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('subscriptions', function (Blueprint $table) {
+        Schema::table('subscriptions', function (Blueprint $table): void {
             $table->DropColumn('is_deleted');
         });
     }

@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('group_features')) {
-            Schema::create('group_features', function (Blueprint $table) {
+            Schema::create('group_features', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('group_id')->unsigned()->index('group_features_group_id_foreign');
                 $table->string('features');
@@ -25,10 +23,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('group_features');
     }

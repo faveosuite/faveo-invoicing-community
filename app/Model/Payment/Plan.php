@@ -4,66 +4,138 @@ namespace App\Model\Payment;
 
 use App\BaseModel;
 use App\Model\Configure\ConfigOption;
+use App\Model\Product\Product;
 use App\Traits\SystemActivityLogsTrait;
+use DB;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
+use Override;
+use Spatie\Activitylog\Models\Activity;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property int $product
+ * @property int $allow_tax
+ * @property string|null $days
+ * @property int $status
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read Collection<int, ConfigOption> $configOptions
+ * @property-read int|null $config_options_count
+ * @property-read Collection<int, Period> $periods
+ * @property-read int|null $periods_count
+ * @property-read Collection<int, PlanPrice> $planPrice
+ * @property-read int|null $plan_price_count
+ * @property-read Product|null $productRelation
+ *
+ * @method static \Database\Factories\Model\Payment\PlanFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereAllowTax($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereDays($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereProduct($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class Plan extends BaseModel
 {
+    /**
+     * @use HasFactory<Factory>
+     */
     use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'plans';
 
     protected $fillable = ['name', 'product', 'allow_tax', 'days', 'status'];
 
-    protected $logName = 'plan';
+    protected string $logName = 'plan';
 
-    protected $logNameColumn = 'name';
+    protected string $logNameColumn = 'name';
 
-    protected $logAttributes = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logAttributes = [
         'name', 'product', 'allow_tax', 'days', 'status',
     ];
 
-    protected $logUrl = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logUrl = [
         'segments' => ['plans', ':id', 'edit'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
             'name' => ['Plan Name', fn ($value) => $value],
-            'product' => ['Product', fn ($value) => \App\Model\Product\Product::find($value)?->name],
-            'allow_tax' => ['Allow Tax', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
+            'product' => ['Product', fn ($value) => Product::find($value)?->name], // @phpstan-ignore property.notFound
+            'allow_tax' => ['Allow Tax', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
             'days' => ['Plan Days', fn ($value) => $value],
-            'status' => ['Status', fn ($value) => $value === 1 ? __('message.active') : __('message.inactive')],
+            'status' => ['Status', fn ($value): array|string => $value === 1 ? __('message.active') : __('message.inactive')],
         ];
     }
 
-    public function planPrice()
+    /**
+     * @return HasMany<PlanPrice, $this>
+     */
+    public function planPrice(): HasMany
     {
-        return $this->hasMany(\App\Model\Payment\PlanPrice::class);
+        return $this->hasMany(PlanPrice::class);
     }
 
-    public function product()
+    /**
+     * @return BelongsTo<Product, $this>
+     */
+    public function productRelation(): BelongsTo
     {
-        return $this->belongsTo(\App\Model\Product\Product::class, 'product', 'id');
+        return $this->belongsTo(Product::class, 'product', 'id');
     }
 
-    public function periods()
+    /**
+     * @return BelongsToMany<Model, Model, Pivot, string>
+     */
+    public function periods(): BelongsToMany
     {
-        return $this->belongstoMany(\App\Model\Payment\Period::class, 'plans_periods_relation')->withTimestamps();
+        return $this->belongstoMany(Period::class, 'plans_periods_relation')->withTimestamps(); // @phpstan-ignore return.type
     }
 
+    #[Override]
     public function delete()
     {
-        return \DB::transaction(function () {
+        return DB::transaction(function () {
             $this->planPrice()->delete();
 
             return parent::delete();
         });
     }
 
-    public function configOptions()
+    /**
+     * @return HasMany<ConfigOption, $this>
+     */
+    public function configOptions(): HasMany
     {
         return $this->hasMany(ConfigOption::class);
     }

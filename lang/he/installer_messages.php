@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'title' => 'מתקין Agora Invoicing',
     'probe' => 'בדיקות Agora Invoicing',
     'magic_phrase' => 'מהי מילת הקסם',
@@ -20,7 +19,6 @@ return [
     'off_apache' => 'כבוי (אם אתה משתמש ב-Apache, ודא כי <var><strong>AllowOverride</strong></var> מוגדר ל-<var><strong>All</strong></var> בקובץ ההגדרות של Apache)',
     'rewrite_engine' => 'מנוע שכתוב',
     'user_url' => 'כתובת ידידותית למשתמש',
-
     'host' => 'שרת',
     'host_tooltip' => 'אם MySQL מותקן על אותו שרת שבו מותקן Agora Invoicing, השתמש ב-localhost',
     'database_name_label' => 'שם מסד הנתונים',
@@ -30,7 +28,6 @@ return [
     'password_label' => 'סיסמה',
     'test_prerequisites_message' => 'בדיקה זו תבדוק את הדרישות להתקנת Agora Invoicing',
     'previous' => 'הקודם',
-
     'sign_up_as_admin' => 'הרשם כמנהל מערכת',
     'first_name' => 'שם פרטי',
     'first_name_required' => 'שם פרטי נדרש',
@@ -44,14 +41,27 @@ return [
     'confirm_password_required' => 'נדרש לאשר סיסמה',
     'password_requirements' => 'הסיסמה שלך חייבת לכלול:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => 'בין 8-16 תווים'],
-        ['id' => 'letter', 'text' => 'אותיות קטנות (a-z)'],
-        ['id' => 'capital', 'text' => 'אותיות גדולות (A-Z)'],
-        ['id' => 'number', 'text' => 'מספרים (0-9)'],
-        ['id' => 'space', 'text' => 'תווים מיוחדים (~*!@$#%_+.?:,{ })'],
+        [
+            'id' => 'length',
+            'text' => 'בין 8-16 תווים',
+        ],
+        [
+            'id' => 'letter',
+            'text' => 'אותיות קטנות (a-z)',
+        ],
+        [
+            'id' => 'capital',
+            'text' => 'אותיות גדולות (A-Z)',
+        ],
+        [
+            'id' => 'number',
+            'text' => 'מספרים (0-9)',
+        ],
+        [
+            'id' => 'space',
+            'text' => 'תווים מיוחדים (~*!@$#%_+.?:,{ })',
+        ],
     ],
-
-    // System Information
     'system_information' => 'מידע מערכת',
     'environment' => 'סביבת עבודה',
     'environment_required' => 'נדרשת הגדרת סביבת עבודה',
@@ -63,42 +73,29 @@ return [
     'file' => 'קובץ',
     'redis' => 'Redis',
     'password' => 'סיסמה',
-
-    // Redis Setup
     'redis_setup' => 'הגדרת Redis',
     'redis_host' => 'שרת Redis',
     'redis_port' => 'פורט Redis',
     'redis_password' => 'סיסמת Redis',
-
-    // Buttons
     'continue' => 'המשך',
-
-    // Final Setup
     'final_setup' => 'ההתקנה של Agora Invoicing הושלמה!',
     'installation_complete' => 'כל הכבוד! סיימת את תהליך ההתקנה.',
-
-    // Learn More
     'learn_more' => 'למידע נוסף',
     'knowledge_base' => 'בסיס ידע',
     'email_support' => 'תמיכה באימייל',
-
-    // Next Step
     'next_step' => 'השלב הבא',
     'login_button' => 'התחברות ל-Agora Invoicing',
-
     'pre_migration_success' => 'הבדיקה המוקדמת עברה בהצלחה',
     'migrating_tables' => 'העברת טבלאות במסד הנתונים',
     'db_connection_error' => 'החיבור למסד הנתונים לא עודכן.',
     'database_setup_success' => 'הגדרת מסד הנתונים הושלמה בהצלחה.',
     'env_file_created' => 'קובץ הגדרת הסביבה נוצר בהצלחה',
     'pre_migration_test' => 'בדיקת טרום-העברה',
-
     'redis_host_required' => 'יש להזין כתובת שרת Redis.',
     'redis_password_required' => 'יש להזין סיסמה עבור Redis.',
     'redis_port_required' => 'יש להזין מספר פורט עבור Redis.',
     'password_regex' => 'הסיסמה חייבת להכיל לפחות 8 תווים, אות גדולה אחת, אות קטנה אחת, מספר אחד ותו מיוחד אחד.',
     'setup_completed' => 'ההתקנה הושלמה בהצלחה!',
-
     'database' => 'מסד נתונים',
     'selected' => 'נבחר',
     'mysql_version_is' => 'גרסת MySQL היא',
@@ -133,7 +130,6 @@ return [
     'click_here' => 'לחץ כאן',
     'continue_installation_process' => 'להמשך תהליך ההתקנה.',
     'database_details' => 'הזן את פרטי החיבור למסד הנתונים.',
-    'host' => 'שרת',
     'sql_port' => 'מספר פורט של MySQL',
     'database_name' => 'שם מסד נתונים',
     'finishing_setup' => 'נא להמתין, מסיים התקנה...',
@@ -149,10 +145,6 @@ return [
     'is_required' => 'נדרש',
     'firstname' => 'שם פרטי',
     'lastname' => 'שם משפחה',
-    'username' => 'שם משתמש',
-    'email' => 'אימייל',
-    'password' => 'סיסמה',
-    'confirm_password' => 'אישור סיסמה',
     'copyright' => 'זכויות יוצרים',
     'powered_by' => 'כל הזכויות שמורות. מופעל על ידי',
     'invalid_email' => 'כתובת אימייל לא חוקית',
@@ -162,5 +154,4 @@ return [
     'tooltip_timezone' => 'אזור הזמן של הדפדפן משמש בהתחלה. בחר אזור זמן שונה אם צריך.',
     'tooltip_language' => 'השפה שהועמדה כברירת מחדל. בחר שפה שונה אם צריך.',
     'enter_magic_phrase' => 'הזן ביטוי קסם',
-
 ];

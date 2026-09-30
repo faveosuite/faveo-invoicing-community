@@ -1,36 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Http\Controllers\Common\PhpMailController;
-use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
 
 class NotifyMail implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-    }
+    use Queueable;
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle(PhpMailController $phpMailController)
+    public function handle(PhpMailController $phpMailController): void
     {
-        $p = $phpMailController->NotifyMailing();
-
-        return $p;
+        $phpMailController->NotifyMailing();
     }
 }

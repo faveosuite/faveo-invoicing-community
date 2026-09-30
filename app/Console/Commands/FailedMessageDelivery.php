@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Http\Controllers\Common\CronController;
@@ -24,9 +26,9 @@ class FailedMessageDelivery extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
-        $controller = new CronController();
+        $controller = new CronController;
         $controller->failedMessageDelivery();
         $this->info('app:failed-message-delivery Command Run successfully!');
     }

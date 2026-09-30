@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\BillingInstaller\InstallerController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['installer'])->group(function () {
+Route::middleware(['installer'])->group(function (): void {
     Route::get('db-setup', [InstallerController::class, 'databasePage'])->name('db-setup');
 
     Route::get('post-check', [InstallerController::class, 'database'])->name('database');

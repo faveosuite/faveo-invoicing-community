@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -19,6 +21,12 @@ return [
         'secret' => env('MAILGUN_SECRET'),
         'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
         'scheme' => 'https',
+    ],
+
+    'sentry' => [
+        'auth_token' => env('SENTRY_AUTH_TOKEN'),
+        'org' => env('SENTRY_ORG', 'ladybird-web-solution-pvt-ltd'),
+        'project' => env('SENTRY_PROJECT', 'faveo-invoicing'),
     ],
 
     'mandrill' => [
@@ -44,14 +52,14 @@ return [
         'secret' => '',
     ],
     'github' => [
-        'client_id' => '', //Iv1.f2bdc32a0799a0a0
-        'client_secret' => '', //92957c0954dc3cd476c855c0ecc3fac69e5f8196
-        'redirect' => '', //https://developers.productdemourl.com/Agurmeen/agoraBilling/public/auth/callback
+        'client_id' => '',
+        'client_secret' => '',
+        'redirect' => '',
     ],
     'google' => [
-        'client_id' => '', //15644360529-pufkmq6kgrcj0aqe4e6i23tjvb02a5mg.apps.googleusercontent.com
-        'client_secret' => '', //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'
-        'redirect' => '', //https://developers.productdemourl.com/Agurmeen/agoraBilling/public/auth/callback
+        'client_id' => '',
+        'client_secret' => '',
+        'redirect' => '',
     ],
     'twitter' => [
         'client_id' => '',

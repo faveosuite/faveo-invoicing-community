@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('promo_product_relations')) {
-            Schema::create('promo_product_relations', function (Blueprint $table) {
+            Schema::create('promo_product_relations', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('promotion_id')->unsigned()->index('promo_product_relations_promotion_id_foreign');
                 $table->integer('product_id')->unsigned()->index('promo_product_relations_product_id_foreign');
@@ -25,10 +23,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('promo_product_relations');
     }

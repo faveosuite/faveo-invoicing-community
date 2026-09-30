@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('plugin_compatible_with_products', function (Blueprint $table) {
+        Schema::create('plugin_compatible_with_products', function (Blueprint $table): void {
             $table->id();
             $table->unsignedInteger('plugin_id');
             $table->unsignedInteger('product_id');

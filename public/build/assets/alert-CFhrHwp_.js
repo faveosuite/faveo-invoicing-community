@@ -1,0 +1,1 @@
+import{n as e}from"./pinia-DhBp7fr6.js";var t=e(`alert`,{state:()=>({message:``,type:``,component_name:``,duration:``}),actions:{setAlert({message:e,type:t,component_name:n,duration:r=``}){this.message=e,this.type=t,this.component_name=n,this.duration=r},unsetAlert(){this.message=``,this.type=``,this.component_name=``,this.duration=``}}});export{t};

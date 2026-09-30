@@ -8,12 +8,10 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
     public function up(): void
     {
-        Schema::table('githubs', function (Blueprint $table) {
+        Schema::table('githubs', function (Blueprint $table): void {
             $table->longText('password')->nullable()->change();
         });
     }
@@ -23,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('githubs', function (Blueprint $table) {
+        Schema::table('githubs', function (Blueprint $table): void {
             $table->dropColumn('password');
         });
     }

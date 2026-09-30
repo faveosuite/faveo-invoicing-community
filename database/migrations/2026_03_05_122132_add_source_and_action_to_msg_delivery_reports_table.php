@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('msg_delivery_reports', function (Blueprint $table) {
+        Schema::table('msg_delivery_reports', function (Blueprint $table): void {
             $table->string('source')->nullable()->after('country_iso');
             $table->string('action')->nullable()->after('source');
             $table->dropUnique(['request_id']);
@@ -24,7 +24,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('msg_delivery_reports', function (Blueprint $table) {
+        Schema::table('msg_delivery_reports', function (Blueprint $table): void {
             $table->dropColumn(['source', 'action']);
             $table->dropIndex(['request_id']);
             $table->unique('request_id');

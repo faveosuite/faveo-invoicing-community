@@ -24,6 +24,6 @@ Name | Type | Description | Notes
 **lost_time** | **string** | The date and time of changing the deal status as lost. Can only be set if deal status is lost. | [optional]
 **expected_close_date** | **\DateTime** | The expected close date of the deal | [optional]
 **label_ids** | **int[]** | The IDs of labels assigned to the deal | [optional]
-**custom_fields** | **array<string,object>** | An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes | [optional]
+**custom_fields** | **array<string,object>** | An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes. To clear a custom field value, set it to &#x60;null&#x60;. For multi-option fields (field type &#x60;set&#x60;), use &#x60;null&#x60; to clear the selection — sending an empty array &#x60;[]&#x60; is not supported and will result in a validation error. | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

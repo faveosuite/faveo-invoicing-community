@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'title' => 'Agora Facturering Installatie',
     'probe' => 'Agora Facturering Probes',
     'magic_phrase' => 'Wat is de magische zin',
@@ -20,7 +19,6 @@ return [
     'off_apache' => 'UIT (Als je Apache gebruikt, zorg er dan voor dat <var><strong>AllowOverride</strong></var> is ingesteld op <var><strong>All</strong></var> in de Apache-configuratie)',
     'rewrite_engine' => 'Herschrijf de motor',
     'user_url' => 'Gebruiksvriendelijke URL',
-
     'host' => 'Gastheer',
     'host_tooltip' => 'Als je MySQL op dezelfde server als Agora Facturering hebt geïnstalleerd, laat het dan localhost zijn',
     'database_name_label' => 'Databasenaam',
@@ -30,7 +28,6 @@ return [
     'password_label' => 'Wachtwoord',
     'test_prerequisites_message' => 'Deze test controleert de vereisten die nodig zijn om Agora Facturering te installeren',
     'previous' => 'Vorige',
-
     'sign_up_as_admin' => 'Aanmelden als Admin',
     'first_name' => 'Voornaam',
     'first_name_required' => 'Voornaam is verplicht',
@@ -40,18 +37,31 @@ return [
     'email' => 'E-mail',
     'email_required' => 'E-mail van de gebruiker is verplicht',
     'password_required' => 'Wachtwoord is verplicht',
-    'confirm_password' => 'Bevestig wachtwoord',
+    'confirm_password' => 'Bevestig Wachtwoord',
     'confirm_password_required' => 'Bevestig wachtwoord is verplicht',
     'password_requirements' => 'Je wachtwoord moet het volgende bevatten:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => 'Tussen 8-16 tekens'],
-        ['id' => 'letter', 'text' => 'Kleine letters (a-z)'],
-        ['id' => 'capital', 'text' => 'Hoofdletters (A-Z)'],
-        ['id' => 'number', 'text' => 'Cijfers (0-9)'],
-        ['id' => 'space', 'text' => 'Speciale tekens (~*!@$#%_+.?:,{ })'],
+        [
+            'id' => 'length',
+            'text' => 'Tussen 8-16 tekens',
+        ],
+        [
+            'id' => 'letter',
+            'text' => 'Kleine letters (a-z)',
+        ],
+        [
+            'id' => 'capital',
+            'text' => 'Hoofdletters (A-Z)',
+        ],
+        [
+            'id' => 'number',
+            'text' => 'Cijfers (0-9)',
+        ],
+        [
+            'id' => 'space',
+            'text' => 'Speciale tekens (~*!@$#%_+.?:,{ })',
+        ],
     ],
-
-    // System Information
     'system_information' => 'Systeeminformatie',
     'environment' => 'Omgeving',
     'environment_required' => 'Omgeving is verplicht',
@@ -63,42 +73,29 @@ return [
     'file' => 'Bestand',
     'redis' => 'Opnieuw',
     'password' => 'Wachtwoord',
-
-    // Redis Setup
     'redis_setup' => 'Redis Instelling',
     'redis_host' => 'Redis Host',
     'redis_port' => 'Redis Poort',
     'redis_password' => 'Redis Wachtwoord',
-
-    // Buttons
     'continue' => 'Doorgaan',
-
-    // Final Setup
     'final_setup' => 'Je Agora Facturering Applicatie is Gereed!',
     'installation_complete' => 'Alles is goed, je hebt de installatie doorlopen.',
-
-    // Learn More
     'learn_more' => 'Meer informatie',
     'knowledge_base' => 'Kennisbasis',
     'email_support' => 'E-mailondersteuning',
-
-    // Next Step
     'next_step' => 'Volgende Stap',
     'login_button' => 'Inloggen op Agora Facturering',
-
     'pre_migration_success' => 'Pre-migratie is succesvol getest',
     'migrating_tables' => 'Tabellen migreren in database',
     'db_connection_error' => 'De databaseverbinding werd niet geüpdatet.',
     'database_setup_success' => 'Database is succesvol ingesteld.',
     'env_file_created' => 'Configuratiebestand voor de omgeving is succesvol aangemaakt',
     'pre_migration_test' => 'Pre-migratie test uitvoeren',
-
     'redis_host_required' => 'Redis host is verplicht.',
     'redis_password_required' => 'Redis wachtwoord is verplicht.',
     'redis_port_required' => 'Redis poort is verplicht.',
     'password_regex' => 'Wachtwoord moet minimaal 8 tekens bevatten, één hoofdletter, één kleine letter, één cijfer en één speciaal teken.',
     'setup_completed' => 'Installatie succesvol voltooid!',
-
     'database' => 'Database',
     'selected' => 'Geselecteerd',
     'mysql_version_is' => 'MySQL versie is',
@@ -114,7 +111,6 @@ return [
     'user_name' => 'Gebruikersnaam',
     'user_email' => 'Gebruikers e-mail',
     'password_not_match' => 'Wachtwoorden komen niet overeen',
-    //new
     'installation_check' => 'Deze test controleert de vereisten die nodig zijn om Agora Facturering Community te installeren',
     'db_setup_error_1' => 'Dit betekent ofwel dat de gebruikersnaam en het wachtwoord incorrect zijn, of dat je host niet bereikbaar is.',
     'db_setup_error_2' => 'Weet je zeker dat je een database hebt die al bestaat met de opgegeven databasenaam?',
@@ -144,17 +140,11 @@ return [
     'i_accept' => 'Ik accepteer de',
     'enter_license' => 'Voer je licentiecode in voor',
     'find_license_in_billing' => 'Je kunt je licentiecode vinden in ons factureringsportaal',
-    'sign_up_as_admin' => 'Aanmelden als Admin',
-    'system_information' => 'Systeeminformatie',
     'close' => 'Sluiten',
     'port_number' => 'Poortnummer',
     'is_required' => 'is verplicht',
     'firstname' => 'Voornaam',
     'lastname' => 'Achternaam',
-    'username' => 'Gebruikersnaam',
-    'email' => 'E-mail',
-    'password' => 'Wachtwoord',
-    'confirm_password' => 'Bevestig Wachtwoord',
     'copyright' => 'Copyright',
     'powered_by' => 'Alle rechten voorbehouden. Aangedreven door',
     'invalid_email' => 'Ongeldige e-mail',
@@ -164,5 +154,4 @@ return [
     'tooltip_timezone' => 'De tijdzone van de browser wordt aanvankelijk gebruikt. Selecteer een andere tijdzone indien nodig.',
     'tooltip_language' => 'Standaardtaal wordt aanvankelijk geladen. Selecteer een andere taal indien nodig.',
     'enter_magic_phrase' => 'Voer magische zin in',
-
 ];

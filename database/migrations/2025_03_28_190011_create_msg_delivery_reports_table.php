@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('msg_delivery_reports', function (Blueprint $table) {
+        Schema::create('msg_delivery_reports', function (Blueprint $table): void {
             $table->id();
             $table->string('mobile_number');
             $table->string('mobile_code');

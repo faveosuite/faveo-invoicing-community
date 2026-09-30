@@ -2,54 +2,204 @@
 
 namespace App\Model\Product;
 
+use App\License\Models\VersionCallback;
+use App\License\Models\VersionInstallation;
+use App\Model\Order\Order;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
+/**
+ * @property int $id
+ * @property int $product_id
+ * @property string $title
+ * @property string $description
+ * @property string $version
+ * @property string $file
+ * @property string|null $version_expire_date
+ * @property int $version_install_count
+ * @property int $status
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property int $is_private
+ * @property int $is_restricted
+ * @property string|null $dependencies
+ * @property int $is_pre_release
+ * @property string $release_type
+ * @property-read Collection<int, Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read Collection<int, VersionCallback> $callbacks
+ * @property-read int|null $callbacks_count
+ * @property-read Collection<int, VersionInstallation> $installations
+ * @property-read int|null $installations_count
+ * @property-read Order|null $order
+ * @property-read Product|null $product
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload active()
+ * @method static \Database\Factories\Model\Product\ProductUploadFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereDependencies($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereFile($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereIsPreRelease($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereIsPrivate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereIsRestricted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereReleaseType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereVersion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereVersionExpireDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereVersionInstallCount($value)
+ *
+ * @mixin \Eloquent
+ */
 class ProductUpload extends Model
 {
+    /**
+     * @use HasFactory<Factory>
+     */
+    use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'product_uploads';
 
-    protected $fillable = ['product_id', 'title', 'description', 'version', 'file', 'is_private', 'is_restricted', 'release_type', 'dependencies'];
+    protected $fillable = ['product_id', 'title', 'description', 'version', 'file', 'is_private', 'is_restricted', 'release_type', 'dependencies', 'version_expire_date', 'version_install_count', 'status'];
 
-    protected $logName = 'product';
+    protected string $logName = 'product';
 
-    protected $logNameColumn = 'Settings';
+    protected string $logNameColumn = 'Settings';
 
-    protected $logAttributes = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logAttributes = [
         'product_id', 'title', 'version', 'file', 'is_private', 'is_restricted', 'release_type',
     ];
 
-    protected $logUrl = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logUrl = [
         'segments' => ['edit-upload', ':id'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
-            'product_id' => ['Product', fn ($value) => Product::find($value)?->name],
+            'product_id' => ['Product', fn ($value) => Product::find($value)?->name], // @phpstan-ignore property.notFound
             'title' => ['Title', fn ($value) => $value],
             'version' => ['Version', fn ($value) => $value],
             'file' => ['File', fn ($value) => $value],
-            'is_private' => ['Is Private', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'is_restricted' => ['Is Restricted', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'release_type' => ['Release Type', fn ($value) => ucfirst($value)],
+            'is_private' => ['Is Private', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
+            'is_restricted' => ['Is Restricted', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
+            'release_type' => ['Release Type', ucfirst(...)],
         ];
     }
 
-    public function product()
+    /**
+     * Creates a release row and bumps the product's current version. Shared by
+     * the admin single-product screen (ProductController::productUploadCreate)
+     * and the one-build-many-products path (AppliesBuildToProducts), which the
+     * admin screen and the third-party API both reach, so one release contract
+     * serves every caller.
+     *
+     * @param  array<mixed>  $validated
+     */
+    public static function createRelease(Product $product, string $title, string $file, string $version, array $validated, bool $isPrivate, bool $isRestricted): void
     {
-        return $this->belongsTo(\App\Model\Product\Product::class);
+        self::create([
+            'product_id' => $product->id,
+            'title' => $title,
+            'description' => $validated['description'],
+            'version' => $version,
+            'file' => $file,
+            'is_private' => $isPrivate,
+            'is_restricted' => $isRestricted,
+            'release_type' => $validated['release_type'],
+            'dependencies' => json_encode($validated['dependencies']),
+        ]);
+
+        $product->update(['version' => $version]);
     }
 
-    public function order()
+    /**
+     * @return BelongsTo<Product, $this>
+     */
+    public function product(): BelongsTo
     {
-        return $this->belongsTo(\App\Model\Order\Order::class);
+        return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
-    public function getDependenciesAttribute($value)
+    // Thin wrapper kept for its call sites (ExtendedBaseProductController,
+    // DeployController, DownloadFileController) — every version upload is a
+    // single file now, but they resolve through this method rather than
+    // reading ->file directly.
+    public function resolvedFile(): ?string
     {
-        return json_decode($value);
+        return $this->file;
+    }
+
+    /**
+     * @return BelongsTo<Order, $this>
+     */
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
+    }
+
+    /**
+     * @return HasMany<VersionCallback, $this>
+     */
+    public function callbacks(): HasMany
+    {
+        return $this->hasMany(VersionCallback::class, 'version_id');
+    }
+
+    /**
+     * @return HasMany<VersionInstallation, $this>
+     */
+    public function installations(): HasMany
+    {
+        return $this->hasMany(VersionInstallation::class, 'version_id');
+    }
+
+    /**
+     * @param  Builder<Model>  $query
+     */
+    #[Scope]
+    protected function active(Builder $query): mixed
+    {
+        return $query->where(function ($q): void {
+            $q->where('status', 1);
+        });
+    }
+
+    /**
+     * @return Attribute<mixed, mixed>
+     */
+    protected function dependencies(): Attribute
+    {
+        return Attribute::make(get: function ($value) {
+            return json_decode((string) $value);
+        });
     }
 }

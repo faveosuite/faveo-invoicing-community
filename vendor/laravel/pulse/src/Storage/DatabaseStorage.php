@@ -37,7 +37,7 @@ class DatabaseStorage implements Storage
     /**
      * Store the items.
      *
-     * @param  \Illuminate\Support\Collection<int, \Laravel\Pulse\Entry|\Laravel\Pulse\Value>  $items
+     * @param  Collection<int, Entry|Value>  $items
      */
     public function store(Collection $items): void
     {
@@ -183,12 +183,18 @@ class DatabaseStorage implements Storage
      */
     protected function upsertCount(array $values): int
     {
-        return $this->connection()->table('pulse_aggregates')->upsert(
+        $connection = $this->connection();
+
+        return $connection->table('pulse_aggregates')->upsert(
             $values,
             ['bucket', 'period', 'type', 'aggregate', 'key_hash'],
             [
-                'value' => match ($driver = $this->connection()->getDriverName()) {
-                    'mariadb', 'mysql' => new Expression('`value` + values(`value`)'),
+                'value' => match ($driver = $connection->getDriverName()) {
+                    'mariadb', 'mysql' => new Expression(
+                        $connection->getConfig('use_upsert_alias')
+                            ? "{$this->wrap('pulse_aggregates.value')} + {$this->wrap('laravel_upsert_alias.value')}"
+                            : '`value` + values(`value`)'
+                    ),
                     'pgsql', 'sqlite' => new Expression(<<<SQL
                         {$this->wrap('pulse_aggregates.value')} + "excluded"."value"
                         SQL),
@@ -205,12 +211,18 @@ class DatabaseStorage implements Storage
      */
     protected function upsertMin(array $values): int
     {
-        return $this->connection()->table('pulse_aggregates')->upsert(
+        $connection = $this->connection();
+
+        return $connection->table('pulse_aggregates')->upsert(
             $values,
             ['bucket', 'period', 'type', 'aggregate', 'key_hash'],
             [
-                'value' => match ($driver = $this->connection()->getDriverName()) {
-                    'mariadb', 'mysql' => new Expression('least(`value`, values(`value`))'),
+                'value' => match ($driver = $connection->getDriverName()) {
+                    'mariadb', 'mysql' => new Expression(
+                        $connection->getConfig('use_upsert_alias')
+                            ? "least({$this->wrap('pulse_aggregates.value')}, {$this->wrap('laravel_upsert_alias.value')})"
+                            : 'least(`value`, values(`value`))'
+                    ),
                     'pgsql' => new Expression(<<<SQL
                         least({$this->wrap('pulse_aggregates.value')}, "excluded"."value")
                         SQL),
@@ -230,12 +242,18 @@ class DatabaseStorage implements Storage
      */
     protected function upsertMax(array $values): int
     {
-        return $this->connection()->table('pulse_aggregates')->upsert(
+        $connection = $this->connection();
+
+        return $connection->table('pulse_aggregates')->upsert(
             $values,
             ['bucket', 'period', 'type', 'aggregate', 'key_hash'],
             [
-                'value' => match ($driver = $this->connection()->getDriverName()) {
-                    'mariadb', 'mysql' => new Expression('greatest(`value`, values(`value`))'),
+                'value' => match ($driver = $connection->getDriverName()) {
+                    'mariadb', 'mysql' => new Expression(
+                        $connection->getConfig('use_upsert_alias')
+                            ? "greatest({$this->wrap('pulse_aggregates.value')}, {$this->wrap('laravel_upsert_alias.value')})"
+                            : 'greatest(`value`, values(`value`))'
+                    ),
                     'pgsql' => new Expression(<<<SQL
                         greatest({$this->wrap('pulse_aggregates.value')}, "excluded"."value")
                         SQL),
@@ -255,12 +273,18 @@ class DatabaseStorage implements Storage
      */
     protected function upsertSum(array $values): int
     {
-        return $this->connection()->table('pulse_aggregates')->upsert(
+        $connection = $this->connection();
+
+        return $connection->table('pulse_aggregates')->upsert(
             $values,
             ['bucket', 'period', 'type', 'aggregate', 'key_hash'],
             [
-                'value' => match ($driver = $this->connection()->getDriverName()) {
-                    'mariadb', 'mysql' => new Expression('`value` + values(`value`)'),
+                'value' => match ($driver = $connection->getDriverName()) {
+                    'mariadb', 'mysql' => new Expression(
+                        $connection->getConfig('use_upsert_alias')
+                            ? "{$this->wrap('pulse_aggregates.value')} + {$this->wrap('laravel_upsert_alias.value')}"
+                            : '`value` + values(`value`)'
+                    ),
                     'pgsql', 'sqlite' => new Expression(<<<SQL
                         {$this->wrap('pulse_aggregates.value')} + "excluded"."value"
                         SQL),
@@ -277,11 +301,20 @@ class DatabaseStorage implements Storage
      */
     protected function upsertAvg(array $values): int
     {
-        return $this->connection()->table('pulse_aggregates')->upsert(
+        $connection = $this->connection();
+
+        return $connection->table('pulse_aggregates')->upsert(
             $values,
             ['bucket', 'period', 'type', 'aggregate', 'key_hash'],
-            match ($driver = $this->connection()->getDriverName()) {
-                'mariadb', 'mysql' => [
+            match ($driver = $connection->getDriverName()) {
+                'mariadb', 'mysql' => $connection->getConfig('use_upsert_alias') ? [
+                    'value' => new Expression(
+                        "({$this->wrap('pulse_aggregates.value')} * {$this->wrap('pulse_aggregates.count')} + ({$this->wrap('laravel_upsert_alias.value')} * {$this->wrap('laravel_upsert_alias.count')})) / ({$this->wrap('pulse_aggregates.count')} + {$this->wrap('laravel_upsert_alias.count')})"
+                    ),
+                    'count' => new Expression(
+                        "{$this->wrap('pulse_aggregates.count')} + {$this->wrap('laravel_upsert_alias.count')}"
+                    ),
+                ] : [
                     'value' => new Expression('(`value` * `count` + (values(`value`) * values(`count`))) / (`count` + values(`count`))'),
                     'count' => new Expression('`count` + values(`count`)'),
                 ],
@@ -301,8 +334,8 @@ class DatabaseStorage implements Storage
     /**
      * Pre-aggregate entry counts.
      *
-     * @param  \Illuminate\Support\Collection<int, \Laravel\Pulse\Entry>  $entries
-     * @return \Illuminate\Support\Collection<int, AggregateRow>
+     * @param  Collection<int, Entry>  $entries
+     * @return Collection<int, AggregateRow>
      */
     protected function preaggregateCounts(Collection $entries): Collection
     {
@@ -315,8 +348,8 @@ class DatabaseStorage implements Storage
     /**
      * Pre-aggregate entry minimums.
      *
-     * @param  \Illuminate\Support\Collection<int, \Laravel\Pulse\Entry>  $entries
-     * @return \Illuminate\Support\Collection<int, AggregateRow>
+     * @param  Collection<int, Entry>  $entries
+     * @return Collection<int, AggregateRow>
      */
     protected function preaggregateMinimums(Collection $entries): Collection
     {
@@ -331,8 +364,8 @@ class DatabaseStorage implements Storage
     /**
      * Pre-aggregate entry maximums.
      *
-     * @param  \Illuminate\Support\Collection<int, \Laravel\Pulse\Entry>  $entries
-     * @return \Illuminate\Support\Collection<int, AggregateRow>
+     * @param  Collection<int, Entry>  $entries
+     * @return Collection<int, AggregateRow>
      */
     protected function preaggregateMaximums(Collection $entries): Collection
     {
@@ -347,8 +380,8 @@ class DatabaseStorage implements Storage
     /**
      * Pre-aggregate entry sums.
      *
-     * @param  \Illuminate\Support\Collection<int, \Laravel\Pulse\Entry>  $entries
-     * @return \Illuminate\Support\Collection<int, AggregateRow>
+     * @param  Collection<int, Entry>  $entries
+     * @return Collection<int, AggregateRow>
      */
     protected function preaggregateSums(Collection $entries): Collection
     {
@@ -361,8 +394,8 @@ class DatabaseStorage implements Storage
     /**
      * Pre-aggregate entry averages.
      *
-     * @param  \Illuminate\Support\Collection<int, \Laravel\Pulse\Entry>  $entries
-     * @return \Illuminate\Support\Collection<int, AggregateRow>
+     * @param  Collection<int, Entry>  $entries
+     * @return Collection<int, AggregateRow>
      */
     protected function preaggregateAverages(Collection $entries): Collection
     {
@@ -378,8 +411,8 @@ class DatabaseStorage implements Storage
     /**
      * Collapse the given values.
      *
-     * @param  \Illuminate\Support\Collection<int, \Laravel\Pulse\Value>  $values
-     * @return \Illuminate\Support\Collection<int, \Laravel\Pulse\Value>
+     * @param  Collection<int, Value>  $values
+     * @return Collection<int, Value>
      */
     protected function collapseValues(Collection $values): Collection
     {
@@ -389,8 +422,8 @@ class DatabaseStorage implements Storage
     /**
      * Pre-aggregate entries with a callback.
      *
-     * @param  \Illuminate\Support\Collection<int, \Laravel\Pulse\Entry>  $entries
-     * @return \Illuminate\Support\Collection<int, AggregateRow>
+     * @param  Collection<int, Entry>  $entries
+     * @return Collection<int, AggregateRow>
      */
     protected function preaggregate(Collection $entries, string $aggregate, Closure $callback): Collection
     {
@@ -447,7 +480,7 @@ class DatabaseStorage implements Storage
      * Retrieve values for the given type.
      *
      * @param  list<string>  $keys
-     * @return \Illuminate\Support\Collection<string, object{
+     * @return Collection<string, object{
      *     timestamp: int,
      *     key: string,
      *     value: string
@@ -470,7 +503,7 @@ class DatabaseStorage implements Storage
      *
      * @param  list<string>  $types
      * @param  'count'|'min'|'max'|'sum'|'avg'  $aggregate
-     * @return \Illuminate\Support\Collection<string, \Illuminate\Support\Collection<string, \Illuminate\Support\Collection<string, int|null>>>
+     * @return Collection<string, Collection<string, Collection<string, int|null>>>
      */
     public function graph(array $types, string $aggregate, CarbonInterval $interval): Collection
     {
@@ -515,7 +548,7 @@ class DatabaseStorage implements Storage
      * Retrieve aggregate values for the given type.
      *
      * @param  'count'|'min'|'max'|'sum'|'avg'|list<'count'|'min'|'max'|'sum'|'avg'>  $aggregates
-     * @return \Illuminate\Support\Collection<int, object{
+     * @return Collection<int, object{
      *     key: string,
      *     min?: int,
      *     max?: int,
@@ -632,7 +665,7 @@ class DatabaseStorage implements Storage
      *
      * @param  string|list<string>  $types
      * @param  'count'|'min'|'max'|'sum'|'avg'  $aggregate
-     * @return \Illuminate\Support\Collection<int, object>
+     * @return Collection<int, object>
      */
     public function aggregateTypes(
         string|array $types,
@@ -734,7 +767,7 @@ class DatabaseStorage implements Storage
      *
      * @param  string|list<string>  $types
      * @param  'count'|'min'|'max'|'sum'|'avg'  $aggregate
-     * @return float|\Illuminate\Support\Collection<string, int>
+     * @return float|Collection<string, int>
      */
     public function aggregateTotal(
         array|string $types,

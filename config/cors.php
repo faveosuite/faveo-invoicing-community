@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     'supportsCredentials' => false,
@@ -29,7 +31,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['*'], // NOSONAR - intentional, API consumed by trusted clients
 
     'allowed_origins_patterns' => [],
 

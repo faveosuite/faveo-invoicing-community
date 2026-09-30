@@ -4,27 +4,84 @@ namespace App\Model\Front;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
+use Spatie\Activitylog\Models\Activity;
 
+/**
+ * @property int $id
+ * @property int $parent_page_id
+ * @property string $slug
+ * @property string $name
+ * @property string $content
+ * @property string $url
+ * @property string $type
+ * @property int $publish
+ * @property int $hidden
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read FrontendPage|null $parent
+ *
+ * @method static \Database\Factories\Model\Front\FrontendPageFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereContent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereHidden($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereParentPageId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage wherePublish($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereUrl($value)
+ *
+ * @mixin \Eloquent
+ */
 class FrontendPage extends BaseModel
 {
+    /**
+     * @use HasFactory<Factory>
+     */
+    use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'frontend_pages';
 
-    protected $fillable = ['parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type', 'created_at'];
+    protected $fillable = ['parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type', 'created_at', 'meta_title', 'meta_description', 'og_title', 'og_description', 'og_image', 'og_same_as_meta'];
 
-    protected $logName = 'pages';
+    protected string $logName = 'pages';
 
-    protected $logNameColumn = 'name';
+    protected string $logNameColumn = 'name';
 
-    protected $logAttributes = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logAttributes = [
         'parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type', 'created_at',
+        'meta_title', 'meta_description', 'og_title', 'og_description', 'og_image', 'og_same_as_meta',
     ];
 
-    protected $logUrl = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $logUrl = [
         'segments' => ['pages', ':id', 'edit'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
@@ -33,17 +90,58 @@ class FrontendPage extends BaseModel
             'name' => ['Name', fn ($value) => $value],
             'content' => ['Content', fn ($value) => $value],
             'url' => ['URL', fn ($value) => $value],
-            'publish' => ['Publish status', fn ($value) => $value ? __('message.active') : __('message.inactive')],
+            'publish' => ['Publish status', fn ($value): array|string => $value ? __('message.active') : __('message.inactive')],
             'type' => ['Type', fn ($value) => $value],
             'created_at' => [
                 'Publishing Date',
-                fn ($value) => \Carbon\Carbon::parse($value)->format('d M Y, h:i A'),
+                fn ($value) => Date::parse($value)->format('d M Y, h:i A'),
             ],
+            'meta_title' => ['Meta Title', fn ($value) => $value],
+            'meta_description' => ['Meta Description', fn ($value) => $value],
+            'og_title' => ['Open Graph Title', fn ($value) => $value],
+            'og_description' => ['Open Graph Description', fn ($value) => $value],
+            'og_image' => ['Open Graph Image', fn ($value) => $value],
+            'og_same_as_meta' => ['Open Graph Same As Meta', fn ($value): array|string => $value ? __('message.yes') : __('message.no')],
         ];
     }
 
-    public function setSlugAttribute($value)
+    /**
+     * Where this page lives. Empty means it is a content page served at
+     * /pages/{slug}; set means it is a link to that URL and its stored
+     * content never renders (see routes/web.php, Navbar.vue, SeoFileGenerator).
+     *
+     * A "contactus" page always lives at the built-in /contact-us route, so
+     * its URL is derived on read instead of trusted from the column: the
+     * stored value is absolute, and seeded/imported rows carry the install
+     * they came from (the admin form disables the field but still resubmits
+     * whatever it loaded). Deriving also survives an APP_URL change, which a
+     * stored value would not.
+     *
+     * Reading `url` therefore needs `type` loaded too: partial selects must
+     * ask for both columns.
+     *
+     * @return Attribute<string, string>
+     */
+    protected function url(): Attribute
     {
-        $this->attributes['slug'] = str_replace(' ', '', $value);
+        return Attribute::get(fn ($value): string => $this->type === 'contactus' ? url('/contact-us') : (string) $value);
+    }
+
+    /**
+     * @return Attribute<mixed, mixed>
+     */
+    protected function slug(): Attribute
+    {
+        return Attribute::make(set: function ($value): array {
+            return ['slug' => str_replace(' ', '', $value)];
+        });
+    }
+
+    /**
+     * @return BelongsTo<FrontendPage, $this>
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(FrontendPage::class, 'parent_page_id');
     }
 }

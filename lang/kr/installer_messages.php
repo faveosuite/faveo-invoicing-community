@@ -1,9 +1,6 @@
 <?php
 
 return [
-
-    'enter_valid_firstname' => '유효한 이름을 입력하세요',
-    'enter_valid_lastname' => '유효한 성을 입력하세요',
     'title' => 'Agora 인보이스 설치 프로그램',
     'probe' => 'Agora 인보이스 프로브',
     'magic_phrase' => '마법의 문구는 무엇인가요?',
@@ -22,7 +19,6 @@ return [
     'off_apache' => 'OFF (Apache를 사용하는 경우, <var><strong>AllowOverride</strong></var>를 <var><strong>All</strong></var>로 설정하세요)',
     'rewrite_engine' => '재작성 엔진',
     'user_url' => '사용자 친화적인 URL',
-
     'host' => '호스트',
     'host_tooltip' => 'MySQL이 Agora Invoicing과 동일한 서버에 설치되어 있으면 localhost로 설정하세요',
     'database_name_label' => '데이터베이스 이름',
@@ -32,8 +28,7 @@ return [
     'password_label' => '비밀번호',
     'test_prerequisites_message' => 'Agora Invoicing을 설치하는 데 필요한 사전 요구 사항을 확인합니다.',
     'previous' => '이전',
-
-    'sign_up_as_admin' => '관리자로 가입',
+    'sign_up_as_admin' => '관리자로 가입하기',
     'first_name' => '이름',
     'first_name_required' => '이름은 필수입니다',
     'last_name' => '성',
@@ -46,13 +41,27 @@ return [
     'confirm_password_required' => '비밀번호 확인은 필수입니다',
     'password_requirements' => '비밀번호는 다음 요구 사항을 충족해야 합니다:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => '8-16자 사이'],
-        ['id' => 'letter', 'text' => '소문자 (a-z) 포함'],
-        ['id' => 'capital', 'text' => '대문자 (A-Z) 포함'],
-        ['id' => 'number', 'text' => '숫자 (0-9) 포함'],
-        ['id' => 'space', 'text' => '특수 문자 (~*!@$#%_+.?:,{ }) 포함'],
+        [
+            'id' => 'length',
+            'text' => '8-16자 사이',
+        ],
+        [
+            'id' => 'letter',
+            'text' => '소문자 (a-z) 포함',
+        ],
+        [
+            'id' => 'capital',
+            'text' => '대문자 (A-Z) 포함',
+        ],
+        [
+            'id' => 'number',
+            'text' => '숫자 (0-9) 포함',
+        ],
+        [
+            'id' => 'space',
+            'text' => '특수 문자 (~*!@$#%_+.?:,{ }) 포함',
+        ],
     ],
-
     'system_information' => '시스템 정보',
     'environment' => '환경',
     'environment_required' => '환경 설정이 필요합니다',
@@ -64,37 +73,29 @@ return [
     'file' => '파일',
     'redis' => 'Redis',
     'password' => '비밀번호',
-
     'redis_setup' => 'Redis 설정',
     'redis_host' => 'Redis 호스트',
     'redis_port' => 'Redis 포트',
     'redis_password' => 'Redis 비밀번호',
-
     'continue' => '계속',
-
     'final_setup' => 'Agora Invoicing 애플리케이션 준비 완료!',
     'installation_complete' => '설치를 완료했습니다!',
-
     'learn_more' => '자세히 알아보기',
     'knowledge_base' => '지식 베이스',
     'email_support' => '이메일 지원',
-
     'next_step' => '다음 단계',
     'login_button' => 'Agora Invoicing 로그인',
-
     'pre_migration_success' => '사전 마이그레이션 테스트 성공',
     'migrating_tables' => '데이터베이스 테이블 마이그레이션 중',
     'db_connection_error' => '데이터베이스 연결 업데이트 실패',
     'database_setup_success' => '데이터베이스 설정이 완료되었습니다.',
     'env_file_created' => '환경 설정 파일이 성공적으로 생성되었습니다.',
     'pre_migration_test' => '사전 마이그레이션 테스트 실행',
-
     'redis_host_required' => 'Redis 호스트가 필요합니다.',
     'redis_password_required' => 'Redis 비밀번호가 필요합니다.',
     'redis_port_required' => 'Redis 포트가 필요합니다.',
     'password_regex' => '비밀번호는 최소 8자 이상, 대문자, 소문자, 숫자, 특수 문자를 포함해야 합니다.',
     'setup_completed' => '설정이 성공적으로 완료되었습니다!',
-
     'database' => '데이터베이스',
     'selected' => '선택됨',
     'mysql_version_is' => 'MySQL 버전:',
@@ -110,7 +111,6 @@ return [
     'user_name' => '사용자 이름',
     'user_email' => '사용자 이메일',
     'password_not_match' => '비밀번호가 일치하지 않습니다.',
-
     'installation_check' => 'Agora Invoice Community 설치를 위한 사전 요구 사항을 확인하는 테스트입니다.',
     'db_setup_error_1' => '사용자 이름 및 비밀번호 정보가 잘못되었거나 호스트에 연결할 수 없습니다.',
     'db_setup_error_2' => '제공된 데이터베이스 이름이 존재하는지 확인하세요.',
@@ -130,7 +130,6 @@ return [
     'click_here' => '여기를 클릭하세요',
     'continue_installation_process' => '설치 프로세스를 계속하려면.',
     'database_details' => '데이터베이스 연결 정보를 입력하세요.',
-    'host' => '호스트',
     'sql_port' => 'MySQL 포트 번호',
     'database_name' => '데이터베이스 이름',
     'finishing_setup' => '잠시 기다려 주세요. 설정을 마무리하는 중...',
@@ -141,17 +140,11 @@ return [
     'i_accept' => '동의합니다',
     'enter_license' => '라이선스 코드를 입력하세요:',
     'find_license_in_billing' => '청구 포털에서 라이선스 코드를 확인할 수 있습니다.',
-    'sign_up_as_admin' => '관리자로 가입하기',
-    'system_information' => '시스템 정보',
     'close' => '닫기',
     'port_number' => '포트 번호',
     'is_required' => '필수 입력 사항입니다',
     'firstname' => '이름',
     'lastname' => '성',
-    'username' => '사용자 이름',
-    'email' => '이메일',
-    'password' => '비밀번호',
-    'confirm_password' => '비밀번호 확인',
     'copyright' => '저작권',
     'powered_by' => '모든 권리 보유. 제공자:',
     'invalid_email' => '잘못된 이메일',
@@ -161,5 +154,4 @@ return [
     'tooltip_timezone' => '브라우저 시간대가 처음에 사용됩니다. 필요에 따라 다른 시간대를 선택하세요.',
     'tooltip_language' => '기본 언어가 처음에 로드됩니다. 필요에 따라 다른 언어를 선택하세요.',
     'enter_magic_phrase' => '매직 문구 입력',
-
 ];

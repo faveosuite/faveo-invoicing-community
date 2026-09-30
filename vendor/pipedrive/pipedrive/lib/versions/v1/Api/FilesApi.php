@@ -1,7 +1,7 @@
 <?php
 /**
  * FilesApi
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -83,9 +83,9 @@ class FilesApi
      * @param int                  $hostIndex (Optional) host index to select the list of hosts if defined in the OpenAPI spec
      */
     public function __construct(
-        ClientInterface $client = null,
-        Configuration $config = null,
-        HeaderSelector $selector = null,
+        ?ClientInterface $client = null,
+        ?Configuration $config = null,
+        ?HeaderSelector $selector = null,
         int $hostIndex = 0
     ) {
         $this->client = $client ?: new Client();
@@ -134,14 +134,15 @@ class FilesApi
      * @param  int|null $product_id The ID of the product to associate file(s) with (optional)
      * @param  int|null $activity_id The ID of the activity to associate file(s) with (optional)
      * @param  string|null $lead_id The ID of the lead to associate file(s) with (optional)
+     * @param  int|null $project_id The ID of the project to associate file(s) with (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\AddFile
      */
-    public function addFile($file, $deal_id = null, $person_id = null, $org_id = null, $product_id = null, $activity_id = null, $lead_id = null)
+    public function addFile($file, $deal_id = null, $person_id = null, $org_id = null, $product_id = null, $activity_id = null, $lead_id = null, $project_id = null)
     {
-        list($response) = $this->addFileWithHttpInfo($file, $deal_id, $person_id, $org_id, $product_id, $activity_id, $lead_id);
+        list($response) = $this->addFileWithHttpInfo($file, $deal_id, $person_id, $org_id, $product_id, $activity_id, $lead_id, $project_id);
         return $response;
     }
 
@@ -157,14 +158,15 @@ class FilesApi
      * @param  int|null $product_id The ID of the product to associate file(s) with (optional)
      * @param  int|null $activity_id The ID of the activity to associate file(s) with (optional)
      * @param  string|null $lead_id The ID of the lead to associate file(s) with (optional)
+     * @param  int|null $project_id The ID of the project to associate file(s) with (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\AddFile, HTTP status code, HTTP response headers (array of strings)
      */
-    public function addFileWithHttpInfo($file, $deal_id = null, $person_id = null, $org_id = null, $product_id = null, $activity_id = null, $lead_id = null)
+    public function addFileWithHttpInfo($file, $deal_id = null, $person_id = null, $org_id = null, $product_id = null, $activity_id = null, $lead_id = null, $project_id = null)
     {
-        $request = $this->addFileRequest($file, $deal_id, $person_id, $org_id, $product_id, $activity_id, $lead_id);
+        $request = $this->addFileRequest($file, $deal_id, $person_id, $org_id, $product_id, $activity_id, $lead_id, $project_id);
 
         try {
             $options = $this->createHttpClientOption();
@@ -173,7 +175,7 @@ class FilesApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->addFileRequest($file, $deal_id, $person_id, $org_id, $product_id, $activity_id, $lead_id);
+                    $request = $this->addFileRequest($file, $deal_id, $person_id, $org_id, $product_id, $activity_id, $lead_id, $project_id);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -264,13 +266,14 @@ class FilesApi
      * @param  int|null $product_id The ID of the product to associate file(s) with (optional)
      * @param  int|null $activity_id The ID of the activity to associate file(s) with (optional)
      * @param  string|null $lead_id The ID of the lead to associate file(s) with (optional)
+     * @param  int|null $project_id The ID of the project to associate file(s) with (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function addFileAsync($file, $deal_id = null, $person_id = null, $org_id = null, $product_id = null, $activity_id = null, $lead_id = null): PromiseInterface
+    public function addFileAsync($file, $deal_id = null, $person_id = null, $org_id = null, $product_id = null, $activity_id = null, $lead_id = null, $project_id = null): PromiseInterface
     {
-        return $this->addFileAsyncWithHttpInfo($file, $deal_id, $person_id, $org_id, $product_id, $activity_id, $lead_id)
+        return $this->addFileAsyncWithHttpInfo($file, $deal_id, $person_id, $org_id, $product_id, $activity_id, $lead_id, $project_id)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -290,14 +293,15 @@ class FilesApi
      * @param  int|null $product_id The ID of the product to associate file(s) with (optional)
      * @param  int|null $activity_id The ID of the activity to associate file(s) with (optional)
      * @param  string|null $lead_id The ID of the lead to associate file(s) with (optional)
+     * @param  int|null $project_id The ID of the project to associate file(s) with (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function addFileAsyncWithHttpInfo($file, $deal_id = null, $person_id = null, $org_id = null, $product_id = null, $activity_id = null, $lead_id = null): PromiseInterface
+    public function addFileAsyncWithHttpInfo($file, $deal_id = null, $person_id = null, $org_id = null, $product_id = null, $activity_id = null, $lead_id = null, $project_id = null): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v1\Model\AddFile';
-        $request = $this->addFileRequest($file, $deal_id, $person_id, $org_id, $product_id, $activity_id, $lead_id);
+        $request = $this->addFileRequest($file, $deal_id, $person_id, $org_id, $product_id, $activity_id, $lead_id, $project_id);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -343,11 +347,12 @@ class FilesApi
      * @param  int|null $product_id The ID of the product to associate file(s) with (optional)
      * @param  int|null $activity_id The ID of the activity to associate file(s) with (optional)
      * @param  string|null $lead_id The ID of the lead to associate file(s) with (optional)
+     * @param  int|null $project_id The ID of the project to associate file(s) with (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function addFileRequest($file, $deal_id = null, $person_id = null, $org_id = null, $product_id = null, $activity_id = null, $lead_id = null): Request
+    public function addFileRequest($file, $deal_id = null, $person_id = null, $org_id = null, $product_id = null, $activity_id = null, $lead_id = null, $project_id = null): Request
     {
         // verify the required parameter 'file' is set
         /* @phpstan-ignore-next-line */
@@ -403,6 +408,10 @@ class FilesApi
         // form params
         if ($lead_id !== null) {
             $formParams['lead_id'] = ObjectSerializer::toFormValue($lead_id);
+        }
+        // form params
+        if ($project_id !== null) {
+            $formParams['project_id'] = ObjectSerializer::toFormValue($project_id);
         }
 
         /* @phpstan-ignore-next-line */

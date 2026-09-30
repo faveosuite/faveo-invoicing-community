@@ -32,7 +32,7 @@ class RecaptchaMiddleware
 
         return match ($settings->captcha_version) {
             'v3_invisible' => $this->handleV3Invisible($request, $recaptchaResponse, $action, $settings, $next),
-            'v2_checkbox', 'v2_invisible' => $this->handleV2($request, $recaptchaResponse, $settings, $next),
+            'v2_checkbox', 'v2_invisible' => $this->handleV2($recaptchaResponse, $settings, $next),
             default => $next($request),
         };
     }
@@ -44,12 +44,7 @@ class RecaptchaMiddleware
         RecaptchaSetting $settings,
         Closure $next
     ): mixed {
-        $pageId = $request->input('page_id');
-        if (! $pageId) {
-            return errorResponse(__('recaptcha::recaptcha.captcha_message'), 422);
-        }
-
-        $sessionKey = $this->getSessionKey($action, $pageId);
+        $sessionKey = $this->getSessionKey($action);
 
         // Handle failover mode (V2 verification)
         if (Session::get($sessionKey)) {
@@ -58,9 +53,9 @@ class RecaptchaMiddleware
 
         // Primary V3 verification
         $verification = $this->verify(
-            $settings->v3_secret_key,
+            (string) $settings->v3_secret_key,
             $recaptchaResponse,
-            $request->ip(),
+            (string) $request->ip(),
             $request->getHost()
         );
 
@@ -72,7 +67,7 @@ class RecaptchaMiddleware
         // If token is valid but score is too low, trigger fallback
         if ($isTokenValid && ($verification['score'] ?? 0) < $settings->score_threshold) {
             if ($settings->failover_action === 'v2_checkbox') {
-                Session::put($sessionKey, true);
+                Session::put($sessionKey, value: true);
 
                 return successResponse(
                     __('recaptcha::recaptcha.captcha_message'),
@@ -94,7 +89,6 @@ class RecaptchaMiddleware
     }
 
     private function handleV2(
-        Request $request,
         string $recaptchaResponse,
         RecaptchaSetting $settings,
         Closure $next
@@ -105,9 +99,9 @@ class RecaptchaMiddleware
     private function verifyV2(string $response, RecaptchaSetting $settings, Closure $next): mixed
     {
         $verification = $this->verify(
-            $settings->v2_secret_key,
+            (string) $settings->v2_secret_key,
             $response,
-            request()->ip()
+            (string) request()->ip()
         );
 
         return $verification['success']
@@ -115,6 +109,9 @@ class RecaptchaMiddleware
             : errorResponse(__('recaptcha::recaptcha.captcha_message'), 422);
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function verify(string $secretKey, string $response, string $ip, ?string $hostname = null): array
     {
         return Http::asForm()->post(
@@ -128,8 +125,8 @@ class RecaptchaMiddleware
         )->json();
     }
 
-    private function getSessionKey(string $action, string $pageId): string
+    private function getSessionKey(string $action): string
     {
-        return "recaptcha_v2_fallback_{$action}_{$pageId}";
+        return 'recaptcha_v2_fallback_'.$action;
     }
 }

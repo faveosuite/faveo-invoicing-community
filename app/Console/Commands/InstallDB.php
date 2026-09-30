@@ -5,12 +5,18 @@ namespace App\Console\Commands;
 use App\Console\LoggableCommand;
 use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\Http\Controllers\SyncBillingToLatestVersion;
+use App\Model\Common\Setting;
+use App\User;
 use Artisan;
 use Config;
 use DB;
 use Dotenv\Dotenv;
-use Illuminate\Console\Command;
+use Exception;
+use Hash;
 
+/**
+ * @codeCoverageIgnore
+ */
 class InstallDB extends LoggableCommand
 {
     /**
@@ -29,25 +35,21 @@ class InstallDB extends LoggableCommand
      */
     protected $description = 'installing database';
 
-    protected $install;
+    protected InstallerController $install;
 
     /**
      * Create a new command instance.
-     *
-     * @return void
      */
     public function __construct()
     {
-        $this->install = new InstallerController();
+        $this->install = new InstallerController;
         parent::__construct();
     }
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handleAndLog()
+    public function handleAndLog(): void
     {
         try {
             $migrateOption = $this->option('migrate');
@@ -56,7 +58,7 @@ class InstallDB extends LoggableCommand
             $envFilePath = base_path().DIRECTORY_SEPARATOR.'.env';
 
             if (! is_file($envFilePath)) {
-                throw new \Exception("Please run 'php artisan install:agora'");
+                throw new Exception("Please run 'php artisan install:agora'");
             }
 
             $shouldMigrate = filter_var(
@@ -66,6 +68,7 @@ class InstallDB extends LoggableCommand
             if (! $shouldMigrate) {
                 return;
             }
+
             $this->runArtisanSetup();
             $this->checkDBVersion();
 
@@ -77,16 +80,17 @@ class InstallDB extends LoggableCommand
             $this->info('Database setup completed successfully.');
 
             $this->createAdmin();
-            $environment = $envOption ?? $this->choice('Select application environment', ['production', 'development', 'testing']);
+            $envChoice = $envOption ?? $this->choice('Select application environment', ['production', 'development', 'testing']);
+            $environment = is_string($envChoice) ? $envChoice : '';
             $this->install->updateInstallEnv($environment);
             $this->showAdminInfo();
             $this->info('');
 
             $this->warn('Please update your email and change the password immediately'.PHP_EOL);
             $url = Config::get('app.url');
-            $this->info("Agora has been installed successfully. Please visit $url to login".PHP_EOL);
-        } catch (\Exception $ex) {
-            $this->error($ex->getMessage());
+            $this->info(sprintf('Agora has been installed successfully. Please visit %s to login', $url).PHP_EOL);
+        } catch (Exception $exception) {
+            $this->error($exception->getMessage());
         }
     }
 
@@ -98,17 +102,20 @@ class InstallDB extends LoggableCommand
     {
         try {
             $pdo = DB::connection()->getPdo();
-            $version = $pdo->query('select version()')->fetchColumn();
-            if (strpos($version, 'Maria') === false) {
-                $this->checkMySQLVersion($version);
+            $stmt = $pdo->query('select version()');
+            $version = $stmt ? $stmt->fetchColumn() : false;
+            if (! str_contains((string) $version, 'Maria')) {
+                $this->checkMySQLVersion((string) $version);
 
                 return;
             }
-            $this->checkMariaDBVersion($version);
-        } catch (\Exception $e) {
-            if ($e->getCode() != 1049) {
-                throw $e;
+
+            $this->checkMariaDBVersion((string) $version);
+        } catch (Exception $exception) {
+            if ($exception->getCode() != 1049) {
+                throw $exception;
             }
+
             $database = config('database.connections.mysql.database');
             config(['database.connections.mysql.database' => null]);
             createDB($database);
@@ -144,10 +151,10 @@ class InstallDB extends LoggableCommand
      *
      * @throws Exception
      */
-    private function compareVersion($version, $min, $db = 'MySQL'): void
+    private function compareVersion(string $version, string $min, string $db = 'MySQL'): void
     {
         if (version_compare($version, $min) < 0) {
-            throw new \Exception("Please update your $db database version to $min or greater");
+            throw new Exception(sprintf('Please update your %s database version to %s or greater', $db, $min));
         }
     }
 
@@ -160,24 +167,24 @@ class InstallDB extends LoggableCommand
      */
     private function printAndFormatVersion(string $version, string $db = 'MySQL'): string
     {
-        $this->info("You are running $db database on version $version");
+        $this->info(sprintf('You are running %s database on version %s', $db, $version));
         preg_match("/^[0-9\.]+/", $version, $match);
 
-        return $match[0];
+        return $match[0] ?? '';
     }
 
-    public function createAdmin()
+    public function createAdmin(): mixed
     {
-        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        \DB::table('users')->truncate();
-        \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('users')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        $admin = \App\User::create([
+        $admin = User::create([
             'first_name' => 'Demo',
             'last_name' => 'Admin',
             'user_name' => 'demo',
             'email' => 'demo@admin.com',
-            'password' => \Hash::make('Demo@1234'),
+            'password' => Hash::make('Demo@1234'),
             'mobile_verified' => 1,
             'email_verified' => 1,
             'currency' => 'INR',
@@ -187,7 +194,7 @@ class InstallDB extends LoggableCommand
         $admin->save();
 
         // Update settings
-        \App\Model\Common\Setting::where('id', 1)
+        Setting::where('id', 1)
             ->update([
                 'title' => 'Agora Invoicing',
                 'favicon_title' => 'Agora Invoicing',
@@ -203,19 +210,19 @@ class InstallDB extends LoggableCommand
     /**
      * Run artisan commands to set up the application environment.
      */
-    protected function runArtisanSetup()
+    protected function runArtisanSetup(): void
     {
         $dotenv = Dotenv::createImmutable(base_path());
         $dotenv->load();
 
         config([
-            'database.connections.mysql.password' => env('DB_PASSWORD'),
-            'database.connections.mysql.username' => env('DB_USERNAME'),
-            'database.connections.mysql.host' => env('DB_HOST'),
-            'database.connections.mysql.database' => env('DB_DATABASE'),
-            'database.connections.mysql.port' => env('DB_PORT'),
-            'app.url' => env('APP_URL'),
-            'app.key' => env('APP_KEY'),
+            'database.connections.mysql.password' => $_SERVER['DB_PASSWORD'] ?? null,
+            'database.connections.mysql.username' => $_SERVER['DB_USERNAME'] ?? null,
+            'database.connections.mysql.host' => $_SERVER['DB_HOST'] ?? null,
+            'database.connections.mysql.database' => $_SERVER['DB_DATABASE'] ?? null,
+            'database.connections.mysql.port' => $_SERVER['DB_PORT'] ?? null,
+            'app.url' => $_SERVER['APP_URL'] ?? null,
+            'app.key' => $_SERVER['APP_KEY'] ?? null,
         ]);
 
         DB::purge('mysql');
@@ -230,7 +237,7 @@ class InstallDB extends LoggableCommand
     /**
      * Display admin user information in a table format.
      */
-    protected function showAdminInfo()
+    protected function showAdminInfo(): void
     {
         $this->table(['email', 'password'], [
             [

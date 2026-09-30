@@ -283,7 +283,7 @@ Name | Type | Description  | Notes
 ## `getOrganization()`
 
 ```php
-getOrganization($id, $include_fields, $custom_fields): \Pipedrive\versions\v2\Model\PostPatchGetOrganization
+getOrganization($id, $include_fields, $custom_fields, $include_option_labels, $include_labels): \Pipedrive\versions\v2\Model\PostPatchGetOrganization
 ```
 
 Get details of a organization
@@ -315,9 +315,11 @@ $apiInstance = new Pipedrive\versions\v2\Api\OrganizationsApi(
 $id = 56; // int | The ID of the organization
 $include_fields = 'include_fields_example'; // string | Optional comma separated string array of additional fields to include
 $custom_fields = 'custom_fields_example'; // string | Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.<br/>A maximum of 15 keys is allowed.
+$include_option_labels = True; // bool | When provided with a 'true' value, single option and multiple option custom fields values contain objects in the form of '{ id: number, label: string }' instead of plain id
+$include_labels = True; // bool | When provided with 'true' value, response will include an array of label objects in the form of '{ id: number, label: string }'
 
 try {
-    $result = $apiInstance->getOrganization($id, $include_fields, $custom_fields);
+    $result = $apiInstance->getOrganization($id, $include_fields, $custom_fields, $include_option_labels, $include_labels);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling OrganizationsApi->getOrganization: ', $e->getMessage(), PHP_EOL;
@@ -331,6 +333,8 @@ Name | Type | Description  | Notes
  **id** | **int**| The ID of the organization |
  **include_fields** | **string**| Optional comma separated string array of additional fields to include | [optional]
  **custom_fields** | **string**| Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. | [optional]
+ **include_option_labels** | **bool**| When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id | [optional]
+ **include_labels** | **bool**| When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; | [optional]
 
 ### Return type
 
@@ -490,7 +494,7 @@ Name | Type | Description  | Notes
 ## `getOrganizations()`
 
 ```php
-getOrganizations($filter_id, $ids, $owner_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor): \Pipedrive\versions\v2\Model\GetOrganizations
+getOrganizations($filter_id, $ids, $owner_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $include_option_labels, $include_labels, $limit, $cursor): \Pipedrive\versions\v2\Model\GetOrganizations
 ```
 
 Get all organizations
@@ -521,18 +525,20 @@ $apiInstance = new Pipedrive\versions\v2\Api\OrganizationsApi(
 );
 $filter_id = 56; // int | If supplied, only organizations matching the specified filter are returned
 $ids = 'ids_example'; // string | Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response.
-$owner_id = 56; // int | If supplied, only organization owned by the specified user are returned. If filter_id is provided, this is ignored.
+$owner_id = 56; // int | If supplied, only organizations owned by the specified user are returned. If filter_id is provided, this is ignored.
 $updated_since = 'updated_since_example'; // string | If set, only organizations with an `update_time` later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z.
 $updated_until = 'updated_until_example'; // string | If set, only organizations with an `update_time` earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z.
 $sort_by = 'id'; // string | The field to sort by. Supported fields: `id`, `update_time`, `add_time`.
 $sort_direction = 'asc'; // string | The sorting direction. Supported values: `asc`, `desc`.
 $include_fields = 'include_fields_example'; // string | Optional comma separated string array of additional fields to include
 $custom_fields = 'custom_fields_example'; // string | Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.<br/>A maximum of 15 keys is allowed.
+$include_option_labels = True; // bool | When provided with a 'true' value, single option and multiple option custom fields values contain objects in the form of '{ id: number, label: string }' instead of plain id
+$include_labels = True; // bool | When provided with 'true' value, response will include an array of label objects in the form of '{ id: number, label: string }'
 $limit = 100; // int | For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed.
 $cursor = 'cursor_example'; // string | For pagination, the marker (an opaque string value) representing the first item on the next page
 
 try {
-    $result = $apiInstance->getOrganizations($filter_id, $ids, $owner_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
+    $result = $apiInstance->getOrganizations($filter_id, $ids, $owner_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $include_option_labels, $include_labels, $limit, $cursor);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling OrganizationsApi->getOrganizations: ', $e->getMessage(), PHP_EOL;
@@ -545,13 +551,15 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **filter_id** | **int**| If supplied, only organizations matching the specified filter are returned | [optional]
  **ids** | **string**| Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. | [optional]
- **owner_id** | **int**| If supplied, only organization owned by the specified user are returned. If filter_id is provided, this is ignored. | [optional]
+ **owner_id** | **int**| If supplied, only organizations owned by the specified user are returned. If filter_id is provided, this is ignored. | [optional]
  **updated_since** | **string**| If set, only organizations with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. | [optional]
  **updated_until** | **string**| If set, only organizations with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. | [optional]
  **sort_by** | **string**| The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. | [optional] [default to &#39;id&#39;]
  **sort_direction** | **string**| The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. | [optional] [default to &#39;asc&#39;]
  **include_fields** | **string**| Optional comma separated string array of additional fields to include | [optional]
  **custom_fields** | **string**| Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. | [optional]
+ **include_option_labels** | **bool**| When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id | [optional]
+ **include_labels** | **bool**| When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; | [optional]
  **limit** | **int**| For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. | [optional]
  **cursor** | **string**| For pagination, the marker (an opaque string value) representing the first item on the next page | [optional]
 
