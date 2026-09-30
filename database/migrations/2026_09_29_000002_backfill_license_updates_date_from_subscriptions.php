@@ -21,7 +21,8 @@ return new class extends Migration
             ->update(['licenses.license_updates_date' => DB::raw('DATE(subscriptions.update_ends_at)')]);
     }
 
-    public function down(): void {
+    public function down(): void
+    {
         // down we dont need here
     }
 };
