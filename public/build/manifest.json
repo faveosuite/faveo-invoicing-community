@@ -995,7 +995,7 @@
     ]
   },
   "app/License/Resources/js/Pages/Installations/InstallationsView.vue": {
-    "file": "assets/InstallationsView-CT83rQCw.js",
+    "file": "assets/InstallationsView-B5dF9Zio.js",
     "name": "InstallationsView",
     "src": "app/License/Resources/js/Pages/Installations/InstallationsView.vue",
     "isDynamicEntry": true,
@@ -1055,7 +1055,7 @@
     ]
   },
   "app/License/Resources/js/Pages/License/LicensesView.vue": {
-    "file": "assets/LicensesView-D4kyHyO_.js",
+    "file": "assets/LicensesView-DJIEILh4.js",
     "name": "LicensesView",
     "src": "app/License/Resources/js/Pages/License/LicensesView.vue",
     "isDynamicEntry": true,
@@ -1070,7 +1070,7 @@
       "_DeleteModal-DtGh7kKk.js"
     ],
     "css": [
-      "assets/LicensesView-CvDMKDWq.css"
+      "assets/LicensesView-rEXYXjwZ.css"
     ]
   },
   "app/License/Resources/js/Pages/Report/ViewCrackingReports.vue": {
@@ -3359,7 +3359,7 @@
     "src": "node_modules/intl-tel-input/dist/img/flags@2x.webp"
   },
   "resources/assets/js/admin.js": {
-    "file": "assets/admin-DAPz7OB0.js",
+    "file": "assets/admin-BjEbA5ko.js",
     "name": "admin",
     "src": "resources/assets/js/admin.js",
     "isEntry": true,
@@ -3506,7 +3506,7 @@
     ]
   },
   "resources/assets/js/client.js": {
-    "file": "assets/client-hWPy0gSa.js",
+    "file": "assets/client-5iOK0fAW.js",
     "name": "client",
     "src": "resources/assets/js/client.js",
     "isEntry": true,
@@ -4354,7 +4354,7 @@
     ]
   },
   "resources/assets/js/pages/admin/orders/OrderShow.vue": {
-    "file": "assets/OrderShow-ByMB6XK1.js",
+    "file": "assets/OrderShow-9n5cXICu.js",
     "name": "OrderShow",
     "src": "resources/assets/js/pages/admin/orders/OrderShow.vue",
     "isDynamicEntry": true,
@@ -4375,7 +4375,7 @@
       "_tableUtils-Bperkwq0.js"
     ],
     "css": [
-      "assets/OrderShow-DLhnN5gQ.css"
+      "assets/OrderShow-IlQtwTQ7.css"
     ]
   },
   "resources/assets/js/pages/admin/pages/FrontendPageCreate.vue": {
@@ -4468,7 +4468,7 @@
     ]
   },
   "resources/assets/js/pages/admin/products/ProductCreate.vue": {
-    "file": "assets/ProductCreate-D43Rvj9p.js",
+    "file": "assets/ProductCreate-CX4xrhxZ.js",
     "name": "ProductCreate",
     "src": "resources/assets/js/pages/admin/products/ProductCreate.vue",
     "isDynamicEntry": true,
@@ -4487,7 +4487,7 @@
     ]
   },
   "resources/assets/js/pages/admin/products/ProductEdit.vue": {
-    "file": "assets/ProductEdit-tKoXDPVR.js",
+    "file": "assets/ProductEdit-ByEbCEvq.js",
     "name": "ProductEdit",
     "src": "resources/assets/js/pages/admin/products/ProductEdit.vue",
     "isDynamicEntry": true,
@@ -4511,7 +4511,7 @@
       "_ImageField-Cv7PmpwT.js"
     ],
     "css": [
-      "assets/ProductEdit-MK2VI7we.css"
+      "assets/ProductEdit-CGdx8A82.css"
     ]
   },
   "resources/assets/js/pages/admin/products/ProductIndex.vue": {
@@ -6157,7 +6157,7 @@
     ]
   },
   "resources/assets/js/pages/client/orders/OrderShow.vue": {
-    "file": "assets/OrderShow-DzXCAoy_.js",
+    "file": "assets/OrderShow-C46rjlIV.js",
     "name": "OrderShow",
     "src": "resources/assets/js/pages/client/orders/OrderShow.vue",
     "isDynamicEntry": true,
@@ -6182,7 +6182,7 @@
       "_RenewModal-CRLFoFRJ.js"
     ],
     "css": [
-      "assets/OrderShow-BxFPgkgN.css"
+      "assets/OrderShow-Dwh5El3A.css"
     ]
   },
   "resources/assets/js/pages/client/pages/ContactUsPage.vue": {

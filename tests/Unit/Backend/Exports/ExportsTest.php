@@ -25,7 +25,7 @@ class ExportsTest extends DBTestCase
 
     public function test_invoice_export_collection_returns_collection(): void
     {
-        $export = new InvoiceExport(['id'], [], 0);
+        $export = new InvoiceExport(['id'], collect(), 0);
 
         $result = $export->collection();
 
@@ -34,7 +34,7 @@ class ExportsTest extends DBTestCase
 
     public function test_invoice_export_headings_returns_non_empty_array(): void
     {
-        $export = new InvoiceExport(['id'], [], 0);
+        $export = new InvoiceExport(['id'], collect(), 0);
 
         $headings = $export->headings();
 
@@ -44,7 +44,7 @@ class ExportsTest extends DBTestCase
 
     public function test_invoice_export_title_returns_non_empty_string(): void
     {
-        $export = new InvoiceExport(['id'], [], 0);
+        $export = new InvoiceExport(['id'], collect(), 0);
 
         $title = $export->title();
 
@@ -54,14 +54,14 @@ class ExportsTest extends DBTestCase
 
     public function test_invoice_export_title_includes_sheet_index(): void
     {
-        $export = new InvoiceExport(['id'], [], 3);
+        $export = new InvoiceExport(['id'], collect(), 3);
 
         $this->assertSame('Sheet 3', $export->title());
     }
 
     public function test_invoice_export_headings_maps_known_columns(): void
     {
-        $export = new InvoiceExport(['email', 'status'], [], 0);
+        $export = new InvoiceExport(['email', 'status'], collect(), 0);
 
         $headings = $export->headings();
 
@@ -71,7 +71,7 @@ class ExportsTest extends DBTestCase
 
     public function test_invoice_export_headings_passes_through_unknown_columns(): void
     {
-        $export = new InvoiceExport(['unknown_col'], [], 0);
+        $export = new InvoiceExport(['unknown_col'], collect(), 0);
 
         $headings = $export->headings();
 
@@ -84,7 +84,7 @@ class ExportsTest extends DBTestCase
 
     public function test_order_export_collection_returns_collection(): void
     {
-        $export = new OrderExport(['id'], [], 0);
+        $export = new OrderExport(['id'], collect(), 0);
 
         $result = $export->collection();
 
@@ -93,7 +93,7 @@ class ExportsTest extends DBTestCase
 
     public function test_order_export_headings_returns_non_empty_array(): void
     {
-        $export = new OrderExport(['id'], [], 0);
+        $export = new OrderExport(['id'], collect(), 0);
 
         $headings = $export->headings();
 
@@ -103,7 +103,7 @@ class ExportsTest extends DBTestCase
 
     public function test_order_export_title_returns_non_empty_string(): void
     {
-        $export = new OrderExport(['id'], [], 0);
+        $export = new OrderExport(['id'], collect(), 0);
 
         $title = $export->title();
 
@@ -113,14 +113,14 @@ class ExportsTest extends DBTestCase
 
     public function test_order_export_title_is_orders(): void
     {
-        $export = new OrderExport(['id'], [], 5);
+        $export = new OrderExport(['id'], collect(), 5);
 
         $this->assertSame('Orders', $export->title());
     }
 
     public function test_order_export_headings_maps_known_columns(): void
     {
-        $export = new OrderExport(['client', 'email'], [], 0);
+        $export = new OrderExport(['client', 'email'], collect(), 0);
 
         $headings = $export->headings();
 
@@ -130,7 +130,7 @@ class ExportsTest extends DBTestCase
 
     public function test_order_export_headings_passes_through_unknown_columns(): void
     {
-        $export = new OrderExport(['custom_col'], [], 0);
+        $export = new OrderExport(['custom_col'], collect(), 0);
 
         $headings = $export->headings();
 
@@ -143,7 +143,7 @@ class ExportsTest extends DBTestCase
 
     public function test_users_export_collection_returns_collection(): void
     {
-        $export = new UsersExport(['id'], [], 0);
+        $export = new UsersExport(['id'], collect(), 0);
 
         $result = $export->collection();
 
@@ -152,7 +152,7 @@ class ExportsTest extends DBTestCase
 
     public function test_users_export_headings_returns_non_empty_array(): void
     {
-        $export = new UsersExport(['id'], [], 0);
+        $export = new UsersExport(['id'], collect(), 0);
 
         $headings = $export->headings();
 
@@ -162,7 +162,7 @@ class ExportsTest extends DBTestCase
 
     public function test_users_export_title_returns_non_empty_string(): void
     {
-        $export = new UsersExport(['id'], [], 0);
+        $export = new UsersExport(['id'], collect(), 0);
 
         $title = $export->title();
 
@@ -172,14 +172,14 @@ class ExportsTest extends DBTestCase
 
     public function test_users_export_title_includes_sheet_index(): void
     {
-        $export = new UsersExport(['id'], [], 7);
+        $export = new UsersExport(['id'], collect(), 7);
 
         $this->assertSame('Sheet 7', $export->title());
     }
 
     public function test_users_export_headings_maps_known_columns(): void
     {
-        $export = new UsersExport(['name', 'email'], [], 0);
+        $export = new UsersExport(['name', 'email'], collect(), 0);
 
         $headings = $export->headings();
 
@@ -189,7 +189,7 @@ class ExportsTest extends DBTestCase
 
     public function test_users_export_headings_passes_through_unknown_columns(): void
     {
-        $export = new UsersExport(['some_field'], [], 0);
+        $export = new UsersExport(['some_field'], collect(), 0);
 
         $headings = $export->headings();
 
@@ -199,7 +199,7 @@ class ExportsTest extends DBTestCase
     public function test_users_export_collection_wraps_provided_data(): void
     {
         $data = [['name' => 'Alice'], ['name' => 'Bob']];
-        $export = new UsersExport(['name'], $data, 0);
+        $export = new UsersExport(['name'], collect($data), 0);
 
         $result = $export->collection();
 
@@ -213,7 +213,7 @@ class ExportsTest extends DBTestCase
     public function test_tenat_export_collection_returns_collect_of_data(): void
     {
         $data = [['name' => 'Alice', 'email' => 'alice@example.com']];
-        $export = new TenatExport(['name', 'email'], $data, 1);
+        $export = new TenatExport(['name', 'email'], collect($data), 1);
         $result = $export->collection();
         $this->assertInstanceOf(Collection::class, $result);
         $this->assertCount(1, $result);
@@ -221,27 +221,27 @@ class ExportsTest extends DBTestCase
 
     public function test_tenat_export_headings_maps_known_columns(): void
     {
-        $export = new TenatExport(['name', 'email', 'mobile'], [], 1);
+        $export = new TenatExport(['name', 'email', 'mobile'], collect(), 1);
         $headings = $export->headings();
         $this->assertSame(['User', 'Email', 'Mobile'], $headings);
     }
 
     public function test_tenat_export_headings_falls_back_to_column_name_for_unknown(): void
     {
-        $export = new TenatExport(['custom_field'], [], 1);
+        $export = new TenatExport(['custom_field'], collect(), 1);
         $headings = $export->headings();
         $this->assertSame(['custom_field'], $headings);
     }
 
     public function test_tenat_export_title_includes_sheet_index(): void
     {
-        $export = new TenatExport([], [], 3);
+        $export = new TenatExport([], collect(), 3);
         $this->assertSame('Sheet 3', $export->title());
     }
 
     public function test_tenat_export_collection_with_empty_data(): void
     {
-        $export = new TenatExport(['name'], [], 1);
+        $export = new TenatExport(['name'], collect(), 1);
         $result = $export->collection();
         $this->assertInstanceOf(Collection::class, $result);
         $this->assertCount(0, $result);

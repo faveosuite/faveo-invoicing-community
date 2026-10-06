@@ -155,7 +155,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $response->assertJson(['success' => false]);
     }
 
-    public function test_submit_license_binding_returns_404_when_no_license_row(): void
+    public function test_submit_license_binding_returns_400_when_no_license_row(): void
     {
         $order = $this->createOrder($this->user->id);
 
@@ -164,19 +164,23 @@ class LocalizedLicenseControllerTest extends DBTestCase
             'domain' => 'example.com',
             'machine_id' => 'machine-1',
         ]);
-        $response->assertStatus(404);
+        $response->assertStatus(400);
     }
 
     public function test_submit_license_binding_updates_license_successfully(): void
     {
+        $machineId = str_repeat('a', 64);
         $product = $this->createProduct();
         $order = $this->createOrder($this->user->id, ['product' => $product->id]);
         $license = $this->createLicense($order->number, $product->id);
 
         $response = $this->postJson('/license-binding', [
             'orderNo' => $order->number,
-            'domain' => 'example.com',
-            'machine_id' => 'machine-123',
+            'activation_code' => 'FLC1.'.rtrim(strtr(base64_encode(json_encode([
+                'license_code' => $license->license_code,
+                'domain' => 'example.com',
+                'machine_id' => $machineId,
+            ])), '+/', '-_'), '='),
         ]);
 
         $response->assertStatus(200);
@@ -185,7 +189,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $this->assertDatabaseHas('licenses', [
             'id' => $license->id,
             'license_domain' => 'example.com',
-            'license_machine_id' => 'machine-123',
+            'license_machine_id' => $machineId,
         ]);
     }
 
