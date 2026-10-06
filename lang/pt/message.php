@@ -3604,4 +3604,8 @@ return [
     'no_platform_found' => 'Nenhuma plataforma encontrada',
     'select_a_platform' => 'Selecione uma plataforma...',
     'custom_icon' => 'Ícone personalizado',
+    'activation_code' => 'Código de ativação',
+    'activation_code_tooltip' => 'Cole o código de ativação para vincular o seu arquivo de licença offline a esse servidor específico. Isso só é necessário uma vez.',
+    'enter_activation_code' => 'Cole o seu código de ativação (começa com FLC1.)',
+    'invalid_activation_code' => 'Código de ativação inválido. Verifique o código e tente novamente.',
 ];

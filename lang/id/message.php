@@ -3608,4 +3608,8 @@ return [
     'no_platform_found' => 'Platform tidak ditemukan',
     'select_a_platform' => 'Pilih platform...',
     'custom_icon' => 'Ikon Kustom',
+    'activation_code' => 'Kode aktivasi',
+    'activation_code_tooltip' => 'Tempel kode aktivasi untuk mengikat file lisensi offline Anda ke server tertentu tersebut. Ini hanya diperlukan sekali.',
+    'enter_activation_code' => 'Tempel kode aktivasi Anda (diawali dengan FLC1.)',
+    'invalid_activation_code' => 'Kode aktivasi tidak valid. Periksa kode lalu coba lagi.',
 ];

@@ -731,21 +731,17 @@
             </template>
             <template #fields>
                 <AppAlert componentName="license-binding-modal" />
-                <p class="text-muted mb-3">{{ __('message.machine_id_tooltip') }}</p>
-                <ClientField type="text" name="bindingDomain" required
-                             :label="__('message.domain')"
-                             v-model="bindingForm.domain"
-                             placeholder="example.com" autocomplete="off" />
-                <ClientField type="text" name="bindingMachineId" required
-                             :label="__('message.machine_id')"
-                             v-model="bindingForm.machineId"
-                             :placeholder="__('message.enter_machine_id')" autocomplete="off" />
+                <p class="text-muted mb-3">{{ __('message.activation_code_tooltip') }}</p>
+                <ClientField type="textarea" :rows="4" name="bindingActivationCode" required
+                             :label="__('message.activation_code')"
+                             v-model="bindingForm.activationCode"
+                             :placeholder="__('message.enter_activation_code')" autocomplete="off" />
             </template>
             <template #controls>
                 <action-button action="confirm"
                                :label="__('message.save_and_download')"
                                :loading="bindingBusy"
-                               :disabled="!bindingForm.domain || !bindingForm.machineId"
+                               :disabled="!bindingForm.activationCode"
                                @click="submitBinding" />
             </template>
         </Modal>
@@ -1278,11 +1274,17 @@ async function reissueLicense() {
 /* ── License binding (domain + machine ID) before first download ─── */
 const showBindingModal = ref(false)
 const bindingBusy      = ref(false)
-const bindingForm      = reactive({ domain: '', machineId: '' })
+const bindingForm      = reactive({ activationCode: '' })
 const pluginLicenses   = ref([])
 // null = main product's license file; otherwise the plugin product_id whose
 // download triggered the binding modal, so it resumes the right one after.
 const pendingDownloadProductId = ref(null)
+
+// The activation code is "FLC1." + base64url(JSON {domain, machine_id, ...}); decoded only to
+// refresh the bound state locally — billing re-validates and decodes it itself.
+function decodeActivationCode(code) {
+    try { return JSON.parse(atob(code.trim().slice(5).replace(/-/g, '+').replace(/_/g, '/'))) } catch { return {} }
+}
 
 function isLicenseBound() {
     // Binding stores either a domain OR an IP (LicenseService::parseIpAndDomain
@@ -1302,8 +1304,7 @@ function requestDownload(productId = null) {
         return
     }
     pendingDownloadProductId.value = productId
-    bindingForm.domain    = order.value?.license_domain || order.value?.license_ip || ''
-    bindingForm.machineId = order.value?.license_machine_id ?? ''
+    bindingForm.activationCode = ''
     alertStore.unsetAlert()
     showBindingModal.value = true
 }
@@ -1346,16 +1347,16 @@ function closeBindingModal() {
 }
 
 async function submitBinding() {
-    if (!bindingForm.domain || !bindingForm.machineId) return
+    if (!bindingForm.activationCode) return
     bindingBusy.value = true
     try {
         const res = await http.post('/license-binding', {
             orderNo: order.value.number,
-            domain: bindingForm.domain,
-            machine_id: bindingForm.machineId,
+            activation_code: bindingForm.activationCode.trim(),
         })
-        order.value.license_domain     = bindingForm.domain
-        order.value.license_machine_id = bindingForm.machineId
+        const bound = decodeActivationCode(bindingForm.activationCode)
+        order.value.license_domain     = bound.domain
+        order.value.license_machine_id = bound.machine_id
         successHandler(res, 'client-page')
         closeBindingModal()
         triggerDownload(pendingDownloadProductId.value)

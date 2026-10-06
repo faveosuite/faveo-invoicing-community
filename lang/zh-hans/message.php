@@ -3619,4 +3619,8 @@ return [
     'no_platform_found' => '未找到平台',
     'select_a_platform' => '选择平台...',
     'custom_icon' => '自定义图标',
+    'activation_code' => '激活码',
+    'activation_code_tooltip' => '粘贴激活码，将您的离线许可证文件绑定到该特定服务器。此操作仅需执行一次。',
+    'enter_activation_code' => '粘贴您的激活码（以 FLC1. 开头）',
+    'invalid_activation_code' => '激活码无效。请检查激活码后重试。',
 ];

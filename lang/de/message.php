@@ -3608,4 +3608,8 @@ return [
     'no_platform_found' => 'Keine Plattform gefunden',
     'select_a_platform' => 'Wählen Sie eine Plattform aus...',
     'custom_icon' => 'Benutzerdefiniertes Symbol',
+    'activation_code' => 'Aktivierungscode',
+    'activation_code_tooltip' => 'Fügen Sie den Aktivierungscode ein, um Ihre Offline-Lizenzdatei an diesen bestimmten Server zu binden. Dies ist nur einmal erforderlich.',
+    'enter_activation_code' => 'Fügen Sie Ihren Aktivierungscode ein (beginnt mit FLC1.)',
+    'invalid_activation_code' => 'Ungültiger Aktivierungscode. Bitte überprüfen Sie den Code und versuchen Sie es erneut.',
 ];

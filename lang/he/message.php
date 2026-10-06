@@ -3608,4 +3608,8 @@ return [
     'no_platform_found' => 'לא נמצאה פלטפורמה',
     'select_a_platform' => 'בחר פלטפורמה...',
     'custom_icon' => 'אייקון מותאם אישית',
+    'activation_code' => 'קוד הפעלה',
+    'activation_code_tooltip' => 'הדביקו את קוד ההפעלה כדי לקשור את קובץ הרישיון הלא מקוון לשרת הספציפי הזה. נדרש רק פעם אחת.',
+    'enter_activation_code' => 'הדביקו את קוד ההפעלה שלכם (מתחיל ב-FLC1.)',
+    'invalid_activation_code' => 'קוד הפעלה לא תקין. אנא בדקו את הקוד ונסו שוב.',
 ];

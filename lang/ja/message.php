@@ -3608,4 +3608,8 @@ return [
     'no_platform_found' => 'プラットフォームが見つかりません',
     'select_a_platform' => 'プラットフォームを選択します...',
     'custom_icon' => 'カスタムアイコン',
+    'activation_code' => 'アクティベーションコード',
+    'activation_code_tooltip' => 'アクティベーションコードを貼り付けて、オフラインライセンスファイルを特定のサーバーに紐付けます。これは1回だけ必要です。',
+    'enter_activation_code' => 'アクティベーションコードを貼り付けてください（FLC1. で始まります）',
+    'invalid_activation_code' => 'アクティベーションコードが無効です。コードを確認して、もう一度お試しください。',
 ];

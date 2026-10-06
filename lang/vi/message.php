@@ -3608,4 +3608,8 @@ return [
     'no_platform_found' => 'Không tìm thấy nền tảng',
     'select_a_platform' => 'Chọn nền tảng...',
     'custom_icon' => 'Biểu tượng tùy chỉnh',
+    'activation_code' => 'Mã kích hoạt',
+    'activation_code_tooltip' => 'Dán mã kích hoạt để liên kết tệp giấy phép ngoại tuyến của bạn với máy chủ cụ thể đó. Việc này chỉ cần thực hiện một lần.',
+    'enter_activation_code' => 'Dán mã kích hoạt của bạn (bắt đầu bằng FLC1.)',
+    'invalid_activation_code' => 'Mã kích hoạt không hợp lệ. Vui lòng kiểm tra mã và thử lại.',
 ];

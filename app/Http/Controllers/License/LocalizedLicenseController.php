@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\License;
 
 use App\Http\Controllers\Controller;
+use App\License\Helpers\LicenseHelper;
 use App\License\Models\License;
 use App\License\Services\InstallationService;
 use App\License\Services\LicenseFileService;
@@ -50,7 +51,7 @@ class LocalizedLicenseController extends Controller
     }
 
     /**
-     * Submits an order's domain/IP and machine ID together, binding future
+     * Submits the client's activation code (domain + machine ID), binding future
      * downloads of the offline license file to that specific server. Either
      * the order's own client, or an admin acting on their behalf, may call
      * this — required once, before the first download.
@@ -74,11 +75,34 @@ class LocalizedLicenseController extends Controller
 
     private function updateLicenseBinding(string $orderNo, Request $request): JsonResponse
     {
-        $domain = trim((string) $request->input('domain'));
-        $machineId = trim((string) $request->input('machine_id'));
+        // The only accepted input is the activation code ("FLC1." + base64url JSON) printed
+        // by the client's `license:request` command. It carries the domain and machine ID,
+        // and is accepted only when its licence code belongs to this order.
+        $code = trim((string) $request->input('activation_code'));
+        $payload = str_starts_with($code, 'FLC1.')
+            ? json_decode((string) base64_decode(strtr(substr($code, 5), '-_', '+/')), true)
+            : null;
+        $licenseCode = License::where('license_order_number', $orderNo)->value('license_code');
 
-        if ($domain === '' || $machineId === '' || strlen($domain) > 255 || strlen($machineId) > 255) {
+        if (! is_array($payload) || ! $licenseCode
+            || ! hash_equals((string) $licenseCode, (string) ($payload['license_code'] ?? ''))) {
+            return errorResponse(__('message.invalid_activation_code'));
+        }
+
+        $domain = (string) ($payload['domain'] ?? '');
+        $machineId = (string) ($payload['machine_id'] ?? '');
+
+        // The client's machine ID is always an HMAC-SHA256 hex digest.
+        if ($domain === '' || ! preg_match('/^[0-9a-f]{64}$/', $machineId) || strlen($domain) > 255) {
             return errorResponse(__('message.invalid'));
+        }
+
+        // Users paste their full install URL ("https://host/sub/public"); the
+        // license check is a substring match on root_url, so the host is enough.
+        $domain = LicenseHelper::getRawDomain($domain);
+
+        if ($domain === '') {
+            return errorResponse(__('message.invalid_domain'));
         }
 
         $ipAndDomain = LicenseService::parseIpAndDomain($domain);

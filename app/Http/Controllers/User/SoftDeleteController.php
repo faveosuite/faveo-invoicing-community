@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Events\UserOrderDelete;
+use App\Model\Order\InstallationDetail;
 use App\Model\Product\Subscription;
 use App\User;
 use DB;
@@ -77,33 +78,30 @@ class SoftDeleteController extends ClientController
 
         try {
             User::onlyTrashed()->whereIn('id', $ids)->get()->each(function ($user): void {
-                $user->order()->pluck('id')->each(function ($tenant): void {
-                    $installation_path = DB::table('installation_details')
-                        ->where('order_id', $tenant)
-                        ->where('installation_path', '!=', cloudCentralDomain())
-                        ->value('installation_path');
+                // cloud tenants to destroy once the DB delete has committed
+                $tenants = InstallationDetail::whereIn('order_id', $user->order()->whereIn('product', cloudPopupProducts())->pluck('id'))
+                    ->where('installation_path', '!=', cloudCentralDomain())
+                    ->get(['order_id', 'installation_path'])
+                    ->reject(fn ($d) => Subscription::where('order_id', $d->order_id)->where('is_deleted', 1)->exists());
 
-                    $isCloudDeleted = Subscription::where('order_id', $tenant)
-                        ->where('is_deleted', 1)
-                        ->exists();
+                DB::transaction(function () use ($user): void {
+                    $user->invoiceItem()->delete();
+                    $user->orderRelation()->delete();
+                    $user->invoice()->delete();
+                    $user->order()->delete();
+                    $user->subscription()->delete();
+                    $user->comments()->delete();
+                    $user->auto_renewal()->delete();
+                    $user->export_details()->delete();
+                    $user->userLinkReports()->delete();
+                    $user->whatsappUsers()->delete();
 
-                    if ($installation_path && ! $isCloudDeleted) {
-                        event(new UserOrderDelete($installation_path, $tenant));
-                    }
+                    $user->forceDelete();
                 });
 
-                $user->invoiceItem()->delete();
-                $user->orderRelation()->delete();
-                $user->invoice()->delete();
-                $user->order()->delete();
-                $user->subscription()->delete();
-                $user->comments()->delete();
-                $user->auto_renewal()->delete();
-                $user->export_details()->delete();
-                $user->userLinkReports()->delete();
-                $user->whatsappUsers()->delete();
-
-                $user->forceDelete();
+                foreach ($tenants as $tenant) {
+                    event(new UserOrderDelete($tenant->installation_path, $tenant->order_id));
+                }
             });
 
             return successResponse(__('message.deleted-successfully'));

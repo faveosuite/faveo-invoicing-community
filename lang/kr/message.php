@@ -3608,4 +3608,8 @@ return [
     'no_platform_found' => '플랫폼을 찾을 수 없습니다.',
     'select_a_platform' => '플랫폼을 선택하세요...',
     'custom_icon' => '맞춤 아이콘',
+    'activation_code' => '활성화 코드',
+    'activation_code_tooltip' => '활성화 코드를 붙여넣어 오프라인 라이선스 파일을 해당 서버에 연결하세요. 이 작업은 한 번만 필요합니다.',
+    'enter_activation_code' => '활성화 코드를 붙여넣으세요 (FLC1.로 시작)',
+    'invalid_activation_code' => '활성화 코드가 올바르지 않습니다. 코드를 확인한 후 다시 시도해 주세요.',
 ];

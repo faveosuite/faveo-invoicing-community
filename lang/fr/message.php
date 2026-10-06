@@ -3608,4 +3608,8 @@ return [
     'no_platform_found' => 'Aucune plateforme trouvée',
     'select_a_platform' => 'Sélectionnez une plateforme...',
     'custom_icon' => 'Icône personnalisée',
+    'activation_code' => 'Code d\'activation',
+    'activation_code_tooltip' => 'Collez le code d\'activation pour lier votre fichier de licence hors ligne à ce serveur précis. Cette opération n\'est nécessaire qu\'une seule fois.',
+    'enter_activation_code' => 'Collez votre code d\'activation (commence par FLC1.)',
+    'invalid_activation_code' => 'Code d\'activation invalide. Veuillez vérifier le code et réessayer.',
 ];

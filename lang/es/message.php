@@ -3608,4 +3608,8 @@ return [
     'no_platform_found' => 'No se encontró ninguna plataforma',
     'select_a_platform' => 'Seleccione una plataforma...',
     'custom_icon' => 'Icono personalizado',
+    'activation_code' => 'Código de activación',
+    'activation_code_tooltip' => 'Pegue el código de activación para vincular su archivo de licencia sin conexión a ese servidor específico. Solo es necesario una vez.',
+    'enter_activation_code' => 'Pegue su código de activación (empieza con FLC1.)',
+    'invalid_activation_code' => 'Código de activación no válido. Compruebe el código e inténtelo de nuevo.',
 ];

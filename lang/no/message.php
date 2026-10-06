@@ -3608,4 +3608,8 @@ return [
     'no_platform_found' => 'Ingen plattform funnet',
     'select_a_platform' => 'Velg en plattform...',
     'custom_icon' => 'Egendefinert ikon',
+    'activation_code' => 'Aktiveringskode',
+    'activation_code_tooltip' => 'Lim inn aktiveringskoden for å knytte den frakoblede lisensfilen din til den aktuelle serveren. Dette er bare nødvendig én gang.',
+    'enter_activation_code' => 'Lim inn aktiveringskoden din (starter med FLC1.)',
+    'invalid_activation_code' => 'Ugyldig aktiveringskode. Kontroller koden og prøv igjen.',
 ];

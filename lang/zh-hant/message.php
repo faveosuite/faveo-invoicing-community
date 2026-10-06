@@ -3604,4 +3604,8 @@ return [
     'no_platform_found' => '未找到平台',
     'select_a_platform' => '選擇平台...',
     'custom_icon' => '自訂圖標',
+    'activation_code' => '啟用碼',
+    'activation_code_tooltip' => '貼上啟用碼，將您的離線授權檔案綁定到該特定伺服器。此操作僅需執行一次。',
+    'enter_activation_code' => '貼上您的啟用碼（以 FLC1. 開頭）',
+    'invalid_activation_code' => '啟用碼無效。請檢查啟用碼後再試一次。',
 ];

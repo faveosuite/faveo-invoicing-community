@@ -3608,4 +3608,8 @@ return [
     'no_platform_found' => 'Platform bulunamadı',
     'select_a_platform' => 'Bir platform seçin...',
     'custom_icon' => 'Özel Simge',
+    'activation_code' => 'Etkinleştirme kodu',
+    'activation_code_tooltip' => 'Çevrimdışı lisans dosyanızı ilgili sunucuya bağlamak için etkinleştirme kodunu yapıştırın. Bu yalnızca bir kez gereklidir.',
+    'enter_activation_code' => 'Etkinleştirme kodunuzu yapıştırın (FLC1. ile başlar)',
+    'invalid_activation_code' => 'Geçersiz etkinleştirme kodu. Lütfen kodu kontrol edip tekrar deneyin.',
 ];

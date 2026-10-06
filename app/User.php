@@ -18,7 +18,6 @@ use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
 use App\Model\Product\Subscription;
 use App\Traits\SystemActivityLogsTrait;
-use Cache;
 use DB;
 use Gravatar;
 use Illuminate\Auth\Authenticatable;
@@ -211,22 +210,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     use Notifiable;
     use SoftDeletes;
     use SystemActivityLogsTrait;
-
-    #[Override]
-    protected static function booted(): void
-    {
-        $clearCache = function (): void {
-            foreach (['pagination_total_user', 'pagination_total_suspended_users'] as $key) {
-                if (Cache::has($key)) {
-                    Cache::forget($key);
-                }
-            }
-        };
-        static::created($clearCache);
-        static::deleted($clearCache);       // suspend (soft delete)
-        static::restored($clearCache);      // un-suspend
-        static::forceDeleted($clearCache);  // permanent delete
-    }
 
     public $timestamps = true;
 

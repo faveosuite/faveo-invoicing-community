@@ -3608,4 +3608,8 @@ return [
     'no_platform_found' => 'Nessuna piattaforma trovata',
     'select_a_platform' => 'Seleziona una piattaforma...',
     'custom_icon' => 'Icona personalizzata',
+    'activation_code' => 'Codice di attivazione',
+    'activation_code_tooltip' => 'Incolla il codice di attivazione per associare il tuo file di licenza offline a quel server specifico. È necessario solo una volta.',
+    'enter_activation_code' => 'Incolla il tuo codice di attivazione (inizia con FLC1.)',
+    'invalid_activation_code' => 'Codice di attivazione non valido. Controlla il codice e riprova.',
 ];

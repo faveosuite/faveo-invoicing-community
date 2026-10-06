@@ -3608,4 +3608,8 @@ return [
     'no_platform_found' => 'Nije pronađena platforma',
     'select_a_platform' => 'Odaberite platformu...',
     'custom_icon' => 'Prilagođena ikona',
+    'activation_code' => 'Aktivacijski kod',
+    'activation_code_tooltip' => 'Zalijepite aktivacijski kod da biste povezali datoteku offline licence s tim određenim serverom. Ovo je potrebno samo jednom.',
+    'enter_activation_code' => 'Zalijepite svoj aktivacijski kod (počinje sa FLC1.)',
+    'invalid_activation_code' => 'Nevažeći aktivacijski kod. Provjerite kod i pokušajte ponovo.',
 ];

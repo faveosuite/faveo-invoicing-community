@@ -3608,4 +3608,8 @@ return [
     'no_platform_found' => 'L-ebda pjattaforma ma nstabet',
     'select_a_platform' => 'Agħżel pjattaforma...',
     'custom_icon' => 'Ikona tad-dwana',
+    'activation_code' => 'Kodiċi ta\' attivazzjoni',
+    'activation_code_tooltip' => 'Illappja l-kodiċi ta\' attivazzjoni biex torbot il-fajl tal-liċenzja offline tiegħek ma\' dak is-server speċifiku. Dan huwa meħtieġ darba biss.',
+    'enter_activation_code' => 'Illappja l-kodiċi ta\' attivazzjoni tiegħek (jibda b\'FLC1.)',
+    'invalid_activation_code' => 'Kodiċi ta\' attivazzjoni invalidu. Jekk jogħġbok iċċekkja l-kodiċi u erġa\' pprova.',
 ];

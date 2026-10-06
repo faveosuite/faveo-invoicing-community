@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -12,7 +13,10 @@ class InvoiceExport implements FromCollection, WithHeadings, WithTitle
 {
     use Exportable;
 
-    public function __construct(protected mixed $selectedColumns, protected mixed $invoicesData, protected mixed $sheetIndex)
+    /**
+     * @param  Enumerable<covariant int|string, covariant mixed>  $invoicesData
+     */
+    public function __construct(protected mixed $selectedColumns, protected Enumerable $invoicesData, protected mixed $sheetIndex)
     {
     }
 
@@ -21,7 +25,7 @@ class InvoiceExport implements FromCollection, WithHeadings, WithTitle
      */
     public function collection(): Collection
     {
-        return collect((array) $this->invoicesData);
+        return collect($this->invoicesData);
     }
 
     /**

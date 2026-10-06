@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -12,7 +13,10 @@ class TenatExport implements FromCollection, WithHeadings, WithTitle
 {
     use Exportable;
 
-    public function __construct(protected mixed $selectedColumns, protected mixed $tenantsData, protected mixed $sheetIndex)
+    /**
+     * @param  Enumerable<covariant int|string, covariant mixed>  $tenantsData
+     */
+    public function __construct(protected mixed $selectedColumns, protected Enumerable $tenantsData, protected mixed $sheetIndex)
     {
     }
 
@@ -21,7 +25,7 @@ class TenatExport implements FromCollection, WithHeadings, WithTitle
      */
     public function collection(): Collection
     {
-        return collect((array) $this->tenantsData);
+        return collect($this->tenantsData);
     }
 
     /**

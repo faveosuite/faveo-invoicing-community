@@ -3604,4 +3604,8 @@ return [
     'no_platform_found' => 'Geen platform gevonden',
     'select_a_platform' => 'Selecteer een platform...',
     'custom_icon' => 'Aangepast pictogram',
+    'activation_code' => 'Activeringscode',
+    'activation_code_tooltip' => 'Plak de activeringscode om uw offline licentiebestand aan die specifieke server te koppelen. Dit is slechts één keer nodig.',
+    'enter_activation_code' => 'Plak uw activeringscode (begint met FLC1.)',
+    'invalid_activation_code' => 'Ongeldige activeringscode. Controleer de code en probeer het opnieuw.',
 ];

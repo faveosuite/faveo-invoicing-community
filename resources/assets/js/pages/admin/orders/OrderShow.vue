@@ -366,21 +366,17 @@
             <template #title><h4>{{ __('message.localized_license') }}</h4></template>
             <template #alert><AppAlert :componentName="MODAL_COMPONENT" /></template>
             <template #fields>
-                <p class="text-muted mb-3">{{ __('message.machine_id_tooltip') }}</p>
+                <p class="text-muted mb-3">{{ __('message.activation_code_tooltip') }}</p>
                 <div class="mb-3">
-                    <label class="form-label fw-bold">{{ __('message.domain') }}</label>
-                    <input type="text" class="form-control" v-model="bindingForm.domain" placeholder="example.com" />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">{{ __('message.machine_id') }}</label>
-                    <input type="text" class="form-control" v-model="bindingForm.machineId" :placeholder="__('message.enter_machine_id')" />
+                    <label class="form-label fw-bold">{{ __('message.activation_code') }}</label>
+                    <textarea class="form-control" rows="4" v-model="bindingForm.activationCode" :placeholder="__('message.enter_activation_code')"></textarea>
                 </div>
             </template>
             <template #controls>
                 <action-button action="confirm"
                                :label="__('message.save_and_download')"
                                :loading="bindingBusy"
-                               :disabled="!bindingForm.domain || !bindingForm.machineId"
+                               :disabled="!bindingForm.activationCode"
                                @click="submitBinding" />
             </template>
         </AppModal>
@@ -600,10 +596,16 @@ async function toggleLicenseMode(checked) {
 // ── License binding (domain + machine ID) before first download ────────────
 const showBindingModal = ref(false)
 const bindingBusy      = ref(false)
-const bindingForm      = reactive({ domain: '', machineId: '' })
+const bindingForm      = reactive({ activationCode: '' })
 // null = main product's license file; otherwise the plugin product_id whose
 // download triggered the binding modal, so it resumes the right one after.
 const pendingDownloadProductId = ref(null)
+
+// The activation code is "FLC1." + base64url(JSON {domain, machine_id, ...}); decoded only to
+// refresh the bound state locally — billing re-validates and decodes it itself.
+function decodeActivationCode(code) {
+    try { return JSON.parse(atob(code.trim().slice(5).replace(/-/g, '+').replace(/_/g, '/'))) } catch { return {} }
+}
 
 function isLicenseBound() {
     // Binding stores either a domain OR an IP (LicenseService::parseIpAndDomain
@@ -623,8 +625,7 @@ function requestDownload(productId = null) {
         return
     }
     pendingDownloadProductId.value = productId
-    bindingForm.domain    = licenseDetails.value?.license_domain || licenseDetails.value?.license_ip || ''
-    bindingForm.machineId = licenseDetails.value?.license_machine_id ?? ''
+    bindingForm.activationCode = ''
     showBindingModal.value = true
 }
 
@@ -656,16 +657,16 @@ function closeBindingModal() {
 }
 
 async function submitBinding() {
-    if (!bindingForm.domain || !bindingForm.machineId) return
+    if (!bindingForm.activationCode) return
     bindingBusy.value = true
     try {
         const res = await http.post('/license-binding', {
             orderNo: order.value.number,
-            domain: bindingForm.domain,
-            machine_id: bindingForm.machineId,
+            activation_code: bindingForm.activationCode.trim(),
         })
-        licenseDetails.value.license_domain     = bindingForm.domain
-        licenseDetails.value.license_machine_id = bindingForm.machineId
+        const bound = decodeActivationCode(bindingForm.activationCode)
+        licenseDetails.value.license_domain     = bound.domain
+        licenseDetails.value.license_machine_id = bound.machine_id
         successHandler(res, MODAL_COMPONENT)
         closeBindingModal()
         triggerDownload(pendingDownloadProductId.value)

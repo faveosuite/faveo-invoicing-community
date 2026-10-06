@@ -371,7 +371,7 @@ class TenantController extends Controller
                 }
 
                 if (! empty($request->orderId)) {
-                    $encryptedKey = Order::where('number', $request->input('orderId'))->value('serial_key');
+                    $encryptedKey = Order::where('id', $request->input('orderId'))->value('serial_key');
                     if ($encryptedKey) {
                         resolve(LicenseService::class)
                             ->reissueLicenseCloud(Crypt::decrypt($encryptedKey));
