@@ -166,7 +166,7 @@ async function submit() {
   } catch (e) {
     alertStore.setAlert({
       message: e?.response?.data?.message ?? __('message.something_went_wrong'),
-      type: 'error',
+      type: 'danger',
       component_name: 'CloudTrialModal',
     })
   } finally {
