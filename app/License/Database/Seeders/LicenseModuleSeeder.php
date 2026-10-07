@@ -77,27 +77,29 @@ class LicenseModuleSeeder extends Seeder
 
     private function seedLicenseSchemes(): void
     {
-        if (! Schema::hasTable('license_schemes') || LicenseScheme::exists()) {
+        if (! Schema::hasTable('license_schemes')) {
             return;
         }
 
         $schemes = [
             [
+                'id' => 1,
                 'scheme_query' => "CREATE TABLE %APL_DATABASE_TABLE% (SETTING_ID TINYINT(1) NOT NULL AUTO_INCREMENT,ROOT_URL VARCHAR(250) NOT NULL,CLIENT_EMAIL VARCHAR(250) NOT NULL,LICENSE_CODE VARCHAR(250) NOT NULL,LCD VARCHAR(250) NOT NULL,LRD VARCHAR(250) NOT NULL,INSTALLATION_KEY VARCHAR(250) NOT NULL,INSTALLATION_HASH VARCHAR(250) NOT NULL,PRIMARY KEY (SETTING_ID)) DEFAULT CHARSET=utf8;INSERT INTO %APL_DATABASE_TABLE% (SETTING_ID, ROOT_URL, CLIENT_EMAIL, LICENSE_CODE, LCD, LRD, INSTALLATION_KEY, INSTALLATION_HASH) VALUES ('1', '%ROOT_URL%', '%CLIENT_EMAIL%', '%LICENSE_CODE%', '%LCD%', '%LRD%', '%INSTALLATION_KEY%', '%INSTALLATION_HASH%');",
                 'scheme_status' => 1,
             ],
             [
+                'id' => 2,
                 'scheme_query' => "CREATE TABLE %APL_PLUGIN_DATABASE_TABLE% (SETTING_ID TINYINT(1) NOT NULL AUTO_INCREMENT, ROOT_URL VARCHAR(250) NOT NULL, CLIENT_EMAIL VARCHAR(250) NOT NULL, LICENSE_CODE VARCHAR(250) NOT NULL, LCD VARCHAR(250) NOT NULL, LRD VARCHAR(250) NOT NULL, INSTALLATION_KEY VARCHAR(250) NOT NULL, INSTALLATION_HASH VARCHAR(250) NOT NULL, PLUGIN_NAME VARCHAR(250) NOT NULL, PRIMARY KEY (SETTING_ID)) DEFAULT CHARSET=utf8; INSERT INTO %APL_PLUGIN_DATABASE_TABLE% (ROOT_URL, CLIENT_EMAIL, LICENSE_CODE, LCD, LRD, INSTALLATION_KEY, INSTALLATION_HASH, PLUGIN_NAME) VALUES ('%ROOT_URL%', '%CLIENT_EMAIL%', '%LICENSE_CODE%', '%LCD%', '%LRD%', '%INSTALLATION_KEY%', '%INSTALLATION_HASH%', '%PLUGIN_NAME%');",
                 'scheme_status' => 1,
             ],
             [
+                'id' => 3,
                 'scheme_query' => "INSERT INTO %APL_PLUGIN_DATABASE_TABLE% (ROOT_URL, CLIENT_EMAIL, LICENSE_CODE, LCD, LRD, INSTALLATION_KEY, INSTALLATION_HASH, PLUGIN_NAME) VALUES ('%ROOT_URL%', '%CLIENT_EMAIL%', '%LICENSE_CODE%', '%LCD%', '%LRD%', '%INSTALLATION_KEY%', '%INSTALLATION_HASH%', '%PLUGIN_NAME%');",
                 'scheme_status' => 1,
             ],
         ];
 
-        foreach ($schemes as $scheme) {
-            LicenseScheme::create($scheme);
-        }
+        // The license callbacks look schemes up by fixed id (1/2/3); insert only the missing ones.
+        LicenseScheme::insertOrIgnore($schemes);
     }
 }

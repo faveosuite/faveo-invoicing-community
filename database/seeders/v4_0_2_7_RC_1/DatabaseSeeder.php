@@ -150,15 +150,12 @@ class DatabaseSeeder extends Seeder
             ['label' => 'Created At', 'key' => 'created_at', 'type' => 'datetime'],
         ];
 
-        FaveoLocalFields::insert(
-            collect($fields)->map(fn ($field): array => [
-                'display_name' => $field['label'],
-                'field_key' => $field['key'],
-                'field_type' => $field['type'],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ])->all()
-        );
+        foreach ($fields as $field) {
+            FaveoLocalFields::firstOrCreate(
+                ['field_key' => $field['key']],
+                ['display_name' => $field['label'], 'field_type' => $field['type']]
+            );
+        }
     }
 
     public function zohoSeeder(): void
@@ -177,7 +174,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($integrations as $integration) {
-            ZohoIntegration::updateOrCreate(
+            ZohoIntegration::firstOrCreate(
                 ['id' => $integration['id']],
                 [
                     'platform' => $integration['platform'],
@@ -500,7 +497,7 @@ Dear {{name}},<br/><br/>
         ];
 
         foreach ($settings as $setting) {
-            CommonSettings::updateOrCreate(
+            CommonSettings::firstOrCreate(
                 ['option_name' => $setting['option_name'], 'optional_field' => $setting['optional_field']],
                 ['option_value' => $setting['option_value']]
             );
