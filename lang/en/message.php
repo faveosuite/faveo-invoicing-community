@@ -4001,4 +4001,14 @@ return [
     'no_platform_found' => 'No platform found',
     'select_a_platform' => 'Select a platform...',
     'custom_icon' => 'Custom Icon',
+    'social_login_unavailable' => 'This sign-in option is not available right now. Please use another method.',
+    'social_session_expired' => 'Your sign-in session expired. Please try again.',
+    'social_complete_title' => 'Complete your profile',
+    'social_complete_hint' => 'You signed in with :provider. We just need a few more details to finish setting up your account.',
+    'social_error' => [
+        'cancelled' => 'Sign-in was cancelled.',
+        'failed' => 'We could not sign you in with that provider. Please try again or use another method.',
+        'email_exists' => 'An account with this email already exists. Please log in with your password.',
+        'inactive' => 'Your account is not active. Please contact support.',
+    ],
 ];

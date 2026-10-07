@@ -3612,4 +3612,14 @@ return [
     'activation_code_tooltip' => '활성화 코드를 붙여넣어 오프라인 라이선스 파일을 해당 서버에 연결하세요. 이 작업은 한 번만 필요합니다.',
     'enter_activation_code' => '활성화 코드를 붙여넣으세요 (FLC1.로 시작)',
     'invalid_activation_code' => '활성화 코드가 올바르지 않습니다. 코드를 확인한 후 다시 시도해 주세요.',
+    'social_login_unavailable' => '이 로그인 옵션은 현재 사용할 수 없습니다. 다른 방법을 사용해 주세요.',
+    'social_session_expired' => '로그인 세션이 만료되었습니다. 다시 시도해 주세요.',
+    'social_complete_title' => '프로필을 완성하세요',
+    'social_complete_hint' => ':provider(으)로 로그인했습니다. 계정 설정을 마치려면 몇 가지 정보가 더 필요합니다.',
+    'social_error' => [
+        'cancelled' => '로그인이 취소되었습니다.',
+        'failed' => '해당 제공자로 로그인할 수 없습니다. 다시 시도하거나 다른 방법을 사용해 주세요.',
+        'email_exists' => '이 이메일로 등록된 계정이 이미 있습니다. 비밀번호로 로그인해 주세요.',
+        'inactive' => '계정이 활성화되어 있지 않습니다. 지원팀에 문의해 주세요.',
+    ],
 ];

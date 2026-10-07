@@ -3612,4 +3612,14 @@ return [
     'activation_code_tooltip' => 'Çevrimdışı lisans dosyanızı ilgili sunucuya bağlamak için etkinleştirme kodunu yapıştırın. Bu yalnızca bir kez gereklidir.',
     'enter_activation_code' => 'Etkinleştirme kodunuzu yapıştırın (FLC1. ile başlar)',
     'invalid_activation_code' => 'Geçersiz etkinleştirme kodu. Lütfen kodu kontrol edip tekrar deneyin.',
+    'social_login_unavailable' => 'Bu giriş seçeneği şu anda kullanılamıyor. Lütfen başka bir yöntem kullanın.',
+    'social_session_expired' => 'Oturum açma oturumunuzun süresi doldu. Lütfen tekrar deneyin.',
+    'social_complete_title' => 'Profilinizi tamamlayın',
+    'social_complete_hint' => ':provider ile giriş yaptınız. Hesabınızı kurmayı tamamlamak için birkaç bilgiye daha ihtiyacımız var.',
+    'social_error' => [
+        'cancelled' => 'Giriş iptal edildi.',
+        'failed' => 'Bu sağlayıcıyla giriş yapamadık. Lütfen tekrar deneyin veya başka bir yöntem kullanın.',
+        'email_exists' => 'Bu e-postaya sahip bir hesap zaten var. Lütfen şifrenizle giriş yapın.',
+        'inactive' => 'Hesabınız etkin değil. Lütfen destek ile iletişime geçin.',
+    ],
 ];

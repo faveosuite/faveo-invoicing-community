@@ -3612,4 +3612,14 @@ return [
     'activation_code_tooltip' => 'Incolla il codice di attivazione per associare il tuo file di licenza offline a quel server specifico. È necessario solo una volta.',
     'enter_activation_code' => 'Incolla il tuo codice di attivazione (inizia con FLC1.)',
     'invalid_activation_code' => 'Codice di attivazione non valido. Controlla il codice e riprova.',
+    'social_login_unavailable' => 'Questa opzione di accesso non è al momento disponibile. Usa un altro metodo.',
+    'social_session_expired' => 'La sessione di accesso è scaduta. Riprova.',
+    'social_complete_title' => 'Completa il tuo profilo',
+    'social_complete_hint' => 'Hai effettuato l\'accesso con :provider. Ci servono ancora alcuni dati per completare la configurazione del tuo account.',
+    'social_error' => [
+        'cancelled' => 'L\'accesso è stato annullato.',
+        'failed' => 'Non è stato possibile effettuare l\'accesso con questo provider. Riprova o usa un altro metodo.',
+        'email_exists' => 'Esiste già un account con questa e-mail. Accedi con la tua password.',
+        'inactive' => 'Il tuo account non è attivo. Contatta il supporto.',
+    ],
 ];

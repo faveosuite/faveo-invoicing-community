@@ -404,7 +404,7 @@ class LoginTest extends DBTestCase
     }
 
     // -------------------------------------------------------------------------
-    // redirectToGithub — provider not in DB → ModelNotFoundException
+    // social redirect — unknown / disabled provider → clean error
     // -------------------------------------------------------------------------
 
     public function test_redirect_to_github_returns_error_when_provider_not_configured(): void
@@ -413,8 +413,7 @@ class LoginTest extends DBTestCase
         // Route: GET /auth/redirect/{provider}
         $response = $this->getJson('/auth/redirect/nonexistent_provider_xyzzy');
 
-        // ModelNotFoundException from firstOrFail → 404 or 500
-        $this->assertContains($response->getStatusCode(), [200, 404, 500]);
+        $response->assertStatus(400);
     }
 
     // -------------------------------------------------------------------------

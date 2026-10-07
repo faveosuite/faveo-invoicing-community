@@ -3608,4 +3608,14 @@ return [
     'activation_code_tooltip' => '貼上啟用碼，將您的離線授權檔案綁定到該特定伺服器。此操作僅需執行一次。',
     'enter_activation_code' => '貼上您的啟用碼（以 FLC1. 開頭）',
     'invalid_activation_code' => '啟用碼無效。請檢查啟用碼後再試一次。',
+    'social_login_unavailable' => '此登入方式目前無法使用，請使用其他方式。',
+    'social_session_expired' => '您的登入工作階段已過期，請重試。',
+    'social_complete_title' => '完善您的個人資料',
+    'social_complete_hint' => '您已透過 :provider 登入。我們還需要一些資訊來完成您的帳戶設定。',
+    'social_error' => [
+        'cancelled' => '登入已取消。',
+        'failed' => '無法透過該供應商登入。請重試或使用其他方式。',
+        'email_exists' => '使用此電子郵件的帳戶已存在。請使用密碼登入。',
+        'inactive' => '您的帳戶尚未啟用，請聯絡支援人員。',
+    ],
 ];

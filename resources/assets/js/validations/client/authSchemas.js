@@ -35,6 +35,9 @@ export const registerSchema = yup.object({
         .oneOf([yup.ref('password')], () => __('message.login_validation.confirm_password_equalto')),
 })
 
+// Social sign-up: the register form minus the password fields.
+export const socialCompleteSchema = registerSchema.pick(['first_name', 'last_name', 'email', 'company', 'address', 'country', 'mobile'])
+
 export const forgotSchema = yup.object({
     email: yup.string().trim()
         .required(() => __('message.error_email_address'))

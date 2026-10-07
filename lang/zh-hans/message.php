@@ -3623,4 +3623,14 @@ return [
     'activation_code_tooltip' => '粘贴激活码，将您的离线许可证文件绑定到该特定服务器。此操作仅需执行一次。',
     'enter_activation_code' => '粘贴您的激活码（以 FLC1. 开头）',
     'invalid_activation_code' => '激活码无效。请检查激活码后重试。',
+    'social_login_unavailable' => '此登录方式当前不可用，请使用其他方式。',
+    'social_session_expired' => '您的登录会话已过期，请重试。',
+    'social_complete_title' => '完善您的资料',
+    'social_complete_hint' => '您已通过 :provider 登录。我们还需要一些信息来完成您的账户设置。',
+    'social_error' => [
+        'cancelled' => '登录已取消。',
+        'failed' => '无法通过该提供商登录。请重试或使用其他方式。',
+        'email_exists' => '使用此邮箱的账户已存在。请使用密码登录。',
+        'inactive' => '您的账户未激活，请联系支持人员。',
+    ],
 ];

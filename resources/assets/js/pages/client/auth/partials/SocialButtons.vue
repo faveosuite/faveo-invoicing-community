@@ -29,7 +29,6 @@ const busy = ref('')
 
 const PROVIDERS = [
     { key: 'google',   icon: 'fa-google',      label: 'Google' },
-    { key: 'facebook', icon: 'fa-facebook',    label: 'Facebook' },
     { key: 'github',   icon: 'fa-github',      label: 'GitHub' },
     { key: 'twitter',  icon: 'fa-twitter',     label: 'Twitter' },
     { key: 'linkedin', icon: 'fa-linkedin-in', label: 'LinkedIn' },

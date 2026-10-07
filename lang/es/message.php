@@ -3612,4 +3612,14 @@ return [
     'activation_code_tooltip' => 'Pegue el código de activación para vincular su archivo de licencia sin conexión a ese servidor específico. Solo es necesario una vez.',
     'enter_activation_code' => 'Pegue su código de activación (empieza con FLC1.)',
     'invalid_activation_code' => 'Código de activación no válido. Compruebe el código e inténtelo de nuevo.',
+    'social_login_unavailable' => 'Esta opción de inicio de sesión no está disponible en este momento. Utilice otro método.',
+    'social_session_expired' => 'Su sesión de inicio ha caducado. Inténtelo de nuevo.',
+    'social_complete_title' => 'Complete su perfil',
+    'social_complete_hint' => 'Inició sesión con :provider. Solo necesitamos algunos datos más para terminar de configurar su cuenta.',
+    'social_error' => [
+        'cancelled' => 'Se canceló el inicio de sesión.',
+        'failed' => 'No pudimos iniciar sesión con ese proveedor. Inténtelo de nuevo o utilice otro método.',
+        'email_exists' => 'Ya existe una cuenta con este correo electrónico. Inicie sesión con su contraseña.',
+        'inactive' => 'Su cuenta no está activa. Póngase en contacto con soporte.',
+    ],
 ];

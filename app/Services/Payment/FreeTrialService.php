@@ -14,7 +14,6 @@ use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\User;
 use GuzzleHttp\Client;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -38,15 +37,17 @@ class FreeTrialService
     }
 
     /**
+     * @return array<string, mixed>
+     *
      * @throws RuntimeException
      */
-    public function provision(User $user, string $domain, CloudProducts $cloudProduct): JsonResponse
+    public function provision(User $user, string $domain, CloudProducts $cloudProduct): array
     {
         $currency = getCurrencyForClient($user->country);
         $plan = $this->resolveFreePlan($cloudProduct);
         $product = Product::findOrFail($cloudProduct->cloud_product);
 
-        return DB::transaction(function () use ($user, $domain, $cloudProduct, $plan, $product, $currency): JsonResponse {
+        return DB::transaction(function () use ($user, $domain, $cloudProduct, $plan, $product, $currency): array {
             $invoice = $this->createInvoice($user, $plan, $currency);
             $this->createInvoiceItem($invoice, $product, $plan, $currency);
 
@@ -54,17 +55,20 @@ class FreeTrialService
                 ->firstWhere('product', $product->id)
                 ?? throw new RuntimeException(__('message.cannot_generate_freetrial_cloud_instance'));
 
-            $result = new TenantController(new Client, new FaveoCloud)
+            $response = new TenantController(new Client, new FaveoCloud)
                 ->createTenant(new Request(['orderNo' => $order->number, 'domain' => $domain]));
 
-            if (($result['status'] ?? '') === 'false') { // @phpstan-ignore offsetAccess.nonOffsetAccessible
-                throw new RuntimeException($result['message'] ?? __('message.cannot_generate_freetrial_cloud_instance')); // @phpstan-ignore offsetAccess.nonOffsetAccessible
+            $body = $response->getData(true);
+            if (! ($body['success'] ?? false)) {
+                $message = $body['message'] ?? '';
+                throw new RuntimeException(is_string($message) && $message !== '' ? $message : __('message.cannot_generate_freetrial_cloud_instance'));
             }
+            $result = $body['data'] ?? [];
 
             DB::table('free_trial_allowed')->insert([
                 'user_id' => $user->id,
                 'product_id' => $cloudProduct->cloud_product,
-                'domain' => $result['Free_trial_domain'] ?? $domain, // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                'domain' => $result['Free_trial_domain'] ?? $domain,
             ]);
 
             return $result;

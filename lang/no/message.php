@@ -3612,4 +3612,14 @@ return [
     'activation_code_tooltip' => 'Lim inn aktiveringskoden for å knytte den frakoblede lisensfilen din til den aktuelle serveren. Dette er bare nødvendig én gang.',
     'enter_activation_code' => 'Lim inn aktiveringskoden din (starter med FLC1.)',
     'invalid_activation_code' => 'Ugyldig aktiveringskode. Kontroller koden og prøv igjen.',
+    'social_login_unavailable' => 'Dette påloggingsalternativet er ikke tilgjengelig akkurat nå. Bruk en annen metode.',
+    'social_session_expired' => 'Påloggingsøkten din har utløpt. Prøv igjen.',
+    'social_complete_title' => 'Fullfør profilen din',
+    'social_complete_hint' => 'Du logget på med :provider. Vi trenger bare noen flere opplysninger for å fullføre kontoen din.',
+    'social_error' => [
+        'cancelled' => 'Påloggingen ble avbrutt.',
+        'failed' => 'Vi kunne ikke logge deg på med den leverandøren. Prøv igjen eller bruk en annen metode.',
+        'email_exists' => 'Det finnes allerede en konto med denne e-postadressen. Logg på med passordet ditt.',
+        'inactive' => 'Kontoen din er ikke aktiv. Kontakt kundestøtte.',
+    ],
 ];

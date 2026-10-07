@@ -3608,4 +3608,14 @@ return [
     'activation_code_tooltip' => 'Plak de activeringscode om uw offline licentiebestand aan die specifieke server te koppelen. Dit is slechts één keer nodig.',
     'enter_activation_code' => 'Plak uw activeringscode (begint met FLC1.)',
     'invalid_activation_code' => 'Ongeldige activeringscode. Controleer de code en probeer het opnieuw.',
+    'social_login_unavailable' => 'Deze inlogoptie is momenteel niet beschikbaar. Gebruik een andere methode.',
+    'social_session_expired' => 'Uw inlogsessie is verlopen. Probeer het opnieuw.',
+    'social_complete_title' => 'Vul uw profiel aan',
+    'social_complete_hint' => 'U bent ingelogd met :provider. We hebben nog enkele gegevens nodig om uw account in te stellen.',
+    'social_error' => [
+        'cancelled' => 'Inloggen is geannuleerd.',
+        'failed' => 'We konden u niet inloggen met die provider. Probeer het opnieuw of gebruik een andere methode.',
+        'email_exists' => 'Er bestaat al een account met dit e-mailadres. Log in met uw wachtwoord.',
+        'inactive' => 'Uw account is niet actief. Neem contact op met de ondersteuning.',
+    ],
 ];

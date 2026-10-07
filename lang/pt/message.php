@@ -3608,4 +3608,14 @@ return [
     'activation_code_tooltip' => 'Cole o código de ativação para vincular o seu arquivo de licença offline a esse servidor específico. Isso só é necessário uma vez.',
     'enter_activation_code' => 'Cole o seu código de ativação (começa com FLC1.)',
     'invalid_activation_code' => 'Código de ativação inválido. Verifique o código e tente novamente.',
+    'social_login_unavailable' => 'Esta opção de login não está disponível no momento. Use outro método.',
+    'social_session_expired' => 'Sua sessão de login expirou. Tente novamente.',
+    'social_complete_title' => 'Complete seu perfil',
+    'social_complete_hint' => 'Você entrou com :provider. Precisamos apenas de mais alguns dados para concluir a configuração da sua conta.',
+    'social_error' => [
+        'cancelled' => 'O login foi cancelado.',
+        'failed' => 'Não foi possível fazer login com esse provedor. Tente novamente ou use outro método.',
+        'email_exists' => 'Já existe uma conta com este e-mail. Faça login com sua senha.',
+        'inactive' => 'Sua conta não está ativa. Entre em contato com o suporte.',
+    ],
 ];

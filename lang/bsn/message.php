@@ -3612,4 +3612,14 @@ return [
     'activation_code_tooltip' => 'Zalijepite aktivacijski kod da biste povezali datoteku offline licence s tim određenim serverom. Ovo je potrebno samo jednom.',
     'enter_activation_code' => 'Zalijepite svoj aktivacijski kod (počinje sa FLC1.)',
     'invalid_activation_code' => 'Nevažeći aktivacijski kod. Provjerite kod i pokušajte ponovo.',
+    'social_login_unavailable' => 'Ova opcija prijave trenutno nije dostupna. Molimo koristite drugi način.',
+    'social_session_expired' => 'Vaša sesija prijave je istekla. Molimo pokušajte ponovo.',
+    'social_complete_title' => 'Dovršite svoj profil',
+    'social_complete_hint' => 'Prijavili ste se putem :provider. Potrebno nam je još nekoliko podataka da završimo postavljanje vašeg računa.',
+    'social_error' => [
+        'cancelled' => 'Prijava je otkazana.',
+        'failed' => 'Nismo mogli da vas prijavimo putem tog pružatelja usluge. Molimo pokušajte ponovo ili koristite drugi način.',
+        'email_exists' => 'Račun s ovom e-poštom već postoji. Molimo prijavite se svojom lozinkom.',
+        'inactive' => 'Vaš račun nije aktivan. Molimo kontaktirajte podršku.',
+    ],
 ];

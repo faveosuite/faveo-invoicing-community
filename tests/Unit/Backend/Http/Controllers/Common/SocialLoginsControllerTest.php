@@ -54,7 +54,6 @@ class SocialLoginsControllerTest extends DBTestCase
             'type' => 'Google',
             'client_id' => 'gid',
             'client_secret' => 'gsecret',
-            'redirect_url' => 'https://google.example/cb',
             'status' => 1,
         ];
         $google = $this->postJson('/update-social-login', $googlePayload);
@@ -66,7 +65,6 @@ class SocialLoginsControllerTest extends DBTestCase
             'type' => 'Github',
             'client_id' => 'gid',
             'client_secret' => 'gsecret',
-            'redirect_url' => 'https://github.example/cb',
             'status' => 1,
         ];
         $google = $this->postJson('/update-social-login', $githubPayload);
@@ -78,7 +76,6 @@ class SocialLoginsControllerTest extends DBTestCase
             'type' => 'Linkedin',
             'client_id' => 'gid',
             'client_secret' => 'gsecret',
-            'redirect_url' => 'https://linkedin.example/cb',
             'status' => 1,
         ];
         $google = $this->postJson('/update-social-login', $linkedinPayload);
@@ -93,7 +90,6 @@ class SocialLoginsControllerTest extends DBTestCase
             'type' => 'Google',
             'client_id' => 'gid',
             'client_secret' => 'gsecret',
-            'redirect_url' => 'https://google.example/cb',
             'status' => 1,
         ]);
 
@@ -107,7 +103,6 @@ class SocialLoginsControllerTest extends DBTestCase
             'type' => 'Github',
             'client_id' => 'gid',
             'client_secret' => 'gsecret',
-            'redirect_url' => 'https://github.example/cb',
             'status' => 1,
         ]);
 
@@ -121,7 +116,6 @@ class SocialLoginsControllerTest extends DBTestCase
             'type' => 'Linkedin',
             'client_id' => 'gid',
             'client_secret' => 'gsecret',
-            'redirect_url' => 'https://linkedin.example/cb',
             'status' => 1,
         ]);
 
@@ -141,7 +135,7 @@ class SocialLoginsControllerTest extends DBTestCase
         $response = $this->postJson('/update-social-login', $googlePayload);
 
         $response->assertStatus(412)
-            ->assertJsonValidationErrors(['client_id', 'client_secret', 'redirect_url'], 'message');
+            ->assertJsonValidationErrors(['client_id', 'client_secret'], 'message');
 
         // Check validation error in github
         $githubPayload = [
@@ -151,7 +145,7 @@ class SocialLoginsControllerTest extends DBTestCase
         $response = $this->postJson('/update-social-login', $githubPayload);
 
         $response->assertStatus(412)
-            ->assertJsonValidationErrors(['client_id', 'client_secret', 'redirect_url'], 'message');
+            ->assertJsonValidationErrors(['client_id', 'client_secret'], 'message');
 
         // Check validation error in linkedin
         $linkedinPayload = [
@@ -161,6 +155,6 @@ class SocialLoginsControllerTest extends DBTestCase
         $response = $this->postJson('/update-social-login', $linkedinPayload);
 
         $response->assertStatus(412)
-            ->assertJsonValidationErrors(['client_id', 'client_secret', 'redirect_url'], 'message');
+            ->assertJsonValidationErrors(['client_id', 'client_secret'], 'message');
     }
 }

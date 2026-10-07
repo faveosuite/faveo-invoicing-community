@@ -3612,4 +3612,14 @@ return [
     'activation_code_tooltip' => 'Tempel kode aktivasi untuk mengikat file lisensi offline Anda ke server tertentu tersebut. Ini hanya diperlukan sekali.',
     'enter_activation_code' => 'Tempel kode aktivasi Anda (diawali dengan FLC1.)',
     'invalid_activation_code' => 'Kode aktivasi tidak valid. Periksa kode lalu coba lagi.',
+    'social_login_unavailable' => 'Opsi masuk ini sedang tidak tersedia. Silakan gunakan metode lain.',
+    'social_session_expired' => 'Sesi masuk Anda telah berakhir. Silakan coba lagi.',
+    'social_complete_title' => 'Lengkapi profil Anda',
+    'social_complete_hint' => 'Anda masuk dengan :provider. Kami hanya memerlukan beberapa detail lagi untuk menyelesaikan pengaturan akun Anda.',
+    'social_error' => [
+        'cancelled' => 'Proses masuk dibatalkan.',
+        'failed' => 'Kami tidak dapat memasukkan Anda dengan penyedia tersebut. Silakan coba lagi atau gunakan metode lain.',
+        'email_exists' => 'Akun dengan email ini sudah ada. Silakan masuk dengan kata sandi Anda.',
+        'inactive' => 'Akun Anda tidak aktif. Silakan hubungi dukungan.',
+    ],
 ];

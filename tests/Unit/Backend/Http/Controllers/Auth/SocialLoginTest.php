@@ -29,7 +29,6 @@ class SocialLoginTest extends TestCase
             'type' => 'Google',
             'client_id' => 'new-client-id',
             'client_secret' => 'new-client-secret',
-            'redirect_url' => 'https://new-url.com',
             'optradio' => 1,
         ]);
 
@@ -40,7 +39,6 @@ class SocialLoginTest extends TestCase
             'type' => 'Google',
             'client_id' => 'new-client-id',
             'client_secret' => 'new-client-secret',
-            'redirect_url' => 'https://new-url.com',
             'status' => 1,
         ]);
     }

@@ -3612,4 +3612,14 @@ return [
     'activation_code_tooltip' => 'Illappja l-kodiċi ta\' attivazzjoni biex torbot il-fajl tal-liċenzja offline tiegħek ma\' dak is-server speċifiku. Dan huwa meħtieġ darba biss.',
     'enter_activation_code' => 'Illappja l-kodiċi ta\' attivazzjoni tiegħek (jibda b\'FLC1.)',
     'invalid_activation_code' => 'Kodiċi ta\' attivazzjoni invalidu. Jekk jogħġbok iċċekkja l-kodiċi u erġa\' pprova.',
+    'social_login_unavailable' => 'Din l-għażla ta\' sign-in mhix disponibbli bħalissa. Jekk jogħġbok uża metodu ieħor.',
+    'social_session_expired' => 'Is-sessjoni tas-sign-in tiegħek skadiet. Jekk jogħġbok erġa\' pprova.',
+    'social_complete_title' => 'Ikkompleta l-profil tiegħek',
+    'social_complete_hint' => 'Dħalt bi :provider. Neħtieġu biss ftit dettalji oħra biex nispiċċaw it-twaqqif tal-kont tiegħek.',
+    'social_error' => [
+        'cancelled' => 'Is-sign-in ġie kkanċellat.',
+        'failed' => 'Ma stajniex nidħlulek b\'dak il-fornitur. Jekk jogħġbok erġa\' pprova jew uża metodu ieħor.',
+        'email_exists' => 'Diġà teżisti kont b\'dan l-email. Jekk jogħġbok idħol bil-password tiegħek.',
+        'inactive' => 'Il-kont tiegħek mhuwiex attiv. Jekk jogħġbok ikkuntattja l-appoġġ.',
+    ],
 ];

@@ -3612,4 +3612,14 @@ return [
     'activation_code_tooltip' => 'Collez le code d\'activation pour lier votre fichier de licence hors ligne à ce serveur précis. Cette opération n\'est nécessaire qu\'une seule fois.',
     'enter_activation_code' => 'Collez votre code d\'activation (commence par FLC1.)',
     'invalid_activation_code' => 'Code d\'activation invalide. Veuillez vérifier le code et réessayer.',
+    'social_login_unavailable' => 'Cette option de connexion n\'est pas disponible pour le moment. Veuillez utiliser une autre méthode.',
+    'social_session_expired' => 'Votre session de connexion a expiré. Veuillez réessayer.',
+    'social_complete_title' => 'Complétez votre profil',
+    'social_complete_hint' => 'Vous vous êtes connecté avec :provider. Il nous manque quelques informations pour finaliser votre compte.',
+    'social_error' => [
+        'cancelled' => 'La connexion a été annulée.',
+        'failed' => 'Nous n\'avons pas pu vous connecter avec ce fournisseur. Veuillez réessayer ou utiliser une autre méthode.',
+        'email_exists' => 'Un compte avec cet e-mail existe déjà. Veuillez vous connecter avec votre mot de passe.',
+        'inactive' => 'Votre compte n\'est pas actif. Veuillez contacter l\'assistance.',
+    ],
 ];

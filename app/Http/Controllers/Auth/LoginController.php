@@ -5,20 +5,16 @@ namespace App\Http\Controllers\Auth;
 use App\ApiKey;
 use App\DefaultPage;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Model\Common\Country;
 use App\Model\Common\StatusSetting;
 use App\SocialLogin;
 use App\User;
 use Cache;
-use Config;
 use Exception;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Socialite\Facades\Socialite;
 use RateLimiter;
 use Session;
 
@@ -68,9 +64,10 @@ class LoginController extends BaseAuthController
             $apiKeys = ApiKey::select('nocaptcha_sitekey', 'terms_url')->first();
             $location = getLocation();
 
+            // `type` is stored capitalised (Google, Github, ...); the SPA looks the keys up in lowercase.
             $social = SocialLogin::whereIn('type', ['google', 'github', 'twitter', 'linkedin'])
                 ->pluck('status', 'type')
-                ->map(fn ($s): int => (int) $s)
+                ->mapWithKeys(fn ($s, $type): array => [strtolower((string) $type) => (int) $s])
                 ->toArray();
 
             return successResponse('login-config', [
@@ -231,90 +228,6 @@ class LoginController extends BaseAuthController
         }
 
         return url('/admin');
-    }
-
-    /**
-     * This function redirects to the social login based on the provider(twitter,gitHub).
-     */
-    public function redirectToGithub(mixed $provider): JsonResponse
-    {
-        /** @var SocialLogin $details */
-        $details = SocialLogin::where('type', $provider)->firstOrFail();
-
-        Config::set(sprintf('services.%s.redirect', $provider), $details->redirect_url);
-        Config::set(sprintf('services.%s.client_id', $provider), $details->client_id);
-        Config::set(sprintf('services.%s.client_secret', $provider), $details->client_secret);
-
-        return successResponse('success', ['url' => Socialite::driver($provider)->redirect()->getTargetUrl()]);
-    }
-
-    /**
-     * This function performs the whole social login operations(creating new user, if existing user just logging in).
-     *
-     * @return RedirectResponse
-     */
-    public function handler(mixed $provider)
-    {
-        /** @var SocialLogin $details */
-        $details = SocialLogin::where('type', $provider)->firstOrFail();
-        Config::set(sprintf('services.%s.redirect', $provider), $details->redirect_url);
-        Config::set(sprintf('services.%s.client_id', $provider), $details->client_id);
-        Config::set(sprintf('services.%s.client_secret', $provider), $details->client_secret);
-
-        $githubUser = Socialite::driver($provider)->user();
-        $location = getLocation();
-
-        $state = getStateByCode($location['iso_code'], $location['state']);
-
-        $existingUser = User::where('email', $githubUser->getEmail())->first();
-
-        if ($existingUser) {
-            $existingUser->active = 1;
-
-            $existingUser->role = $existingUser->role == 'admin' ? 'admin' : 'user';
-
-            $existingUser->save();
-            $user = $existingUser;
-        } else {
-            $user = User::create([
-                'email' => $githubUser->getEmail(),
-                'user_name' => $githubUser->getEmail(),
-                'first_name' => $githubUser->getName(),
-                'ip' => $location['ip'],
-                'timezone_id' => getTimezoneByName($location['timezone']),
-                'state' => $state['id'],
-                'town' => $location['city'],
-                'country' => Country::where('country_name', strtoupper((string) $location['country']))->value('country_code_char2'),
-            ]);
-            $user->active = 1;
-            $user->role = 'user';
-            $user->save();
-        }
-
-        if ($user->active == 1 && $user->mobile_verified !== 1) {
-            return redirect('verify')->with('user', $user);
-        }
-
-        Auth::login($user);
-
-        /** @var User $authUser */
-        $authUser = \Auth::user();
-        if ($authUser->is_2fa_enabled == 1) {
-            $userId = $authUser->id;
-            Session::put([
-                '2fa:user:id' => $userId,
-                'remember:user:id' => false,
-            ]);
-            \Auth::logout();
-
-            return redirect(url('verify-2fa'));
-        }
-
-        if (Auth::check()) {
-            return redirect((string) $this->redirectPath()); // @phpstan-ignore cast.string, return.type
-        }
-
-        return back();
     }
 
     /**

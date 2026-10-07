@@ -51,7 +51,6 @@ class SocialLoginsController extends Controller
             'client_secret' => [Rule::requiredIf(! $isTwitter)],
             'api_key' => [Rule::requiredIf($isTwitter)],
             'api_secret' => [Rule::requiredIf($isTwitter)],
-            'redirect_url' => ['required', 'url'],
         ],
             [
                 // Rule::requiredIf() compiles down to the plain "required" rule at
@@ -60,15 +59,12 @@ class SocialLoginsController extends Controller
                 'client_secret.required' => __('validation.social_login.client_secret_required'),
                 'api_key.required' => __('validation.social_login.api_key_required'),
                 'api_secret.required' => __('validation.social_login.api_secret_required'),
-                'redirect_url.required' => __('validation.social_login.redirect_url_required'),
-                'redirect_url.url' => __('message.invalid_url'),
             ]);
 
         try {
             SocialLogin::where('type', $request->type)->update([
                 'client_id' => $request->type === 'Twitter' ? $request->api_key : $request->client_id,
                 'client_secret' => $request->type === 'Twitter' ? $request->api_secret : $request->client_secret,
-                'redirect_url' => $request->redirect_url,
                 'status' => $request->optradio,
             ]);
 

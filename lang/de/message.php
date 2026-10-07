@@ -3612,4 +3612,14 @@ return [
     'activation_code_tooltip' => 'Fügen Sie den Aktivierungscode ein, um Ihre Offline-Lizenzdatei an diesen bestimmten Server zu binden. Dies ist nur einmal erforderlich.',
     'enter_activation_code' => 'Fügen Sie Ihren Aktivierungscode ein (beginnt mit FLC1.)',
     'invalid_activation_code' => 'Ungültiger Aktivierungscode. Bitte überprüfen Sie den Code und versuchen Sie es erneut.',
+    'social_login_unavailable' => 'Diese Anmeldeoption ist derzeit nicht verfügbar. Bitte verwenden Sie eine andere Methode.',
+    'social_session_expired' => 'Ihre Anmeldesitzung ist abgelaufen. Bitte versuchen Sie es erneut.',
+    'social_complete_title' => 'Vervollständigen Sie Ihr Profil',
+    'social_complete_hint' => 'Sie haben sich mit :provider angemeldet. Wir benötigen nur noch einige Angaben, um Ihr Konto einzurichten.',
+    'social_error' => [
+        'cancelled' => 'Die Anmeldung wurde abgebrochen.',
+        'failed' => 'Wir konnten Sie mit diesem Anbieter nicht anmelden. Bitte versuchen Sie es erneut oder verwenden Sie eine andere Methode.',
+        'email_exists' => 'Ein Konto mit dieser E-Mail-Adresse existiert bereits. Bitte melden Sie sich mit Ihrem Passwort an.',
+        'inactive' => 'Ihr Konto ist nicht aktiv. Bitte wenden Sie sich an den Support.',
+    ],
 ];

@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Common;
@@ -196,8 +197,10 @@ Route::middleware('installAgora')->group(function (): void {
     });
 
     // Social / OAuth logins
-    Route::get('/auth/redirect/{provider}', [LoginController::class, 'redirectToGithub']);
-    Route::get('/auth/callback/{provider}', [LoginController::class, 'handler']);
+    Route::get('/auth/redirect/{provider}', [SocialAuthController::class, 'redirect']);
+    Route::get('/auth/callback/{provider}', [SocialAuthController::class, 'callback']);
+    Route::get('auth/social-complete-config', [SocialAuthController::class, 'completeConfig']);
+    Route::post('auth/social-complete', [SocialAuthController::class, 'complete']);
 
     // API token login (used by third-party integrations)
     Route::post('api/login', [LoginController::class, 'postLoginAndGetToken']);

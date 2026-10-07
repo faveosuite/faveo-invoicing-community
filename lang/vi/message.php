@@ -3612,4 +3612,14 @@ return [
     'activation_code_tooltip' => 'Dán mã kích hoạt để liên kết tệp giấy phép ngoại tuyến của bạn với máy chủ cụ thể đó. Việc này chỉ cần thực hiện một lần.',
     'enter_activation_code' => 'Dán mã kích hoạt của bạn (bắt đầu bằng FLC1.)',
     'invalid_activation_code' => 'Mã kích hoạt không hợp lệ. Vui lòng kiểm tra mã và thử lại.',
+    'social_login_unavailable' => 'Tùy chọn đăng nhập này hiện không khả dụng. Vui lòng dùng phương thức khác.',
+    'social_session_expired' => 'Phiên đăng nhập của bạn đã hết hạn. Vui lòng thử lại.',
+    'social_complete_title' => 'Hoàn tất hồ sơ của bạn',
+    'social_complete_hint' => 'Bạn đã đăng nhập bằng :provider. Chúng tôi chỉ cần thêm một vài thông tin để hoàn tất thiết lập tài khoản.',
+    'social_error' => [
+        'cancelled' => 'Đăng nhập đã bị hủy.',
+        'failed' => 'Chúng tôi không thể đăng nhập cho bạn bằng nhà cung cấp đó. Vui lòng thử lại hoặc dùng phương thức khác.',
+        'email_exists' => 'Đã có tài khoản với email này. Vui lòng đăng nhập bằng mật khẩu của bạn.',
+        'inactive' => 'Tài khoản của bạn chưa được kích hoạt. Vui lòng liên hệ bộ phận hỗ trợ.',
+    ],
 ];

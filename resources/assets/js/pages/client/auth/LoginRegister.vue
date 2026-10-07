@@ -196,6 +196,17 @@ onMounted(async () => {
     globalThis.history.replaceState({}, '', globalThis.location.pathname)
   }
 
+  // The OAuth callback sends failures back here as ?social_error=<reason>.
+  const socialError = new URLSearchParams(globalThis.location.search).get('social_error')
+  if (socialError) {
+    useAlertStore().setAlert({
+      type: 'danger',
+      message: __(`message.social_error.${socialError}`),
+      component_name: COMPONENT,
+    })
+    globalThis.history.replaceState({}, '', globalThis.location.pathname)
+  }
+
   try {
     const res = await http.get(`/auth/login-config`)
     const data = res.data?.data ?? {}

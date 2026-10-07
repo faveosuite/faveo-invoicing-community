@@ -33,16 +33,15 @@
                                 :error="errors.client_secret"
                             />
                         </div>
-                        <div class="col-md-6">
-                            <TextField
-                                name="redirect_url"
-                                :label="__('message.redirect_url')"
-                                :required="true"
-                                :placeholder="__('message.enter_redirect_url_placeholder')"
-                                :value="form.redirect_url"
-                                :onChange="(val) => { setFieldError('redirect_url', undefined); form.redirect_url = val }"
-                                :error="errors.redirect_url"
-                            />
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ __('message.redirect_url') }}</label>
+                            <div class="input-group">
+                                <input class="form-control" readonly :value="callbackUrl" />
+                                <span class="input-group-text cursor-pointer" @click="copyCallbackUrl">
+                                    <i :class="copied ? 'fas fa-check text-success' : 'fas fa-copy'"></i>
+                                    {{ copied ? __('message.copied') : __('message.copy') }}
+                                </span>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -62,7 +61,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, computed, onMounted } from 'vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -70,6 +69,7 @@ import { useForm } from 'vee-validate'
 import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import { socialLoginSchema } from '@/validations/admin/socialLoginValidations'
 
 const COMPONENT = 'social-logins-edit'
@@ -78,6 +78,18 @@ const router = useRouter()
 
 const { errors, setErrors, setFieldError } = useForm()
 
+const baseUrl = useBaseUrl()
+// Fixed by the backend route; this is what must be registered with the provider.
+const callbackUrl = computed(() => `${baseUrl}/auth/callback/${form.type.toLowerCase()}`)
+const copied = ref(false)
+
+function copyCallbackUrl() {
+    navigator.clipboard.writeText(callbackUrl.value).then(() => {
+        copied.value = true
+        setTimeout(() => { copied.value = false }, 2000)
+    })
+}
+
 const loading = ref(true)
 const saving = ref(false)
 
@@ -85,7 +97,6 @@ const form = reactive({
     type:         '',
     client_id:    '',
     client_secret: '',
-    redirect_url: '',
     status:       false,
 })
 
@@ -96,7 +107,6 @@ onMounted(async () => {
         form.type         = d.type ?? ''
         form.client_id    = d.client_id ?? ''
         form.client_secret = d.client_secret ?? ''
-        form.redirect_url = d.redirect_url ?? ''
         form.status       = Boolean(d.status)
     } catch (e) {
         errorHandler(e, COMPONENT, { setErrors })
@@ -111,7 +121,6 @@ async function submit() {
     try {
         const payload = {
             type:         form.type,
-            redirect_url: form.redirect_url,
             optradio:     form.status ? 1 : 0,
         }
         if (form.type === 'Twitter') {
