@@ -50,9 +50,9 @@ class FreeTrialService
 
         // Commit the order + license first: the new tenant calls back to verify the
         // license from a separate connection and can't see uncommitted rows.
-        $order = DB::transaction(function () use ($user, $plan, $product, $currency): Order {
-            $invoice = $this->createInvoice($user, $plan, $currency);
-            $this->createInvoiceItem($invoice, $product, $plan, $currency);
+        $order = DB::transaction(function () use ($user, $domain, $plan, $product, $currency): Order {
+            $invoice = $this->createInvoice($user, $plan, $currency, $domain);
+            $this->createInvoiceItem($invoice, $product, $plan, $currency, $domain);
 
             $order = (new OrderController)->executeOrder($invoice->id)->firstWhere('product', $product->id);
 
@@ -87,7 +87,7 @@ class FreeTrialService
             ->firstOrFail();
     }
 
-    private function createInvoice(User $user, Plan $plan, string $currency): Invoice
+    private function createInvoice(User $user, Plan $plan, string $currency, string $domain): Invoice
     {
         $price = (float) (PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('add_price') ?? 0);
         $rounding = (bool) (TaxOption::find(1)->rounding ?? false);
@@ -100,10 +100,11 @@ class FreeTrialService
             'grand_total' => $grandTotal,
             'status' => 'success',
             'currency' => $currency,
+            'cloud_domain' => $domain,
         ]);
     }
 
-    private function createInvoiceItem(Invoice $invoice, Product $product, Plan $plan, string $currency): InvoiceItem
+    private function createInvoiceItem(Invoice $invoice, Product $product, Plan $plan, string $currency, string $domain): InvoiceItem
     {
         $price = (float) (PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('add_price') ?? 0);
         $agents = PlanPrice::where('plan_id', $plan->id)->value('no_of_agents');
@@ -117,7 +118,7 @@ class FreeTrialService
             'tax_name' => 'null',
             'tax_percentage' => $product->planRelation()->where('id', $plan->id)->value('allow_tax'),
             'subtotal' => 0,
-            'domain' => '',
+            'domain' => $domain,
             'plan_id' => $plan->id,
             'agents' => $agents,
         ]);
