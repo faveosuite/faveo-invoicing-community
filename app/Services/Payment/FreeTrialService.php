@@ -7,6 +7,7 @@ use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
+use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Payment\TaxOption;
@@ -47,32 +48,36 @@ class FreeTrialService
         $plan = $this->resolveFreePlan($cloudProduct);
         $product = Product::findOrFail($cloudProduct->cloud_product);
 
-        return DB::transaction(function () use ($user, $domain, $cloudProduct, $plan, $product, $currency): array {
+        // Commit the order + license first: the new tenant calls back to verify the
+        // license from a separate connection and can't see uncommitted rows.
+        $order = DB::transaction(function () use ($user, $plan, $product, $currency): Order {
             $invoice = $this->createInvoice($user, $plan, $currency);
             $this->createInvoiceItem($invoice, $product, $plan, $currency);
 
-            $order = (new OrderController)->executeOrder($invoice->id)
-                ->firstWhere('product', $product->id)
-                ?? throw new RuntimeException(__('message.cannot_generate_freetrial_cloud_instance'));
+            $order = (new OrderController)->executeOrder($invoice->id)->firstWhere('product', $product->id);
 
-            $response = new TenantController(new Client, new FaveoCloud)
-                ->createTenant(new Request(['orderNo' => $order->number, 'domain' => $domain]));
-
-            $body = $response->getData(true);
-            if (! ($body['success'] ?? false)) {
-                $message = $body['message'] ?? '';
-                throw new RuntimeException(is_string($message) && $message !== '' ? $message : __('message.cannot_generate_freetrial_cloud_instance'));
-            }
-            $result = $body['data'] ?? [];
-
-            DB::table('free_trial_allowed')->insert([
-                'user_id' => $user->id,
-                'product_id' => $cloudProduct->cloud_product,
-                'domain' => $result['Free_trial_domain'] ?? $domain,
-            ]);
-
-            return $result;
+            return $order instanceof Order
+                ? $order
+                : throw new RuntimeException(__('message.cannot_generate_freetrial_cloud_instance'));
         });
+
+        $response = new TenantController(new Client, new FaveoCloud)
+            ->createTenant(new Request(['orderNo' => $order->number, 'domain' => $domain]));
+
+        $body = $response->getData(true);
+        if (! ($body['success'] ?? false)) {
+            $message = $body['message'] ?? '';
+            throw new RuntimeException(is_string($message) && $message !== '' ? $message : __('message.cannot_generate_freetrial_cloud_instance'));
+        }
+        $result = $body['data'] ?? [];
+
+        DB::table('free_trial_allowed')->insert([
+            'user_id' => $user->id,
+            'product_id' => $cloudProduct->cloud_product,
+            'domain' => $result['Free_trial_domain'] ?? $domain,
+        ]);
+
+        return $result;
     }
 
     private function resolveFreePlan(CloudProducts $cloudProduct): Plan
