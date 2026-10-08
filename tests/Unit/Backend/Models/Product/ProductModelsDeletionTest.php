@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Models\Product;
 
 use App\Model\Product\Type;
-use App\User;
 use Tests\DBTestCase;
 
 /**
