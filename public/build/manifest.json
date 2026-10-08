@@ -647,8 +647,8 @@
     "file": "assets/porto-DW_jnLZ1.css",
     "src": "_porto-DW_jnLZ1.css"
   },
-  "_porto-DZTb8eRG.js": {
-    "file": "assets/porto-DZTb8eRG.js",
+  "_porto-pDHwHkP1.js": {
+    "file": "assets/porto-pDHwHkP1.js",
     "name": "porto",
     "imports": [
       "_vue.esm-bundler-BtBz4Xsg.js",
@@ -3359,7 +3359,7 @@
     "src": "node_modules/intl-tel-input/dist/img/flags@2x.webp"
   },
   "resources/assets/js/admin.js": {
-    "file": "assets/admin-BcL-zs-j.js",
+    "file": "assets/admin-BrdWcf8c.js",
     "name": "admin",
     "src": "resources/assets/js/admin.js",
     "isEntry": true,
@@ -3506,7 +3506,7 @@
     ]
   },
   "resources/assets/js/client.js": {
-    "file": "assets/client-DkbAY5oX.js",
+    "file": "assets/client-B3PM3Aj_.js",
     "name": "client",
     "src": "resources/assets/js/client.js",
     "isEntry": true,
@@ -3524,7 +3524,7 @@
       "_GlobalLoader-C3gtQlNl.js",
       "_Alert-DGhh-DUG.js",
       "_useSeoMeta-rBYZh87-.js",
-      "_porto-DZTb8eRG.js"
+      "_porto-pDHwHkP1.js"
     ],
     "dynamicImports": [
       "resources/assets/js/pages/client/auth/LoginRegister.vue",
@@ -7028,12 +7028,12 @@
     ]
   },
   "resources/assets/js/themes/porto/index.js": {
-    "file": "assets/porto-DjQAmPm0.js",
+    "file": "assets/porto-DSnO5OZs.js",
     "name": "porto",
     "src": "resources/assets/js/themes/porto/index.js",
     "isDynamicEntry": true,
     "imports": [
-      "_porto-DZTb8eRG.js"
+      "_porto-pDHwHkP1.js"
     ]
   }
 }

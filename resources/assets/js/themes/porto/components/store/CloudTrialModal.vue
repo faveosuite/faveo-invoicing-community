@@ -13,8 +13,19 @@
     <template #fields>
       <Alert componentName="CloudTrialModal" />
 
-      <!-- Built server-side with the instance link; replaces the form once the instance exists. -->
-      <div v-if="created" :class="`alert alert-${created.type} mb-0`" v-html="created.message" /> <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
+      <!-- Done state, same look as the profile's email-verified screen; replaces the form. -->
+      <div v-if="created" class="text-center py-4">
+        <i :class="created.warning ? 'fas fa-exclamation-triangle text-warning fa-3x' : 'fas fa-check-circle text-success fa-3x'"></i>
+        <p class="mt-3 mb-1 fw-bold text-2">
+          {{ created.warning ? __('message.cloud_instance_license_failed') : __('message.cloud_instance_ready') }}
+        </p>
+        <p v-if="created.reason" class="text-muted mb-0">{{ created.reason }}</p>
+        <a v-if="created.siteUrl" :href="created.siteUrl" target="_blank" rel="noopener noreferrer" class="btn btn-primary mt-3">
+          <i class="fas fa-external-link-alt me-1"></i>{{ __('message.visit_your_website') }}
+        </a>
+        <p v-if="created.siteUrl" class="small text-muted mt-2 mb-0 text-break">{{ created.siteUrl }}</p>
+        <p class="text-muted mt-3 mb-0">{{ __('message.cloud_password_on_email') }}</p>
+      </div>
 
       <div v-else-if="loading" class="row justify-content-center py-3"><loader /></div>
 
@@ -65,8 +76,9 @@
     </template>
 
     <template #controls>
+      <action-button v-if="created" action="confirm" :label="__('message.done')" @click="closeModal" />
       <button
-        v-if="!created"
+        v-else
         type="button"
         class="btn btn-primary"
         :disabled="submitting || loading"
@@ -164,10 +176,8 @@ async function submit() {
       product_id: selectedProduct.value?.id ?? null,
       ...(selectedDataCenter.value ? { data_center_id: selectedDataCenter.value.id } : {}),
     })
-    created.value = {
-      type: res?.data?.data?.warning ? 'warning' : 'success',
-      message: res?.data?.message ?? __('message.free_trial_started'),
-    }
+    const d = res?.data?.data ?? {}
+    created.value = { warning: Boolean(d.warning), siteUrl: d.site_url ?? '', reason: d.reason ?? '' }
   } catch (e) {
     alertStore.setAlert({
       message: e?.response?.data?.message ?? __('message.something_went_wrong'),

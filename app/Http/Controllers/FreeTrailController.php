@@ -43,16 +43,15 @@ class FreeTrailController extends Controller
             $this->freeTrialService->checkEligibility($user, $cloudProduct);
             $result = $this->freeTrialService->provision($user, $request->input('domain'), $cloudProduct);
 
-            // Instance is up either way; on "success_with_warning" the license install failed.
-            $warning = ($result['status'] ?? '') === 'success_with_warning';
-            $url = (string) ($result['installationUrl'] ?? '');
-            $href = preg_match('#^https?://#i', $url) ? $url : 'https://'.$url;
-            $link = $url === '' ? '' : sprintf('<a href="%s" target="_blank" rel="noopener">%s</a>', e($href), e($url));
-            $message = $warning
-                ? __('message.instance_not_created', ['installationUrl' => $link, 'reason' => e((string) ($result['reason'] ?? ''))])
-                : __('message.instance_successfully_created', ['installationUrl' => $link]);
+            // The cloud sends installationUrl as a ready-made <a> tag — keep only the address.
+            $siteUrl = trim(strip_tags((string) ($result['installationUrl'] ?? '')));
 
-            return successResponse((string) $message, $result + ['warning' => $warning]);
+            return successResponse(__('message.free_trial_started'), array_merge($result, [
+                // Instance is up either way; on "success_with_warning" the license install failed.
+                'warning' => ($result['status'] ?? '') === 'success_with_warning',
+                'site_url' => $siteUrl === '' || preg_match('#^https?://#i', $siteUrl) ? $siteUrl : 'https://'.$siteUrl,
+                'reason' => trim(strip_tags((string) ($result['reason'] ?? ''))),
+            ]));
         } catch (RuntimeException $e) {
             return errorResponse($e->getMessage());
         } catch (Throwable $e) {
