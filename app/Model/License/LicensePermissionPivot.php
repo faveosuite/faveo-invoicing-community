@@ -51,7 +51,7 @@ class LicensePermissionPivot extends Pivot
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['license-permissions'],
+        'segments' => ['admin', 'settings', 'license-permissions'],
     ];
 
     /**

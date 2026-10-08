@@ -74,7 +74,7 @@ class PlanPrice extends Model
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['plans'],
+        'segments' => ['admin', 'products', 'plans', ':plan_id', 'edit'],
     ];
 
     /**

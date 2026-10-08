@@ -171,6 +171,30 @@ class PromotionControllerTest extends DBTestCase
         $response->assertJson(['success' => true]);
     }
 
+    public function test_get_all_promotions_sorts_products_by_name(): void
+    {
+        $this->getLoggedInUser('admin');
+        $type = PromotionType::first() ?? PromotionType::create(['name' => 'Fixed Amount']);
+        // Created so the ids run opposite to the names.
+        foreach (['Zzz Coupon Product', 'Aaa Coupon Product'] as $i => $name) {
+            $product = Product::factory()->create(['name' => $name]);
+            $promo = Promotion::create(['code' => 'SORTPROD'.$i, 'type' => $type->id, 'value' => '5', 'uses' => 1, 'start' => '2025-01-01', 'expiry' => '2025-12-31']);
+            \App\Model\Payment\PromoProductRelation::create(['promotion_id' => $promo->id, 'product_id' => $product->id]);
+        }
+
+        $names = collect($this->getJson('/promotions?search-query=SORTPROD&sort-field=products&sort-order=asc')->json('data.data'))
+            ->pluck('products.name')->all();
+
+        $this->assertSame(['Aaa Coupon Product', 'Zzz Coupon Product'], $names);
+    }
+
+    public function test_get_all_promotions_ignores_an_unknown_sort_field(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $this->getJson('/promotions?sort-field=no_such_column&sort-order=sideways')->assertStatus(200);
+    }
+
     public function test_get_promotion_returns_data(): void
     {
         // Covers lines 194-208: getPromotion

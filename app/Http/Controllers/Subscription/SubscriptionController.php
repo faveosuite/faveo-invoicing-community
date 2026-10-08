@@ -79,6 +79,7 @@ class SubscriptionController extends Controller
                 Subscription::query()
                     ->select(['subscriptions.*', 'orders.id as order_id', 'subscriptions.id as id'])
                     ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
+                    ->where('subscriptions.is_deleted', 0) // cloud instance deleted — never renew
                     ->where(fn (Builder $q) => $q
                         ->whereBetween('subscriptions.update_ends_at', [$dayStart, $dayEnd])
                         ->orWhereBetween('subscriptions.support_ends_at', [$dayStart, $dayEnd])
@@ -130,6 +131,7 @@ class SubscriptionController extends Controller
                     ->orWhereBetween('support_ends_at', [$dayStart, $dayEnd])
                     ->orWhereBetween('ends_at', [$dayStart, $dayEnd])
                 )
+                    ->where('is_deleted', 0) // cloud instance deleted — never renew
                     ->where(fn ($q) => $q
                         ->when($stripeEnabled, fn ($q) => $q->orWhere('autoRenew_status', 2))
                         ->when($razorpayEnabled, fn ($q) => $q->orWhere('rzp_subscription', 2))

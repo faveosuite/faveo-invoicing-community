@@ -63,7 +63,7 @@ class EmailMobileValidationProviders extends Model
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['third-party-integration'],
+        'segments' => ['admin', 'settings', 'api', 'third-party'],
     ];
 
     /**

@@ -39,6 +39,7 @@ use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Validator;
 use Laravel\Passport\Client;
 use Laravel\Passport\HasApiTokens;
 use Laravel\Passport\Token;
@@ -238,7 +239,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['clients', ':id'],
+        'segments' => ['admin', 'users', ':id'],
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -326,7 +327,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                 return Attach::getUrlPath('common/images/users/'.$value);
             }
 
-            return Gravatar::get($this->attributes['email']);
+            // Gravatar throws on an invalid address (some old accounts have e.g. "abc-"), which
+            // took down every page showing the user — fall back to the generic default avatar.
+            $email = (string) ($this->attributes['email'] ?? '');
+
+            // Same rule Gravatar::get() validates with, so it can never throw here.
+            $valid = Validator::make(['email' => $email], ['email' => 'required|email'])->passes();
+
+            return Gravatar::get($valid ? $email : 'unknown@example.com');
         });
     }
 

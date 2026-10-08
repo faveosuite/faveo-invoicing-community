@@ -59,7 +59,7 @@ class ChatScript extends Model
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['chat', ':id', 'edit'],
+        'segments' => ['admin', 'settings', 'widgets', 'analytics', ':id', 'edit'],
     ];
 
     /**

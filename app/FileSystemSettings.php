@@ -66,7 +66,7 @@ class FileSystemSettings extends Model
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['file-storage'],
+        'segments' => ['admin', 'settings', 'file-storage'],
     ];
 
     /**

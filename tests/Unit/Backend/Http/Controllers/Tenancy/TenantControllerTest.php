@@ -2,9 +2,11 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Tenancy;
 
+use App\Auto_renewal;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
 use App\Model\Order\Order;
+use App\Model\Product\Subscription;
 use App\ThirdPartyApp;
 use App\User;
 use GuzzleHttp\Client;
@@ -23,6 +25,22 @@ class TenantControllerTest extends DBTestCase
         parent::setUp();
         $this->withoutMiddleware();
         $this->getLoggedInUser('admin');
+    }
+
+    public function test_status_change_marks_deleted_and_turns_auto_renewal_off(): void
+    {
+        $sub = Subscription::factory()->create();
+        // No subscribe_id, so deactivate() never calls a real gateway.
+        Subscription::where('id', $sub->id)->update(['is_subscribed' => 1, 'autoRenew_status' => 1, 'subscribe_id' => '']);
+        Auto_renewal::create(['order_id' => $sub->order_id, 'user_id' => $sub->user_id, 'payment_method' => 'stripe', 'customer_id' => 'cus_x', 'payment_intent_id' => 'pm_x']);
+
+        new TenantController(new Client, new FaveoCloud)->statusChange($sub->order_id);
+
+        $sub->refresh();
+        $this->assertSame(1, (int) $sub->is_deleted);
+        $this->assertSame(0, (int) $sub->is_subscribed);
+        $this->assertSame(0, (int) $sub->autoRenew_status);
+        $this->assertFalse(Auto_renewal::where('order_id', $sub->order_id)->exists());
     }
 
     public function test_get_tenants_success(): void

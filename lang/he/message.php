@@ -2946,7 +2946,6 @@ return [
     'payment_gateways' => 'שערי תשלום',
     'edit_payment_gateway' => 'ערוך שער תשלום',
     'all_third_party_apps' => 'כל האפליקציות של צד שלישי',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => 'כל תבניות האימייל',
     'recaptcha' => 'reCAPTCHA',

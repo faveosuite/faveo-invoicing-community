@@ -2942,7 +2942,6 @@ return [
     'payment_gateways' => 'بوابات الدفع',
     'edit_payment_gateway' => 'تحرير بوابة الدفع',
     'all_third_party_apps' => 'جميع تطبيقات الطرف الثالث',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => 'جميع قوالب البريد الإلكتروني',
     'recaptcha' => 'اختبار كابتشا',

@@ -66,7 +66,7 @@ class SeoDefaultPage extends BaseModel
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['seo', 'default-pages', ':page_key', 'edit'],
+        'segments' => ['admin', 'settings', 'seo', ':page_key', 'edit'],
     ];
 
     /**

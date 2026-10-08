@@ -30,7 +30,7 @@
                             <span v-if="newsletterEmailError" class="text-danger text-1 mt-1 d-block">
                                 {{ newsletterEmailError }}
                             </span>
-                            <RecaptchaField :ref="setNewsletterCaptchaRef" action="mailChimp" class="mt-2" />
+                            <RecaptchaField :ref="setNewsletterCaptchaRef" action="newsletter" class="mt-2" />
                         </form>
                     </template>
 

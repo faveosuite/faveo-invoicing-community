@@ -21,6 +21,7 @@ use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\Payment\AutoRenewalActivationService;
 use App\ThirdPartyApp;
 use App\User;
 use Auth;
@@ -408,11 +409,29 @@ class TenantController extends Controller
         }
     }
 
+    /**
+     * Marks the order's cloud instance as deleted. Every instance deletion
+     * (client, admin, bulk/user delete, post-expiry cron) ends here, so this is
+     * also where auto-renewal stops: a deleted instance must never be renewed
+     * or charged again. Same path as the order page's "disable auto renewal",
+     * including cancelling the live Stripe/Razorpay subscription.
+     */
     public function statusChange(int $order_id): void
     {
         $order = Order::where('id', $order_id)->first();
-        if ($order) {
-            $order->subscription()->update(['is_deleted' => 1]);
+        if (! $order) {
+            return;
+        }
+
+        $order->subscription()->update(['is_deleted' => 1]);
+
+        foreach (Subscription::where('order_id', $order->id)->get() as $subscription) {
+            try {
+                resolve(AutoRenewalActivationService::class)->deactivate($subscription, cancelAtGateway: true);
+            } catch (Throwable $throwable) {
+                // The instance is already gone; don't fail the deletion over this — log it for follow-up.
+                Logger::exception($throwable);
+            }
         }
     }
 

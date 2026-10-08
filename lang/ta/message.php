@@ -2942,7 +2942,6 @@ return [
     'payment_gateways' => 'கட்டண நுழைவாயில்கள்',
     'edit_payment_gateway' => 'கட்டண நுழைவாயிலைத் திருத்தவும்',
     'all_third_party_apps' => 'அனைத்து மூன்றாம் தரப்பு பயன்பாடுகள்',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => 'அனைத்து மின்னஞ்சல் டெம்ப்ளேட்கள்',
     'recaptcha' => 'reCAPTCHA',

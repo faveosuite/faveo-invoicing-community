@@ -2946,7 +2946,6 @@ return [
     'payment_gateways' => 'Ödeme Ağ Geçitleri',
     'edit_payment_gateway' => 'Ödeme Ağ Geçidini Düzenleyin',
     'all_third_party_apps' => 'Tüm Üçüncü Taraf Uygulamaları',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => 'Tüm E-posta Şablonları',
     'recaptcha' => 'reCAPTCHA',

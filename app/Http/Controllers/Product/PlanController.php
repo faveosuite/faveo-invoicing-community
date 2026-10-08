@@ -52,9 +52,18 @@ class PlanController extends ExtendedPlanController
     public function getAllPlans(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
-        $sortOrder = $request->input('sort-order', 'asc');
+        $sortOrder = $request->input('sort-order') === 'asc' ? 'asc' : 'desc';
         $sortField = $request->input('sort-field', 'created_at');
         $limit = $request->input('limit', 10);
+
+        // plans.product holds the product id, so sort that column by the product's name instead.
+        $sortColumns = [
+            'name' => 'name',
+            'days' => 'days',
+            'created_at' => 'created_at',
+            'product' => Product::select('name')->whereColumn('products.id', 'plans.product'),
+        ];
+        $sortBy = $sortColumns[$sortField] ?? 'created_at';
 
         $plans = Plan::with([
             'planPrice:id,plan_id,currency',
@@ -72,7 +81,7 @@ class PlanController extends ExtendedPlanController
                         );
                 });
             })
-            ->orderBy($sortField, $sortOrder)
+            ->orderBy($sortBy, $sortOrder)
             ->paginate($limit);
 
         $plans->getCollection()->transform(fn ($plan): array => [

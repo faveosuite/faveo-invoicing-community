@@ -137,7 +137,7 @@ const tableOptions = reactive({
     templates: {
         performed_by: (f, row) => {
             if (!row.performed_by_id) return row.performed_by || '—'
-            return h('a', { href: `${baseUrl}/admin/clients/${row.performed_by_id}` }, row.performed_by)
+            return h('a', { href: `${baseUrl}/admin/users/${row.performed_by_id}` }, row.performed_by)
         },
         description: (f, row) => {
             const details    = row.detailed_properties

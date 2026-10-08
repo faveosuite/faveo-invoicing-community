@@ -188,9 +188,18 @@ const empty = () => ({
     industry: null,
 })
 
-function resolveForm(values) {
+// API-loaded selects only send back their id/code, which can't be turned back into a
+// labelled option here — so keep the option already picked when it still matches.
+const keep = (current, value, key = 'id') =>
+    current && value != null && String(current[key]) === String(value) ? current : null
+
+function resolveForm(values, current = {}) {
     return {
         ...empty(),
+        country:         keep(current.country, values.country, 'code'),
+        industry:        keep(current.industry, values.industry),
+        actmanager:      keep(current.actmanager, values.actmanager),
+        salesmanager:    keep(current.salesmanager, values.salesmanager),
         company:         values.company ?? '',
         reg_from:        values.reg_from ?? null,
         reg_till:        values.reg_till ?? null,
@@ -208,7 +217,7 @@ const form = reactive(resolveForm(props.initialValues))
 // component (RouterView isn't keyed on the route), so the form built once
 // above goes stale on a second "View all" visit unless we re-map it here.
 watch(() => props.initialValues, (values) => {
-    Object.assign(form, resolveForm(values))
+    Object.assign(form, resolveForm(values, form))
 })
 
 function apply() {

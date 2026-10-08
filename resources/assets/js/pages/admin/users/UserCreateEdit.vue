@@ -317,7 +317,8 @@ onMounted(async () => {
         form.role               = roleOptions.find(o => o.id === u.role)          ?? null
         form.position           = positionOptions.find(o => o.id === u.position)  ?? null
         form.company_type       = companyTypeOptions.find(o => o.id === u.company_type) ?? null
-        form.company_size       = companySizeOptions.find(o => o.id === u.company_size) ?? null
+        // Older accounts stored the size lowercased (e.g. "myself-only").
+        form.company_size       = companySizeOptions.find(o => o.id.toLowerCase() === u.company_size?.toLowerCase()) ?? null
         form.address            = u.address            ?? ''
         form.town               = u.town               ?? ''
         form.country            = u.country            ?? null

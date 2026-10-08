@@ -290,6 +290,7 @@ class CronController extends BaseCronController
                 ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
                 ->where('orders.order_status', 'executed')
                 ->where('subscriptions.is_subscribed', '1') // Apply this condition correctly
+                ->where('subscriptions.is_deleted', 0) // deleted cloud instance — nothing to remind about
                 ->select([
                     'subscriptions.*',
                     'orders.id as order_id',
@@ -328,11 +329,15 @@ class CronController extends BaseCronController
             // Calculate the start date based on the specific day value from $decodedData
             $endDate = Date::now()->subDays($day)->toDateString(); // Use $day here
 
-            $subscriptionsForDay = Subscription::where('update_ends_at', 'LIKE', $endDate.'%')
-                ->orWhere('support_ends_at', 'LIKE', $endDate.'%')
-                ->orWhere('ends_at', 'LIKE', $endDate.'%')
+            // Dates grouped: ungrouped orWhere()s let the conditions below apply only to the last date.
+            $subscriptionsForDay = Subscription::where(function (Builder $query) use ($endDate): void {
+                $query->where('update_ends_at', 'LIKE', $endDate.'%')
+                    ->orWhere('support_ends_at', 'LIKE', $endDate.'%')
+                    ->orWhere('ends_at', 'LIKE', $endDate.'%');
+            })
                 ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
                 ->where('orders.order_status', 'executed')
+                ->where('subscriptions.is_deleted', 0) // deleted cloud instance — no post-expiry reminders
                 ->select([
                     'subscriptions.*',
                     'orders.id as order_id',

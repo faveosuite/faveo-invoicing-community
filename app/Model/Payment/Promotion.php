@@ -76,7 +76,7 @@ class Promotion extends BaseModel
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['promotions', ':id', 'edit'],
+        'segments' => ['admin', 'products', 'coupons', ':id', 'edit'],
     ];
 
     /**

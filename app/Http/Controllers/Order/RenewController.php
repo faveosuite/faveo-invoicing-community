@@ -219,6 +219,12 @@ class RenewController extends BaseRenewController
 
             $planId = (int) $request->input('plan');
             $sub = Subscription::findOrFail($id);
+
+            // The cloud instance behind this subscription was deleted — renewing would charge for nothing.
+            if ($sub->is_deleted) {
+                return errorResponse(__('message.cloud_instance_deleted_no_renew'));
+            }
+
             $plan = Plan::findOrFail($planId);
 
             $existingUnpaidInvoice = $this->checkExistingUnpaidInvoice($sub, $planId);

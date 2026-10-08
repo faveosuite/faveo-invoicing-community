@@ -63,7 +63,7 @@ class Widgets extends BaseModel
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['widgets', ':id', 'edit'],
+        'segments' => ['admin', 'settings', 'widgets', 'footer'],
     ];
 
     /**

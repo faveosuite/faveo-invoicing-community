@@ -283,7 +283,7 @@ class RootModelsTest extends TestCase
     {
         $model = new ApiKey();
         $url = $model->getLogUrl();
-        $this->assertStringContainsString('third-party-integration', $url);
+        $this->assertStringContainsString('admin/settings/api/third-party', $url);
     }
 
     public function test_api_key_get_log_name_default(): void
@@ -454,5 +454,14 @@ class RootModelsTest extends TestCase
     public function test_user_backup_codes_user_is_belongs_to(): void
     {
         $this->assertInstanceOf(BelongsTo::class, (new UserBackupCodes())->user());
+    }
+
+    public function test_user_profile_pic_falls_back_to_default_avatar_for_an_invalid_email(): void
+    {
+        $user = new \App\User();
+        $user->setRawAttributes(['email' => 'abc-', 'profile_pic' => '']);
+
+        // Used to throw InvalidEmailException and 500 the admin user page.
+        $this->assertStringStartsWith('https://www.gravatar.com/avatar/', $user->profile_pic);
     }
 }

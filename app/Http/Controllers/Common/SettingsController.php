@@ -636,6 +636,7 @@ class SettingsController extends BaseSettingsController
                     'activity_log.description',
                     'activity_log.event',
                     'activity_log.properties',
+                    'activity_log.attribute_changes',
                     'activity_log.causer_id',
                     'activity_log.created_at',
                     'users.first_name',
@@ -674,7 +675,7 @@ class SettingsController extends BaseSettingsController
                 'module' => $row->log_name ?? '—',
                 'event' => ucfirst($row->event ?? '—'),
                 'description' => $row->description ?? '—',
-                'detailed_properties' => $this->formatProperties(is_array($row->properties) ? $row->properties : $row->properties->toArray(), $row->event),
+                'detailed_properties' => $this->formatProperties($this->loggedChanges($row), $row->event),
                 'performed_by' => $row->first_name ? trim($row->first_name.' '.$row->last_name) : __('message.system'),
                 'performed_by_id' => $row->causer_id ?? null,
                 'email' => $row->email ?? '',
@@ -688,6 +689,18 @@ class SettingsController extends BaseSettingsController
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
+    }
+
+    /**
+     * activitylog v5 writes changes to attribute_changes; rows logged before the upgrade have them in properties.
+     *
+     * @return array<mixed>
+     */
+    private function loggedChanges(Activity $row): array
+    {
+        $changes = $row->attribute_changes?->toArray() ?? [];
+
+        return $changes !== [] ? $changes : ($row->properties?->toArray() ?? []);
     }
 
     public function getActivityFilters(): JsonResponse

@@ -107,7 +107,7 @@ class Order extends BaseModel
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['orders', ':id'],
+        'segments' => ['admin', 'orders', ':id'],
     ];
 
     /**

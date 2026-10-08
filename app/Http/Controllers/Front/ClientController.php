@@ -254,6 +254,8 @@ class ClientController extends BaseClientController
             'current_plan' => $order->subscription?->plan?->name,
             'client_id' => $order->client,
             'is_cloud' => in_array($order->productRelation?->id, cloudPopupProducts()),
+            // Instance deleted from the order list — the order stays, its cloud settings don't apply.
+            'is_cloud_deleted' => (bool) $order->subscription?->is_deleted,
             'autorenew_status' => (bool) $order->subscription?->autoRenew_status,
             'is_subscribed' => (bool) $order->subscription?->is_subscribed,
             'auto_renew_state' => $order->subscription?->autoRenewState() ?? 'inactive',
@@ -358,6 +360,8 @@ class ClientController extends BaseClientController
                 'sub_id' => $order->subscription?->id,
                 'show_download' => $hasDownload,
                 'show_cloud_delete' => ! $hasDownload && ! $order->subscription?->is_deleted,
+                // Instance already deleted — no renew either (see OrderIndex.vue).
+                'is_cloud_deleted' => (bool) $order->subscription?->is_deleted,
                 'is_terminated' => $order->order_status === 'Terminated',
                 // Same label the admin order page badges expiry dates with.
                 'expiry_status' => strtotime($updateEndsAt) > 1 ? getExpiryLabel($updateEndsAt)['status'] : null,
@@ -718,7 +722,7 @@ class ClientController extends BaseClientController
     {
         return Order::with([
             'productRelation:id,name,github_owner,github_repository,type,whatsapp_integration',
-            'subscription:id,order_id,plan_id,version,update_ends_at,ends_at,is_subscribed,autoRenew_status,rzp_subscription',
+            'subscription:id,order_id,plan_id,version,update_ends_at,ends_at,is_subscribed,is_deleted,autoRenew_status,rzp_subscription',
             'subscription.plan:id,name',
             'invoiceItem:id,agents',
             'invoices' => fn ($q) => $q->select('invoices.id', 'invoices.number')->latest('invoices.id'),

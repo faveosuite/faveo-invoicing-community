@@ -24,7 +24,7 @@
                         <action-button action="view" :to="'/my-order/' + row.id"
                                        v-tooltip="__('message.view')" />
 
-                        <action-button v-if="!row.is_terminated"
+                        <action-button v-if="!row.is_terminated && !row.is_cloud_deleted"
                                        icon="fas fa-sync-alt" class="table_btn"
                                        v-tooltip="__('message.click_renew')"
                                        @click="openRenewModal(row)" />

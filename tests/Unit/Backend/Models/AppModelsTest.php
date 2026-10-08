@@ -178,7 +178,7 @@ class AppModelsTest extends DBTestCase
 
         // After save, wasChanged('verification_preference') = true
         $url = $apiKey->getLogUrl();
-        $this->assertStringContainsString('contact-option', $url);
+        $this->assertStringContainsString('admin/settings/contact-options', $url);
 
         $name = $apiKey->getLogName();
         $this->assertSame('contact_options', $name);
@@ -198,7 +198,7 @@ class AppModelsTest extends DBTestCase
         $setting->save();
 
         $url = $setting->getLogUrl();
-        $this->assertStringContainsString('contact-option', $url);
+        $this->assertStringContainsString('admin/settings/contact-options', $url);
 
         $name = $setting->getLogName();
         $this->assertSame('contact_options', $name);
@@ -215,7 +215,7 @@ class AppModelsTest extends DBTestCase
 
         $url = $setting->getLogUrl();
         // cloud_button was changed → should contain 'view/tenant'
-        $this->assertStringContainsString('tenant', $url);
+        $this->assertStringContainsString('admin/settings/cloud-details', $url);
 
         $name = $setting->getLogName();
         $this->assertSame('cloud', $name);

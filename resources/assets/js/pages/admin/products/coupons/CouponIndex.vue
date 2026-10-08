@@ -105,7 +105,7 @@ const tableOptions = reactive({
         expiry:   (f, row) => row.expiry ? row.expiry.substring(0, 10) : '—',
         action:   (f, row) => h(RouterLink, { to: `/products/coupons/${row.id}/edit`, class: 'btn btn-light table_btn', title: __('message.edit') }, () => h('i', { class: 'fas fa-edit' })),
     },
-    sortable: ['code', 'type', 'value', 'uses', 'start', 'expiry'],
+    sortable: ['code', 'type', 'products', 'uses', 'start', 'expiry'],
     filterable: true,
     requestAdapter: makeRequestAdapter('created_at'),
     orderBy: { column: 'created_at', ascending: false },

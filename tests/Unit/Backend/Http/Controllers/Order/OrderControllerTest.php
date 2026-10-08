@@ -269,6 +269,19 @@ class OrderControllerTest extends DBTestCase
         $this->assertArrayHasKey('number', $data[0]);
     }
 
+    public function test_orders_list_does_not_offer_renew_for_a_terminated_order(): void
+    {
+        $this->getLoggedInUser('admin');
+        $order = Order::factory()->withRelations()->create(['order_status' => 'Terminated']);
+        \App\Model\Product\Subscription::factory()->create(['order_id' => $order->id]);
+
+        $row = collect($this->getJson('/orders?order_no='.$order->number)->json('data.data'))->firstWhere('id', $order->id);
+
+        $this->assertNotNull($row);
+        $this->assertSame('Terminated', $row['order_status']);
+        $this->assertFalse($row['can_renew']);
+    }
+
     public function test_delete_bulk_orders_with_ids_returns_200(): void
     {
         // Covers lines 263-280: deleteBulkOrders with actual IDs

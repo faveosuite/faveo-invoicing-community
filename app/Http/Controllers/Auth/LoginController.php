@@ -274,10 +274,10 @@ class LoginController extends BaseAuthController
             return;
         }
 
-        $userUrl = url('clients/'.$user->id);
+        $userUrl = url('admin/users/'.$user->id);
 
         $name = e($user->first_name.' '.$user->last_name);
-        $message = sprintf("User <a href='%s'><strong>%s</strong></a> logged in successfully.", $userUrl, $name);
+        $message = 'User <a href="'.e($userUrl).'"><strong>'.e($name).'</strong></a> logged in successfully.';
 
         logActivity(
             $message,

@@ -65,7 +65,7 @@ class Language extends Model
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['languages'],
+        'segments' => ['admin', 'settings', 'language'],
     ];
 
     /**

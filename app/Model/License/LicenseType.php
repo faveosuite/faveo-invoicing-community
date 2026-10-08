@@ -66,7 +66,7 @@ class LicenseType extends Model
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['license-type'],
+        'segments' => ['admin', 'settings', 'license-type'],
     ];
 
     /**

@@ -492,7 +492,7 @@ const yesterday = n.minus({ days: 1 }).toFormat('yyyy-MM-dd')
 // ("&reg" without a ";" is the legacy ® entity, and "_" isn't alphanumeric
 // so the attribute exception doesn't block it) into "®_from", breaking
 // the query string. Plain JS in <script> isn't parsed as HTML, so it's safe here.
-const registeredUsersViewAllUrl = `/users?mobile_verified=1&email_verified=1&reg_from=${thirtyDaysAgo}&reg_till=${yesterday}`
+const registeredUsersViewAllUrl = `/users?mobile_verified=1&email_verified=1&reg_from=${thirtyDaysAgo}&reg_till=${today}`
 
 onMounted(async () => {
   try {

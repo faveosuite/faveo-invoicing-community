@@ -169,7 +169,8 @@
                             </div>
                             <div class="col-sm-7 d-flex align-items-center gap-2">
                                 <span>{{ formatDate(order.license_ends_at) }}</span>
-                                <button v-if="order.license_ends_at"
+                                <!-- A deleted cloud instance can't be renewed — there's nothing left to pay for. -->
+                                <button v-if="order.license_ends_at && !order.is_cloud_deleted"
                                         class="btn btn-light btn-sm ms-2 table_btn"
                                         v-tooltip="__('message.renew')"
                                         @click="showRenewModal = true">
@@ -192,7 +193,7 @@
                                      so the renew action lives here instead, since updates/support are what run out.
                                      But if updates never expire either (product has no expiring permissions at all),
                                      there's nothing to renew. -->
-                                <button v-if="!order.license_ends_at && order.update_ends_at"
+                                <button v-if="!order.license_ends_at && order.update_ends_at && !order.is_cloud_deleted"
                                         class="btn btn-light btn-sm ms-2 table_btn"
                                         v-tooltip="__('message.renew')"
                                         @click="showRenewModal = true">
@@ -962,8 +963,8 @@ const planBusy   = ref(false)
 const alertStore = useAlertStore()
 const loaderStore = useLoaderStore()
 
-const showCloudTab      = computed(() => !!order.value?.is_cloud && order.value?.status !== 'Terminated')
-const showAutoRenewTab  = computed(() => !!order.value?.autorenewal_enabled && order.value?.status !== 'Terminated')
+const showCloudTab      = computed(() => !!order.value?.is_cloud && !order.value?.is_cloud_deleted && order.value?.status !== 'Terminated')
+const showAutoRenewTab  = computed(() => !!order.value?.autorenewal_enabled && !order.value?.is_cloud_deleted && order.value?.status !== 'Terminated')
 
 /* ── Auto Renewal ─────────────────────────────────────────── */
 const showRenewalModal = ref(false)

@@ -72,7 +72,10 @@ class ExportDetail extends Model
 
     protected string $logNameColumn = 'file';
 
-    protected bool $requireLogUrl = false;
+    protected function requiresLogUrl(): bool
+    {
+        return false;
+    }
 
     /**
      * @var array<mixed>

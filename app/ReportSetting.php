@@ -58,7 +58,7 @@ class ReportSetting extends Model
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['records', 'column'],
+        'segments' => ['admin', 'reports', 'settings'],
     ];
 
     /**

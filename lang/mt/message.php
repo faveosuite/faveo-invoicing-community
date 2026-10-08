@@ -2946,7 +2946,6 @@ return [
     'payment_gateways' => 'Gateways tal-Ħlas',
     'edit_payment_gateway' => 'Editja Gateway tal-Ħlas',
     'all_third_party_apps' => 'L-Apps kollha ta\' Partijiet Terzi',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => 'Il-Mudelli kollha tal-Email',
     'recaptcha' => 'reCAPTCHA',

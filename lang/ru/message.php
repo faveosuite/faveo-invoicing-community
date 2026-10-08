@@ -2946,7 +2946,6 @@ return [
     'payment_gateways' => 'Платежные шлюзы',
     'edit_payment_gateway' => 'Изменить платежный шлюз',
     'all_third_party_apps' => 'Все сторонние приложения.',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => 'Все шаблоны электронных писем',
     'recaptcha' => 'РеКАПЧА',

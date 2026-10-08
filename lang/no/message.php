@@ -2946,7 +2946,6 @@ return [
     'payment_gateways' => 'Betalingsporter',
     'edit_payment_gateway' => 'Rediger betalingsgateway',
     'all_third_party_apps' => 'Alle tredjepartsapper',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => 'Alle e-postmaler',
     'recaptcha' => 'reCAPTCHA',

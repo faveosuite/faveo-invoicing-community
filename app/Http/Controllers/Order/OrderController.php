@@ -137,10 +137,12 @@ class OrderController extends BaseOrderController
             $relatedSort = match ($sortField) {
                 // Displayed expiry is subscription->ends_at (see the transform below) — must sort the same column.
                 'update_ends_at' => Subscription::select('ends_at')->whereColumn('subscriptions.order_id', 'orders.id')->limit(1),
-                'client' => User::selectRaw('CONCAT(first_name, " ", last_name)')->whereColumn('users.id', 'orders.client')->limit(1),
-                'email' => User::select('email')->whereColumn('users.id', 'orders.client')->limit(1),
-                'mobile' => User::select('mobile')->whereColumn('users.id', 'orders.client')->limit(1),
-                'country' => User::select('country')->whereColumn('users.id', 'orders.client')->limit(1),
+                // withTrashed: the list shows soft-deleted customers too, so they must sort by their
+                // name, not as blanks. TRIM: many names have stray spaces the list trims on display.
+                'client' => User::withTrashed()->selectRaw("TRIM(CONCAT(TRIM(first_name), ' ', TRIM(last_name)))")->whereColumn('users.id', 'orders.client')->limit(1),
+                'email' => User::withTrashed()->select('email')->whereColumn('users.id', 'orders.client')->limit(1),
+                'mobile' => User::withTrashed()->select('mobile')->whereColumn('users.id', 'orders.client')->limit(1),
+                'country' => User::withTrashed()->select('country')->whereColumn('users.id', 'orders.client')->limit(1),
                 'product_name' => Product::select('name')->whereColumn('products.id', 'orders.product')->limit(1),
                 'group' => ProductGroup::select('product_groups.name')
                     ->join('products', 'products.group', '=', 'product_groups.id')
@@ -199,7 +201,7 @@ class OrderController extends BaseOrderController
                     'update_ends_at' => strtotime((string) $order->subscription?->ends_at) > 1 ? $order->subscription?->ends_at : null,
                     'subscription_updated_at' => $order->subscription?->updated_at,
                     'subscription_id' => $order->subscription?->id,
-                    'can_renew' => $order->order_status !== 'terminated' && $order->subscription !== null,
+                    'can_renew' => strcasecmp((string) $order->order_status, 'terminated') !== 0 && $order->subscription !== null,
                     'user' => $user,
                 ];
             });

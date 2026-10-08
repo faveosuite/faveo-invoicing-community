@@ -64,7 +64,7 @@ class CloudPopUp extends Model
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['view/tenant'],
+        'segments' => ['admin', 'settings', 'cloud-details'],
     ];
 
     /**

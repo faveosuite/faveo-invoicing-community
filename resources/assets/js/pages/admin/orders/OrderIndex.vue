@@ -174,7 +174,7 @@ const columnLabels = {
     mobile:         __('message.mobile'),
     country:        __('message.country'),
     number:         __('message.order_no'),
-    status:         __('message.status'),
+    status:         __('message.installation_status'),
     product_name:   __('message.product'),
     plan_name:      __('message.plan'),
     version:        __('message.version'),
@@ -212,7 +212,7 @@ const tableOptions = reactive({
         plan:          __('message.plan'),
         version:       __('message.version'),
         agents:        __('message.agents'),
-        status:        __('message.status'),
+        status:        __('message.installation_status'),
         order_date:    __('message.order_date'),
         update_ends_at: __('message.expiry'),
         action:        __('message.actions'),
@@ -242,10 +242,13 @@ const tableOptions = reactive({
         client:       (f, row) => {
             if (!row.user) return '—'
             const fullName = `${row.user.first_name ?? ''} ${row.user.last_name ?? ''}`.trim()
+            // A deleted customer's page can't load ("user not found"), so show the name without a link.
+            if (fullName && row.user.deleted_at) return fullName
             if (fullName && row.user.id) return h(RouterLink, { to: '/users/' + row.user.id }, () => fullName)
             return '—'
         },
         email:        (f, row) => {
+            if (row.user?.email && row.user?.deleted_at) return row.user.email
             if (row.user?.email && row.user?.id) return h(RouterLink, { to: '/users/' + row.user.id }, () => row.user.email)
             return '—'
         },
@@ -256,7 +259,9 @@ const tableOptions = reactive({
         },
         country:      (f, row) => row.user?.country || '—',
         number:       (f, row) => row.number && row.id ? h(RouterLink, { to: '/orders/' + row.id }, () => row.number) : '—',
-        order_status: (f, row) => row.order_status || '—',
+        order_status: (f, row) => row.order_status
+            ? h('span', { class: `badge ${{ Executed: 'bg-success', Terminated: 'bg-danger' }[row.order_status] ?? 'bg-secondary'}` }, row.order_status)
+            : '—',
         product_name: (f, row) => row.product_name && row.product_id ? h(RouterLink, { to: '/products/' + row.product_id + '/edit' }, () => row.product_name) : (row.product_name || '—'),
         group:        (f, row) => row.group && row.group_id ? h(RouterLink, { to: '/products/groups/' + row.group_id + '/edit' }, () => row.group) : (row.group || '—'),
         plan:         (f, row) => row.plan && row.plan_id ? h(RouterLink, { to: '/products/plans/' + row.plan_id + '/edit' }, () => row.plan) : (row.plan || '—'),
@@ -275,7 +280,9 @@ const tableOptions = reactive({
             )
         },
         agents:       (f, row) => row.agents ?? '—',
-        status:       (f, row) => row.status || '—',
+        status:       (f, row) => row.status
+            ? h('span', { class: `badge ${row.status === 'Active' ? 'bg-success' : 'bg-danger'}` }, row.status)
+            : '—',
         order_date:   (f, row) => row.order_date ? formatDate(row.order_date) : '—',
         update_ends_at: (f, row) => row.update_ends_at ? formatDate(row.update_ends_at) : '—',
         action: (f, row) => h(OrderTableActions, { orderId: row.id, canRenew: !!row.can_renew, baseUrl: baseUrl, showDelete: true }),

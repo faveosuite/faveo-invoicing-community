@@ -78,7 +78,7 @@ return [
     'settings/localized-license' => ['title' => 'message.localized_license', 'description' => 'Configure localized license settings.'],
     'settings/debugging' => ['title' => 'message.debugging', 'description' => 'Configure debugging settings.'],
     'settings/social-logins' => ['title' => 'message.social_logins', 'description' => 'Manage social login providers.'],
-    'settings/social-logins/*/edit' => ['title' => 'message.edit_social_login', 'description' => 'Edit a social login provider.'],
+    'settings/social-logins/*/edit' => ['title' => 'message.social_login', 'description' => 'Edit a social login provider.'],
     'settings/language' => ['title' => 'message.language', 'description' => 'Configure language settings.'],
     'settings/whatsapp-users' => ['title' => 'message.whatsapp_users', 'description' => 'Manage WhatsApp users.'],
     'settings/whatsapp-integration' => ['title' => 'message.whatsapp_config', 'description' => 'Configure WhatsApp integration.'],

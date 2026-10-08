@@ -55,7 +55,7 @@ class ManagerSetting extends Model
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['system-managers'],
+        'segments' => ['admin', 'settings', 'system-managers'],
     ];
 
     /**

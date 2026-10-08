@@ -2946,7 +2946,6 @@ return [
     'payment_gateways' => 'Pasarelas de pago',
     'edit_payment_gateway' => 'Editar Pasarela de Pago',
     'all_third_party_apps' => 'Todas las aplicaciones de terceros',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => 'Todas las plantillas de correo electrónico',
     'recaptcha' => 'reCAPTCHA',

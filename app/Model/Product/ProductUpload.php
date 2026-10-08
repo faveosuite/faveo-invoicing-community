@@ -96,7 +96,7 @@ class ProductUpload extends Model
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['edit-upload', ':id'],
+        'segments' => ['admin', 'products', ':product_id', 'versions', ':id', 'edit'],
     ];
 
     /**

@@ -151,10 +151,10 @@ class ApiKey extends Model
         $fields = ['verification_preference'];
 
         if ($this->wasChanged($fields)) {
-            return url('contact-option');
+            return url('admin/settings/contact-options');
         }
 
-        return url('third-party-integration');
+        return url('admin/settings/api/third-party');
     }
 
     public function getLogName(): string

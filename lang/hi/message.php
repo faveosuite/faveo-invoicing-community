@@ -2946,7 +2946,6 @@ return [
     'payment_gateways' => 'भुगतान गेटवे',
     'edit_payment_gateway' => 'भुगतान गेटवे संपादित करें',
     'all_third_party_apps' => 'सभी तृतीय-पक्ष ऐप्स',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => 'सभी ईमेल टेम्प्लेट',
     'recaptcha' => 'रीकैप्चा',

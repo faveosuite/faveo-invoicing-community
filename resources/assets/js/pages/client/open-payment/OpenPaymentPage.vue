@@ -187,11 +187,11 @@
                 <!-- Mobile + Company -->
                 <div class="row g-4 mb-4">
                   <div class="col-6">
-                    <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.mobile') }}</div>
+                    <div class="op-detail-label text-uppercase fw-bold text-dark mb-1">{{ __('message.mobile') }}</div>
                     <div class="text-dark">{{ form.mobile_code ? `+${form.mobile_code} ${form.mobile}` : form.mobile }}</div>
                   </div>
                   <div class="col-6">
-                    <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.company') }}</div>
+                    <div class="op-detail-label text-uppercase fw-bold text-dark mb-1">{{ __('message.company') }}</div>
                     <div class="text-dark">{{ form.company }}</div>
                   </div>
                 </div>
@@ -201,26 +201,26 @@
                      street address wraps under its own full-width line instead of
                      being squeezed into a narrow right-hand column. -->
                 <div class="border-top pt-4">
-                  <div class="op-detail-label text-uppercase fw-semibold text-muted mb-3">{{ __('message.billing_address') }}</div>
+                  <div class="op-detail-label text-uppercase fw-bold text-dark mb-3">{{ __('message.billing_address') }}</div>
                   <div class="row g-3">
                     <div class="col-12">
-                      <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.op_street_address') }}</div>
+                      <div class="op-detail-label text-uppercase fw-bold text-dark mb-1">{{ __('message.op_street_address') }}</div>
                       <div class="text-dark">{{ form.address }}</div>
                     </div>
                     <div class="col-6">
-                      <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.city') }}</div>
+                      <div class="op-detail-label text-uppercase fw-bold text-dark mb-1">{{ __('message.city') }}</div>
                       <div class="text-dark">{{ form.city }}</div>
                     </div>
                     <div v-if="form.state" class="col-6">
-                      <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.state') }}</div>
+                      <div class="op-detail-label text-uppercase fw-bold text-dark mb-1">{{ __('message.state') }}</div>
                       <div class="text-dark">{{ form.state }}</div>
                     </div>
                     <div class="col-6">
-                      <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.op_zip_code') }}</div>
+                      <div class="op-detail-label text-uppercase fw-bold text-dark mb-1">{{ __('message.op_zip_code') }}</div>
                       <div class="text-dark">{{ form.zip }}</div>
                     </div>
                     <div class="col-6">
-                      <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.country') }}</div>
+                      <div class="op-detail-label text-uppercase fw-bold text-dark mb-1">{{ __('message.country') }}</div>
                       <div class="text-dark">{{ selectedCountryObj?.name || form.country }}</div>
                     </div>
                   </div>
@@ -234,16 +234,16 @@
                 <div class="op-card-title mb-3">{{ __('message.op_payment_summary') }}</div>
 
                 <!-- Gateway / Currency / Note -->
-                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                  <span class="text-muted">{{ __('message.op_gateway') }}</span>
-                  <span class="text-dark">{{ form.gateway }}</span>
+                <div class="d-flex justify-content-between align-items-center gap-3 py-2 border-bottom">
+                  <span class="fw-bold text-dark flex-shrink-0">{{ __('message.op_gateway') }}</span>
+                  <span class="text-dark text-end">{{ form.gateway }}</span>
                 </div>
-                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                  <span class="text-muted">{{ __('message.currency') }}</span>
-                  <span class="text-dark">{{ selectedCurrency?.name ?? form.currency }}</span>
+                <div class="d-flex justify-content-between align-items-center gap-3 py-2 border-bottom">
+                  <span class="fw-bold text-dark flex-shrink-0">{{ __('message.currency') }}</span>
+                  <span class="text-dark text-end">{{ selectedCurrency?.name ?? form.currency }}</span>
                 </div>
                 <div v-if="form.description" class="py-2 border-bottom">
-                  <div class="text-muted small mb-1">{{ __('message.op_note') }}</div>
+                  <div class="fw-bold text-dark mb-1">{{ __('message.op_note') }}</div>
                   <div class="op-note-text">{{ form.description }}</div>
                 </div>
 
@@ -254,11 +254,11 @@
                   </div>
                   <template v-else>
                     <div class="d-flex justify-content-between py-2">
-                      <span class="text-muted">{{ __('message.amount') }}</span>
+                      <span class="fw-bold text-dark">{{ __('message.amount') }}</span>
                       <span class="text-dark">{{ selectedCurrencySymbol }}{{ calculation.base_amount }}</span>
                     </div>
                     <div v-if="calculation.processing_fee_rate > 0" class="d-flex justify-content-between py-2">
-                      <span class="text-muted">{{ __('message.processing_fee') }} ({{ calculation.processing_fee_rate }}%)</span>
+                      <span class="fw-bold text-dark">{{ __('message.processing_fee') }} ({{ calculation.processing_fee_rate }}%)</span>
                       <span class="text-dark">{{ selectedCurrencySymbol }}{{ calculation.processing_fee }}</span>
                     </div>
                     <div class="d-flex justify-content-between py-2 mt-1 border-top">
@@ -309,7 +309,7 @@
             <div class="d-flex flex-column flex-md-row justify-content-between py-3 px-4 my-4">
               <div class="text-center">
                 <span><strong class="text-color-dark">{{ __('message.op_transaction_id') }}</strong><br>
-                  <span class="font-monospace">{{ result.transactionId || '—' }}</span>
+                  <span class="text-break">{{ result.transactionId || '—' }}</span>
                 </span>
               </div>
               <div class="text-center mt-4 mt-md-0">
@@ -947,8 +947,6 @@ onMounted(async () => {
 .op-amount-display { font-size: 2rem; color: #111827; letter-spacing: -0.02em; line-height: 1.15; }
 .op-note-text     { color: #374151; line-height: 1.5; }
 .op-result-msg    { max-width: 400px; margin-inline: auto; }
-.op-txn-box       { background: var(--primary-rgba-10); border: 1.5px solid var(--primary-rgba-30); }
-.op-txn-id        { font-family: monospace; font-size: 0.95rem; letter-spacing: 0.05em; color: var(--primary); }
 
 /* ── Page ───────────────────────────────────────────────────────── */
 .op-page {

@@ -203,7 +203,7 @@ class Setting extends Model
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['settings/system'],
+        'segments' => ['admin', 'settings', 'system'],
     ];
 
     /**

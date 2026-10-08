@@ -2946,7 +2946,6 @@ return [
     'payment_gateways' => '결제 대행사',
     'edit_payment_gateway' => '결제 게이트웨이 편집',
     'all_third_party_apps' => '모든 타사 앱',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => '모든 이메일 템플릿',
     'recaptcha' => '리캡차',

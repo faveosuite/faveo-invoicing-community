@@ -411,7 +411,7 @@ class ClientController extends AdvanceSearchController
             return errorResponse(__('message.user_not_found'), 404);
         }
 
-        $bussinessShort = $user->attributes['bussiness'] ?? null;
+        $bussinessShort = $user->getRawOriginal('bussiness');
         $bussinessObj = null;
         if ($bussinessShort) {
             $b = Bussiness::where('short', $bussinessShort)->first();
@@ -434,7 +434,8 @@ class ClientController extends AdvanceSearchController
             ? ['id' => $user->timezone->id, 'name' => $user->timezone->timezone_name]
             : null;
 
-        $mgr = $user->manager instanceof User ? $user->manager : null;
+        // The `manager` column shadows the relation of the same name, so read the eager-loaded relation directly.
+        $mgr = $user->getRelationValue('manager');
         $managerObj = $mgr instanceof User ? [
             'id' => $mgr->id,
             'name' => trim($mgr->first_name.' '.$mgr->last_name),
@@ -464,8 +465,8 @@ class ClientController extends AdvanceSearchController
             'is_2fa_enabled' => $user->is_2fa_enabled ?? 0,
             'role' => $user->role,
             'position' => $user->position,
-            'company_type' => $user->attributes['company_type'] ?? null,
-            'company_size' => $user->attributes['company_size'] ?? null,
+            'company_type' => $user->getRawOriginal('company_type'),
+            'company_size' => $user->getRawOriginal('company_size'),
             'address' => $user->address ?? '',
             'town' => $user->town ?? '',
             'country' => $countryObj,

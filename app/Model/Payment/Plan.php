@@ -81,7 +81,7 @@ class Plan extends BaseModel
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['plans', ':id', 'edit'],
+        'segments' => ['admin', 'products', 'plans', ':id', 'edit'],
     ];
 
     /**

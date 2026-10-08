@@ -105,9 +105,23 @@ class PromotionController extends BasePromotionController
     public function getAllPromotions(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
-        $sortOrder = $request->input('sort-order', 'asc');
+        $sortOrder = $request->input('sort-order') === 'asc' ? 'asc' : 'desc';
         $sortField = $request->input('sort-field', 'created_at');
         $limit = $request->input('limit', 10);
+
+        // type holds the promotion type's id, and products live in a pivot — sort both by name.
+        $sortColumns = [
+            'code' => 'promotions.code',
+            'uses' => 'promotions.uses',
+            'start' => 'promotions.start',
+            'expiry' => 'promotions.expiry',
+            'created_at' => 'promotions.created_at',
+            'type' => PromotionType::select('name')->whereColumn('promotion_types.id', 'promotions.type'),
+            'products' => Product::selectRaw('MIN(products.name)')
+                ->join('promo_product_relations', 'promo_product_relations.product_id', '=', 'products.id')
+                ->whereColumn('promo_product_relations.promotion_id', 'promotions.id'),
+        ];
+        $sortBy = $sortColumns[$sortField] ?? 'promotions.created_at';
 
         $promotions = Promotion::with([
             'promotionType:id,name',
@@ -126,7 +140,7 @@ class PromotionController extends BasePromotionController
                         });
                 });
             })
-            ->orderBy('promotions.'.$sortField, $sortOrder)
+            ->orderBy($sortBy, $sortOrder)
             ->paginate($limit);
 
         return successResponse('', $promotions);

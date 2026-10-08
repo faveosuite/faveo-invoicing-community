@@ -2946,7 +2946,6 @@ return [
     'payment_gateways' => '支払いゲートウェイ',
     'edit_payment_gateway' => 'ペイメントゲートウェイの編集',
     'all_third_party_apps' => 'すべてのサードパーティ製アプリ',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => 'すべての電子メール テンプレート',
     'recaptcha' => '再キャプチャ',

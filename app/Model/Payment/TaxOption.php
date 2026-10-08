@@ -61,7 +61,10 @@ class TaxOption extends BaseModel
         'tax_enable', 'inclusive', 'tax_based_on', 'shop_inclusive', 'cart_inclusive', 'rounding', 'Gst_no', 'cif_no',
     ];
 
-    protected bool $requireLogUrl = false;
+    protected function requiresLogUrl(): bool
+    {
+        return false;
+    }
 
     /**
      * @return array<mixed>

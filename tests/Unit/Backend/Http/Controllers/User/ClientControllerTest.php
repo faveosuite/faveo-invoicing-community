@@ -161,6 +161,24 @@ class ClientControllerTest extends DBTestCase
         $this->assertEquals($client->id, $response->json('data.id'));
     }
 
+    public function test_get_edit_user_returns_stored_industry_company_and_manager_fields(): void
+    {
+        $this->getLoggedInUser('admin');
+        $short = \DB::table('bussinesses')->value('short');
+        $manager = User::factory()->create(['role' => 'admin', 'position' => 'manager']);
+        $client = User::factory()->create([
+            'role' => 'user', 'bussiness' => $short, 'company_type' => 'self-employed', 'company_size' => '2-10',
+            'manager' => $manager->id,
+        ]);
+
+        $response = $this->getJson("/user/{$client->id}")->assertStatus(200);
+
+        $this->assertSame($short, $response->json('data.bussiness.id'));
+        $this->assertSame('self-employed', $response->json('data.company_type'));
+        $this->assertSame('2-10', $response->json('data.company_size'));
+        $this->assertSame($manager->id, $response->json('data.manager.id'));
+    }
+
     public function test_get_edit_user_nonexistent_returns_404(): void
     {
         $this->getLoggedInUser('admin');

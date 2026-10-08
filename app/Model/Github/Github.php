@@ -57,7 +57,7 @@ class Github extends BaseModel
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['third-party-integration'],
+        'segments' => ['admin', 'settings', 'api', 'github'],
     ];
 
     /**

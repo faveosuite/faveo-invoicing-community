@@ -2957,7 +2957,6 @@ return [
     'payment_gateways' => '支付网关',
     'edit_payment_gateway' => '编辑支付网关',
     'all_third_party_apps' => '所有第三方应用程序',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => '所有电子邮件模板',
     'recaptcha' => '验证码',

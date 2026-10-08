@@ -27,7 +27,6 @@ use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\ActivityLogDay;
 use App\Model\Mailjob\CloudEmail as cloudemailsend;
 use App\Model\Mailjob\Condition;
-use Config;
 use Exception;
 use File;
 use GuzzleHttp\Client;
@@ -168,7 +167,6 @@ class Kernel extends ConsoleKernel
                 $delLogDays = 99999999;
             }
 
-            Config::set('activitylog.delete_records_older_than_days', $delLogDays);
             $condition = new Condition;
             $command = $condition->getConditionValue($task);
             switch ($task) {
@@ -181,7 +179,8 @@ class Kernel extends ConsoleKernel
 
                 case 'deleteLogs':
                     if ($logDeleteStatus == 1) {
-                        $this->getCondition($schedule->command('activitylog:clean --force'), $command);
+                        // The command runs in its own process, so the age has to travel as an option, not via Config::set().
+                        $this->getCondition($schedule->command('activitylog:clean --force --days='.(int) $delLogDays), $command);
 
                         return;
                     }

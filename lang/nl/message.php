@@ -2942,7 +2942,6 @@ return [
     'payment_gateways' => 'Betalingsgateways',
     'edit_payment_gateway' => 'Betalingsgateway bewerken',
     'all_third_party_apps' => 'Alle apps van derden',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => 'Alle e-mailsjablonen',
     'recaptcha' => 'reCAPTCHA',

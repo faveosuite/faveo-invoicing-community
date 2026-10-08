@@ -79,7 +79,7 @@ class TaxRate extends BaseModel
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['tax', ':id', 'edit'],
+        'segments' => ['admin', 'settings', 'common', 'tax', ':id', 'edit'],
     ];
 
     /**

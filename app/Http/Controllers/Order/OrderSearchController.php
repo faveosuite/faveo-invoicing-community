@@ -26,7 +26,7 @@ class OrderSearchController extends Controller
         $query = Order::with([
             'user' => function ($q): void {
                 $q->withTrashed()
-                    ->select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country');
+                    ->select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country', 'deleted_at');
             },
             'productRelation.groupRelation',
             'installationLogs',

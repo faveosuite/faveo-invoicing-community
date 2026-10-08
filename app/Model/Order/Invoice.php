@@ -117,10 +117,7 @@ class Invoice extends BaseModel
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['invoices', 'show'],
-        'params' => [
-            'invoiceid' => ':id',
-        ],
+        'segments' => ['admin', 'invoices', ':id'],
     ];
 
     /**

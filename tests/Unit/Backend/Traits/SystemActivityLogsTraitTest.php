@@ -67,13 +67,13 @@ class SystemActivityLogsTraitTest extends DBTestCase
     public function test_tap_activity_logs_maps_attributes(): void
     {
         $activity = new Activity();
-        $activity->properties = collect([
+        $activity->attribute_changes = collect([
             'attributes' => ['first_name' => 'john', 'email' => 'j@example.com'],
         ]);
 
         $this->getPrivateMethod($this->subject, 'tapActivityLogs', [$activity]);
 
-        $mapped = $activity->properties->get('attributes');
+        $mapped = $activity->attribute_changes->get('attributes');
         $this->assertArrayHasKey('name', $mapped);
         $this->assertSame('JOHN', $mapped['name']);
         $this->assertArrayNotHasKey('first_name', $mapped);
@@ -82,7 +82,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
     public function test_tap_activity_logs_handles_missing_properties(): void
     {
         $activity = new Activity();
-        $activity->properties = collect([]);
+        $activity->attribute_changes = collect([]);
 
         $this->getPrivateMethod($this->subject, 'tapActivityLogs', [$activity]);
 
@@ -190,6 +190,37 @@ class SystemActivityLogsTraitTest extends DBTestCase
         $this->assertStringContainsString('42', $url);
     }
 
+    public function test_description_links_to_the_admin_page_by_default_with_column_placeholders(): void
+    {
+        $subject = new class extends Model
+        {
+            use SystemActivityLogsTrait;
+
+            public string $logName = 'product';
+
+            public string $logNameColumn = 'title';
+
+            protected array $logAttributes = [];
+
+            public array $logUrl = ['segments' => ['admin', 'products', ':product_id', 'versions', ':id', 'edit']];
+
+            protected function getMappings(): array
+            {
+                return [];
+            }
+        };
+        $subject->setRawAttributes(['product_id' => 7, 'title' => 'v1.2']);
+
+        $activity = new Activity();
+        $activity->subject_id = 3;
+        $activity->setRelation('subject', $subject);
+
+        $this->getPrivateMethod($subject, 'generateDescriptionForLogs', [$activity, 'updated']);
+
+        $this->assertStringContainsString('href="'.url('admin/products/7/versions/3/edit').'"', $activity->description);
+        $this->assertStringContainsString('<strong>v1.2</strong>', $activity->description);
+    }
+
     public function test_tap_activity_runs_all_steps(): void
     {
         $user = User::factory()->create();
@@ -220,13 +251,13 @@ class SystemActivityLogsTraitTest extends DBTestCase
     public function test_tap_activity_logs_transforms_old_attributes(): void
     {
         $activity = new Activity();
-        $activity->properties = collect([
+        $activity->attribute_changes = collect([
             'old' => ['first_name' => 'alice'],
         ]);
 
         $this->getPrivateMethod($this->subject, 'tapActivityLogs', [$activity]);
 
-        $old = $activity->properties->get('old');
+        $old = $activity->attribute_changes->get('old');
         $this->assertArrayHasKey('name', $old);
         $this->assertSame('ALICE', $old['name']);
     }
@@ -235,7 +266,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
     {
         $activity = new Activity();
         // Pass array instead of Collection — covers line 59
-        $activity->properties = ['attributes' => ['first_name' => 'alice']];
+        $activity->attribute_changes = ['attributes' => ['first_name' => 'alice']];
 
         $this->getPrivateMethod($this->subject, 'tapActivityLogs', [$activity]);
 
@@ -262,11 +293,11 @@ class SystemActivityLogsTraitTest extends DBTestCase
         };
 
         $activity = new Activity();
-        $activity->properties = collect(['attributes' => ['first_name' => 'alice']]);
+        $activity->attribute_changes = collect(['attributes' => ['first_name' => 'alice']]);
 
         $this->getPrivateMethod($subject, 'tapActivityLogs', [$activity]);
 
-        $mapped = $activity->properties->get('attributes');
+        $mapped = $activity->attribute_changes->get('attributes');
         // Non-callable transform → original value is used unchanged
         $this->assertSame('alice', $mapped['name']);
     }

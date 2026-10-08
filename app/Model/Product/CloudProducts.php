@@ -63,7 +63,7 @@ class CloudProducts extends BaseModel
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['view/tenant'],
+        'segments' => ['admin', 'settings', 'cloud-details'],
     ];
 
     /**

@@ -42,8 +42,9 @@ use Logger;
 use Session;
 use Spatie\LaravelPdf\Enums\Format;
 use Spatie\LaravelPdf\Facades\Pdf;
-use Spatie\LaravelPdf\PdfBuilder;
 use Str;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class InvoiceController extends TaxRatesAndCodeExpiryController
 {
@@ -208,10 +209,12 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             // user/email/mobile/country live on `users`, not `invoices` — the list is
             // eager-loaded (`with`), not joined, so sort each via a correlated subquery.
             $relatedSort = match ($sortField) {
-                'user' => User::selectRaw('CONCAT(first_name, " ", last_name)')->whereColumn('users.id', 'invoices.user_id')->limit(1),
-                'email' => User::select('email')->whereColumn('users.id', 'invoices.user_id')->limit(1),
-                'mobile' => User::select('mobile')->whereColumn('users.id', 'invoices.user_id')->limit(1),
-                'country' => User::select('country')->whereColumn('users.id', 'invoices.user_id')->limit(1),
+                // withTrashed: matches the list, which shows soft-deleted customers too.
+                // TRIM: many names have stray spaces the list trims on display.
+                'user' => User::withTrashed()->selectRaw("TRIM(CONCAT(TRIM(first_name), ' ', TRIM(last_name)))")->whereColumn('users.id', 'invoices.user_id')->limit(1),
+                'email' => User::withTrashed()->select('email')->whereColumn('users.id', 'invoices.user_id')->limit(1),
+                'mobile' => User::withTrashed()->select('mobile')->whereColumn('users.id', 'invoices.user_id')->limit(1),
+                'country' => User::withTrashed()->select('country')->whereColumn('users.id', 'invoices.user_id')->limit(1),
                 default => null,
             };
 
@@ -219,7 +222,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 ? $invoice->orderBy($relatedSort, $sortOrder)->paginate($limit)
                 : $invoice->orderBy($sortField, $sortOrder)->paginate($limit);
 
-            $invoice->getCollection()->transform(function ($invoice): array { // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
+            $invoice->getCollection()->transform(function ($invoice): array {
                 $statusMapping = [
                     'success' => 'Paid',
                     'pending' => 'Unpaid',
@@ -227,9 +230,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 ];
                 $status = Str::lower($invoice->status);
 
-                $products = $invoice->invoiceItem
-                    ? $invoice->invoiceItem->map(fn ($item): array => ['name' => $item->product_name, 'product_id' => $item->product_id])->toArray()
-                    : [];
+                $products = $invoice->invoiceItem->map(fn ($item): array => ['name' => $item->product_name, 'product_id' => $item->product_id])->toArray();
 
                 return [
                     'id' => $invoice->id,
@@ -462,7 +463,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         }
     }
 
-    public function pdf(Request $request): JsonResponse|PdfBuilder
+    public function pdf(Request $request): JsonResponse|Response
     {
         try {
             $id = $request->input('invoiceid');
@@ -512,11 +513,17 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             ])
                 ->format(Format::A4)
                 ->margins(10, 10, 10, 10)
-                ->download($authUser->first_name.'-invoice.pdf');
-        } catch (Exception $exception) {
+                ->download($authUser->first_name.'-invoice.pdf')
+                // Render here, inside the try: the builder alone defers Chrome until Laravel sends the
+                // response, where a missing/wrong Chrome path escapes this catch as a bare 500.
+                ->toResponse($request);
+        } catch (Throwable $exception) {
             \Logger::exception($exception);
 
-            return errorResponse(__('message.sorry_something_wrong'));
+            // Only an admin can fix the Chrome path, so only they get pointed at it.
+            return errorResponse(Auth::user()?->role === 'admin'
+                ? __('message.invoice_pdf_failed')
+                : __('message.sorry_something_wrong'));
         }
     }
 

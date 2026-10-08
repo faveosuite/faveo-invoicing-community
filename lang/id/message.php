@@ -2946,7 +2946,6 @@ return [
     'payment_gateways' => 'Gerbang Pembayaran',
     'edit_payment_gateway' => 'Edit Gerbang Pembayaran',
     'all_third_party_apps' => 'Semua Aplikasi Pihak Ketiga',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => 'Semua Template Email',
     'recaptcha' => 'reCAPTCHA',

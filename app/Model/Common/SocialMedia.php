@@ -64,7 +64,7 @@ class SocialMedia extends BaseModel
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['social-media', ':id', 'edit'],
+        'segments' => ['admin', 'settings', 'widgets', 'social-media', ':id', 'edit'],
     ];
 
     /**

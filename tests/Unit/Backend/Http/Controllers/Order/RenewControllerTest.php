@@ -190,6 +190,18 @@ class RenewControllerTest extends DBTestCase
         $this->assertContains($response->getStatusCode(), [200, 422, 500]);
     }
 
+    public function test_renew_by_client_refuses_a_deleted_cloud_instance(): void
+    {
+        $sub = Subscription::factory()->create();
+        Subscription::where('id', $sub->id)->update(['is_deleted' => 1]);
+
+        $this->postJson("/client/renew/{$sub->id}", ['plan' => $sub->plan_id])
+            ->assertStatus(400)
+            ->assertJson(['success' => false, 'message' => __('message.cloud_instance_deleted_no_renew')]);
+
+        $this->assertDatabaseMissing('invoices', ['user_id' => $sub->user_id, 'is_renewed' => 1]);
+    }
+
     public function test_renew_by_client_returns_error_for_invalid_subscription(): void
     {
         $response = $this->postJson('/client/renew/999999', ['plan' => 1]);

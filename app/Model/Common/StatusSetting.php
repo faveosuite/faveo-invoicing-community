@@ -206,14 +206,14 @@ class StatusSetting extends Model
         $cloud = ['cloud_button'];
 
         if ($this->wasChanged($fields)) {
-            return url('contact-option');
+            return url('admin/settings/contact-options');
         }
 
         if ($this->wasChanged($cloud)) {
-            return url('view/tenant');
+            return url('admin/settings/cloud-details');
         }
 
-        return url('third-party-integration');
+        return url('admin/settings/api/third-party');
     }
 
     public function getLogName(): string

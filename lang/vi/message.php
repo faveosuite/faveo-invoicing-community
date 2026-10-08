@@ -2946,7 +2946,6 @@ return [
     'payment_gateways' => 'Cổng thanh toán',
     'edit_payment_gateway' => 'Chỉnh sửa Cổng thanh toán',
     'all_third_party_apps' => 'Tất cả ứng dụng của bên thứ ba',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => 'Tất cả các mẫu email',
     'recaptcha' => 'CAPTCHA',

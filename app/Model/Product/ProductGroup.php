@@ -86,7 +86,7 @@ class ProductGroup extends BaseModel
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['groups', ':id', 'edit'],
+        'segments' => ['admin', 'products', 'groups', ':id', 'edit'],
     ];
 
     /**

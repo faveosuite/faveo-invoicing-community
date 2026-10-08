@@ -75,4 +75,17 @@ describe('UserFilter.vue', () => {
         const emitted = wrapper.emitted('apply')[0][0]
         expect(emitted.role).toBe('admin')
     })
+
+    it('keeps the picked API-loaded options after the applied filters come back', async () => {
+        const country = { id: 99, name: 'India', code: 'IN' }
+        const manager = { id: 7, name: 'Sam' }
+        wrapper.vm.form.country = country
+        wrapper.vm.form.salesmanager = manager
+        wrapper.vm.apply()
+
+        await wrapper.setProps({ initialValues: wrapper.emitted('apply')[0][0] })
+
+        expect(wrapper.vm.form.country).toEqual(country)
+        expect(wrapper.vm.form.salesmanager).toEqual(manager)
+    })
 })

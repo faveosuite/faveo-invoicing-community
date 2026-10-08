@@ -53,7 +53,7 @@ class DefaultPage extends Model
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['pages', ':id',  'edit'],
+        'segments' => ['admin', 'pages', 'settings'],
     ];
 
     /**

@@ -210,7 +210,7 @@ class DashboardController extends Controller
             ->where('email_verified', 1)
             ->whereBetween('created_at', [
                 Date::now()->subDays($days)->startOfDay(),
-                Date::now()->subDay()->endOfDay(),
+                Date::now()->endOfDay(),
             ])
             ->orderByDesc('created_at')
             ->get();

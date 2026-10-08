@@ -6,9 +6,10 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.invoice') }} #{{ invoice?.number }}</h4>
                 <div class="card-tools">
-                    <a :href="`${baseUrl}/pdf?invoiceid=${invoiceId}`" class="btn btn-tool" v-tooltip="__('message.download_pdf')">
-                        <i class="fas fa-download"></i>
-                    </a>
+                    <!-- Fetched (not a plain link) so a failed PDF shows as an alert instead of raw JSON -->
+                    <button type="button" class="btn btn-tool" v-tooltip="__('message.download_pdf')" :disabled="!!downloadingUrl" @click="downloadFile(pdfUrl)">
+                        <i :class="downloadingUrl ? 'fas fa-spinner fa-spin' : 'fas fa-download'"></i>
+                    </button>
                 </div>
             </div>
 
@@ -176,6 +177,7 @@ import http from '@/plugins/axios'
 import { errorHandler } from '@/helpers/responseHandler.js'
 import { useDateTime } from '@/core/composables/useDateTime'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { useDownload } from '@/core/composables/useDownload'
 
 const { formatDate } = useDateTime()
 
@@ -184,6 +186,8 @@ const baseUrl = useBaseUrl()
 
 const route = useRoute()
 const invoiceId = route.params.id
+const pdfUrl = `${baseUrl}/pdf?invoiceid=${invoiceId}`
+const { downloadFile, downloadingUrl } = useDownload(COMPONENT)
 
 const loading = ref(true)
 

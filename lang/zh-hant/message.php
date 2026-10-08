@@ -2942,7 +2942,6 @@ return [
     'payment_gateways' => '支付網關',
     'edit_payment_gateway' => '編輯支付網關',
     'all_third_party_apps' => '所有第三方應用程式',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => '所有電子郵件模板',
     'recaptcha' => '驗證碼',

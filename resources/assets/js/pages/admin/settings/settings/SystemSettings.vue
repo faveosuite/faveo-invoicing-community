@@ -126,7 +126,12 @@ onMounted(async () => {
         timezoneOptions.value   = (data.timezones    ?? []).map(t => ({ id: t.id,    name: t.location || t.name }))
         dateFormatOptions.value = (data.date_formats ?? []).map(f => ({ id: f.value, name: f.label }))
         timeFormatOptions.value = (data.time_formats ?? []).map(f => ({ id: f.value, name: f.label }))
-        languageOptions.value   = (data.languages    ?? []).map(l => ({ id: l.locale, name: l.name || l.locale }))
+        // Same "Name (native name)" label as the navbar picker — zh-hans and zh-hant are both named
+        // "Chinese", only the translation tells Simplified from Traditional.
+        languageOptions.value   = (data.languages    ?? []).map(l => ({
+            id: l.locale,
+            name: l.translation ? `${l.name || l.locale} (${l.translation})` : (l.name || l.locale),
+        }))
 
         form.timezone_id = timezoneOptions.value.find(t => t.id === s.timezone_id)   ?? null
         form.date_format = dateFormatOptions.value.find(f => f.id === s.date_format) ?? null

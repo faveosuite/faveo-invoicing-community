@@ -77,7 +77,6 @@ onMounted(() => {
         formatAsYouType:       false,
         strictMode:            true,
         strictRejectAnimation: false,
-        excludeCountries:      ['ax'],
     }
     if (!options.initialCountry) {
         options.initialCountryLookup = () =>

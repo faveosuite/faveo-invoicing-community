@@ -17,7 +17,7 @@
  * When reCAPTCHA is disabled, getToken()/getPayload() resolve with a null token
  * so the caller can submit unchanged.
  */
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRecaptchaContext } from '../core/context.js'
 import { MODE, FAILOVER } from '../core/constants.js'
 import RecaptchaCheckbox from './RecaptchaCheckbox.vue'
@@ -44,6 +44,10 @@ const fallbackActive = ref(false)
 const error = ref('')
 
 const disabled = computed(() => !config.enabled)
+
+// The backend's v2 fallback is per action, so a field reused for another action (e.g. the
+// verify page's mobile -> email step) must start that action on the configured mode again.
+watch(() => props.action, () => { fallbackActive.value = false })
 
 // Effective mode after accounting for an active fallback.
 const effectiveMode = computed(() => {

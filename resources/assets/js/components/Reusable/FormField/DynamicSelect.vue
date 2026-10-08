@@ -308,7 +308,17 @@ watch(
     text-overflow: ellipsis;
     white-space: nowrap;
     min-width: 0;
+}
+
+/* The flex-grow above is for the one value of a single select only — on a
+   multi select every chip would stretch to fill the row, so chips there stay
+   their own width and only shrink (with the ellipsis) when too long. */
+.faveo-dynamic-select.vs--single .vs__selected {
     flex: 20 1 0%;
+}
+
+.faveo-dynamic-select.vs--multiple .vs__selected {
+    max-width: 100%;
 }
 
 .faveo-dynamic-select .vs__selected span {

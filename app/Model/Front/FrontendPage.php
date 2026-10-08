@@ -76,7 +76,7 @@ class FrontendPage extends BaseModel
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['pages', ':id', 'edit'],
+        'segments' => ['admin', 'pages', ':id', 'edit'],
     ];
 
     /**

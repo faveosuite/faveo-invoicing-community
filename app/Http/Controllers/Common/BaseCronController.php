@@ -148,6 +148,7 @@ class BaseCronController extends Controller
 
         return Subscription::whereNotNull('update_ends_at')
             ->where('is_subscribed', 0)
+            ->where('is_deleted', 0) // no expiry/renew reminders for a deleted cloud instance
             ->whereBetween('update_ends_at', [$yesterday, $tomorrow]);
     }
 
@@ -161,6 +162,7 @@ class BaseCronController extends Controller
 
         return Subscription::whereNotNull('update_ends_at')
             ->where('is_subscribed', 0)
+            ->where('is_deleted', 0) // no expiry/renew reminders for a deleted cloud instance
             ->whereBetween('update_ends_at', [$yesterday, $tomorrow]);
     }
 
@@ -174,6 +176,7 @@ class BaseCronController extends Controller
 
         return Subscription::whereNotNull('update_ends_at')
             ->where('is_subscribed', 0)
+            ->where('is_deleted', 0) // no expiry/renew reminders for a deleted cloud instance
             ->whereBetween('update_ends_at', [$yesterday, $today]);
     }
 
@@ -187,6 +190,7 @@ class BaseCronController extends Controller
 
         return Subscription::whereNotNull('update_ends_at')
             ->where('is_subscribed', 0)
+            ->where('is_deleted', 0) // no expiry/renew reminders for a deleted cloud instance
             ->whereBetween('update_ends_at', [$plus14days, $plus16days]);
     }
 
@@ -200,6 +204,7 @@ class BaseCronController extends Controller
 
         return Subscription::whereNotNull('update_ends_at')
             ->where('is_subscribed', 0)
+            ->where('is_deleted', 0) // no expiry/renew reminders for a deleted cloud instance
             ->whereBetween('update_ends_at', [$minus1day, $plus1day]);
     }
 

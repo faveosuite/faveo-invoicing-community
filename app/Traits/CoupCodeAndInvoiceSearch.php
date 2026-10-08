@@ -8,7 +8,6 @@ use App\Model\Order\Payment;
 use App\Services\Payment\CreditBalanceService;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
@@ -20,12 +19,16 @@ use Illuminate\Support\Facades\Date;
 trait CoupCodeAndInvoiceSearch
 {
     /**
-     * @return \Illuminate\Database\Eloquent\Builder<Model>
-     * @return \Illuminate\Database\Eloquent\Builder<Model>
+     * @return \Illuminate\Database\Eloquent\Builder<Invoice>
      */
     public function advanceSearch(Request $request): \Illuminate\Database\Eloquent\Builder
     {
-        return Invoice::with(['user:id,first_name,last_name,email,mobile,mobile_code,country', 'payments', 'invoiceItem']) // @phpstan-ignore return.type
+        // withTrashed: a soft-deleted customer's invoices still show their name (same as the orders list).
+        return Invoice::with([
+            'user' => fn ($q) => $q->withTrashed()->select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country', 'deleted_at'),
+            'payments',
+            'invoiceItem',
+        ])
             ->when($request->name, function ($query, $name): void {
                 $query->whereHas('user', function (Builder $q) use ($name): void {
                     $q->whereRaw('CONCAT(first_name, " ", last_name) LIKE ?', [sprintf('%%%s%%', $name)]);

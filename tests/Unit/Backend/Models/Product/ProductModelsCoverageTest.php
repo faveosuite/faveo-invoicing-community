@@ -259,7 +259,7 @@ class ProductModelsCoverageTest extends TestCase
         $sub = new Subscription();
         $sub->forceFill(['order_id' => 42]);
         $url = $sub->getLogUrl();
-        $this->assertStringContainsString('orders/42', $url);
+        $this->assertStringContainsString('admin/orders/42', $url);
     }
 
     // =========================================================================

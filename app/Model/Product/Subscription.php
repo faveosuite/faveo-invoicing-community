@@ -152,7 +152,7 @@ class Subscription extends Model
 
     public function getLogUrl(mixed $id = null): ?string
     {
-        return url('orders/'.$this->order_id);
+        return url('admin/orders/'.$this->order_id);
     }
 
     /**

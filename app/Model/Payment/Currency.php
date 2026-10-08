@@ -65,7 +65,7 @@ class Currency extends BaseModel
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['currency'],
+        'segments' => ['admin', 'settings', 'common', 'currency'],
     ];
 
     #[Override]

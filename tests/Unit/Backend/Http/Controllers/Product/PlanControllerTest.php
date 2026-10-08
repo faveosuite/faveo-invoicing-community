@@ -49,6 +49,28 @@ class PlanControllerTest extends DBTestCase
         $this->assertIsArray($response->json('data.data'));
     }
 
+    public function test_list_sorts_product_column_by_product_name_not_id(): void
+    {
+        $this->getLoggedInUser('admin');
+        // Created so the ids run opposite to the names: an id sort would put "Zzz" first.
+        $zzz = Product::factory()->create(['name' => 'Zzz Sort Test']);
+        $aaa = Product::factory()->create(['name' => 'Aaa Sort Test']);
+        Plan::factory()->create(['product' => $zzz->id, 'name' => 'sort-test-plan']);
+        Plan::factory()->create(['product' => $aaa->id, 'name' => 'sort-test-plan']);
+
+        $products = collect($this->getJson('/plans?search-query=sort-test-plan&sort-field=product&sort-order=asc')->json('data.data'))
+            ->pluck('product')->all();
+
+        $this->assertSame(['Aaa Sort Test', 'Zzz Sort Test'], $products);
+    }
+
+    public function test_list_ignores_an_unknown_sort_field(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $this->getJson('/plans?sort-field=no_such_column')->assertStatus(200);
+    }
+
     // --- GET /plan/{planId} ---
 
     public function test_nonexistent_plan_returns_400_with_failure_flag_and_message(): void

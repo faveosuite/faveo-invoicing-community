@@ -239,10 +239,13 @@ const tableOptions = reactive({
         user:         (f, row) => {
             if (!row.user) return '—'
             const fullName = `${row.user.first_name ?? ''} ${row.user.last_name ?? ''}`.trim()
+            // A deleted customer's page can't load ("user not found"), so show the name without a link.
+            if (fullName && row.user.deleted_at) return fullName
             if (fullName && row.user.id) return h(RouterLink, { to: '/users/' + row.user.id }, () => fullName)
             return '—'
         },
         email:        (f, row) => {
+            if (row.user?.email && row.user?.deleted_at) return row.user.email
             if (row.user?.email && row.user?.id) return h(RouterLink, { to: '/users/' + row.user.id }, () => row.user.email)
             return '—'
         },

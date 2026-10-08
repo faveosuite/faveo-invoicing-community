@@ -55,7 +55,7 @@ class ThirdPartyApp extends Model
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['third-party-keys'],
+        'segments' => ['admin', 'settings', 'third-party-apps'],
     ];
 
     /**

@@ -80,7 +80,7 @@ class PipedriveField extends Model
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['pipedrive/mapping/1'],
+        'segments' => ['admin', 'settings', 'api', 'pipedrive'],
     ];
 
     /**

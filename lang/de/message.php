@@ -2946,7 +2946,6 @@ return [
     'payment_gateways' => 'Zahlungsgateways',
     'edit_payment_gateway' => 'Zahlungsgateway bearbeiten',
     'all_third_party_apps' => 'Alle Apps von Drittanbietern',
-    'edit_social_login' => 'Edit Social Login',
     'email_templates' => 'Email Templates',
     'all_email_templates' => 'Alle E-Mail-Vorlagen',
     'recaptcha' => 'reCAPTCHA',

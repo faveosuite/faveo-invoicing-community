@@ -57,7 +57,10 @@ class TaxClass extends BaseModel
         'name', 'slug',
     ];
 
-    protected bool $requireLogUrl = false;
+    protected function requiresLogUrl(): bool
+    {
+        return false;
+    }
 
     /**
      * @return array<mixed>

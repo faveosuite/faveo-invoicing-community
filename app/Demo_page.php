@@ -58,7 +58,7 @@ class Demo_page extends Model
      * @var array<mixed>
      */
     protected array $logUrl = [
-        'segments' => ['demo', 'page'],
+        'segments' => ['admin', 'pages', 'settings'],
     ];
 
     /**

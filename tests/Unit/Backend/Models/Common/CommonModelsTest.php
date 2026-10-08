@@ -359,7 +359,7 @@ class CommonModelsTest extends TestCase
     {
         $model = new StatusSetting();
         $url = $model->getLogUrl();
-        $this->assertStringContainsString('third-party-integration', $url);
+        $this->assertStringContainsString('admin/settings/api/third-party', $url);
     }
 
     public function test_status_setting_get_log_name_default(): void
