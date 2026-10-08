@@ -16,7 +16,6 @@ use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Mailjob\QueueService;
-use App\Model\Order\InstallationDetail;
 use App\Model\Order\Order;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
@@ -487,8 +486,12 @@ class TenantController extends Controller
                 return errorResponse(__('message.something_went_wrong_try_again'));
             }
             $token = Str::random(32);
-            $order_id = Order::where('number', $orderNumber)->where('client', $this->authUser()->id)->value('id');
-            $installation_path = DB::table('installation_details')->where('order_id', $order_id)->where('installation_path', '!=', cloudCentralDomain())->value('installation_path');
+            $order = Order::where('number', $orderNumber)->where('client', $this->authUser()->id)->first();
+            if (! $order instanceof Order) {
+                return errorResponse(__('message.something_wrong_cloud_instance'));
+            }
+            $order_id = $order->id;
+            $installation_path = $order->installedDomains()->first();
             $response = $this->client->request( // @phpstan-ignore property.notFound
                 'GET',
                 $this->cloud->cloud_central_domain.'/tenants', [
@@ -709,7 +712,7 @@ class TenantController extends Controller
 
     private function getOrderId(string $domain): ?int
     {
-        return InstallationDetail::where('installation_path', $domain)->latest()->value('order_id');
+        return Order::idForDomain($domain);
     }
 
     /**

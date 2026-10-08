@@ -4,6 +4,7 @@ namespace App\Model\Order;
 
 use App\BaseModel;
 use App\License\Models\Installation;
+use App\License\Models\InstallationLog;
 use App\License\Models\License;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
@@ -42,14 +43,12 @@ use Spatie\Activitylog\Models\Activity;
  * @property string $license_mode
  * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read Collection<int, Installation> $installation
- * @property-read int|null $installation_count
  * @property-read Collection<int, Installation> $licensedInstallations
  * @property-read int|null $licensed_installations_count
  * @property-read Collection<int, Invoice> $invoice
  * @property-read int|null $invoice_count
- * @property-read Collection<int, InstallationDetail> $installationDetails
- * @property-read int|null $installation_details_count
+ * @property-read Collection<int, InstallationLog> $installationLogs
+ * @property-read int|null $installation_logs_count
  * @property-read InvoiceItem|null $invoiceItem
  * @property-read Collection<int, OrderInvoiceRelation> $invoiceRelation
  * @property-read int|null $invoice_relation_count
@@ -213,17 +212,62 @@ class Order extends BaseModel
     }
 
     /**
-     * @return HasMany<Installation, $this>
+     * Check-in log of this order's installs (domain, IP, version, last active) —
+     * what the order page shows. Same license hop as licensedInstallations().
+     *
+     * @return HasManyThrough<InstallationLog, License, $this>
      */
-    public function installation(): HasMany
+    public function installationLogs(): HasManyThrough
     {
-        return $this->hasMany(Installation::class, 'order_id');
+        return $this->hasManyThrough(
+            InstallationLog::class,
+            License::class,
+            'license_order_number',
+            'license_code',
+            'number',
+            'license_code'
+        );
     }
 
-    /** @return HasMany<InstallationDetail, $this> */
-    public function installationDetails(): HasMany
+    /**
+     * Domains this order is installed on, most recently active first, excluding
+     * the cloud central domain — the tenant(s) to act on when the order goes away.
+     *
+     * Reads installation_logs as well as installations: a license reissue (e.g. a
+     * cloud agent change) deletes the installations rows, but the tenant keeps
+     * checking in, which only writes installation_logs.
+     *
+     * @return \Illuminate\Support\Collection<int, string>
+     */
+    public function installedDomains(): \Illuminate\Support\Collection
     {
-        return $this->hasMany(InstallationDetail::class, 'order_id');
+        $codes = License::where('license_order_number', $this->number)->select('license_code');
+
+        return InstallationLog::whereIn('license_code', $codes)
+            ->latest('installation_last_active_date')
+            ->pluck('installation_domain')
+            ->merge(Installation::whereIn('license_code', $codes)->latest('updated_at')->pluck('installation_domain'))
+            ->filter()
+            ->reject(fn ($domain): bool => $domain === cloudCentralDomain())
+            ->unique()
+            ->values();
+    }
+
+    /**
+     * The cloud order a tenant domain belongs to (newest order wins).
+     */
+    public static function idForDomain(string $domain): ?int
+    {
+        $codes = Installation::where('installation_domain', $domain)->select('license_code')
+            ->union(InstallationLog::where('installation_domain', $domain)->select('license_code'));
+
+        $id = static::join('licenses', 'licenses.license_order_number', '=', 'orders.number')
+            ->whereIn('licenses.license_code', $codes)
+            ->whereIn('orders.product', cloudPopupProducts())
+            ->latest('orders.id')
+            ->value('orders.id');
+
+        return $id === null ? null : (int) $id;
     }
 
     #[Override]

@@ -3,13 +3,13 @@
 namespace Database\Seeders\v4_0_2_5_RC_2;
 
 use App\Model\Common\FaveoCloud;
-use App\Model\Order\InstallationDetail;
 use App\Model\Product\Subscription;
 use App\ThirdPartyApp;
 use DB;
 use File;
 use GuzzleHttp\Client;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,8 +19,11 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->packageRemoval();
-        $this->domaincheck();
-        $this->domainDelete();
+        // installation_details was dropped later; nothing to reconcile once it's gone.
+        if (Schema::hasTable('installation_details')) {
+            $this->domaincheck();
+            $this->domainDelete();
+        }
     }
 
     public function packageRemoval(): void
@@ -109,7 +112,7 @@ class DatabaseSeeder extends Seeder
 
             //            foreach ($allowedDomains as $domain) {
             //
-            //                $installationDetails = InstallationDetail::where('installation_path', $domain)->get();
+            //                $installationDetails = DB::table('installation_details')->where('installation_path', $domain)->get();
             //
             //                $orderIds = $installationDetails->pluck('order_id')->filter()->toArray();
             //
@@ -127,7 +130,7 @@ class DatabaseSeeder extends Seeder
             //
             //            }
             array_map(function ($domain) {
-                $installationDetails = InstallationDetail::where('installation_path', $domain)->get();
+                $installationDetails = DB::table('installation_details')->where('installation_path', $domain)->get();
 
                 $orderIds = $installationDetails->pluck('order_id')->filter()->toArray();
                 if (empty($orderIds)) {

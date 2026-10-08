@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Models\Order;
 
-use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\InvoiceTaxLine;
@@ -19,30 +18,6 @@ use Tests\TestCase;
 
 class OrderModelsTest extends TestCase
 {
-    // =========================================================================
-    // InstallationDetail
-    // =========================================================================
-
-    public function test_installation_detail_table_is_installation_details(): void
-    {
-        $this->assertSame('installation_details', (new InstallationDetail())->getTable());
-    }
-
-    public function test_installation_detail_fillable_contains_expected_fields(): void
-    {
-        $fillable = (new InstallationDetail())->getFillable();
-        $this->assertContains('installation_path', $fillable);
-        $this->assertContains('installation_ip', $fillable);
-        $this->assertContains('version', $fillable);
-        $this->assertContains('last_active', $fillable);
-        $this->assertContains('order_id', $fillable);
-    }
-
-    public function test_installation_detail_order_is_belongs_to(): void
-    {
-        $this->assertInstanceOf(BelongsTo::class, (new InstallationDetail())->order());
-    }
-
     // =========================================================================
     // Payment (Order\Payment)
     // =========================================================================
@@ -310,9 +285,9 @@ class OrderModelsTest extends TestCase
         $this->assertArrayHasKey('number', $mappings);
     }
 
-    public function test_order_installation_is_has_many(): void
+    public function test_order_installation_logs_is_has_many_through(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Order())->installation());
+        $this->assertInstanceOf(HasManyThrough::class, (new Order())->installationLogs());
     }
 
     public function test_order_domain_attribute_handles_trailing_slash(): void

@@ -29,7 +29,7 @@ class OrderSearchController extends Controller
                     ->select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country');
             },
             'productRelation.groupRelation',
-            'installationDetails',
+            'installationLogs',
             'subscription' => function ($q): void {
                 $q->with('plan');
             },
@@ -122,8 +122,8 @@ class OrderSearchController extends Controller
     {
         if ($domain) {
             $domain = rtrim((string) $domain, '/');
-            $query->whereHas('installation', function (\Illuminate\Contracts\Database\Query\Builder $q) use ($domain): void {
-                $q->where('installation_path', 'like', sprintf('%%%s%%', $domain));
+            $query->whereHas('licensedInstallations', function (\Illuminate\Contracts\Database\Query\Builder $q) use ($domain): void {
+                $q->where('installations.installation_domain', 'like', sprintf('%%%s%%', $domain));
             });
         }
     }

@@ -404,7 +404,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
                             break;
                         case 'status':
-                            $orderData['status'] = $order->installationDetails->isNotEmpty() ? 'Active' : 'Inactive';
+                            $orderData['status'] = $order->installationLogs->isNotEmpty() ? 'Active' : 'Inactive';
                             break;
                         case 'product_name':
                             $orderData['product_name'] = $order->productRelation?->name;
@@ -545,19 +545,14 @@ class ConcreteExportHandleController extends ExportHandleController
         $tenats = collect((array) ($responseData->message ?? []))->reject(fn ($item): bool => $item === null);
         $filteredTenants = $tenats->map(function ($tenats): array {
             $tenantData = [];
+            $order_id = Order::idForDomain((string) $tenats->domain);
             foreach ($this->selectedColumns as $column) {
                 switch ($column) {
                     case 'Order':
-                        $order_id = DB::table('installation_details')->where('installation_path', $tenats->domain)->latest()->value('order_id');
                         $order_number = DB::table('orders')->where('id', $order_id)->value('number');
                         $tenantData['Order'] = $order_number;
                         break;
                     case 'name':
-                        $order_id = DB::table('installation_details')
-                            ->where('installation_path', $tenats->domain)
-                            ->latest()
-                            ->value('order_id');
-
                         if (! $order_id) {
                             $tenantData['name'] = null;
                         } else {
@@ -573,11 +568,6 @@ class ConcreteExportHandleController extends ExportHandleController
                         break;
 
                     case 'email':
-                        $order_id = DB::table('installation_details')
-                            ->where('installation_path', $tenats->domain)
-                            ->latest()
-                            ->value('order_id');
-
                         if (! $order_id) {
                             $tenantData['email'] = null;
                         } else {
@@ -593,11 +583,6 @@ class ConcreteExportHandleController extends ExportHandleController
                         break;
 
                     case 'mobile':
-                        $order_id = DB::table('installation_details')
-                            ->where('installation_path', $tenats->domain)
-                            ->latest()
-                            ->value('order_id');
-
                         if (! $order_id) {
                             $tenantData['mobile'] = null;
                         } else {
@@ -613,11 +598,6 @@ class ConcreteExportHandleController extends ExportHandleController
                         break;
 
                     case 'country':
-                        $order_id = DB::table('installation_details')
-                            ->where('installation_path', $tenats->domain)
-                            ->latest()
-                            ->value('order_id');
-
                         if (! $order_id) {
                             $tenantData['country'] = null;
                         } else {
@@ -638,10 +618,6 @@ class ConcreteExportHandleController extends ExportHandleController
                         break;
 
                     case 'Expiry day':
-                        $order_id = DB::table('installation_details')
-                            ->where('installation_path', $tenats->domain)
-                            ->latest()
-                            ->value('order_id');
                         $subscription_date = Subscription::where('order_id', $order_id)->value('ends_at');
                         if (empty($subscription_date)) {
                             $tenantData['Expiry day'] = null;
@@ -652,10 +628,6 @@ class ConcreteExportHandleController extends ExportHandleController
                         break;
 
                     case 'Deletion day':
-                        $order_id = DB::table('installation_details')
-                            ->where('installation_path', $tenats->domain)
-                            ->latest()
-                            ->value('order_id');
                         $subscription_date = Subscription::where('order_id', $order_id)->value('ends_at');
                         if (empty($subscription_date)) {
                             $tenantData['Deletion day'] = null;
@@ -669,10 +641,6 @@ class ConcreteExportHandleController extends ExportHandleController
                         break;
 
                     case 'plan':
-                        $order_id = DB::table('installation_details')
-                            ->where('installation_path', $tenats->domain)
-                            ->latest()
-                            ->value('order_id');
                         if (empty($order_id)) {
                             $tenantData['plan'] = null;
                         } else {
@@ -685,7 +653,6 @@ class ConcreteExportHandleController extends ExportHandleController
                         break;
 
                     case 'tenants':
-                        $order_id = DB::table('installation_details')->where('installation_path', $tenats->domain)->latest()->value('order_id');
                         $order_number = DB::table('orders')->where('id', $order_id)->value('number');
                         $tenantData['tenats'] = $tenats->id;
                         break;

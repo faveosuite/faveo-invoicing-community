@@ -7,7 +7,6 @@ use App\Http\Controllers\License\LicensePermissionsController;
 use App\Jobs\ReportExport;
 use App\License\Services\LicenseService;
 use App\Model\Mailjob\QueueService;
-use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -168,14 +167,14 @@ class OrderController extends BaseOrderController
                 }
 
                 $threshold = now()->subDays(7);
-                $versions = $order->installationDetails
-                    ->whereNotNull('version')->where('version', '!=', '')
-                    ->sortByDesc('last_active')
-                    ->unique('version')
+                $versions = $order->installationLogs
+                    ->whereNotNull('version_number')->where('version_number', '!=', '')
+                    ->sortByDesc('installation_last_active_date')
+                    ->unique('version_number')
                     ->values()
-                    ->map(fn ($d) => [
-                        'version' => $d->version,
-                        'active' => $d->last_active && $d->last_active >= $threshold,
+                    ->map(fn ($log) => [
+                        'version' => $log->version_number,
+                        'active' => $log->installation_last_active_date && $log->installation_last_active_date >= $threshold,
                     ])
                     ->all();
 
@@ -195,7 +194,7 @@ class OrderController extends BaseOrderController
                     'plan_id' => $order->subscription?->plan?->id,
                     'versions' => $versions,
                     'agents' => $licenseAgents,
-                    'status' => $order->installationDetails->isEmpty() ? 'Inactive' : 'Active',
+                    'status' => $order->installationLogs->isEmpty() ? 'Inactive' : 'Active',
                     'order_date' => $order->created_at,
                     'update_ends_at' => strtotime((string) $order->subscription?->ends_at) > 1 ? $order->subscription?->ends_at : null,
                     'subscription_updated_at' => $order->subscription?->updated_at,
@@ -271,17 +270,18 @@ class OrderController extends BaseOrderController
     public function getInstallationDetails(int $orderId): JsonResponse
     {
         try {
-            $rows = InstallationDetail::where('order_id', $orderId)->get();
+            $logs = Order::find($orderId)->installationLogs ?? collect();
 
-            $installationDetails = $rows->map(function ($row): array {
-                $isActive = $row->last_active && now()->diffInDays($row->last_active) <= 7;
+            $installationDetails = $logs->map(function ($log): array {
+                $lastActive = $log->installation_last_active_date;
+                $isActive = $lastActive && now()->diffInDays($lastActive) <= 7;
 
                 return [
-                    'path' => $row->installation_path,
-                    'ip' => $row->installation_ip,
-                    'version' => $row->version ?? null,
+                    'path' => $log->installation_domain,
+                    'ip' => $log->installation_ip,
+                    'version' => $log->version_number,
                     'status' => $isActive ? 'Active' : 'Inactive',
-                    'last_active_date' => $row->last_active,
+                    'last_active_date' => $lastActive,
                 ];
             })->values()->all();
 
@@ -302,17 +302,18 @@ class OrderController extends BaseOrderController
                 return errorResponse(__('message.select-a-row'));
             }
 
-            $orderIds = $this->order->whereIn('id', $ids)->pluck('id');
+            $orders = $this->order->whereIn('id', $ids)->get();
 
-            $installationDetails = InstallationDetail::whereIn('order_id', $orderIds)
-                ->where('installation_path', '!=', cloudCentralDomain())
-                ->get(['order_id', 'installation_path']);
+            // Only cloud orders have a tenant to tear down.
+            $tenants = $orders->whereIn('product', cloudPopupProducts())
+                ->flatMap(fn (Order $order) => $order->installedDomains()->map(fn ($domain) => [$domain, $order->id]))
+                ->all();
 
-            foreach ($installationDetails as $detail) {
-                event(new UserOrderDelete($detail->installation_path, $detail->order_id));
+            foreach ($tenants as [$domain, $orderId]) {
+                event(new UserOrderDelete($domain, $orderId));
             }
 
-            $this->order->whereIn('id', $orderIds)->delete();
+            $this->order->whereIn('id', $orders->pluck('id'))->delete();
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {

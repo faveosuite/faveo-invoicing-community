@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Events\UserOrderDelete;
-use App\Model\Order\InstallationDetail;
+use App\Model\Order\Order;
 use App\Model\Product\Subscription;
 use App\User;
 use DB;
@@ -79,10 +79,9 @@ class SoftDeleteController extends ClientController
         try {
             User::onlyTrashed()->whereIn('id', $ids)->get()->each(function ($user): void {
                 // cloud tenants to destroy once the DB delete has committed
-                $tenants = InstallationDetail::whereIn('order_id', $user->order()->whereIn('product', cloudPopupProducts())->pluck('id'))
-                    ->where('installation_path', '!=', cloudCentralDomain())
-                    ->get(['order_id', 'installation_path'])
-                    ->reject(fn ($d) => Subscription::where('order_id', $d->order_id)->where('is_deleted', 1)->exists());
+                $tenants = $user->order()->whereIn('product', cloudPopupProducts())->get()
+                    ->reject(fn (Order $order) => Subscription::where('order_id', $order->id)->where('is_deleted', 1)->exists())
+                    ->flatMap(fn (Order $order) => $order->installedDomains()->map(fn ($domain) => [$domain, $order->id]));
 
                 DB::transaction(function () use ($user): void {
                     $user->invoiceItem()->delete();
@@ -99,8 +98,8 @@ class SoftDeleteController extends ClientController
                     $user->forceDelete();
                 });
 
-                foreach ($tenants as $tenant) {
-                    event(new UserOrderDelete($tenant->installation_path, $tenant->order_id));
+                foreach ($tenants as [$domain, $orderId]) {
+                    event(new UserOrderDelete($domain, $orderId));
                 }
             });
 

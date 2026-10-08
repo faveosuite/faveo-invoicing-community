@@ -9,7 +9,6 @@ use App\Model\Common\FaveoCloud;
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Mailjob\ExpiryMailDay;
-use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -230,7 +229,6 @@ class CloudActivitiesTest extends DBTestCase
     //        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
     //        $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
     //            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id]);
-    //        $installationDetail=InstallationDetail::create(['order_id'=>$order->id,'installation_path'=>'/path']);
     //        $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
     //        $planPrice=PlanPrice::factory()->create(['plan_id'=>$plan->id,'currency'=>'INR','add_price'=>5000]);
     //        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
@@ -267,7 +265,6 @@ class CloudActivitiesTest extends DBTestCase
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => 'eyJpdiI6IkpI0003']);
-        InstallationDetail::create(['order_id' => $order->id, 'installation_path' => '/path']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $product->id, 'days' => 130]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
@@ -313,7 +310,6 @@ class CloudActivitiesTest extends DBTestCase
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => 'eyJpdiI6IkpI0003']);
-        InstallationDetail::create(['order_id' => $order->id, 'installation_path' => '/path']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $product->id, 'days' => 130]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
@@ -358,7 +354,6 @@ class CloudActivitiesTest extends DBTestCase
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => 'eyJpdiI6IkpI0005']);
-        InstallationDetail::create(['order_id' => $order->id, 'installation_path' => '/path']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $product->id, 'days' => 130]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
@@ -397,7 +392,6 @@ class CloudActivitiesTest extends DBTestCase
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => 'eyJpdiI6IkpI0005']);
-        InstallationDetail::create(['order_id' => $order->id, 'installation_path' => '/path']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $product->id, 'days' => 65]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000]);
@@ -437,7 +431,6 @@ class CloudActivitiesTest extends DBTestCase
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => 'eyJpdiI6IkpI0005']);
-        InstallationDetail::create(['order_id' => $order->id, 'installation_path' => '/path']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $product->id, 'days' => 65]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
@@ -494,7 +487,6 @@ class CloudActivitiesTest extends DBTestCase
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $oldOrder = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => 'eyJpdiI6IkpI0005']);
-        InstallationDetail::create(['order_id' => $oldOrder->id, 'installation_path' => '/path']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $product->id, 'days' => 65]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
@@ -563,7 +555,6 @@ class CloudActivitiesTest extends DBTestCase
             InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
             $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
                 'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => 'eyJpdiI6IkpI0005']);
-            InstallationDetail::create(['order_id' => $order->id, 'installation_path' => '/path']);
             Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
                 'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
 
@@ -635,7 +626,6 @@ class CloudActivitiesTest extends DBTestCase
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => 'eyJpdiI6IkpI0005']);
-        InstallationDetail::create(['order_id' => $order->id, 'installation_path' => '/path']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $product->id, 'days' => 65]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000]);
@@ -676,7 +666,6 @@ class CloudActivitiesTest extends DBTestCase
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => 'eyJpdiI6IkpI0005']);
-        InstallationDetail::create(['order_id' => $order->id, 'installation_path' => '/path']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $product->id, 'days' => 65]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 5]);
@@ -721,7 +710,6 @@ class CloudActivitiesTest extends DBTestCase
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => 'eyJpdiI6IkpI0005']);
-        InstallationDetail::create(['order_id' => $order->id, 'installation_path' => '/path']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 5]);
         CloudProducts::create(['id' => 1, 'cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => 'HelpDesk']);

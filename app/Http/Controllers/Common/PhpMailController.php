@@ -185,12 +185,8 @@ class PhpMailController extends Controller
                     continue;
                 }
 
-                $id = DB::table('installation_details')->where('order_id', $order->id)->value('installation_path');
+                $id = $order->installedDomains()->first();
                 if (is_null($id)) {
-                    continue;
-                }
-
-                if ($id == cloudCentralDomain()) {
                     continue;
                 }
 
