@@ -111,7 +111,7 @@ trait UpdateDates
         $installationPath = null;
 
         if (in_array((int) $order->product, cloudPopupProducts())) {
-            $installationPath = $cloud->installationPathFor($license);
+            $installationPath = $order->installedDomains()->first();
 
             if (! $installationPath) {
                 return __('message.installation_path_not_found');

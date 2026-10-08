@@ -1,5 +1,7 @@
 <template>
     <div>
+        <!-- Outside the delete modal, so the result survives the modal closing. -->
+        <Alert componentName="client-orders" />
         <AppCard :title="__('message.my_orders')">
             <DataTable :url="apiUrl" :dataColumns="columns" :option="tableOptions">
                 <template #number="{ row }">
@@ -205,7 +207,7 @@ async function confirmDelete() {
     deleteLoading.value = true
     try {
         const res = await http.delete(`/delete/domain/${deleteRow.value.number}/1`)
-        successHandler(res, 'order-delete')
+        successHandler(res, 'client-orders')
         closeDeleteModal()
         globalThis.emitter?.emit('refreshData')
     } catch (e) { errorHandler(e, 'order-delete') }

@@ -3,6 +3,7 @@
 namespace App\Services\Payment;
 
 use App\Http\Controllers\Order\OrderController;
+use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
 use App\Model\Order\Invoice;
@@ -44,6 +45,10 @@ class FreeTrialService
      */
     public function provision(User $user, string $domain, CloudProducts $cloudProduct): array
     {
+        if (! new CloudExtraActivities(new Client, new FaveoCloud)->checkDomain(strtolower($domain).'.'.cloudSubDomain())) {
+            throw new RuntimeException(__('message.domain_taken'));
+        }
+
         $currency = getCurrencyForClient($user->country);
         $plan = $this->resolveFreePlan($cloudProduct);
         $product = Product::findOrFail($cloudProduct->cloud_product);

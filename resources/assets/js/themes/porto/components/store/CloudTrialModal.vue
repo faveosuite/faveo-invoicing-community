@@ -13,7 +13,10 @@
     <template #fields>
       <Alert componentName="CloudTrialModal" />
 
-      <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
+      <!-- Built server-side with the instance link; replaces the form once the instance exists. -->
+      <div v-if="created" :class="`alert alert-${created.type} mb-0`" v-html="created.message" /> <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
+
+      <div v-else-if="loading" class="row justify-content-center py-3"><loader /></div>
 
       <template v-else>
         <!-- Domain -->
@@ -63,6 +66,7 @@
 
     <template #controls>
       <button
+        v-if="!created"
         type="button"
         class="btn btn-primary"
         :disabled="submitting || loading"
@@ -100,6 +104,7 @@ const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(false)
 const submitting = ref(false)
+const created = ref(null)
 
 const domain = ref('')
 const cloudSubdomain = ref('')
@@ -128,6 +133,7 @@ watch(() => props.show, (val) => {
     domain.value = ''
     selectedProduct.value = null
     selectedDataCenter.value = null
+    created.value = null
     setErrors({})
     fetchCloudData()
   }
@@ -158,11 +164,10 @@ async function submit() {
       product_id: selectedProduct.value?.id ?? null,
       ...(selectedDataCenter.value ? { data_center_id: selectedDataCenter.value.id } : {}),
     })
-    alertStore.setAlert({
+    created.value = {
+      type: res?.data?.data?.warning ? 'warning' : 'success',
       message: res?.data?.message ?? __('message.free_trial_started'),
-      type: 'success',
-      component_name: 'CloudTrialModal',
-    })
+    }
   } catch (e) {
     alertStore.setAlert({
       message: e?.response?.data?.message ?? __('message.something_went_wrong'),

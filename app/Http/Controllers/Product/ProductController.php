@@ -249,6 +249,7 @@ class ProductController extends BaseProductController
         try {
             $product = Product::with([
                 'groupRelation:id,name',
+                'parentRelation:id,name',
                 'licenseType:id,name',
                 'taxes',
                 'planRelation',
@@ -486,6 +487,12 @@ class ProductController extends BaseProductController
             'product_sku' => ['required', 'unique:products,product_sku'],
             'group' => ['required'],
             'show_agent' => ['required'],
+            // Saved only if listed here (validated-only save), so every editable column must be.
+            'parent' => ['nullable', 'integer'],
+            'shoping_cart_link' => ['nullable', 'string', 'max:255'],
+            'github_owner' => ['nullable', 'string', 'max:225'],
+            'github_repository' => ['nullable', 'string', 'max:225'],
+            'version' => ['nullable', 'string', 'max:225'],
         ], [
             'product_sku.unique' => __('validation.product_sku_unique'),
             'name.unique' => __('validation.product_name_unique'),
@@ -500,6 +507,15 @@ class ProductController extends BaseProductController
         $validated['config_file_path'] = empty($validated['config_file_path']) ? null : $validated['config_file_path'];
         $validated['license_file_path'] = empty($validated['license_file_path']) ? null : $validated['license_file_path'];
         $validated['product_path'] = empty($validated['product_path']) ? null : $validated['product_path'];
+        // These columns are NOT NULL: no parent is 0, a blank text field is ''.
+        if (array_key_exists('parent', $validated)) {
+            $validated['parent'] = (int) $validated['parent'];
+        }
+        foreach (['shoping_cart_link', 'github_owner', 'github_repository', 'version'] as $field) {
+            if (array_key_exists($field, $validated)) {
+                $validated[$field] = (string) $validated[$field];
+            }
+        }
 
         try {
             DB::transaction(function () use ($request, $validated): void {
@@ -568,6 +584,12 @@ class ProductController extends BaseProductController
             'product_sku' => ['required', Rule::unique('products', 'product_sku')->ignore($productId)],
             'group' => ['required'],
             'show_agent' => ['required'],
+            // Saved only if listed here (validated-only save), so every editable column must be.
+            'parent' => ['nullable', 'integer'],
+            'shoping_cart_link' => ['nullable', 'string', 'max:255'],
+            'github_owner' => ['nullable', 'string', 'max:225'],
+            'github_repository' => ['nullable', 'string', 'max:225'],
+            'version' => ['nullable', 'string', 'max:225'],
         ], [
             'name.required' => __('validation.product_controller.name_required'),
             'name.unique' => __('validation.product_name_unique'),
@@ -589,6 +611,15 @@ class ProductController extends BaseProductController
         $validated['config_file_path'] = empty($validated['config_file_path']) ? null : $validated['config_file_path'];
         $validated['license_file_path'] = empty($validated['license_file_path']) ? null : $validated['license_file_path'];
         $validated['product_path'] = empty($validated['product_path']) ? null : $validated['product_path'];
+        // These columns are NOT NULL: no parent is 0, a blank text field is ''.
+        if (array_key_exists('parent', $validated)) {
+            $validated['parent'] = (int) $validated['parent'];
+        }
+        foreach (['shoping_cart_link', 'github_owner', 'github_repository', 'version'] as $field) {
+            if (array_key_exists($field, $validated)) {
+                $validated[$field] = (string) $validated[$field];
+            }
+        }
 
         try {
             DB::transaction(function () use ($validated, $request, $productId): void {

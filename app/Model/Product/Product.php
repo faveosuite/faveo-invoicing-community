@@ -37,7 +37,7 @@ use Spatie\Activitylog\Models\Activity;
  * @property string $description
  * @property string $short_description
  * @property string $category
- * @property array<mixed> $parent
+ * @property int $parent
  * @property int $type
  * @property int $group
  * @property string $welcome_email
@@ -373,17 +373,13 @@ class Product extends BaseModel
     }
 
     /**
-     * @return Attribute<mixed, mixed>
+     * The product this one sits under (0 = none).
+     *
+     * @return BelongsTo<Product, $this>
      */
-    protected function parent(): Attribute
+    public function parentRelation(): BelongsTo
     {
-        return Attribute::make(get: function ($value): array {
-            return explode(',', (string) $value);
-        }, set: function ($value): array {
-            $value = implode(',', $value);
-
-            return ['parent' => $value];
-        });
+        return $this->belongsTo(Product::class, 'parent');
     }
 
     /**

@@ -18,6 +18,7 @@ use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\ThirdPartyApp;
 use App\User;
 use DB;
 use GuzzleHttp\Client;
@@ -57,6 +58,22 @@ class CloudActivitiesTest extends DBTestCase
         restore_exception_handler();
 
         parent::tearDown();
+    }
+
+    public function test_check_domain_reads_the_leading_true_false_of_the_cloud_response(): void
+    {
+        ThirdPartyApp::updateOrCreate(['app_name' => 'faveo_app_key'], ['app_key' => 'key', 'app_secret' => 'secret']);
+        FaveoCloud::query()->delete();
+        FaveoCloud::create(['cloud_central_domain' => 'https://central.example.test']);
+
+        $check = fn (string $body): bool => new CloudExtraActivities(
+            new Client(['handler' => \GuzzleHttp\HandlerStack::create(new \GuzzleHttp\Handler\MockHandler([new \GuzzleHttp\Psr7\Response(200, [], $body)]))]),
+            new FaveoCloud
+        )->checkDomain('acme.example.test');
+
+        $this->assertTrue($check('true{"status":"success"}'));
+        $this->assertFalse($check('false{"status":"fails"}'));
+        $this->assertFalse($check('{"status":"success"}'));
     }
 
     #[Group('Cloud Agent Change')]

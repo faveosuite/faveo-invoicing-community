@@ -657,7 +657,7 @@ onMounted(async () => {
         form.type                 = p.type ?? null
         form.product_type         = p.product_type ?? 'independent'
         form.group                = p.group ?? null
-        form.parent               = p.parent ?? null
+        form.parent               = p.parent || null // 0 = no parent
         // Tax status is driven by whether the product has a tax class assigned.
         const assigned = (p.taxes ?? [])
         form.tax_status   = assigned.length ? 1 : 0

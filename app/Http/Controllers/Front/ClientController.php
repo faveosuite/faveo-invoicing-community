@@ -6,7 +6,6 @@ use App\Http\Controllers\Common\SettingsController;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\User\AdvanceSearchController;
-use App\License\Models\Installation;
 use App\License\Models\License;
 use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
@@ -358,7 +357,7 @@ class ClientController extends BaseClientController
                 'invoice_number' => $latestInvoice?->number,
                 'sub_id' => $order->subscription?->id,
                 'show_download' => $hasDownload,
-                'show_cloud_delete' => ! $hasDownload,
+                'show_cloud_delete' => ! $hasDownload && ! $order->subscription?->is_deleted,
                 'is_terminated' => $order->order_status === 'Terminated',
                 // Same label the admin order page badges expiry dates with.
                 'expiry_status' => strtotime($updateEndsAt) > 1 ? getExpiryLabel($updateEndsAt)['status'] : null,
@@ -390,9 +389,7 @@ class ClientController extends BaseClientController
             $currency = getCurrencyForClient($user->country);
             $subscription = $order->subscription;
 
-            $installation_path = Installation::where('license_code', $order->serial_key)
-                ->where('installation_path', '!=', cloudCentralDomain())
-                ->latest('updated_at')->value('installation_path');
+            $installation_path = $order->installedDomains()->first();
 
             $currentAgents = ltrim(substr($order->serial_key, 12), '0');
 
@@ -855,29 +852,29 @@ class ClientController extends BaseClientController
         try {
             $order = Order::where('id', $orderid)->where('client', Auth::id())->firstOrFail();
 
-            $query = Installation::where('license_code', $order->serial_key)
-                ->where('product_id', $order->product);
+            // Same source as the admin order page: the check-in log of every license this order has had.
+            $query = $order->installationLogs();
             $search = trim((string) $request->input('search-query', ''));
 
             if ($search !== '' && $search !== '0') {
                 $query->where(function ($q) use ($search): void {
-                    $q->where('installation_domain', 'like', sprintf('%%%s%%', $search))
-                        ->orWhere('installation_ip', 'like', sprintf('%%%s%%', $search));
+                    $q->where('installation_logs.installation_domain', 'like', sprintf('%%%s%%', $search))
+                        ->orWhere('installation_logs.installation_ip', 'like', sprintf('%%%s%%', $search));
                 });
             }
 
-            $allowed = ['installation_path' => 'installation_domain', 'installation_ip' => 'installation_ip', 'last_active' => 'installation_date'];
-            $sortCol = $allowed[$request->input('sort-field', 'last_active')] ?? 'installation_date';
+            $allowed = ['installation_path' => 'installation_domain', 'installation_ip' => 'installation_ip', 'last_active' => 'installation_last_active_date'];
+            $sortCol = $allowed[$request->input('sort-field', 'last_active')] ?? 'installation_last_active_date';
             $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
-            $query->orderBy($sortCol, $sortDir);
+            $query->orderBy('installation_logs.'.$sortCol, $sortDir);
 
             $paginated = $query->paginate((int) $request->input('limit', 10));
 
-            $paginated->getCollection()->transform(fn ($inst): array => [
-                'installation_path' => $inst->installation_domain,
-                'installation_ip' => $inst->installation_ip,
-                'version' => $inst->version,
-                'last_active' => $inst->installation_date,
+            $paginated->getCollection()->transform(fn ($log): array => [
+                'installation_path' => $log->installation_domain,
+                'installation_ip' => $log->installation_ip,
+                'version' => $log->version_number,
+                'last_active' => $log->installation_last_active_date,
             ]);
 
             return successResponse('', $paginated);

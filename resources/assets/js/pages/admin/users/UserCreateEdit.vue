@@ -22,7 +22,7 @@
                             <TextField name="email" :label="__('message.email')" :required="true" type="email" :value="form.email" :onChange="onChange" :error="errors.email" />
                         </div>
                         <div class="col-md-3">
-                            <TextField name="user_name" :label="__('message.user_name')" :value="form.user_name" :onChange="onChange" />
+                            <TextField name="user_name" :label="__('message.user_name')" :value="form.user_name" :onChange="onChange" :error="errors.user_name" />
                         </div>
                     </div>
 
@@ -111,7 +111,7 @@
                     <!-- Row 4: Town / Country / State / Zip -->
                     <div class="row">
                         <div class="col-md-3">
-                            <TextField name="town" :label="__('message.town')" :value="form.town" :onChange="onChange" />
+                            <TextField name="town" :label="__('message.town')" :value="form.town" :onChange="onChange" :error="errors.town" />
                         </div>
                         <div class="col-md-3">
                             <DynamicSelect
@@ -137,7 +137,7 @@
                             />
                         </div>
                         <div class="col-md-3">
-                            <TextField name="zip" :label="__('message.zip')" :value="form.zip" :onChange="onChange" />
+                            <TextField name="zip" :label="__('message.zip')" :value="form.zip" :onChange="onChange" :error="errors.zip" />
                         </div>
                     </div>
 
@@ -168,7 +168,7 @@
                             />
                         </div>
                         <div class="col-md-3">
-                            <TextField name="skype" :label="__('message.skype')" :value="form.skype" :onChange="onChange" />
+                            <TextField name="skype" :label="__('message.skype')" :value="form.skype" :onChange="onChange" :error="errors.skype" />
                         </div>
                         <div class="col-md-3">
                             <DynamicSelect

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Tenancy;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Order\InvoiceController as InvoiceCtrl;
 use App\Http\Controllers\Order\RenewController;
-use App\License\Models\Installation;
 use App\License\Services\LicenseService;
 use App\Model\CloudDataCenters;
 use App\Model\Common\Country;
@@ -226,7 +225,7 @@ class CloudExtraActivities extends Controller
                 return errorResponse(trans('message.nothing_changed'));
             }
 
-            $installationPath = $this->installationPathFor((string) $order->serial_key);
+            $installationPath = $order->installedDomains()->first();
 
             if (empty($installationPath)) {
                 return errorResponse(trans('message.installation_path_not_found'));
@@ -288,7 +287,7 @@ class CloudExtraActivities extends Controller
             // the price is multiplied by.
             $order = $this->authorizedOrder((int) $request->input('orderId'));
 
-            $installationPath = $this->installationPathFor((string) $order->serial_key);
+            $installationPath = $order->installedDomains()->first();
 
             $calc = $this->calculatePlanChange($order, $planId);
             $price = abs(round($calc['price']));
@@ -457,18 +456,6 @@ class CloudExtraActivities extends Controller
     private function licenseAgents(?string $serialKey): int
     {
         return (int) substr((string) $serialKey, 12, 16);
-    }
-
-    /**
-     * The tenant install this license is running on, or null when there isn't
-     * one — a self-hosted order has no cloud installation to talk to.
-     */
-    public function installationPathFor(string $licenseCode): ?string
-    {
-        return Installation::where('license_code', $licenseCode)
-            ->where('installation_path', '!=', cloudCentralDomain())
-            ->latest('updated_at')
-            ->value('installation_path');
     }
 
     /**
@@ -816,7 +803,11 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    public function checkDomain(string $domain): object
+    /**
+     * Whether a cloud domain is still free. The cloud answers "true"/"false"
+     * ahead of a JSON body, so only that leading part is read.
+     */
+    public function checkDomain(string $domain): bool
     {
         $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->first(['app_key', 'app_secret']);
 
@@ -824,7 +815,11 @@ class CloudExtraActivities extends Controller
             throw new Exception(__('message.something_bad'));
         }
 
-        return $this->cloudApiPost('/checkDomain', ['domain' => $domain, 'key' => $keys->app_key]);
+        $body = (string) $this->client->request('POST', $this->cloud->cloud_central_domain.'/checkDomain', [
+            'form_params' => ['domain' => $domain, 'key' => $keys->app_key],
+        ])->getBody();
+
+        return json_decode(strstr($body, '{', true) ?: $body) === true;
     }
 
     public function fetchData(Request $request): JsonResponse

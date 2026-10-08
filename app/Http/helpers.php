@@ -2,7 +2,7 @@
 
 use App\FileSystemSettings;
 use App\Http\Controllers\Common\PaymentSettingsController;
-use App\License\Models\Installation;
+use App\License\Models\InstallationLog;
 use App\Model\Common\CommonSettings;
 use App\Model\Common\Country;
 use App\Model\Common\FaveoCloud;
@@ -200,8 +200,8 @@ function getVersionAndLabel(mixed $productVersion, string $productId, ?string $p
 
     // Fallback to installation detail if version not provided
     if (! $productVersion && $path) {
-        $installationDetail = Installation::where('installation_path', 'like', '%'.$path.'%')->latest('id')->first();
-        $productVersion = $installationDetail ? $installationDetail->version : $latestVersion;
+        $productVersion = InstallationLog::where('installation_domain', 'like', '%'.$path.'%')
+            ->latest('installation_last_active_date')->value('version_number') ?? $latestVersion;
     }
 
     // Return version value or '--' if not available

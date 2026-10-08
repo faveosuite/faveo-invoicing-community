@@ -519,7 +519,8 @@ class TenantController extends Controller
                     if ($response->status == 'success') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                         $this->deleteCronForTenant($domainArray[$i]->id);
                         $this->reissueCloudLicense($order_id);
-                        Order::where('number', $orderNumber)->where('client', $this->authUser()->id)->delete();
+                        // Only the instance goes; the order stays, marked the same way the admin delete does.
+                        $this->statusChange($order_id);
                         DB::table('free_trial_allowed')->where('domain', $installation_path)->delete();
 
                         $loggingUser = Auth::check()
@@ -540,7 +541,7 @@ class TenantController extends Controller
                     Logger::exception(new Exception($response->message));
                     $this->googleChat('Tenant deletion failed for '.$user.'. Reason: '.$responseBody);
 
-                    return errorResponse(__('message.cloud_deleted_failed   '));
+                    return errorResponse(__('message.cloud_deleted_failed'));
                 }
             }
 

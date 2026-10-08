@@ -365,21 +365,9 @@ class ProductModelsCoverageTest extends TestCase
         $this->assertInstanceOf(HasMany::class, (new Product())->pluginCompWith());
     }
 
-    public function test_product_parent_attribute_explodes_comma_string(): void
+    public function test_product_parent_relation_is_belongs_to(): void
     {
-        $product = new Product();
-        $product->setRawAttributes(['parent' => '1,2,3']);
-        $result = $product->parent;
-        $this->assertIsArray($result);
-        $this->assertSame(['1', '2', '3'], $result);
-    }
-
-    public function test_product_parent_attribute_with_empty_string(): void
-    {
-        $product = new Product();
-        $product->setRawAttributes(['parent' => '']);
-        $result = $product->parent;
-        $this->assertIsArray($result);
+        $this->assertInstanceOf(BelongsTo::class, (new Product())->parentRelation());
     }
 
     // =========================================================================

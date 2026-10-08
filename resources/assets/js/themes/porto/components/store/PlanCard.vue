@@ -276,8 +276,12 @@ async function addToCart(domain = null, dataCenterId = null) {
       ...(dataCenterId ? { data_center_id: dataCenterId }   : {}),
     })
     router.push('/cart')
-  } catch {
-    // cartStore.error holds the failure message for display.
+    return true
+  } catch (e) {
+    // Field errors (e.g. domain taken) come back as { domain: '…' }; show them on the domain field.
+    const msg = e?.response?.data?.message
+    if (domain) domainError.value = msg?.domain ?? (typeof msg === 'string' ? msg : __('message.something_went_wrong'))
+    return false
   }
 }
 
@@ -293,8 +297,9 @@ async function onDomainConfirmed() {
   }
   modalLoading.value = true
   try {
-    await addToCart(domain.value, selectedDataCenter.value?.id ?? null)
-    showDomainModal.value = false
+    if (await addToCart(domain.value, selectedDataCenter.value?.id ?? null)) {
+      showDomainModal.value = false
+    }
   } finally {
     modalLoading.value = false
   }

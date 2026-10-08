@@ -24,7 +24,7 @@ class FreeTrailController extends Controller
     public function startTrial(Request $request): JsonResponse
     {
         $request->validate([
-            'domain' => ['required', 'regex:/^[a-zA-Z0-9]+$/u'],
+            'domain' => ['required', 'regex:/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$/'],
             'product_id' => ['required', 'integer'],
         ], [
             'domain.regex' => __('validation.special_characters_not_allowed'),
@@ -43,7 +43,16 @@ class FreeTrailController extends Controller
             $this->freeTrialService->checkEligibility($user, $cloudProduct);
             $result = $this->freeTrialService->provision($user, $request->input('domain'), $cloudProduct);
 
-            return successResponse(__('message.free_trial_started'), $result);
+            // Instance is up either way; on "success_with_warning" the license install failed.
+            $warning = ($result['status'] ?? '') === 'success_with_warning';
+            $url = (string) ($result['installationUrl'] ?? '');
+            $href = preg_match('#^https?://#i', $url) ? $url : 'https://'.$url;
+            $link = $url === '' ? '' : sprintf('<a href="%s" target="_blank" rel="noopener">%s</a>', e($href), e($url));
+            $message = $warning
+                ? __('message.instance_not_created', ['installationUrl' => $link, 'reason' => e((string) ($result['reason'] ?? ''))])
+                : __('message.instance_successfully_created', ['installationUrl' => $link]);
+
+            return successResponse((string) $message, $result + ['warning' => $warning]);
         } catch (RuntimeException $e) {
             return errorResponse($e->getMessage());
         } catch (Throwable $e) {
