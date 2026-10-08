@@ -819,7 +819,10 @@ class CloudExtraActivities extends Controller
             'form_params' => ['domain' => $domain, 'key' => $keys->app_key],
         ])->getBody();
 
-        return json_decode(strstr($body, '{', true) ?: $body) === true;
+        $flag = strstr($body, '{', true);
+
+        // Same truthiness as development; a body starting with "{" gives an empty flag → null → taken.
+        return (bool) json_decode($flag === false ? $body : $flag);
     }
 
     public function fetchData(Request $request): JsonResponse
