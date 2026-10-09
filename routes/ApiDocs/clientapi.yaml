@@ -1,0 +1,2450 @@
+openapi: 3.0.0
+info:
+  title: Client API
+  version: 1.0.0
+servers:
+  - url: /
+paths:
+  /login:
+    get:
+      summary: Show login form
+      operationId: showLoginForm
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: Login page data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: object
+                        properties:
+                          msg91_status:
+                            type: integer
+                          emailverification_status:
+                            type: integer
+                          terms:
+                            type: integer
+                      apiKeys:
+                        type: object
+                        properties:
+                          nocaptcha_sitekey:
+                            type: string
+                          captcha_secretCheck:
+                            type: string
+                          msg91_auth_key:
+                            type: string
+                          terms_url:
+                            type: string
+                      analyticsTag:
+                        type: string
+                      location:
+                        type: object
+                      google_status:
+                        type: integer
+                      github_status:
+                        type: integer
+                      twitter_status:
+                        type: integer
+                      linkedin_status:
+                        type: integer
+    post:
+      summary: User login
+      operationId: login
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email_username
+                - password
+              properties:
+                email_username:
+                  type: string
+                  description: User's email or username
+                password:
+                  type: string
+                  format: password
+                remember:
+                  type: boolean
+      responses:
+        '200':
+          description: Authentication successful, redirecting.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      redirect:
+                        type: string
+                        example: /client-dashboard
+        '422':
+          description: Invalid credentials.
+        '500':
+          description: Internal server error.
+  /register:
+    post:
+      summary: User registration
+      operationId: postRegister
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - first_name
+                - last_name
+                - email
+                - password
+                - password_confirmation
+                - company
+                - address
+                - mobile
+                - mobile_code
+                - mobile_country_iso
+                - country
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                password_confirmation:
+                  type: string
+                  format: password
+                company:
+                  type: string
+                address:
+                  type: string
+                mobile:
+                  type: string
+                mobile_code:
+                  type: string
+                mobile_country_iso:
+                  type: string
+                  description: ISO country code for the mobile number (e.g. IN, US)
+                country:
+                  type: string
+      responses:
+        '200':
+          description: Registration complete.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      need_verify:
+                        type: integer
+                        example: 1
+  /logout:
+    get:
+      summary: User logout
+      operationId: logout
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: LogOut.
+  /password/email:
+    post:
+      summary: Send password reset link
+      operationId: sendResetLinkEmail
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Password reset link sent.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /password/reset:
+    get:
+      summary: Show password reset form
+      operationId: showResetForm
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: Forgot password page data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: object
+                        properties:
+                          msg91_status:
+                            type: integer
+                          emailverification_status:
+                            type: integer
+                          terms:
+                            type: integer
+                      apiKeys:
+                        type: object
+                        properties:
+                          nocaptcha_sitekey:
+                            type: string
+                          captcha_secretCheck:
+                            type: string
+                          msg91_auth_key:
+                            type: string
+                          terms_url:
+                            type: string
+    post:
+      summary: Reset password
+      operationId: resetPassword
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - email
+                - password
+                - password_confirmation
+              properties:
+                token:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                password_confirmation:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Password has been reset.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      redirect:
+                        type: string
+                        example: /login
+  /password/reset/{token}:
+    get:
+      summary: Show password reset form
+      operationId: showResetFormWithToken
+      tags:
+        - Authentication
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Password reset page data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        reset_token:
+                          type: string
+                        email:
+                          type: string
+                          format: email
+  /2fa/session-check:
+    get:
+      summary: Check 2FA session
+      operationId: verifySession
+      tags:
+        - 2FA
+      responses:
+        '200':
+          description: Session is active.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: active
+  /recovery-code:
+    get:
+      summary: Show recovery code
+      operationId: showRecoveryCode
+      tags:
+        - 2FA
+      responses:
+        '200':
+          description: Redirect to recovery code page.
+  /verify-2fa:
+    get:
+      summary: Verify 2FA page
+      operationId: verify2fa
+      tags:
+        - 2FA
+      responses:
+        '200':
+          description: Redirect to 2FA verification page.
+  /2fa/loginValidate:
+    post:
+      summary: Validate 2FA token
+      operationId: postLoginValidateToken
+      tags:
+        - 2FA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - totp
+              properties:
+                totp:
+                  type: string
+      responses:
+        '200':
+          description: 2FA token is valid. Returns a redirect URL on success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      redirect:
+                        type: string
+                        example: /client-dashboard
+  /verify-recovery-code:
+    post:
+      summary: Verify recovery code
+      operationId: verifyRecoveryCode
+      tags:
+        - 2FA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - rec_code
+              properties:
+                rec_code:
+                  type: string
+      responses:
+        '200':
+          description: Recovery code is valid. Returns a redirect URL on success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      redirect:
+                        type: string
+                        example: /client-dashboard
+  /2fa/enable:
+    post:
+      summary: Enable 2FA
+      operationId: enableTwoFactor
+      tags:
+        - 2FA
+      responses:
+        '200':
+          description: 2FA enabled.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      image:
+                        type: string
+                        description: Base64-encoded QR code SVG image URI
+                      secret:
+                        type: string
+                        description: Base32-encoded TOTP secret key
+  /2fa/disable/{userId}:
+    post:
+      summary: Disable 2FA
+      operationId: disableTwoFactor
+      tags:
+        - 2FA
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 2FA disabled.
+  /2fa/setupValidate:
+    post:
+      summary: Validate 2FA setup
+      operationId: postSetupValidateToken
+      tags:
+        - 2FA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - totp
+              properties:
+                totp:
+                  type: string
+      responses:
+        '200':
+          description: 2FA setup validated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: valid_passcode
+  /verify-password:
+    get:
+      summary: Verify password
+      operationId: verifyPassword
+      tags:
+        - 2FA
+      parameters:
+        - name: user_password
+          in: query
+          required: false
+          schema:
+            type: string
+            format: password
+        - name: login_type
+          in: query
+          required: false
+          schema:
+            type: string
+            description: Set to 'social' for social login accounts (no password required)
+      responses:
+        '200':
+          description: Password verified.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: password_verified
+  /2fa-recovery-code:
+    post:
+      summary: Generate recovery code
+      operationId: generateRecoveryCode
+      tags:
+        - 2FA
+      responses:
+        '200':
+          description: Recovery code generated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+  /get-recovery-code:
+    get:
+      summary: Get recovery code
+      operationId: getRecoveryCode
+      tags:
+        - 2FA
+      responses:
+        '200':
+          description: Recovery code.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+  /verify-2fa-admin:
+    post:
+      summary: Verify 2FA for admin
+      operationId: postSetupValidateTokenAdmin
+      tags:
+        - 2FA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - totp
+              properties:
+                totp:
+                  type: string
+      responses:
+        '200':
+          description: 2FA setup validated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: valid_passcode
+  /get-loginstate/{state}:
+    get:
+      summary: Get states by country
+      operationId: getState
+      tags:
+        - General
+      parameters:
+        - name: state
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of states.
+          content:
+            application/json:
+              schema:
+                type: object
+  /get-countries:
+    get:
+      summary: Get all countries
+      operationId: getCountries
+      tags:
+        - General
+      responses:
+        '200':
+          description: List of countries.
+          content:
+            application/json:
+              schema:
+                type: object
+  /get-code:
+    get:
+      summary: Get phone code by country
+      operationId: getCode
+      tags:
+        - General
+      parameters:
+        - name: country_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Phone code.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+  /get-currency:
+    get:
+      summary: Get currency by country
+      operationId: getCurrency
+      tags:
+        - General
+      parameters:
+        - name: country_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Currency code.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      Currency:
+                        type: string
+  /client-dashboard-details:
+    get:
+      summary: Get client dashboard details
+      operationId: clientDetails
+      tags:
+        - Dashboard
+      responses:
+        '200':
+          description: Client dashboard data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      pendingInvoicesCount:
+                        type: integer
+                      ordersCount:
+                        type: integer
+                      renewalCount:
+                        type: integer
+                      user:
+                        $ref: '#/components/schemas/User'
+                      status:
+                        type: string
+                      updated_ends_at:
+                        type: string
+  /master-data:
+    get:
+      summary: Get master data
+      operationId: masterData
+      tags:
+        - Master Data
+      responses:
+        '200':
+          description: Master data for the application.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      dataCenters:
+                        type: array
+                        items:
+                          type: object
+                      setting:
+                        type: object
+                      cloudSubDomain:
+                        type: string
+                      flagClass:
+                        type: string
+                      cloudPopUpDetails:
+                        type: object
+                      status:
+                        type: object
+                      cart:
+                        type: object
+                      Demo_page_status:
+                        type: integer
+                      scripts:
+                        type: array
+                        items:
+                          type: object
+                      pages:
+                        type: array
+                        items:
+                          type: object
+                      apiKeys:
+                        type: object
+                      social:
+                        type: array
+                        items:
+                          type: object
+                      productGroup:
+                        type: object
+  /demo-request:
+    post:
+      summary: Request a demo
+      operationId: postDemoReq
+      tags:
+        - Master Data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - demoname
+                - demoemail
+                - demomessage
+                - country_code
+                - Mobile
+                - product
+              properties:
+                demoname:
+                  type: string
+                demoemail:
+                  type: string
+                  format: email
+                demomessage:
+                  type: string
+                country_code:
+                  type: string
+                Mobile:
+                  type: string
+                product:
+                  type: string
+      responses:
+        '200':
+          description: Demo request sent.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+  /language/control:
+    get:
+      summary: Get language dropdown
+      operationId: fetchLangDropdownUsers
+      tags:
+        - Master Data
+      responses:
+        '200':
+          description: List of languages.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        locale:
+                          type: string
+                        name:
+                          type: string
+                        translation:
+                          type: string
+                        status:
+                          type: integer
+  /trial-cloud-products:
+    post:
+      summary: Get trial cloud products
+      operationId: trialCloudProducts
+      tags:
+        - Master Data
+      responses:
+        '200':
+          description: List of trial cloud products.
+          content:
+            application/json:
+              schema:
+                type: object
+  /create/tenant/purchase:
+    post:
+      summary: Create tenant purchase
+      operationId: storeTenantTillPurchase
+      tags:
+        - Master Data
+      responses:
+        '200':
+          description: Redirect URL to cart page.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  redirectTo:
+                    type: string
+                    example: /show/cart
+  /available-groups:
+    post:
+      summary: Get available groups
+      operationId: getAvailableGroups
+      tags:
+        - Master Data
+      responses:
+        '200':
+          description: List of available groups.
+          content:
+            application/json:
+              schema:
+                type: object
+  /mail-chimp/subcribe:
+    post:
+      summary: Subscribe to Mailchimp
+      operationId: addSubscriberByClientPanel
+      tags:
+        - Master Data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - newsletterEmail
+              properties:
+                newsletterEmail:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Subscribed to Mailchimp.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+  /first-login:
+    post:
+      summary: First login attempt
+      operationId: firstLoginAttempt
+      tags:
+        - Master Data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - product
+                - domain
+              properties:
+                id:
+                  type: integer
+                product:
+                  type: string
+                domain:
+                  type: string
+      responses:
+        '200':
+          description: First login attempt successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                      message:
+                        type: string
+                      Free_trial_domain:
+                        type: string
+  /store-basic-details:
+    post:
+      summary: Store basic details
+      operationId: storeBasicDetailsss
+      tags:
+        - Master Data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - company
+                - address
+              properties:
+                company:
+                  type: string
+                address:
+                  type: string
+      responses:
+        '200':
+          description: Basic details stored successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+  /my-invoices:
+    get:
+      summary: Get my invoices
+      operationId: invoices
+      tags:
+        - Invoices
+      responses:
+        '200':
+          description: List of invoices.
+          content:
+            application/json:
+              schema:
+                type: object
+  /my-invoice/{id}:
+    get:
+      summary: Get my invoice
+      operationId: getInvoice
+      tags:
+        - Invoices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Invoice details.
+          content:
+            application/json:
+              schema:
+                type: object
+  /get-my-invoices:
+    get:
+      summary: Get a paginated list of the authenticated user's invoices
+      operationId: getInvoices
+      tags:
+        - Invoices
+      parameters:
+        - name: search-query
+          in: query
+          description: A string to search across multiple fields.
+          schema:
+            type: string
+        - name: sort-order
+          in: query
+          description: The order to sort the results by.
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: sort-field
+          in: query
+          description: The field to sort the results by.
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The number of results to return per page.
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: Filter invoices by status.
+          schema:
+            type: string
+            enum: [pending, success, partially paid]
+      responses:
+        '200':
+          description: A paginated list of invoices.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        number:
+                          type: string
+                          description: The invoice number, potentially with a 'renewed' badge.
+                        OrderNo:
+                          type: string
+                          description: The associated order number(s).
+                        date:
+                          type: string
+                          description: The invoice date.
+                        total:
+                          type: string
+                          description: The formatted total amount of the invoice.
+                        paid:
+                          type: string
+                          description: The formatted amount paid on the invoice.
+                        balance:
+                          type: string
+                          description: The formatted remaining balance of the invoice.
+                        status:
+                          type: string
+                          description: The status of the invoice.
+                        action:
+                          type: string
+                          description: HTML for action buttons (view, pay, delete).
+                  current_page:
+                    type: integer
+                  per_page:
+                    type: integer
+                  total:
+                    type: integer
+                  has_more_pages:
+                    type: boolean
+  /invoices/delete/{id}:
+    delete:
+      summary: Delete invoice
+      operationId: invoiceDelete
+      tags:
+        - Invoices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Invoice deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+  /paynow/{id}:
+    get:
+      summary: Pay now
+      operationId: payNow
+      tags:
+        - Invoices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pay now page.
+          content:
+            application/json:
+              schema:
+                type: object
+  /my-orders:
+    get:
+      summary: Get my orders
+      operationId: orders
+      tags:
+        - Orders
+      responses:
+        '200':
+          description: List of orders.
+          content:
+            application/json:
+              schema:
+                type: object
+  /get-my-orders:
+    get:
+      summary: Get my orders
+      operationId: getClientOrderVue
+      tags:
+        - Orders
+      parameters:
+        - name: search-query
+          in: query
+          description: Search filter across order fields.
+          schema:
+            type: string
+        - name: sort-order
+          in: query
+          description: Sort direction.
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: sort-field
+          in: query
+          description: Field to sort by.
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Number of results per page.
+          schema:
+            type: integer
+        - name: updated_ends_at
+          in: query
+          description: Filter for expired orders (pass "expired").
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of orders.
+          content:
+            application/json:
+              schema:
+                type: object
+  /my-order/{id}:
+    get:
+      summary: Get my order
+      operationId: getOrder
+      tags:
+        - Orders
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Order details.
+          content:
+            application/json:
+              schema:
+                type: object
+  /renew-popup-details/{productid}:
+    get:
+      summary: Get renew popup details
+      operationId: renewPopupVue
+      tags:
+        - Orders
+      parameters:
+        - name: productid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Renew popup details.
+          content:
+            application/json:
+              schema:
+                type: object
+  /get-my-payment-client/{orderid}/{userid}:
+    get:
+      summary: Get my payment client
+      operationId: getPaymentByOrderIdClient
+      tags:
+        - Orders
+      parameters:
+        - name: orderid
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: userid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of payments.
+          content:
+            application/json:
+              schema:
+                type: object
+  /get-versions/{productid}/{clientid}/{invoiceid}:
+    get:
+      summary: Get versions
+      operationId: getVersionList
+      tags:
+        - Orders
+      parameters:
+        - name: productid
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: clientid
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: invoiceid
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: search.value
+          in: query
+          required: false
+          description: Search by version number, title, or description.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of versions.
+          content:
+            application/json:
+              schema:
+                type: object
+  /get-github-versions/{productid}/{clientid}/{invoiceid}:
+    get:
+      summary: Get github versions
+      operationId: getGithubVersionList
+      tags:
+        - Orders
+      parameters:
+        - name: productid
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: clientid
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: invoiceid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of github versions.
+          content:
+            application/json:
+              schema:
+                type: object
+  /my-profile:
+    get:
+      summary: Get my profile
+      operationId: profile
+      tags:
+        - Profile
+      responses:
+        '200':
+          description: User profile data.
+          content:
+            application/json:
+              schema:
+                type: object
+    patch:
+      summary: Update my profile
+      operationId: postProfile
+      tags:
+        - Profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                user_name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                company:
+                  type: string
+                mobile_code:
+                  type: string
+                mobile_country_iso:
+                  type: string
+                  description: ISO country code for the mobile number (e.g. IN, US)
+                mobile:
+                  type: string
+                address:
+                  type: string
+                town:
+                  type: string
+                timezone_id:
+                  type: integer
+                state:
+                  type: string
+                zip:
+                  type: string
+                company_size:
+                  type: string
+                company_type:
+                  type: string
+                bussiness:
+                  type: string
+                gstin:
+                  type: string
+      responses:
+        '200':
+          description: Profile updated successfully.
+  /my-password:
+    patch:
+      summary: Update my password
+      operationId: postPassword
+      tags:
+        - Profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - old_password
+                - new_password
+              properties:
+                old_password:
+                  type: string
+                  format: password
+                new_password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Password updated successfully.
+  /renew/{id}/{agents}:
+    get:
+      summary: Show the renewal form
+      operationId: renewForm
+      tags:
+        - Renewal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: agents
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The renewal form data.
+          content:
+            application/json:
+              schema:
+                type: object
+  /renew/{id}:
+    post:
+      summary: Renew a subscription (Admin)
+      operationId: renew
+      tags:
+        - Renewal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - plan
+                - payment_method
+                - cost
+              properties:
+                plan:
+                  type: integer
+                payment_method:
+                  type: string
+                cost:
+                  type: number
+                code:
+                  type: string
+                agents:
+                  type: integer
+      responses:
+        '200':
+          description: The subscription has been renewed.
+  /client/renew/{id}:
+    post:
+      summary: Renew a subscription (Client)
+      operationId: renewByClient
+      tags:
+        - Renewal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - plan
+              properties:
+                plan:
+                  type: integer
+                user:
+                  type: integer
+                  description: User ID (optional, defaults to authenticated user)
+                code:
+                  type: string
+                  description: Promotion code (optional)
+                agents:
+                  type: integer
+      responses:
+        '200':
+          description: The subscription has been renewed and will redirect to the payment page.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: string
+                    description: Array containing the payment URL (e.g. ["/paynow/123"])
+  /autopaynow/{id}:
+    get:
+      summary: Auto-renew a subscription
+      operationId: autoRenewbyid
+      tags:
+        - Renewal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Returns the payment URL to redirect to.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: string
+                    description: Array containing the payment URL (e.g. ["/paynow/123"])
+  /cart-access:
+    get:
+      summary: Access cart information
+      operationId: cartAccess
+      tags:
+        - Cart
+      parameters:
+        - name: method
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - clear
+              - getContent
+              - getTotal
+              - isEmpty
+              - getTotalQuantity
+      responses:
+        '200':
+          description: The result of the cart operation.
+          content:
+            application/json:
+              schema:
+                type: object
+  /cart/remove:
+    post:
+      summary: Remove an item from the cart
+      operationId: cartRemove
+      tags:
+        - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+              properties:
+                id:
+                  type: integer
+      responses:
+        '200':
+          description: The item has been removed from the cart.
+  /strRenewal-enable:
+    post:
+      summary: Enable Stripe Auto-renewal
+      operationId: enableAutorenewalStatus
+      tags:
+        - Renewal Status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - order_id
+              properties:
+                order_id:
+                  type: integer
+                  description: The ID of the order to enable auto-renewal for.
+      responses:
+        '200':
+          description: Success message or a redirect URL for payment confirmation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                  redirectUrl:
+                    type: string
+                    format: uri
+        '500':
+          description: Error enabling auto-renewal.
+  /renewal-disable:
+    post:
+      summary: Disable Auto-renewal
+      operationId: disableAutorenewalStatus
+      tags:
+        - Renewal Status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - order_id
+              properties:
+                order_id:
+                  type: integer
+      responses:
+        '200':
+          description: Auto-renewal disabled successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+        '500':
+          description: Error disabling auto-renewal.
+  /rzpRenewal-disable/{orderid}:
+    post:
+      summary: Enable Razorpay Auto-renewal
+      operationId: enableRzpStatus
+      tags:
+        - Renewal Status
+      parameters:
+        - name: orderid
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - razorpay_payment_id
+              properties:
+                razorpay_payment_id:
+                  type: string
+      responses:
+        '200':
+          description: Razorpay auto-renewal enabled successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+  /payment/{invoice}:
+    post:
+      summary: Process a Razorpay payment
+      operationId: payment
+      tags:
+        - Payment
+      parameters:
+        - name: invoice
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - razorpay_payment_id
+              properties:
+                razorpay_payment_id:
+                  type: string
+                razorpay_payment_signature:
+                  type: string
+                  description: Signature for payment verification
+      responses:
+        '302':
+          description: Redirect to checkout with a success or failure message.
+  /stripe:
+    post:
+      summary: Process a Stripe payment
+      operationId: postPaymentWithStripe
+      tags:
+        - Payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - stripeToken
+              properties:
+                stripeToken:
+                  type: string
+      responses:
+        '200':
+          description: Payment successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '302':
+          description: Redirect to a URL for further action.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  redirectUrl:
+                    type: string
+                    format: uri
+  /url-save:
+    post:
+      summary: Save a URL to the session
+      operationId: urlSave
+      tags:
+        - Whatsapp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+                  format: uri
+      responses:
+        '200':
+          description: URL saved successfully.
+  /save-waba-id:
+    post:
+      summary: Save a WABA ID
+      operationId: saveWabaId
+      tags:
+        - Whatsapp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - waba_id
+                - business_id
+                - code
+                - order_id
+              properties:
+                waba_id:
+                  type: string
+                phone_number_id:
+                  type: string
+                business_id:
+                  type: string
+                code:
+                  type: string
+                order_id:
+                  type: integer
+      responses:
+        '200':
+          description: WABA ID saved successfully.
+  /webhook-url-edit:
+    post:
+      summary: Edit a webhook URL
+      operationId: webhookUrlEdit
+      tags:
+        - Whatsapp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - url
+                - id
+              properties:
+                url:
+                  type: string
+                  format: uri
+                id:
+                  type: integer
+      responses:
+        '200':
+          description: Webhook URL updated successfully.
+        '403':
+          description: Unauthorized.
+  /get-cloud-upgrade-cost:
+    post:
+      summary: Get cloud upgrade cost
+      operationId: getUpgradeCost
+      tags:
+        - Cloud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - plan
+                - agents
+                - orderId
+              properties:
+                plan:
+                  type: integer
+                agents:
+                  type: integer
+                orderId:
+                  type: integer
+      responses:
+        '200':
+          description: Cloud upgrade cost.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  price_to_be_paid:
+                    type: number
+                  discount:
+                    type: number
+                  currency:
+                    type: string
+  /changeAgents:
+    post:
+      summary: Change agents
+      operationId: agentAlteration
+      tags:
+        - Cloud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - newAgents
+                - orderId
+                - product_id
+                - subId
+              properties:
+                newAgents:
+                  type: integer
+                orderId:
+                  type: integer
+                product_id:
+                  type: integer
+                subId:
+                  type: integer
+      responses:
+        '200':
+          description: Agents changed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        description: Payment URL to redirect to (e.g. /paynow/123)
+  /upgradeDowngradeCloud:
+    post:
+      summary: Upgrade or downgrade a cloud product
+      operationId: upgradeDowngradeCloud
+      tags:
+        - Cloud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - agents
+                - orderId
+              properties:
+                id:
+                  type: integer
+                agents:
+                  type: integer
+                orderId:
+                  type: integer
+      responses:
+        '200':
+          description: Cloud product upgraded or downgraded successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        description: Checkout URL to redirect to
+  /api/takeCloudDomain:
+    post:
+      summary: Autofill domain for a cloud order
+      operationId: orderDomainCloudAutofill
+      tags:
+        - Cloud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderId
+              properties:
+                orderId:
+                  type: integer
+      responses:
+        '200':
+          description: Domain autofilled successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        description: The installation path / autofilled domain value
+  /create/tenant:
+    post:
+      summary: Create a new tenant
+      operationId: createTenant
+      tags:
+        - Cloud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderNo
+                - domain
+              properties:
+                orderNo:
+                  type: string
+                domain:
+                  type: string
+                  description: Alphanumeric subdomain name only
+                userInfo:
+                  type: integer
+                  description: Optional user ID (defaults to authenticated user)
+      responses:
+        '200':
+          description: Tenant created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                  installationUrl:
+                    type: string
+                  Free_trial_domain:
+                    type: string
+  /change/domain:
+    post:
+      summary: Change a domain
+      operationId: changeDomain
+      tags:
+        - Cloud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentDomain
+                - newDomain
+                - order_id
+                - lic_code
+                - product_id
+              properties:
+                currentDomain:
+                  type: string
+                newDomain:
+                  type: string
+                order_id:
+                  type: integer
+                lic_code:
+                  type: string
+                product_id:
+                  type: integer
+      responses:
+        '200':
+          description: Domain changed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    description: Status key (e.g. cloud_domain_change, not_allowed_domain, cname, wrong_domain)
+  /store_toggle_state:
+    post:
+      summary: Store the toggle state
+      operationId: toggle
+      tags:
+        - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - toggleState
+              properties:
+                toggleState:
+                  type: string
+      responses:
+        '200':
+          description: Toggle state stored successfully.
+  /pricing:
+    get:
+      summary: Add a product to the cart
+      operationId: cart
+      tags:
+        - Cart
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: subscription
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: domain
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product added to cart. Returns a redirect URL to the cart page.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        example: /show/cart
+  /group/{templateid}/{groupid}:
+    get:
+      summary: Get page templates for a group
+      operationId: pageTemplates
+      tags:
+        - Pages
+      parameters:
+        - name: templateid
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: groupid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of page templates.
+          content:
+            application/json:
+              schema:
+                type: object
+  /update-agent-qty:
+    post:
+      summary: Update agent quantity in the cart
+      operationId: updateAgentQty
+      tags:
+        - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productid
+                - planid
+              properties:
+                productid:
+                  type: integer
+                planid:
+                  type: integer
+      responses:
+        '200':
+          description: Agent quantity updated successfully.
+  /update-qty:
+    post:
+      summary: Update product quantity in the cart
+      operationId: updateProductQty
+      tags:
+        - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productid
+                - planid
+              properties:
+                productid:
+                  type: integer
+                planid:
+                  type: integer
+      responses:
+        '200':
+          description: Product quantity updated successfully.
+  /reduce-product-qty:
+    post:
+      summary: Reduce product quantity in the cart
+      operationId: reduceProductQty
+      tags:
+        - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productid
+                - planid
+              properties:
+                productid:
+                  type: integer
+                planid:
+                  type: integer
+      responses:
+        '200':
+          description: Product quantity reduced successfully.
+  /reduce-agent-qty:
+    post:
+      summary: Reduce agent quantity in the cart
+      operationId: reduceAgentQty
+      tags:
+        - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productid
+                - planid
+              properties:
+                productid:
+                  type: integer
+                planid:
+                  type: integer
+      responses:
+        '200':
+          description: Agent quantity reduced successfully.
+  /cart/clear:
+    post:
+      summary: Clear the cart
+      operationId: clearCart
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Cart cleared successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: removed_successfully
+  /show/cart:
+    get:
+      summary: Show the cart
+      operationId: showCart
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: The cart contents.
+          content:
+            application/json:
+              schema:
+                type: object
+  /checkout:
+    get:
+      summary: Show the checkout form
+      operationId: checkoutForm
+      tags:
+        - Checkout
+      responses:
+        '200':
+          description: The checkout form data.
+          content:
+            application/json:
+              schema:
+                type: object
+  /checkout-and-pay:
+    post:
+      summary: Process the checkout and payment
+      operationId: postCheckout
+      tags:
+        - Checkout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - checkout_token
+              properties:
+                cost:
+                  type: number
+                invoice_id:
+                  type: integer
+                payment_gateway:
+                  type: string
+                  description: Required when cost is greater than 0
+                checkout_token:
+                  type: string
+                  description: Token used to prevent duplicate submissions
+                domain:
+                  type: object
+                  description: Optional map of domain values keyed by cart item
+      responses:
+        '200':
+          description: Checkout and payment processed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        invoice:
+                          type: object
+                        date:
+                          type: string
+                        product:
+                          type: object
+                        items:
+                          type: array
+                          items:
+                            type: object
+                        orders:
+                          type: array
+                          items:
+                            type: object
+                        orderNumber:
+                          type: string
+                        show:
+                          type: boolean
+  /pricing/update:
+    post:
+      summary: Update pricing with a coupon
+      operationId: addCouponUpdate
+      tags:
+        - Pricing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - coupon
+              properties:
+                coupon:
+                  type: string
+      responses:
+        '200':
+          description: Pricing updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        mobile:
+          type: string
+        country:
+          type: string
+        created_at:
+          type: string
+          format: date-time

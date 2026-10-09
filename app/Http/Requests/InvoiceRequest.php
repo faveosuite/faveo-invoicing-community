@@ -1,17 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
+use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class InvoiceRequest extends FormRequest
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -19,20 +23,21 @@ class InvoiceRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'user' => 'required',
-            'date' => 'required|date',
-            'domain' => 'sometimes|nullable|regex:/^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$/i',
-            'plan' => 'required_if:subscription,true',
-            'price' => 'required',
-            'product' => 'required',
+            'user' => ['required'],
+            'date' => ['required', 'date'],
+            'domain' => ['sometimes', 'nullable', 'regex:/^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$/i'],
+            'plan' => ['required_if:subscription,true'],
+            'price' => ['required'],
+            'product' => ['required'],
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

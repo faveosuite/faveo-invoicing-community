@@ -2,7 +2,7 @@
 /**
  * LeadValue
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -203,7 +203,7 @@ class LeadValue implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['amount'] = $data['amount'] ?? null;
         $this->container['currency'] = $data['currency'] ?? null;

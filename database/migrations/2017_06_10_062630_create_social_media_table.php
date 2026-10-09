@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('social_media')) {
-            Schema::create('social_media', function (Blueprint $table) {
+            Schema::create('social_media', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('class');
                 $table->string('fa_class', 225);
@@ -27,10 +25,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('social_media');
     }

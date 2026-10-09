@@ -16,21 +16,29 @@ use function max;
 use function range;
 use function time;
 use DOMDocument;
-use SebastianBergmann\CodeCoverage\CodeCoverage;
+use SebastianBergmann\CodeCoverage\Node\Directory;
 use SebastianBergmann\CodeCoverage\Node\File;
+use SebastianBergmann\CodeCoverage\Util\EnsuresUtf8;
 use SebastianBergmann\CodeCoverage\Util\Filesystem;
 use SebastianBergmann\CodeCoverage\Util\Xml;
 use SebastianBergmann\CodeCoverage\WriteOperationFailedException;
 
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
 final class Clover
 {
+    use EnsuresUtf8;
+
     /**
      * @param null|non-empty-string $target
      * @param null|non-empty-string $name
      *
      * @throws WriteOperationFailedException
      */
-    public function process(CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
+    public function process(Directory $report, ?string $target = null, ?string $name = null): string
     {
         $time = (string) time();
 
@@ -44,13 +52,12 @@ final class Clover
         $xmlProject->setAttribute('timestamp', $time);
 
         if (is_string($name)) {
-            $xmlProject->setAttribute('name', $name);
+            $xmlProject->setAttribute('name', $this->ensureUtf8($name));
         }
 
         $xmlCoverage->appendChild($xmlProject);
 
         $packages = [];
-        $report   = $coverage->getReport();
 
         foreach ($report as $item) {
             if (!$item instanceof File) {
@@ -60,7 +67,7 @@ final class Clover
             /* @var File $item */
 
             $xmlFile = $xmlDocument->createElement('file');
-            $xmlFile->setAttribute('name', $item->pathAsString());
+            $xmlFile->setAttribute('name', $this->ensureUtf8($item->pathAsString()));
 
             $classes      = $item->classesAndTraits();
             $coverageData = $item->lineCoverageData();
@@ -112,8 +119,8 @@ final class Clover
                 }
 
                 $xmlClass = $xmlDocument->createElement('class');
-                $xmlClass->setAttribute('name', $className);
-                $xmlClass->setAttribute('namespace', $namespace);
+                $xmlClass->setAttribute('name', $this->ensureUtf8($className));
+                $xmlClass->setAttribute('namespace', $this->ensureUtf8($namespace));
 
                 $xmlFile->appendChild($xmlClass);
 
@@ -148,7 +155,7 @@ final class Clover
                 $xmlLine->setAttribute('type', $data['type']);
 
                 if (isset($data['name'])) {
-                    $xmlLine->setAttribute('name', $data['name']);
+                    $xmlLine->setAttribute('name', $this->ensureUtf8($data['name']));
                 }
 
                 if (isset($data['visibility'])) {
@@ -191,7 +198,7 @@ final class Clover
                         'package',
                     );
 
-                    $packages[$namespace]->setAttribute('name', $namespace);
+                    $packages[$namespace]->setAttribute('name', $this->ensureUtf8($namespace));
                     $xmlProject->appendChild($packages[$namespace]);
                 }
 

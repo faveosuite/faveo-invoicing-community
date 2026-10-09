@@ -1,16 +1,18 @@
 <?php
 
-namespace Barryvdh\Debugbar\Support\Clockwork;
+declare(strict_types=1);
+
+namespace Fruitcake\LaravelDebugbar\Support\Clockwork;
 
 class Converter
 {
     /**
      * Convert the phpdebugbar data to Clockwork format.
      *
-     * @param  array $data
-     * @return array
+     * @param array $data
+     *
      */
-    public function convert($data)
+    public function convert($data): array
     {
         $meta = $data['__meta'];
 
@@ -63,23 +65,21 @@ class Converter
         if (isset($data['route'])) {
             $route = $data['route'];
 
-            $controller = null;
-            if (isset($route['controller'])) {
-                $controller = $route['controller'];
+            $output['controller'] = null;
+            if (isset($route['controller']['value'])) {
+                $output['controller'] = $route['controller']['value'];
             } elseif (isset($route['uses'])) {
-                $controller = $route['uses'];
+                $output['controller'] = $route['uses'];
             }
 
-            $output['controller'] = preg_replace('/<a\b[^>]*>(.*?)<\/a>/i', '', (string) $controller) ?: null;
-
-            list($method, $uri) = explode(' ', $route['uri'], 2);
+            [$method, $uri] = explode(' ', $route['uri'], 2);
 
             $output['routes'][] = [
                 'action' => $output['controller'],
-                'after' => isset($route['after']) ? $route['after'] : null,
-                'before' => isset($route['before']) ? $route['before'] : null,
+                'after' => $route['after'] ?? null,
+                'before' => $route['before'] ?? null,
                 'method' => $method,
-                'name' => isset($route['as']) ? $route['as'] : null,
+                'name' => $route['as'] ?? null,
                 'uri' => $uri,
             ];
         }
@@ -94,6 +94,26 @@ class Converter
             }
         }
 
+        if (isset($data['exceptions']['exceptions'])) {
+            foreach ($data['exceptions']['exceptions'] as $message) {
+                $output['log'][] = [
+                    'message' => $message['message'] . "\n" . ($message['stack_trace'] ?? ''),
+                    'time' => $message['time'] ?? null,
+                    'level' => str_starts_with($message['type'], 'E_') || $message['type'] === 'UNKNOWN' ? 'warning' : 'error',
+                ];
+            }
+        }
+
+        if (isset($data['logs']['messages'])) {
+            foreach ($data['logs']['messages'] as $message) {
+                $output['log'][] = [
+                    'message' => $message['message'],
+                    'time' => strtotime($message['time']),
+                    'level' => $message['label'],
+                ];
+            }
+        }
+
         if (isset($data['queries']['statements'])) {
             $queries = $data['queries'];
             foreach ($queries['statements'] as $statement) {
@@ -102,10 +122,11 @@ class Converter
                 }
                 $output['databaseQueries'][] = [
                     'query' => $statement['sql'],
-                    'bindings' => $statement['params'],
-                    'duration' => $statement['duration'] * 1000,
+                    'bindings' => $statement['params'] ?? [],
+                    'duration' => ($statement['duration'] ?? 0) * 1000,
                     'time' => $statement['start'] ?? null,
-                    'connection' => $statement['connection']
+                    'connection' => $statement['connection'] ?? null,
+                    'model' => $statement['filename'] ?? null,
                 ];
             }
 

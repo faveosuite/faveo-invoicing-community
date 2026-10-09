@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'title' => 'Agora Fakturisanje Instalater',
     'probe' => 'Agora Fakturisanje Proba',
     'magic_phrase' => 'Koja je magična fraza',
@@ -20,7 +19,6 @@ return [
     'off_apache' => 'ISKLJUČENO (Ako koristite Apache, osigurajte da je <var><strong>AllowOverride</strong></var> postavljen na <var><strong>All</strong></var> u Apache konfiguraciji)',
     'rewrite_engine' => 'Rewrite Engine',
     'user_url' => 'Korisnički URL',
-
     'host' => 'Domaćin',
     'host_tooltip' => 'Ako je vaš MySQL instaliran na istom serveru kao Agora Fakturisanje, neka bude localhost',
     'database_name_label' => 'Naziv baze podataka',
@@ -30,7 +28,6 @@ return [
     'password_label' => 'Lozinka',
     'test_prerequisites_message' => 'Ovaj test će provjeriti preduvjete potrebne za instalaciju Agora Fakturisanja',
     'previous' => 'Prethodno',
-
     'sign_up_as_admin' => 'Prijavite se kao administrator',
     'first_name' => 'Ime',
     'first_name_required' => 'Ime je obavezno',
@@ -44,13 +41,27 @@ return [
     'confirm_password_required' => 'Potvrda lozinke je obavezna',
     'password_requirements' => 'Vaša lozinka mora imati:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => 'Između 8-16 karaktera'],
-        ['id' => 'letter', 'text' => 'Mala slova (a-z)'],
-        ['id' => 'capital', 'text' => 'Velika slova (A-Z)'],
-        ['id' => 'number', 'text' => 'Brojevi (0-9)'],
-        ['id' => 'space', 'text' => 'Specijalni karakteri (~*!@$#%_+.?:,{ })'],
+        [
+            'id' => 'length',
+            'text' => 'Između 8-16 karaktera',
+        ],
+        [
+            'id' => 'letter',
+            'text' => 'Mala slova (a-z)',
+        ],
+        [
+            'id' => 'capital',
+            'text' => 'Velika slova (A-Z)',
+        ],
+        [
+            'id' => 'number',
+            'text' => 'Brojevi (0-9)',
+        ],
+        [
+            'id' => 'space',
+            'text' => 'Specijalni karakteri (~*!@$#%_+.?:,{ })',
+        ],
     ],
-
     'system_information' => 'Informacije o sistemu',
     'environment' => 'Okruženje',
     'environment_required' => 'Okruženje je obavezno',
@@ -62,31 +73,29 @@ return [
     'file' => 'Fajl',
     'redis' => 'Redis',
     'password' => 'Lozinka',
-
     'redis_setup' => 'Redis Postavke',
     'redis_host' => 'Redis Host',
     'redis_port' => 'Redis Port',
     'redis_password' => 'Redis Lozinka',
-
     'continue' => 'Nastavi',
-
     'final_setup' => 'Vaša Agora Fakturisanje aplikacija je spremna!',
     'installation_complete' => 'Čestitamo! Završili ste instalaciju',
-
     'learn_more' => 'Saznaj više',
     'knowledge_base' => 'Baza znanja',
     'email_support' => 'Email Podrška',
-
     'next_step' => 'Sljedeći korak',
     'login_button' => 'Prijavite se na Agora Fakturisanje',
-
     'pre_migration_success' => 'Pre-migracija je uspješno testirana',
     'migrating_tables' => 'Migracija tabela u bazi podataka',
     'db_connection_error' => 'Konekcija s bazom podataka nije ažurirana',
     'database_setup_success' => 'Baza podataka je uspješno postavljena',
     'env_file_created' => 'Konfiguracijski fajl okruženja je uspješno kreiran',
     'pre_migration_test' => 'Pokretanje pre-migracionog testa',
-
+    'redis_host_required' => 'Potreban je Redis host',
+    'redis_password_required' => 'Potrebna je Redis lozinka',
+    'redis_port_required' => 'Potreban je Redis port',
+    'password_regex' => 'Lozinka mora sadržavati najmanje 8 znakova, jedno veliko slovo, jedno malo slovo, jedan broj i jedan specijalni znak',
+    'setup_completed' => 'Postavljanje je uspješno završeno!',
     'database' => 'Baza podataka',
     'selected' => 'Odabrano',
     'mysql_version_is' => 'MySQL verzija je',
@@ -96,8 +105,12 @@ return [
     'database_connection_unsuccessful' => 'Konekcija s bazom podataka nije uspjela',
     'connected_as' => 'Povezano na bazu podataka kao',
     'failed_connection' => 'Neuspješno povezivanje s bazom podataka',
+    'magic_phrase_not_work' => 'Čarobna fraza koju ste unijeli ne radi',
+    'magic_required' => 'Magična fraza je obavezna',
+    'user_name_regex' => 'Korisničko ime mora imati 3-20 znakova i može sadržavati samo slova, brojeve, razmake, donje crte, crtice, tačke i simbol @',
+    'user_name' => 'Korisničko ime',
+    'user_email' => 'Korisničko ime',
     'password_not_match' => 'Lozinke se ne podudaraju',
-
     'installation_check' => 'Ovaj test će provjeriti preduvjete potrebne za instalaciju Agora Invoice Community',
     'db_setup_error_1' => 'To znači da su korisničko ime i lozinka netačni ili da vaš host nije dostupan',
     'db_setup_error_2' => 'Jeste li sigurni da već imate bazu podataka s navedenim imenom?',
@@ -120,20 +133,16 @@ return [
     'sql_port' => 'MySQL broj porta',
     'database_name' => 'Naziv baze podataka',
     'finishing_setup' => 'Molimo pričekajte, završavanje podešavanja...',
-
     'lic_agreement_1' => 'Molimo pažljivo pročitajte ovaj ugovor o licenci softvera prije nego što nastavite ili koristite softver. Klikom na dugme "Prihvati", pristajete na uslove ovog ugovora. Ako se ne slažete sa svim uslovima ovog ugovora, prekinite proces instalacije i izađite.',
     'lic_agreement_2' => 'UGOVOR O LICENCI ZA KRAJNJEG KORISNIKA',
     'lic_agreement_3' => 'OVAJ "UGOVOR O LICENCI ZA KRAJNJEG KORISNIKA" (DALJE U TEKSTU "EULA") JE PRAVNI UGOVOR IZMEĐU POJEDINCA ILI PRAVNOG LICA KOJE NAMJERAVA KORISTITI SOFTVER ("VI" ILI "KUPAC") I FAVEO. REGISTRACIJOM ILI KORIŠTENJEM SOFTVERA, IZJAVLJUJETE, JAMČITE I SLAŽETE SE DA STE PROČITALI, RAZUMJELI I PRIHVATILI USLOVE EULA. AKO SE NE SLAŽETE SA USLOVIMA EULA, ILI NEMATE OVLAST DA OBAVEŽETE KUPCA NA EULA, NE MOŽETE KORISTITI SOFTVER.',
-
     'definition' => 'Definicije',
     'i_accept' => 'Prihvatam',
     'enter_license' => 'Molimo unesite kod licence za',
     'find_license_in_billing' => 'Možete pronaći svoj licencni kod u našem portalu za naplatu',
-
     'close' => 'Zatvori',
     'port_number' => 'Broj porta',
     'is_required' => 'je obavezno',
-
     'firstname' => 'Ime',
     'lastname' => 'Prezime',
     'copyright' => 'Autorska prava',
@@ -144,7 +153,5 @@ return [
     'language' => 'Jezik',
     'tooltip_timezone' => 'Početno se koristi vremenska zona preglednika. Odaberite drugu vremensku zonu ako je potrebno',
     'tooltip_language' => 'Početno učitani zadani jezik. Odaberite drugi jezik ako je potrebno',
-    'user_name_regex' => 'Korisničko ime mora imati 3-20 znakova i može sadržavati samo slova, brojeve, razmake, donje crte, crtice, tačke i simbol @',
     'enter_magic_phrase' => 'Unesite magičnu frazu',
-
 ];

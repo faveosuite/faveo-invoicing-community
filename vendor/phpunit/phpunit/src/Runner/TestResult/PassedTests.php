@@ -103,6 +103,10 @@ final class PassedTests
             return false;
         }
 
+        if (!isset($this->passedTestMethods[$method])) {
+            return false;
+        }
+
         assert($other instanceof Known);
 
         $size = $this->passedTestMethods[$method]['size'];
@@ -118,7 +122,7 @@ final class PassedTests
 
     public function hasReturnValue(string $method): bool
     {
-        $returnType = (new ReflectionMethod(...explode('::', $method)))->getReturnType();
+        $returnType = new ReflectionMethod(...explode('::', $method))->getReturnType();
 
         return !$returnType instanceof ReflectionNamedType || !in_array($returnType->getName(), ['never', 'void'], true);
     }

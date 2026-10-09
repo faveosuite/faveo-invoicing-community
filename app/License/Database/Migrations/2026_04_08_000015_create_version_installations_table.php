@@ -1,0 +1,40 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * Version installations table (from afu_installations).
+     * Update installation tracking with FKs to products, users, and product_versions.
+     */
+    public function up(): void
+    {
+        Schema::create('version_installations', function (Blueprint $table): void {
+            $table->id();
+            $table->unsignedInteger('product_id');
+            $table->unsignedInteger('user_id')->nullable();
+            $table->unsignedInteger('version_id');
+            $table->timestamp('installation_date')->nullable();
+            $table->boolean('installation_status')->default(1);
+            $table->timestamps();
+
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('version_id')->references('id')->on('product_uploads')->onDelete('cascade');
+            $table->index(['product_id', 'user_id', 'version_id']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('version_installations');
+    }
+};

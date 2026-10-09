@@ -3,6 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Handles all security related headers.
@@ -15,8 +17,7 @@ class SecurityEnforcer
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  Request  $request
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -27,13 +28,13 @@ class SecurityEnforcer
 
         $response = $next($request);
 
-        if (method_exists($response, 'header')) {
+        if (method_exists($response, 'header') && $response instanceof Response) {
             // tells browser that faveo cannot be used within in i-frame. ( XFS vulnerability )
             $response->header('X-Frame-Options', 'SAMEORIGIN');
             $response->header('X-Content-Type-Options', 'nosniff');
 
             // redirecting to https if configured to open in https
-            if ($this->urlScheme(config('app.url')) == 'https' && $this->urlScheme($request->url()) == 'http') {
+            if ($this->urlScheme(config('app.url')) === 'https' && $this->urlScheme($request->url()) === 'http') {
                 return redirect()->secure($request->getPathInfo());
             }
         }
@@ -45,9 +46,8 @@ class SecurityEnforcer
      * Checks if url is http or https.
      *
      * @param  string  $url
-     * @return string
      */
-    private function urlScheme($url)
+    private function urlScheme($url): string
     {
         $parsedUrl = parse_url($url);
 
@@ -55,6 +55,6 @@ class SecurityEnforcer
             return '';
         }
 
-        return $parsedUrl['scheme'];
+        return $parsedUrl['scheme'] ?? '';
     }
 }

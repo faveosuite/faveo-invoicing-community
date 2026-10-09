@@ -19,6 +19,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise deleteJobTemplateAsync(array $args = [])
  * @method \Aws\Result deleteManagedEndpoint(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteManagedEndpointAsync(array $args = [])
+ * @method \Aws\Result deleteSecurityConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteSecurityConfigurationAsync(array $args = [])
  * @method \Aws\Result deleteVirtualCluster(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteVirtualClusterAsync(array $args = [])
  * @method \Aws\Result describeJobRun(array $args = [])
@@ -51,5 +53,7 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise tagResourceAsync(array $args = [])
  * @method \Aws\Result untagResource(array $args = [])
  * @method \GuzzleHttp\Promise\Promise untagResourceAsync(array $args = [])
+ * @method \Aws\Result updateVirtualCluster(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateVirtualClusterAsync(array $args = [])
  */
 class EMRContainersClient extends AwsClient {}

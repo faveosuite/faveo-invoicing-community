@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * The MIT License
  * Copyright (c) 2007 Andy Smith.
@@ -7,34 +9,23 @@
 
 namespace App\Http\Controllers\Common\Twitter;
 
-class Consumer
+use Stringable;
+
+/**
+ * @codeCoverageIgnore
+ */
+class Consumer implements Stringable
 {
-    /** @var string */
-    public $key;
-
-    /** @var string */
-    public $secret;
-
-    /** @var string|null */
-    public $callbackUrl;
-
     /**
      * @param  string  $key
      * @param  string  $secret
-     * @param  null  $callbackUrl
      */
-    public function __construct($key, $secret, $callbackUrl = null)
+    public function __construct(public $key, public $secret, public mixed $callbackUrl = null)
     {
-        $this->key = $key;
-        $this->secret = $secret;
-        $this->callbackUrl = $callbackUrl;
     }
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
-        return "Consumer[key=$this->key,secret=$this->secret]";
+        return sprintf('Consumer[key=%s,secret=%s]', $this->key, $this->secret);
     }
 }

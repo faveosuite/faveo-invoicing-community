@@ -1,6 +1,0 @@
-formatter.name: pretty
-suites:
-    main:
-        namespace: Mailchimp
-        psr4_prefix: Mailchimp
-        src_path: src

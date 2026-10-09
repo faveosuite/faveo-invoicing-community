@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('widgets')) {
-            Schema::create('widgets', function (Blueprint $table) {
+            Schema::create('widgets', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name');
                 $table->string('type');
@@ -27,10 +25,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('widgets');
     }

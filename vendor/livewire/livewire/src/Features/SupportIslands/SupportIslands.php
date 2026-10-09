@@ -23,11 +23,13 @@ class SupportIslands extends ComponentHook
 
     public static function registerInlineIslandPrecompiler()
     {
-        Blade::prepareStringsForCompilationUsing(function ($content) {
+        $compiler = app('blade.compiler');
+
+        $compiler->prepareStringsForCompilationUsing(function ($content) use ($compiler) {
             // Shortcut out if there are no islands in the content...
             if (! str_contains($content, '@endisland')) return $content;
 
-            $pathSignature = Blade::getPath() ?: crc32($content);
+            $pathSignature = $compiler->getPath() ?: crc32($content);
 
             return IslandCompiler::compile($pathSignature, $content);
         });
@@ -85,6 +87,8 @@ class SupportIslands extends ComponentHook
 
     public function hydrate($memo)
     {
+        if (($memo['lazyLoaded'] ?? null) === false) return;
+
         $this->component->markIslandsAsMounted();
 
         $islands = $memo['islands'] ?? null;

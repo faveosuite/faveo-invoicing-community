@@ -4,6 +4,9 @@ Changelog for Razorpay-PHP SDK. Follows [keepachangelog.com](https://keepachange
 
 ## Unreleased
 
+## [2.9.3] - 2026-06-08
+- security: Fixed AES-GCM nonce reuse vulnerability in `generateOnboardingSignature` where the IV was statically derived from the encryption key. Now uses a cryptographically random nonce per call (NIST SP 800-38D compliant).
+
 ## [2.9.2] - 2025-08-05
 - fix: Content-Type header leakage in `Order::create()` where setting application/json globally caused subsequent API calls.
 - fix: Replaced deprecated `get_class()` usage in the `ErrorCode::exists()` method with the __CLASS__ constant to resolve PHP deprecation warnings.

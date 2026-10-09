@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('msg91_statuses', function (Blueprint $table) {
+        Schema::create('msg91_statuses', function (Blueprint $table): void {
             $table->id();
             $table->unsignedSmallInteger('status_code')->unique();
             $table->string('status_label');

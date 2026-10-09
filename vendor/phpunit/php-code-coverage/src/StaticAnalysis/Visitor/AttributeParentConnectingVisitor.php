@@ -11,7 +11,7 @@
 namespace SebastianBergmann\CodeCoverage\StaticAnalysis;
 
 use function array_pop;
-use function count;
+use function end;
 use PhpParser\Node;
 use PhpParser\NodeVisitor;
 
@@ -22,6 +22,8 @@ use PhpParser\NodeVisitor;
  * <code>$node->getAttribute('parent')</code>.
  *
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final class AttributeParentConnectingVisitor implements NodeVisitor
 {
@@ -41,7 +43,7 @@ final class AttributeParentConnectingVisitor implements NodeVisitor
     {
         if ($this->stack !== [] &&
             ($node instanceof Node\Attribute || $node instanceof Node\AttributeGroup)) {
-            $node->setAttribute('parent', $this->stack[count($this->stack) - 1]);
+            $node->setAttribute('parent', end($this->stack));
         }
 
         $this->stack[] = $node;

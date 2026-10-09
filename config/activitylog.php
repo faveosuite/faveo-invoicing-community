@@ -1,17 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
+use Spatie\Activitylog\Models\Activity;
+
 return [
 
     /*
      * If set to false, no activities will be saved to the database.
      */
-    'enabled' => env('ACTIVITY_LOGGER_ENABLED', true),
+    'enabled' => env('ACTIVITYLOG_ENABLED', default: true),
 
     /*
-     * When the clean-command is executed, all recording activities older than
-     * the number of days specified here will be deleted.
+     * Fallback age for activitylog:clean. The scheduler passes the admin's
+     * "delete logs after N days" setting as --days, which takes precedence.
      */
-    'delete_records_older_than_days' => 0,
+    'clean_after_days' => 365,
 
     /*
      * If no log name is passed to the activity() helper
@@ -28,17 +32,16 @@ return [
     /*
      * If set to true, the subject returns soft deleted models.
      */
-    'subject_returns_soft_deleted_models' => false,
+    'include_soft_deleted_subjects' => false,
 
     /*
      * This model will be used to log activity. The only requirement is that
      * it should be or extend the Spatie\Activitylog\Models\Activity model.
      */
-    'activity_model' => \Spatie\Activitylog\Models\Activity::class,
+    'activity_model' => Activity::class,
 
     /*
-     * This is the name of the table that will be created by the migration and
-     * used by the Activity model shipped with this package.
+     * Attributes that are never logged, for every model.
      */
-    'table_name' => 'activity_log',
+    'default_except_attributes' => [],
 ];

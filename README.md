@@ -20,7 +20,7 @@ To run Faveo Invoicing, your server should meet the following requirements:
 - **Laravel Framework**: 12+
 - **Database**: MySQL 8.0.x, PostgreSQL, SQLite, or SQL Server
 - **Web Server**: Apache, IIS, or Nginx
-- **PHP Extensions**: Mcrypt, OpenSSL, Mbstring, Tokenizer
+- **PHP Extensions**: curl, ctype, dom, fileinfo, filter, gd, hash, iconv, intl, json, libxml, mbstring, openssl, pcntl, pcre, pdo, posix, session, simplexml, sodium, tokenizer, xml, xmlreader, xmlwriter, zip, zlib
 - **Web Server Extensions**: Pretty URLs or Search Engine Friendly URLs must be enabled
 
 ## Installation Guide

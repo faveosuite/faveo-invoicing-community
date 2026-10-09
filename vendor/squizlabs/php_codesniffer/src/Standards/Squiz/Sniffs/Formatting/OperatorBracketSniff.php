@@ -136,8 +136,9 @@ class OperatorBracketSniff implements Sniff
 
         $lastBracket = false;
         if (isset($tokens[$stackPtr]['nested_parenthesis']) === true) {
-            $parenthesis = array_reverse($tokens[$stackPtr]['nested_parenthesis'], true);
-            foreach ($parenthesis as $bracket => $endBracket) {
+            $parentheses = $tokens[$stackPtr]['nested_parenthesis'];
+            $parentheses = array_reverse($parentheses, true);
+            foreach ($parentheses as $bracket => $endBracket) {
                 $prevToken = $phpcsFile->findPrevious(T_WHITESPACE, ($bracket - 1), null, true);
                 $prevCode  = $tokens[$prevToken]['code'];
 
@@ -304,6 +305,11 @@ class OperatorBracketSniff implements Sniff
         }
 
         $before = $phpcsFile->findNext(Tokens::EMPTY_TOKENS, ($before + 1), null, true);
+        if ($tokens[$before]['code'] === T_VOID_CAST) {
+            // Don't throw an error if a (void) cast is the first token in the expression
+            // as adding parentheses would turn that into a parse error.
+            return;
+        }
 
         // A few extra tokens are allowed to be on the right side of the expression.
         $allowed[T_EQUAL] = true;

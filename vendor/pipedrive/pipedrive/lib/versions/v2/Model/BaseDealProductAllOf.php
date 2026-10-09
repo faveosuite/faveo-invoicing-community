@@ -2,7 +2,7 @@
 /**
  * BaseDealProductAllOf
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -80,7 +80,7 @@ class BaseDealProductAllOf implements ModelInterface, ArrayAccess, JsonSerializa
         'currency' => 'string',
         'discount' => 'float',
         'discount_type' => 'string',
-        'quantity' => 'int',
+        'quantity' => 'float',
         'item_price' => 'float',
         'tax_method' => 'string',
         'is_enabled' => 'bool'
@@ -318,7 +318,7 @@ class BaseDealProductAllOf implements ModelInterface, ArrayAccess, JsonSerializa
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['id'] = $data['id'] ?? null;
         $this->container['sum'] = $data['sum'] ?? null;
@@ -733,7 +733,7 @@ class BaseDealProductAllOf implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Gets quantity
      *
-     * @return int|null
+     * @return float|null
      */
     public function getQuantity()
     {
@@ -743,7 +743,7 @@ class BaseDealProductAllOf implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Sets quantity
      *
-     * @param int|null $quantity The quantity of the product
+     * @param float|null $quantity The quantity of the product
      *
      * @return self
      */

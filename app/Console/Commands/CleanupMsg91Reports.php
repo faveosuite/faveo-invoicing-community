@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Console\LoggableCommand;
@@ -24,9 +26,9 @@ class CleanupMsg91Reports extends LoggableCommand
     /**
      * Execute the console command.
      */
-    public function handleAndLog()
+    public function handleAndLog(): void
     {
-        $controller = new CronController();
+        $controller = new CronController;
         $controller->msgDeletions();
         $this->info('MSG91 reports have been deleted.');
     }

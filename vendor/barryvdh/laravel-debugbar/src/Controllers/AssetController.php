@@ -1,63 +1,31 @@
 <?php
 
-namespace Barryvdh\Debugbar\Controllers;
+declare(strict_types=1);
 
+namespace Fruitcake\LaravelDebugbar\Controllers;
+
+use DebugBar\AssetHandler;
+use DebugBar\Bridge\Symfony\SymfonyHttpDriver;
+use Fruitcake\LaravelDebugbar\LaravelDebugbar;
+use Fruitcake\LaravelDebugbar\LaravelHttpDriver;
+use Fruitcake\LaravelDebugbar\Requests\AssetRequest;
 use Illuminate\Http\Response;
 
-class AssetController extends BaseController
+class AssetController
 {
-    /**
-     * Return the javascript for the Debugbar
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function js()
+    public function getAssets(AssetRequest $request, AssetHandler $assetHandler, LaravelDebugbar $debugbar): Response
     {
-        $renderer = $this->debugbar->getJavascriptRenderer();
+        $type = $request->validated('type');
 
-        $content = $renderer->dumpAssetsToString('js');
+        $response = new Response();
+        $driver = $debugbar->getHttpDriver();
+        if ($driver instanceof LaravelHttpDriver || $driver instanceof SymfonyHttpDriver) {
+            $driver->setResponse($response);
+        }
 
-        $response = new Response(
-            $content,
-            200,
-            [
-                'Content-Type' => 'text/javascript',
-            ]
-        );
-
-        return $this->cacheResponse($response);
-    }
-
-    /**
-     * Return the stylesheets for the Debugbar
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function css()
-    {
-        $renderer = $this->debugbar->getJavascriptRenderer();
-
-        $content = $renderer->dumpAssetsToString('css');
-
-        $response = new Response(
-            $content,
-            200,
-            [
-                'Content-Type' => 'text/css',
-            ]
-        );
-
-        return $this->cacheResponse($response);
-    }
-
-    /**
-     * Cache the response 1 year (31536000 sec)
-     */
-    protected function cacheResponse(Response $response)
-    {
-        $response->setSharedMaxAge(31536000);
-        $response->setMaxAge(31536000);
-        $response->setExpires(new \DateTime('+1 year'));
+        $assetHandler->handle([
+            'type' => $type,
+        ]);
 
         return $response;
     }

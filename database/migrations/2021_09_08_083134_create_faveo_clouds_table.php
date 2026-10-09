@@ -8,12 +8,10 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('faveo_cloud', function (Blueprint $table) {
+        Schema::create('faveo_cloud', function (Blueprint $table): void {
             $table->id();
             $table->string('cloud_central_domain')->nullable();
             $table->string('cron_server_url')->nullable();
@@ -24,10 +22,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('faveo_cloud');
     }

@@ -8,14 +8,12 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('bussinesses')) {
-            Schema::create('bussinesses', function (Blueprint $table) {
-                $table->integer('id', true);
+            Schema::create('bussinesses', function (Blueprint $table): void {
+                $table->integer('id', autoIncrement: true);
                 $table->string('name', 225)->nullable();
                 $table->string('short', 225)->nullable();
                 $table->timestamps();
@@ -25,10 +23,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('bussinesses');
     }

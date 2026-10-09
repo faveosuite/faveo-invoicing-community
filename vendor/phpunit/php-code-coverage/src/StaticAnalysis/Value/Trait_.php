@@ -11,6 +11,8 @@ namespace SebastianBergmann\CodeCoverage\StaticAnalysis;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final readonly class Trait_
 {
@@ -31,12 +33,12 @@ final readonly class Trait_
     private string $file;
 
     /**
-     * @var non-negative-int
+     * @var positive-int
      */
     private int $startLine;
 
     /**
-     * @var non-negative-int
+     * @var positive-int
      */
     private int $endLine;
 
@@ -54,8 +56,8 @@ final readonly class Trait_
      * @param non-empty-string                $name
      * @param non-empty-string                $namespacedName
      * @param non-empty-string                $file
-     * @param non-negative-int                $startLine
-     * @param non-negative-int                $endLine
+     * @param positive-int                    $startLine
+     * @param positive-int                    $endLine
      * @param list<non-empty-string>          $traits
      * @param array<non-empty-string, Method> $methods
      */
@@ -106,7 +108,7 @@ final readonly class Trait_
     }
 
     /**
-     * @return non-negative-int
+     * @return positive-int
      */
     public function startLine(): int
     {
@@ -114,7 +116,7 @@ final readonly class Trait_
     }
 
     /**
-     * @return non-negative-int
+     * @return positive-int
      */
     public function endLine(): int
     {

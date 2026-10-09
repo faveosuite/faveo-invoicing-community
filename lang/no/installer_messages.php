@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'title' => 'Agora Fakturering Installer',
     'probe' => 'Agora Faktureringsundersøkelser',
     'magic_phrase' => 'Hva er den magiske setningen',
@@ -20,7 +19,6 @@ return [
     'off_apache' => 'AV (Hvis du bruker Apache, sørg for at <var><strong>AllowOverride</strong></var> er satt til <var><strong>All</strong></var> i apache-konfigurasjonen)',
     'rewrite_engine' => 'Omskriv motor',
     'user_url' => 'Brukervennlig URL',
-
     'host' => 'Vert',
     'host_tooltip' => 'Hvis MySQL er installert på samme server som Agora Fakturering, kan du la det stå som localhost',
     'database_name_label' => 'Databasenavn',
@@ -30,7 +28,6 @@ return [
     'password_label' => 'Passord',
     'test_prerequisites_message' => 'Denne testen vil sjekke nødvendige forutsetninger for å installere Agora Fakturering',
     'previous' => 'Forrige',
-
     'sign_up_as_admin' => 'Registrer deg som Admin',
     'first_name' => 'Fornavn',
     'first_name_required' => 'Fornavn er påkrevd',
@@ -44,14 +41,27 @@ return [
     'confirm_password_required' => 'Bekreft passord er påkrevd',
     'password_requirements' => 'Passordet ditt må ha:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => 'Mellom 8-16 tegn'],
-        ['id' => 'letter', 'text' => 'Små bokstaver (a-z)'],
-        ['id' => 'capital', 'text' => 'Store bokstaver (A-Z)'],
-        ['id' => 'number', 'text' => 'Tall (0-9)'],
-        ['id' => 'space', 'text' => 'Spesialtegn (~*!@$#%_+.?:,{ })'],
+        [
+            'id' => 'length',
+            'text' => 'Mellom 8-16 tegn',
+        ],
+        [
+            'id' => 'letter',
+            'text' => 'Små bokstaver (a-z)',
+        ],
+        [
+            'id' => 'capital',
+            'text' => 'Store bokstaver (A-Z)',
+        ],
+        [
+            'id' => 'number',
+            'text' => 'Tall (0-9)',
+        ],
+        [
+            'id' => 'space',
+            'text' => 'Spesialtegn (~*!@$#%_+.?:,{ })',
+        ],
     ],
-
-    // System Information
     'system_information' => 'Systeminformasjon',
     'environment' => 'Miljø',
     'environment_required' => 'Miljø er påkrevd',
@@ -63,42 +73,29 @@ return [
     'file' => 'Fil',
     'redis' => 'Redis',
     'password' => 'Passord',
-
-    // Redis Setup
     'redis_setup' => 'Redis-oppsett',
     'redis_host' => 'Redis-vert',
     'redis_port' => 'Redis-port',
     'redis_password' => 'Redis-passord',
-
-    // Buttons
     'continue' => 'Fortsett',
-
-    // Final Setup
     'final_setup' => 'Din Agora Fakturering-applikasjon er klar!',
     'installation_complete' => 'Alt er klart, sparky! Du har fullført installasjonen.',
-
-    // Learn More
     'learn_more' => 'Lær mer',
     'knowledge_base' => 'Kunnskapsbase',
     'email_support' => 'E-poststøtte',
-
-    // Next Step
     'next_step' => 'Neste steg',
     'login_button' => 'Logg inn på Agora Fakturering',
-
     'pre_migration_success' => 'Pre-migrering har blitt testet vellykket',
     'migrating_tables' => 'Migrerer tabeller i databasen',
     'db_connection_error' => 'Databaseforbindelsen ble ikke oppdatert.',
     'database_setup_success' => 'Database har blitt satt opp vellykket.',
     'env_file_created' => 'Miljøkonfigurasjonsfil har blitt opprettet vellykket',
     'pre_migration_test' => 'Kjører pre-migreringstest',
-
     'redis_host_required' => 'Redis-vert er påkrevd.',
     'redis_password_required' => 'Redis-passord er påkrevd.',
     'redis_port_required' => 'Redis-port er påkrevd.',
     'password_regex' => 'Passordet må inneholde minst 8 tegn, én stor bokstav, én liten bokstav, ett tall og ett spesialtegn.',
     'setup_completed' => 'Oppsett fullført vellykket!',
-
     'database' => 'Database',
     'selected' => 'Valgt',
     'mysql_version_is' => 'MySQL-versjonen er',
@@ -114,7 +111,6 @@ return [
     'user_name' => 'Brukernavn',
     'user_email' => 'Brukerens e-post',
     'password_not_match' => 'Passordene stemmer ikke overens',
-    //new
     'installation_check' => 'Denne testen vil sjekke nødvendige forutsetninger for å installere Agora Invoice Community',
     'db_setup_error_1' => 'Dette betyr enten at brukernavn og passordinformasjon er feil eller at verten din ikke er tilgjengelig.',
     'db_setup_error_2' => 'Er du sikker på at du har en database som allerede eksisterer med det oppgitte databasenavnet?',
@@ -144,17 +140,11 @@ return [
     'i_accept' => 'Jeg aksepterer',
     'enter_license' => 'Vennligst skriv inn lisenskoden din for',
     'find_license_in_billing' => 'Du kan finne lisenskoden din i vårt faktureringsportal',
-    'sign_up_as_admin' => 'Registrer deg som Admin',
-    'system_information' => 'Systeminformasjon',
     'close' => 'Lukk',
     'port_number' => 'Portnummer',
     'is_required' => 'er påkrevd',
     'firstname' => 'Fornavn',
     'lastname' => 'Etternavn',
-    'username' => 'Brukernavn',
-    'email' => 'E-post',
-    'password' => 'Passord',
-    'confirm_password' => 'Bekreft passord',
     'copyright' => 'Copyright',
     'powered_by' => 'Alle rettigheter reservert. Drevet av',
     'invalid_email' => 'Ugyldig e-post',
@@ -164,5 +154,4 @@ return [
     'tooltip_timezone' => 'Nettleserens tidssone brukes initialt. Velg en annen tidssone hvis nødvendig.',
     'tooltip_language' => 'Initialt lastet standard språk. Velg et annet språk hvis nødvendig.',
     'enter_magic_phrase' => 'Skriv inn magisk setning',
-
 ];

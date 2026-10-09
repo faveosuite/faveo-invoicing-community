@@ -17,7 +17,7 @@ Method | HTTP request | Description
 ## `addFile()`
 
 ```php
-addFile($file, $deal_id, $person_id, $org_id, $product_id, $activity_id, $lead_id): \Pipedrive\versions\v1\Model\AddFile
+addFile($file, $deal_id, $person_id, $org_id, $product_id, $activity_id, $lead_id, $project_id): \Pipedrive\versions\v1\Model\AddFile
 ```
 
 Add file
@@ -53,9 +53,10 @@ $org_id = 56; // int | The ID of the organization to associate file(s) with
 $product_id = 56; // int | The ID of the product to associate file(s) with
 $activity_id = 56; // int | The ID of the activity to associate file(s) with
 $lead_id = 'lead_id_example'; // string | The ID of the lead to associate file(s) with
+$project_id = 56; // int | The ID of the project to associate file(s) with
 
 try {
-    $result = $apiInstance->addFile($file, $deal_id, $person_id, $org_id, $product_id, $activity_id, $lead_id);
+    $result = $apiInstance->addFile($file, $deal_id, $person_id, $org_id, $product_id, $activity_id, $lead_id, $project_id);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling FilesApi->addFile: ', $e->getMessage(), PHP_EOL;
@@ -73,6 +74,7 @@ Name | Type | Description  | Notes
  **product_id** | **int**| The ID of the product to associate file(s) with | [optional]
  **activity_id** | **int**| The ID of the activity to associate file(s) with | [optional]
  **lead_id** | **string**| The ID of the lead to associate file(s) with | [optional]
+ **project_id** | **int**| The ID of the project to associate file(s) with | [optional]
 
 ### Return type
 

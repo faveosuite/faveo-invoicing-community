@@ -2,7 +2,7 @@
 /**
  * ActivityRequestBody
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -287,7 +287,7 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['subject'] = $data['subject'] ?? null;
         $this->container['type'] = $data['type'] ?? null;

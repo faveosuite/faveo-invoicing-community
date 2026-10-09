@@ -19,14 +19,20 @@ use function sprintf;
 final readonly class PlainTextRenderer
 {
     /**
-     * @param array<string, TestResultCollection> $tests
+     * @param array<class-string, TestResultCollection> $tests
      */
     public function render(array $tests): string
     {
         $buffer = '';
 
-        foreach ($tests as $prettifiedClassName => $_tests) {
-            $buffer .= $prettifiedClassName . "\n";
+        foreach ($tests as $_tests) {
+            $list = $_tests->asArray();
+
+            if ($list === []) {
+                continue;
+            }
+
+            $buffer .= $list[0]->test()->testDox()->prettifiedClassName() . "\n";
 
             foreach ($this->reduce($_tests) as $prettifiedMethodName => $outcome) {
                 $buffer .= sprintf(

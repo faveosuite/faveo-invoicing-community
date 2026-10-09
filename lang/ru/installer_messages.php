@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'title' => 'Установщик Agora Invoicing',
     'probe' => 'Пробники Agora Invoicing',
     'magic_phrase' => 'Какова волшебная фраза?',
@@ -20,6 +19,7 @@ return [
     'off_apache' => 'ВЫКЛЮЧЕНО (Если вы используете Apache, убедитесь, что <var><strong>AllowOverride</strong></var> установлено в <var><strong>All</strong></var> в конфигурации Apache)',
     'rewrite_engine' => 'Механизм переписывания',
     'user_url' => 'Дружелюбный URL',
+    'host' => 'Хост',
     'host_tooltip' => 'Если ваш MySQL установлен на том же сервере, что и Agora Invoicing, установите значение "localhost"',
     'database_name_label' => 'Имя базы данных',
     'mysql_port_label' => 'Номер порта MySQL',
@@ -28,7 +28,6 @@ return [
     'password_label' => 'Пароль',
     'test_prerequisites_message' => 'Этот тест проверит предварительные требования для установки Agora Invoicing',
     'previous' => 'Предыдущий',
-
     'sign_up_as_admin' => 'Зарегистрироваться как администратор',
     'first_name' => 'Имя',
     'first_name_required' => 'Имя обязательно',
@@ -42,14 +41,27 @@ return [
     'confirm_password_required' => 'Подтверждение пароля обязательно',
     'password_requirements' => 'Ваш пароль должен содержать:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => 'От 8 до 16 символов'],
-        ['id' => 'letter', 'text' => 'Строчные буквы (a-z)'],
-        ['id' => 'capital', 'text' => 'Заглавные буквы (A-Z)'],
-        ['id' => 'number', 'text' => 'Цифры (0-9)'],
-        ['id' => 'space', 'text' => 'Специальные символы (~*!@$#%_+.?:,{ })'],
+        [
+            'id' => 'length',
+            'text' => 'От 8 до 16 символов',
+        ],
+        [
+            'id' => 'letter',
+            'text' => 'Строчные буквы (a-z)',
+        ],
+        [
+            'id' => 'capital',
+            'text' => 'Заглавные буквы (A-Z)',
+        ],
+        [
+            'id' => 'number',
+            'text' => 'Цифры (0-9)',
+        ],
+        [
+            'id' => 'space',
+            'text' => 'Специальные символы (~*!@$#%_+.?:,{ })',
+        ],
     ],
-
-    // System Information
     'system_information' => 'Информация о системе',
     'environment' => 'Окружение',
     'environment_required' => 'Окружение обязательно',
@@ -61,42 +73,29 @@ return [
     'file' => 'Файл',
     'redis' => 'Redis',
     'password' => 'Пароль',
-
-    // Redis Setup
     'redis_setup' => 'Настройка Redis',
     'redis_host' => 'Хост Redis',
     'redis_port' => 'Порт Redis',
     'redis_password' => 'Пароль Redis',
-
-    // Buttons
     'continue' => 'Продолжить',
-
-    // Final Setup
     'final_setup' => 'Ваша приложение Agora Invoicing готово!',
     'installation_complete' => 'Все готово! Вы прошли через установку.',
-
-    // Learn More
     'learn_more' => 'Узнать больше',
     'knowledge_base' => 'База знаний',
     'email_support' => 'Электронная почта поддержки',
-
-    // Next Step
     'next_step' => 'Следующий шаг',
     'login_button' => 'Войти в Agora Invoicing',
-
     'pre_migration_success' => 'Предварительная миграция прошла успешно',
     'migrating_tables' => 'Миграция таблиц в базе данных',
     'db_connection_error' => 'Ошибка обновления соединения с базой данных.',
     'database_setup_success' => 'База данных успешно настроена.',
     'env_file_created' => 'Файл конфигурации окружения был успешно создан',
     'pre_migration_test' => 'Запуск предварительного теста миграции',
-
     'redis_host_required' => 'Хост Redis обязателен.',
     'redis_password_required' => 'Пароль Redis обязателен.',
     'redis_port_required' => 'Порт Redis обязателен.',
     'password_regex' => 'Пароль должен содержать хотя бы 8 символов, одну заглавную букву, одну строчную букву, одну цифру и один специальный символ.',
     'setup_completed' => 'Настройка успешно завершена!',
-
     'database' => 'База данных',
     'selected' => 'Выбрано',
     'mysql_version_is' => 'Версия MySQL',
@@ -109,6 +108,9 @@ return [
     'magic_phrase_not_work' => 'Введенная вами волшебная фраза не работает.',
     'magic_required' => 'Волшебная фраза обязательна.',
     'user_name_regex' => 'Имя пользователя должно содержать от 3 до 20 символов и может включать только буквы, цифры, пробелы, подчеркивания, дефисы, точки и символ @.',
+    'user_name' => 'Имя пользователя',
+    'user_email' => 'Электронная почта пользователя',
+    'password_not_match' => 'Пароли не совпадают',
     'installation_check' => 'Этот тест проверит требования, необходимые для установки Network Discovery',
     'db_setup_error_1' => 'Это означает, что информация о пользователе и пароле неправильная или ваш хост недоступен.',
     'db_setup_error_2' => 'Вы уверены, что у вас уже существует база данных с указанным именем базы данных?',
@@ -128,7 +130,6 @@ return [
     'click_here' => 'Нажмите здесь',
     'continue_installation_process' => 'чтобы продолжить процесс установки.',
     'database_details' => 'Введите данные для подключения к вашей базе данных.',
-    'host' => 'Хост',
     'sql_port' => 'Номер порта MySQL',
     'database_name' => 'Имя базы данных',
     'finishing_setup' => 'Пожалуйста, подождите, завершение настройки...',
@@ -139,17 +140,11 @@ return [
     'i_accept' => 'Я принимаю',
     'enter_license' => 'Введите свой лицензионный код для',
     'find_license_in_billing' => 'Вы можете найти свой лицензионный код в нашем портале для выставления счетов',
-    'sign_up_as_admin' => 'Зарегистрироваться как администратор',
-    'system_information' => 'Информация о системе',
     'close' => 'Закрыть',
     'port_number' => 'Номер порта',
     'is_required' => 'обязательно для заполнения',
     'firstname' => 'Имя',
     'lastname' => 'Фамилия',
-    'username' => 'Имя пользователя',
-    'email' => 'Электронная почта',
-    'password' => 'Пароль',
-    'confirm_password' => 'Подтвердите пароль',
     'copyright' => 'Авторское право',
     'powered_by' => 'Все права защищены. Работает на',
     'invalid_email' => 'Неверный email',
@@ -158,7 +153,5 @@ return [
     'language' => 'Язык',
     'tooltip_timezone' => 'Изначально используется часовой пояс браузера. Выберите другой часовой пояс, если необходимо.',
     'tooltip_language' => 'Изначально загруженный язык по умолчанию. Выберите другой язык, если необходимо.',
-    'password_not_match' => 'Пароли не совпадают',
     'enter_magic_phrase' => 'Введите магическую фразу',
-
 ];

@@ -29,7 +29,6 @@ return [
     'inspire' => 'Mostra una citazione ispiratrice',
     'renewal:cron' => 'Cron di rinnovo automatico',
     'mail-send-exception' => 'Eccezione invio email',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => 'Notifica di rinnovo scaduta',
     'renewal:notification' => 'Notifica di rinnovo automatico',
     'cleanup:msg-reports' => 'Pulizia report MSG91',
@@ -40,11 +39,8 @@ return [
     'droptables' => 'Elimina tutte le tabelle',
     'install:db' => 'Installa database',
     'testing-setup' => 'Configura ambiente di test',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'Invio in coda riuscito',
-    // Added missing UI texts
     'cancel' => 'Annulla',
-    // Added missing messages from blade file
     'system_logs' => 'Log di sistema',
     'filter_logs' => 'Filtra log',
     'logs' => 'Log',
@@ -101,4 +97,5 @@ return [
     'confirm_old_email' => 'Conferma la vecchia email',
     'confirm_mobile_number_change' => 'Conferma la modifica del numero di cellulare',
     'logs:delete' => 'Elimina log di sistema',
+    'date' => 'Data',
 ];

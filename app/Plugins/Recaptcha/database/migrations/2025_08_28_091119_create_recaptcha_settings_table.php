@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('recaptcha_settings', function (Blueprint $table) {
+        Schema::create('recaptcha_settings', function (Blueprint $table): void {
             $table->id();
 
             // Keys

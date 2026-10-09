@@ -2,7 +2,7 @@
 /**
  * PictureDataWithValue
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -73,7 +73,7 @@ class PictureDataWithValue implements ModelInterface, ArrayAccess, JsonSerializa
         'add_time' => 'string',
         'update_time' => 'string',
         'added_by_user_id' => 'int',
-        'pictures' => '\Pipedrive\versions\v1\Model\PictureDataPictures'
+        'pictures' => '\Pipedrive\versions\v1\Model\PictureDataWithID1Pictures'
     ];
 
     /**
@@ -232,7 +232,7 @@ class PictureDataWithValue implements ModelInterface, ArrayAccess, JsonSerializa
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['value'] = $data['value'] ?? null;
         $this->container['item_type'] = $data['item_type'] ?? null;
@@ -441,7 +441,7 @@ class PictureDataWithValue implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Gets pictures
      *
-     * @return \Pipedrive\versions\v1\Model\PictureDataPictures|null
+     * @return \Pipedrive\versions\v1\Model\PictureDataWithID1Pictures|null
      */
     public function getPictures()
     {
@@ -451,7 +451,7 @@ class PictureDataWithValue implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Sets pictures
      *
-     * @param \Pipedrive\versions\v1\Model\PictureDataPictures|null $pictures pictures
+     * @param \Pipedrive\versions\v1\Model\PictureDataWithID1Pictures|null $pictures pictures
      *
      * @return self
      */

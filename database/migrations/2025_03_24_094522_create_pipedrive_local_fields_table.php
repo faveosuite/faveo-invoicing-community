@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pipedrive_local_fields', function (Blueprint $table) {
+        Schema::create('pipedrive_local_fields', function (Blueprint $table): void {
             $table->id();
             $table->string('field_name'); // Display name
             $table->string('field_key')->nullable(); // API field key

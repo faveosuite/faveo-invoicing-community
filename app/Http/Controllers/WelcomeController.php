@@ -3,67 +3,46 @@
 namespace App\Http\Controllers;
 
 use App\Model\Common\Country;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Yajra\DataTables\DataTables;
 
 class WelcomeController extends Controller
 {
-    private $request;
-
-    public function __construct(Request $request)
+    public function __construct()
     {
         $this->middleware('auth', ['except' => ['getCode']]);
-        $this->request = $request;
     }
 
-    public function getCode()
+    /**
+     * Get country list with user count.
+     */
+    public function getCountry(Request $request): JsonResponse
     {
-        $code = '';
-        $country = new Country();
-        $country_iso2 = $this->request->get('country_id');
-        $model = $country->where('country_code_char2', $country_iso2)->select('phonecode')->first();
-        if ($model) {
-            $code = $model->phonecode;
+        try {
+            $searchQuery = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'country_name');
+            $limit = $request->input('limit', 10);
+
+            $countryList = Country::withCount('users')
+                ->where('country_name', '!=', '')
+                ->when($searchQuery, function ($query, string $searchQuery): void {
+                    $query->where('country_name', 'like', sprintf('%%%s%%', $searchQuery));
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->paginate($limit);
+
+            $countryList->getCollection()->transform(fn ($country): array => [
+                'id' => $country->country_id,
+                'country' => ucfirst($country->country_name ?? ''),
+                'code' => $country->country_code_char2 ?? '',
+                'count' => $country->users_count ?? 0,
+            ]);
+
+            return successResponse('', $countryList);
+        } catch (Exception) {
+            return errorResponse(__('message.something_went_wrong'), 500);
         }
-
-        return $code;
-    }
-
-    public function getCurrency()
-    {
-        $currency = 'INR';
-        $country_iso2 = $this->request->get('country_id');
-        if ($country_iso2 != 'IN') {
-            $currency = 'USD';
-        }
-
-        return $currency;
-    }
-
-    public function getCountry()
-    {
-        return view('themes.default1.common.country-count');
-    }
-
-    public function countryCount()
-    {
-        $users = Country::query()
-            ->select('country_name', 'country_code_char2 as code')
-            ->withCount('users');
-
-        return DataTables::of($users)
-            ->addColumn('country', function ($model) {
-                return ucfirst($model->country_name);
-            })
-            ->addColumn('count', function ($model) {
-                return '<a href="'.url('clients?country='.$model->code).'">'
-                    .$model->users_count.'</a>';
-            })
-            ->orderColumn('count', 'users_count $1')
-            ->filterColumn('country', function ($query, $keyword) {
-                $query->where('country_name', 'like', "%{$keyword}%");
-            })
-            ->rawColumns(['count'])
-            ->make(true);
     }
 }

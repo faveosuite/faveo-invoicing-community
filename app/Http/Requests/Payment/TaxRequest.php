@@ -1,17 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
+use App\Traits\RequestJsonValidation;
+use Override;
 
 class TaxRequest extends Request
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -19,21 +23,22 @@ class TaxRequest extends Request
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'name' => 'required',
-            'rate' => 'required|numeric',
-            'level' => 'required|integer',
-            'country' => 'required',
-            'state' => 'required',
+            'name' => ['required'],
+            'rate' => ['required', 'numeric'],
+            'level' => ['required', 'integer'],
+            'country' => ['required'],
+            'state' => ['required'],
             // 'country' => 'exists:countries,country_id',
             // 'state'   => 'exists:states,state_subdivision_id',
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

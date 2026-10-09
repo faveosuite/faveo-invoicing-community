@@ -9,7 +9,7 @@
  */
 namespace PHPUnit\Event\Code;
 
-use function count;
+use function assert;
 use Iterator;
 
 /**
@@ -29,6 +29,9 @@ final class TestCollectionIterator implements Iterator
      */
     private int $position = 0;
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(TestCollection $tests)
     {
         $this->tests = $tests->asArray();
@@ -41,7 +44,7 @@ final class TestCollectionIterator implements Iterator
 
     public function valid(): bool
     {
-        return $this->position < count($this->tests);
+        return isset($this->tests[$this->position]);
     }
 
     /**
@@ -54,6 +57,8 @@ final class TestCollectionIterator implements Iterator
 
     public function current(): Test
     {
+        assert(isset($this->tests[$this->position]));
+
         return $this->tests[$this->position];
     }
 

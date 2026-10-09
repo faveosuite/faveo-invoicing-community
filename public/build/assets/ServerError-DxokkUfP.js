@@ -1,0 +1,1 @@
+import{U as e,t,y as n}from"./vue.esm-bundler-BtBz4Xsg.js";import{t as r}from"./AdminErrorPage-DALw_mVt.js";t();var i={__name:`ServerError`,setup(t){return(t,i)=>(e(),n(r,{code:`500`,color:`danger`,title:t.__(`message.server_error`),description:t.__(`message.server_error_desc`)},null,8,[`title`,`description`]))}};export{i as default};

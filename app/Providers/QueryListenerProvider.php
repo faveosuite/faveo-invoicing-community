@@ -2,31 +2,29 @@
 
 namespace App\Providers;
 
+use Clockwork;
+use DB;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class QueryListenerProvider extends ServiceProvider
 {
     /**
      * Register services.
-     *
-     * @return void
      */
-    public function register()
+    #[Override]
+    public function register(): void
     {
         //
     }
 
     /**
      * Bootstrap services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
-        \DB::listen(function ($query) {
-            \Clockwork::info($query->sql, [$query->time]);
+        DB::listen(function ($query): void {
+            Clockwork::info($query->sql, [$query->time]); // @phpstan-ignore staticMethod.notFound
         });
-
-        $this->app['router']->aliasMiddleware('clockwork', ClockworkMiddleware::class);
     }
 }

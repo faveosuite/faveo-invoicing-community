@@ -1,0 +1,6 @@
+<?php
+
+namespace Illuminate\Database\Eloquent\Concerns;
+
+/** @phpstan-require-extends \Illuminate\Database\Eloquent\Model */
+trait HasRelationships {}

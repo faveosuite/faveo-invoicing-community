@@ -143,6 +143,11 @@ if (defined('T_PRIVATE_SET') === false) {
     define('T_PRIVATE_SET', 'PHPCS_T_PRIVATE_SET');
 }
 
+// Some PHP 8.5 tokens, replicated for lower versions.
+if (defined('T_VOID_CAST') === false) {
+    define('T_VOID_CAST', 'PHPCS_T_VOID_CAST');
+}
+
 // Tokens used for parsing doc blocks.
 define('T_DOC_COMMENT_STAR', 'PHPCS_T_DOC_COMMENT_STAR');
 define('T_DOC_COMMENT_WHITESPACE', 'PHPCS_T_DOC_COMMENT_WHITESPACE');
@@ -266,6 +271,7 @@ final class Tokens
         T_OBJECT_CAST => T_OBJECT_CAST,
         T_UNSET_CAST  => T_UNSET_CAST,
         T_BINARY_CAST => T_BINARY_CAST,
+        T_VOID_CAST   => T_VOID_CAST,
     ];
 
     /**

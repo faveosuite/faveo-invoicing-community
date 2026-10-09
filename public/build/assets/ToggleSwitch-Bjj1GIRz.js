@@ -1,0 +1,1 @@
+import{J as e,U as t,t as n,x as r}from"./vue.esm-bundler-BtBz4Xsg.js";import{t as i}from"./_plugin-vue_export-helper-BDNMzG2s.js";n();var a={},o={class:`toggleswitch-wrapper`};function s(n,i){return t(),r(`div`,o,[e(n.$slots,`default`)])}var c=i(a,[[`render`,s]]);export{c as default};

@@ -2,7 +2,7 @@
 /**
  * ActivityInfo
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -217,7 +217,7 @@ class ActivityInfo implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['next_activity_date'] = $data['next_activity_date'] ?? null;
         $this->container['next_activity_time'] = $data['next_activity_time'] ?? null;

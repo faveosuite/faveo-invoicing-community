@@ -7,6 +7,8 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
+use Logger;
+use Throwable;
 
 class RecaptchaMiddleware
 {
@@ -32,7 +34,7 @@ class RecaptchaMiddleware
 
         return match ($settings->captcha_version) {
             'v3_invisible' => $this->handleV3Invisible($request, $recaptchaResponse, $action, $settings, $next),
-            'v2_checkbox', 'v2_invisible' => $this->handleV2($request, $recaptchaResponse, $settings, $next),
+            'v2_checkbox', 'v2_invisible' => $this->handleV2($recaptchaResponse, $settings, $next),
             default => $next($request),
         };
     }
@@ -44,23 +46,30 @@ class RecaptchaMiddleware
         RecaptchaSetting $settings,
         Closure $next
     ): mixed {
-        $pageId = $request->input('page_id');
-        if (! $pageId) {
-            return errorResponse(__('recaptcha::recaptcha.captcha_message'), 422);
-        }
+        $sessionKey = $this->getSessionKey($action);
 
-        $sessionKey = $this->getSessionKey($action, $pageId);
-
-        // Handle failover mode (V2 verification)
+        // Failover mode: this action was switched to the v2 checkbox after a low v3 score.
         if (Session::get($sessionKey)) {
-            return $this->verifyV2($recaptchaResponse, $settings, $next);
+            if ($this->passesV2($recaptchaResponse, $settings)) {
+                // One solved checkbox clears it — otherwise the action stays v2-only for the whole session.
+                Session::forget($sessionKey);
+
+                return $next($request);
+            }
+
+            // Still ask for the checkbox: after a reload the form is back on v3 and must be told to switch again.
+            return successResponse(
+                __('recaptcha::recaptcha.captcha_message'),
+                ['show_v2_recaptcha' => true],
+                422
+            );
         }
 
         // Primary V3 verification
         $verification = $this->verify(
-            $settings->v3_secret_key,
+            (string) $settings->v3_secret_key,
             $recaptchaResponse,
-            $request->ip(),
+            (string) $request->ip(),
             $request->getHost()
         );
 
@@ -72,7 +81,7 @@ class RecaptchaMiddleware
         // If token is valid but score is too low, trigger fallback
         if ($isTokenValid && ($verification['score'] ?? 0) < $settings->score_threshold) {
             if ($settings->failover_action === 'v2_checkbox') {
-                Session::put($sessionKey, true);
+                Session::put($sessionKey, value: true);
 
                 return successResponse(
                     __('recaptcha::recaptcha.captcha_message'),
@@ -94,7 +103,6 @@ class RecaptchaMiddleware
     }
 
     private function handleV2(
-        Request $request,
         string $recaptchaResponse,
         RecaptchaSetting $settings,
         Closure $next
@@ -104,32 +112,45 @@ class RecaptchaMiddleware
 
     private function verifyV2(string $response, RecaptchaSetting $settings, Closure $next): mixed
     {
-        $verification = $this->verify(
-            $settings->v2_secret_key,
-            $response,
-            request()->ip()
-        );
-
-        return $verification['success']
+        return $this->passesV2($response, $settings)
             ? $next(request())
             : errorResponse(__('recaptcha::recaptcha.captcha_message'), 422);
     }
 
-    private function verify(string $secretKey, string $response, string $ip, ?string $hostname = null): array
+    private function passesV2(string $response, RecaptchaSetting $settings): bool
     {
-        return Http::asForm()->post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            array_filter([
-                'secret' => $secretKey,
-                'response' => $response,
-                'remoteip' => $ip,
-                'hostname' => $hostname,
-            ])
-        )->json();
+        $verification = $this->verify((string) $settings->v2_secret_key, $response, (string) request()->ip());
+
+        return (bool) ($verification['success'] ?? false);
     }
 
-    private function getSessionKey(string $action, string $pageId): string
+    /**
+     * @return array<mixed>
+     */
+    private function verify(string $secretKey, string $response, string $ip, ?string $hostname = null): array
     {
-        return "recaptcha_v2_fallback_{$action}_{$pageId}";
+        try {
+            $result = Http::asForm()->timeout(10)->post(
+                'https://www.google.com/recaptcha/api/siteverify',
+                array_filter([
+                    'secret' => $secretKey,
+                    'response' => $response,
+                    'remoteip' => $ip,
+                    'hostname' => $hostname,
+                ])
+            )->json();
+        } catch (Throwable $exception) {
+            // Google unreachable: fail closed with the normal captcha error instead of a 500.
+            Logger::exception($exception);
+
+            return [];
+        }
+
+        return is_array($result) ? $result : [];
+    }
+
+    private function getSessionKey(string $action): string
+    {
+        return 'recaptcha_v2_fallback_'.$action;
     }
 }

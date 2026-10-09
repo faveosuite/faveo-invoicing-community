@@ -1,7 +1,7 @@
 <?php
 /**
  * LeadsApi
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -83,9 +83,9 @@ class LeadsApi
      * @param int                  $hostIndex (Optional) host index to select the list of hosts if defined in the OpenAPI spec
      */
     public function __construct(
-        ClientInterface $client = null,
-        Configuration $config = null,
-        HeaderSelector $selector = null,
+        ?ClientInterface $client = null,
+        ?Configuration $config = null,
+        ?HeaderSelector $selector = null,
         int $hostIndex = 0
     ) {
         $this->client = $client ?: new Client();
@@ -125,7 +125,7 @@ class LeadsApi
     /**
      * Operation convertLeadToDeal
      *
-     * Convert a lead to a deal (BETA)
+     * Convert a lead to a deal
      *
      * @param  string $id The ID of the lead to convert (required)
      * @param  \Pipedrive\versions\v2\Model\InlineObject|null $inline_object inline_object (optional)
@@ -143,7 +143,7 @@ class LeadsApi
     /**
      * Operation convertLeadToDealWithHttpInfo
      *
-     * Convert a lead to a deal (BETA)
+     * Convert a lead to a deal
      *
      * @param  string $id The ID of the lead to convert (required)
      * @param  \Pipedrive\versions\v2\Model\InlineObject|null $inline_object (optional)
@@ -266,7 +266,7 @@ class LeadsApi
     /**
      * Operation convertLeadToDealAsync
      *
-     * Convert a lead to a deal (BETA)
+     * Convert a lead to a deal
      *
      * @param  string $id The ID of the lead to convert (required)
      * @param  \Pipedrive\versions\v2\Model\InlineObject|null $inline_object (optional)
@@ -287,7 +287,7 @@ class LeadsApi
     /**
      * Operation convertLeadToDealAsyncWithHttpInfo
      *
-     * Convert a lead to a deal (BETA)
+     * Convert a lead to a deal
      *
      * @param  string $id The ID of the lead to convert (required)
      * @param  \Pipedrive\versions\v2\Model\InlineObject|null $inline_object (optional)
@@ -453,7 +453,7 @@ class LeadsApi
     /**
      * Operation getLeadConversionStatus
      *
-     * Get Lead conversion status (BETA)
+     * Get Lead conversion status
      *
      * @param  string $id The ID of a lead (required)
      * @param  string $conversion_id The ID of the conversion (required)
@@ -470,7 +470,7 @@ class LeadsApi
     /**
      * Operation getLeadConversionStatusWithHttpInfo
      *
-     * Get Lead conversion status (BETA)
+     * Get Lead conversion status
      *
      * @param  string $id The ID of a lead (required)
      * @param  string $conversion_id The ID of the conversion (required)
@@ -532,7 +532,7 @@ class LeadsApi
     /**
      * Operation getLeadConversionStatusAsync
      *
-     * Get Lead conversion status (BETA)
+     * Get Lead conversion status
      *
      * @param  string $id The ID of a lead (required)
      * @param  string $conversion_id The ID of the conversion (required)
@@ -553,7 +553,7 @@ class LeadsApi
     /**
      * Operation getLeadConversionStatusAsyncWithHttpInfo
      *
-     * Get Lead conversion status (BETA)
+     * Get Lead conversion status
      *
      * @param  string $id The ID of a lead (required)
      * @param  string $conversion_id The ID of the conversion (required)

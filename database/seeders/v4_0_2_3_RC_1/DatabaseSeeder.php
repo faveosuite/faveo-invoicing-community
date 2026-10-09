@@ -5,7 +5,6 @@ namespace Database\Seeders\v4_0_2_3_RC_1;
 use App\FileSystemSettings;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -18,7 +17,8 @@ class DatabaseSeeder extends Seeder
         $this->fileSystemSeeder();
         $this->templateSeeder();
     }
-    public function fileSystemSeeder()
+
+    public function fileSystemSeeder(): void
     {
         FileSystemSettings::create([
             'disk' => 'system',
@@ -26,9 +26,9 @@ class DatabaseSeeder extends Seeder
         ]);
     }
 
-    public function templateSeeder()
+    public function templateSeeder(): void
     {
-        Template::where('id',2)->update(['data' =>'<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 2)->update(['data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>
@@ -75,7 +75,6 @@ class DatabaseSeeder extends Seeder
         </tbody>
         </table>
         <p>&nbsp;</p>']);
-
 
         TemplateType::create([
             'id' => 24,
@@ -135,7 +134,7 @@ class DatabaseSeeder extends Seeder
         </tr>
     </tbody>
 </table>
-'
+',
         ]);
     }
 }

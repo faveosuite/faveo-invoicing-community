@@ -1,0 +1,1 @@
+function e(e){if(!e)return;let t=document.querySelector(`meta[name="description"]`);t||(t=document.createElement(`meta`),t.setAttribute(`name`,`description`),document.head.appendChild(t)),t.setAttribute(`content`,e)}export{e as t};

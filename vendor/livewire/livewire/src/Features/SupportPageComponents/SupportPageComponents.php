@@ -5,7 +5,7 @@ namespace Livewire\Features\SupportPageComponents;
 use function Livewire\{on, off, once};
 use Livewire\Drawer\ImplicitRouteBinding;
 use Livewire\ComponentHook;
-use Livewire\Features\SupportRouting\LivewirePageController;
+use Livewire\Mechanisms\HandleRouting\LivewirePageController;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -142,6 +142,14 @@ class SupportPageComponents extends ComponentHook
             }
 
             throw $exception;
+        }
+
+        // Merge lazy/defer route defaults so that ->lazy() and ->defer()
+        // route macros work even when the component has no mount() method...
+        foreach (['lazy', 'defer'] as $key) {
+            if (array_key_exists($key, $route->defaults) && ! array_key_exists($key, $params)) {
+                $params[$key] = $route->defaults[$key];
+            }
         }
 
         return $params;

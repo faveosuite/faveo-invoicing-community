@@ -2,6 +2,8 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Collection;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -11,22 +13,24 @@ class UsersExport implements FromCollection, WithHeadings, WithTitle
 {
     use Exportable;
 
-    protected $selectedColumns;
-    protected $usersData;
-    protected $sheetIndex;
-
-    public function __construct($selectedColumns, $usersData, $sheetIndex)
+    /**
+     * @param  Enumerable<covariant int|string, covariant mixed>  $usersData
+     */
+    public function __construct(protected mixed $selectedColumns, protected Enumerable $usersData, protected mixed $sheetIndex)
     {
-        $this->selectedColumns = $selectedColumns;
-        $this->usersData = $usersData;
-        $this->sheetIndex = $sheetIndex;
     }
 
-    public function collection()
+    /**
+     * @return Collection<int|string, mixed>
+     */
+    public function collection(): Collection
     {
         return collect($this->usersData);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function headings(): array
     {
         $headingsMap = [
@@ -40,9 +44,7 @@ class UsersExport implements FromCollection, WithHeadings, WithTitle
             'is_2fa_enabled' => '2FA status',
         ];
 
-        return array_map(function ($column) use ($headingsMap) {
-            return $headingsMap[$column] ?? $column;
-        }, $this->selectedColumns);
+        return array_map(fn ($column) => $headingsMap[$column] ?? $column, $this->selectedColumns);
     }
 
     public function title(): string

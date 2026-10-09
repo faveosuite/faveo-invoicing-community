@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('promotion_types')) {
-            Schema::create('promotion_types', function (Blueprint $table) {
+            Schema::create('promotion_types', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name');
                 $table->timestamps();
@@ -24,10 +22,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('promotion_types');
     }

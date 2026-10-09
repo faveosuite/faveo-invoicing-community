@@ -11,11 +11,14 @@
 
 namespace Psy;
 
+use PhpParser\Error as PhpParserError;
 use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Namespace_;
+use PhpParser\Node\Stmt\Use_;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\Parser;
@@ -67,6 +70,7 @@ class CodeCleaner
     private ?array $namespace = null;
     private array $messages = [];
     private array $aliasesByNamespace = [];
+    private array $aliasesByTypeByNamespace = [];
 
     /**
      * CodeCleaner constructor.
@@ -323,6 +327,7 @@ class CodeCleaner
     {
         $namespaceKey = \strtolower($namespace ? $namespace->toString() : '');
         $this->aliasesByNamespace[$namespaceKey] = $aliases;
+        $this->aliasesByTypeByNamespace[$namespaceKey][Use_::TYPE_NORMAL] = $aliases;
     }
 
     /**
@@ -340,7 +345,43 @@ class CodeCleaner
         $namespaceName = $namespace instanceof Name ? $namespace->toString() : $namespace;
         $namespaceKey = \strtolower($namespaceName ?? '');
 
-        return $this->aliasesByNamespace[$namespaceKey] ?? [];
+        return $this->aliasesByTypeByNamespace[$namespaceKey][Use_::TYPE_NORMAL] ?? $this->aliasesByNamespace[$namespaceKey] ?? [];
+    }
+
+    /**
+     * Set use statement aliases by import type for a specific namespace.
+     *
+     * @param Name|null $namespace     Namespace name or Name node (null for global namespace)
+     * @param array     $aliasesByType Map of Use_::TYPE_* constants to alias maps
+     */
+    public function setAliasesByTypeForNamespace(?Name $namespace, array $aliasesByType): void
+    {
+        $namespaceKey = \strtolower($namespace ? $namespace->toString() : '');
+        $this->aliasesByTypeByNamespace[$namespaceKey] = $aliasesByType;
+        $this->aliasesByNamespace[$namespaceKey] = $aliasesByType[Use_::TYPE_NORMAL] ?? [];
+    }
+
+    /**
+     * Get use statement aliases by import type for a specific namespace.
+     *
+     * @param Name|string|null $namespace Namespace name or Name node (null for global namespace)
+     *
+     * @return array Map of Use_::TYPE_* constants to alias maps
+     */
+    public function getAliasesByTypeForNamespace($namespace): array
+    {
+        $namespaceName = $namespace instanceof Name ? $namespace->toString() : $namespace;
+        $namespaceKey = \strtolower($namespaceName ?? '');
+
+        if (isset($this->aliasesByTypeByNamespace[$namespaceKey])) {
+            return $this->aliasesByTypeByNamespace[$namespaceKey];
+        }
+
+        if (!isset($this->aliasesByNamespace[$namespaceKey])) {
+            return [];
+        }
+
+        return [Use_::TYPE_NORMAL => $this->aliasesByNamespace[$namespaceKey]];
     }
 
     /**
@@ -438,6 +479,134 @@ class CodeCleaner
     }
 
     /**
+     * Resolve a function name using current use statements and namespace.
+     *
+     * Returns the fully-qualified callable name, or null if the name would not
+     * resolve to a callable function in the current REPL scope.
+     */
+    public function resolveFunctionName(string $name): ?string
+    {
+        if ($name === '') {
+            return null;
+        }
+
+        if ($name[0] === '\\') {
+            $name = \substr($name, 1);
+
+            return \function_exists($name) ? '\\'.$name : null;
+        }
+
+        $parts = \explode('\\', $name);
+        $namespace = $this->getNamespace();
+        $namespaceString = $namespace ? \implode('\\', $namespace) : null;
+        $functionAliases = $this->getAliasesByTypeForNamespace($namespaceString)[Use_::TYPE_FUNCTION] ?? [];
+        $firstPart = \strtolower($parts[0]);
+
+        if (isset($functionAliases[$firstPart])) {
+            $aliasName = $functionAliases[$firstPart];
+            // PHP-Parser 5.x uses getParts(), 4.x uses ->parts
+            $aliasParts = \method_exists($aliasName, 'getParts') ? $aliasName->getParts() : $aliasName->parts;
+            $resolved = \implode('\\', \array_merge($aliasParts, \array_slice($parts, 1)));
+
+            return \function_exists($resolved) ? '\\'.$resolved : null;
+        }
+
+        if ($namespace) {
+            $namespaced = \implode('\\', \array_merge($namespace, $parts));
+            if (\function_exists($namespaced)) {
+                return '\\'.$namespaced;
+            }
+        }
+
+        if (\count($parts) > 1) {
+            return null;
+        }
+
+        return \function_exists($name) ? '\\'.$name : null;
+    }
+
+    /**
+     * Resolve a direct function call from raw input in the current REPL scope.
+     *
+     * If $expectedName is provided, the input must be a direct call to that
+     * function name in order to be considered a collision.
+     */
+    public function getCallableFunctionForInput(string $input, ?string $expectedName = null): ?string
+    {
+        try {
+            $stmts = $this->parse('<?php '.$input, false);
+        } catch (ParseErrorException $e) {
+            return null;
+        }
+
+        if ($stmts === false) {
+            return null;
+        }
+
+        $call = $this->getDirectFunctionCallFromStatements($stmts, $expectedName);
+        if ($call === null) {
+            return null;
+        }
+
+        $function = $this->resolveFunctionName($call->name->toString());
+
+        if ($function !== null && $this->functionCallMatchesArity($function, $call)) {
+            return $function;
+        }
+
+        return null;
+    }
+
+    /**
+     * Return the first direct function call expression from a statement list.
+     *
+     * @param \PhpParser\Node[] $stmts
+     */
+    private function getDirectFunctionCallFromStatements(array $stmts, ?string $expectedName = null): ?FuncCall
+    {
+        $stmt = $stmts[0] ?? null;
+        if (!$stmt instanceof Expression) {
+            return null;
+        }
+
+        $expr = $stmt->expr;
+        if (!$expr instanceof FuncCall || !$expr->name instanceof Name) {
+            return null;
+        }
+
+        if ($expectedName !== null && \strtolower($expr->name->toString()) !== \strtolower($expectedName)) {
+            return null;
+        }
+
+        return $expr;
+    }
+
+    /**
+     * Check whether a parsed function call could satisfy the target function's arity.
+     */
+    private function functionCallMatchesArity(string $function, FuncCall $call): bool
+    {
+        try {
+            $reflection = new \ReflectionFunction(\ltrim($function, '\\'));
+        } catch (\ReflectionException $e) {
+            return false;
+        }
+
+        // Unpacked args can satisfy any arity, so only validate fixed arg counts.
+        foreach ($call->args as $arg) {
+            if ($arg->unpack) {
+                return true;
+            }
+        }
+
+        $argCount = \count($call->args);
+        $required = $reflection->getNumberOfRequiredParameters();
+        $max = $reflection->isVariadic() ? \PHP_INT_MAX : $reflection->getNumberOfParameters();
+
+        return $argCount >= $required && $argCount <= $max;
+    }
+
+    /**
      * Log a message from a CodeCleaner pass.
      *
      * @param string $message Message text to display
@@ -471,7 +640,7 @@ class CodeCleaner
     {
         try {
             return $this->parser->parse($code);
-        } catch (\PhpParser\Error $e) {
+        } catch (PhpParserError $e) {
             if ($this->parseErrorIsUnclosedString($e, $code)) {
                 return false;
             }
@@ -495,13 +664,13 @@ class CodeCleaner
             try {
                 // Unexpected EOF, try again with an implicit semicolon
                 return $this->parser->parse($code.';');
-            } catch (\PhpParser\Error $e) {
+            } catch (PhpParserError $e) {
                 return false;
             }
         }
     }
 
-    private function parseErrorIsEOF(\PhpParser\Error $e): bool
+    private function parseErrorIsEOF(PhpParserError $e): bool
     {
         $msg = $e->getRawMessage();
 
@@ -515,7 +684,7 @@ class CodeCleaner
      * their own special beautiful snowflake syntax error just for
      * themselves.
      */
-    private function parseErrorIsUnclosedString(\PhpParser\Error $e, string $code): bool
+    private function parseErrorIsUnclosedString(PhpParserError $e, string $code): bool
     {
         if ($e->getRawMessage() !== 'Syntax error, unexpected T_ENCAPSED_AND_WHITESPACE') {
             return false;
@@ -530,12 +699,12 @@ class CodeCleaner
         return true;
     }
 
-    private function parseErrorIsUnterminatedComment(\PhpParser\Error $e, string $code): bool
+    private function parseErrorIsUnterminatedComment(PhpParserError $e, string $code): bool
     {
         return $e->getRawMessage() === 'Unterminated comment';
     }
 
-    private function parseErrorIsTrailingComma(\PhpParser\Error $e, string $code): bool
+    private function parseErrorIsTrailingComma(PhpParserError $e, string $code): bool
     {
         return ($e->getRawMessage() === 'A trailing comma is not allowed here') && (\substr(\rtrim($code), -1) === ',');
     }

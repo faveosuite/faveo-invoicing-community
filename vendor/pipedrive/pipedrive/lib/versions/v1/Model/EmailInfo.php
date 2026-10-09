@@ -2,7 +2,7 @@
 /**
  * EmailInfo
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -202,7 +202,7 @@ class EmailInfo implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['last_incoming_mail_time'] = $data['last_incoming_mail_time'] ?? null;
         $this->container['last_outgoing_mail_time'] = $data['last_outgoing_mail_time'] ?? null;

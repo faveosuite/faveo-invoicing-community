@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'title' => 'Agora Invoicing Installer',
     'probe' => 'Agora Invoicing Prüfungen',
     'magic_phrase' => 'Was ist die magische Phrase?',
@@ -20,7 +19,6 @@ return [
     'off_apache' => 'AUS (Falls Sie Apache verwenden, stellen Sie sicher, dass <var><strong>AllowOverride</strong></var> in der Apache-Konfiguration auf <var><strong>All</strong></var> gesetzt ist)',
     'rewrite_engine' => 'Engine neu schreiben',
     'user_url' => 'Benutzerfreundliche URL',
-
     'host' => 'Gastgeber',
     'host_tooltip' => 'Wenn Ihre MySQL-Datenbank auf demselben Server wie Agora Invoicing installiert ist, lassen Sie es auf localhost',
     'database_name_label' => 'Datenbankname',
@@ -30,7 +28,6 @@ return [
     'password_label' => 'Passwort',
     'test_prerequisites_message' => 'Dieser Test überprüft die Voraussetzungen für die Installation von Agora Invoicing',
     'previous' => 'Zurück',
-
     'sign_up_as_admin' => 'Als Admin registrieren',
     'first_name' => 'Vorname',
     'first_name_required' => 'Vorname ist erforderlich',
@@ -44,14 +41,27 @@ return [
     'confirm_password_required' => 'Passwortbestätigung ist erforderlich',
     'password_requirements' => 'Ihr Passwort muss enthalten:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => 'Zwischen 8-16 Zeichen'],
-        ['id' => 'letter', 'text' => 'Kleinbuchstaben (a-z)'],
-        ['id' => 'capital', 'text' => 'Großbuchstaben (A-Z)'],
-        ['id' => 'number', 'text' => 'Zahlen (0-9)'],
-        ['id' => 'space', 'text' => 'Sonderzeichen (~*!@$#%_+.?:,{ })'],
+        [
+            'id' => 'length',
+            'text' => 'Zwischen 8-16 Zeichen',
+        ],
+        [
+            'id' => 'letter',
+            'text' => 'Kleinbuchstaben (a-z)',
+        ],
+        [
+            'id' => 'capital',
+            'text' => 'Großbuchstaben (A-Z)',
+        ],
+        [
+            'id' => 'number',
+            'text' => 'Zahlen (0-9)',
+        ],
+        [
+            'id' => 'space',
+            'text' => 'Sonderzeichen (~*!@$#%_+.?:,{ })',
+        ],
     ],
-
-    // Systeminformationen
     'system_information' => 'Systeminformationen',
     'environment' => 'Umgebung',
     'environment_required' => 'Umgebung ist erforderlich',
@@ -63,42 +73,29 @@ return [
     'file' => 'Datei',
     'redis' => 'Redis',
     'password' => 'Passwort',
-
-    // Redis-Einrichtung
     'redis_setup' => 'Redis-Einrichtung',
     'redis_host' => 'Redis-Host',
     'redis_port' => 'Redis-Port',
     'redis_password' => 'Redis-Passwort',
-
-    // Buttons
     'continue' => 'Weiter',
-
-    // Abschließende Einrichtung
     'final_setup' => 'Ihre Agora Invoicing-Anwendung ist bereit!',
     'installation_complete' => 'Alles klar! Sie haben die Installation erfolgreich abgeschlossen',
-
-    // Mehr erfahren
     'learn_more' => 'Mehr erfahren',
     'knowledge_base' => 'Wissensdatenbank',
     'email_support' => 'E-Mail-Support',
-
-    // Nächster Schritt
     'next_step' => 'Nächster Schritt',
     'login_button' => 'Bei Agora Invoicing anmelden',
-
     'pre_migration_success' => 'Vor-Migration wurde erfolgreich getestet',
     'migrating_tables' => 'Tabellen in die Datenbank migrieren',
     'db_connection_error' => 'Datenbankverbindung wurde nicht aktualisiert',
     'database_setup_success' => 'Datenbank wurde erfolgreich eingerichtet',
     'env_file_created' => 'Umgebungskonfigurationsdatei wurde erfolgreich erstellt',
     'pre_migration_test' => 'Vor-Migrationstest wird ausgeführt',
-
     'redis_host_required' => 'Redis-Host ist erforderlich',
     'redis_password_required' => 'Redis-Passwort ist erforderlich',
     'redis_port_required' => 'Redis-Port ist erforderlich',
     'password_regex' => 'Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten',
     'setup_completed' => 'Einrichtung erfolgreich abgeschlossen!',
-
     'database' => 'Datenbank',
     'selected' => 'Ausgewählt',
     'mysql_version_is' => 'MySQL-Version ist',
@@ -114,8 +111,6 @@ return [
     'user_name' => 'Benutzername',
     'user_email' => 'Benutzer-E-Mail',
     'password_not_match' => 'Passwörter stimmen nicht überein',
-
-    // Neu
     'installation_check' => 'Dieser Test überprüft die Voraussetzungen für die Installation von Agora Invoice Community',
     'db_setup_error_1' => 'Dies bedeutet entweder, dass die Benutzername- und Passwortinformationen falsch sind oder Ihr Host nicht erreichbar ist',
     'db_setup_error_2' => 'Sind Sie sicher, dass eine Datenbank mit dem angegebenen Namen bereits existiert?',
@@ -134,21 +129,17 @@ return [
     'instruction_3' => 'Agora Invoice Community benötigt diese Funktion und kann ohne sie nicht funktionieren',
     'click_here' => 'Hier klicken',
     'continue_installation_process' => 'um den Installationsprozess fortzusetzen.',
-
     'database_details' => 'Geben Sie Ihre Datenbankverbindungsdetails ein',
     'sql_port' => 'MySQL-Portnummer',
     'database_name' => 'Datenbankname',
     'finishing_setup' => 'Bitte warten, Setup wird abgeschlossen...',
-
     'lic_agreement_1' => 'Bitte lesen Sie diese Software-Lizenzvereinbarung sorgfältig durch, bevor Sie fortfahren oder die Software verwenden. Durch Klicken auf die Schaltfläche „Akzeptieren“ stimmen Sie dieser Vereinbarung zu. Wenn Sie nicht allen Bedingungen dieser Vereinbarung zustimmen, brechen Sie den Installationsvorgang ab und beenden Sie die Anwendung.',
     'lic_agreement_2' => 'ENDNUTZER-LIZENZVEREINBARUNG',
     'lic_agreement_3' => 'DIESE "ENDNUTZER-LIZENZVEREINBARUNG" (DIE "EULA") IST EIN RECHTSVERBINDLICHER VERTRAG ZWISCHEN DER PERSON ODER DER RECHTSPERSON ODER DER VEREINIGUNG, DIE DIE SOFTWARE NUTZEN MÖCHTE ("SIE" ODER "KUNDE"), UND FAVEO. DURCH DIE REGISTRIERUNG FÜR DIE SOFTWARE ODER DURCH DIE NUTZUNG DER SOFTWARE VERSICHERN, GARANTIEREN UND ERKLÄREN SIE, DASS SIE DIE EULA GELESEN, VERSTANDEN UND IHR ZUGESTIMMT HABEN. WENN SIE NICHT AN DIE EULA GEBUNDEN SEIN MÖCHTEN ODER NICHT BERECHTIGT SIND, DEN KUNDEN AN DIE EULA ZU BINDEN, DÜRFEN SIE DIE SOFTWARE NICHT NUTZEN.',
-
     'definition' => 'Definitionen',
     'i_accept' => 'Ich akzeptiere die',
     'enter_license' => 'Bitte geben Sie Ihren Lizenzcode für',
     'find_license_in_billing' => 'Sie finden Ihren Lizenzcode in unserem Abrechnungsportal',
-
     'close' => 'Schließen',
     'port_number' => 'Portnummer',
     'is_required' => 'ist erforderlich',
@@ -163,5 +154,4 @@ return [
     'tooltip_timezone' => 'Die Browser-Zeitzone wird zunächst verwendet. Wählen Sie eine andere Zeitzone, falls erforderlich',
     'tooltip_language' => 'Zunächst geladene Standardsprache. Wählen Sie eine andere Sprache, falls erforderlich',
     'enter_magic_phrase' => 'Magischen Satz eingeben',
-
 ];

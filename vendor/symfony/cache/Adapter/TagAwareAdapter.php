@@ -211,9 +211,8 @@ class TagAwareAdapter implements TagAwareAdapterInterface, TagAwareCacheInterfac
             }
 
             return $this->pool->clear($prefix);
-        } else {
-            $this->deferred = [];
         }
+        $this->deferred = [];
 
         return $this->pool->clear();
     }
@@ -303,10 +302,14 @@ class TagAwareAdapter implements TagAwareAdapterInterface, TagAwareCacheInterfac
 
     public function reset(): void
     {
-        $this->commit();
-        $this->knownTagVersions = [];
-        $this->pool instanceof ResettableInterface && $this->pool->reset();
-        $this->tags instanceof ResettableInterface && $this->tags->reset();
+        try {
+            $this->commit();
+        } finally {
+            $this->knownTagVersions = [];
+            $this->deferred = [];
+            $this->pool instanceof ResettableInterface && $this->pool->reset();
+            $this->tags instanceof ResettableInterface && $this->tags->reset();
+        }
     }
 
     public function __serialize(): array

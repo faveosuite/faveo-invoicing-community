@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('auto_renewals', function (Blueprint $table) {
+        Schema::table('auto_renewals', function (Blueprint $table): void {
             $table->string('payment_intent_id')->nullable();
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('auto_renewals', function (Blueprint $table) {
+        Schema::table('auto_renewals', function (Blueprint $table): void {
             $table->dropColumn('payment_intent_id');
         });
     }
