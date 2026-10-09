@@ -119,6 +119,9 @@ Route::post('renewurl', [HomeController::class, 'renewurl']);
 Route::get('verify/third-party-token', [TenantController::class, 'verifyThirdPartyToken']);
 
 // --- Billing info / release info (queried by external dashboards) ---
+// --- Pricing feed for the marketing (WordPress) site ---
+Route::get('pricing/data', [HomeController::class, 'getPricingData']);
+
 Route::get('api/billingInfo', [HomeController::class, 'getDetailedBillingInfo']);
 Route::get('api/pluginInfo', [HomeController::class, 'getDetailsForAClient']);
 Route::get('api/billingRelease', [HomeController::class, 'getProductRelease']);

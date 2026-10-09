@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Common\CronController;
+use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Order\RenewController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Requests\ProductRenewalRequest;
@@ -516,6 +517,90 @@ class HomeController extends BaseHomeController
             'ServiceDesk Company (Recurring)' => 'ServiceDesk Enterprise (Recurring)',
             default => $title
         };
+    }
+
+    /**
+     * Public pricing feed for the marketing (WordPress) site: a group's visible products with plan prices
+     * in the visitor's currency, which is worked out from `ipAddress`.
+     * The response shape is consumed as-is by that site, so it is deliberately not wrapped in successResponse().
+     */
+    public function getPricingData(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->query(), [
+            'group' => 'required|integer|exists:product_groups,id',
+            'ipAddress' => 'required|ip',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()], 422);
+        }
+
+        try {
+            $location = getLocation((string) $request->query('ipAddress'));
+            $currency = (string) getCurrencyForClient(findCountryByGeoip((string) ($location['iso_code'] ?? '')));
+
+            $products = Product::query()
+                ->join('plans', 'products.id', '=', 'plans.product')
+                ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
+                ->where('products.group', $request->query('group'))
+                ->where('products.hidden', '!=', 1)
+                ->where('plan_prices.currency', $currency)
+                // A cloud (status 1) product is listed only when it has both a monthly and a yearly price in this currency.
+                ->where(function ($query) use ($currency): void {
+                    $query->where('products.status', '!=', 1)
+                        ->orWhere(function ($active) use ($currency): void {
+                            $active->where('products.status', 1)
+                                ->whereExists(fn ($m) => $m->select(DB::raw(1))
+                                    ->from('plans as p1')
+                                    ->join('plan_prices as pp1', 'pp1.plan_id', '=', 'p1.id')
+                                    ->whereColumn('p1.product', 'products.id')
+                                    ->whereIn('p1.days', [30, 31])
+                                    ->where('pp1.currency', $currency))
+                                ->whereExists(fn ($y) => $y->select(DB::raw(1))
+                                    ->from('plans as p2')
+                                    ->join('plan_prices as pp2', 'pp2.plan_id', '=', 'p2.id')
+                                    ->whereColumn('p2.product', 'products.id')
+                                    ->whereIn('p2.days', [365, 366])
+                                    ->where('pp2.currency', $currency));
+                        });
+                })
+                ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10,2)) ASC')
+                ->orderBy('products.created_at', 'ASC')
+                ->select('products.*', 'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
+                ->get();
+
+            $page = resolve(PageController::class);
+
+            // `days` and `price_description` come from the joined plan tables, not from products.
+            $products->transform(function (Product $product) use ($page): Product {
+                $days = (int) $product->getAttribute('days');
+
+                if ((int) $product->status === 1 && in_array($days, [30, 31, 365, 366], true)) {
+                    $product->setAttribute('price_description', $page->getPriceDescription($product->id, in_array($days, [30, 31], true) ? [30, 31] : [365, 366]));
+                }
+
+                return $product;
+            });
+
+            return response()->json([
+                'products' => $products,
+                'currency' => $currency,
+                'currency_symbol' => $this->getCurrencySymbol($currency),
+            ]);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
+
+            return response()->json(['error' => __('message.sorry_something_wrong')], 500);
+        }
+    }
+
+    private function getCurrencySymbol(string $currency): string
+    {
+        $locale = getLocalesByCurrency($currency);
+
+        return $locale === 'en'
+            ? $currency
+            : (new \NumberFormatter($locale, \NumberFormatter::CURRENCY))->getSymbol(\NumberFormatter::CURRENCY_SYMBOL);
     }
 
     public function getDetailedBillingInfo(Request $request): JsonResponse

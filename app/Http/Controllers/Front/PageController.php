@@ -149,7 +149,10 @@ class PageController extends Controller
         return $result;
     }
 
-    public function getPriceDescription(int $productId): string
+    /**
+     * @param  array<int>  $days  Plan lengths to describe: yearly by default, [30, 31] for the monthly plan.
+     */
+    public function getPriceDescription(int $productId, array $days = [365, 366]): string
     {
         try {
             $product = Product::find($productId);
@@ -167,7 +170,7 @@ class PageController extends Controller
                 ->cursor();
 
             foreach ($plans as $plan) {
-                if (in_array($plan->days, [365, 366])) {
+                if (in_array($plan->days, $days)) {
                     $description = $plan->planPrice->first();
                     if ($description) {
                         if (is_null($description->add_price) || $description->add_price === '' || $description->add_price == 0) { // @phpstan-ignore function.impossibleType
