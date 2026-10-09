@@ -373,7 +373,7 @@ class ProductController extends BaseProductController
                 'release_type' => $u->release_type,
                 'is_private' => (bool) $u->is_private,
                 'is_restricted' => (bool) $u->is_restricted,
-                'dependencies' => json_decode((string) $u->getRawOriginal('dependencies'), associative: true) ?: [],
+                'dependencies' => ProductUpload::decodeDependencies($u->getRawOriginal('dependencies')),
             ]);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
@@ -412,7 +412,7 @@ class ProductController extends BaseProductController
                 'title' => $validated['title'],
                 'description' => $request->input('description'),
                 'version' => $validated['version'],
-                'dependencies' => json_encode($validated['dependencies']),
+                'dependencies' => ProductUpload::encodeDependencies($validated['dependencies']),
                 'is_private' => $request->boolean('is_private'),
                 'is_restricted' => $request->boolean('is_restricted'),
                 'release_type' => $validated['release_type'],

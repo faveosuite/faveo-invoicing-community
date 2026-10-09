@@ -135,10 +135,39 @@ class ProductUpload extends Model
             'is_private' => $isPrivate,
             'is_restricted' => $isRestricted,
             'release_type' => $validated['release_type'],
-            'dependencies' => json_encode($validated['dependencies']),
+            'dependencies' => self::encodeDependencies($validated['dependencies']),
         ]);
 
         $product->update(['version' => $version]);
+    }
+
+    /**
+     * Stored double-encoded (a JSON string inside JSON) — the format every
+     * existing row has and installed Faveo instances parse: they json_decode
+     * the accessor value (AddOnUpdateController, AutoUpdateController) and
+     * double-decode the raw column (Jobs/Acceptor). Single-encoding breaks them.
+     *
+     * @param  array<mixed>  $dependencies
+     */
+    public static function encodeDependencies(array $dependencies): string
+    {
+        return (string) json_encode(json_encode($dependencies));
+    }
+
+    /**
+     * Reads both the double-encoded format and single-encoded rows.
+     *
+     * @return array<mixed>
+     */
+    public static function decodeDependencies(?string $raw): array
+    {
+        $decoded = json_decode((string) $raw, true);
+
+        if (is_string($decoded)) {
+            $decoded = json_decode($decoded, true);
+        }
+
+        return is_array($decoded) ? $decoded : [];
     }
 
     /**
