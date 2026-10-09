@@ -7,9 +7,9 @@ namespace Tests\Unit\Backend\Http\Controllers;
 use App\Http\Middleware\Install;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
+use Tests\TestCase;
 use Torann\GeoIP\Facades\GeoIP;
 use Torann\GeoIP\Location;
-use Tests\TestCase;
 
 class HomeControllerPricingDataTest extends TestCase
 {
