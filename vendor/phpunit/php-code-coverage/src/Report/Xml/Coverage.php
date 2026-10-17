@@ -13,11 +13,13 @@ use XMLWriter;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class Coverage
+final readonly class Coverage
 {
-    private readonly XMLWriter $xmlWriter;
-    private readonly string $line;
+    private XMLWriter $xmlWriter;
+    private string $line;
 
     public function __construct(
         XMLWriter $xmlWriter,
@@ -27,6 +29,9 @@ final class Coverage
         $this->line      = $line;
     }
 
+    /**
+     * @param list<string> $tests
+     */
     public function finalize(array $tests): void
     {
         $writer = $this->xmlWriter;

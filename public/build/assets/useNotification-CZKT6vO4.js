@@ -1,0 +1,1 @@
+import{mt as e,t}from"./vue.esm-bundler-BtBz4Xsg.js";t();var n=e(``),r=e(`success`),i=e(!1),a=null;function o(){function e(e,t=`success`,o=7e3){n.value=e,r.value=t,i.value=!0,clearTimeout(a),a=setTimeout(()=>{i.value=!1},o)}function t(){clearTimeout(a),i.value=!1}return{message:n,type:r,visible:i,notify:e,dismiss:t}}export{o as t};

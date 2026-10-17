@@ -1,17 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
+use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
+use App\Model\Product\Price;
+use App\Traits\RequestJsonValidation;
+use Override;
 
 class PromotionRequest extends Request
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -19,28 +26,55 @@ class PromotionRequest extends Request
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = [
             'code' => 'required',
-            'type' => 'required',
+            'type' => 'required|exists:promotion_types,id',
             'applied' => 'required',
             'uses' => 'required|numeric',
             'start' => 'required',
             'expiry' => 'required|after:start',
         ];
-        // If 'type' is 'percentage', add additional validation for 'value'
-        if ($this->input('type') === '1') {
+
+        // Type 1 = Percentage, 2 = Fixed Amount. Cast for comparison: JSON requests
+        // send this as a number (int 1), not the string '1' — a strict '===' here
+        // used to silently skip the percentage bounds check entirely.
+        if ((string) $this->input('type') === '1') {
             $rules['value'] = 'required|numeric|between:1,100';
         } else {
-            $rules['value'] = 'required|integer|min:0';
+            $rules['value'] = ['required', 'integer', 'min:0'];
+
+            // Fixed Amount: cap at the applied product's highest known price
+            // (direct product pricing or any of its plans, any currency) so a
+            // discount can never exceed what the product could ever cost.
+            if ((string) $this->input('type') === '2') {
+                $maxPrice = $this->maxProductPrice((int) $this->input('applied'));
+                if ($maxPrice > 0) {
+                    $rules['value'][] = 'max:'.(int) $maxPrice;
+                }
+            }
         }
 
         return $rules;
     }
 
+    private function maxProductPrice(int $productId): float
+    {
+        // price/add_price are string columns and not always clean numerics
+        // (e.g. "999/ Issue") — casting in PHP after fetching avoids MySQL's
+        // MAX() sorting them lexicographically instead of numerically.
+        $planIds = Plan::where('product', $productId)->pluck('id');
+
+        return Price::where('product_id', $productId)->pluck('price')
+            ->merge(PlanPrice::whereIn('plan_id', $planIds)->pluck('add_price'))
+            ->map(fn ($v) => (float) $v)
+            ->max() ?? 0.0;
+    }
+
+    #[Override]
     public function messages()
     {
         return [
@@ -62,6 +96,7 @@ class PromotionRequest extends Request
             'value.required' => __('validation.coupon_form.value.required'),
             'value.numeric' => __('validation.coupon_form.value.numeric'),
             'value.between' => __('validation.coupon_form.value.between'),
+            'value.max' => __('validation.coupon_form.value.max'),
         ];
     }
 }

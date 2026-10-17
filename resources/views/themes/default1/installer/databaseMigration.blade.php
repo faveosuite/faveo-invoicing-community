@@ -12,10 +12,14 @@
 </script>
 
 @section('content')
+    <style>
+        #timeline::before { bottom: 15px; }
+        #timeline > div:last-child { margin-bottom: 0; }
+    </style>
     <div class="card mb-5">
         <div class="card-body">
 
-            <p class="text-center lead text-bold">{{trans('installer_messages.database_setup')}}</p>
+            <p class="text-center lead fw-bold">{{trans('installer_messages.database_setup')}}</p>
 
             <h6 class="mt-1 mb-3">{{trans('installer_messages.installation_check')}}</h6>
 
@@ -26,7 +30,6 @@
             $username = Session::get('username');
             $password = Session::get('password');
             $databasename = Session::get('databasename');
-//          $dummy_install = Session::get('dummy_data_installation');
             $port = Session::get('port');
             $sslKey = Session::get('db_ssl_key');
             $sslCert = Session::get('db_ssl_cert');
@@ -50,10 +53,11 @@
 
             class TestResult
             {
-                var $message;
-                var $status;
+                public $message;
 
-                function __construct($message, $status = STATUS_OK)
+                public $status;
+
+                public function __construct($message, $status = STATUS_OK)
                 {
                     $this->message = $message;
                     $this->status = $status;
@@ -81,7 +85,6 @@
                 if ($version >= 50600 && $version < 90000) {
                     return true;
                 }
-
                 /**
                  * MariaDB had directly released version 10 after 5.5 so if DB server is MariaDB
                  * then we need to check the version must be 10.3 or greater which is compatible
@@ -90,11 +93,7 @@
                  * @link https://mariadb.com/kb/en/library/mariadb-vs-mysql-compatibility/
                  * @link https://en.wikipedia.org/wiki/MariaDB
                  */
-                if ($version >= 100300) {
-                    return true;
-                }
-
-                return false;
+                return $version >= 100300;
             }
 
             /**
@@ -105,8 +104,6 @@
              *
              * @param array $results variable linked for errors or success messages
              * @param bool $mysqli_ok variable linked for mysql status
-             * @param object $connection
-             * @return void
              *
              * @author Manish Verma <manish.verma@ladybirdweb.com>
              */
@@ -142,9 +139,8 @@
              *
              * @param string $dbUsername mysql username
              * @param string $dbPassword mysql password
-             * @return null
              */
-            function setupConfig($host, $dbUsername, $dbPassword, $port = '', $customOptions = [], $dbengine = '')
+            function setupConfig($host, $dbUsername, $dbPassword, $port = '', $customOptions = [], $dbengine = ''): void
             {
                 $options = array_merge([null, null, null, false], $customOptions);
                 Config::set('app.env', 'development');
@@ -174,7 +170,7 @@
             {
                 try {
                     $connection = mysqli_init();
-                    mysqli_ssl_set($connection, DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, null, null);
+                    mysqli_ssl_set($connection, DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, ca_path: null, cipher_algos: null);
                     if (DB_PORT != '' && is_numeric(DB_PORT)) {
                         setupConfig(DB_HOST, DB_USER, DB_PASS, DB_PORT, [DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, DB_SSL_VERIFY_PEER_CERT]);
                         if (!mysqli_real_connect($connection, DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT)) {
@@ -189,7 +185,7 @@
                     }
 
                     return $connection;
-                } catch (Exception $e) {
+                } catch (Exception $exception) {
                     return false;
                 }
                 return $connection;
@@ -198,7 +194,6 @@
             if (DB_HOST && DB_USER && DB_NAME) {
                 $mysqli_ok = true;
                 $results = [];
-                // error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE | E_ALL);
                 error_reporting(0);
                 try {
                     if (DB_DEFAULT == 'mysql') {
@@ -226,7 +221,7 @@
                 }
 
 
-                function getIconAndBgClass($status)
+                function getIconAndBgClass($status): array
                 {
                     switch ($status) {
                         case 'Ok':
@@ -240,13 +235,15 @@
 
                 ?>
 
-            <div class="timeline timeline-inverse custom-timeline" id="timeline">
-                    <?php foreach ($results as $result): ?>
+            <div class="timeline" id="timeline">
+                <?php foreach ($results as $result):
+                    $icon = getIconAndBgClass($result->status);
+                    $bgClass = str_replace('bg-', 'text-bg-', $icon['bgClass']);
+                ?>
                 <div>
-                    <i class="{{ getIconAndBgClass($result->status)['iconClass'] }} {{ getIconAndBgClass($result->status)['bgClass'] }}"
-                       data-toggle="tooltip" title=""></i>
+                    <i class="{{ $icon['iconClass'] }} timeline-icon {{ $bgClass }}"></i>
                     <div class="timeline-item">
-                        <h3 class="timeline-header border-0">{{$result->message}}</h3>
+                        <h3 class="timeline-header no-border">{{$result->message}}</h3>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -268,9 +265,7 @@
                 <?php if ($mysqli_ok) { ?>
 
 
-            <script src="{{ asset('admin/js/jquery.min.js') }}"></script>
-            <script type="text/javascript"
-                    src="//cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js"></script>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js"></script> {{-- NOSONAR --}}
             <span id="wait"></span>
             <form id="form">
                 @csrf
@@ -309,170 +304,90 @@
 
             <br/>
 
-            <script type="text/javascript">
-                // submit a ticket
-                $(document).ready(function () {
-                    $('#submitme').attr('disabled', 'disabled');
-                    var tz = jstz.determine(); // Determines the time zone of the browser client
-                    var timezone = tz.name(); //'Asia/Kolkata' for Indian Time.
-                    $('#tz').val(timezone);
+            <script>
+                const timeline = document.getElementById('timeline');
+
+                function appendTimeline(iconClass, message) {
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <i class="${iconClass} timeline-icon"></i>
+                        <div class="timeline-item">
+                            <h3 class="timeline-header no-border">${message}</h3>
+                        </div>`;
+                    timeline.appendChild(div);
+                }
+                function removeSpinner() {
+                    const spinner = timeline.querySelector('.fa-spinner');
+                    if (spinner) {
+                        spinner.closest('div')?.remove();
+                    }
+                }
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    var tz = jstz.determine();
+                    document.getElementById('tz')?.setAttribute('value', tz.name());
                     submitFormDB();
                 });
-                // Edit a ticket
-                function submitFormDB() {
-                    var formData = new FormData($('#form')[0]);
-                    $.ajax({
-                        type: "POST",
-                        url: "{!! url('create/env') !!}",
-                        data: formData,
-                        dataType: "json",
-                        contentType: false,
-                        processData: false,
-                        beforeSend: function () {
-                            $("#conn").hide();
-                            $("#previous").hide();
-                            // $("#show").show();
-                            // $("#wait").show();
-                        },
-                        success: function (response) {
-                            console.log(response)
-                            let timelineHtml = '';
-                            var tz = jstz.determine(); // Determines the time zone of the browser client
-                            var timezone = tz.name(); //'Asia/Kolkata' for Indian Time.
-                            var data = response.result;
-                            var message = data.success;
-                            var next = data.next;
-                            var api = data.api;
-                            $('#submitme').attr('disabled', 'disabled');
-                            timelineHtml += `
-                    <div>
-                        <i class="fas fa-check bg-success" data-toggle="tooltip" title=""></i>
-                        <div class="timeline-item">
-                            <h3 class="timeline-header border-0">${response.result.success}</h3>
-                        </div>
-                    </div>
-                `;
-                            timelineHtml += `
-                    <div>
-                        <i class="fas fa-spinner fa-spin bg-info" data-toggle="tooltip" title=""></i>
-                        <div class="timeline-item">
-                            <h3 class="timeline-header border-0">${response.result.next}</h3>
-                        </div>
-                    </div>
-                `;
-                            $('#timeline').append(timelineHtml);
-                            callApi(api);
-                        },
-                        error: function (response) {
-                            var data = response.responseJSON.result;
-                            $('#wait').append('<ul><li style="color:red">' + data.error + '</li></ul>');
-                            $('#loader').hide();
-                            $('#next').find('#submitme').hide();
-                            $('#retry').append('<input type="button" id="submitm" class="button-primary button button-large button-next" value="Retry" onclick="reload()">');
-                            $("#previous").show();
 
-                        }
-                    })
+                function submitFormDB() {
+                    const form = document.getElementById('form');
+                    const formData = new FormData(form);
+                    formData.set('timezone', jstz.determine().name());
+
+                    document.getElementById('conn')?.style && (document.getElementById('conn').style.display = 'none');
+                    document.getElementById('previous')?.style && (document.getElementById('previous').style.display = 'none');
+
+                    fetch("{!! url('create/env') !!}", { method: 'POST', body: formData })
+                        .then(r => r.json())
+                        .then(response => {
+                            const { success, next, api } = response.result;
+                            appendTimeline('fas fa-check text-bg-success', success);
+                            appendTimeline('fas fa-spinner fa-spin text-bg-info', next);
+                            callApi(api);
+                        })
+                        .catch(err => {
+                            err.json?.().then(j => {
+                                document.getElementById('wait')?.insertAdjacentHTML('beforeend', `<ul><li style="color:red">${j.result?.error ?? 'Error'}</li></ul>`);
+                            });
+                            document.getElementById('previous')?.style && (document.getElementById('previous').style.display = '');
+                        });
                 }
 
                 function callApi(api) {
-                    $.ajax({
-                        type: "GET",
-                        url: api,
-                        dataType: "json",
-                        data: $(this).serialize(),
-                        success: function (response) {
-                            var data = response.result;
-                            var message = data.success;
-                            var next = data.next;
-                            var api = data.api;
+                    fetch(api)
+                        .then(r => r.json())
+                        .then(response => {
+                            const { success: message, next, api: nextApi } = response.result;
+                            removeSpinner();
+                            appendTimeline('fas fa-check text-bg-success', message);
 
-                            const container = document.getElementById('timeline');
-                            const existingLoader = container.querySelector('.fa-spinner');
-
-                            if (existingLoader) {
-                                existingLoader.parentElement.remove();
-                            }
-
-                            timelineHtml = `
-                    <div>
-                        <i class="fas fa-check bg-success" data-toggle="tooltip" title=""></i>
-                        <div class="timeline-item">
-                            <h3 class="timeline-header border-0">${message}</h3>
-                        </div>
-                    </div>
-                `;
-                            timelineHtml += `
-                    <div>
-                        <i class="fas fa-spinner fa-spin bg-info" data-toggle="tooltip" title=""></i>
-                        <div class="timeline-item">
-                            <h3 class="timeline-header border-0">${next}</h3>
-                        </div>
-                    </div>
-                `;
-                            $('#timeline').append(timelineHtml);
-                            // $("#wait").find('.seco').remove();
-                            // $('#wait ul').append('<li>'+message+'</li><li class="seco">'+next+'...</li>');
-                            if (message == "{{ trans('installer_messages.database_setup_success') }}") {
-                                const existingLoader = container.querySelector('.fa-spinner');
-
-                                if (existingLoader) {
-                                    existingLoader.parentElement.remove();
-                                }
-
+                            if (message === "{{ trans('installer_messages.database_setup_success') }}") {
+                                removeSpinner();
                                 document.getElementById('continue').removeAttribute('disabled');
                             } else {
-                                //show message
-                                //show next
-                                callApi(api);
+                                appendTimeline('fas fa-spinner fa-spin text-bg-info', next);
+                                callApi(nextApi);
                             }
-                        },
-                        error: function (response) {
-                            console.log(response);
-                        }
-                    });
+                        })
+                        .catch(err => console.error(err));
                 }
 
                 function reload() {
-                    $('#retry').find('#submitm').remove();
-                    $('#loader').show();
-                    $('#wait').find('ul').remove();
-                    $.ajax({
-                        type: "GET",
-                        url: "{!! url('create/env') !!}",
-                        dataType: "json",
-                        data: $('#form').serialize(),
-                        beforeSend: function () {
-                            $("#conn").hide();
-                            // $("#show").show();
-                            // $("#wait").show();
-                            $("#previous").hide();
-                        },
-                        success: function (response) {
-                            var data = response.result;
-                            var message = data.success;
-                            var next = data.next;
-                            var api = data.api;
-                            callApi(api);
-                        },
-                        error: function (response) {
-                            var data = response.responseJSON.result;
-                            $('#wait').append('<ul><li style="color:red">' + data.error + '</li></ul>');
-                            $('#loader').hide();
-                            $('#next').find('#submitme').hide();
-                            $('#retry').append('<input type="button" id="submitm" class="button-primary button button-large button-next" value="Retry" onclick="reload()">');
-                            $("#previous").show();
+                    document.getElementById('retry')?.querySelector('#submitm')?.remove();
+                    document.getElementById('wait')?.querySelectorAll('ul').forEach(el => el.remove());
+                    document.getElementById('conn')?.style && (document.getElementById('conn').style.display = 'none');
+                    document.getElementById('previous')?.style && (document.getElementById('previous').style.display = 'none');
 
-                        }
-                    })
-
+                    fetch("{!! url('create/env') !!}")
+                        .then(r => r.json())
+                        .then(response => callApi(response.result.api))
+                        .catch(err => console.error(err));
                 }
+
                 function proceed() {
                     var tz = jstz.determine();
-                    var timezone = tz.name();
-                    window.location.href = '{{ URL::route('get-start') }}'+ '?timezone=' + timezone;
+                    window.location.href = '{{ URL::route('get-start') }}' + '?timezone=' + tz.name();
                 }
-
             </script>
 
             <?php } else { ?>
@@ -510,7 +425,7 @@
                 &nbsp; {{ __('installer_messages.previous')}}</a>
             </button>
 
-                <button class="btn btn-primary float-right" onclick="proceed('start')" id="continue" disabled>
+                <button class="btn btn-primary float-end" onclick="proceed('start')" id="continue" disabled>
                     {{ trans('installer_messages.continue') }}&nbsp; <i class="fas {{ in_array(app()->getLocale(), ['ar', 'he']) ? 'fa-arrow-left' : 'fa-arrow-right' }}"></i>
                 </button>
         </div>

@@ -8,21 +8,22 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('countries', function (Blueprint $table) {
+        Schema::table('countries', function (Blueprint $table): void {
             if (! Schema::hasColumn('countries', 'currency_code')) {
                 $table->string('currency_code', 255)->nullable();
             }
+
             if (! Schema::hasColumn('countries', 'currency_symbol')) {
                 $table->string('currency_symbol', 255)->nullable();
             }
+
             if (! Schema::hasColumn('countries', 'currency_name')) {
                 $table->string('currency_name', 255)->nullable();
             }
+
             if (! Schema::hasColumn('countries', 'currency_id')) {
                 $table->integer('currency_id')->nullable();
             }
@@ -31,12 +32,10 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('countries', function (Blueprint $table) {
+        Schema::table('countries', function (Blueprint $table): void {
             $table->dropColumn('currency_code');
             $table->dropColumn('currency_symbol');
             $table->dropColumn('currency_name');

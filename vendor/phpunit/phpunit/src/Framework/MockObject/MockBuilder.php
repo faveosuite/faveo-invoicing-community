@@ -11,9 +11,11 @@ namespace PHPUnit\Framework\MockObject;
 
 use function assert;
 use PHPUnit\Framework\InvalidArgumentException;
+use PHPUnit\Framework\MockObject\Generator\ClassIsAnonymousException;
 use PHPUnit\Framework\MockObject\Generator\ClassIsEnumerationException;
 use PHPUnit\Framework\MockObject\Generator\ClassIsFinalException;
 use PHPUnit\Framework\MockObject\Generator\DuplicateMethodException;
+use PHPUnit\Framework\MockObject\Generator\InvalidClassNameException;
 use PHPUnit\Framework\MockObject\Generator\InvalidMethodNameException;
 use PHPUnit\Framework\MockObject\Generator\NameAlreadyInUseException;
 use PHPUnit\Framework\MockObject\Generator\ReflectionException;
@@ -22,7 +24,9 @@ use PHPUnit\Framework\MockObject\Generator\UnknownTypeException;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @template MockedType
+ * @template MockedType of object
+ *
+ * @template-extends TestDoubleBuilder<MockedType>
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
@@ -36,7 +40,7 @@ final class MockBuilder extends TestDoubleBuilder
     private ?string $mockClassName = null;
 
     /**
-     * @param class-string|trait-string $type
+     * @param class-string<MockedType> $type
      */
     public function __construct(TestCase $testCase, string $type)
     {
@@ -48,10 +52,12 @@ final class MockBuilder extends TestDoubleBuilder
     /**
      * Creates a mock object using a fluent interface.
      *
+     * @throws ClassIsAnonymousException
      * @throws ClassIsEnumerationException
      * @throws ClassIsFinalException
      * @throws DuplicateMethodException
      * @throws InvalidArgumentException
+     * @throws InvalidClassNameException
      * @throws InvalidMethodNameException
      * @throws NameAlreadyInUseException
      * @throws ReflectionException

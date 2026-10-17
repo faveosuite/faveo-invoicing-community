@@ -2,7 +2,7 @@
 /**
  * FiltersGetResponse
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -67,7 +67,7 @@ class FiltersGetResponse implements ModelInterface, ArrayAccess, JsonSerializabl
       */
     protected static array $openAPITypes = [
         'success' => 'bool',
-        'data' => '\Pipedrive\versions\v1\Model\FilterGetItem'
+        'data' => '\Pipedrive\versions\v1\Model\FilterGetItemWithConditions'
     ];
 
     /**
@@ -202,7 +202,7 @@ class FiltersGetResponse implements ModelInterface, ArrayAccess, JsonSerializabl
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['success'] = $data['success'] ?? null;
         $this->container['data'] = $data['data'] ?? null;
@@ -261,7 +261,7 @@ class FiltersGetResponse implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\FilterGetItem|null
+     * @return \Pipedrive\versions\v1\Model\FilterGetItemWithConditions|null
      */
     public function getData()
     {
@@ -271,7 +271,7 @@ class FiltersGetResponse implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\FilterGetItem|null $data data
+     * @param \Pipedrive\versions\v1\Model\FilterGetItemWithConditions|null $data data
      *
      * @return self
      */

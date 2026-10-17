@@ -97,4 +97,5 @@ return [
     'confirm_old_email' => 'Oud e-mailadres bevestigen',
     'confirm_mobile_number_change' => 'Wijziging van mobiel nummer bevestigen',
     'logs:delete' => 'Systeemlogboeken verwijderen',
+    'date' => 'Datum',
 ];

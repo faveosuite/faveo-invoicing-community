@@ -3,6 +3,7 @@
 namespace Livewire\Compiler;
 
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class CacheManager
 {
@@ -62,7 +63,7 @@ class CacheManager
 
     public function getHash(string $sourcePath): string
     {
-        return substr(md5($sourcePath), 0, 8);
+        return substr(md5(Str::after($sourcePath, base_path())), 0, 8);
     }
 
     public function getClassPath(string $sourcePath): string
@@ -116,7 +117,9 @@ class CacheManager
         $this->ensureCacheDirectoryExists();
         File::makeDirectory($this->cacheDirectory . '/classes', 0777, true, true);
 
-        File::put($classPath, $contents);
+        // Use atomic write to prevent race conditions when multiple
+        // concurrent requests try to compile the same component.
+        File::replace($classPath, $contents);
     }
 
     public function writeViewFile(string $sourcePath, string $contents): void
@@ -126,9 +129,9 @@ class CacheManager
         $this->ensureCacheDirectoryExists();
         File::makeDirectory($this->cacheDirectory . '/views', 0777, true, true);
 
-        File::put($viewPath, $contents);
+        File::replace($viewPath, $contents);
 
-        $this->mutateFileModificationTime($viewPath);
+        $this->prepareGeneratedFileForCompilation($viewPath);
     }
 
     public function writeScriptFile(string $sourcePath, string $contents): void
@@ -138,7 +141,7 @@ class CacheManager
         $this->ensureCacheDirectoryExists();
         File::makeDirectory($this->cacheDirectory . '/scripts', 0777, true, true);
 
-        File::put($scriptPath, $contents);
+        File::replace($scriptPath, $contents);
     }
 
     public function writeStyleFile(string $sourcePath, string $contents): void
@@ -148,7 +151,7 @@ class CacheManager
         $this->ensureCacheDirectoryExists();
         File::makeDirectory($this->cacheDirectory . '/styles', 0777, true, true);
 
-        File::put($stylePath, $contents);
+        File::replace($stylePath, $contents);
     }
 
     public function writeGlobalStyleFile(string $sourcePath, string $contents): void
@@ -158,7 +161,7 @@ class CacheManager
         $this->ensureCacheDirectoryExists();
         File::makeDirectory($this->cacheDirectory . '/styles', 0777, true, true);
 
-        File::put($stylePath, $contents);
+        File::replace($stylePath, $contents);
     }
 
     public function writePlaceholderFile(string $sourcePath, string $contents): void
@@ -168,9 +171,9 @@ class CacheManager
         $this->ensureCacheDirectoryExists();
         File::makeDirectory($this->cacheDirectory . '/placeholders', 0777, true, true);
 
-        File::put($placeholderPath, $contents);
+        File::replace($placeholderPath, $contents);
 
-        $this->mutateFileModificationTime($placeholderPath);
+        $this->prepareGeneratedFileForCompilation($placeholderPath);
     }
 
     public function writeIslandFile(string $sourcePath, string $contents): void
@@ -180,14 +183,15 @@ class CacheManager
         $this->ensureCacheDirectoryExists();
         File::makeDirectory($this->cacheDirectory . '/views', 0777, true, true);
 
-        File::put($viewPath, $contents);
+        File::replace($viewPath, $contents);
 
-        $this->mutateFileModificationTime($viewPath);
+        $this->prepareGeneratedFileForCompilation($viewPath);
     }
 
     public function invalidateOpCache(string $sourcePath): void
     {
-        if (function_exists('opcache_invalidate')) {
+        // Prevent error in case if `opcache.restrict_api` directive is set
+        if (function_exists('opcache_invalidate') && strlen(ini_get('opcache.restrict_api')) < 1) {
             opcache_invalidate($sourcePath, true);
         }
     }
@@ -207,7 +211,7 @@ class CacheManager
         }
     }
 
-    public function mutateFileModificationTime(string $path): void
+    public function prepareGeneratedFileForCompilation(string $path): void
     {
         // This is a fix for a gnarly issue: blade's compiler uses filemtimes to determine if a compiled view has become expired.
         // AND it's comparison includes equals like this: $path >= $cachedPath
@@ -218,6 +222,12 @@ class CacheManager
         // view file is one second ahead. Phew. this one took a minute to find lol.
         $original = filemtime($path);
         touch($path, $original - 1);
+
+        // But because of this, if a file is compiled and then saved again within the same second,
+        // it will not get recompiled because it will look like the source was created 1 second
+        // before the compiled file, not passing the $path >= $cachedPath check and skipping
+        // compilation. To force recompilation we need to delete the compiled file first.
+        File::delete(app('blade.compiler')->getCompiledPath($path));
     }
 
     public function clearCompiledFiles($output = null): void

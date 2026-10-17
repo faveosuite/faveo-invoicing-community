@@ -1,0 +1,1 @@
+function e(e=`created_at`,t=null,n={}){return function(r){return{"sort-field":r.orderBy?n[r.orderBy]??r.orderBy:e,"sort-order":r.orderBy&&r.ascending?`asc`:`desc`,"search-query":(r.query??``).trim(),page:r.page,limit:r.limit,...t?t.value:{}}}}export{e as t};

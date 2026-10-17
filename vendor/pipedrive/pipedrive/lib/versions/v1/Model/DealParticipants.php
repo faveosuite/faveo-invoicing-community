@@ -2,7 +2,7 @@
 /**
  * DealParticipants
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -67,7 +67,7 @@ class DealParticipants implements ModelInterface, ArrayAccess, JsonSerializable
       */
     protected static array $openAPITypes = [
         'success' => 'bool',
-        'data' => '\Pipedrive\versions\v1\Model\PersonItem[]',
+        'data' => '\Pipedrive\versions\v1\Model\DealParticipantItem[]',
         'additional_data' => '\Pipedrive\versions\v1\Model\AdditionalData',
         'related_objects' => '\Pipedrive\versions\v1\Model\GetDealsRelatedObjects'
     ];
@@ -212,7 +212,7 @@ class DealParticipants implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['success'] = $data['success'] ?? null;
         $this->container['data'] = $data['data'] ?? null;
@@ -273,7 +273,7 @@ class DealParticipants implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\PersonItem[]|null
+     * @return \Pipedrive\versions\v1\Model\DealParticipantItem[]|null
      */
     public function getData()
     {
@@ -283,7 +283,7 @@ class DealParticipants implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\PersonItem[]|null $data The array of participants
+     * @param \Pipedrive\versions\v1\Model\DealParticipantItem[]|null $data The array of participants
      *
      * @return self
      */

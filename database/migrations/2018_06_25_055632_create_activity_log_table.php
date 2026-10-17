@@ -9,10 +9,10 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        if (! Schema::hasTable(config('activitylog.table_name'))) {
-            Schema::create(config('activitylog.table_name'), function (Blueprint $table) {
+        if (! Schema::hasTable('activity_log')) {
+            Schema::create('activity_log', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('log_name')->nullable();
                 $table->text('description');
@@ -31,8 +31,8 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down()
+    public function down(): void
     {
-        Schema::drop(config('activitylog.table_name'));
+        Schema::drop('activity_log');
     }
 };

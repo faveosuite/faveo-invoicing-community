@@ -1,0 +1,1 @@
+var e=document.getElementById(`app-root`)?.dataset?.assetUrl?.replace(/\/$/,``)??``;function t(t){return`${e}/${t.replace(/^\//,``)}`}export{t};

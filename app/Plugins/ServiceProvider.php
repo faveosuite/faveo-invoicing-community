@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Plugins;
+
+use Override;
 
 abstract class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
-    public function boot()
+    public function boot(): void
     {
         if ($module = $this->getModule(func_get_args())) {
             $this->publishes([
@@ -13,7 +17,8 @@ abstract class ServiceProvider extends \Illuminate\Support\ServiceProvider
         }
     }
 
-    public function register()
+    #[Override]
+    public function register(): void
     {
         if ($module = $this->getModule(func_get_args())) {
             $this->publishes([
@@ -23,15 +28,13 @@ abstract class ServiceProvider extends \Illuminate\Support\ServiceProvider
             // Add routes
             $routes = app_path().'/Plugins/'.$module.'/routes.php';
             if (file_exists($routes)) {
-                require $routes;
+                require_once $routes;
             }
         }
     }
 
-    public function getModule($args)
+    public function getModule(mixed $args): mixed
     {
-        $module = (isset($args[0]) and is_string($args[0])) ? $args[0] : null;
-
-        return $module;
+        return (isset($args[0]) && is_string($args[0])) ? $args[0] : null;
     }
 }

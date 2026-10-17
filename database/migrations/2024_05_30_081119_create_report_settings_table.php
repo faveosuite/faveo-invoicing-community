@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('report_settings', function (Blueprint $table) {
+        Schema::create('report_settings', function (Blueprint $table): void {
             $table->id();
             $table->string('records')->default(3000);
             $table->timestamps();

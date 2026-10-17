@@ -13,10 +13,14 @@ use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Queue\Events\Looping;
 use Illuminate\Queue\Events\WorkerStopping;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\View\Compilers\BladeCompiler;
 use Illuminate\View\Factory as ViewFactory;
+use Laravel\Octane\Events\RequestReceived;
+use Laravel\Octane\Events\TaskReceived;
+use Laravel\Octane\Events\TickReceived;
 use Laravel\Pulse\Contracts\Ingest;
 use Laravel\Pulse\Contracts\ResolvesUsers;
 use Laravel\Pulse\Contracts\Storage;
@@ -24,6 +28,7 @@ use Laravel\Pulse\Ingests\NullIngest;
 use Laravel\Pulse\Ingests\RedisIngest;
 use Laravel\Pulse\Ingests\StorageIngest;
 use Laravel\Pulse\Storage\DatabaseStorage;
+use Laravel\Sentinel\Http\Middleware\SentinelMiddleware;
 use Livewire\LivewireManager;
 use RuntimeException;
 
@@ -73,6 +78,11 @@ class PulseServiceProvider extends ServiceProvider
             $this->app->make(Pulse::class)->stopRecording();
         }
 
+        Route::middlewareGroup('pulse', [
+            SentinelMiddleware::class.':pulse',
+            ...$this->app->make('config')->get('pulse.middleware', []),
+        ]);
+
         $this->registerAuthorization();
         $this->registerRoutes();
         $this->registerComponents();
@@ -101,7 +111,7 @@ class PulseServiceProvider extends ServiceProvider
                 $router->group([
                     'domain' => $app->make('config')->get('pulse.domain', null),
                     'prefix' => $app->make('config')->get('pulse.path'),
-                    'middleware' => $app->make('config')->get('pulse.middleware'),
+                    'middleware' => 'pulse',
                 ], function (Router $router) {
                     $router->get('/', function (Pulse $pulse, ViewFactory $view) {
                         return $view->make('pulse::dashboard');
@@ -151,9 +161,9 @@ class PulseServiceProvider extends ServiceProvider
 
         $this->callAfterResolving(Dispatcher::class, function (Dispatcher $event, Application $app) {
             $event->listen([
-                \Laravel\Octane\Events\RequestReceived::class, // @phpstan-ignore class.notFound
-                \Laravel\Octane\Events\TaskReceived::class, // @phpstan-ignore class.notFound
-                \Laravel\Octane\Events\TickReceived::class, // @phpstan-ignore class.notFound
+                RequestReceived::class, // @phpstan-ignore class.notFound
+                TaskReceived::class, // @phpstan-ignore class.notFound
+                TickReceived::class, // @phpstan-ignore class.notFound
             ], function ($event) {
                 if ($event->sandbox->resolved(Pulse::class)) {
                     $event->sandbox->make(Pulse::class)->setContainer($event->sandbox);

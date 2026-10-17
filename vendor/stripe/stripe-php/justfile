@@ -8,6 +8,9 @@ export PATH := "vendor/bin:" + env_var('PATH')
 _default:
     just --list --unsorted
 
+# ⭐ run format, lint, and tests to prepare for CI
+prepare: format lint test
+
 # install vendored dependencies
 install *args:
     composer install {{ if is_dependency() == "true" {"--quiet"} else {""} }} {{ args }}
@@ -20,11 +23,11 @@ test *args: install
 # run tests in CI; can use autoload mode (or not)
 [confirm("This will modify local files and is intended for use in CI; do you want to proceed?")]
 ci-test autoload:
-    ./build.php {{ autoload }}
+    php build.php {{ autoload }}
 
 # ⭐ format all files
 format *args: install
-    PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix -v --using-cache=no {{ args }}
+    php-cs-fixer fix -v --using-cache=no {{ args }}
 
 # check formatting for, but don't modify, files
 format-check: (format "--dry-run")
@@ -32,6 +35,10 @@ format-check: (format "--dry-run")
 # ⭐ statically analyze code
 lint *args:
     php -d memory_limit=512M vendor/bin/phpstan analyse lib tests {{args}}
+
+# statically analyze code (strict)
+lint-test:
+    phpstan analyse examples/IteratorExample.php --level=9
 
 # for backwards compatibility; ideally removed later
 [private]

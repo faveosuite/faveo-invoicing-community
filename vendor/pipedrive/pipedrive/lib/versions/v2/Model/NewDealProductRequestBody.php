@@ -2,7 +2,7 @@
 /**
  * NewDealProductRequestBody
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -78,7 +78,7 @@ class NewDealProductRequestBody implements ModelInterface, ArrayAccess, JsonSeri
         'product_variation_id' => 'int',
         'billing_frequency' => '\Pipedrive\versions\v2\Model\BillingFrequency',
         'billing_frequency_cycles' => 'int',
-        'billing_start_date' => 'string'
+        'billing_start_date' => '\DateTime'
     ];
 
     /**
@@ -101,7 +101,7 @@ class NewDealProductRequestBody implements ModelInterface, ArrayAccess, JsonSeri
         'product_variation_id' => null,
         'billing_frequency' => null,
         'billing_frequency_cycles' => null,
-        'billing_start_date' => 'YYYY-MM-DD'
+        'billing_start_date' => 'date'
     ];
 
     /**
@@ -293,7 +293,7 @@ class NewDealProductRequestBody implements ModelInterface, ArrayAccess, JsonSeri
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['product_id'] = $data['product_id'] ?? null;
         $this->container['item_price'] = $data['item_price'] ?? null;
@@ -674,7 +674,7 @@ class NewDealProductRequestBody implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Gets billing_start_date
      *
-     * @return string|null
+     * @return \DateTime|null
      */
     public function getBillingStartDate()
     {
@@ -684,7 +684,7 @@ class NewDealProductRequestBody implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Sets billing_start_date
      *
-     * @param string|null $billing_start_date Only available in Growth and above plans  The billing start date. Must be between 10 years in the past and 10 years in the future
+     * @param \DateTime|null $billing_start_date Only available in Growth and above plans  The billing start date. Must be between 10 years in the past and 10 years in the future
      *
      * @return self
      */

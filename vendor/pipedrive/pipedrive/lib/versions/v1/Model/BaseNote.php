@@ -2,7 +2,7 @@
 /**
  * BaseNote
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -80,10 +80,13 @@ class BaseNote implements ModelInterface, ArrayAccess, JsonSerializable
         'person_id' => 'int',
         'project_id' => 'int',
         'project' => '\Pipedrive\versions\v1\Model\BaseNoteProject',
+        'task_id' => 'int',
+        'task' => '\Pipedrive\versions\v1\Model\BaseNoteTask',
         'pinned_to_deal_flag' => 'bool',
         'pinned_to_organization_flag' => 'bool',
         'pinned_to_person_flag' => 'bool',
         'pinned_to_project_flag' => 'bool',
+        'pinned_to_task_flag' => 'bool',
         'update_time' => 'string',
         'user' => '\Pipedrive\versions\v1\Model\NoteCreatorUser',
         'user_id' => 'int'
@@ -111,10 +114,13 @@ class BaseNote implements ModelInterface, ArrayAccess, JsonSerializable
         'person_id' => null,
         'project_id' => null,
         'project' => null,
+        'task_id' => null,
+        'task' => null,
         'pinned_to_deal_flag' => null,
         'pinned_to_organization_flag' => null,
         'pinned_to_person_flag' => null,
         'pinned_to_project_flag' => null,
+        'pinned_to_task_flag' => null,
         'update_time' => null,
         'user' => null,
         'user_id' => null
@@ -165,10 +171,13 @@ class BaseNote implements ModelInterface, ArrayAccess, JsonSerializable
         'person_id' => 'person_id',
         'project_id' => 'project_id',
         'project' => 'project',
+        'task_id' => 'task_id',
+        'task' => 'task',
         'pinned_to_deal_flag' => 'pinned_to_deal_flag',
         'pinned_to_organization_flag' => 'pinned_to_organization_flag',
         'pinned_to_person_flag' => 'pinned_to_person_flag',
         'pinned_to_project_flag' => 'pinned_to_project_flag',
+        'pinned_to_task_flag' => 'pinned_to_task_flag',
         'update_time' => 'update_time',
         'user' => 'user',
         'user_id' => 'user_id'
@@ -194,10 +203,13 @@ class BaseNote implements ModelInterface, ArrayAccess, JsonSerializable
         'person_id' => 'setPersonId',
         'project_id' => 'setProjectId',
         'project' => 'setProject',
+        'task_id' => 'setTaskId',
+        'task' => 'setTask',
         'pinned_to_deal_flag' => 'setPinnedToDealFlag',
         'pinned_to_organization_flag' => 'setPinnedToOrganizationFlag',
         'pinned_to_person_flag' => 'setPinnedToPersonFlag',
         'pinned_to_project_flag' => 'setPinnedToProjectFlag',
+        'pinned_to_task_flag' => 'setPinnedToTaskFlag',
         'update_time' => 'setUpdateTime',
         'user' => 'setUser',
         'user_id' => 'setUserId'
@@ -223,10 +235,13 @@ class BaseNote implements ModelInterface, ArrayAccess, JsonSerializable
         'person_id' => 'getPersonId',
         'project_id' => 'getProjectId',
         'project' => 'getProject',
+        'task_id' => 'getTaskId',
+        'task' => 'getTask',
         'pinned_to_deal_flag' => 'getPinnedToDealFlag',
         'pinned_to_organization_flag' => 'getPinnedToOrganizationFlag',
         'pinned_to_person_flag' => 'getPinnedToPersonFlag',
         'pinned_to_project_flag' => 'getPinnedToProjectFlag',
+        'pinned_to_task_flag' => 'getPinnedToTaskFlag',
         'update_time' => 'getUpdateTime',
         'user' => 'getUser',
         'user_id' => 'getUserId'
@@ -297,7 +312,7 @@ class BaseNote implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['id'] = $data['id'] ?? null;
         $this->container['active_flag'] = $data['active_flag'] ?? null;
@@ -313,10 +328,13 @@ class BaseNote implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['person_id'] = $data['person_id'] ?? null;
         $this->container['project_id'] = $data['project_id'] ?? null;
         $this->container['project'] = $data['project'] ?? null;
+        $this->container['task_id'] = $data['task_id'] ?? null;
+        $this->container['task'] = $data['task'] ?? null;
         $this->container['pinned_to_deal_flag'] = $data['pinned_to_deal_flag'] ?? null;
         $this->container['pinned_to_organization_flag'] = $data['pinned_to_organization_flag'] ?? null;
         $this->container['pinned_to_person_flag'] = $data['pinned_to_person_flag'] ?? null;
         $this->container['pinned_to_project_flag'] = $data['pinned_to_project_flag'] ?? null;
+        $this->container['pinned_to_task_flag'] = $data['pinned_to_task_flag'] ?? null;
         $this->container['update_time'] = $data['update_time'] ?? null;
         $this->container['user'] = $data['user'] ?? null;
         $this->container['user_id'] = $data['user_id'] ?? null;
@@ -685,6 +703,54 @@ class BaseNote implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
+     * Gets task_id
+     *
+     * @return int|null
+     */
+    public function getTaskId()
+    {
+        return $this->container['task_id'];
+    }
+
+    /**
+     * Sets task_id
+     *
+     * @param int|null $task_id The ID of the task the note is attached to
+     *
+     * @return self
+     */
+    public function setTaskId($task_id): self
+    {
+        $this->container['task_id'] = $task_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets task
+     *
+     * @return \Pipedrive\versions\v1\Model\BaseNoteTask|null
+     */
+    public function getTask()
+    {
+        return $this->container['task'];
+    }
+
+    /**
+     * Sets task
+     *
+     * @param \Pipedrive\versions\v1\Model\BaseNoteTask|null $task task
+     *
+     * @return self
+     */
+    public function setTask($task): self
+    {
+        $this->container['task'] = $task;
+
+        return $this;
+    }
+
+    /**
      * Gets pinned_to_deal_flag
      *
      * @return bool|null
@@ -776,6 +842,30 @@ class BaseNote implements ModelInterface, ArrayAccess, JsonSerializable
     public function setPinnedToProjectFlag($pinned_to_project_flag): self
     {
         $this->container['pinned_to_project_flag'] = $pinned_to_project_flag;
+
+        return $this;
+    }
+
+    /**
+     * Gets pinned_to_task_flag
+     *
+     * @return bool|null
+     */
+    public function getPinnedToTaskFlag()
+    {
+        return $this->container['pinned_to_task_flag'];
+    }
+
+    /**
+     * Sets pinned_to_task_flag
+     *
+     * @param bool|null $pinned_to_task_flag If true, the results are filtered by note to task pinning state
+     *
+     * @return self
+     */
+    public function setPinnedToTaskFlag($pinned_to_task_flag): self
+    {
+        $this->container['pinned_to_task_flag'] = $pinned_to_task_flag;
 
         return $this;
     }

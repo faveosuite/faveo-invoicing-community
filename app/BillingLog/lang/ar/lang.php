@@ -29,7 +29,6 @@ return [
     'inspire' => 'عرض اقتباس ملهم',
     'renewal:cron' => 'عملية تجديد تلقائي',
     'mail-send-exception' => 'استثناء إرسال البريد',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => 'إشعار تجديد منتهي الصلاحية',
     'renewal:notification' => 'إشعار التجديد التلقائي',
     'cleanup:msg-reports' => 'تنظيف تقارير MSG91',
@@ -40,11 +39,8 @@ return [
     'droptables' => 'حذف جميع الجداول',
     'install:db' => 'تثبيت قاعدة البيانات',
     'testing-setup' => 'إعداد بيئة الاختبار',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'تم إرسال الطلب في قائمة الانتظار بنجاح',
-    // Added missing UI texts
     'cancel' => 'إلغاء',
-    // Added missing messages from blade file
     'system_logs' => 'سجلات النظام',
     'filter_logs' => 'تصفية السجلات',
     'logs' => 'السجلات',
@@ -101,4 +97,5 @@ return [
     'confirm_old_email' => 'تأكيد البريد الإلكتروني القديم',
     'confirm_mobile_number_change' => 'تأكيد تغيير رقم الجوال',
     'logs:delete' => 'حذف سجلات النظام',
+    'date' => 'التاريخ',
 ];

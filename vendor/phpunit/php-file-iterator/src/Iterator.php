@@ -9,6 +9,7 @@
  */
 namespace SebastianBergmann\FileIterator;
 
+use function array_any;
 use function preg_match;
 use function realpath;
 use function str_ends_with;
@@ -72,7 +73,7 @@ final class Iterator extends FilterIterator
     private function acceptPath(string $path): bool
     {
         // Filter files in hidden directories by checking path that is relative to the base path.
-        if (preg_match('=/\.[^/]*/=', str_replace((string) $this->basePath, '', $path))) {
+        if (preg_match('=/\.[^/]*/=', str_replace((string) $this->basePath, '', $path)) === 1) {
             return false;
         }
 
@@ -94,17 +95,11 @@ final class Iterator extends FilterIterator
      */
     private function acceptSubString(string $filename, array $subStrings, int $type): bool
     {
-        if (empty($subStrings)) {
+        if ($subStrings === []) {
             return true;
         }
 
-        foreach ($subStrings as $string) {
-            if (($type === self::PREFIX && str_starts_with($filename, $string)) ||
-                ($type === self::SUFFIX && str_ends_with($filename, $string))) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($subStrings, static fn (string $string) => ($type === self::PREFIX && str_starts_with($filename, $string)) ||
+            ($type === self::SUFFIX && str_ends_with($filename, $string)));
     }
 }

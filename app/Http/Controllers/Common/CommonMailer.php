@@ -3,28 +3,36 @@
 namespace App\Http\Controllers\Common;
 
 use Exception;
+use Illuminate\Mail\Mailer;
+use Mail;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 
 class CommonMailer
 {
-    public function setSmtpDriver($config)
+    /**
+     * @param  array<mixed>  $config
+     */
+    public function setSmtpDriver(array $config): bool|string
     {
         try {
-            if (! $config) {
+            if ($config === []) {
                 return false;
             }
+
             $transport = new EsmtpTransport($config['host'], $config['port']);
             $transport->setUsername($config['username']);
             $transport->setPassword($config['password']);
 
             // Set the mailer
-            \Mail::setSymfonyTransport($transport);
+            /** @var Mailer $mailer */
+            $mailer = Mail::mailer();
+            $mailer->setSymfonyTransport($transport);
 
             return true;
-        } catch (Exception $e) {
-            loging($e->getMessage());
+        } catch (Exception $exception) {
+            \Logger::exception($exception);
 
-            return $e->getMessage();
+            return $exception->getMessage();
         }
     }
 }

@@ -2,6 +2,61 @@
 
 All notable changes to `laravel-csp` will be documented in this file
 
+## 3.25.1 - 2026-06-02
+
+### What's Changed
+
+* Chore: add Algolia insights domain by @chinmaypurav in https://github.com/spatie/laravel-csp/pull/212
+
+**Full Changelog**: https://github.com/spatie/laravel-csp/compare/3.25.0...3.25.1
+
+## 3.25.0 - 2026-05-11
+
+### What's Changed
+
+* Support separate report endpoints for the report-only CSP policy by @freekmurze in https://github.com/spatie/laravel-csp/pull/211
+
+**Full Changelog**: https://github.com/spatie/laravel-csp/compare/3.24.1...3.25.0
+
+## 3.24.1 - 2026-05-04
+
+### What's Changed
+
+* Add `Directive::IMG:Scheme::DATA` for Bootstrap by @weshooper in https://github.com/spatie/laravel-csp/pull/209
+
+**Full Changelog**: https://github.com/spatie/laravel-csp/compare/3.24.0...3.24.1
+
+## 3.24.0 - 2026-05-04
+
+### What's Changed
+
+* Remove deprecated `block-all-mixed-content` directive from README by @weshooper in https://github.com/spatie/laravel-csp/pull/206
+* Add report-to support without removing report-uri by @freekmurze in https://github.com/spatie/laravel-csp/pull/208
+
+### New Contributors
+
+* @weshooper made their first contribution in https://github.com/spatie/laravel-csp/pull/206
+
+**Full Changelog**: https://github.com/spatie/laravel-csp/compare/3.23.1...3.24.0
+
+## 3.23.1 - 2026-04-30
+
+### What's Changed
+
+* Switch to scoped singletons to support Laravel Octane by @m-fi in https://github.com/spatie/laravel-csp/pull/205
+
+### New Contributors
+
+* @m-fi made their first contribution in https://github.com/spatie/laravel-csp/pull/205
+
+**Full Changelog**: https://github.com/spatie/laravel-csp/compare/3.23.0...3.23.1
+
+## 3.23.0 - 2026-02-21
+
+### What's Changed
+
+- Add Laravel 13 support
+
 ## 3.21.0 - 2025-10-16
 
 ### What's Changed

@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'title' => 'Agora Faturalama Kurulumu',
     'probe' => 'Agora Faturalama Testleri',
     'magic_phrase' => 'Sihirli kelime nedir',
@@ -20,7 +19,6 @@ return [
     'off_apache' => 'KAPALI (Apache kullanıyorsanız, yapılandırmada <var><strong>AllowOverride</strong></var> değerinin <var><strong>All</strong></var> olarak ayarlandığından emin olun)',
     'rewrite_engine' => 'Yönlendirme Motoru',
     'user_url' => 'Kullanıcı dostu URL',
-
     'host' => 'Sunucu',
     'host_tooltip' => 'Eğer MySQL, Agora Faturalama ile aynı sunucuda kuruluysa localhost olarak bırakın',
     'database_name_label' => 'Veritabanı adı',
@@ -30,7 +28,6 @@ return [
     'password_label' => 'Şifre',
     'test_prerequisites_message' => 'Bu test, Agora Faturalama kurulumu için gereken ön koşulları kontrol eder',
     'previous' => 'Önceki',
-
     'sign_up_as_admin' => 'Yönetici olarak kayıt ol',
     'first_name' => 'Ad',
     'first_name_required' => 'Ad gerekli',
@@ -44,14 +41,27 @@ return [
     'confirm_password_required' => 'Şifre onayı gerekli',
     'password_requirements' => 'Şifreniz şu gereksinimleri karşılamalıdır:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => '8-16 karakter arasında'],
-        ['id' => 'letter', 'text' => 'Küçük harfler (a-z)'],
-        ['id' => 'capital', 'text' => 'Büyük harfler (A-Z)'],
-        ['id' => 'number', 'text' => 'Rakamlar (0-9)'],
-        ['id' => 'space', 'text' => 'Özel karakterler (~*!@$#%_+.?:,{ })'],
+        [
+            'id' => 'length',
+            'text' => '8-16 karakter arasında',
+        ],
+        [
+            'id' => 'letter',
+            'text' => 'Küçük harfler (a-z)',
+        ],
+        [
+            'id' => 'capital',
+            'text' => 'Büyük harfler (A-Z)',
+        ],
+        [
+            'id' => 'number',
+            'text' => 'Rakamlar (0-9)',
+        ],
+        [
+            'id' => 'space',
+            'text' => 'Özel karakterler (~*!@$#%_+.?:,{ })',
+        ],
     ],
-
-    // System Information
     'system_information' => 'Sistem Bilgisi',
     'environment' => 'Ortam',
     'environment_required' => 'Ortam bilgisi gerekli',
@@ -63,42 +73,29 @@ return [
     'file' => 'Dosya',
     'redis' => 'Redis',
     'password' => 'Şifre',
-
-    // Redis Setup
     'redis_setup' => 'Redis Kurulumu',
     'redis_host' => 'Redis Sunucusu',
     'redis_port' => 'Redis Portu',
     'redis_password' => 'Redis Şifresi',
-
-    // Buttons
     'continue' => 'Devam Et',
-
-    // Final Setup
     'final_setup' => 'Agora Faturalama Uygulamanız Hazır!',
     'installation_complete' => 'Harika! Kurulumu başarıyla tamamladınız.',
-
-    // Learn More
     'learn_more' => 'Daha Fazla Bilgi',
     'knowledge_base' => 'Bilgi Bankası',
     'email_support' => 'E-posta Desteği',
-
-    // Next Step
     'next_step' => 'Sonraki Adım',
     'login_button' => 'Agora Faturalama’ya Giriş Yap',
-
     'pre_migration_success' => 'Ön taşıma testi başarıyla tamamlandı',
     'migrating_tables' => 'Veritabanı tabloları taşınıyor',
     'db_connection_error' => 'Veritabanı bağlantısı güncellenemedi.',
     'database_setup_success' => 'Veritabanı başarıyla yapılandırıldı.',
     'env_file_created' => 'Ortam yapılandırma dosyası başarıyla oluşturuldu',
     'pre_migration_test' => 'Ön taşıma testi çalıştırılıyor',
-
     'redis_host_required' => 'Redis sunucusu gerekli.',
     'redis_password_required' => 'Redis şifresi gerekli.',
     'redis_port_required' => 'Redis portu gerekli.',
     'password_regex' => 'Şifre en az 8 karakter uzunluğunda olmalı, bir büyük harf, bir küçük harf, bir rakam ve bir özel karakter içermelidir.',
     'setup_completed' => 'Kurulum başarıyla tamamlandı!',
-
     'database' => 'Veritabanı',
     'selected' => 'Seçildi',
     'mysql_version_is' => 'MySQL sürümü',
@@ -114,8 +111,6 @@ return [
     'user_name' => 'Kullanıcı adı',
     'user_email' => 'Kullanıcı e-postası',
     'password_not_match' => 'Şifreler eşleşmiyor',
-
-    // new
     'installation_check' => 'Bu test, Agora Invoice Community kurulumu için gerekli ön koşulları kontrol eder',
     'db_setup_error_1' => 'Bu, kullanıcı adı veya şifre bilgilerinin yanlış olduğu ya da sunucunuza ulaşılamadığı anlamına gelir.',
     'db_setup_error_2' => 'Verilen veritabanı adıyla bir veritabanı oluşturduğunuzdan emin misiniz?',
@@ -145,7 +140,6 @@ return [
     'i_accept' => 'Kabul ediyorum',
     'enter_license' => 'Lütfen lisans kodunuzu girin',
     'find_license_in_billing' => 'Faturalama portalımızda lisans kodunuzu bulabilirsiniz',
-    'system_information' => 'Sistem Bilgisi',
     'close' => 'Kapat',
     'port_number' => 'Port Numarası',
     'is_required' => 'gereklidir',
@@ -160,5 +154,4 @@ return [
     'tooltip_timezone' => 'Başlangıçta tarayıcı zaman dilimi kullanılır. Gerekirse farklı bir zaman dilimi seçin.',
     'tooltip_language' => 'Başlangıçta yüklenen varsayılan dil. Gerekirse farklı bir dil seçin.',
     'enter_magic_phrase' => 'Sihirli ifadeyi girin',
-
 ];
