@@ -29,7 +29,6 @@ return [
     'inspire' => 'インスピレーションを与える引用を表示',
     'renewal:cron' => '自動更新Cron',
     'mail-send-exception' => 'メール送信例外',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => '期限切れ更新通知',
     'renewal:notification' => '自動更新通知',
     'cleanup:msg-reports' => 'MSG91レポートのクリーンアップ',
@@ -40,11 +39,8 @@ return [
     'droptables' => 'すべてのテーブルを削除',
     'install:db' => 'データベースをインストール',
     'testing-setup' => 'テスト環境をセットアップ',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'キューのディスパッチが成功しました',
-    // Added missing UI texts
     'cancel' => 'キャンセル',
-    // Added missing messages from blade file
     'system_logs' => 'システムログ',
     'filter_logs' => 'ログをフィルター',
     'logs' => 'ログ',
@@ -100,6 +96,17 @@ return [
     'verify_new_email' => '新しいメールを確認してください',
     'confirm_old_email' => '古いメールを確認してください',
     'confirm_mobile_number_change' => '携帯番号の変更を確認してください',
-
     'logs:delete' => 'システムログを削除',
+    'cloud:send-instance-emails' => 'クラウドインスタンスのメールを送信',
+    'activity-logs:cleanup' => 'アクティビティログのクリーンアップ',
+    'app:crack-callback-cleanup' => 'クラッキングコールバックのクリーンアップ',
+    'app:crack-reports-cleanup' => 'クラッキングレポートのクリーンアップ',
+    'app:failed-message-delivery' => '失敗したWhatsAppメッセージを再送信',
+    'app:license-reports-cleanup' => 'ライセンスレポートのクリーンアップ',
+    'app:system-reports-cleanup' => 'システムレポートのクリーンアップ',
+    'app:versions-cleanup' => 'バージョンのクリーンアップ',
+    'installation:logs' => '非アクティブなインストールをマーク',
+    'reoon:logs-deletion' => 'Reoonログのクリーンアップ',
+    'seo:generate-files' => 'SEOファイルを生成',
+    'date' => '日付',
 ];

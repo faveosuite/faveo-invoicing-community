@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Common\Sms;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\User;
+use Exception;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Logger;
 
 class SmsOtpController extends Controller
 {
@@ -38,7 +41,7 @@ class SmsOtpController extends Controller
     protected function getCredentials(): object
     {
         if ($this->cachedCredentials === null) {
-            $this->cachedCredentials = ApiKey::find(1, [
+            $this->cachedCredentials = ApiKey::findOrFail(1, [
                 'msg91_auth_key',
                 'msg91_sender',
                 'msg91_template_id',
@@ -53,8 +56,8 @@ class SmsOtpController extends Controller
      *
      * @param  string  $method  HTTP method (GET, POST, etc.)
      * @param  string  $url  Full MSG91 API endpoint URL
-     * @param  array  $queryParams  Query parameters for the request
-     * @return array{status: int, body: array} Response with status code and decoded body
+     * @param  array<mixed>  $queryParams  Query parameters for the request
+     * @return array{status: int, body: array<mixed>} Response with status code and decoded body
      */
     public function makeRequest(string $method, string $url, array $queryParams = []): array
     {
@@ -62,7 +65,7 @@ class SmsOtpController extends Controller
 
         try {
             $response = Http::withHeaders([
-                'authkey' => $credentials->msg91_auth_key,
+                'authkey' => $credentials->msg91_auth_key, // @phpstan-ignore property.notFound
                 'Content-Type' => 'application/json',
             ])
                 ->withOptions([
@@ -78,10 +81,10 @@ class SmsOtpController extends Controller
                 'status' => $response->status(),
                 'body' => $response->json() ?? [],
             ];
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return $this->errorPayload('There was an error processing your request');
+            return $this->errorPayload('There was an error processing your request'); // @phpstan-ignore return.type
         }
     }
 
@@ -90,6 +93,7 @@ class SmsOtpController extends Controller
      *
      * @param  string  $mobile  Full mobile number with country code (e.g. "919876543210")
      * @param  int|null  $userID  Optional user ID for tracking the OTP request in delivery reports
+     * @param  array<mixed>  $mobileInfo
      * @return array{type: string, message: string}
      */
     public function sendOtp(string $mobile, ?int $userID = null, string $source = 'register', array $mobileInfo = []): array
@@ -98,8 +102,8 @@ class SmsOtpController extends Controller
         $credentials = $this->getCredentials();
 
         $queryParams = [
-            'template_id' => $credentials->msg91_template_id,
-            'sender' => $credentials->msg91_sender,
+            'template_id' => $credentials->msg91_template_id, // @phpstan-ignore property.notFound
+            'sender' => $credentials->msg91_sender, // @phpstan-ignore property.notFound
             'mobile' => $mobile,
             'otp_length' => self::OTP_LENGTH,
             'otp_expiry' => self::OTP_EXPIRY_MINUTES,
@@ -117,9 +121,10 @@ class SmsOtpController extends Controller
      *
      * @param  string  $mobile  Full mobile number with country code
      * @param  string  $type  Retry type: 'text' for SMS, 'voice' for voice call
+     * @param  array<mixed>  $mobileInfo
      * @return array{type: string, message: string}
      */
-    public function sendForReOtp(string $mobile, string $type, $userID = null, string $source = 'register', array $mobileInfo = []): array
+    public function sendForReOtp(string $mobile, string $type, mixed $userID = null, string $source = 'register', array $mobileInfo = []): array
     {
         $mobile = $this->sanitizeMobile($mobile);
 
@@ -142,7 +147,7 @@ class SmsOtpController extends Controller
      * @param  string  $mobile  Full mobile number with country code
      * @return array{type: string, message: string}
      */
-    public function sendVerifyOTP(string $otp, string $mobile, $userID = null, string $source = 'register'): array
+    public function sendVerifyOTP(string $otp, string $mobile, mixed $userID = null, string $source = 'register'): array
     {
         $mobile = $this->sanitizeMobile($mobile);
 
@@ -162,12 +167,12 @@ class SmsOtpController extends Controller
      * MSG91 returns {"type": "success"|"error", "message": "..."} in the body
      * for both 200 and non-200 (e.g. 401) status codes.
      *
-     * @param  array{status: int, body: array}  $response  Raw API response
+     * @param  array{status: int, body: array<mixed>}  $response  Raw API response
      * @return array{type: string, message: string} Normalized response
      */
     public function responseHandler(array $response): array
     {
-        $body = $response['body'] ?? [];
+        $body = $response['body'] ?? []; // @phpstan-ignore nullCoalesce.offset
         $type = $body['type'] ?? 'error';
         $message = $body['message'] ?? '';
 
@@ -195,12 +200,14 @@ class SmsOtpController extends Controller
     {
         return match ($message) {
             'Please enter atleast one number to send sms.', 'Mobile no. empty or not numeric', 'Mobile number empty or not numeric' => __('message.enter_your_mobile'),
-            'OTP expired', 'otp_expired' => __('message.email_verification.token_expired'),
+            // "already verified": this number's OTP session was used up (e.g. by another flow), so ask for a fresh code.
+            'OTP expired', 'otp_expired', 'Mobile no. already verified' => __('message.email_verification.token_expired'),
             'Mobile no. not found', 'OTP not match' => __('message.otp_invalid'),
             'Max limit reached for this otp verification' => __('message.otp_verification.max_attempts_exceeded', ['time' => 'later']),
             'No OTP request found to retryotp' => __('message.otp_verification.resend_failure'),
             'OTP retry count maxed out' => __('message.otp_verification.resend_max_attempts_exceeded', ['time' => 'later']),
-            default => __('message.msg_service_down'),
+            // Unrecognised replies (e.g. "IP is not whitelisted") are logged so the real cause isn't hidden.
+            default => tap(__('message.msg_service_down'), fn () => Log::warning('MSG91 error: '.$message)),
         };
     }
 
@@ -209,7 +216,7 @@ class SmsOtpController extends Controller
      */
     protected function sanitizeMobile(string $mobile): string
     {
-        return preg_replace('/\D/', '', $mobile);
+        return preg_replace('/\D/', '', $mobile) ?? '';
     }
 
     /**
@@ -217,15 +224,18 @@ class SmsOtpController extends Controller
      *
      * On 'send': creates a new record with action = 'send'.
      * On 'resend': appends retry attempt to the same record (e.g. 'send, retry_1').
+     *
+     * @param  array<mixed>  $mobileInfo
+     * @param  array<mixed>  $response
      */
-    protected function trackOtpRequest(array $response, $userID, string $source, string $action, array $mobileInfo = []): void
+    protected function trackOtpRequest(array $response, mixed $userID, string $source, string $action, array $mobileInfo = []): void
     {
         if (! $userID) {
             return;
         }
 
         // Use provided mobile info (e.g. profile update with new number), or fall back to user's saved mobile
-        if ($mobileInfo) {
+        if ($mobileInfo !== []) {
             $countryIso = $mobileInfo['country_iso'];
             $mobileNumber = $mobileInfo['mobile'];
             $mobileCode = $mobileInfo['mobile_code'];
@@ -236,13 +246,14 @@ class SmsOtpController extends Controller
                 return;
             }
 
+            /** @var User $user */
             $countryIso = $user->mobile_country_iso;
             $mobileNumber = $user->mobile;
             $mobileCode = $user->mobile_code;
         }
 
         try {
-            $controller = new MSG91Controller();
+            $controller = new MSG91Controller;
 
             if ($action === 'resend') {
                 $controller->appendOtpRetry(
@@ -265,13 +276,15 @@ class SmsOtpController extends Controller
                     'send'
                 );
             }
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
         }
     }
 
     /**
      * Build a standardized error response payload.
+     *
+     * @return array<mixed>
      */
     protected function errorPayload(string $message): array
     {

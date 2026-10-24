@@ -9,7 +9,7 @@
  */
 namespace PHPUnit\TextUI\Configuration;
 
-use function count;
+use function assert;
 use Iterator;
 
 /**
@@ -41,7 +41,7 @@ final class TestSuiteCollectionIterator implements Iterator
 
     public function valid(): bool
     {
-        return $this->position < count($this->testSuites);
+        return isset($this->testSuites[$this->position]);
     }
 
     /**
@@ -54,6 +54,8 @@ final class TestSuiteCollectionIterator implements Iterator
 
     public function current(): TestSuite
     {
+        assert(isset($this->testSuites[$this->position]));
+
         return $this->testSuites[$this->position];
     }
 

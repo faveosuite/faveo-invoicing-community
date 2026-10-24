@@ -9,14 +9,19 @@
  */
 namespace SebastianBergmann\CodeCoverage\Data;
 
+use function array_map;
 use NoDiscard;
 use SebastianBergmann\CodeCoverage\Driver\XdebugDriver;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
  * @phpstan-import-type TestIdType from ProcessedCodeCoverageData
  * @phpstan-import-type XdebugFunctionCoverageType from XdebugDriver
+ * @phpstan-import-type XdebugBranchCoverageType from XdebugDriver
+ * @phpstan-import-type XdebugPathCoverageType from XdebugDriver
  */
 final readonly class ProcessedFunctionCoverageData
 {
@@ -31,16 +36,23 @@ final readonly class ProcessedFunctionCoverageData
      */
     public static function fromXdebugCoverage(array $xdebugCoverageData): self
     {
-        $branches = [];
+        $branches = array_map(
+            /** @param XdebugBranchCoverageType $branch */
+            static function (array $branch): ProcessedBranchCoverageData
+            {
+                return ProcessedBranchCoverageData::fromXdebugCoverage($branch);
+            },
+            $xdebugCoverageData['branches'],
+        );
 
-        foreach ($xdebugCoverageData['branches'] as $branchId => $branch) {
-            $branches[$branchId] = ProcessedBranchCoverageData::fromXdebugCoverage($branch);
-        }
-        $paths = [];
-
-        foreach ($xdebugCoverageData['paths'] as $pathId => $path) {
-            $paths[$pathId] = ProcessedPathCoverageData::fromXdebugCoverage($path);
-        }
+        $paths = array_map(
+            /** @param XdebugPathCoverageType $path */
+            static function (array $path): ProcessedPathCoverageData
+            {
+                return ProcessedPathCoverageData::fromXdebugCoverage($path);
+            },
+            $xdebugCoverageData['paths'],
+        );
 
         return new self(
             $branches,
@@ -106,6 +118,10 @@ final readonly class ProcessedFunctionCoverageData
      */
     public function recordBranchHit(int $branchId, string $testCaseId): void
     {
+        if (!isset($this->branches[$branchId])) {
+            return;
+        }
+
         $this->branches[$branchId]->recordHit($testCaseId);
     }
 
@@ -114,6 +130,10 @@ final readonly class ProcessedFunctionCoverageData
      */
     public function recordPathHit(int $pathId, string $testCaseId): void
     {
+        if (!isset($this->paths[$pathId])) {
+            return;
+        }
+
         $this->paths[$pathId]->recordHit($testCaseId);
     }
 }

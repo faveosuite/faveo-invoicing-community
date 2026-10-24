@@ -1,0 +1,1649 @@
+<template>
+    <div>
+
+        <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
+
+        <template v-else-if="!order">
+            <div class="alert alert-warning">{{ __('message.no_records_found') }}</div>
+        </template>
+
+        <template v-else>
+
+            <!-- Summary Bar -->
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-12 alert bg-color-grey">
+                    <div class="d-flex flex-column flex-md-row justify-content-between plan-features text-center">
+                        <div>
+                            <strong>{{ __('message.order_number') }}</strong><br>
+                            #{{ order.number }}
+                        </div>
+                        <div class="mt-3 mt-md-0">
+                            <strong>{{ __('message.date') }}</strong><br>
+                            {{ formatDate(order.order_date) }}
+                        </div>
+                        <div class="mt-3 mt-md-0">
+                            <strong>{{ __('message.product') }}</strong><br>
+                            {{ order.product_name || '—' }}
+                        </div>
+                        <div class="mt-3 mt-md-0">
+                            <strong>{{ __('message.status') }}</strong><br>
+                            {{ order.status || '—' }}
+                        </div>
+                        <div class="mt-3 mt-md-0">
+                            <strong>{{ __('message.license_expiry') }}</strong><br>
+                            {{ formatDate(order.license_ends_at) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instance deleted (expiry cron, or by the client/admin): the order still reads
+                 "Executed", so say why Renew is gone and the helpdesk no longer loads. -->
+            <div v-if="order.is_cloud_deleted && order.status !== 'Terminated'" class="row justify-content-center mb-4">
+                <div class="col-lg-12 alert alert-danger mb-0">
+                    <strong>{{ __('message.instance_deleted') }}</strong>
+                    <p class="mb-0 mt-1 text-reset">{{ __('message.cloud_instance_deleted_no_renew') }}</p>
+                </div>
+            </div>
+
+            <!-- Terminated because of a plan/agent change: explain why this
+                 order stopped working and point at what replaced it. Someone
+                 can land here directly (bookmark, old link) without ever
+                 seeing the "Terminated" badge on the orders list. -->
+            <div v-if="order.status === 'Terminated' && order.replacement_order" class="row justify-content-center mb-4">
+                <div class="col-lg-12 alert alert-warning mb-0">
+                    <strong>{{ __('message.order_terminated_notice_title') }}</strong>
+                    <p class="mb-0 mt-1">{{ __('message.order_terminated_notice_body') }}</p>
+                    <p class="mb-0 mt-1">
+                        {{ __('message.order_terminated_replacement') }}
+                        <RouterLink :to="'/my-order/' + order.replacement_order.id">#{{ order.replacement_order.number }}</RouterLink>
+                    </p>
+                </div>
+            </div>
+
+            <!-- The reverse case: this order exists because an older one was
+                 terminated (a plan/agent change created it automatically) —
+                 say so plainly instead of leaving an order the client doesn't
+                 remember placing themselves unexplained. -->
+            <div v-else-if="order.predecessor_order" class="row justify-content-center mb-4">
+                <div class="col-lg-12 alert alert-info mb-0">
+                    {{ __('message.order_created_from_predecessor') }}
+                    <RouterLink :to="'/my-order/' + order.predecessor_order.id">#{{ order.predecessor_order.number }}</RouterLink>
+                </div>
+            </div>
+
+            <!-- Two-column layout -->
+            <div class="row pt-2">
+
+                <!-- Left mini-nav -->
+                <div class="col-lg-3 mt-4 mt-lg-0 client-sidebar-col">
+                    <aside class="sidebar client-sidebar mt-2 mb-5">
+                        <ul class="nav nav-list no-arrows flex-column">
+                            <!-- Nothing to show for a terminated order — the notice
+                                 above already covers it, and this tab held nothing
+                                 but the (no longer reachable) license itself. -->
+                            <li v-if="order.status !== 'Terminated'" class="nav-item">
+                                <button type="button" class="nav-link w-100 text-start" :class="{ active: activeTab === 'license' }"
+                                   :aria-current="activeTab === 'license' ? 'true' : undefined" @click="activeTab = 'license'">
+                                    <i class="fas fa-file-contract fa-fw nav-icon" aria-hidden="true"></i>{{ __('message.license_details') }}
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button type="button" class="nav-link w-100 text-start" :class="{ active: activeTab === 'users' }"
+                                   :aria-current="activeTab === 'users' ? 'true' : undefined" @click="activeTab = 'users'">
+                                    <i class="fas fa-users fa-fw nav-icon" aria-hidden="true"></i>{{ __('message.user_details') }}
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button type="button" class="nav-link w-100 text-start" :class="{ active: activeTab === 'invoice' }"
+                                   :aria-current="activeTab === 'invoice' ? 'true' : undefined" @click="activeTab = 'invoice'">
+                                    <i class="fas fa-file-invoice fa-fw nav-icon" aria-hidden="true"></i>{{ __('message.invoice_list') }}
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button type="button" class="nav-link w-100 text-start" :class="{ active: activeTab === 'receipt' }"
+                                   :aria-current="activeTab === 'receipt' ? 'true' : undefined" @click="activeTab = 'receipt'">
+                                    <i class="fas fa-receipt fa-fw nav-icon" aria-hidden="true"></i>{{ __('message.payment_receipts') }}
+                                </button>
+                            </li>
+                            <li v-if="showCloudTab" class="nav-item">
+                                <button type="button" class="nav-link w-100 text-start" :class="{ active: activeTab === 'cloud' }"
+                                   :aria-current="activeTab === 'cloud' ? 'true' : undefined" @click="openCloudTab">
+                                    <i class="fas fa-cloud fa-fw nav-icon" aria-hidden="true"></i>{{ __('message.cloud_settings') }}
+                                </button>
+                            </li>
+                            <li v-if="showAutoRenewTab" class="nav-item">
+                                <button type="button" class="nav-link w-100 text-start" :class="{ active: activeTab === 'auto-renew' }"
+                                   :aria-current="activeTab === 'auto-renew' ? 'true' : undefined" @click="activeTab = 'auto-renew'">
+                                    <i class="fas fa-rotate fa-fw nav-icon" aria-hidden="true"></i>{{ __('message.auto_renewal') }}
+                                </button>
+                            </li>
+                            <li v-if="order.whatsapp_enabled" class="nav-item">
+                                <button type="button" class="nav-link w-100 text-start" :class="{ active: activeTab === 'whatsapp' }"
+                                   :aria-current="activeTab === 'whatsapp' ? 'true' : undefined" @click="activeTab = 'whatsapp'">
+                                    <i class="fab fa-whatsapp fa-fw nav-icon" aria-hidden="true"></i>{{ __('message.whatsapp_signup') }}
+                                </button>
+                            </li>
+                            <li v-if="order.can_deploy && order.has_deployable_uploads" class="nav-item">
+                                <button type="button" class="nav-link w-100 text-start" :class="{ active: activeTab === 'deploy' }"
+                                   :aria-current="activeTab === 'deploy' ? 'true' : undefined" @click="activeTab = 'deploy'">
+                                    <i class="fas fa-rocket fa-fw nav-icon" aria-hidden="true"></i>{{ __('message.deploy') }}
+                                </button>
+                            </li>
+                        </ul>
+                    </aside>
+                </div>
+
+                <!-- Right content -->
+                <div class="col-lg-9 mt-2">
+
+                    <!-- ── License Details ──────────────────────────────── -->
+                    <!-- Nav item above hides this tab for a terminated order, and
+                         onMounted() redirects activeTab away from it in that case,
+                         so nothing here needs its own Terminated check any more. -->
+                    <div v-show="activeTab === 'license'">
+
+                        <div class="row align-items-center">
+                            <div class="col-sm-5">
+                                <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                    <span class="fw-bold">{{ __('message.license_code') }}</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-7 d-flex align-items-center gap-2">
+                                <span>{{ order.serial_key || '—' }}</span>
+                                <button v-if="order.serial_key" type="button"
+                                        class="btn btn-light btn-sm ms-2 table_btn"
+                                        :aria-label="copied ? __('message.copied') : __('message.copy')"
+                                        v-tooltip="{ content: copied ? __('message.copied') : __('message.copy'), hideTriggers: t => t }"
+                                        @click="copyLicense">
+                                    <i :class="copied ? 'fas fa-check text-success' : 'fas fa-copy'" aria-hidden="true"></i>
+                                </button>
+                                <span class="visually-hidden" aria-live="polite">{{ copied ? __('message.copied') : '' }}</span>
+                                <button v-if="order.serial_key && order.can_reissue" type="button"
+                                        class="btn btn-light btn-sm table_btn"
+                                        :disabled="reissuing"
+                                        @click="showReissueModal = true">
+                                    <i v-if="reissuing" class="fas fa-circle-notch fa-spin me-1" aria-hidden="true"></i>
+                                    <i v-else class="fas fa-id-card-alt me-1" aria-hidden="true"></i>{{ __('message.reissue_license') }}
+                                </button>
+                                <!-- One renewal extends license, updates and support together, so it sits with
+                                     the license rather than beside any one date. -->
+                                <button v-if="order.can_renew" type="button"
+                                        class="btn btn-light btn-sm table_btn"
+                                        @click="showRenewModal = true">
+                                    <i class="fas fa-sync-alt me-1" aria-hidden="true"></i>{{ __('message.renew') }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                        <div class="row align-items-center">
+                            <div class="col-sm-5">
+                                <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                    <span class="fw-bold">{{ __('message.license_expiry_date') }}</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-7 d-flex align-items-center gap-2">
+                                <span>{{ formatDate(order.license_ends_at) }}</span>
+                            </div>
+                        </div>
+
+                        <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                        <div class="row align-items-center">
+                            <div class="col-sm-5">
+                                <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                    <span class="fw-bold">{{ __('message.update_expiry_date') }}</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-7 d-flex align-items-center gap-2">
+                                <span>{{ formatDate(order.update_ends_at) }}</span>
+                            </div>
+                        </div>
+
+                        <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                        <div class="row align-items-center">
+                            <div class="col-sm-5">
+                                <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                    <span class="fw-bold">{{ __('message.support_expiry_date') }}</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-7">
+                                <span>{{ formatDate(order.support_ends_at) }}</span>
+                            </div>
+                        </div>
+
+                        <template v-if="order.can_use_license_file">
+                            <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                            <div class="row align-items-center">
+                                <div class="col-sm-5">
+                                    <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                        <span class="fw-bold">{{ __('message.localized_license') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">
+                                    <button type="button" class="btn btn-light btn-sm table_btn" @click="handleDownloadClick">
+                                        <i class="fas fa-download me-1" aria-hidden="true"></i>{{ __('message.download_license_file') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                        <!-- Installations table -->
+                        <DataTable :key="`${orderId}-${installKey}`" :url="installationsUrl" :dataColumns="installColumns" :option="installOptions">
+                            <template #last_active="{ row }">{{ formatDate(row.last_active) }}</template>
+                            <template #version="{ row }">{{ row.version || '—' }}</template>
+                        </DataTable>
+                    </div>
+
+                    <!-- ── User Details ─────────────────────────────────── -->
+                    <div v-show="activeTab === 'users'">
+                        <template v-if="order.user">
+                            <div class="row align-items-center">
+                                <div class="col-sm-5">
+                                    <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                        <span class="fw-bold">{{ __('message.client_name') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">{{ order.user.name || '—' }}</div>
+                            </div>
+                            <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                            <div class="row align-items-center">
+                                <div class="col-sm-5">
+                                    <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                        <span class="fw-bold">{{ __('message.email') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">{{ order.user.email || '—' }}</div>
+                            </div>
+                            <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                            <div class="row align-items-center">
+                                <div class="col-sm-5">
+                                    <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                        <span class="fw-bold">{{ __('message.mobile') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">{{ order.user.mobile ? (order.user.mobile_code ? `+${order.user.mobile_code} ${order.user.mobile}` : order.user.mobile) : '—' }}</div>
+                            </div>
+                            <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                            <div class="row align-items-center">
+                                <div class="col-sm-5">
+                                    <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                        <span class="fw-bold">{{ __('message.address') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">{{ order.user.address || '—' }}</div>
+                            </div>
+                            <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                            <div class="row align-items-center">
+                                <div class="col-sm-5">
+                                    <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                        <span class="fw-bold">{{ __('message.town') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">{{ order.user.town || '—' }}</div>
+                            </div>
+                            <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                            <div class="row align-items-center">
+                                <div class="col-sm-5">
+                                    <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                        <span class="fw-bold">{{ __('message.state') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">{{ order.user.state || '—' }}</div>
+                            </div>
+                            <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                            <div class="row align-items-center">
+                                <div class="col-sm-5">
+                                    <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                        <span class="fw-bold">{{ __('message.country') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">{{ order.user.country || '—' }}</div>
+                            </div>
+                            <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                            <div class="row align-items-center">
+                                <div class="col-sm-5">
+                                    <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                        <span class="fw-bold">{{ __('message.zip') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">{{ order.user.zip || '—' }}</div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- ── Invoice List ─────────────────────────────────── -->
+                    <div v-if="activeTab === 'invoice'">
+                        <DataTable :key="orderId" :url="invoicesUrl" :dataColumns="invoiceColumns" :option="invoiceOptions">
+                            <template #number="{ row }">
+                                <div class="d-flex flex-column align-items-start">
+                                    <RouterLink :to="'/my-invoice/' + row.id" class="fw-semibold">{{ row.number || '—' }}</RouterLink>
+                                    <span v-if="row.is_renewed" class="badge bg-primary mt-1 w-auto">
+                                        {{ __('message.renewed') }}
+                                    </span>
+                                </div>
+                            </template>
+                            <template #date="{ row }">{{ formatDate(row.date) }}</template>
+                            <template #status="{ row }">
+                                <span class="badge" :class="invoiceBadge(row.status)">{{ row.status || '—' }}</span>
+                            </template>
+                            <template #action="{ row }">
+                                <RouterLink :to="'/my-invoice/' + row.id" class="btn btn-sm btn-light"
+                                            :aria-label="__('message.view')"
+                                            v-tooltip="__('message.view')">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                </RouterLink>
+                            </template>
+                        </DataTable>
+                    </div>
+
+                    <!-- ── Payment Receipts ─────────────────────────────── -->
+                    <div v-if="activeTab === 'receipt'">
+                        <DataTable :key="orderId" :url="paymentsUrl" :dataColumns="paymentColumns" :option="paymentOptions">
+                            <template #invoice_number="{ row }">
+                                <RouterLink v-if="row.invoice_id" :to="'/my-invoice/' + row.invoice_id" class="fw-semibold">{{ row.invoice_number || '—' }}</RouterLink>
+                                <span v-else>{{ row.invoice_number || '—' }}</span>
+                            </template>
+                            <template #payment_status="{ row }">
+                                <span :class="paymentBadge(row.payment_status)">{{ row.payment_status || '—' }}</span>
+                            </template>
+                            <template #created_at="{ row }">{{ formatDate(row.created_at) }}</template>
+                        </DataTable>
+                    </div>
+
+                    <!-- ── Cloud Settings ───────────────────────────────── -->
+                    <div v-if="showCloudTab" v-show="activeTab === 'cloud'">
+
+                        <div v-if="cloudLoading" class="row justify-content-center py-3"><loader /></div>
+
+                        <template v-else-if="cloud">
+                            <div class="row">
+                                <!-- Change cloud domain -->
+                                <div class="col-lg-6 mb-4">
+                                    <div class="card border-radius-1 bg-color-light box-shadow-6 box-shadow-hover cur-pointer h-100"
+                                         role="button" tabindex="0"
+                                         @click="openDomainModal" @keydown.enter.space.prevent="openDomainModal">
+                                        <div class="card-body p-relative zindex-1 p-3">
+                                            <div class="feature-box feature-box-style-6 text-center d-block">
+                                                <div class="feature-box-icon justify-content-center">
+                                                    <i class="fas fa-globe text-primary" aria-hidden="true"></i>
+                                                </div>
+                                                <div class="feature-box-info">
+                                                    <h4 class="text-4 mt-3 mb-2 text-color-grey">{{ __('message.change_cloud_domain') }}</h4>
+                                                    <p class="mb-2"><strong class="text-black text-2">{{ __('message.current_domain_name') }}</strong> {{ cloud.installation_path || '—' }}</p>
+                                                    <p class="mb-0 text-2">{{ __('message.click_customising_domain') }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Increase / decrease agents -->
+                                <div class="col-lg-6 mb-4">
+                                    <div class="card border-radius-1 bg-color-light box-shadow-6 box-shadow-hover cur-pointer h-100"
+                                         role="button" tabindex="0"
+                                         @click="openAgentsModal" @keydown.enter.space.prevent="openAgentsModal">
+                                        <div class="card-body p-relative zindex-1 p-3">
+                                            <div class="feature-box feature-box-style-6 text-center d-block">
+                                                <div class="feature-box-icon justify-content-center">
+                                                    <i class="fas fa-users text-primary" aria-hidden="true"></i>
+                                                </div>
+                                                <div class="feature-box-info">
+                                                    <h4 class="text-4 mt-3 mb-2 text-color-grey">{{ __('message.increase_decrease_agents') }}</h4>
+                                                    <p class="mb-2"><strong class="text-black text-2">{{ __('message.current_no_agents') }}</strong> {{ cloud.current_agents }}</p>
+                                                    <p class="mb-0 text-2">{{ __('message.update_agent_count') }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Upgrade / downgrade plan -->
+                                <div v-if="!cloud.is_free_plan" class="col-lg-6 mb-4">
+                                    <div class="card border-radius-1 bg-color-light box-shadow-6 box-shadow-hover cur-pointer h-100"
+                                         role="button" tabindex="0"
+                                         @click="openPlanModal" @keydown.enter.space.prevent="openPlanModal">
+                                        <div class="card-body p-relative zindex-1 p-3">
+                                            <div class="feature-box feature-box-style-6 text-center d-block">
+                                                <div class="feature-box-icon justify-content-center">
+                                                    <i class="fas fa-cloud-upload-alt text-primary" aria-hidden="true"></i>
+                                                </div>
+                                                <div class="feature-box-info">
+                                                    <h4 class="text-4 mt-3 mb-2 text-color-grey">{{ __('message.upgrade_downgrade_cloud') }}</h4>
+                                                    <p class="mb-2"><strong class="text-black text-2">{{ __('message.current_plan') }}</strong> {{ cloud.current_plan_name }}</p>
+                                                    <p class="mb-0 text-2">{{ __('message.change_cloud_plan') }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-else class="col-12">
+                                    <h6 class="mb-1"><i>{{ __('message.current_plan') }} {{ cloud.current_plan_name }}</i></h6>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- ── Auto Renewal ─────────────────────────────────── -->
+                    <div v-if="showAutoRenewTab && activeTab === 'auto-renew'">
+                        <AppCard>
+                            <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="auto-renewal-icon"><i class="fas fa-sync-alt" aria-hidden="true"></i></div>
+                                    <div>
+                                        <span class="fw-bold">
+                                            {{ __('message.auto_renewal') }}
+                                            <span class="badge rounded-pill ms-1" :class="['active', 'pending', 'enabled'].includes(order.auto_renew_state) ? 'badge-soft-success' : 'badge-soft-secondary'">
+                                                <template v-if="order.auto_renew_state === 'active'">{{ __('message.active') }}</template>
+                                                <template v-else-if="order.auto_renew_state === 'pending'">{{ __('message.pending_authorization') }}</template>
+                                                <template v-else-if="order.auto_renew_state === 'enabled'">{{ __('message.enabled') }}</template>
+                                                <template v-else>{{ __('message.inactive') }}</template>
+                                            </span>
+                                        </span>
+                                        <p class="text-muted text-2 mb-0">{{ __('message.auto_renewal_description') }}</p>
+                                        <template v-if="order.is_subscribed && order.autorenew_log">
+                                            <small class="text-muted text-capitalize">
+                                                {{ __('message.payment_gateway') }}: {{ order.autorenew_log.payment_method }}
+                                                &nbsp;&middot;&nbsp;
+                                                {{ __('message.subscription_enabled_date') }} {{ formatDate(order.autorenew_log.date) }}
+                                            </small>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                           :aria-label="__('message.auto_renewal')"
+                                           :checked="order.is_subscribed" :disabled="renewalBusy"
+                                           @click.prevent="onAutoRenewToggleClick"
+                                           v-tooltip="order.is_subscribed ? __('message.disable') : __('message.enable')">
+                                </div>
+                            </div>
+                        </AppCard>
+                    </div>
+
+                    <!-- ── WhatsApp SignUp ──────────────────────────────── -->
+                    <div v-if="order.whatsapp_enabled" v-show="activeTab === 'whatsapp'">
+                        <WhatsappPanel :order="order" :active="activeTab === 'whatsapp'" />
+                    </div>
+
+                    <!-- ── Deploy ──────────────────────────────────────────── -->
+                    <div v-show="activeTab === 'deploy'">
+                        <DeployWizard
+                            v-if="order.can_deploy && order.has_deployable_uploads"
+                            :orderId="order.id"
+                            :manualGuideUrl="order.manual_install_guide_url"
+                        />
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ── Change Cloud Domain modal ────────────────────────── -->
+            <Modal :showModal="showDomainModal" :onClose="closeDomainModal" :showCloseBtn="false">
+                <template #title>
+                    <h5 class="modal-title fw-bold">{{ __('message.change_cloud_domain') }}</h5>
+                </template>
+                <template #fields>
+                    <AppAlert componentName="domain-modal" />
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                        <span class="fw-semibold text-dark">{{ __('message.current_cloud_domain') }}</span>
+                        <span class="text-dark">{{ cloud?.installation_path || '—' }}</span>
+                    </div>
+                    <ClientField type="text" name="newDomain" required
+                                 :label="__('message.enter_domain_new_name')"
+                                 v-model="domainForm.newDomain"
+                                 placeholder="https://billing.custom.com…" autocomplete="off" :spellcheck="false" />
+                </template>
+                <template #controls>
+                    <action-button action="cancel" @click="closeDomainModal" />
+                    <action-button action="confirm"
+                                   :label="__('message.chg_domain')"
+                                   :loading="domainBusy"
+                                   :disabled="!domainForm.newDomain"
+                                   @click="submitDomain" />
+                </template>
+            </Modal>
+
+            <!-- ── Change Number of Agents modal ────────────────────── -->
+            <Modal :showModal="showAgentsModal" :onClose="closeAgentsModal" :showCloseBtn="false">
+                <template #title>
+                    <h5 class="modal-title fw-bold">{{ __('message.change_no_of_agents') }}</h5>
+                </template>
+                <template #fields>
+                    <AppAlert componentName="agents-modal" />
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-semibold text-dark">{{ __('message.current_no_agents') }}</span>
+                            <span class="text-dark">{{ cloud?.current_agents || '—' }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold text-dark">{{ __('message.price_per_agent') }}</span>
+                            <span class="text-dark">{{ cloud?.price_per_agent || '—' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="text-center mb-4">
+                        <div class="download-section-label mb-2">{{ __('message.choose_no_desired_agents') }}</div>
+                        <div class="d-flex align-items-center justify-content-center gap-3">
+                            <button type="button" class="btn btn-light agent-stepper-btn" :aria-label="__('message.remove_one_agent')" :disabled="agentAtMinimum" @click="stepAgents(-1)">
+                                <i class="fas fa-minus" aria-hidden="true"></i>
+                            </button>
+                            <span class="agent-count-display">{{ agentForm.number || 0 }}</span>
+                            <button type="button" class="btn btn-light agent-stepper-btn" :aria-label="__('message.add_one_agent')" @click="stepAgents(1)">
+                                <i class="fas fa-plus" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <!-- Plain sentence, not a bare "+1" symbol — says what's
+                             about to happen, not just a number. -->
+                        <div v-if="agentChanged" class="fw-bold mt-2" :class="agentIncreasing ? 'text-success' : 'text-danger'">
+                            {{ agentSubmitLabel }}
+                        </div>
+                    </div>
+
+                    <!-- Laid out like a receipt on purpose: a cost, a credit for
+                         what's unused, and the total — so it's obvious the two
+                         big numbers above aren't extra charges, they're what
+                         the final number below is calculated from. -->
+                    <div v-if="agentChanged" class="cost-breakdown rounded p-3 mb-1">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-semibold text-dark">{{ __('message.new_agent_count_cost', { count: agentForm.number }) }}</span>
+                            <span class="text-dark">{{ agentNewCost }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom">
+                            <span class="fw-semibold text-dark">{{ __('message.unused_current_agents_credit', { count: cloud?.current_agents }) }}</span>
+                            <span class="text-success">−{{ agentCurrentCost }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-dark">{{ __('message.price_due_today') }}</span>
+                            <span class="fw-bold text-dark fs-5">{{ agentCost }}</span>
+                        </div>
+                    </div>
+
+                    <p v-if="agentChanged" class="text-color-grey text-2 mb-0">
+                        {{ __('message.agent_proration_note', { count: agentForm.number }) }}
+                    </p>
+                </template>
+                <template #controls>
+                    <action-button action="cancel" @click="closeAgentsModal" />
+                    <action-button action="confirm"
+                                   :label="agentSubmitLabel"
+                                   :loading="agentBusy"
+                                   :disabled="!agentChanged"
+                                   @click="submitAgents" />
+                </template>
+            </Modal>
+
+            <!-- ── Upgrade / Downgrade Plan modal ───────────────────── -->
+            <Modal :showModal="showPlanModal" :onClose="closePlanModal" :showCloseBtn="false">
+                <template #title>
+                    <h5 class="modal-title fw-bold">{{ __('message.upgrade_downgrade_cloud_plan') }}</h5>
+                </template>
+                <template #fields>
+                    <AppAlert componentName="plan-modal" />
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                        <span class="fw-semibold text-dark">{{ __('message.current_plan') }}</span>
+                        <span class="text-dark">{{ cloud?.current_plan_name || '—' }}</span>
+                    </div>
+
+                    <DynamicSelect name="planId" required
+                                 :label="__('message.select_new_plan')"
+                                 :elements="cloud?.plans || []"
+                                 :value="(cloud?.plans || []).find(p => p.id === planForm.planId) ?? null"
+                                 :onChange="onPlanChange" />
+
+                    <!-- Reads top to bottom like a real deduction: how much
+                         credit you have, what the new plan costs, how much
+                         of that credit gets used, then what's left to pay.
+                         The second, distinctly-styled box is money going the
+                         OTHER way (into your account) — kept apart so it's
+                         never confused with the subtraction above it. -->
+                    <template v-if="planCost">
+                        <div class="cost-breakdown rounded p-3 mt-2 mb-1">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-semibold text-dark">{{ __('message.total_credits_remaining') }}</span>
+                                <span class="text-dark">{{ planCost.currency_symbol }}{{ planCost.priceoldplan }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom">
+                                <span class="fw-semibold text-dark">{{ __('message.price_for_new_plan') }}</span>
+                                <span class="text-dark">{{ planCost.currency_symbol }}{{ planCost.pricenewplan }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom">
+                                <span class="fw-semibold text-dark">{{ __('message.credit_deducted_label') }}</span>
+                                <span class="text-success">−{{ planCost.currency_symbol }}{{ planCost.credit_applied }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-dark">{{ __('message.price_due_today') }}</span>
+                                <span class="fw-bold text-dark fs-5">{{ planCost.currency_symbol }}{{ planCost.price_to_be_paid }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Leftover credit (old plan worth more than the new
+                             one costs) doesn't just vanish — called out here,
+                             clearly apart from the payment math above. -->
+                        <div v-if="planFutureCredit > 0" class="future-credit-callout rounded p-3 mb-1 d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold text-dark">{{ __('message.future_plan_credit_label') }}</span>
+                            <span class="text-success fs-6">+{{ planCost.currency_symbol }}{{ planCost.discount }}</span>
+                        </div>
+                    </template>
+                </template>
+                <template #controls>
+                    <action-button action="cancel" @click="closePlanModal" />
+                    <action-button action="confirm"
+                                   :label="__('message.change_plan')"
+                                   :loading="planBusy"
+                                   :disabled="!planForm.planId"
+                                   @click="submitPlan" />
+                </template>
+            </Modal>
+
+        <!-- ── Enable Auto Renewal: gateway selection modal ──── -->
+        <Modal :showModal="showRenewalModal" :onClose="closeRenewalModal" :showCloseBtn="false">
+            <template #title>
+                <h5 class="modal-title fw-bold">{{ __('message.auto_renewal') }}</h5>
+            </template>
+            <template #fields>
+                <AppAlert componentName="auto-renew-modal" />
+                <DynamicSelect
+                    name="gateway"
+                    :label="__('message.select_payment')"
+                    :elements="gatewayOptions"
+                    :value="gatewayOptions.find(g => g.id === selectedGateway) ?? null"
+                    :onChange="(v) => selectedGateway = v?.id ?? ''"
+                    :clearable="false"
+                    :required="true"
+                />
+            </template>
+            <template #controls>
+                <action-button action="cancel" @click="closeRenewalModal" />
+                <action-button action="confirm" icon="fas fa-toggle-on"
+                               :label="__('message.enable')"
+                               :loading="renewalBusy"
+                               :disabled="!selectedGateway"
+                               @click="enableAutoRenewal" />
+            </template>
+        </Modal>
+
+        <!-- ── Stripe card modal for renewal ──────────────────── -->
+        <Modal :showModal="showStripeRenewalModal" :onClose="closeStripeRenewalModal" :showCloseBtn="false" :showControls="false" classname="modal-md">
+            <template #title>
+                <div class="d-flex align-items-center justify-content-between w-100 me-3">
+                    <h5 class="modal-title fw-bold mb-0">{{ __('message.enter_card_details') }}</h5>
+                    <div class="d-flex gap-1">
+                        <img :src="`${baseUrl}/images/logo/cards/visa.svg`" width="30" alt="Visa" height="20">
+                        <img :src="`${baseUrl}/images/logo/cards/mastercard.svg`" width="30" alt="Mastercard" height="20">
+                        <img :src="`${baseUrl}/images/logo/cards/amex.svg`" width="30" alt="American Express" height="20">
+                    </div>
+                </div>
+            </template>
+            <template #fields>
+                <div class="px-2 pb-3">
+                    <AppAlert componentName="stripe-renewal-modal" />
+
+                    <div class="mb-4">
+                        <label for="renewal-card-number" class="form-label mb-1" @click="renewalCardNumber?.focus()">{{ __('message.card_number') }}</label>
+                        <div id="renewal-card-number" class="form-control h-auto py-3" :class="{ 'is-invalid': renewalCardErrors.number }"></div>
+                        <div v-if="renewalCardErrors.number" class="invalid-feedback d-block">{{ renewalCardErrors.number }}</div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <label for="renewal-card-expiry" class="form-label mb-1" @click="renewalCardExpiry?.focus()">{{ __('message.expiry_date') }}</label>
+                            <div id="renewal-card-expiry" class="form-control h-auto py-3" :class="{ 'is-invalid': renewalCardErrors.expiry }"></div>
+                            <div v-if="renewalCardErrors.expiry" class="invalid-feedback d-block">{{ renewalCardErrors.expiry }}</div>
+                        </div>
+                        <div class="col-6">
+                            <label for="renewal-card-cvc" class="form-label mb-1" @click="renewalCardCvc?.focus()">{{ __('message.cvc') }}</label>
+                            <div id="renewal-card-cvc" class="form-control h-auto py-3" :class="{ 'is-invalid': renewalCardErrors.cvc }"></div>
+                            <div v-if="renewalCardErrors.cvc" class="invalid-feedback d-block">{{ renewalCardErrors.cvc }}</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center border rounded px-2 py-2 mb-3">
+                        <span class="fw-bold text-color-dark">{{ __('message.total') }}</span>
+                        <span class="fw-bold text-color-dark">{{ renewalSymbol }}{{ renewalAmount }}</span>
+                    </div>
+
+                    <button type="button" class="btn btn-primary w-100 py-2 fw-bold text-uppercase"
+                            :disabled="stripeRenewalBusy" @click="payRenewalStripe">
+                        <span v-if="stripeRenewalBusy" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                        {{ stripeRenewalBusy ? __('message.please_wait') : __('message.pay_now') }}
+                    </button>
+                </div>
+            </template>
+        </Modal>
+
+        <!-- ── Reissue License confirmation ───────────────────────── -->
+        <Modal :showModal="showReissueModal" :onClose="() => showReissueModal = false" :showCloseBtn="false">
+            <template #title>
+                <h5 class="modal-title fw-bold">{{ __('message.are_you_sure') }}</h5>
+            </template>
+            <template #fields>
+                <p class="mb-0">{{ __('message.reissuing_license') }}</p>
+            </template>
+            <template #controls>
+                <action-button action="cancel" @click="showReissueModal = false" />
+                <action-button action="confirm" icon="fas fa-id-card-alt"
+                               :label="__('message.reissue_license')"
+                               :loading="reissuing"
+                               @click="reissueLicense" />
+            </template>
+        </Modal>
+
+        <!-- ── Disable Auto-Renewal confirmation ─────────────────── -->
+        <Modal :showModal="showDisableRenewalModal" :onClose="closeDisableRenewalModal" :showCloseBtn="false">
+            <template #title>
+                <h5 class="modal-title fw-bold">{{ __('message.disable_auto_renewal') }}</h5>
+            </template>
+            <template #fields>
+                <p class="mb-0">{{ __('message.disable_auto_renewal_confirm') }}</p>
+            </template>
+            <template #controls>
+                <action-button action="cancel" @click="closeDisableRenewalModal" />
+                <action-button action="delete" icon="fas fa-toggle-off"
+                               :label="__('message.disable')"
+                               :loading="renewalBusy"
+                               @click="confirmDisableRenewal" />
+            </template>
+        </Modal>
+
+        <!-- ── Bind license (domain + machine ID) before first download ── -->
+        <Modal :showModal="showBindingModal" :onClose="closeBindingModal" :showCloseBtn="false">
+            <template #title>
+                <h5 class="modal-title fw-bold">{{ __('message.localized_license') }}</h5>
+            </template>
+            <template #fields>
+                <AppAlert componentName="license-binding-modal" />
+                <p class="text-muted mb-3">{{ __('message.activation_code_tooltip') }}</p>
+                <ClientField type="textarea" :rows="4" name="bindingActivationCode" required
+                             :label="__('message.activation_code')"
+                             v-model="bindingForm.activationCode"
+                             :placeholder="__('message.enter_activation_code')" autocomplete="off" />
+            </template>
+            <template #controls>
+                <action-button action="cancel" @click="closeBindingModal" />
+                <action-button action="confirm"
+                               :label="__('message.save_and_download')"
+                               :loading="bindingBusy"
+                               :disabled="!bindingForm.activationCode"
+                               @click="submitBinding" />
+            </template>
+        </Modal>
+
+        <!-- ── Pick which license file to download (main product + entitled add-ons) ── -->
+        <Modal :showModal="showDownloadModal" :onClose="closeDownloadModal" :showCloseBtn="false" classname="modal-dialog-scrollable download-license-modal">
+            <template #title>
+                <h5 class="modal-title fw-bold">{{ __('message.localized_license') }}</h5>
+            </template>
+            <template #fields>
+                <div class="download-section-label">{{ __('message.product') }}</div>
+                <ul class="list-group mb-3">
+                    <li class="list-group-item d-flex align-items-center justify-content-between">
+                        <span>{{ order?.product_name || __('message.product') }}</span>
+                        <button type="button" class="btn btn-light btn-sm table_btn" :aria-label="__('message.download')" @click="selectDownload(null)">
+                            <i class="fas fa-download" aria-hidden="true"></i>
+                        </button>
+                    </li>
+                </ul>
+
+                <template v-if="pluginLicenses.length">
+                    <div class="download-section-label">{{ __('message.addons') }}</div>
+                    <ul class="list-group">
+                        <li
+                            v-for="plugin in pluginLicenses"
+                            :key="plugin.id"
+                            class="list-group-item d-flex align-items-center justify-content-between"
+                        >
+                            <span>{{ plugin.name }}</span>
+                            <button type="button" class="btn btn-light btn-sm table_btn" :aria-label="__('message.download')" @click="selectDownload(plugin.id)">
+                                <i class="fas fa-download" aria-hidden="true"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </template>
+            </template>
+            <template #controls>
+                <action-button action="close" @click="closeDownloadModal" />
+            </template>
+        </Modal>
+
+        <!-- ── Renew Order modal (shared with the orders list page) ── -->
+        <RenewModal v-model:show="showRenewModal" :order="order" />
+
+        </template>
+    </div>
+</template>
+
+<script setup>
+import { ref, reactive, computed, watch } from 'vue'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
+import http from '@/plugins/axios'
+import { __ } from '@/plugins/i18n'
+import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
+import { useAlertStore } from '@/core/stores/alert'
+import { useLoaderStore } from '@/core/stores/loader'
+import Modal from '@/themes/porto/components/common/Modal.vue'
+import AppAlert from '@/components/Reusable/Alert.vue'
+import RenewModal from './components/RenewModal.vue'
+import WhatsappPanel from './components/WhatsappPanel.vue'
+import DeployWizard from './components/DeployWizard.vue'
+import { useDateTime } from '@/core/composables/useDateTime'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+
+const { formatDate } = useDateTime()
+const baseUrl = useBaseUrl()
+const el      = document.getElementById('app-client')
+const userId  = el?.dataset?.userId  ?? ''
+
+const route   = useRoute()
+const router  = useRouter()
+// Reactive, not a one-time snapshot — the SPA reuses this component instance
+// when navigating from one order's page straight to another's (e.g. the
+// termination notice's "replaces order #X" link), so a plain `const` here
+// would freeze on whichever order loaded first and never update.
+const orderId = computed(() => route.params.id)
+
+const loading   = ref(true)
+const copied    = ref(false)
+const activeTab = ref(route.query.tab || 'license')
+const order     = ref(null)
+
+// Mirror the open tab in ?tab= so reload/back/share land on it ('license' = no param).
+watch(activeTab, (tab) => {
+    if ((route.query.tab || 'license') === tab) return
+    const { tab: _omit, ...query } = route.query
+    router.replace({ query: tab === 'license' ? query : { ...query, tab } })
+})
+
+const installationsUrl = computed(() => `/get-my-installations/${orderId.value}`)
+const invoicesUrl      = computed(() => `/get-my-invoices/${orderId.value}/${userId}`)
+const paymentsUrl      = computed(() => `/get-my-payment-client/${orderId.value}/${userId}`)
+
+
+const installColumns = ['installation_path', 'installation_ip', 'version', 'last_active']
+const installOptions = reactive({
+    headings: {
+        installation_path: () => __('message.installation_path'),
+        installation_ip:   () => __('message.installation_ip'),
+        version:           () => __('message.version'),
+        last_active:       () => __('message.last_active'),
+    },
+    columnsClasses: {
+        installation_path: 'dt-text',
+        installation_ip:   'dt-code',
+        version:            'dt-code',
+        last_active:        'dt-date',
+    },
+    sortable:   ['installation_path', 'installation_ip', 'last_active'],
+    filterable: true,
+})
+
+const invoiceColumns = ['number', 'date', 'grand_total', 'status', 'action']
+const invoiceOptions = reactive({
+    headings: {
+        number:      () => __('message.invoice_no'),
+        date:        () => __('message.date'),
+        grand_total: () => __('message.grand_total'),
+        status:      () => __('message.status'),
+        action:      () => __('message.actions'),
+    },
+    columnsClasses: {
+        number:      'dt-number',
+        date:        'dt-date',
+        grand_total: 'dt-amount',
+        status:      'dt-status',
+        action:      'dt-action',
+    },
+    sortable:   ['number', 'date'],
+    filterable: true,
+})
+
+const paymentColumns = ['invoice_number', 'amount', 'payment_method', 'payment_status', 'created_at']
+const paymentOptions = reactive({
+    headings: {
+        invoice_number: () => __('message.invoice_no'),
+        amount:         () => __('message.total'),
+        payment_method: () => __('message.method'),
+        payment_status: () => __('message.status'),
+        created_at:     () => __('message.payment_date'),
+    },
+    columnsClasses: {
+        invoice_number: 'dt-number',
+        amount:         'dt-amount',
+        payment_method: 'dt-code',
+        payment_status: 'dt-status',
+        created_at:     'dt-date',
+    },
+    sortable:   ['payment_status', 'created_at'],
+    filterable: true,
+})
+
+/* ── Cloud settings state ─────────────────────────────────── */
+const cloud        = ref(null)
+const cloudLoading = ref(false)
+const cloudLoaded  = ref(false)
+
+const showDomainModal = ref(false)
+const showAgentsModal = ref(false)
+const showPlanModal   = ref(false)
+
+const domainForm = reactive({ newDomain: '' })
+// A single "desired total" field — simpler than an increase/decrease action
+// picker plus a delta amount. Direction and delta are worked out (here and
+// server-side) by comparing to the current count, not asked for directly.
+const agentForm  = reactive({ number: '' })
+const planForm   = reactive({ planId: '' })
+
+// Nothing to submit until the desired total actually differs from what's
+// already provisioned. Direction/delta are plain counts (not money), so
+// computing them here is fine — the one money figure shown (agentCost
+// below) always comes straight from the server, never computed here.
+const agentChanged = computed(() =>
+    !!agentForm.number && Number(agentForm.number) !== Number(cloud.value?.current_agents)
+)
+const agentIncreasing = computed(() => Number(agentForm.number || 0) > Number(cloud.value?.current_agents || 0))
+const agentCountDelta = computed(() => Math.abs(Number(agentForm.number || 0) - Number(cloud.value?.current_agents || 0)))
+const agentAtMinimum = computed(() => Number(agentForm.number || 0) <= 1)
+// "Add 1 agent" vs "Add 3 agents" — the __() helper has no pluralization, so
+// pick the right key by hand rather than showing "Add 1 agents". Used both
+// as the button label and as the plain-English line under the stepper, so
+// the two always say exactly the same thing.
+const agentSubmitLabel = computed(() => {
+    if (!agentChanged.value) return __('message.update_agents')
+    const count = agentCountDelta.value
+    if (agentIncreasing.value) return count === 1 ? __('message.add_one_agent') : __('message.add_agents_count', { count })
+    return count === 1 ? __('message.remove_one_agent') : __('message.remove_agents_count', { count })
+})
+
+function stepAgents(delta) {
+    const next = Number(agentForm.number || cloud.value?.current_agents || 1) + delta
+    agentForm.number = Math.max(1, next)
+    fetchAgentCost()
+}
+
+function onPlanChange(v) {
+    planForm.planId = v?.id ?? ''
+    fetchPlanCost()
+}
+
+const agentCost = ref('')
+// The two halves priceToPay (agentCost) is the difference of — see fetchAgentCost.
+const agentCurrentCost = ref('')
+const agentNewCost = ref('')
+const planCost  = ref(null)
+
+// Money fields from the backend are currency-formatted for display (e.g.
+// "3,000.00") — strip thousands separators before treating them as numbers.
+function toNumber(v) {
+    return parseFloat(String(v ?? '').replace(/,/g, '')) || 0
+}
+
+// planCost.credit_applied (backend-formatted) is the old plan's remaining
+// value actually going toward this purchase; planCost.discount is the
+// leftover beyond that, banked as credit for later (see below).
+// Set only when the old plan was worth more than the new one costs — the
+// difference doesn't just vanish, it's added to the account as credit.
+const planFutureCredit = computed(() => planCost.value ? toNumber(planCost.value.discount) : 0)
+
+const domainBusy = ref(false)
+const agentBusy  = ref(false)
+const planBusy   = ref(false)
+
+const alertStore = useAlertStore()
+const loaderStore = useLoaderStore()
+
+const showCloudTab      = computed(() => !!order.value?.can_manage_cloud)
+const showAutoRenewTab  = computed(() => !!order.value?.autorenewal_enabled && !!order.value?.can_renew)
+
+/* ── Auto Renewal ─────────────────────────────────────────── */
+const showRenewalModal = ref(false)
+const renewalBusy      = ref(false)
+const selectedGateway  = ref('')
+
+// The click is prevented so the native checkbox never flips on its own —
+// enabling needs a gateway pick + card verification, disabling needs
+// confirmation, so the switch only visually moves once order.is_subscribed
+// itself changes (on modal success), not just because it was clicked.
+function onAutoRenewToggleClick() {
+    if (order.value?.is_subscribed) {
+        showDisableRenewalModal.value = true
+    } else {
+        showRenewalModal.value = true
+    }
+}
+
+const gatewayOptions = computed(() => {
+    const active = (order.value?.available_gateways ?? []).map(g => g.toLowerCase())
+    const all = [
+        { id: 'stripe',   name: __('message.stripe') },
+        { id: 'razorpay', name: __('message.razorpay') },
+    ]
+    return active.length ? all.filter(g => active.includes(g.id)) : all
+})
+
+// Stripe card renewal state
+const showStripeRenewalModal = ref(false)
+const stripeRenewalBusy      = ref(false)
+const renewalCardErrors      = reactive({ number: '', expiry: '', cvc: '' })
+const renewalCardComplete    = reactive({ number: false, expiry: false, cvc: false })
+let stripeRenewal    = null
+let renewalCardNumber = null
+let renewalCardExpiry = null
+let renewalCardCvc    = null
+
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${src}"]`)) return resolve()
+        const s = document.createElement('script')
+        s.src = src
+        s.onload = resolve
+        s.onerror = () => reject(new Error('Failed to load ' + src))
+        document.head.appendChild(s)
+    })
+}
+
+function closeRenewalModal() {
+    alertStore.unsetAlert()
+    showRenewalModal.value = false
+    selectedGateway.value  = ''
+}
+
+function closeStripeRenewalModal() {
+    alertStore.unsetAlert()
+    showStripeRenewalModal.value = false
+    stripeRenewalBusy.value = false
+}
+
+const showDisableRenewalModal = ref(false)
+
+function closeDisableRenewalModal() {
+    showDisableRenewalModal.value = false
+}
+
+async function confirmDisableRenewal() {
+    renewalBusy.value = true
+    closeDisableRenewalModal()
+    try {
+        const res = await http.post(`/auto-renewal/${orderId.value}/disable`)
+        order.value.is_subscribed    = false
+        order.value.autorenew_status = false
+        order.value.auto_renew_state = 'inactive'
+        successHandler(res, 'client-page')
+    } catch (e) {
+        errorHandler(e, 'client-page')
+    } finally {
+        renewalBusy.value = false
+    }
+}
+
+async function enableAutoRenewal() {
+    if (!selectedGateway.value) return
+    renewalBusy.value = true
+    try {
+        if (selectedGateway.value === 'razorpay') {
+            const { data } = await http.post(`/auto-renewal/${orderId.value}/razorpay/order`)
+            closeRenewalModal()
+            await openRenewalRazorpayPopup(data.data)
+        } else {
+            closeRenewalModal()
+            await openRenewalStripeModal()
+        }
+    } catch (e) {
+        alertStore.setAlert({
+            message: e?.response?.data?.message ?? __('message.something_went_wrong'),
+            type: 'danger',
+            component_name: 'auto-renew-modal',
+        })
+        showRenewalModal.value = true
+    } finally {
+        renewalBusy.value = false
+    }
+}
+
+async function openRenewalRazorpayPopup(config) {
+    await loadScript('https://checkout.razorpay.com/v1/checkout.js')
+    // Opens directly against the already-created subscription (config.subscription_id)
+    // instead of a one-time order — the customer authorizes the recurring mandate
+    // right here, in one payment, instead of a separate verification charge now
+    // plus a second authorization step later via an emailed link.
+    const options = { ...config }
+    options.handler = async (response) => {
+        renewalBusy.value = true
+        loaderStore.startLoader('renewal-verify')
+        try {
+            const res = await http.post(`/auto-renewal/${orderId.value}/razorpay/confirm`, {
+                razorpay_subscription_id: response.razorpay_subscription_id,
+                razorpay_payment_id:      response.razorpay_payment_id,
+                razorpay_signature:       response.razorpay_signature,
+            })
+            order.value.is_subscribed    = true
+            // This popup *is* the authorization — no further step needed.
+            order.value.auto_renew_state = 'active'
+            successHandler(res, 'client-page')
+        } catch (e) {
+            errorHandler(e, 'client-page')
+        } finally {
+            renewalBusy.value = false
+            loaderStore.stopLoader('renewal-verify')
+        }
+    }
+    options.modal = { ondismiss: () => { renewalBusy.value = false } }
+    new globalThis.Razorpay(options).open()
+}
+
+let renewalClientSecret    = null
+let renewalPaymentIntentId = null
+const renewalAmount        = ref('')
+const renewalSymbol        = ref('')
+
+async function openRenewalStripeModal() {
+    const { data } = await http.post(`/auto-renewal/${orderId.value}/stripe/session`)
+    renewalClientSecret    = data.data.client_secret
+    renewalPaymentIntentId = data.data.payment_intent_id
+    renewalAmount.value    = data.data.display_amount ?? ''
+    renewalSymbol.value    = data.data.currency_symbol ?? ''
+
+    // Intent already succeeded on a prior idempotent attempt — skip card entry.
+    if (data.data.status === 'succeeded') {
+        await finalizeRenewalStripe()
+        return
+    }
+
+    await loadScript('https://js.stripe.com/v3/')
+    stripeRenewal = globalThis.Stripe(data.data.publishable_key)
+    const elements = stripeRenewal.elements()
+
+    Object.assign(renewalCardErrors,   { number: '', expiry: '', cvc: '' })
+    Object.assign(renewalCardComplete, { number: false, expiry: false, cvc: false })
+    alertStore.unsetAlert()
+    showStripeRenewalModal.value = true
+
+    await new Promise(r => setTimeout(r, 100))
+
+    const style = {
+        base: { fontSize: '15px', color: '#32325d', fontFamily: 'inherit', '::placeholder': { color: '#aab7c4' } },
+        invalid: { color: '#dc3545' },
+    }
+    renewalCardNumber = elements.create('cardNumber', { showIcon: true, style })
+    const cardExpiry  = renewalCardExpiry = elements.create('cardExpiry', { style })
+    const cardCvc     = renewalCardCvc    = elements.create('cardCvc', { style })
+
+    renewalCardNumber.mount('#renewal-card-number')
+    cardExpiry.mount('#renewal-card-expiry')
+    cardCvc.mount('#renewal-card-cvc')
+
+    const bind = (el, key) => el.on('change', e => {
+        renewalCardErrors[key]   = e.error ? e.error.message : ''
+        renewalCardComplete[key] = e.complete
+    })
+    bind(renewalCardNumber, 'number')
+    bind(cardExpiry, 'expiry')
+    bind(cardCvc, 'cvc')
+}
+
+async function payRenewalStripe() {
+    if (!renewalCardComplete.number) renewalCardErrors.number = renewalCardErrors.number || __('message.card_number_required')
+    if (!renewalCardComplete.expiry) renewalCardErrors.expiry = renewalCardErrors.expiry || __('message.expiry_required')
+    if (!renewalCardComplete.cvc)    renewalCardErrors.cvc    = renewalCardErrors.cvc    || __('message.cvc_required')
+    if (!renewalCardComplete.number || !renewalCardComplete.expiry || !renewalCardComplete.cvc) return
+
+    stripeRenewalBusy.value = true
+    alertStore.unsetAlert()
+    try {
+        const { paymentIntent, error: confirmError } = await stripeRenewal.confirmCardPayment(
+            renewalClientSecret,
+            { payment_method: { card: renewalCardNumber } },
+        )
+
+        if (confirmError) {
+            if (
+                confirmError.code === 'payment_intent_unexpected_state' ||
+                confirmError.payment_intent?.status === 'succeeded'
+            ) {
+                await finalizeRenewalStripe()
+                return
+            }
+            closeStripeRenewalModal()
+            alertStore.setAlert({ message: confirmError.message, type: 'danger', component_name: 'client-page' })
+            stripeRenewalBusy.value = false
+            return
+        }
+
+        if (paymentIntent?.status === 'succeeded') {
+            await finalizeRenewalStripe()
+        } else {
+            closeStripeRenewalModal()
+            alertStore.setAlert({ message: __('message.err_msg'), type: 'danger', component_name: 'client-page' })
+            stripeRenewalBusy.value = false
+        }
+    } catch (e) {
+        closeStripeRenewalModal()
+        alertStore.setAlert({
+            message: e?.response?.data?.message ?? __('message.something_went_wrong'),
+            type: 'danger',
+            component_name: 'client-page',
+        })
+        stripeRenewalBusy.value = false
+    }
+}
+
+async function finalizeRenewalStripe() {
+    loaderStore.startLoader('renewal-verify')
+    try {
+        const res = await http.post(`/auto-renewal/${orderId.value}/stripe/confirm`, {
+            payment_intent: renewalPaymentIntentId,
+        })
+        order.value.is_subscribed    = true
+        // From the server: 'pending' until renewal:cron creates the Stripe
+        // subscription near expiry, 'active' if one is already live.
+        order.value.auto_renew_state = res.data?.data?.auto_renew_state ?? 'pending'
+        closeStripeRenewalModal()
+        successHandler(res, 'client-page')
+    } catch (e) {
+        closeStripeRenewalModal()
+        alertStore.setAlert({
+            message: e?.response?.data?.message ?? __('message.something_went_wrong'),
+            type: 'danger',
+            component_name: 'client-page',
+        })
+    } finally {
+        stripeRenewalBusy.value = false
+        loaderStore.stopLoader('renewal-verify')
+    }
+}
+
+
+function invoiceBadge(status) {
+    const s = (status ?? '').toLowerCase()
+    if (s === 'paid' || s === 'success')   return 'bg-success'
+    if (s === 'pending' || s === 'unpaid') return 'bg-warning text-dark'
+    if (s === 'partially paid')            return 'bg-info text-dark'
+    if (s === 'cancelled')                 return 'bg-danger'
+    if (s === 'overdue')                   return 'bg-danger'
+    return 'bg-secondary'
+}
+
+function paymentBadge(status) {
+    const s = (status ?? '').toLowerCase()
+    if (s === 'success') return 'badge bg-success'
+    if (s === 'pending') return 'badge bg-warning text-dark'
+    if (s === 'failed')  return 'badge bg-danger'
+    return 'badge bg-secondary'
+}
+
+async function copyLicense() {
+    const code = order.value?.serial_key
+    if (!code) return
+    try {
+        await navigator.clipboard.writeText(code)
+        copied.value = true
+        setTimeout(() => { copied.value = false }, 2000)
+    } catch { /* ignore */ }
+}
+
+/* ── Reissue license ──────────────────────────────────────── */
+const reissuing  = ref(false)
+const installKey = ref(0)
+
+const showReissueModal = ref(false)
+
+async function reissueLicense() {
+    if (reissuing.value) return
+    reissuing.value = true
+    try {
+        const res = await http.patch(`/reissue-license`, { id: orderId.value })
+        alertStore.setAlert({
+            message: res.data?.message ?? __('message.license_reissued'),
+            type: 'success',
+            component_name: 'client-page',
+        })
+        installKey.value++   // refresh installations table
+    } catch (e) {
+        errorHandler(e, 'client-page')
+    } finally {
+        reissuing.value = false
+        showReissueModal.value = false
+    }
+}
+
+/* ── License binding (domain + machine ID) before first download ─── */
+const showBindingModal = ref(false)
+const bindingBusy      = ref(false)
+const bindingForm      = reactive({ activationCode: '' })
+const pluginLicenses   = ref([])
+// null = main product's license file; otherwise the plugin product_id whose
+// download triggered the binding modal, so it resumes the right one after.
+const pendingDownloadProductId = ref(null)
+
+// The activation code is "FLC1." + base64url(JSON {domain, machine_id, ...}); decoded only to
+// refresh the bound state locally — billing re-validates and decodes it itself.
+function decodeActivationCode(code) {
+    try { return JSON.parse(atob(code.trim().slice(5).replace(/-/g, '+').replace(/_/g, '/'))) } catch { return {} }
+}
+
+function isLicenseBound() {
+    // Binding stores either a domain OR an IP (LicenseService::parseIpAndDomain
+    // puts an IP address in license_ip, not license_domain) — a domain-only
+    // check wrongly says "not bound" for anyone who bound with an IP.
+    return !!((order.value?.license_domain || order.value?.license_ip) && order.value?.license_machine_id)
+}
+
+function triggerDownload(productId = null) {
+    const suffix = productId ? `&productId=${productId}` : ''
+    window.location.href = `${baseUrl}/downloadLicenseFile?orderNo=${order.value.number}${suffix}`
+}
+
+function requestDownload(productId = null) {
+    if (isLicenseBound()) {
+        triggerDownload(productId)
+        return
+    }
+    pendingDownloadProductId.value = productId
+    bindingForm.activationCode = ''
+    alertStore.unsetAlert()
+    showBindingModal.value = true
+}
+
+/* ── Pick which license file to download (main product + entitled add-ons) ── */
+const showDownloadModal = ref(false)
+
+function handleDownloadClick() {
+    showDownloadModal.value = true
+}
+
+function closeDownloadModal() {
+    showDownloadModal.value = false
+}
+
+function selectDownload(productId) {
+    // Only hide the picker if binding is about to be needed - otherwise its
+    // overlay would sit on top of the binding modal. It's restored in
+    // submitBinding() once binding's done. If already bound, leave it open
+    // so multiple items can be downloaded without reopening it each time.
+    if (!isLicenseBound()) {
+        showDownloadModal.value = false
+    }
+    requestDownload(productId)
+}
+
+async function loadPluginLicenses() {
+    if (!order.value?.number || !order.value?.can_use_license_file) return
+    try {
+        const res = await http.get(`/LocalizedLicense/${order.value.number}/plugins`)
+        pluginLicenses.value = res.data?.data ?? res.data ?? []
+    } catch (e) {
+        pluginLicenses.value = []
+    }
+}
+
+function closeBindingModal() {
+    showBindingModal.value = false
+    alertStore.unsetAlert()
+}
+
+async function submitBinding() {
+    if (!bindingForm.activationCode) return
+    bindingBusy.value = true
+    try {
+        const res = await http.post('/license-binding', {
+            orderNo: order.value.number,
+            activation_code: bindingForm.activationCode.trim(),
+        })
+        const bound = decodeActivationCode(bindingForm.activationCode)
+        order.value.license_domain     = bound.domain
+        order.value.license_machine_id = bound.machine_id
+        closeBindingModal()
+        successHandler(res, 'client-page')
+        triggerDownload(pendingDownloadProductId.value)
+        showDownloadModal.value = true
+    } catch (e) {
+        errorHandler(e, 'license-binding-modal')
+    } finally {
+        bindingBusy.value = false
+    }
+}
+
+/* ── Renew order (shared modal) ───────────────────────────── */
+const showRenewModal = ref(false)
+
+/* ── Cloud settings: lazy load on first tab open ──────────── */
+async function openCloudTab() {
+    activeTab.value = 'cloud'
+    if (cloudLoaded.value) return
+    cloudLoading.value = true
+    try {
+        const res = await http.get(`/get-cloud-settings/${orderId.value}`)
+        cloud.value = res.data?.data ?? null
+        cloudLoaded.value = true
+    } catch (e) {
+        errorHandler(e, 'client-page')
+    } finally {
+        cloudLoading.value = false
+    }
+}
+
+/* ── Change domain ────────────────────────────────────────── */
+function openDomainModal() {
+    domainForm.newDomain = ''
+    showDomainModal.value = true
+}
+function closeDomainModal() { showDomainModal.value = false; alertStore.unsetAlert() }
+
+async function submitDomain() {
+    if (!cloud.value) return
+    domainBusy.value = true
+    try {
+        // The server takes the current domain, license and product from the order itself.
+        const res = await http.post(`/change/domain`, {
+            newDomain: domainForm.newDomain,
+            order_id:  cloud.value.order_id,
+        })
+        cloud.value.installation_path = domainForm.newDomain
+        // Close first: closing clears alerts, which would wipe the success message.
+        closeDomainModal()
+        successHandler(res, 'client-page')
+    } catch (e) {
+        errorHandler(e, 'domain-modal')
+    } finally {
+        domainBusy.value = false
+    }
+}
+
+/* ── Change agents ────────────────────────────────────────── */
+function openAgentsModal() {
+    agentForm.number = cloud.value?.current_agents ?? ''
+    agentCost.value = ''
+    agentCurrentCost.value = ''
+    agentNewCost.value = ''
+    showAgentsModal.value = true
+}
+function closeAgentsModal() { showAgentsModal.value = false; alertStore.unsetAlert() }
+
+function resetAgentCost() {
+    agentCost.value = ''
+    agentCurrentCost.value = ''
+    agentNewCost.value = ''
+}
+
+async function fetchAgentCost() {
+    if (!cloud.value || !agentChanged.value) { resetAgentCost(); return }
+    try {
+        const res = await http.post(`/get-agent-inc-dec-cost`, {
+            orderId:       cloud.value.order_id,
+            desiredAgents: agentForm.number,
+        })
+        // raw (un-wrapped) array response: { pricePerAgent, totalPrice, priceToPay, currentAgentsCost, newAgentsCost }
+        const symbol = res.data?.currency_symbol ?? ''
+        agentCost.value = symbol + (res.data?.priceToPay ?? '')
+        agentCurrentCost.value = symbol + (res.data?.currentAgentsCost ?? '')
+        agentNewCost.value = symbol + (res.data?.newAgentsCost ?? '')
+    } catch (e) {
+        resetAgentCost()
+        errorHandler(e, 'agents-modal')
+    }
+}
+
+async function submitAgents() {
+    if (!cloud.value || !agentChanged.value) return
+    agentBusy.value = true
+    try {
+        const res = await http.post(`/changeAgents`, {
+            orderId:       cloud.value.order_id,
+            subId:         cloud.value.sub_id,
+            desiredAgents: agentForm.number,
+        })
+        const invoiceId = res.data?.data?.invoice_id
+        if (invoiceId) router.push({ path: '/checkout', query: { invoice: invoiceId } })
+    } catch (e) {
+        errorHandler(e, 'agents-modal')
+    } finally {
+        agentBusy.value = false
+    }
+}
+
+/* ── Upgrade / downgrade plan ─────────────────────────────── */
+function openPlanModal() {
+    planForm.planId = ''
+    planCost.value  = null
+    showPlanModal.value = true
+}
+function closePlanModal() { showPlanModal.value = false; alertStore.unsetAlert() }
+
+async function fetchPlanCost() {
+    if (!cloud.value || !planForm.planId) { planCost.value = null; return }
+    try {
+        const res = await http.post(`/get-cloud-upgrade-cost`, {
+            plan:    planForm.planId,
+            agents:  cloud.value.current_agents,
+            orderId: cloud.value.order_id,
+        })
+        // raw (un-wrapped) array response
+        planCost.value = res.data ?? null
+    } catch (e) {
+        planCost.value = null
+        errorHandler(e, 'plan-modal')
+    }
+}
+
+async function submitPlan() {
+    if (!cloud.value || !planForm.planId) return
+    planBusy.value = true
+    try {
+        const res = await http.post(`/upgradeDowngradeCloud`, {
+            id:      planForm.planId,
+            agents:  cloud.value.current_agents,
+            userId:  userId,
+            orderId: cloud.value.order_id,
+        })
+        const invoiceId = res.data?.data?.invoice_id
+        if (invoiceId) router.push({ path: '/checkout', query: { invoice: invoiceId } })
+    } catch (e) {
+        errorHandler(e, 'plan-modal')
+    } finally {
+        planBusy.value = false
+    }
+}
+
+// Re-runs whenever orderId changes — including navigating from one order's
+// page straight to another's (e.g. the termination notice's "replaces order
+// #X" link) — since Vue Router reuses this component instance rather than
+// remounting it for a same-route param change.
+watch(orderId, async () => {
+    // Navigating away (e.g. back to /my-orders) clears the param before this page unmounts.
+    if (!orderId.value) return
+    loading.value = true
+    activeTab.value = route.query.tab || 'license'
+    // Cloud tab data belongs to whichever order was open before — drop it so
+    // openCloudTab() re-fetches for the new order instead of reusing it.
+    cloud.value = null
+    cloudLoaded.value = false
+    try {
+        const res = await http.get(`/get-my-order/${orderId.value}`)
+        order.value = res.data?.data ?? null
+        // License Details isn't offered for a terminated order (no nav item
+        // for it), so land somewhere that is instead of defaulting to a tab
+        // that's invisible with nothing selected.
+        if (order.value?.status === 'Terminated') activeTab.value = 'invoice'
+        // Deep-linked ?tab=cloud needs its lazy fetch; fall back if the tab isn't offered.
+        else if (activeTab.value === 'cloud') {
+            if (showCloudTab.value) openCloudTab()
+            else activeTab.value = 'license'
+        }
+        await loadPluginLicenses()
+    } catch (e) {
+        errorHandler(e, 'client-page')
+    } finally {
+        loading.value = false
+    }
+}, { immediate: true })
+</script>
+
+<style scoped>
+.auto-renewal-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #e7f4fb;
+    color: #17a2e0;
+    font-size: 16px;
+}
+.form-switch .form-check-input {
+    width: 2.5em;
+    height: 1.4em;
+    cursor: pointer;
+}
+.badge-soft-success { background-color: #e6f9ef; color: #1a9d5c; }
+.badge-soft-secondary { background-color: #eef0f2; color: #5c636a; }
+.download-section-label {
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+.agent-stepper-btn {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+}
+.agent-stepper-btn:disabled { opacity: 0.4; }
+.agent-count-display {
+    min-width: 2.5rem;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #212529;
+}
+.cost-breakdown { background-color: #e7f4fb; }
+.future-credit-callout { background-color: #e6f9ef; border: 1px dashed #1a9d5c; }
+</style>
+
+<!-- Modal.vue teleports to <body>, so scoped styles can't reach its internals -
+     this rule targets the unique classname passed to that one modal instance,
+     rather than being scoped (which teleport would silently defeat anyway). -->
+<style>
+.download-license-modal .modal-content {
+    max-height: 60vh;
+}
+</style>

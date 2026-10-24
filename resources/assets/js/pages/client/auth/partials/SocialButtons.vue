@@ -1,0 +1,59 @@
+<template>
+    <template v-if="enabledProviders.length">
+        <div class="divider">
+            <span class="bg-light px-4 position-absolute left-50pct top-50pct transform3dxy-n50">{{ __('message.or') }}</span>
+        </div>
+
+        <button v-for="p in enabledProviders" :key="p.key" type="button"
+           class="btn btn-dark btn-modern w-100 text-transform-none rounded-0 font-weight-bold align-items-center d-inline-flex justify-content-center text-3 py-3 mb-2"
+           :disabled="busy === p.key"
+           @click="go(p.key)">
+            <!-- Swap, don't stack: fab+fas and two glyphs on one <i> renders a broken icon. -->
+            <i class="text-5 me-2" :class="busy === p.key ? 'fas fa-circle-notch fa-spin' : ['fab', p.icon]" aria-hidden="true"></i>
+            {{ __('message.login_with') }}&nbsp;<span translate="no">{{ p.label }}</span>
+        </button>
+    </template>
+</template>
+
+<script setup>
+import { computed, ref } from 'vue'
+import http from '@/plugins/axios'
+import { __ } from '@/plugins/i18n'
+import { errorHandler } from '@/helpers/responseHandler.js'
+
+const props = defineProps({
+    social:  { type: Object, required: true },
+    baseUrl: { type: String, default: '' },
+})
+
+const busy = ref('')
+
+const PROVIDERS = [
+    { key: 'google',   icon: 'fa-google',      label: 'Google' },
+    { key: 'github',   icon: 'fa-github',      label: 'GitHub' },
+    { key: 'twitter',  icon: 'fa-x-twitter',   label: 'Twitter' },
+    { key: 'linkedin', icon: 'fa-linkedin-in', label: 'LinkedIn' },
+]
+
+const enabledProviders = computed(() =>
+    PROVIDERS.filter(p => Number(props.social?.[p.key]) === 1)
+)
+
+async function go(provider) {
+    if (busy.value) return
+    busy.value = provider
+    try {
+        const res = await http.get(`${props.baseUrl}/auth/redirect/${provider}`)
+        const url = res.data?.data?.url
+        if (url) {
+            globalThis.location.href = url
+        } else {
+            errorHandler({ response: { status: 400, data: { message: __('message.something_wrong') } } }, 'client-page')
+            busy.value = ''
+        }
+    } catch (e) {
+        errorHandler(e, 'client-page')
+        busy.value = ''
+    }
+}
+</script>

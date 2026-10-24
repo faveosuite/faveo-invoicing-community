@@ -96,6 +96,17 @@ return [
     'verify_new_email' => '새 이메일 확인',
     'confirm_old_email' => '기존 이메일 확인',
     'confirm_mobile_number_change' => '휴대폰 번호 변경 확인',
-
     'logs:delete' => '시스템 로그 삭제',
+    'cloud:send-instance-emails' => '클라우드 인스턴스 이메일 보내기',
+    'activity-logs:cleanup' => '활동 로그 정리',
+    'app:crack-callback-cleanup' => '크래킹 콜백 정리',
+    'app:crack-reports-cleanup' => '크래킹 보고서 정리',
+    'app:failed-message-delivery' => '실패한 WhatsApp 메시지 재전송',
+    'app:license-reports-cleanup' => '라이선스 보고서 정리',
+    'app:system-reports-cleanup' => '시스템 보고서 정리',
+    'app:versions-cleanup' => '버전 정리',
+    'installation:logs' => '비활성 설치 표시',
+    'reoon:logs-deletion' => 'Reoon 로그 정리',
+    'seo:generate-files' => 'SEO 파일 생성',
+    'date' => '날짜',
 ];

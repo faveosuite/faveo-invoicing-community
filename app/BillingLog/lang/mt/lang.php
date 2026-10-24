@@ -96,6 +96,17 @@ return [
     'verify_new_email' => 'Ivverifika l-email il-ġdida',
     'confirm_old_email' => 'Ikkonferma l-email l-antika',
     'confirm_mobile_number_change' => 'Ikkonferma l-bidla fin-numru tal-mowbajl',
-
     'logs:delete' => 'Ħassar ir-reġistri tas-sistema',
+    'cloud:send-instance-emails' => 'Ibgħat emails tal-istanzi tal-cloud',
+    'activity-logs:cleanup' => 'Tindif tar-reġistri tal-attività',
+    'app:crack-callback-cleanup' => 'Tindif tal-callbacks tal-cracking',
+    'app:crack-reports-cleanup' => 'Tindif tar-rapporti tal-cracking',
+    'app:failed-message-delivery' => 'Erġa\' ibgħat messaġġi WhatsApp li fallew',
+    'app:license-reports-cleanup' => 'Tindif tar-rapporti tal-liċenzji',
+    'app:system-reports-cleanup' => 'Tindif tar-rapporti tas-sistema',
+    'app:versions-cleanup' => 'Tindif tal-verżjonijiet',
+    'installation:logs' => 'Immarka installazzjonijiet inattivi',
+    'reoon:logs-deletion' => 'Tindif tar-reġistri ta\' Reoon',
+    'seo:generate-files' => 'Iġġenera fajls SEO',
+    'date' => 'Data',
 ];

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -15,38 +17,156 @@ return [
      */
 
     'enabled' => env('DEBUGBAR_ENABLED'),
-    'hide_empty_tabs' => env('DEBUGBAR_HIDE_EMPTY_TABS', true), // Hide tabs until they have content
+    'collect_jobs' => env('DEBUGBAR_COLLECT_JOBS', false),
     'except' => [
         'telescope*',
         'horizon*',
         '_boost/browser-logs',
+        'livewire-*/livewire.js',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | DataCollectors
+    |--------------------------------------------------------------------------
+    |
+    | Enable/disable DataCollectors
+    |
+    */
+
+    'collectors' => [
+        'phpinfo'         => env('DEBUGBAR_COLLECTORS_PHPINFO', false),         // Php version
+        'messages'        => env('DEBUGBAR_COLLECTORS_MESSAGES', true),         // Messages
+        'time'            => env('DEBUGBAR_COLLECTORS_TIME', true),             // Time Datalogger
+        'memory'          => env('DEBUGBAR_COLLECTORS_MEMORY', true),           // Memory usage
+        'exceptions'      => env('DEBUGBAR_COLLECTORS_EXCEPTIONS', true),       // Exception displayer
+        'log'             => env('DEBUGBAR_COLLECTORS_LOG', true),              // Logs from Monolog (merged in messages if enabled)
+        'db'              => env('DEBUGBAR_COLLECTORS_DB', true),               // Show database (PDO) queries and bindings
+        'views'           => env('DEBUGBAR_COLLECTORS_VIEWS', true),            // Views with their data
+        'route'           => env('DEBUGBAR_COLLECTORS_ROUTE', false),           // Current route information
+        'auth'            => env('DEBUGBAR_COLLECTORS_AUTH', false),            // Display Laravel authentication status
+        'gate'            => env('DEBUGBAR_COLLECTORS_GATE', true),             // Display Laravel Gate checks
+        'session'         => env('DEBUGBAR_COLLECTORS_SESSION', false),         // Display session data
+        'symfony_request' => env('DEBUGBAR_COLLECTORS_SYMFONY_REQUEST', true),  // Default Request Data
+        'mail'            => env('DEBUGBAR_COLLECTORS_MAIL', true),             // Catch mail messages
+        'laravel'         => env('DEBUGBAR_COLLECTORS_LARAVEL', true),          // Laravel version and environment
+        'events'          => env('DEBUGBAR_COLLECTORS_EVENTS', false),          // All events fired
+        'logs'            => env('DEBUGBAR_COLLECTORS_LOGS', false),            // Add the latest log messages
+        'config'          => env('DEBUGBAR_COLLECTORS_CONFIG', false),          // Display config settings
+        'cache'           => env('DEBUGBAR_COLLECTORS_CACHE', true),            // Display cache events
+        'models'          => env('DEBUGBAR_COLLECTORS_MODELS', true),           // Display models
+        'livewire'        => env('DEBUGBAR_COLLECTORS_LIVEWIRE', true),         // Display Livewire (when available)
+        'inertia'         => env('DEBUGBAR_COLLECTORS_INERTIA', true),          // Display Inertia (when available)
+        'jobs'            => env('DEBUGBAR_COLLECTORS_JOBS', true),             // Display dispatched jobs
+        'pennant'         => env('DEBUGBAR_COLLECTORS_PENNANT', true),          // Display Pennant feature flags
+        'ai'              => env('DEBUGBAR_COLLECTORS_AI', true),               // Display laravel/ai agent runs
+        'http_client'     => env('DEBUGBAR_COLLECTORS_HTTP_CLIENT', true),      // Display HTTP Client requests
     ],
 
     /*
      |--------------------------------------------------------------------------
-     | Storage settings
+     | Extra options
      |--------------------------------------------------------------------------
      |
-     | Debugbar stores data for session/ajax requests.
-     | You can disable this, so the debugbar stores data in headers/session,
-     | but this can cause problems with large data collectors.
-     | By default, file storage (in the storage folder) is used. Redis and PDO
-     | can also be used. For PDO, run the package migrations first.
+     | Configure some DataCollectors
      |
-     | Warning: Enabling storage.open will allow everyone to access previous
-     | request, do not enable open storage in publicly available environments!
-     | Specify a callback if you want to limit based on IP or authentication.
-     | Leaving it to null will allow localhost only.
      */
-    'storage' => [
-        'enabled'    => env('DEBUGBAR_STORAGE_ENABLED', true),
-        'open'       => env('DEBUGBAR_OPEN_STORAGE'), // bool/callback.
-        'driver'     => env('DEBUGBAR_STORAGE_DRIVER', 'file'), // redis, file, pdo, socket, custom
-        'path'       => env('DEBUGBAR_STORAGE_PATH', storage_path('debugbar')), // For file driver
-        'connection' => env('DEBUGBAR_STORAGE_CONNECTION'), // Leave null for default connection (Redis/PDO)
-        'provider'   => env('DEBUGBAR_STORAGE_PROVIDER', ''), // Instance of StorageInterface for custom driver
-        'hostname'   => env('DEBUGBAR_STORAGE_HOSTNAME', '127.0.0.1'), // Hostname to use with the "socket" driver
-        'port'       => env('DEBUGBAR_STORAGE_PORT', 2304), // Port to use with the "socket" driver
+
+    'options' => [
+        'time' => [
+            'memory_usage' => env('DEBUGBAR_OPTIONS_TIME_MEMORY_USAGE', false), // Calculated by subtracting memory start and end, it may be inaccurate
+        ],
+        'messages' => [
+            'trace' => env('DEBUGBAR_OPTIONS_MESSAGES_TRACE', true),                  // Trace the origin of the debug message
+            'backtrace_exclude_paths' => [],                                                      // Paths to exclude from backtrace. (in addition to defaults)
+            'capture_dumps' => env('DEBUGBAR_OPTIONS_MESSAGES_CAPTURE_DUMPS', false), // Capture laravel `dump();` as message
+            'timeline' => env('DEBUGBAR_OPTIONS_MESSAGES_TIMELINE', true),            // Add messages to the timeline
+        ],
+        'memory' => [
+            'reset_peak' => env('DEBUGBAR_OPTIONS_MEMORY_RESET_PEAK', false),       // run memory_reset_peak_usage before collecting
+            'with_baseline' => env('DEBUGBAR_OPTIONS_MEMORY_WITH_BASELINE', false), // Set boot memory usage as memory peak baseline
+            'precision' => (int) env('DEBUGBAR_OPTIONS_MEMORY_PRECISION', 0),       // Memory rounding precision
+        ],
+        'auth' => [
+            'show_name' => env('DEBUGBAR_OPTIONS_AUTH_SHOW_NAME', true),     // Also show the users name/email in the debugbar
+            'show_guards' => env('DEBUGBAR_OPTIONS_AUTH_SHOW_GUARDS', true), // Show the guards that are used
+        ],
+        'gate' => [
+            'trace' => false,      // Trace the origin of the Gate checks
+            'timeline' => env('DEBUGBAR_OPTIONS_GATE_TIMELINE', false),      // Add mails to the timeline
+        ],
+        'db' => [
+            'with_params'       => env('DEBUGBAR_OPTIONS_WITH_PARAMS', true),   // Render SQL with the parameters substituted
+            'exclude_paths'     => [       // Paths to exclude entirely from the collector
+                //'vendor/laravel/framework/src/Illuminate/Session', // Exclude sessions queries
+            ],
+            'backtrace'         => env('DEBUGBAR_OPTIONS_DB_BACKTRACE', true),   // Use a backtrace to find the origin of the query in your files.
+            'backtrace_exclude_paths' => [],   // Paths to exclude from backtrace. (in addition to defaults)
+            'backtrace_editor_links' => env('DEBUGBAR_OPTIONS_DB_BACKTRACE_EDITOR_LINKS', false), // Add editor links to backtrace entries (non-vendor files only)
+            'timeline'          => env('DEBUGBAR_OPTIONS_DB_TIMELINE', false),  // Add the queries to the timeline
+            'duration_background'  => env('DEBUGBAR_OPTIONS_DB_DURATION_BACKGROUND', true),   // Show shaded background on each query relative to how long it took to execute.
+            'explain'           => env('DEBUGBAR_OPTIONS_DB_EXPLAIN_ENABLED', true), // Show EXPLAIN output on queries
+            'show_query_result' => env('DEBUGBAR_OPTIONS_DB_SHOW_QUERY_RESULT', false), // Show option to re-run SELECT queries and show the result
+            'only_slow_queries' => env('DEBUGBAR_OPTIONS_DB_ONLY_SLOW_QUERIES', true), // Only track queries that last longer than `slow_threshold`
+            'slow_threshold'    => env('DEBUGBAR_OPTIONS_DB_SLOW_THRESHOLD', false), // Max query execution time (ms). Exceeding queries will be highlighted
+            'memory_usage'      => env('DEBUGBAR_OPTIONS_DB_MEMORY_USAGE', false),   // Show queries memory usage
+            'soft_limit'       => (int) env('DEBUGBAR_OPTIONS_DB_SOFT_LIMIT', 100),  // After the soft limit, no parameters/backtrace are captured
+            'hard_limit'       => (int) env('DEBUGBAR_OPTIONS_DB_HARD_LIMIT', 500),  // After the hard limit, queries are ignored
+        ],
+        'mail' => [
+            'timeline' => env('DEBUGBAR_OPTIONS_MAIL_TIMELINE', true),  // Add mails to the timeline
+            'show_body' => env('DEBUGBAR_OPTIONS_MAIL_SHOW_BODY', true),
+        ],
+        'views' => [
+            'timeline' => env('DEBUGBAR_OPTIONS_VIEWS_TIMELINE', true),                  // Add the views to the timeline
+            'data' => env('DEBUGBAR_OPTIONS_VIEWS_DATA', false),                         // True for all data, 'keys' for only names, false for no parameters.
+            'group' => (int) env('DEBUGBAR_OPTIONS_VIEWS_GROUP', 50),                    // Group duplicate views. Pass value to auto-group, or true/false to force
+            'exclude_paths' => [    // Add the paths which you don't want to appear in the views
+                'vendor/filament',   // Exclude Filament components by default
+            ],
+        ],
+        'inertia' => [
+            'pages' => env('DEBUGBAR_OPTIONS_VIEWS_INERTIA_PAGES', 'js/Pages'),  // Path for Inertia views
+        ],
+        'route' => [
+            'label' => env('DEBUGBAR_OPTIONS_ROUTE_LABEL', true),  // Show complete route on bar
+        ],
+        'session' => [
+            'masked' => [], // List of keys that are masked
+        ],
+        'symfony_request' => [
+            'label' => env('DEBUGBAR_OPTIONS_SYMFONY_REQUEST_LABEL', true),  // Show route on bar
+            'masked' => [], // List of keys that are masked
+        ],
+        'events' => [
+            'data' => env('DEBUGBAR_OPTIONS_EVENTS_DATA', false), // Collect events data
+            'listeners' => env('DEBUGBAR_OPTIONS_EVENTS_LISTENERS', false), // Add listeners to the events data
+            'excluded' => [], // Example: ['eloquent.*', 'composing', Illuminate\Cache\Events\CacheHit::class]
+        ],
+        'logs' => [
+            'file' => env('DEBUGBAR_OPTIONS_LOGS_FILE'),
+        ],
+        'config' => [
+            'masked' => [],
+        ],
+        'cache' => [
+            'values' => env('DEBUGBAR_OPTIONS_CACHE_VALUES', true), // Collect cache values
+            'timeline' => env('DEBUGBAR_OPTIONS_CACHE_TIMELINE', false),  // Add cache events to the timeline
+        ],
+        'http_client' => [
+            'masked' => [],
+            'timeline' => env('DEBUGBAR_OPTIONS_HTTP_CLIENT_TIMELINE', true),  // Add requests to the timeline
+        ],
+        'ai' => [
+            'values' => env('DEBUGBAR_OPTIONS_AI_VALUES', true), // Collect prompt/response/tool bodies
+        ],
+    ],
+
+    /**
+     * Add any additional DataCollectors by adding the class name of a DataCollector or invokable class.
+     */
+    'custom_collectors' => [
+        // MyCollector::class => env('DEBUGBAR_COLLECTORS_MYCOLLECTOR', true),
     ],
 
     /*
@@ -65,6 +185,39 @@ return [
     */
 
     'editor' => env('DEBUGBAR_EDITOR') ?: env('IGNITION_EDITOR', 'phpstorm'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Capture Ajax Requests
+    |--------------------------------------------------------------------------
+    |
+    | The Debugbar can capture Ajax requests and display them. If you don't want this (ie. because of errors),
+    | you can use this option to disable sending the data through the headers.
+    |
+    | Optionally, you can also send ServerTiming headers on ajax requests for the Chrome DevTools.
+    |
+    | Note for your request to be identified as ajax requests they must either send the header
+    | X-Requested-With with the value XMLHttpRequest (most JS libraries send this), or have application/json as a Accept header.
+    |
+    | By default `ajax_handler_auto_show` is set to true allowing ajax requests to be shown automatically in the Debugbar.
+    | Changing `ajax_handler_auto_show` to false will prevent the Debugbar from reloading.
+    |
+    | You can defer loading the dataset, so it will be loaded with ajax after the request is done. (Experimental)
+    |
+    | Streamed responses (SSE, StreamedResponse, Livewire streaming) lose the phpdebugbar-id response header.
+    | Enable `capture_streamed` to tag same-origin fetch/XHR requests with a phpdebugbar-request-id header and
+    | look the dataset up through the open handler afterwards (requires storage + the open handler enabled).
+    | `streamed_content_types` limits the fallback to these Content-Types; set it to an empty array or null to
+    | match any response missing the id header. Broaden it (e.g. text/html, application/json) for chunked responses.
+    */
+
+    'capture_ajax' => env('DEBUGBAR_CAPTURE_AJAX', true),
+    'add_ajax_timing' => env('DEBUGBAR_ADD_AJAX_TIMING', false),
+    'ajax_handler_auto_show' => env('DEBUGBAR_AJAX_HANDLER_AUTO_SHOW', true),
+    'ajax_handler_enable_tab' => env('DEBUGBAR_AJAX_HANDLER_ENABLE_TAB', true),
+    'capture_streamed' => env('DEBUGBAR_CAPTURE_STREAMED', false),
+    'streamed_content_types' => ['text/event-stream'],
+    'defer_datasets' => env('DEBUGBAR_DEFER_DATASETS', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -93,45 +246,61 @@ return [
     'local_sites_path' => env('DEBUGBAR_LOCAL_SITES_PATH', env('IGNITION_LOCAL_SITES_PATH')),
 
     /*
+    |--------------------------------------------------------------------------
+    | Storage settings
+    |--------------------------------------------------------------------------
+    |
+    | Debugbar stores data for session/ajax requests.
+    | You can disable this, so the debugbar stores data in headers/session,
+    | but this can cause problems with large data collectors.
+    | By default, file storage (in the storage folder) is used. Sqlite will
+    | create a database file in the storage folder.
+    | Redis and PDO can also be used. For PDO, run the package migrations first.
+    |
+    | Warning: Enabling storage.open will allow everyone to access previous
+    | request, do not enable open storage in publicly available environments!
+    | Specify a callback if you want to limit based on IP or authentication.
+    | Leaving it to null will allow localhost only.
+    */
+    'storage' => [
+        'enabled'    => env('DEBUGBAR_STORAGE_ENABLED', true),
+        'open'       => env('DEBUGBAR_OPEN_STORAGE'), // bool/callback.
+        'driver'     => env('DEBUGBAR_STORAGE_DRIVER', 'file'), // redis, file, sqlite, pdo, custom
+        'path'       => env('DEBUGBAR_STORAGE_PATH', storage_path('debugbar')), // For file driver
+        'connection' => env('DEBUGBAR_STORAGE_CONNECTION'), // Leave null for default connection (Redis/PDO)
+        'provider'   => env('DEBUGBAR_STORAGE_PROVIDER', ''), // Instance of StorageInterface for custom driver
+    ],
+
+    /*
      |--------------------------------------------------------------------------
-     | Vendors
+     | Force Allow Debugbar to be Enabled during boot
+     |--------------------------------------------------------------------------
+     |
+     | By default, debugbar can only be enabled when the app is in debug mode and not in production.
+     | For special cases, eg admin panels behind proper authentication, you can force debugbar to be enabled.
+     | Just this setting alone will not enable the Debugbar, but it will boot the Debugbar including routes and listeners,
+     | so you can enable it further in the requests using $debugbar->enable().
+     |
+     | Warning: Use with caution. Debugbar is a development tool and should never be exposed in non-trusted endpoints.
+     |
+    */
+    'force_allow_enable' => env('DEBUGBAR_FORCE_ALLOW_ENABLE', false),
+
+    /*
+     |--------------------------------------------------------------------------
+     | Assets
      |--------------------------------------------------------------------------
      |
      | Vendor files are included by default, but can be set to false.
      | This can also be set to 'js' or 'css', to only include javascript or css vendor files.
-     | Vendor files are for css: font-awesome (including fonts) and highlight.js (css files)
-     | and for js: jquery and highlight.js
+     | Vendor files are for css: (none)
+     | and for js: highlight.js
      | So if you want syntax highlighting, set it to true.
-     | jQuery is set to not conflict with existing jQuery scripts.
      |
      */
-
+    'use_dist_files' => env('DEBUGBAR_USE_DIST_FILES', true),
     'include_vendors' => env('DEBUGBAR_INCLUDE_VENDORS', true),
 
-    /*
-     |--------------------------------------------------------------------------
-     | Capture Ajax Requests
-     |--------------------------------------------------------------------------
-     |
-     | The Debugbar can capture Ajax requests and display them. If you don't want this (ie. because of errors),
-     | you can use this option to disable sending the data through the headers.
-     |
-     | Optionally, you can also send ServerTiming headers on ajax requests for the Chrome DevTools.
-     |
-     | Note for your request to be identified as ajax requests they must either send the header
-     | X-Requested-With with the value XMLHttpRequest (most JS libraries send this), or have application/json as a Accept header.
-     |
-     | By default `ajax_handler_auto_show` is set to true allowing ajax requests to be shown automatically in the Debugbar.
-     | Changing `ajax_handler_auto_show` to false will prevent the Debugbar from reloading.
-     |
-     | You can defer loading the dataset, so it will be loaded with ajax after the request is done. (Experimental)
-     */
-
-    'capture_ajax' => env('DEBUGBAR_CAPTURE_AJAX', true),
-    'add_ajax_timing' => env('DEBUGBAR_ADD_AJAX_TIMING', false),
-    'ajax_handler_auto_show' => env('DEBUGBAR_AJAX_HANDLER_AUTO_SHOW', true),
-    'ajax_handler_enable_tab' => env('DEBUGBAR_AJAX_HANDLER_ENABLE_TAB', true),
-    'defer_datasets' => env('DEBUGBAR_DEFER_DATASETS', false),
     /*
      |--------------------------------------------------------------------------
      | Custom Error Handler for Deprecated warnings
@@ -163,127 +332,6 @@ return [
      |
      */
     'clockwork' => env('DEBUGBAR_CLOCKWORK', false),
-
-    /*
-     |--------------------------------------------------------------------------
-     | DataCollectors
-     |--------------------------------------------------------------------------
-     |
-     | Enable/disable DataCollectors
-     |
-     */
-
-    'collectors' => [
-        'phpinfo'         => env('DEBUGBAR_COLLECTORS_PHPINFO', false),         // Php version
-        'messages'        => env('DEBUGBAR_COLLECTORS_MESSAGES', true),         // Messages
-        'time'            => env('DEBUGBAR_COLLECTORS_TIME', true),             // Time Datalogger
-        'memory'          => env('DEBUGBAR_COLLECTORS_MEMORY', true),           // Memory usage
-        'exceptions'      => env('DEBUGBAR_COLLECTORS_EXCEPTIONS', true),       // Exception displayer
-        'log'             => env('DEBUGBAR_COLLECTORS_LOG', true),              // Logs from Monolog (merged in messages if enabled)
-        'db'              => env('DEBUGBAR_COLLECTORS_DB', true),               // Show database (PDO) queries and bindings
-        'views'           => env('DEBUGBAR_COLLECTORS_VIEWS', true),            // Views with their data
-        'route'           => env('DEBUGBAR_COLLECTORS_ROUTE', false),           // Current route information
-        'auth'            => env('DEBUGBAR_COLLECTORS_AUTH', false),            // Display Laravel authentication status
-        'gate'            => env('DEBUGBAR_COLLECTORS_GATE', true),             // Display Laravel Gate checks
-        'session'         => env('DEBUGBAR_COLLECTORS_SESSION', false),         // Display session data
-        'symfony_request' => env('DEBUGBAR_COLLECTORS_SYMFONY_REQUEST', true),  // Only one can be enabled..
-        'mail'            => env('DEBUGBAR_COLLECTORS_MAIL', true),             // Catch mail messages
-        'laravel'         => env('DEBUGBAR_COLLECTORS_LARAVEL', true),          // Laravel version and environment
-        'events'          => env('DEBUGBAR_COLLECTORS_EVENTS', false),          // All events fired
-        'default_request' => env('DEBUGBAR_COLLECTORS_DEFAULT_REQUEST', false), // Regular or special Symfony request logger
-        'logs'            => env('DEBUGBAR_COLLECTORS_LOGS', false),            // Add the latest log messages
-        'files'           => env('DEBUGBAR_COLLECTORS_FILES', false),           // Show the included files
-        'config'          => env('DEBUGBAR_COLLECTORS_CONFIG', false),          // Display config settings
-        'cache'           => env('DEBUGBAR_COLLECTORS_CACHE', false),           // Display cache events
-        'models'          => env('DEBUGBAR_COLLECTORS_MODELS', true),           // Display models
-        'livewire'        => env('DEBUGBAR_COLLECTORS_LIVEWIRE', true),         // Display Livewire (when available)
-        'jobs'            => env('DEBUGBAR_COLLECTORS_JOBS', false),            // Display dispatched jobs
-        'pennant'         => env('DEBUGBAR_COLLECTORS_PENNANT', false),         // Display Pennant feature flags
-    ],
-
-    /*
-     |--------------------------------------------------------------------------
-     | Extra options
-     |--------------------------------------------------------------------------
-     |
-     | Configure some DataCollectors
-     |
-     */
-
-    'options' => [
-        'time' => [
-            'memory_usage' => env('DEBUGBAR_OPTIONS_TIME_MEMORY_USAGE', false), // Calculated by subtracting memory start and end, it may be inaccurate
-        ],
-        'messages' => [
-            'trace' => env('DEBUGBAR_OPTIONS_MESSAGES_TRACE', true),                  // Trace the origin of the debug message
-            'capture_dumps' => env('DEBUGBAR_OPTIONS_MESSAGES_CAPTURE_DUMPS', false), // Capture laravel `dump();` as message
-        ],
-        'memory' => [
-            'reset_peak' => env('DEBUGBAR_OPTIONS_MEMORY_RESET_PEAK', false),       // run memory_reset_peak_usage before collecting
-            'with_baseline' => env('DEBUGBAR_OPTIONS_MEMORY_WITH_BASELINE', false), // Set boot memory usage as memory peak baseline
-            'precision' => (int) env('DEBUGBAR_OPTIONS_MEMORY_PRECISION', 0),       // Memory rounding precision
-        ],
-        'auth' => [
-            'show_name' => env('DEBUGBAR_OPTIONS_AUTH_SHOW_NAME', true),     // Also show the users name/email in the debugbar
-            'show_guards' => env('DEBUGBAR_OPTIONS_AUTH_SHOW_GUARDS', true), // Show the guards that are used
-        ],
-        'gate' => [
-            'trace' => false,      // Trace the origin of the Gate checks
-        ],
-        'db' => [
-            'with_params'       => env('DEBUGBAR_OPTIONS_WITH_PARAMS', true),   // Render SQL with the parameters substituted
-            'exclude_paths'     => [       // Paths to exclude entirely from the collector
-                //'vendor/laravel/framework/src/Illuminate/Session', // Exclude sessions queries
-            ],
-            'backtrace'         => env('DEBUGBAR_OPTIONS_DB_BACKTRACE', true),   // Use a backtrace to find the origin of the query in your files.
-            'backtrace_exclude_paths' => [],   // Paths to exclude from backtrace. (in addition to defaults)
-            'timeline'          => env('DEBUGBAR_OPTIONS_DB_TIMELINE', false),  // Add the queries to the timeline
-            'duration_background'  => env('DEBUGBAR_OPTIONS_DB_DURATION_BACKGROUND', true),   // Show shaded background on each query relative to how long it took to execute.
-            'explain' => [                 // Show EXPLAIN output on queries
-                'enabled' => env('DEBUGBAR_OPTIONS_DB_EXPLAIN_ENABLED', false),
-            ],
-            'hints'             => env('DEBUGBAR_OPTIONS_DB_HINTS', false),          // Show hints for common mistakes
-            'show_copy'         => env('DEBUGBAR_OPTIONS_DB_SHOW_COPY', true),       // Show copy button next to the query,
-            'only_slow_queries' => env('DEBUGBAR_OPTIONS_DB_ONLY_SLOW_QUERIES', true), // Only track queries that last longer than `slow_threshold`
-            'slow_threshold'    => env('DEBUGBAR_OPTIONS_DB_SLOW_THRESHOLD', false), // Max query execution time (ms). Exceeding queries will be highlighted
-            'memory_usage'      => env('DEBUGBAR_OPTIONS_DB_MEMORY_USAGE', false),   // Show queries memory usage
-            'soft_limit'       => (int) env('DEBUGBAR_OPTIONS_DB_SOFT_LIMIT', 100),  // After the soft limit, no parameters/backtrace are captured
-            'hard_limit'       => (int) env('DEBUGBAR_OPTIONS_DB_HARD_LIMIT', 500),  // After the hard limit, queries are ignored
-        ],
-        'mail' => [
-            'timeline' => env('DEBUGBAR_OPTIONS_MAIL_TIMELINE', true),  // Add mails to the timeline
-            'show_body' => env('DEBUGBAR_OPTIONS_MAIL_SHOW_BODY', true),
-        ],
-        'views' => [
-            'timeline' => env('DEBUGBAR_OPTIONS_VIEWS_TIMELINE', true),                  // Add the views to the timeline
-            'data' => env('DEBUGBAR_OPTIONS_VIEWS_DATA', false),                         // True for all data, 'keys' for only names, false for no parameters.
-            'group' => (int) env('DEBUGBAR_OPTIONS_VIEWS_GROUP', 50),                    // Group duplicate views. Pass value to auto-group, or true/false to force
-            'inertia_pages' => env('DEBUGBAR_OPTIONS_VIEWS_INERTIA_PAGES', 'js/Pages'),  // Path for Inertia views
-            'exclude_paths' => [    // Add the paths which you don't want to appear in the views
-                'vendor/filament'   // Exclude Filament components by default
-            ],
-        ],
-        'route' => [
-            'label' => env('DEBUGBAR_OPTIONS_ROUTE_LABEL', true),  // Show complete route on bar
-        ],
-        'session' => [
-            'hiddens' => [], // Hides sensitive values using array paths
-        ],
-        'symfony_request' => [
-            'label' => env('DEBUGBAR_OPTIONS_SYMFONY_REQUEST_LABEL', true),  // Show route on bar
-            'hiddens' => [], // Hides sensitive values using array paths, example: request_request.password
-        ],
-        'events' => [
-            'data' => env('DEBUGBAR_OPTIONS_EVENTS_DATA', false), // Collect events data, listeners
-            'excluded' => [], // Example: ['eloquent.*', 'composing', Illuminate\Cache\Events\CacheHit::class]
-        ],
-        'logs' => [
-            'file' => env('DEBUGBAR_OPTIONS_LOGS_FILE'),
-        ],
-        'cache' => [
-            'values' => env('DEBUGBAR_OPTIONS_CACHE_VALUES', true), // Collect cache values
-        ],
-    ],
 
     /*
      |--------------------------------------------------------------------------

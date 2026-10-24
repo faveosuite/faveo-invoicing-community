@@ -284,7 +284,7 @@ Name | Type | Description  | Notes
 ## `getPerson()`
 
 ```php
-getPerson($id, $include_fields, $custom_fields): \Pipedrive\versions\v2\Model\PostPatchGetPerson
+getPerson($id, $include_fields, $custom_fields, $include_option_labels, $include_labels): \Pipedrive\versions\v2\Model\PostPatchGetPerson
 ```
 
 Get details of a person
@@ -316,9 +316,11 @@ $apiInstance = new Pipedrive\versions\v2\Api\PersonsApi(
 $id = 56; // int | The ID of the person
 $include_fields = 'include_fields_example'; // string | Optional comma separated string array of additional fields to include. `marketing_status` and `doi_status` can only be included if the company has marketing app enabled.
 $custom_fields = 'custom_fields_example'; // string | Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.<br/>A maximum of 15 keys is allowed.
+$include_option_labels = True; // bool | When provided with a 'true' value, single option and multiple option custom fields values contain objects in the form of '{ id: number, label: string }' instead of plain id
+$include_labels = True; // bool | When provided with 'true' value, response will include an array of label objects in the form of '{ id: number, label: string }'
 
 try {
-    $result = $apiInstance->getPerson($id, $include_fields, $custom_fields);
+    $result = $apiInstance->getPerson($id, $include_fields, $custom_fields, $include_option_labels, $include_labels);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling PersonsApi->getPerson: ', $e->getMessage(), PHP_EOL;
@@ -332,6 +334,8 @@ Name | Type | Description  | Notes
  **id** | **int**| The ID of the person |
  **include_fields** | **string**| Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. | [optional]
  **custom_fields** | **string**| Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. | [optional]
+ **include_option_labels** | **bool**| When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id | [optional]
+ **include_labels** | **bool**| When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; | [optional]
 
 ### Return type
 
@@ -556,7 +560,7 @@ Name | Type | Description  | Notes
 ## `getPersons()`
 
 ```php
-getPersons($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor): \Pipedrive\versions\v2\Model\GetPersons
+getPersons($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $include_option_labels, $include_labels, $limit, $cursor): \Pipedrive\versions\v2\Model\GetPersons
 ```
 
 Get all persons
@@ -596,11 +600,13 @@ $sort_by = 'id'; // string | The field to sort by. Supported fields: `id`, `upda
 $sort_direction = 'asc'; // string | The sorting direction. Supported values: `asc`, `desc`.
 $include_fields = 'include_fields_example'; // string | Optional comma separated string array of additional fields to include. `marketing_status` and `doi_status` can only be included if the company has marketing app enabled.
 $custom_fields = 'custom_fields_example'; // string | Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.<br/>A maximum of 15 keys is allowed.
+$include_option_labels = True; // bool | When provided with a 'true' value, single option and multiple option custom fields values contain objects in the form of '{ id: number, label: string }' instead of plain id
+$include_labels = True; // bool | When provided with 'true' value, response will include an array of label objects in the form of '{ id: number, label: string }'
 $limit = 100; // int | For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed.
 $cursor = 'cursor_example'; // string | For pagination, the marker (an opaque string value) representing the first item on the next page
 
 try {
-    $result = $apiInstance->getPersons($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
+    $result = $apiInstance->getPersons($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $include_option_labels, $include_labels, $limit, $cursor);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling PersonsApi->getPersons: ', $e->getMessage(), PHP_EOL;
@@ -622,6 +628,8 @@ Name | Type | Description  | Notes
  **sort_direction** | **string**| The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. | [optional] [default to &#39;asc&#39;]
  **include_fields** | **string**| Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. | [optional]
  **custom_fields** | **string**| Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. | [optional]
+ **include_option_labels** | **bool**| When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id | [optional]
+ **include_labels** | **bool**| When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; | [optional]
  **limit** | **int**| For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. | [optional]
  **cursor** | **string**| For pagination, the marker (an opaque string value) representing the first item on the next page | [optional]
 

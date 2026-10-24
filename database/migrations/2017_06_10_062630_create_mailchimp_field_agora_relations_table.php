@@ -8,28 +8,26 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('mailchimp_field_agora_relations')) {
-            Schema::create('mailchimp_field_agora_relations', function (Blueprint $table) {
+            Schema::create('mailchimp_field_agora_relations', function (Blueprint $table): void {
                 $table->increments('id');
-                $table->string('first_name')->nullble();
-                $table->string('last_name')->nullble();
-                $table->string('company')->nullble();
-                $table->string('mobile')->nullble();
-                $table->string('address')->nullble();
-                $table->string('country')->nullble();
-                $table->string('town')->nullble();
-                $table->string('state')->nullble();
-                $table->string('zip')->nullble();
-                $table->string('active', 225)->nullble();
-                $table->string('role')->nullble();
-                $table->string('source')->nullble();
-                $table->string('is_paid_yes')->nullble();
-                $table->string('is_paid_no')->nullble();
+                $table->string('first_name')->nullable();
+                $table->string('last_name')->nullable();
+                $table->string('company')->nullable();
+                $table->string('mobile')->nullable();
+                $table->string('address')->nullable();
+                $table->string('country')->nullable();
+                $table->string('town')->nullable();
+                $table->string('state')->nullable();
+                $table->string('zip')->nullable();
+                $table->string('active', 225)->nullable();
+                $table->string('role')->nullable();
+                $table->string('source')->nullable();
+                $table->string('is_paid_yes')->nullable();
+                $table->string('is_paid_no')->nullable();
                 $table->timestamps();
             });
         }
@@ -37,10 +35,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('mailchimp_field_agora_relations');
     }

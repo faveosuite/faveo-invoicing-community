@@ -29,7 +29,6 @@ return [
     'inspire' => 'Mostrar una cita inspiradora',
     'renewal:cron' => 'Cron de renovación automática',
     'mail-send-exception' => 'Excepción de envío de correo',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => 'Notificación de renovación vencida',
     'renewal:notification' => 'Notificación de renovación automática',
     'cleanup:msg-reports' => 'Limpieza de informes MSG91',
@@ -40,11 +39,8 @@ return [
     'droptables' => 'Eliminar todas las tablas',
     'install:db' => 'Instalar base de datos',
     'testing-setup' => 'Configurar entorno de prueba',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'Envío en cola exitoso',
-    // Added missing UI texts
     'cancel' => 'Cancelar',
-    // Added missing messages from blade file
     'system_logs' => 'Registros del sistema',
     'filter_logs' => 'Filtrar registros',
     'logs' => 'Registros',
@@ -101,4 +97,16 @@ return [
     'confirm_old_email' => 'Confirmar correo electrónico antiguo',
     'confirm_mobile_number_change' => 'Confirmar cambio de número móvil',
     'logs:delete' => 'Eliminar registros del sistema',
+    'cloud:send-instance-emails' => 'Enviar correos de instancias en la nube',
+    'activity-logs:cleanup' => 'Limpieza de registros de actividad',
+    'app:crack-callback-cleanup' => 'Limpieza de callbacks de pirateo',
+    'app:crack-reports-cleanup' => 'Limpieza de informes de pirateo',
+    'app:failed-message-delivery' => 'Reintentar mensajes de WhatsApp fallidos',
+    'app:license-reports-cleanup' => 'Limpieza de informes de licencias',
+    'app:system-reports-cleanup' => 'Limpieza de informes del sistema',
+    'app:versions-cleanup' => 'Limpieza de versiones',
+    'installation:logs' => 'Marcar instalaciones inactivas',
+    'reoon:logs-deletion' => 'Limpieza de registros de Reoon',
+    'seo:generate-files' => 'Generar archivos SEO',
+    'date' => 'Fecha',
 ];

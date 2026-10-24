@@ -1,38 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Http\Controllers\Report\ConcreteExportHandleController;
-use Illuminate\Bus\Queueable;
+use App\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Auth;
 
 class ReportExport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Queueable;
 
-    protected $reportType;
-    protected $selectedColumns;
-    protected $searchParams;
-    protected $email;
-    protected $exportHandleController;
+    protected ConcreteExportHandleController $exportHandleController;
 
-    public $tries = 5;
-    public $timeout = 300;
+    public int $tries = 5;
+
+    public int $timeout = 300;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($reportType, $selectedColumns, $searchParams, $email)
+    public function __construct(protected mixed $reportType, protected mixed $selectedColumns, protected mixed $searchParams, protected mixed $email)
     {
-        $this->reportType = $reportType;
-        $this->selectedColumns = $selectedColumns;
-        $this->searchParams = $searchParams;
-        $this->email = $email;
-
-        $exportHandleController = new ConcreteExportHandleController($reportType, $selectedColumns, $searchParams, $email);
+        $exportHandleController = new ConcreteExportHandleController($this->reportType, $this->selectedColumns, $this->searchParams, $this->email);
         $this->exportHandleController = $exportHandleController;
     }
 
@@ -41,18 +34,34 @@ class ReportExport implements ShouldQueue
      */
     public function handle(): void
     {
+        // Runs on a queue worker with no session: act as the admin who asked for it, so its
+        // date filters and exported dates use their timezone (userTimezone()), as on screen.
+        $requester = User::where('email', $this->email)->first();
+        if ($requester) {
+            Auth::setUser($requester);
+        }
+
+        try {
+            $this->export();
+        } finally {
+            app('auth')->forgetGuards(); // the worker is long-lived; don't leak this user into the next job
+        }
+    }
+
+    private function export(): void
+    {
         switch ($this->reportType) {
             case 'users':
-                $exportJob = $this->exportHandleController->userExports($this->selectedColumns, $this->searchParams, $this->email);
+                $this->exportHandleController->userExports($this->selectedColumns, $this->searchParams, $this->email);
                 break;
             case 'invoices':
-                $exportJob = $this->exportHandleController->invoiceExports($this->selectedColumns, $this->searchParams, $this->email);
+                $this->exportHandleController->invoiceExports($this->selectedColumns, $this->searchParams, $this->email);
                 break;
             case 'orders':
-                $exportJob = $this->exportHandleController->orderExports($this->selectedColumns, $this->searchParams, $this->email);
+                $this->exportHandleController->orderExports($this->selectedColumns, $this->searchParams, $this->email);
                 break;
             case 'tenats':
-                $exportJob = $this->exportHandleController->tenantExports($this->selectedColumns, $this->searchParams, $this->email);
+                $this->exportHandleController->tenantExports($this->selectedColumns, $this->searchParams, $this->email);
                 break;
             default:
                 return;

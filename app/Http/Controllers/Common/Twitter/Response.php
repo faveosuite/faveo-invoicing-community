@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Common\Twitter;
 
 /**
  * The result of the most recent API request.
  *
  * @author Abraham Williams <abraham@abrah.am>
+ *
+ * @codeCoverageIgnore
  */
 class Response
 {
@@ -15,19 +19,25 @@ class Response
     /** @var int HTTP status code from the most recent request */
     private $httpCode = 0;
 
-    /** @var array HTTP headers from the most recent request */
+    /** @var array<mixed> HTTP headers from the most recent request */
+    /**
+     * @var array<mixed>
+     */
     private $headers = [];
 
-    /** @var array|object Response body from the most recent request */
-    private $body = [];
+    /** @var array<mixed>|object Response body from the most recent request */
+    private array|object $body = [];
 
-    /** @var array HTTP headers from the most recent request that start with X */
+    /** @var array<mixed> HTTP headers from the most recent request that start with X */
+    /**
+     * @var array<mixed>
+     */
     private $xHeaders = [];
 
     /**
      * @param  string  $apiPath
      */
-    public function setApiPath($apiPath)
+    public function setApiPath($apiPath): void
     {
         $this->apiPath = $apiPath;
     }
@@ -41,17 +51,17 @@ class Response
     }
 
     /**
-     * @param  array|object  $body
+     * @param  array<mixed>|object  $body
      */
-    public function setBody($body)
+    public function setBody($body): void
     {
         $this->body = $body;
     }
 
     /**
-     * @return array|object|string
+     * @return array<mixed>|object
      */
-    public function getBody()
+    public function getBody(): array|object
     {
         return $this->body;
     }
@@ -59,7 +69,7 @@ class Response
     /**
      * @param  int  $httpCode
      */
-    public function setHttpCode($httpCode)
+    public function setHttpCode($httpCode): void
     {
         $this->httpCode = $httpCode;
     }
@@ -73,37 +83,36 @@ class Response
     }
 
     /**
-     * @param  array  $headers
+     * @param  array<mixed>  $headers
      */
-    public function setHeaders($headers)
+    public function setHeaders($headers): void
     {
         foreach ($headers as $key => $value) {
-            if (substr($key, 0, 1) == 'x') {
+            if (str_starts_with((string) $key, 'x')) {
                 $this->xHeaders[$key] = $value;
             }
         }
+
         $this->headers = $headers;
     }
 
     /**
-     * @return array
-     */
+     * @return array<mixed>     */
     public function getsHeaders()
     {
         return $this->headers;
     }
 
     /**
-     * @param  array  $xHeaders
+     * @param  array<mixed>  $xHeaders
      */
-    public function setXHeaders($xHeaders)
+    public function setXHeaders($xHeaders): void
     {
         $this->xHeaders = $xHeaders;
     }
 
     /**
-     * @return array
-     */
+     * @return array<mixed>     */
     public function getXHeaders()
     {
         return $this->xHeaders;

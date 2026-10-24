@@ -29,7 +29,6 @@ return [
     'inspire' => 'Hiển thị câu nói truyền cảm hứng',
     'renewal:cron' => 'Cron tự động gia hạn',
     'mail-send-exception' => 'Lỗi gửi email',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => 'Thông báo gia hạn đã hết hạn',
     'renewal:notification' => 'Thông báo tự động gia hạn',
     'cleanup:msg-reports' => 'Dọn dẹp báo cáo MSG91',
@@ -40,11 +39,8 @@ return [
     'droptables' => 'Xóa tất cả bảng',
     'install:db' => 'Cài đặt cơ sở dữ liệu',
     'testing-setup' => 'Thiết lập môi trường kiểm thử',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'Gửi hàng đợi thành công',
-    // Added missing UI texts
     'cancel' => 'Hủy',
-    // Added missing messages from blade file
     'system_logs' => 'Nhật ký hệ thống',
     'filter_logs' => 'Lọc nhật ký',
     'logs' => 'Nhật ký',
@@ -101,4 +97,16 @@ return [
     'confirm_old_email' => 'Xác nhận email cũ',
     'confirm_mobile_number_change' => 'Xác nhận thay đổi số điện thoại',
     'logs:delete' => 'Xóa nhật ký hệ thống',
+    'cloud:send-instance-emails' => 'Gửi email phiên bản đám mây',
+    'activity-logs:cleanup' => 'Dọn dẹp nhật ký hoạt động',
+    'app:crack-callback-cleanup' => 'Dọn dẹp callback bẻ khóa',
+    'app:crack-reports-cleanup' => 'Dọn dẹp báo cáo bẻ khóa',
+    'app:failed-message-delivery' => 'Gửi lại tin nhắn WhatsApp thất bại',
+    'app:license-reports-cleanup' => 'Dọn dẹp báo cáo giấy phép',
+    'app:system-reports-cleanup' => 'Dọn dẹp báo cáo hệ thống',
+    'app:versions-cleanup' => 'Dọn dẹp phiên bản',
+    'installation:logs' => 'Đánh dấu cài đặt không hoạt động',
+    'reoon:logs-deletion' => 'Dọn dẹp nhật ký Reoon',
+    'seo:generate-files' => 'Tạo tệp SEO',
+    'date' => 'Ngày',
 ];

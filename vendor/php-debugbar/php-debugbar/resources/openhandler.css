@@ -1,0 +1,147 @@
+div.phpdebugbar-openhandler-overlay {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    opacity: .3;
+    z-index: 100000002;
+}
+
+div.phpdebugbar-openhandler {
+    position: fixed;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 80%;
+    height: 70%;
+    background: var(--debugbar-background);
+    color: var(--debugbar-text);
+    border: 2px solid var(--debugbar-header-border);
+    overflow: auto;
+    z-index: 100000003;
+    font-family: var(--debugbar-font-sans);
+    font-size: 14px;
+    padding: 0;
+}
+    div.phpdebugbar-openhandler select, div.phpdebugbar-openhandler input {
+        appearance: auto;
+    }
+
+    div.phpdebugbar-openhandler input, div.phpdebugbar-openhandler select {
+        color: var(--debugbar-header-text);
+        background-color: var(--debugbar-header);
+        border: 1px solid var(--debugbar-header-border);
+        border-radius: 0.25rem;
+        height: 20px;
+        margin: 0 5px;
+        padding: 0;
+    }
+
+    div.phpdebugbar-openhandler .phpdebugbar-openhandler-actions input[name="uri"] {
+        width: 200px;
+    }
+
+    div.phpdebugbar-openhandler .phpdebugbar-openhandler-actions input[name="ip"] {
+        width: 90px;
+    }
+    div.phpdebugbar-openhandler a {
+        color: var(--debugbar-header-text);
+    }
+    div.phpdebugbar-openhandler .phpdebugbar-openhandler-header {
+        background: var(--debugbar-header)  no-repeat 5px 4px;
+        color: var(--debugbar-header-text);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        padding: 5px 8px;
+    }
+        div.phpdebugbar-openhandler .phpdebugbar-openhandler-header .phpdebugbar-openhandler-closebtn,
+        div.phpdebugbar-openhandler .phpdebugbar-openhandler-header .phpdebugbar-openhandler-brand
+        {
+            font-size: 14px;
+            color: var(--debugbar-header-text);
+            text-decoration: none;
+            padding-right: 5px;
+            line-height: 1;
+            align-items: center;
+        }
+        div.phpdebugbar-openhandler .phpdebugbar-openhandler-header .phpdebugbar-openhandler-closebtn
+        {
+            margin-left: auto;
+        }
+    div.phpdebugbar-openhandler table {
+        width: 100%;
+        table-layout: fixed;
+        font-size: 14px;
+    }
+        div.phpdebugbar-openhandler table td,
+        div.phpdebugbar-openhandler table th {
+            border: 0px solid var(--debugbar-border);
+            padding: 2px 8px;
+        }
+        div.phpdebugbar-openhandler table th,
+        div.phpdebugbar-openhandler table tr:nth-child(2n) {
+            background-color: var(--debugbar-background-alt);
+        }
+        div.phpdebugbar-openhandler table th:nth-child(3), div.phpdebugbar-openhandler table td:nth-child(3), /* Method */
+        div.phpdebugbar-openhandler table th:nth-child(5), div.phpdebugbar-openhandler table td:nth-child(5), /* IP */
+        div.phpdebugbar-openhandler table th:nth-child(6), div.phpdebugbar-openhandler table td:nth-child(6) { /* Filter */
+            text-align: center;
+        }
+        div.phpdebugbar-openhandler table td {
+            padding: 6px 3px;
+            border-bottom: 1px solid var(--debugbar-border);
+        }
+            div.phpdebugbar-openhandler table td a{
+                display: block;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+    .phpdebugbar-openhandler-id-cell {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .phpdebugbar-openhandler-id-text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 55px;
+        display: inline-block;
+        font-family: var(--debugbar-font-mono);
+        font-size: 12px;
+    }
+    .phpdebugbar-openhandler-copy-id {
+        cursor: pointer;
+        color: var(--debugbar-text-muted);
+        display: inline-flex;
+        align-items: center;
+        position: relative;
+        flex-shrink: 0;
+    }
+    .phpdebugbar-openhandler-copy-id i {
+        font-size: 12px;
+    }
+    .phpdebugbar-openhandler-copy-id:hover {
+        color: var(--debugbar-text);
+    }
+    .phpdebugbar-openhandler-copy-id.phpdebugbar-openhandler-copied {
+        color: var(--debugbar-success, #28a745);
+    }
+    div.phpdebugbar-openhandler .phpdebugbar-openhandler-actions {
+        text-align: center;
+        padding: 7px 0;
+    }
+        div.phpdebugbar-openhandler .phpdebugbar-openhandler-actions a {
+            color: var(--debugbar-header-text);
+            background-color: var(--debugbar-header);
+            border: 1px solid var(--debugbar-header-border);
+            border-radius: 0.25rem;
+            margin: 5px;
+            padding: 4px 12px 4px;
+        }

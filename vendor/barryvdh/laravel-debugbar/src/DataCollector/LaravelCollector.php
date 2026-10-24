@@ -1,46 +1,44 @@
 <?php
 
-namespace Barryvdh\Debugbar\DataCollector;
+declare(strict_types=1);
+
+namespace Fruitcake\LaravelDebugbar\DataCollector;
 
 use DebugBar\DataCollector\DataCollector;
 use DebugBar\DataCollector\Renderable;
-use Illuminate\Contracts\Foundation\Application as ApplicationContract;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Str;
 
 class LaravelCollector extends DataCollector implements Renderable
 {
     /**
-     * @param Application $app
-     */
-    public function __construct(protected ApplicationContract $laravel)
-    {
-    }
-
-    /**
      * {@inheritDoc}
      */
-    public function collect()
+    public function collect(): array
     {
+        $app = app();
         return [
-            "version" => Str::of($this->laravel->version())->explode('.')->first() . '.x',
-            'tooltip' => [
-                'Laravel Version' => $this->laravel->version(),
+            "version" => Str::of($app->version())->explode('.')->first() . '.x',
+            'tooltip' => array_filter([
+                'Laravel Version' => $app->version(),
                 'PHP Version' => phpversion(),
-                'Environment' => $this->laravel->environment(),
+                'Environment' => $app->environment(),
                 'Debug Mode' => config('app.debug') ? 'Enabled' : 'Disabled',
                 'URL' => Str::of(config('app.url'))->replace(['http://', 'https://'], ''),
                 'Timezone' => config('app.timezone'),
                 'Locale' => config('app.locale'),
-            ]
+                'Cached' => implode(', ', array_filter([
+                    $app->configurationIsCached() ? 'Configs' : null,
+                    $app->routesAreCached() ? 'Routes' : null,
+                    $app->eventsAreCached() ? 'Events' : null,
+                ])),
+            ]),
         ];
     }
-
 
     /**
      * {@inheritDoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'laravel';
     }
@@ -48,17 +46,17 @@ class LaravelCollector extends DataCollector implements Renderable
     /**
      * {@inheritDoc}
      */
-    public function getWidgets()
+    public function getWidgets(): array
     {
         return [
             "version" => [
-                "icon" => "laravel phpdebugbar-fab",
+                "icon" => "brand-laravel",
                 "map" => "laravel.version",
-                "default" => ""
+                "default" => "",
             ],
             "version:tooltip" => [
                 "map" => "laravel.tooltip",
-                "default" => "{}"
+                "default" => "{}",
             ],
         ];
     }
