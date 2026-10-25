@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Common;
 
 use App\EmailValidationResults;
 use App\FailedWhatsappMessage;
-use App\Jobs\SendWhatsappMessage;
 use App\Http\Controllers\Subscription\SubscriptionController;
+use App\Jobs\SendWhatsappMessage;
 use App\Model\Common\MsgDeliveryReports;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
