@@ -86,10 +86,9 @@ class AutoRenewalActivationServiceTest extends DBTestCase
         // Razorpay API (that behavior has its own dedicated tests below).
         // Both methods must be stubbed: razorpayRecurringUnitCost() calls
         // calculateRenewalCost() before handleRazorpaySubscription() — leaving
-        // it unstubbed throws BadMethodCallException, which
-        // createRazorpaySubscriptionNow() silently swallows, meaning
-        // handleRazorpaySubscription() below would never actually be reached
-        // even though this test would still (wrongly) pass.
+        // it unstubbed throws BadMethodCallException, which activate() treats
+        // as Razorpay refusing (rolls back), so handleRazorpaySubscription()
+        // below would never actually be reached.
         $mockController = Mockery::mock(SubscriptionController::class);
         $mockController->shouldReceive('calculateRenewalCost')->andReturn(10.0);
         $mockController->shouldReceive('handleRazorpaySubscription')->once()->andReturnNull();
@@ -120,6 +119,32 @@ class AutoRenewalActivationServiceTest extends DBTestCase
         // tearDown) is the real check here; this just keeps PHPUnit from
         // flagging the test as risky for having no assertions of its own.
         $this->assertSame('1', (string) Subscription::where('order_id', $order->id)->value('rzp_subscription'));
+    }
+
+    public function test_activate_leaves_auto_renewal_off_when_razorpay_refuses(): void
+    {
+        /** @var Order $order */
+        $order = Order::factory()->withRelations()->create();
+        $user = User::factory()->create();
+        Subscription::where('order_id', $order->id)->update(['is_subscribed' => 0, 'rzp_subscription' => 0, 'autoRenew_status' => 0]);
+
+        $mockController = Mockery::mock(SubscriptionController::class);
+        $mockController->shouldReceive('calculateRenewalCost')->andReturn(10.0);
+        $mockController->shouldReceive('handleRazorpaySubscription')->once()
+            ->andThrow(new \Exception('Currency provided is not supported'));
+        $this->app->instance(SubscriptionController::class, $mockController);
+
+        $this->service->activate($order, $user, 'razorpay', 'invoice_test_123'); // must not fail the purchase
+
+        $subscription = Subscription::where('order_id', $order->id)->first();
+        $this->assertSame('0', (string) $subscription->is_subscribed);
+        $this->assertSame('0', (string) $subscription->rzp_subscription);
+        $this->assertSame(0, Auto_renewal::where('order_id', $order->id)->count()); // a retry isn't ignored
+        $this->assertDatabaseHas('payment_logs', [
+            'order' => $order->number, 'payment_method' => 'razorpay', 'status' => 'failed',
+            'exception' => 'Currency provided is not supported',
+        ]);
+        $this->assertDatabaseMissing('payment_logs', ['order' => $order->number, 'status' => 'success']);
     }
 
     public function test_activate_does_not_trigger_subscription_creation_for_stripe(): void

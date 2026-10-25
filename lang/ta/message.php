@@ -621,7 +621,7 @@ return [
     'something_bad' => 'ஓஹ்! ஏதோ தவறு நேர்ந்துவிட்டது. புதிய கிளவுட் உருவாக்க முயற்சிக்க பரிந்துரைக்கிறோம். சிக்கல் தொடர்ந்தால் <a href="https://support.faveohelpdesk.com">உதவிக்குத் தொடர்பு கொள்ளவும்</a>.',
     'cloud_info' => 'Faveo இல் வரவேற்கிறோம்! ஒரு கிளிக்கில் உங்கள் இலவச ட்ரயல் கிளவுட் உருவாக்கலாம். மேலும் சந்தேகங்களுக்கு <a href="https://support.faveohelpdesk.com" style="color:white"><u>Support Center</u></a>',
     'cloud_live_info' => 'Faveo இல் வரவேற்கிறோம்! ஒரு கிளிக்கில் உங்கள் கிளவுட் உருவாக்கலாம். மேலும் சந்தேகங்களுக்கு <a href="https://support.faveohelpdesk.com" style="color:white"><u>Support Center</u></a>',
-    'cname' => 'உங்கள் டொமைன் DNS CNAME பதிவு எங்கள் கிளவுட் நோக்க pointing இல்லை போல் தெரிகிறது. தயவுசெய்து சரிபார்த்து, எங்கள் <a href="https://docs.faveohelpdesk.com/docs/helper/cname">வழிகாட்டியை பார்க்கவும்</a>.',
+    'cname' => 'உங்கள் டொமைன் DNS CNAME பதிவு எங்கள் கிளவுட் நோக்க pointing இல்லை போல் தெரிகிறது. தயவுசெய்து சரிபார்த்து, எங்கள் <a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">வழிகாட்டியை பார்க்கவும்</a>.',
     'cloud_heading' => 'வாங்க, உங்கள் Faveo கிளவுட் ஐ ஒருசேர உருவாக்கலாம்!',
     'cloud_field_label' => 'உங்கள் விருப்பமான கிளவுட் டொமைன் பெயரை உள்ளிடவும்',
     'cloud_price' => 'ஒரு முகவரிக்கு விலை',

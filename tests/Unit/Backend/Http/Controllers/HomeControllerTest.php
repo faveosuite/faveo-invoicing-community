@@ -199,6 +199,27 @@ class HomeControllerTest extends DBTestCase
         $response->assertJson(['success' => false]);
     }
 
+    public function test_download_for_faveo_matches_encrypted_serial_key(): void
+    {
+        $user = \App\User::factory()->create();
+        $product = \App\Model\Product\Product::create(['name' => 'Test Product']);
+        $order = \App\Model\Order\Order::create([
+            'client' => $user->id,
+            'order_status' => 'executed',
+            'product' => $product->id,
+            'number' => 'ORD-'.mt_rand(1000, 9999),
+            'serial_key' => \Illuminate\Support\Facades\Crypt::encrypt('ELWFEORKHK5X0003'),
+        ]);
+
+        // Right key gets past the credential check (no subscription → next error).
+        $this->getJson('/download/faveo?order_number='.$order->number.'&serial_key=ELWFEORKHK5X0003')
+            ->assertStatus(400)
+            ->assertJson(['message' => __('message.no_order_exists_invoice')]);
+
+        $this->getJson('/download/faveo?order_number='.$order->number.'&serial_key=WRONGKEY')
+            ->assertJson(['message' => __('message.invalid_credentials')]);
+    }
+
     // =========================================================================
     // getDetailedBillingInfo – assert actual data
     // =========================================================================

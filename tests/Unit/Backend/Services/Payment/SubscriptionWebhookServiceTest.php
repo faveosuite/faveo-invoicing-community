@@ -846,4 +846,38 @@ class SubscriptionWebhookServiceTest extends DBTestCase
 
         $this->assertSame('INR', $renewed->currency); // ₹999.00 — not $999 read as dollars
     }
+
+    public function test_the_renewal_invoice_shows_the_processing_fee_on_top_not_inside_the_price(): void
+    {
+        \App\Services\Payment\ProcessingFee::store('stripe', 5);
+        $this->assertSame(5.0, \App\Services\Payment\ProcessingFee::percent('stripe'), 'stripe fee row missing in test DB');
+
+        $this->getLoggedInUser('user');
+        $product = \App\Model\Product\Product::factory()->create();
+        $plan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id, 'days' => 30]);
+        $order = \App\Model\Order\Order::create(['client' => $this->user->id, 'product' => $product->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999)]);
+        $sub = \App\Model\Product\Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $this->user->id, 'is_subscribed' => 1, 'autoRenew_status' => 3]);
+        $subId = 'sub_fee_'.uniqid();
+        \Illuminate\Support\Facades\DB::table('subscriptions')->where('id', $sub->id)->update(['subscribe_id' => $subId]);
+
+        $renewed = null;
+        $handler = Mockery::mock(ConcretePostSubscriptionHandleController::class);
+        $handler->shouldReceive('successRenew')->once()->andReturnUsing(function ($invoice) use (&$renewed) {
+            $renewed = $invoice;
+
+            return 1;
+        });
+        $handler->shouldReceive('recordPayment')->once();
+        $handler->shouldReceive('sendPaymentSuccessMail', 'PaymentSuccessMailtoAdmin')->zeroOrMoreTimes();
+
+        // Charged 525 = plan price 500 + 5% fee (no tax for this user).
+        (new SubscriptionWebhookService($handler))->handleStripeEvent(['id' => 'evt_'.uniqid(), 'type' => 'invoice.payment_succeeded', 'data' => ['object' => [
+            'billing_reason' => 'subscription_cycle', 'subscription' => $subId, 'amount_paid' => 52500, 'currency' => 'usd',
+        ]]]);
+
+        $renewed->refresh();
+        $this->assertEquals(500, $renewed->invoiceItem()->value('regular_price')); // price without the fee
+        $this->assertEquals(525, $renewed->grand_total);                           // exactly what was charged
+        $this->assertSame('5%', $renewed->processing_fee);
+    }
 }

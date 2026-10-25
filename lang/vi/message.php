@@ -621,7 +621,7 @@ return [
     'something_bad' => 'Ôi không! Đã xảy ra sự cố, chúng tôi khuyên bạn thử tạo một đám mây khác. Nếu vấn đề vẫn tiếp diễn, vui lòng liên hệ với <a href="https://support.faveohelpdesk.com">Trung tâm hỗ trợ</a>',
     'cloud_info' => 'Chào mừng đến với Faveo! Bạn có thể triển khai phiên bản đám mây thử nghiệm miễn phí chỉ với một cú nhấp chuột. Nếu có câu hỏi, hãy liên hệ với <a href="https://support.faveohelpdesk.com" style="color:white"><u>Trung tâm hỗ trợ</u></a>',
     'cloud_live_info' => 'Chào mừng đến với Faveo! Bạn có thể triển khai phiên bản đám mây của mình chỉ với một cú nhấp chuột. Nếu có câu hỏi, hãy liên hệ với <a href="https://support.faveohelpdesk.com" style="color:white"><u>Trung tâm hỗ trợ</u></a>',
-    'cname' => 'Ôi không! Có vẻ như bản ghi CNAME của DNS miền của bạn chưa trỏ đến đám mây của chúng tôi. Để tiếp tục hành động của bạn, vui lòng kiểm tra lại và đảm bảo rằng bản ghi CNAME đã được thiết lập chính xác. Nếu bạn cần hướng dẫn thêm, bạn có thể tham khảo <a href="https://docs.faveohelpdesk.com/docs/helper/cname">hướng dẫn hữu ích của chúng tôi tại đây</a>.',
+    'cname' => 'Ôi không! Có vẻ như bản ghi CNAME của DNS miền của bạn chưa trỏ đến đám mây của chúng tôi. Để tiếp tục hành động của bạn, vui lòng kiểm tra lại và đảm bảo rằng bản ghi CNAME đã được thiết lập chính xác. Nếu bạn cần hướng dẫn thêm, bạn có thể tham khảo <a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">hướng dẫn hữu ích của chúng tôi tại đây</a>.',
     'cloud_heading' => 'Hãy cùng tạo đám mây Faveo của bạn!',
     'cloud_field_label' => 'Nhập tên miền đám mây mong muốn của bạn',
     'cloud_price' => 'Giá mỗi đại lý',

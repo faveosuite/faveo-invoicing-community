@@ -621,7 +621,7 @@ return [
     'something_bad' => 'Oi! Noe gikk galt, vi vil foreslå å prøve å lage en annen skyinstans. Hvis problemet vedvarer, kontakt vårt <a href="https://support.faveohelpdesk.com">Support Center</a>',
     'cloud_info' => 'Velkommen til Faveo! Du kan sette opp din gratis prøveversjon av skyinstansen med ett klikk. For videre spørsmål, kontakt vårt <a href="https://support.faveohelpdesk.com" style="color:white"><u>Support Center</u></a>',
     'cloud_live_info' => 'Velkommen til Faveo! Du kan sette opp din skyinstans med ett klikk. For videre spørsmål, kontakt vårt <a href="https://support.faveohelpdesk.com" style="color:white"><u>Support Center</u></a>',
-    'cname' => 'Oi! Det ser ut som DNS CNAME-innstillingen for domenet ditt ikke peker til skyen vår. For å fortsette med den ønskede handlingen, vennligst dobbeltsjekk og sørg for at CNAME-posten er satt opp riktig. Hvis du trenger hjelp, kan du se vår <a href="https://docs.faveohelpdesk.com/docs/helper/cname">hjelpsomme veiledning her</a>.',
+    'cname' => 'Oi! Det ser ut som DNS CNAME-innstillingen for domenet ditt ikke peker til skyen vår. For å fortsette med den ønskede handlingen, vennligst dobbeltsjekk og sørg for at CNAME-posten er satt opp riktig. Hvis du trenger hjelp, kan du se vår <a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">hjelpsomme veiledning her</a>.',
     'cloud_heading' => 'La oss lage din Faveo skyinstans sammen!',
     'cloud_field_label' => 'Skriv inn ønsket sky domenenavn',
     'cloud_price' => 'Pris per agent',

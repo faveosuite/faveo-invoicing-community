@@ -95,7 +95,7 @@ class ClientController extends AdvanceSearchController
         $replace = [
             'name' => $user->first_name.' '.$user->last_name,
             'username' => $user->email,
-            'password' => $password,
+            'password' => e($password), // template is raw HTML; symbols like '<' would hide the rest
             'website_url' => url('/'),
             'contact' => $contact['contact'] ?? '',
             'logo' => $contact['logo'] ?? '',

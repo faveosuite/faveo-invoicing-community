@@ -621,7 +621,7 @@ return [
     'something_bad' => '哎呀！發生了錯誤，我們建議您再試一次創建雲端實例。如果問題仍然存在，請聯繫我們的<a href="https://support.faveohelpdesk.com">支持中心</a>',
     'cloud_info' => '歡迎使用 Faveo！您可以只需一鍵即可部署您的免費試用雲端實例。如有其他問題，請聯繫我們的 <a href="https://support.faveohelpdesk.com" style="color:white"><u>支持中心</u></a>',
     'cloud_live_info' => '歡迎使用 Faveo！您可以只需一鍵即可部署您的雲端實例。如有其他問題，請聯繫我們的 <a href="https://support.faveohelpdesk.com" style="color:white"><u>支持中心</u></a>',
-    'cname' => '哎呀！您的域名的 DNS CNAME 記錄似乎沒有指向我們的雲端。為了繼續執行您的操作，請再次檢查並確保 CNAME 記錄設置正確。如果需要更多幫助，您可以參考我們的 <a href="https://docs.faveohelpdesk.com/docs/helper/cname">幫助指南</a>。',
+    'cname' => '哎呀！您的域名的 DNS CNAME 記錄似乎沒有指向我們的雲端。為了繼續執行您的操作，請再次檢查並確保 CNAME 記錄設置正確。如果需要更多幫助，您可以參考我們的 <a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">幫助指南</a>。',
     'cloud_heading' => '讓我們一起創建您的 Faveo 雲端實例吧！',
     'cloud_field_label' => '輸入您想要的雲端域名',
     'cloud_price' => '每個代理的價格',

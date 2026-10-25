@@ -621,7 +621,7 @@ return [
     'something_bad' => '앗! 문제가 발생했습니다. 다른 클라우드 인스턴스를 생성해보세요. 문제가 계속되면 <a href="https://support.faveohelpdesk.com">지원 센터</a>에 문의하세요.',
     'cloud_info' => 'Faveo에 오신 것을 환영합니다! 한 번의 클릭으로 무료 체험 클라우드 인스턴스를 배포할 수 있습니다. 추가 문의 사항은 <a href="https://support.faveohelpdesk.com" style="color:white"><u>지원 센터</u></a>에 문의하세요.',
     'cloud_live_info' => 'Faveo에 오신 것을 환영합니다! 한 번의 클릭으로 클라우드 인스턴스를 배포할 수 있습니다. 추가 문의 사항은 <a href="https://support.faveohelpdesk.com" style="color:white"><u>지원 센터</u></a>에 문의하세요.',
-    'cname' => '앗! 도메인의 DNS CNAME 레코드가 클라우드를 가리키지 않는 것 같습니다. 원하는 작업을 계속하려면 CNAME 레코드가 올바르게 설정되었는지 다시 확인해주세요. 더 자세한 안내가 필요하면 <a href="https://docs.faveohelpdesk.com/docs/helper/cname">도움말 가이드를 확인</a>하세요.',
+    'cname' => '앗! 도메인의 DNS CNAME 레코드가 클라우드를 가리키지 않는 것 같습니다. 원하는 작업을 계속하려면 CNAME 레코드가 올바르게 설정되었는지 다시 확인해주세요. 더 자세한 안내가 필요하면 <a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">도움말 가이드를 확인</a>하세요.',
     'cloud_heading' => 'Faveo 클라우드 인스턴스를 함께 생성해 보겠습니다!',
     'cloud_field_label' => '원하는 클라우드 도메인 이름을 입력하세요',
     'cloud_price' => '에이전트당 가격',

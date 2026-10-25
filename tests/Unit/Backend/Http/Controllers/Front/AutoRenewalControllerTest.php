@@ -282,6 +282,26 @@ class AutoRenewalControllerTest extends DBTestCase
         ]);
     }
 
+    public function test_razorpay_order_refused_by_razorpay_is_logged_and_status_unchanged(): void
+    {
+        $this->offerAutoRenewal();
+        /** @var Order $order */
+        $order = Order::factory()->withRelations()->create(['client' => $this->user->id, 'order_status' => 'executed']);
+        $before = \DB::table('subscriptions')->where('order_id', $order->id)->first(['is_subscribed', 'rzp_subscription', 'subscribe_id']);
+
+        $mockController = Mockery::mock(\App\Http\Controllers\RazorpayController::class);
+        $mockController->shouldReceive('handleRzpAutoPay')->once()->andThrow(new \Exception('Currency provided is not supported'));
+        $this->app->instance(\App\Http\Controllers\RazorpayController::class, $mockController);
+
+        $this->postJson("/auto-renewal/{$order->id}/razorpay/order")->assertStatus(400);
+
+        $this->assertEquals($before, \DB::table('subscriptions')->where('order_id', $order->id)->first(['is_subscribed', 'rzp_subscription', 'subscribe_id']));
+        $this->assertDatabaseHas('payment_logs', [
+            'order' => $order->number, 'payment_method' => 'razorpay', 'status' => 'failed',
+            'exception' => 'Currency provided is not supported',
+        ]);
+    }
+
     // =========================================================================
     // stripeConfirm — missing payment_intent → 400
     // =========================================================================

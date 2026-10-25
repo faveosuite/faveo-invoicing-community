@@ -621,7 +621,7 @@ return [
     'something_bad' => 'Ups! Terjadi kesalahan, kami sarankan coba membuat instansi cloud lain. Jika masalah berlanjut, hubungi <a href="https://support.faveohelpdesk.com">Pusat Dukungan</a>',
     'cloud_info' => 'Selamat datang di Faveo! Anda dapat menyebarkan instansi cloud percobaan gratis Anda hanya dengan satu klik. Untuk pertanyaan lebih lanjut, hubungi <a href="https://support.faveohelpdesk.com" style="color:white"><u>Pusat Dukungan</u></a>',
     'cloud_live_info' => 'Selamat datang di Faveo! Anda dapat menyebarkan instansi cloud Anda hanya dengan satu klik. Untuk pertanyaan lebih lanjut, hubungi <a href="https://support.faveohelpdesk.com" style="color:white"><u>Pusat Dukungan</u></a>',
-    'cname' => 'Ups! Sepertinya catatan CNAME DNS domain Anda tidak mengarah ke cloud kami. Untuk melanjutkan tindakan yang dimaksud, harap periksa kembali dan pastikan catatan CNAME sudah diatur dengan benar. Jika Anda memerlukan panduan lebih lanjut, Anda dapat melihat <a href="https://docs.faveohelpdesk.com/docs/helper/cname">panduan kami di sini</a>.',
+    'cname' => 'Ups! Sepertinya catatan CNAME DNS domain Anda tidak mengarah ke cloud kami. Untuk melanjutkan tindakan yang dimaksud, harap periksa kembali dan pastikan catatan CNAME sudah diatur dengan benar. Jika Anda memerlukan panduan lebih lanjut, Anda dapat melihat <a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">panduan kami di sini</a>.',
     'cloud_heading' => 'Mari kita buat instansi cloud Faveo Anda bersama!',
     'cloud_field_label' => 'Masukkan nama domain cloud yang Anda inginkan',
     'cloud_price' => 'Harga per agen',

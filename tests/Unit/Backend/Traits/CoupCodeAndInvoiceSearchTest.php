@@ -392,8 +392,8 @@ class CoupCodeAndInvoiceSearchTest extends DBTestCase
         $user = User::factory()->create();
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'grand_total' => 1000, 'currency' => 'INR', 'status' => 'success']);
         \App\Model\Order\InvoiceItem::factory()->create(['invoice_id' => $invoice->id]);
+        // Not linked to the invoice: a linked invoice can't be deleted (see test below).
         $order = \App\Model\Order\Order::create(['client' => $user->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999), 'serial_key' => 'ABCDEFGHIJKL0001']);
-        \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
         $payment = Payment::create(['invoice_id' => 0, 'parent_id' => 0, 'user_id' => $user->id, 'amount' => 1000, 'payment_method' => 'cash', 'payment_status' => 'success', 'currency' => 'INR']);
         $payment->invoices()->attach($invoice->id, ['amount' => 1000]);
         $installation = \App\License\Models\Installation::create(['license_code' => $order->serial_key, 'installation_domain' => 'live-'.uniqid().'.test',
@@ -405,7 +405,24 @@ class CoupCodeAndInvoiceSearchTest extends DBTestCase
         $this->assertSame(0, \DB::table('payment_invoice')->where('invoice_id', $invoice->id)->count()); // no longer "used" on a deleted invoice
         $this->assertNotNull(Payment::find($payment->id));                                                // the money itself is kept
         $this->assertSame(0, \App\Model\Order\InvoiceItem::where('invoice_id', $invoice->id)->count());
-        $this->assertSame(0, \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice->id)->count());
         $this->assertNotNull(\App\License\Models\Installation::find($installation->id));               // live domains untouched
+    }
+
+    public function test_bulk_delete_refuses_an_invoice_that_still_has_an_order(): void
+    {
+        $user = User::factory()->create();
+        $free = Invoice::factory()->create(['user_id' => $user->id]);
+        $linked = Invoice::factory()->create(['user_id' => $user->id]);
+        $order = \App\Model\Order\Order::create(['client' => $user->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999)]);
+        \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $linked->id]);
+
+        $this->deleteJson('/invoices', ['invoice_ids' => [$free->id, $linked->id]])
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('message', __('message.cannot_delete_invoice_with_order'));
+
+        // Nothing deleted, not even the unlinked one.
+        $this->assertNotNull(Invoice::find($free->id));
+        $this->assertNotNull(Invoice::find($linked->id));
+        $this->assertSame(1, \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $linked->id)->count());
     }
 }

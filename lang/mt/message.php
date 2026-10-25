@@ -621,7 +621,7 @@ return [
     'something_bad' => 'Ops! Xi ħaġa marret ħażin, nirrakkomandaw li tipprova toħloq cloud ieħor. Jekk il-problema tkompli, ikkuntattja s-<a href="https://support.faveohelpdesk.com">Ċentru ta\' Appoġġ</a> tagħna.',
     'cloud_info' => 'Merħba fil-Faveo! Tista\' toħloq il-cloud free trial tiegħek bil-klick wieħed. Għal mistoqsijiet oħra, ikkuntattja s-<a href="https://support.faveohelpdesk.com" style="color:white"><u>Ċentru ta\' Appoġġ</u></a> tagħna.',
     'cloud_live_info' => 'Merħba fil-Faveo! Tista\' toħloq il-cloud tiegħek bil-klick wieħed. Għal mistoqsijiet oħra, ikkuntattja s-<a href="https://support.faveohelpdesk.com" style="color:white"><u>Ċentru ta\' Appoġġ</u></a> tagħna.',
-    'cname' => 'Uh-oh! Jidher li l-CNAME DNS tad-dominju tiegħek ma qed jirreferixxix lejn il-cloud tagħna. Biex tkompli mal-azzjoni intenzjonata, jekk jogħġbok iċċekkja u kun żgur li l-CNAME qed jiġi settjat b’mod korrett. Jekk għandek bżonn gwida aktar, tista\' tiċċekkja l-<a href="https://docs.faveohelpdesk.com/docs/helper/cname">guda utli hawn</a>.',
+    'cname' => 'Uh-oh! Jidher li l-CNAME DNS tad-dominju tiegħek ma qed jirreferixxix lejn il-cloud tagħna. Biex tkompli mal-azzjoni intenzjonata, jekk jogħġbok iċċekkja u kun żgur li l-CNAME qed jiġi settjat b’mod korrett. Jekk għandek bżonn gwida aktar, tista\' tiċċekkja l-<a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">guda utli hawn</a>.',
     'cloud_heading' => 'Ejja noħolqu flimkien il-cloud tiegħek!',
     'cloud_field_label' => 'Daħħal isimha tad-dominju tal-cloud li tixtieq.',
     'cloud_price' => 'Prezz kull aġent.',

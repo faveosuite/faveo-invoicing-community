@@ -621,7 +621,7 @@ return [
     'something_bad' => 'Bir şeyler ters gitti. Yeni bir cloud denemesi yapın veya <a href="https://support.faveohelpdesk.com">destek merkezi</a> ile iletişime geçin.',
     'cloud_info' => 'Faveo\'ya hoş geldiniz! Tek tıkla ücretsiz cloud deneme kurabilirsiniz. Sorularınız için <a href="https://support.faveohelpdesk.com"><u>Destek Merkezi</u></a>',
     'cloud_live_info' => 'Faveo\'ya hoş geldiniz! Tek tıkla cloud kurabilirsiniz. Sorularınız için <a href="https://support.faveohelpdesk.com"><u>Destek Merkezi</u></a>',
-    'cname' => 'CNAME kaydınız cloud sistemimize yönlenmiyor. Lütfen doğru yapılandırıldığından emin olun. Yardım için <a href="https://docs.faveohelpdesk.com/docs/helper/cname">bu kılavuza</a> göz atın.',
+    'cname' => 'CNAME kaydınız cloud sistemimize yönlenmiyor. Lütfen doğru yapılandırıldığından emin olun. Yardım için <a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">bu kılavuza</a> göz atın.',
     'cloud_heading' => 'Faveo cloud instance’ınızı birlikte oluşturalım!',
     'cloud_field_label' => 'İstediğiniz cloud domain adını girin',
     'cloud_price' => 'Ajan başına fiyat',

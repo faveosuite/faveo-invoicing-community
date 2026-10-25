@@ -126,6 +126,10 @@ class AutoRenewalController extends Controller
 
             return successResponse('', $config);
         } catch (Exception $exception) {
+            // Razorpay refused the subscription (e.g. a currency the account can't bill recurring).
+            \Logger::exception($exception);
+            $this->logPayment($order, 'razorpay', 'failed', $exception->getMessage());
+
             return errorResponse($exception->getMessage());
         }
     }

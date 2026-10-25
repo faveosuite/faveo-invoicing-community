@@ -34,6 +34,11 @@ class SubscriptionController extends Controller
 {
     private const DISPLAY_DATE = 'd M Y';
 
+    // Auto-renewal charges (Stripe) or sends the approval link (Razorpay) this many days
+    // before expiry. The renewal reminder skips auto-renewal customers on this day: they
+    // get the payment / approval email instead.
+    public const CHARGE_DAYS_BEFORE = 1;
+
     public function __construct(
         protected ConcretePostSubscriptionHandleController $PostSubscriptionHandle
     ) {
@@ -73,37 +78,30 @@ class SubscriptionController extends Controller
             return [];
         }
 
-        $subscriptions = collect();
+        // One day before expiry (or the expiry day itself, if that run was missed): Stripe
+        // charges the saved card, Razorpay sends the approval link and charges on approval.
+        // Earlier would take the money weeks before the plan ends.
+        $from = Date::now()->startOfDay();
+        $to = Date::now()->addDays(self::CHARGE_DAYS_BEFORE)->endOfDay();
 
-        foreach ($days as $day) {
-            $dayStart = Date::now()->addDays($day)->startOfDay();
-            $dayEnd = $dayStart->copy()->endOfDay();
-
-            $subscriptions = $subscriptions->merge(
-                Subscription::query()
-                    ->select(['subscriptions.*', 'orders.id as order_id', 'subscriptions.id as id'])
-                    ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
-                    ->where('subscriptions.is_deleted', 0) // cloud instance deleted — never renew
-                    ->where(fn (Builder $q) => $q
-                        ->whereBetween('subscriptions.update_ends_at', [$dayStart, $dayEnd])
-                        ->orWhereBetween('subscriptions.support_ends_at', [$dayStart, $dayEnd])
-                        ->orWhereBetween('subscriptions.ends_at', [$dayStart, $dayEnd])
-                    )
-                    ->where(fn (Builder $q) => $q
-                        ->when($stripeEnabled, fn ($q) => $q
-                            // status=1: needs gateway subscription created
-                            // status=3: active, renewal invoice pre-created for webhook
-                            ->orWhere(fn (Builder $q) => $q->where('subscriptions.is_subscribed', 1)->whereIn('subscriptions.autoRenew_status', [1, 3]))
-                        )
-                        ->when($razorpayEnabled, fn ($q) => $q
-                            ->orWhere(fn (Builder $q) => $q->where('subscriptions.is_subscribed', 1)->whereIn('subscriptions.rzp_subscription', [1, 3]))
-                        )
-                    )
-                    ->get()
-            );
-        }
-
-        return $subscriptions->unique('id')->values()->toArray();
+        return Subscription::query()
+            ->select(['subscriptions.*', 'orders.id as order_id', 'subscriptions.id as id'])
+            ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
+            ->where('subscriptions.is_deleted', 0) // cloud instance deleted — never renew
+            ->where(fn (Builder $q) => $q
+                ->whereBetween('subscriptions.update_ends_at', [$from, $to])
+                ->orWhereBetween('subscriptions.support_ends_at', [$from, $to])
+                ->orWhereBetween('subscriptions.ends_at', [$from, $to])
+            )
+            ->where('subscriptions.is_subscribed', 1)
+            ->where(fn (Builder $q) => $q
+                // status=1: needs gateway subscription created
+                // status=3: active, renewal invoice pre-created for webhook
+                ->when($stripeEnabled, fn ($q) => $q->orWhereIn('subscriptions.autoRenew_status', [1, 3]))
+                ->when($razorpayEnabled, fn ($q) => $q->orWhereIn('subscriptions.rzp_subscription', [1, 3]))
+            )
+            ->get()
+            ->toArray();
     }
 
     /**
@@ -123,28 +121,23 @@ class SubscriptionController extends Controller
             return [];
         }
 
-        $subscriptions = collect();
+        // Waiting on the customer (card check or Razorpay approval): look every day until
+        // expiry, not only on the reminder days, so an approval is picked up the same day.
+        $from = Date::now()->startOfDay();
+        $to = Date::now()->addDays(max([...$days, self::CHARGE_DAYS_BEFORE]))->endOfDay();
 
-        foreach ($days as $day) {
-            $dayStart = Date::now()->addDays($day)->startOfDay();
-            $dayEnd = $dayStart->copy()->endOfDay();
-
-            $subscriptions = $subscriptions->merge(
-                Subscription::where(fn (\Illuminate\Contracts\Database\Eloquent\Builder $q) => $q
-                    ->whereBetween('update_ends_at', [$dayStart, $dayEnd])
-                    ->orWhereBetween('support_ends_at', [$dayStart, $dayEnd])
-                    ->orWhereBetween('ends_at', [$dayStart, $dayEnd])
-                )
-                    ->where('is_deleted', 0) // cloud instance deleted — never renew
-                    ->where(fn ($q) => $q
-                        ->when($stripeEnabled, fn ($q) => $q->orWhere('autoRenew_status', 2))
-                        ->when($razorpayEnabled, fn ($q) => $q->orWhere('rzp_subscription', 2))
-                    )
-                    ->get()
-            );
-        }
-
-        return $subscriptions->unique('id')->values()->toArray();
+        return Subscription::where(fn (\Illuminate\Contracts\Database\Eloquent\Builder $q) => $q
+            ->whereBetween('update_ends_at', [$from, $to])
+            ->orWhereBetween('support_ends_at', [$from, $to])
+            ->orWhereBetween('ends_at', [$from, $to])
+        )
+            ->where('is_deleted', 0) // cloud instance deleted — never renew
+            ->where(fn ($q) => $q
+                ->when($stripeEnabled, fn ($q) => $q->orWhere('autoRenew_status', 2))
+                ->when($razorpayEnabled, fn ($q) => $q->orWhere('rzp_subscription', 2))
+            )
+            ->get()
+            ->toArray();
     }
 
     /**
@@ -185,7 +178,6 @@ class SubscriptionController extends Controller
             }
 
             $cost = $this->calculateRenewalCost($subscription, $planDetails, $order);
-            $cost = ProcessingFee::addTo($cost, $paymentMethod);
 
             if ($cost == 0) {
                 // Nothing to charge: switch auto-renewal off properly — cancel any live gateway
@@ -212,7 +204,7 @@ class SubscriptionController extends Controller
                 return;
             }
 
-            $invoice = $this->findOrCreateRenewalInvoice($subscription, $order, $product, $user, $plan, $cost, $currency);
+            $invoice = $this->findOrCreateRenewalInvoice($subscription, $order, $product, $user, $plan, $cost, $currency, $paymentMethod);
             $cost = (float) $invoice->grand_total;
             $currency = (string) $invoice->currency;
             $unitCost = $this->PostSubscriptionHandle->calculateUnitCost($currency, $cost);
@@ -251,18 +243,11 @@ class SubscriptionController extends Controller
      */
     public function calculateRenewalCost(Subscription $subscription, array $planDetails, Order $order): float
     {
-        $price = (float) ($planDetails['plan']->renew_price ?? 0);
-
-        if (isAgentAllowed($subscription->product_id, $subscription->plan_id)) {
-            $pricePerAgent = $price / $planDetails['plan']->no_of_agents;
-
-            return $this->getPriceforCloud($order, $pricePerAgent);
-        }
-
-        return $price;
+        // No price in the customer's currency → nothing to charge (callers treat 0 as "skip").
+        return $planDetails['plan'] ? new BaseRenewController()->renewalCost($order->id, $planDetails['plan']) : 0.0;
     }
 
-    private function findOrCreateRenewalInvoice(Subscription $subscription, Order $order, Product $product, User $user, Plan $plan, float $cost, string $currency): Invoice
+    private function findOrCreateRenewalInvoice(Subscription $subscription, Order $order, Product $product, User $user, Plan $plan, float $cost, string $currency, ?string $paymentMethod): Invoice
     {
         $latestInvoiceId = DB::table('order_invoice_relations')
             ->where('order_id', $subscription->order_id)
@@ -297,7 +282,15 @@ class SubscriptionController extends Controller
             throw new Exception('Failed to generate invoice item.');
         }
 
-        return Invoice::findOrFail($invoiceItem->invoice_id);
+        // Fee on top of the taxed total, as a normal payment does. Added to the price before
+        // the invoice, it showed as part of the price and was taxed too.
+        $invoice = Invoice::findOrFail($invoiceItem->invoice_id);
+        $invoice->update([
+            'grand_total' => ProcessingFee::addTo((float) $invoice->grand_total, $paymentMethod),
+            'processing_fee' => $this->PostSubscriptionHandle->getProcessingFee((string) $paymentMethod, $currency),
+        ]);
+
+        return $invoice;
     }
 
     // ── Gateway status checks (status=2 → awaiting auth) ─────────────────
@@ -475,11 +468,6 @@ class SubscriptionController extends Controller
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────
-
-    public function getPriceforCloud(Order $order, float $pricePerAgent): float
-    {
-        return (int) ltrim(substr($order->serial_key, -4), '0') * $pricePerAgent;
-    }
 
     public function calculateReverseUnitCost(string $currency, float|int $cost): float
     {

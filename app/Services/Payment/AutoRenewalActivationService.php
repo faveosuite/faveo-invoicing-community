@@ -15,6 +15,7 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Traits\TaxCalculation;
 use App\User;
+use DB;
 use Exception;
 use Illuminate\Database\QueryException;
 use Logger;
@@ -76,19 +77,39 @@ class AutoRenewalActivationService
         // reports the stale, abandoned gateway's status instead of this one.
         $gatewayColumn = $gateway === 'razorpay' ? 'rzp_subscription' : 'autoRenew_status';
         $otherGatewayColumn = $gateway === 'razorpay' ? 'autoRenew_status' : 'rzp_subscription';
-        Subscription::where('order_id', $order->id)->update([
-            'is_subscribed' => '1',
-            $gatewayColumn => '1',
-            $otherGatewayColumn => '0',
-        ]);
+
+        try {
+            // For Razorpay the status only sticks once Razorpay accepts the subscription: if it
+            // refuses (e.g. a currency the account can't bill recurring), the update rolls back.
+            DB::transaction(function () use ($order, $user, $gateway, $gatewayColumn, $otherGatewayColumn): void {
+                Subscription::where('order_id', $order->id)->update([
+                    'is_subscribed' => '1',
+                    $gatewayColumn => '1',
+                    $otherGatewayColumn => '0',
+                ]);
+
+                if ($gateway === 'razorpay') {
+                    $this->createRazorpaySubscriptionNow($order, $user);
+                }
+            });
+        } catch (Throwable $throwable) {
+            if ($gateway !== 'razorpay') {
+                throw $throwable;
+            }
+
+            // Free the claim, or a later retry would be ignored as "already activated".
+            Auto_renewal::where('order_id', $order->id)->where('payment_method', $gateway)->delete();
+            Logger::exception(new Exception('Razorpay auto-renewal not set up for order '.$order->number.': '.$throwable->getMessage(), 0, $throwable));
+            new PhpMailController()->payment_log(
+                $user->email, $gateway, 'failed', $order->number, $throwable->getMessage(), 0, 'Payment method updated'
+            );
+
+            return;
+        }
 
         new PhpMailController()->payment_log(
             $user->email, $gateway, 'success', $order->number, null, 0, 'Payment method updated'
         );
-
-        if ($gateway === 'razorpay') {
-            $this->createRazorpaySubscriptionNow($order, $user);
-        }
     }
 
     /**
@@ -141,28 +162,24 @@ class AutoRenewalActivationService
     }
 
     /**
-     * Never lets a failure here fail the caller — auto-renewal is a bonus,
-     * not a requirement of a successful purchase or card verification.
+     * Throws when Razorpay refuses — {@see activate()} then rolls the status back and logs it,
+     * so a failure here still never fails the purchase itself.
      */
     private function createRazorpaySubscriptionNow(Order $order, User $user): void
     {
-        try {
-            $context = $this->resolveSubscriptionContext($order);
-            if (! $context) {
-                return;
-            }
-            ['subscription' => $subscription, 'plan' => $plan, 'product' => $product, 'invoice' => $invoice] = $context;
-
-            ['unitCost' => $unitCost, 'currency' => $currency] = $this->razorpayRecurringUnitCost($subscription, $plan, $order, $user);
-
-            resolve(SubscriptionController::class)->handleRazorpaySubscription(
-                $unitCost, $plan, $product, $invoice, $currency,
-                $subscription, $user, $order, $subscription->update_ends_at,
-                immediate: true,
-            );
-        } catch (Throwable $throwable) {
-            Logger::exception($throwable);
+        $context = $this->resolveSubscriptionContext($order);
+        if (! $context) {
+            return;
         }
+        ['subscription' => $subscription, 'plan' => $plan, 'product' => $product, 'invoice' => $invoice] = $context;
+
+        ['unitCost' => $unitCost, 'currency' => $currency] = $this->razorpayRecurringUnitCost($subscription, $plan, $order, $user);
+
+        resolve(SubscriptionController::class)->handleRazorpaySubscription(
+            $unitCost, $plan, $product, $invoice, $currency,
+            $subscription, $user, $order, $subscription->update_ends_at,
+            immediate: true,
+        );
     }
 
     /**

@@ -185,6 +185,29 @@ class StoreControllerTest extends DBTestCase
         $this->assertSame([$names['Freelancer'], $names['Startup']], $listed);
     }
 
+    public function test_contact_sales_product_is_listed_last(): void
+    {
+        $tmpl = \App\Model\Common\PricingTemplate::first();
+        if (! $tmpl) {
+            $this->markTestSkipped('No pricing template to attach a group to.');
+        }
+        $group = \App\Model\Product\ProductGroup::create(['name' => 'Perpetual '.uniqid(), 'pricing_templates_id' => $tmpl->id, 'hidden' => 0]);
+        $currency = getCurrencyForClient((string) auth()->user()->country);
+
+        // Enterprise is contact-sales and cheapest, but must still come after Pro.
+        $names = [];
+        foreach (['Enterprise' => [10, 1], 'Pro' => [900, 0]] as $name => [$amount, $contact]) {
+            $product = \App\Model\Product\Product::create(['name' => $name.' '.uniqid(), 'group' => $group->id, 'hidden' => 0, 'add_to_contact' => $contact]);
+            $plan = \App\Model\Payment\Plan::create(['name' => 'P'.uniqid(), 'product' => $product->id, 'days' => 365, 'status' => 1]);
+            \App\Model\Payment\PlanPrice::create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => $amount, 'renew_price' => $amount, 'offer_price' => 0]);
+            $names[$name] = $product->name;
+        }
+
+        $listed = array_column($this->getJson("/store/{$group->id}/products")->assertOk()->json('data.products'), 'name');
+
+        $this->assertSame([$names['Pro'], $names['Enterprise']], $listed);
+    }
+
     public function test_plans_skip_a_plan_without_a_price(): void
     {
         $product = \App\Model\Product\Product::create(['name' => 'Plans '.uniqid()]);

@@ -621,7 +621,7 @@ return [
     'something_bad' => 'Ups! Nešto je pošlo po zlu, preporučujemo da pokušate stvoriti drugu cloud instancu. Ako problem i dalje traje, obratite se našem <a href="https://support.faveohelpdesk.com">Centru za podršku</a>',
     'cloud_info' => 'Dobrodošli u Faveo! Možete postaviti besplatnu probnu cloud instancu s jednim klikom. Za dodatna pitanja obratite se našem <a href="https://support.faveohelpdesk.com" style="color:white"><u>Centru za podršku</u></a>',
     'cloud_live_info' => 'Dobrodošli u Faveo! Možete postaviti svoju cloud instancu s jednim klikom. Za dodatna pitanja obratite se našem <a href="https://support.faveohelpdesk.com" style="color:white"><u>Centru za podršku</u></a>',
-    'cname' => 'Uh-oh! Čini se da DNS CNAME zapis vaše domene nije usmjeren na naš cloud. Da biste nastavili s planiranim radnjama, provjerite i pobrinite se da je CNAME zapis pravilno postavljen. Ako trebate dodatne upute, možete provjeriti našu <a href="https://docs.faveohelpdesk.com/docs/helper/cname">korisnu uputu ovdje</a>.',
+    'cname' => 'Uh-oh! Čini se da DNS CNAME zapis vaše domene nije usmjeren na naš cloud. Da biste nastavili s planiranim radnjama, provjerite i pobrinite se da je CNAME zapis pravilno postavljen. Ako trebate dodatne upute, možete provjeriti našu <a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">korisnu uputu ovdje</a>.',
     'cloud_heading' => 'Kreirajmo vašu Faveo cloud instancu zajedno!',
     'cloud_field_label' => 'Unesite željeni naziv cloud domene',
     'cloud_price' => 'Cijena po agentu',

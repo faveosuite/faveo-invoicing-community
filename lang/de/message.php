@@ -621,7 +621,7 @@ return [
     'something_bad' => 'Hoppla! Etwas ist schiefgelaufen. Wir empfehlen, eine andere Cloud-Instanz zu erstellen. Wenn das Problem weiterhin besteht, wenden Sie sich an unser <a href="https://support.faveohelpdesk.com">Support Center</a>',
     'cloud_info' => 'Willkommen bei Faveo! Sie können Ihre kostenlose Cloud-Instanz mit nur einem Klick bereitstellen. Bei weiteren Fragen wenden Sie sich an unser <a href="https://support.faveohelpdesk.com" style="color:white"><u>Support Center</u></a>',
     'cloud_live_info' => 'Willkommen bei Faveo! Sie können Ihre Cloud-Instanz mit nur einem Klick bereitstellen. Bei weiteren Fragen wenden Sie sich an unser <a href="https://support.faveohelpdesk.com" style="color:white"><u>Support Center</u></a>',
-    'cname' => 'Hoppla! Es scheint, dass der DNS CNAME-Eintrag Ihrer Domain nicht auf unsere Cloud zeigt. Um mit der gewünschten Aktion fortzufahren, überprüfen Sie bitte den CNAME-Eintrag und stellen Sie sicher, dass er korrekt eingerichtet ist. Weitere Anleitungen finden Sie in unserem <a href="https://docs.faveohelpdesk.com/docs/helper/cname">hilfreichen Leitfaden hier</a>.',
+    'cname' => 'Hoppla! Es scheint, dass der DNS CNAME-Eintrag Ihrer Domain nicht auf unsere Cloud zeigt. Um mit der gewünschten Aktion fortzufahren, überprüfen Sie bitte den CNAME-Eintrag und stellen Sie sicher, dass er korrekt eingerichtet ist. Weitere Anleitungen finden Sie in unserem <a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">hilfreichen Leitfaden hier</a>.',
     'cloud_heading' => 'Lassen Sie uns gemeinsam Ihre Faveo-Cloud-Instanz erstellen!',
     'cloud_field_label' => 'Geben Sie Ihren gewünschten Cloud-Domainnamen ein.',
     'cloud_price' => 'Preis pro Agent',

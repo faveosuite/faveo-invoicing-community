@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Common;
 use App\EmailValidationResults;
 use App\FailedWhatsappMessage;
 use App\Jobs\SendWhatsappMessage;
+use App\Http\Controllers\Subscription\SubscriptionController;
 use App\Model\Common\MsgDeliveryReports;
+use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Mailjob\Condition;
 use App\Model\Order\Invoice;
@@ -247,6 +249,11 @@ class CronController extends BaseCronController
                 ->where('orders.order_status', 'executed')
                 ->where('subscriptions.is_subscribed', '1') // Apply this condition correctly
                 ->where('subscriptions.is_deleted', 0) // deleted cloud instance — nothing to remind about
+                // Auto-renewal acts on this day and sends its own payment / approval email;
+                // a "will renew" reminder on top would confuse.
+                ->when($day === SubscriptionController::CHARGE_DAYS_BEFORE, fn ($q) => $q
+                    ->when(StatusSetting::autoRenewalEnabledFor('stripe'), fn ($q) => $q->where('subscriptions.autoRenew_status', '0'))
+                    ->when(StatusSetting::autoRenewalEnabledFor('razorpay'), fn ($q) => $q->where('subscriptions.rzp_subscription', '0')))
                 ->select([
                     'subscriptions.*',
                     'orders.id as order_id',

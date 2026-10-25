@@ -114,26 +114,6 @@ class SubscriptionControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // getPriceforCloud — calculates agent * pricePerAgent
-    // =========================================================================
-
-    public function test_get_price_for_cloud_calculates_agent_count_from_serial_key(): void
-    {
-        $user = User::factory()->create(['role' => 'user']);
-        $order = Order::create([
-            'client' => $user->id,
-            'order_status' => 'executed',
-            'product' => 'Helpdesk',
-            'number' => mt_rand(100000, 999999),
-            'serial_key' => 'ABC0025',  // last 4 digits stripped of leading zeros = 25
-        ]);
-        $controller = $this->instantiateDependencies();
-        $subController = new SubscriptionController($controller);
-        $result = $subController->getPriceforCloud($order, 10.0);
-        $this->assertEquals(250.0, $result);
-    }
-
-    // =========================================================================
     // calculateReverseUnitCost — converts Stripe amount back to display amount
     // =========================================================================
 
@@ -175,20 +155,6 @@ class SubscriptionControllerTest extends DBTestCase
         $result = $subController->getCreatedSubscription();
         $this->assertIsArray($result);
         $this->assertEmpty($result);
-    }
-
-    public function test_get_price_for_cloud_returns_calculated_price(): void
-    {
-        // Covers line 408-411: getPriceforCloud
-        $controller = $this->instantiateDependencies();
-        $subController = new SubscriptionController($controller);
-
-        $order = \App\Model\Order\Order::factory()->withRelations()->create([
-            'serial_key' => '00000000000000000005', // last 4 = '0005' → 5
-        ]);
-
-        $result = $subController->getPriceforCloud($order, 10.0);
-        $this->assertEqualsWithDelta(50.0, $result, 0.01);
     }
 
     // =========================================================================
@@ -327,21 +293,6 @@ class SubscriptionControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // getPriceforCloud — pure arithmetic
-    // =========================================================================
-
-    public function test_get_price_for_cloud_with_serial_key_containing_agents(): void
-    {
-        $controller = $this->instantiateDependencies();
-        $subController = new SubscriptionController($controller);
-
-        $order = \App\Model\Order\Order::first() ?? \App\Model\Order\Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
-
-        $result = $subController->getPriceforCloud($order, 10.0);
-        $this->assertIsFloat($result);
-    }
-
-    // =========================================================================
     // calculateReverseUnitCost — covers different currency precision cases
     // =========================================================================
 
@@ -431,22 +382,6 @@ class SubscriptionControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // getPriceforCloud with different order serial keys
-    // =========================================================================
-
-    public function test_get_price_for_cloud_returns_zero_for_order_without_serial(): void
-    {
-        $controller = $this->instantiateDependencies();
-        $subController = new SubscriptionController($controller);
-
-        $order = new \App\Model\Order\Order;
-        $order->serial_key = null;
-
-        $result = $subController->getPriceforCloud($order, 100.0);
-        $this->assertIsNumeric($result);
-    }
-
-    // =========================================================================
     // resolvePaymentMethod — via public wrapper (test private via reflection)
     // =========================================================================
 
@@ -499,45 +434,26 @@ class SubscriptionControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // calculateRenewalCost — via reflection (tests price calculation path)
+    // calculateRenewalCost — same price as the manual renew page
     // =========================================================================
 
-    public function test_calculate_renewal_cost_returns_flat_price_when_not_agent_allowed(): void
+    public function test_auto_renewal_price_matches_manual_renewal_price(): void
     {
-        $controller = $this->instantiateDependencies();
-        $subController = new SubscriptionController($controller);
+        $user = User::factory()->create();
+        $plan = (object) ['renew_price' => 500, 'no_of_agents' => 3];
+        $auto = new SubscriptionController($this->instantiateDependencies());
+        $manual = new \App\Http\Controllers\Order\BaseRenewController;
 
-        $product = Product::first() ?? Product::create(['name' => 'Test Product '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        // agents on the order's latest invoice line → expected price
+        foreach (['3' => 500.0, '6' => 1000.0, '0' => 500.0] as $agents => $expected) {
+            // Serial key deliberately disagrees: the price follows the order's agents, not the key.
+            $order = Order::create(['client' => $user->id, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999), 'serial_key' => 'ABCDEFGH0009']);
+            $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+            InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => 'P', 'agents' => $agents]);
+            \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
 
-        $user = \App\User::factory()->create(['role' => 'user', 'country' => 'IN']);
-        $order = Order::create([
-            'client' => $user->id,
-            'order_status' => 'executed',
-            'product' => $product->id,
-            'number' => 'RCT-'.uniqid(),
-            'serial_key' => '000000000000', // last 4 = '0000' → 0
-        ]);
-
-        $sub = new Subscription;
-        $sub->product_id = $product->id;
-        $sub->plan_id = $plan->id;
-        $sub->order_id = $order->id;
-
-        $planDetails = [
-            'currency' => 'USD',
-            'plan' => (object) ['renew_price' => 99.0, 'no_of_agents' => 10],
-        ];
-
-        $method = new \ReflectionMethod(SubscriptionController::class, 'calculateRenewalCost');
-        $method->setAccessible(true);
-
-        try {
-            $result = $method->invoke($subController, $sub, $planDetails, $order);
-            $this->assertIsNumeric($result);
-        } catch (\Throwable $e) {
-            // isAgentAllowed() may fail in test env
-            $this->assertTrue(true);
+            $this->assertEquals($expected, $manual->renewalCost($order->id, $plan), "manual, {$agents} agents");
+            $this->assertEquals($expected, $auto->calculateRenewalCost(new Subscription, ['plan' => $plan], $order), "auto, {$agents} agents");
         }
     }
 
@@ -763,7 +679,7 @@ class SubscriptionControllerTest extends DBTestCase
         Subscription::factory()->create([
             'is_subscribed' => 1,
             'autoRenew_status' => 1,
-            'update_ends_at' => \Illuminate\Support\Facades\Date::now()->addDays(7),
+            'update_ends_at' => \Illuminate\Support\Facades\Date::now()->addDays(SubscriptionController::CHARGE_DAYS_BEFORE),
         ]);
 
         $controller = $this->instantiateDependencies();
@@ -936,5 +852,100 @@ class SubscriptionControllerTest extends DBTestCase
 
         $this->assertSame(0, \App\Auto_renewal::where('order_id', $order->id)->count()); // re-enable won't be ignored
         $this->assertSame(0, (int) \DB::table('subscriptions')->where('id', $sub->id)->value('is_subscribed'));
+    }
+
+    // =========================================================================
+    // Charge timing: auto-renewal acts 1 day before expiry, not on reminder days
+    // =========================================================================
+
+    private function enableAutoRenewal(string $days = '[30,15,7,1]'): void
+    {
+        \App\Model\Common\Setting::where('id', 1)->update(['autorenewal_status' => 1]);
+        StatusSetting::query()->update(['stripe_auto_renewal' => 1, 'razorpay_auto_renewal' => 1]);
+        Condition::where('job', 'subsExpirymail')->update(['days' => $days]);
+    }
+
+    private function autoSub(int $daysLeft, string $gateway, int $status = 1): Subscription
+    {
+        $ends = now()->addDays($daysLeft)->setTime(12, 0);
+        $sub = Subscription::factory()->for(Order::factory()->state(['order_status' => 'executed']))->create(['is_subscribed' => 1, 'ends_at' => $ends, 'update_ends_at' => $ends, 'support_ends_at' => $ends]);
+        \DB::table('subscriptions')->where('id', $sub->id)->update($gateway === 'stripe'
+            ? ['autoRenew_status' => $status, 'rzp_subscription' => 0]
+            : ['autoRenew_status' => 0, 'rzp_subscription' => $status]);
+
+        return $sub;
+    }
+
+    private function renewalIds(): array
+    {
+        return array_column(new SubscriptionController($this->instantiateDependencies())->getOnDayExpiryInfoSubs(), 'id');
+    }
+
+    public function test_stripe_is_charged_one_day_before_expiry_not_on_reminder_days(): void
+    {
+        $this->enableAutoRenewal();
+        $early = $this->autoSub(30, 'stripe');
+        $dayBefore = $this->autoSub(1, 'stripe');
+        $expiryDay = $this->autoSub(0, 'stripe'); // catch-up if the day-before run was missed
+
+        $ids = $this->renewalIds();
+
+        $this->assertNotContains($early->id, $ids);
+        $this->assertContains($dayBefore->id, $ids);
+        $this->assertContains($expiryDay->id, $ids);
+    }
+
+    public function test_razorpay_link_goes_out_one_day_before_expiry_not_on_reminder_days(): void
+    {
+        $this->enableAutoRenewal();
+        $early = $this->autoSub(30, 'razorpay');
+        $dayBefore = $this->autoSub(1, 'razorpay');
+
+        $ids = $this->renewalIds();
+
+        $this->assertNotContains($early->id, $ids);
+        $this->assertContains($dayBefore->id, $ids);
+    }
+
+    public function test_awaiting_approval_is_checked_every_day_not_only_reminder_days(): void
+    {
+        $this->enableAutoRenewal();
+        $sub = $this->autoSub(20, 'razorpay', status: 2); // 20 is not a reminder day
+
+        $ids = array_column(new SubscriptionController($this->instantiateDependencies())->getCreatedSubscription(), 'id');
+
+        $this->assertContains($sub->id, $ids);
+    }
+
+    public function test_renewal_reminder_skips_auto_renewal_on_its_charge_day_only(): void
+    {
+        $this->enableAutoRenewal();
+        $stripe = $this->autoSub(1, 'stripe');
+        $razorpay = $this->autoSub(1, 'razorpay');
+        $stripeEarly = $this->autoSub(30, 'stripe');
+        $cron = new \App\Http\Controllers\Common\CronController;
+
+        $chargeDay = array_column($cron->getautoSubscriptions([1]), 'id');
+        $this->assertNotContains($stripe->id, $chargeDay);   // gets the payment email instead
+        $this->assertNotContains($razorpay->id, $chargeDay); // gets the approval link instead
+
+        $this->assertContains($stripeEarly->id, array_column($cron->getautoSubscriptions([30]), 'id'));
+    }
+
+    public function test_renewal_invoice_adds_the_processing_fee_on_top_not_inside_the_price(): void
+    {
+        \App\Services\Payment\ProcessingFee::store('stripe', 5);
+        $user = User::factory()->create();
+        $product = Product::factory()->create();
+        $plan = Plan::factory()->create(['product' => $product->id]);
+        $order = Order::create(['client' => $user->id, 'product' => $product->id, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
+        $sub = Subscription::factory()->create(['user_id' => $user->id, 'order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id]);
+
+        $method = new \ReflectionMethod(SubscriptionController::class, 'findOrCreateRenewalInvoice');
+        $invoice = $method->invoke(new SubscriptionController($this->instantiateDependencies()), $sub, $order, $product, $user, $plan, 500.0, 'USD', 'stripe');
+
+        $this->assertEquals(500, $invoice->invoiceItem()->value('regular_price')); // plan price, no fee inside
+        $this->assertEquals(525, $invoice->fresh()->grand_total);                  // fee added on top (no tax for this user)
+        $this->assertSame('5%', $invoice->fresh()->processing_fee);
     }
 }

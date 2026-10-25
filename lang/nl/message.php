@@ -621,7 +621,7 @@ return [
     'something_bad' => 'Oeps! Er is iets mis gegaan, we raden aan om een andere cloudinstantie te proberen. Als het probleem aanhoudt, neem dan contact op met ons <a href="https://support.faveohelpdesk.com">Support Center</a>',
     'cloud_info' => 'Welkom bij Faveo! U kunt uw gratis proefversie van de cloudinstantie met één klik implementeren. Voor verdere vragen kunt u contact opnemen met ons <a href="https://support.faveohelpdesk.com" style="color:white"><u>Support Center</u></a>',
     'cloud_live_info' => 'Welkom bij Faveo! U kunt uw cloudinstantie met één klik implementeren. Voor verdere vragen kunt u contact opnemen met ons <a href="https://support.faveohelpdesk.com" style="color:white"><u>Support Center</u></a>',
-    'cname' => 'Oeps! Het lijkt erop dat de DNS CNAME-record van uw domein niet naar onze cloud wijst. Om door te gaan met de beoogde actie, controleer dan dubbel en zorg ervoor dat de CNAME-record correct is ingesteld. Als u meer hulp nodig heeft, kunt u onze <a href="https://docs.faveohelpdesk.com/docs/helper/cname">hulpvolle gids hier</a> raadplegen.',
+    'cname' => 'Oeps! Het lijkt erop dat de DNS CNAME-record van uw domein niet naar onze cloud wijst. Om door te gaan met de beoogde actie, controleer dan dubbel en zorg ervoor dat de CNAME-record correct is ingesteld. Als u meer hulp nodig heeft, kunt u onze <a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">hulpvolle gids hier</a> raadplegen.',
     'cloud_heading' => 'Laten we samen uw Faveo cloudinstantie maken!',
     'cloud_field_label' => 'Voer uw gewenste cloud domeinnaam in',
     'cloud_price' => 'Prijs per agent',

@@ -621,7 +621,7 @@ return [
     'something_bad' => 'Oups ! Un problème est survenu, nous vous suggérons d\'essayer de créer une autre instance de cloud. Si le problème persiste, contactez notre <a href="https://support.faveohelpdesk.com">Centre de support</a>',
     'cloud_info' => 'Bienvenue sur Faveo ! Vous pouvez déployer une instance cloud d\'essai gratuite en un clic. Pour toute question, contactez notre <a href="https://support.faveohelpdesk.com" style="color:white"><u>Centre de support</u></a>',
     'cloud_live_info' => 'Bienvenue sur Faveo ! Vous pouvez déployer votre instance cloud en un clic. Pour toute question, contactez notre <a href="https://support.faveohelpdesk.com" style="color:white"><u>Centre de support</u></a>',
-    'cname' => 'Oups ! Il semble que le record DNS CNAME de votre domaine ne pointe pas vers notre cloud. Pour continuer, veuillez vérifier et vous assurer que le CNAME est correctement configuré. Si vous avez besoin d\'aide, consultez notre <a href="https://docs.faveohelpdesk.com/docs/helper/cname">guide ici</a>.',
+    'cname' => 'Oups ! Il semble que le record DNS CNAME de votre domaine ne pointe pas vers notre cloud. Pour continuer, veuillez vérifier et vous assurer que le CNAME est correctement configuré. Si vous avez besoin d\'aide, consultez notre <a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">guide ici</a>.',
     'cloud_heading' => 'Créons ensemble votre instance cloud Faveo !',
     'cloud_field_label' => 'Entrez le nom de domaine de votre cloud souhaité',
     'cloud_price' => 'Prix par agent',

@@ -124,16 +124,8 @@ class BaseRenewController extends Controller
 
             $plan = Plan::find($planId);
             $planDetails = userCurrencyAndPrice($customer->id, $plan);
-            $price = $planDetails['plan']->renew_price;
             $currency = $planDetails['currency'];
-
-            $agents = $this->orderAgents((int) $orderId);
-
-            if ($agents > 0 && $planDetails['plan']->no_of_agents > 0) {
-                $renewalPrice = ($price / $planDetails['plan']->no_of_agents) * (int) $agents;
-            } else {
-                $renewalPrice = $price;
-            }
+            $renewalPrice = $this->renewalCost((int) $orderId, $planDetails['plan']);
 
             $formattedCurrency = currencyFormat($renewalPrice, $currency, includeSymbol: true);
 
@@ -195,6 +187,27 @@ class BaseRenewController extends Controller
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
+    }
+
+    /**
+     * The one renewal price. Manual renew, the admin renew page, the in-app renew link and
+     * auto-renewal (cron, gateway amount) all use it, so the customer pays the same however
+     * they renew. Per-agent plans charge for the order's current agents; flat plans and
+     * unlimited licences (0 agents) charge the plan's renew price.
+     *
+     * @param  object{renew_price: mixed, no_of_agents: mixed}|null  $planPrice  the plan_prices row in the customer's currency
+     */
+    public function renewalCost(int $orderId, ?object $planPrice): float
+    {
+        if (! $planPrice) {
+            throw new Exception(__('message.record_not_found')); // no price for this plan in the customer's currency
+        }
+
+        $price = (float) $planPrice->renew_price;
+        $agentsPerPlan = (int) $planPrice->no_of_agents;
+        $agents = (int) $this->orderAgents($orderId);
+
+        return ($agents > 0 && $agentsPerPlan > 0) ? $price / $agentsPerPlan * $agents : $price;
     }
 
     /**

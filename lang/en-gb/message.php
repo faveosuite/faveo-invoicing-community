@@ -621,7 +621,7 @@ return [
     'something_bad' => 'Oops! Something went wrong, we would suggest try creating another cloud instance. If issue persists contact our <a href="https://support.faveohelpdesk.com">Support Center</a>',
     'cloud_info' => 'Welcome to Faveo! You can deploy your free trial cloud instance with just one click. Further queries contact our <a href="https://support.faveohelpdesk.com" style="color:white"><u>Support Center</u></a>',
     'cloud_live_info' => 'Welcome to Faveo! You can deploy your cloud instance with just one click. Further queries contact our <a href="https://support.faveohelpdesk.com" style="color:white"><u>Support Center</u></a>',
-    'cname' => 'Uh-oh! It seems your domain\'s DNS CNAME record isn\'t pointing to our cloud. To continue with your intended action, kindly double-check and make sure the CNAME record is set up correctly. If you need more guidance, you can check out our <a href="https://docs.faveohelpdesk.com/docs/helper/cname">helpful guide here</a>.',
+    'cname' => 'Uh-oh! It seems your domain\'s DNS CNAME record isn\'t pointing to our cloud. To continue with your intended action, kindly double-check and make sure the CNAME record is set up correctly. If you need more guidance, you can check out our <a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">helpful guide here</a>.',
     'cloud_heading' => 'Let\'s create your Faveo cloud instance together!',
     'cloud_field_label' => 'Enter your desired cloud domain name',
     'cloud_price' => 'Price per agent',

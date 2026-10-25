@@ -621,7 +621,7 @@ return [
     'something_bad' => 'ओह! कुछ गलत हो गया, कृपया एक नया क्लाउड इंस्टेंस बनाने का प्रयास करें। यदि समस्या बनी रहती है तो <a href="https://support.faveohelpdesk.com">हमारे सपोर्ट सेंटर</a> से संपर्क करें।',
     'cloud_info' => 'Faveo में आपका स्वागत है! आप एक क्लिक में अपनी मुफ्त परीक्षण क्लाउड इंस्टेंस को तैनात कर सकते हैं। अधिक जानकारी के लिए <a href="https://support.faveohelpdesk.com" style="color:white"><u>सपोर्ट सेंटर</u></a> से संपर्क करें।',
     'cloud_live_info' => 'Faveo में आपका स्वागत है! आप एक क्लिक में अपनी क्लाउड इंस्टेंस को तैनात कर सकते हैं। और अधिक जानकारी के लिए <a href="https://support.faveohelpdesk.com" style="color:white"><u>सपोर्ट सेंटर</u></a> से संपर्क करें।',
-    'cname' => 'उफ़! ऐसा लगता है कि आपके डोमेन का DNS CNAME रिकॉर्ड हमारे क्लाउड की ओर इशारा नहीं कर रहा है। कृपया इसे सही तरीके से सेटअप करने के लिए <a href="https://docs.faveohelpdesk.com/docs/helper/cname">यह गाइड</a> देखें।',
+    'cname' => 'उफ़! ऐसा लगता है कि आपके डोमेन का DNS CNAME रिकॉर्ड हमारे क्लाउड की ओर इशारा नहीं कर रहा है। कृपया इसे सही तरीके से सेटअप करने के लिए <a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">यह गाइड</a> देखें।',
     'cloud_heading' => 'आइए एक साथ मिलकर आपकी Faveo क्लाउड इंस्टेंस बनाएं!',
     'cloud_field_label' => 'अपना वांछित क्लाउड डोमेन नाम दर्ज करें',
     'cloud_price' => 'प्रति एजेंट मूल्य',

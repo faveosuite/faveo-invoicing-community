@@ -62,8 +62,9 @@ class StoreController extends Controller
             ->get()
             // Cheapest plan (after offer) first, so a free product like Freelancer stays first
             // even once a paid plan is added to it; ties (cloud products all carry a free
-            // trial) are broken by the cheapest PAID plan.
+            // trial) are broken by the cheapest PAID plan. Contact-sales products go last.
             ->sortBy([
+                fn ($a, $b): int => ($a->add_to_contact == 1) <=> ($b->add_to_contact == 1),
                 fn ($a, $b): int => $this->storePrices($a)->min() <=> $this->storePrices($b)->min(),
                 fn ($a, $b): int => ($this->storePrices($a)->filter()->min() ?? 0) <=> ($this->storePrices($b)->filter()->min() ?? 0),
             ])

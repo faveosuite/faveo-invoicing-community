@@ -621,7 +621,7 @@ return [
     'something_bad' => 'אופס! משהו השתבש. נסה ליצור מופע ענן חדש. אם הבעיה נמשכת, פנה אל <a href="https://support.faveohelpdesk.com">מרכז התמיכה</a>',
     'cloud_info' => 'ברוך הבא ל-Faveo! תוכל להפעיל את מופע הניסיון שלך בלחיצה אחת. שאלות נוספות? <a href="https://support.faveohelpdesk.com" style="color:white"><u>פנה למרכז התמיכה</u></a>',
     'cloud_live_info' => 'ברוך הבא ל-Faveo! תוכל להפעיל את מופע הענן שלך בלחיצה אחת. לשאלות נוספות צור קשר עם <a href="https://support.faveohelpdesk.com" style="color:white"><u>מרכז התמיכה</u></a>',
-    'cname' => 'אוי לא! נראה שהרשומת CNAME של הדומיין שלך לא מצביעה לענן שלנו. בדוק שה-CNAME מוגדר נכון. <a href="https://docs.faveohelpdesk.com/docs/helper/cname">מדריך כאן</a>',
+    'cname' => 'אוי לא! נראה שהרשומת CNAME של הדומיין שלך לא מצביעה לענן שלנו. בדוק שה-CNAME מוגדר נכון. <a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">מדריך כאן</a>',
     'cloud_heading' => 'בוא ניצור יחד את מופע הענן שלך ב-Faveo!',
     'cloud_field_label' => 'הזן את שם הדומיין המבוקש לענן שלך',
     'cloud_price' => 'מחיר לכל סוכן',

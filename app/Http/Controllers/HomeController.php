@@ -232,12 +232,12 @@ class HomeController extends BaseHomeController
 
     public function downloadForFaveo(Request $request): Response|JsonResponse|RedirectResponse
     {
+        // serial_key is stored encrypted, so compare the decrypted value rather than in SQL.
         $order = Order::where('number', $request->input('order_number'))
-            ->where('serial_key', $request->input('serial_key'))
             ->with('subscription')
             ->first();
 
-        if (! $order) {
+        if (! $order || $order->serial_key !== $request->input('serial_key')) {
             return errorResponse(__('message.invalid_credentials'));
         }
 
@@ -475,21 +475,23 @@ class HomeController extends BaseHomeController
             if (! $product_details instanceof Product) {
                 throw new Exception('Product details not found');
             }
-            $plan = Plan::where('product', $product_details->id)->first('days');
-            if (! $plan instanceof Plan) {
+            $oldcurrency = (string) $oldinvoice->currency;
+
+            // The order's own plan, priced the same way as every other renewal.
+            $planid = (int) ($subscription->plan_id ?: Plan::where('product', $product_details->id)->value('id'));
+            $planPrice = PlanPrice::where('plan_id', $planid)->where('currency', $oldcurrency)->first();
+            if (! $planPrice instanceof PlanPrice) {
                 throw new Exception('Plan not found');
             }
-            $oldcurrency = (string) $oldinvoice->currency;
 
             $user = User::where('id', $subscription->user_id)->first();
             if (! $user instanceof User) {
                 throw new Exception('User not found');
             }
-            $planid = Plan::where('product', $product_details->id)->value('id');
-            $cost = PlanPrice::where('plan_id', $planid)->where('currency', $oldcurrency)->value('renew_price');
 
             $renewController = new RenewController;
-            $invoiceItems = $renewController->generateInvoice($product_details, $user, $order->id, $plan->id, $cost, '', $item->agents, $oldcurrency);
+            $cost = $renewController->renewalCost($order->id, $planPrice);
+            $invoiceItems = $renewController->generateInvoice($product_details, $user, $order->id, $planid, $cost, '', $item->agents, $oldcurrency);
             if (! $invoiceItems instanceof InvoiceItem) {
                 throw new Exception('Renewal failed');
             }

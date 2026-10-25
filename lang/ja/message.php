@@ -621,7 +621,7 @@ return [
     'something_bad' => 'おっと！問題が発生しました。別のクラウドインスタンスを作成してみてください。問題が続く場合は、<a href="https://support.faveohelpdesk.com">サポートセンター</a>までご連絡ください。',
     'cloud_info' => 'Faveoへようこそ！1クリックで無料トライアルのクラウドインスタンスをデプロイできます。ご質問は<a href="https://support.faveohelpdesk.com" style="color:white"><u>サポートセンター</u></a>へ。',
     'cloud_live_info' => 'Faveoへようこそ！1クリックでクラウドインスタンスをデプロイできます。ご質問は<a href="https://support.faveohelpdesk.com" style="color:white"><u>サポートセンター</u></a>へ。',
-    'cname' => 'おっと！CNAMEレコードがクラウドを正しく指していないようです。<a href="https://docs.faveohelpdesk.com/docs/helper/cname">こちらのガイド</a>をご参照の上、設定をご確認ください。',
+    'cname' => 'おっと！CNAMEレコードがクラウドを正しく指していないようです。<a href="https://docs.faveohelpdesk.com/docs/helper/cname" target="_blank" rel="noopener noreferrer">こちらのガイド</a>をご参照の上、設定をご確認ください。',
     'cloud_heading' => '一緒にFaveoクラウドインスタンスを作成しましょう！',
     'cloud_field_label' => '希望するクラウドドメイン名を入力してください',
     'cloud_price' => 'エージェントごとの価格',

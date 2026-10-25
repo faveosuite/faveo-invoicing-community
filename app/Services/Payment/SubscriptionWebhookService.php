@@ -263,7 +263,7 @@ class SubscriptionWebhookService
         // Convert gateway amount (smallest unit) to local currency amount
         $cost = $this->fromGatewayAmount($gatewayAmount, $currency);
 
-        $invoice = $this->findOrCreateRenewalInvoice($subscription, $order, $product, $user, $plan, $cost, $currency);
+        $invoice = $this->findOrCreateRenewalInvoice($subscription, $order, $product, $user, $plan, $cost, $currency, $gateway);
 
         $sub = $this->handler->successRenew($invoice, $subscription, $gateway, $currency);
         $this->handler->recordPayment($invoice, $gateway);
@@ -274,7 +274,7 @@ class SubscriptionWebhookService
         }
     }
 
-    private function findOrCreateRenewalInvoice(Subscription $subscription, Order $order, Product $product, User $user, Plan $plan, float $cost, string $currency): Invoice
+    private function findOrCreateRenewalInvoice(Subscription $subscription, Order $order, Product $product, User $user, Plan $plan, float $cost, string $currency, string $gateway): Invoice
     {
         $latestInvoiceId = DB::table('order_invoice_relations')
             ->where('order_id', $subscription->order_id)
@@ -306,10 +306,11 @@ class SubscriptionWebhookService
             \Logger::exception($e);
         }
 
-        // $cost from gateway is gross (tax-inclusive). generateInvoice() calculates tax on top of
-        // the cost passed in, so we pass the net base amount to keep the invoice grand_total
-        // matching the actual charged gateway amount.
-        $netCost = $taxRate > 0 ? (float) rounding($cost / (1 + ($taxRate / 100))) : $cost;
+        // $cost from gateway is gross (tax and processing fee included). generateInvoice() adds
+        // tax on top of the cost passed in, so pass the plan price with both taken out — leaving
+        // the fee in showed it as part of the price, with tax charged on it.
+        $feePercent = ProcessingFee::percent($gateway);
+        $netCost = (float) rounding($cost / (1 + ($taxRate / 100)) / (1 + ($feePercent / 100)));
 
         $latestInvoiceId = DB::table('order_invoice_relations')
             ->where('order_id', $order->id)
@@ -338,7 +339,11 @@ class SubscriptionWebhookService
 
         $invoiceItem = new BaseRenewController()->generateInvoice($product, $user, $order->id, $plan->id, $netCost, '', $agents, $currency);
 
-        return Invoice::findOrFail($invoiceItem->invoice_id); // @phpstan-ignore property.notFound
+        $invoice = Invoice::findOrFail($invoiceItem->invoice_id); // @phpstan-ignore property.notFound
+        // Fee on top of the taxed total, and the total is exactly what the gateway charged.
+        $invoice->update(['grand_total' => $cost, 'processing_fee' => $feePercent > 0 ? ProcessingFee::label($feePercent) : null]);
+
+        return $invoice;
     }
 
     /**

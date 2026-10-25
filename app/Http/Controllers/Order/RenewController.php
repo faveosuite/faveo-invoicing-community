@@ -249,15 +249,9 @@ class RenewController extends BaseRenewController
             /** @var User $authUser */
             $authUser = Auth::user();
             $planDetails = userCurrencyAndPrice($authUser->id, $plan);
-            $price = $planDetails['plan']->renew_price;
             $currency = $planDetails['currency'];
-            $noOfAgentsPerPlan = (int) $planDetails['plan']->no_of_agents;
-
             $agents = $this->orderAgents((int) $sub->order_id);
-
-            $cost = ($agents > 0 && $noOfAgentsPerPlan > 0)
-                ? ($price / $noOfAgentsPerPlan) * (int) $agents
-                : $price;
+            $cost = $this->renewalCost((int) $sub->order_id, $planDetails['plan']);
 
             $items = $this->invoiceBySubscriptionId($id, $planId, $cost, $currency, $agents ?: null);
             $invoiceid = $items->invoice_id; // @phpstan-ignore property.notFound

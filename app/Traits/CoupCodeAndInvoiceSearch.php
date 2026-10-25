@@ -60,7 +60,15 @@ trait CoupCodeAndInvoiceSearch
             // One by one through Invoice::delete(): a query-builder delete skipped its cleanup and
             // left payments allocated to invoices that no longer exist (the money vanished from
             // the client's balance) plus orphaned items and order links.
-            $this->invoice->whereIn('id', $ids)->get()->each->delete(); // @phpstan-ignore property.notFound
+            $invoices = $this->invoice->whereIn('id', $ids)->get(); // @phpstan-ignore property.notFound
+
+            // Deleting an invoice drops its order link but keeps the order and its subscription,
+            // which then breaks renewal. Delete the order first; it unlinks itself.
+            if ($invoices->contains(fn ($invoice) => $invoice->orders()->exists())) {
+                return errorResponse(__('message.cannot_delete_invoice_with_order'));
+            }
+
+            $invoices->each->delete();
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
