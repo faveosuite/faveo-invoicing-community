@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('default_pages')) {
-            Schema::create('default_pages', function (Blueprint $table) {
+            Schema::create('default_pages', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('page_id');
                 $table->string('page_url', 255);
@@ -25,10 +23,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('default_pages');
     }

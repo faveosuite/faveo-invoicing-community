@@ -29,7 +29,6 @@ return [
     'inspire' => 'Prikaži inspirativni citat',
     'renewal:cron' => 'Cron automatskog obnavljanja',
     'mail-send-exception' => 'Izuzetak slanja emaila',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => 'Obavijest o istekloj obnovi',
     'renewal:notification' => 'Obavijest o automatskom obnavljanju',
     'cleanup:msg-reports' => 'Čišćenje MSG91 izvještaja',
@@ -40,11 +39,8 @@ return [
     'droptables' => 'Izbriši sve tabele',
     'install:db' => 'Instaliraj bazu podataka',
     'testing-setup' => 'Postavi testno okruženje',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'Uspješno poslano u red čekanja',
-    // Added missing UI texts
     'cancel' => 'Otkaži',
-    // Added missing messages from blade file
     'system_logs' => 'Sistemski dnevnici',
     'filter_logs' => 'Filtriraj dnevnike',
     'logs' => 'Dnevnici',
@@ -101,4 +97,16 @@ return [
     'confirm_old_email' => 'Potvrdite stari email',
     'confirm_mobile_number_change' => 'Potvrdite promjenu broja mobitela',
     'logs:delete' => 'Hapus Log Sistem',
+    'cloud:send-instance-emails' => 'Pošalji e-poruke za cloud instance',
+    'activity-logs:cleanup' => 'Čišćenje zapisnika aktivnosti',
+    'app:crack-callback-cleanup' => 'Čišćenje cracking povratnih poziva',
+    'app:crack-reports-cleanup' => 'Čišćenje cracking izvještaja',
+    'app:failed-message-delivery' => 'Ponovo pošalji neuspjele WhatsApp poruke',
+    'app:license-reports-cleanup' => 'Čišćenje izvještaja o licencama',
+    'app:system-reports-cleanup' => 'Čišćenje sistemskih izvještaja',
+    'app:versions-cleanup' => 'Čišćenje verzija',
+    'installation:logs' => 'Označi neaktivne instalacije',
+    'reoon:logs-deletion' => 'Čišćenje Reoon zapisnika',
+    'seo:generate-files' => 'Generiši SEO datoteke',
+    'date' => 'Datum',
 ];

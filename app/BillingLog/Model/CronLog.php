@@ -1,9 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\BillingLog\Model;
 
 use App\BaseModel;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property string $command
+ * @property string $description
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string|null $status
+ * @property int|null $exception_log_id
+ * @property int|null $duration
+ * @property-read ExceptionLog|null $exception
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog whereCommand($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog whereDuration($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog whereExceptionLogId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class CronLog extends BaseModel
 {
     protected $table = 'cron_logs';
@@ -14,7 +43,10 @@ class CronLog extends BaseModel
 
     protected $hidden = ['exception_log_id'];
 
-    public function exception()
+    /**
+     * @return BelongsTo<ExceptionLog, $this>
+     */
+    public function exception(): BelongsTo
     {
         return $this->belongsTo(ExceptionLog::class, 'exception_log_id');
     }

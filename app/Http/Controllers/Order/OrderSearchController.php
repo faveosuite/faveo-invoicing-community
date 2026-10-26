@@ -6,330 +6,264 @@ use App\Http\Controllers\Controller;
 use App\Model\Order\Order;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
-use Carbon\Carbon;
-use Illuminate\Database\Query\Builder;
+use DB;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 
 class OrderSearchController extends Controller
 {
+    /** An installation counts as active if it checked in within this many days (Status/Version badges too). */
+    public const int ACTIVE_INSTALL_DAYS = 7;
+
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware('admin');
+        $this->middleware(['auth', 'admin']);
     }
 
     /**
-     * Perform Advance Search for Orders Page.
-     *
-     * @param  Request  $request
-     * @return array
-     *
-     * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
-     *
-     * @date   2019-01-19T01:35:08+0530
+     * @return Builder<Order>
      */
-    public function advanceOrderSearch(Request $request)
+    public function advanceOrderSearch(Request $request): Builder
     {
-        try {
-            if ($request->renewal == 'expiring_subscription') {
-                $baseQuery = $this->getBaseQueryForOrders();
-            }
-            $baseQuery = $this->getBaseQueryForOrders();
-            $this->orderNum($request->input('order_no'), $baseQuery);
-            $this->product($request->input('product_id'), $baseQuery);
-            $this->orderFrom($request->input('till'), $request->input('from'), $baseQuery, $request);
-            $this->orderTill($request->input('from'), $request->input('till'), $baseQuery, $request);
-            $this->domain($request->input('domain'), $baseQuery);
-            $this->allInstallations($request->input('act_ins'), $baseQuery);
-            $this->allRenewals($request->input('renewal'), $baseQuery);
-            $this->getSelectedVersionOrders($baseQuery, $request->input('version'), $request->input('product_id'), $request);
+        $query = Order::with([
+            'user' => function ($q): void {
+                $q->withTrashed()
+                    ->select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country', 'deleted_at');
+            },
+            'productRelation.groupRelation',
+            'installationLogs',
+            'subscription' => function ($q): void {
+                $q->with('plan');
+            },
+        ]);
 
-            return in_array($request->renewal, ['expiring_subscription', 'expired_subscription'])
-            ? $baseQuery->orderBy('subscriptions.update_ends_at', 'desc')
-            : $baseQuery;
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        $this->filterOrderNum($query, $request->order_no);
+        $this->filterProduct($query, $request->product_id);
+        $this->filterDateRange($query, $request);
+        $this->filterDomain($query, $request->domain);
+        $this->filterInstallation($query, $request->act_ins);
+        $this->filterRenewal($query, $request->renewal);
+        $this->filterVersion($query, $request->version);
+        if ($request->filled('client')) {
+            $query->where('client', $request->client);
+        }
+
+        if (in_array($request->renewal, ['expiring_subscription', 'expired_subscription'])) {
+            $query->orderByDesc(
+                Subscription::select('ends_at')
+                    ->whereColumn('subscriptions.order_id', 'orders.id')
+                    ->limit(1)
+            );
+        }
+
+        return $query;
+    }
+
+    /**
+     * @param  Builder<Order>  $query
+     */
+    private function filterOrderNum(Builder $query, mixed $orderNo): void
+    {
+        if ($orderNo) {
+            $query->where('number', $orderNo);
         }
     }
 
     /**
-     * Gets base query for orders.
-     *
-     * @return Builder
+     * @param  Builder<Order>  $query
      */
-    private function getBaseQueryForOrders()
+    private function filterProduct(Builder $query, mixed $productId): void
     {
-        return Order::leftJoin('subscriptions', 'orders.id', '=', 'subscriptions.order_id')
-            ->leftJoin('users', 'orders.client', '=', 'users.id')
-            ->leftJoin('products', 'orders.product', '=', 'products.id')
-            ->leftJoin('installation_details', 'orders.id', '=', 'installation_details.order_id')
-            ->select(
-                'orders.id', 'orders.created_at', 'price_override', 'order_status', 'product', 'number', 'serial_key',
-                'subscriptions.update_ends_at as subscription_ends_at', 'subscriptions.id as subscription_id', 'subscriptions.version as product_version', 'subscriptions.updated_at as subscription_updated_at', 'subscriptions.created_at as subscription_created_at', 'subscriptions.plan_id',
-                'products.name as product_name', \DB::raw("concat(first_name, ' ', last_name) as client_name"), 'client as client_id', 'installation_details.installation_path', 'users.email', \DB::raw("CONCAT('+', mobile_code, ' ', mobile) as mobile"), 'users.country'
-            )->groupBy('orders.number');
-    }
+        if (! $productId) {
+            return;
+        }
 
-    public function getProductVersions(Request $request, $productId)
-    {
-        try {
-            $selectedId = $request->select_id;
-            $id = $productId;
-            $options = '';
-
-            $options .= '<option value="">'.__('message.choose').'</option>';
-
-            $selectedLatest = ($selectedId == 'Latest') ? 'selected' : '';
-            $options .= '<option value="Latest" '.$selectedLatest.'>'.__('message.latest').'</option>';
-
-            $selectedOutdated = ($selectedId == 'Outdated') ? 'selected' : '';
-            $options .= '<option value="Outdated" '.$selectedOutdated.'>'.__('message.outdated').'</option>';
-
-            if (($productId !== 'paid') && ($productId !== 'unpaid')) {
-                $allVersions = Subscription::where('product_id', $productId)
-                    ->where('product_id', '!=', 0)
-                    ->where('version', '!=', '')
-                    ->whereNotNull('version')
-                    ->orderBy('version', 'desc')
-                    ->groupBy('version')
-                    ->get();
-
-                foreach ($allVersions as $version) {
-                    $selected = ($selectedId == $version->version) ? 'selected' : '';
-                    $options .= '<option value="'.$version->version.'" '.$selected.'>'.$version->version.'</option>';
-                }
-            }
-
-            return $options;
-        } catch (\Exception $ex) {
-            return "<option value=''>".__('message.problem_while_loading').'</option>';
+        if ($productId === 'paid') {
+            $query->where('price_override', '>', 0);
+        } elseif ($productId === 'unpaid') {
+            $query->where('price_override', '=', 0);
+        } else {
+            $query->where('product', $productId);
         }
     }
 
     /**
-     * Searches for order for selected versions.
-     *
-     * @param  $baseQuery
-     * @param  $versionFrom
-     * @param  $versionTill
-     * @return Builder
-     *
-     * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
+     * @param  Builder<Order>  $query
      */
-    private function getSelectedVersionOrders($baseQuery, $version, $productId, $request)
+    private function filterDateRange(Builder $query, Request $request): void
     {
-        if ($version) {
-            if ($productId == 'paid') {
-                $latestVersion = ProductUpload::orderBy('version', 'desc')->value('version');
-                if ($version == 'Latest' && $latestVersion) {
-                    $baseQuery->where('subscriptions.version', '=', $latestVersion);
-                } elseif ($version == 'Outdated' && $latestVersion) {
-                    $baseQuery->where('subscriptions.version', '<', $latestVersion);
-                }
-            } elseif ($productId == 'unpaid') {
-                $latestVersion = ProductUpload::orderBy('version', 'desc')->value('version');
-                if ($version == 'Latest' && $latestVersion) {
-                    $baseQuery->where('subscriptions.version', '=', $latestVersion);
-                } elseif ($version == 'Outdated' && $latestVersion) {
-                    $baseQuery->where('subscriptions.version', '<', $latestVersion);
-                }
-            } elseif ($version == 'Outdated') {
-                $latestVersion = Subscription::where('product_id', $productId)->orderBy('version', 'desc')->value('version');
-
-                if (! empty($latestVersion)) {
-                    $baseQuery->whereNotNull('subscriptions.version')
-                        ->where('subscriptions.version', '!=', '')
-                        ->where('subscriptions.version', '<', $latestVersion);
-                }
-            } else {
-                $baseQuery->where('subscriptions.version', '=', $version);
-            }
-        }
-
-        return $baseQuery;
+        // Always the order date — the From/To the admin picks matches the Order Date column.
+        $this->applyDateRange($query, 'orders.created_at', $request);
     }
 
-    /**
-     * Searches for Installation.
-     *
-     * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
-     *
-     * @date   2020-01-29T17:35:05+0530
-     *
-     * @param  string  $allInstallation
-     * @param  App\Model\Order  $join  The order instance
-     * @return $join
-     */
-    public function allInstallations($allInstallation, $join)
+    private function applyDateRange(\Illuminate\Contracts\Database\Query\Builder|Builder $query, string $column, Request $request): void
     {
-        if ($allInstallation) {
-            $dayUtc = new Carbon('-30 days');
-            $minus30Day = $dayUtc->toDateTimeString();
-            if ($allInstallation == 'installed') {
-                return $join->whereColumn('subscriptions.created_at', '!=', 'subscriptions.updated_at');
-            } elseif ($allInstallation == 'not_installed') {
-                return $join->whereColumn('subscriptions.created_at', '=', 'subscriptions.updated_at');
-            } elseif ($allInstallation == 'paid_inactive_ins') {
-                $baseQuery = $join->whereHas('subscription', function ($q) use ($minus30Day) {
-                    $q->where('subscriptions.updated_at', '<', $minus30Day);
-                });
-
-                return $baseQuery;
-            } elseif ($allInstallation == 'paid_ins') {
-                $baseQuery = $join->whereHas('subscription', function ($q) use ($minus30Day) {
-                    $q->whereColumn('subscriptions.created_at', '!=', 'subscriptions.updated_at')->where('subscriptions.updated_at', '>', $minus30Day);
-                });
-            }
-
-            return $baseQuery;
+        if ($request->from && $request->till) {
+            $query->whereBetween($column, [
+                userDayStart($request->from),
+                userDayEnd($request->till),
+            ]);
+        } elseif ($request->from) {
+            $query->where($column, '>=', userDayStart($request->from));
+        } elseif ($request->till) {
+            $query->where($column, '<=', userDayEnd($request->till));
         }
     }
 
     /**
-     * Searches for Renewals.
-     *
-     * @param  string  $allInstallation
-     * @param  App\Model\Order  $join  The order instance
-     * @return $join
+     * @param  Builder<Order>  $query
      */
-    protected function allRenewals($allRenewal, $join)
+    private function filterDomain(Builder $query, mixed $domain): void
     {
-        if ($allRenewal) {
-            $dayUtc = new Carbon();
-            $now = $dayUtc->toDateTimeString();
-
-            return $join->whereHas('subscription', function ($query) use ($now, $allRenewal) {
-                if ($allRenewal == 'expired_subscription') {
-                    return $query->where('update_ends_at', '<', $now);
-                }
-
-                return $query->where('update_ends_at', '>', $now);
+        if ($domain) {
+            $domain = rtrim((string) $domain, '/');
+            $query->whereHas('licensedInstallations', function (\Illuminate\Contracts\Database\Query\Builder $q) use ($domain): void {
+                $q->where('installations.installation_domain', 'like', likePattern($domain));
             });
         }
     }
 
     /**
-     * Searches for Order No.
-     *
-     * @param  int  $order_no  The Order NO to be searched
-     * @param  App\Model\Order  $join  The Order instance
-     * @return $join
+     * @param  Builder<Order>  $query
      */
-    private function orderNum($order_no, $join)
+    private function filterInstallation(Builder $query, mixed $filter): void
     {
-        if ($order_no) {
-            $join = $join->where('number', $order_no);
+        // Same installation records the list's Status and Version columns are built from.
+        $active = fn ($q) => $q->where('installation_logs.installation_last_active_date', '>=', Date::now()->subDays(self::ACTIVE_INSTALL_DAYS));
 
-            return $join;
+        match ($filter) {
+            'installed' => $query->whereIn('orders.number', $this->installedOrderNumbers()),
+            'not_installed' => $query->whereNotIn('orders.number', $this->installedOrderNumbers()),
+            'paid_ins' => $query->whereIn('orders.number', $this->installedOrderNumbers($active)),
+            'paid_inactive_ins' => $query->whereIn('orders.number', $this->installedOrderNumbers())
+                ->whereNotIn('orders.number', $this->installedOrderNumbers($active)),
+            default => null,
+        };
+    }
+
+    /**
+     * Order numbers with at least one installation (optionally narrowed by $scope).
+     * Fetched as a list: as a subquery, MySQL runs NOT IN / whereDoesntHave() once per order
+     * here (licenses.license_order_number has no index) — minutes instead of milliseconds.
+     * ponytail: one id per installed order in memory; index licenses.license_order_number if that grows large.
+     *
+     * @return list<string>
+     */
+    private function installedOrderNumbers(?\Closure $scope = null): array
+    {
+        return DB::table('licenses')
+            ->join('installation_logs', 'installation_logs.license_code', '=', 'licenses.license_code')
+            ->whereNotNull('licenses.license_order_number')
+            ->when($scope, $scope)
+            ->distinct()
+            ->pluck('licenses.license_order_number')
+            ->all();
+    }
+
+    /**
+     * @param  Builder<Order>  $query
+     */
+    private function filterRenewal(Builder $query, mixed $renewal): void
+    {
+        if (! $renewal) {
+            return;
+        }
+
+        $now = Date::now();
+
+        if ($renewal === 'expired_subscription') {
+            $query->whereHas('subscription', function (\Illuminate\Contracts\Database\Query\Builder $q) use ($now): void {
+                $q->where('ends_at', '<', $now);
+            });
+        } elseif ($renewal === 'active_subscription') {
+            // No end date = lifetime license, which never expires.
+            $query->whereHas('subscription', function (\Illuminate\Contracts\Database\Query\Builder $q) use ($now): void {
+                $q->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>=', $now));
+            });
+        } elseif ($renewal === 'expiring_subscription') {
+            $thirtyDaysFromNow = $now->copy()->addDays(30);
+            $query->whereHas('subscription', function (\Illuminate\Contracts\Database\Query\Builder $q) use ($now, $thirtyDaysFromNow): void {
+                $q->whereBetween('ends_at', [$now, $thirtyDaysFromNow]);
+            });
         }
     }
 
     /**
-     * Searches for Product.
-     *
-     * @param  int  $order_no  The Order NO to be searched
-     * @param  App\Model\Order  $join  The Order instance
-     * @return $join
+     * @param  Builder<Order>  $query
      */
-    private function product($product_id, $join)
+    private function filterVersion(Builder $query, mixed $version): void
     {
-        if ($product_id) {
-            if ($product_id == 'paid') {
-                $join = $join->where('price_override', '>', 0);
-            } elseif ($product_id == 'unpaid') {
-                $join = $join->where('price_override', '=', 0);
-            } else {
-                $join = $join->where('product', $product_id);
-            }
+        if (! $version) {
+            return;
         }
 
-        return $join;
-    }
+        if (! in_array($version, ['Latest', 'Outdated'], true)) {
+            $query->whereIn('orders.number', $this->installedOrderNumbers(fn ($q) => $q->where('installation_logs.version_number', $version)));
 
-    /**
-     * Searches for Order From Date.
-     *
-     * @param  string  $expiry  The Order From Date
-     * @param  object  $join
-     * @return Query
-     */
-    public function orderFrom($till, $from, $join, $request)
-    {
-        $subFrom = $request->renewal ? 'subscriptions.update_ends_at' : 'orders.created_at';
-        if ($from) {
-            $from = Carbon::parse($from)->startOfDay();
-            $till = Carbon::parse($till)->endOfDay();
-            $fromdate = date_create($from);
+            return;
+        }
 
-            $from = date_format($fromdate, 'Y-m-d H:m:i');
-            $tills = date('Y-m-d H:m:i');
+        // "Latest" = each product's most recently uploaded release, as everywhere else in the app.
+        $latest = ProductUpload::latest()->get(['product_id', 'version'])->unique('product_id')->pluck('version', 'product_id');
 
-            $tillDate = $this->getTillDate($from, $till, $tills);
-            $join = $join->whereBetween($subFrom, [$from, $tillDate]);
+        $onLatest = $this->installedOrderNumbers(function ($q) use ($latest): void {
+            $q->where(function ($q) use ($latest): void {
+                foreach ($latest as $productId => $latestVersion) {
+                    $q->orWhere(fn ($q) => $q->where('licenses.product_id', $productId)->where('installation_logs.version_number', $latestVersion));
+                }
+            });
+        });
 
-            return $join;
+        if ($version === 'Latest') {
+            $latest->isEmpty() ? $query->whereRaw('0 = 1') : $query->whereIn('orders.number', $onLatest);
+
+            return;
+        }
+
+        $query->whereIn('orders.number', $this->installedOrderNumbers(fn ($q) => $q->where('installation_logs.version_number', '!=', '')));
+        if ($latest->isNotEmpty()) {
+            $query->whereNotIn('orders.number', $onLatest);
         }
     }
 
     /**
-     * Searches for Order Till Date.
-     *
-     * @param  string  $expiry  The Order Till Date
-     * @param  object  $join
-     * @return Query
+     * @param  Builder<Order>  $query
+     * @return Builder<Order>
      */
-    public function orderTill($from, $till, $join, $request)
+    public function applyOrdersSearch(Builder $query, mixed $search): Builder
     {
-        $subTo = $request->renewal ? 'subscriptions.update_ends_at' : 'orders.created_at';
-        if ($till) {
-            $from = Carbon::parse($from)->startOfDay();
-            $till = Carbon::parse($till)->endOfDay();
-            $tilldate = date_create($till);
-            $till = date_format($tilldate, 'Y-m-d H:m:i');
-            $froms = Order::first()->created_at;
-            $fromDate = $this->getFromDate($from, $froms);
-            $join = $join->whereBetween($subTo, [$fromDate, $till]);
+        return $query->when($search, function ($q) use ($search): void {
+            $q->where(function (\Illuminate\Contracts\Database\Query\Builder $q) use ($search): void {
+                // Search in order-level columns
+                $q->where('number', 'like', likePattern($search))
+                    ->orWhere('order_status', 'like', likePattern($search))
 
-            return $join;
-        }
-    }
+                    // Search in user-related fields
+                    ->orWhereHas('user', function (\Illuminate\Contracts\Database\Query\Builder $uq) use ($search): void {
+                        $uq->where('email', 'like', likePattern($search))
+                            ->orWhere('mobile', 'like', likePattern($search))
+                            ->orWhere('first_name', 'like', likePattern($search))
+                            ->orWhere('last_name', 'like', likePattern($search))
+                            ->orWhere('country', 'like', likePattern($search))
+                            ->orWhere(DB::raw('CONCAT(first_name, " ", last_name)'), 'like', likePattern($search));
+                    })
 
-    /**
-     * Searches for Domain.
-     *
-     * @param  string  $domain  domaiin
-     * @param  object  $join
-     * @return Query
-     */
-    public function domain($domain, $join)
-    {
-        if ($domain) {
-            if (str_finish($domain, '/')) {
-                $domain = substr_replace($domain, '', -1, 0);
-            }
-            $join = $join->where('installation_details.installation_path', 'LIKE', '%'.$domain.'%');
+                    // Search in product relation (product name)
+                    ->orWhereHas('productRelation', function (\Illuminate\Contracts\Database\Query\Builder $pq) use ($search): void {
+                        $pq->where('name', 'like', likePattern($search));
+                    })
 
-            return $join;
-        }
-    }
-
-    public function getTillDate($from, $till, $tills)
-    {
-        if ($till) {
-            $todate = date_create($till);
-            $tills = date_format($todate, 'Y-m-d H:m:i');
-        }
-
-        return $tills;
-    }
-
-    public function getFromDate($from, $froms)
-    {
-        if ($from) {
-            $fromdate = date_create($from);
-            $froms = date_format($fromdate, 'Y-m-d H:m:i');
-        }
-
-        return $froms;
+                    // Search in subscription & plan
+                    ->orWhereHas('subscription', function (\Illuminate\Contracts\Database\Query\Builder $sq) use ($search): void {
+                        $sq->where('version', 'like', likePattern($search))
+                            ->orWhere('updated_at', 'like', likePattern($search))
+                            ->orWhere('update_ends_at', 'like', likePattern($search))
+                            ->orWhereHas('plan', function (\Illuminate\Contracts\Database\Query\Builder $pq) use ($search): void {
+                                $pq->where('name', 'like', likePattern($search));
+                            });
+                    });
+            });
+        });
     }
 }

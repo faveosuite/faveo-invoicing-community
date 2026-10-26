@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('mailchimp_settings')) {
-            Schema::create('mailchimp_settings', function (Blueprint $table) {
+            Schema::create('mailchimp_settings', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('api_key')->nullable();
                 $table->string('list_id')->nullable();
@@ -28,10 +26,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('mailchimp_settings');
     }

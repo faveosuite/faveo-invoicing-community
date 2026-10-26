@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 /**
  * Class ChunksInRequestSimpleUploadHandler.
  *
- * Upload receiver that detects the content range from he request value - chunks
+ * Upload receiver that detects the content range from the requests value - chunks
  * Works with:
  * - simple-uploader: https://github.com/simple-uploader
  */
@@ -18,14 +18,14 @@ class ChunksInRequestSimpleUploadHandler extends ChunksInRequestUploadHandler
      *
      * @static string
      */
-    const KEY_CHUNK_NUMBER = 'chunkNumber';
+    public const KEY_CHUNK_NUMBER = 'chunkNumber';
 
     /**
      * Key for number of all chunks.
      *
      * @static string
      */
-    const KEY_ALL_CHUNKS = 'totalChunks';
+    public const KEY_ALL_CHUNKS = 'totalChunks';
 
     /**
      * Returns current chunk from the request.
@@ -37,6 +37,6 @@ class ChunksInRequestSimpleUploadHandler extends ChunksInRequestUploadHandler
     protected function getCurrentChunkFromRequest(Request $request)
     {
         // the chunk is indexed from 1 (for 5 chunks: 1,2,3,4,5)
-        return intval($request->get(static::KEY_CHUNK_NUMBER));
+        return intval($request->input(static::KEY_CHUNK_NUMBER));
     }
 }

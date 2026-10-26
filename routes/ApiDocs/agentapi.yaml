@@ -1,0 +1,2158 @@
+openapi: 3.0.0
+info:
+  title: Invoice API
+  version: 1.0.0
+servers:
+  - url: /
+paths:
+  /users:
+    get:
+      summary: Get all users
+      parameters:
+        - in: query
+          name: search-query
+          schema:
+            type: string
+          description: Search query for users
+        - in: query
+          name: sort-order
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort order
+        - in: query
+          name: sort-field
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of users to return
+        - in: query
+          name: company
+          schema:
+            type: string
+          description: Filter by company name
+        - in: query
+          name: country
+          schema:
+            type: string
+          description: Filter by country code (e.g., US, IN)
+        - in: query
+          name: industry
+          schema:
+            type: string
+          description: Filter by industry/business
+        - in: query
+          name: role
+          schema:
+            type: string
+          description: Filter by user role
+        - in: query
+          name: position
+          schema:
+            type: string
+          description: Filter by user position
+        - in: query
+          name: actmanager
+          schema:
+            type: integer
+          description: Filter by account manager ID
+        - in: query
+          name: salesmanager
+          schema:
+            type: integer
+          description: Filter by sales manager ID
+        - in: query
+          name: mobile_verified
+          schema:
+            type: boolean
+          description: Filter by mobile verification status
+        - in: query
+          name: email_verified
+          schema:
+            type: boolean
+          description: Filter by email verification status
+        - in: query
+          name: is_2fa_enabled
+          schema:
+            type: boolean
+          description: Filter by 2FA status
+        - in: query
+          name: reg_from
+          schema:
+            type: string
+            format: date
+          description: Filter by registration date (from)
+        - in: query
+          name: reg_till
+          schema:
+            type: string
+            format: date
+          description: Filter by registration date (to)
+      responses:
+        '200':
+          description: A paginated list of users.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+    delete:
+      summary: Delete multiple users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Users deleted successfully
+        '400':
+          description: Bad request
+    post:
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUser'
+      responses:
+        '200':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+  /user/{id}:
+    get:
+      summary: Get a user by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The user object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+    put:
+      summary: Update a user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUser'
+      responses:
+        '200':
+          description: User updated successfully
+        '400':
+          description: Bad request
+        '404':
+          description: User not found
+  /soft-delete:
+    get:
+      summary: Get soft-deleted users
+      parameters:
+        - in: query
+          name: search-query
+          schema:
+            type: string
+          description: Search query for users
+        - in: query
+          name: sort-order
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort order
+        - in: query
+          name: sort-field
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of users to return
+      responses:
+        '200':
+          description: A paginated list of soft-deleted users.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+  /user/restore/{id}:
+    get:
+      summary: Restore a soft-deleted user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User restored successfully
+        '404':
+          description: User not found
+  /permanent-delete-client:
+    delete:
+      summary: Permanently delete multiple users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Users permanently deleted successfully
+        '400':
+          description: Bad request
+  /orders:
+    get:
+      summary: Get all orders
+      parameters:
+        - in: query
+          name: search-query
+          schema:
+            type: string
+          description: Search query for orders
+        - in: query
+          name: sort-order
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort order
+        - in: query
+          name: sort-field
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of orders to return
+        - in: query
+          name: order_no
+          schema:
+            type: string
+          description: Filter by order number
+        - in: query
+          name: product_id
+          schema:
+            type: string
+          description: Filter by product ID, 'paid', or 'unpaid'
+        - in: query
+          name: from
+          schema:
+            type: string
+            format: date
+          description: Filter by date (from)
+        - in: query
+          name: till
+          schema:
+            type: string
+            format: date
+          description: Filter by date (to)
+        - in: query
+          name: domain
+          schema:
+            type: string
+          description: Filter by installation domain
+        - in: query
+          name: act_ins
+          schema:
+            type: string
+          description: Filter by installation status
+        - in: query
+          name: renewal
+          schema:
+            type: string
+          description: Filter by renewal status
+        - in: query
+          name: version
+          schema:
+            type: string
+          description: Filter by product version
+      responses:
+        '200':
+          description: A paginated list of orders.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+    delete:
+      summary: Delete multiple orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                order_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Orders deleted successfully
+        '400':
+          description: Bad request
+  /order/{id}:
+    get:
+      summary: Get an order by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The order object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetail'
+        '404':
+          description: Order not found
+  /get-installation-details/{orderId}:
+    get:
+      summary: Get installation details for an order
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of installation details.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InstallationDetail'
+  /getOrderPayments/{orderId}:
+    get:
+      summary: Get payments for an order
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: search-query
+          schema:
+            type: string
+          description: Search query for payments
+        - in: query
+          name: sort-order
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort order
+        - in: query
+          name: sort-field
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of payments to return
+      responses:
+        '200':
+          description: A paginated list of payments.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Payment'
+  /getOrderInvoices/{orderId}:
+    get:
+      summary: Get invoices for an order
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: search-query
+          schema:
+            type: string
+          description: Search query for invoices
+        - in: query
+          name: sort-order
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort order
+        - in: query
+          name: sort-field
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of invoices to return
+      responses:
+        '200':
+          description: A paginated list of invoices.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Invoice'
+  /reissue-license:
+    patch:
+      summary: Reissue a license
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+      responses:
+        '200':
+          description: License reissued successfully
+        '400':
+          description: Bad request
+  /edit-update-expiry:
+    post:
+      summary: Edit update expiry date
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                date:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Update expiry date updated successfully
+        '400':
+          description: Bad request
+  /edit-license-expiry:
+    post:
+      summary: Edit license expiry date
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                date:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: License expiry date updated successfully
+        '400':
+          description: Bad request
+  /edit-support-expiry:
+    post:
+      summary: Edit support expiry date
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                date:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Support expiry date updated successfully
+        '400':
+          description: Bad request
+  /edit-installation-limit:
+    post:
+      summary: Edit installation limit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                limit:
+                  type: integer
+      responses:
+        '200':
+          description: Installation limit updated successfully
+        '400':
+          description: Bad request
+  /switch-license-mode:
+    post:
+      summary: Switch license mode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderNo:
+                  type: string
+                choose:
+                  type: boolean
+      responses:
+        '200':
+          description: License mode switched successfully
+        '400':
+          description: Bad request
+  /invoices:
+    get:
+      summary: Get all invoices
+      parameters:
+        - in: query
+          name: search-query
+          schema:
+            type: string
+          description: Search query for invoices
+        - in: query
+          name: sort-order
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort order
+        - in: query
+          name: sort-field
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of invoices to return
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: Filter by user's name
+        - in: query
+          name: invoice_no
+          schema:
+            type: string
+          description: Filter by invoice number
+        - in: query
+          name: status
+          schema:
+            type: string
+          description: Filter by invoice status
+        - in: query
+          name: currency
+          schema:
+            type: string
+          description: Filter by currency
+        - in: query
+          name: from_date
+          schema:
+            type: string
+            format: date
+          description: Filter by date (from)
+        - in: query
+          name: to_date
+          schema:
+            type: string
+            format: date
+          description: Filter by date (to)
+      responses:
+        '200':
+          description: A paginated list of invoices.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Invoice'
+    delete:
+      summary: Delete multiple invoices
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invoice_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Invoices deleted successfully
+        '400':
+          description: Bad request
+  /invoice/{id}:
+    get:
+      summary: Get an invoice by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The invoice object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceDetail'
+        '404':
+          description: Invoice not found
+  /get-price:
+    post:
+      summary: Get the price of a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product:
+                  type: integer
+                user:
+                  type: integer
+                plan:
+                  type: integer
+      responses:
+        '200':
+          description: The price of the product.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  price:
+                    type: number
+                  field:
+                    type: string
+  /products:
+    get:
+      summary: Get all products
+      parameters:
+        - in: query
+          name: search-query
+          schema:
+            type: string
+          description: Search query for products
+        - in: query
+          name: sort-order
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort order
+        - in: query
+          name: sort-field
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of products to return
+        - in: query
+          name: group
+          schema:
+            type: integer
+          description: Filter by product group ID
+        - in: query
+          name: license_type
+          schema:
+            type: integer
+          description: Filter by license type ID
+        - in: query
+          name: created_from
+          schema:
+            type: string
+            format: date
+          description: Filter by creation date (from)
+        - in: query
+          name: created_till
+          schema:
+            type: string
+            format: date
+          description: Filter by creation date (to)
+      responses:
+        '200':
+          description: A paginated list of products.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+    delete:
+      summary: Delete multiple products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Products deleted successfully
+        '400':
+          description: Bad request
+  /product/{productId}:
+    get:
+      summary: Get a product by ID
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The product object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+        '404':
+          description: Product not found
+    patch:
+      summary: Update a product
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProduct'
+      responses:
+        '200':
+          description: Product updated successfully
+        '400':
+          description: Bad request
+        '404':
+          description: Product not found
+  /product/uploads/{productId}:
+    get:
+      summary: Get all uploads for a product
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of product uploads.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductUpload'
+  /product/upload:
+    delete:
+      summary: Delete multiple product uploads
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_upload_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Product uploads deleted successfully
+        '400':
+          description: Bad request
+  /product/upload/{productUploadId}:
+    get:
+      summary: Get a product upload by ID
+      parameters:
+        - in: path
+          name: productUploadId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The product upload object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductUpload'
+        '404':
+          description: Product upload not found
+    patch:
+      summary: Update a product upload
+      parameters:
+        - in: path
+          name: productUploadId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpload'
+      responses:
+        '200':
+          description: Product upload updated successfully
+        '400':
+          description: Bad request
+        '404':
+          description: Product upload not found
+  /product:
+    put:
+      summary: Create a new product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewProduct'
+      responses:
+        '201':
+          description: Product created successfully
+        '400':
+          description: Bad request
+  /plans:
+    get:
+      summary: Get all plans
+      parameters:
+        - in: query
+          name: search-query
+          schema:
+            type: string
+          description: Search query for plans
+        - in: query
+          name: sort-order
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort order
+        - in: query
+          name: sort-field
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of plans to return
+        - in: query
+          name: product
+          schema:
+            type: integer
+          description: Filter by product ID
+        - in: query
+          name: period
+          schema:
+            type: integer
+          description: Filter by period in days
+        - in: query
+          name: created_from
+          schema:
+            type: string
+            format: date
+          description: Filter by creation date (from)
+        - in: query
+          name: created_till
+          schema:
+            type: string
+            format: date
+          description: Filter by creation date (to)
+      responses:
+        '200':
+          description: A paginated list of plans.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Plan'
+    put:
+      summary: Create a new plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPlan'
+      responses:
+        '201':
+          description: Plan created successfully
+        '400':
+          description: Bad request
+    delete:
+      summary: Delete multiple plans
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                plan_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Plans deleted successfully
+        '400':
+          description: Bad request
+  /plan/{planId}:
+    get:
+      summary: Get a plan by ID
+      parameters:
+        - in: path
+          name: planId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The plan object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanDetail'
+        '404':
+          description: Plan not found
+    patch:
+      summary: Update a plan
+      parameters:
+        - in: path
+          name: planId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePlan'
+      responses:
+        '200':
+          description: Plan updated successfully
+        '400':
+          description: Bad request
+        '404':
+          description: Plan not found
+  /promotions:
+    get:
+      summary: Get all promotions
+      parameters:
+        - in: query
+          name: search-query
+          schema:
+            type: string
+          description: Search query for promotions
+        - in: query
+          name: sort-order
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort order
+        - in: query
+          name: sort-field
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of promotions to return
+        - in: query
+          name: type
+          schema:
+            type: integer
+          description: Filter by promotion type
+        - in: query
+          name: status
+          schema:
+            type: string
+          description: Filter by promotion status (active, expired, upcoming)
+        - in: query
+          name: start_from
+          schema:
+            type: string
+            format: date
+          description: Filter by start date (from)
+        - in: query
+          name: start_till
+          schema:
+            type: string
+            format: date
+          description: Filter by start date (to)
+        - in: query
+          name: expiry_from
+          schema:
+            type: string
+            format: date
+          description: Filter by expiry date (from)
+        - in: query
+          name: expiry_till
+          schema:
+            type: string
+            format: date
+          description: Filter by expiry date (to)
+      responses:
+        '200':
+          description: A paginated list of promotions.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Promotion'
+    delete:
+      summary: Delete multiple promotions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                promotion_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Promotions deleted successfully
+        '400':
+          description: Bad request
+  /promotion/{promotionId}:
+    get:
+      summary: Get a promotion by ID
+      parameters:
+        - in: path
+          name: promotionId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The promotion object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+        '404':
+          description: Promotion not found
+  /getPromotionCode:
+    get:
+      summary: Get a promotion code
+      responses:
+        '200':
+          description: The promotion code.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+  /updatePromotion:
+    patch:
+      summary: Update a promotion code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePromotion'
+      responses:
+        '200':
+          description: Promotion updated successfully
+        '400':
+          description: Bad request
+  /promotionCreate:
+    put:
+      summary: Create a new promotion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPromotion'
+      responses:
+        '201':
+          description: Promotion created successfully
+        '400':
+          description: Bad request
+  /groups:
+    get:
+      summary: Get all product groups
+      parameters:
+        - in: query
+          name: search-query
+          schema:
+            type: string
+          description: Search query for product groups
+        - in: query
+          name: sort-order
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort order
+        - in: query
+          name: sort-field
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of product groups to return
+        - in: query
+          name: status
+          schema:
+            type: integer
+          description: Filter by group status
+        - in: query
+          name: created_from
+          schema:
+            type: string
+            format: date
+          description: Filter by creation date (from)
+        - in: query
+          name: created_till
+          schema:
+            type: string
+            format: date
+          description: Filter by creation date (to)
+      responses:
+        '200':
+          description: A paginated list of product groups.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProductGroup'
+  /group/{group_id}:
+    get:
+      summary: Get a product group by ID
+      parameters:
+        - in: path
+          name: group_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The product group object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductGroupDetail'
+        '404':
+          description: Product group not found
+    patch:
+      summary: Update a product group
+      parameters:
+        - in: path
+          name: group_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductGroup'
+      responses:
+        '200':
+          description: Product group updated successfully
+        '400':
+          description: Bad request
+        '404':
+          description: Product group not found
+  /group:
+    put:
+      summary: Create a new product group
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewProductGroup'
+      responses:
+        '201':
+          description: Product group created successfully
+        '400':
+          description: Bad request
+    delete:
+      summary: Delete multiple product groups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                group_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Product groups deleted successfully
+        '400':
+          description: Bad request
+  /reports:
+    get:
+      summary: Get all reports
+      parameters:
+        - in: query
+          name: search-query
+          schema:
+            type: string
+          description: Search query for reports
+        - in: query
+          name: sort-order
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort order
+        - in: query
+          name: sort-field
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of reports to return
+        - in: query
+          name: type
+          schema:
+            type: string
+          description: Filter by report type
+        - in: query
+          name: format
+          schema:
+            type: string
+          description: Filter by report format (e.g., csv, pdf, xlsx)
+        - in: query
+          name: user
+          schema:
+            type: integer
+          description: Filter by user ID
+        - in: query
+          name: created_from
+          schema:
+            type: string
+            format: date
+          description: Filter by creation date (from)
+        - in: query
+          name: created_till
+          schema:
+            type: string
+            format: date
+          description: Filter by creation date (to)
+      responses:
+        '200':
+          description: A paginated list of reports.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Report'
+    delete:
+      summary: Delete multiple reports
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                report_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Reports deleted successfully
+        '400':
+          description: Bad request
+  /reports/setting:
+    get:
+      summary: Get reports settings
+      responses:
+        '200':
+          description: The reports settings.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportSetting'
+    patch:
+      summary: Update reports settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                records:
+                  type: integer
+      responses:
+        '200':
+          description: Reports settings updated successfully
+        '400':
+          description: Bad request
+  /dashboard:
+    get:
+      summary: Get dashboard data
+      responses:
+        '200':
+          description: Dashboard data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        mobile:
+          type: string
+        country:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    NewUser:
+      type: object
+      required:
+        - first_name
+        - last_name
+        - company
+        - email
+        - address
+        - mobile
+        - country
+        - timezone_id
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        company:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        mobile:
+          type: string
+        country:
+          type: string
+        timezone_id:
+          type: integer
+        user_name:
+          type: string
+        zip:
+          type: string
+        position:
+          type: string
+        role:
+          type: string
+    UpdateUser:
+      type: object
+      required:
+        - first_name
+        - last_name
+        - company
+        - email
+        - address
+        - mobile
+        - country
+        - timezone_id
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        company:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        mobile:
+          type: string
+        country:
+          type: string
+        timezone_id:
+          type: integer
+        user_name:
+          type: string
+        zip:
+          type: string
+        position:
+          type: string
+        role:
+          type: string
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        product_name:
+          type: string
+        plan:
+          type: string
+        version:
+          type: string
+        agents:
+          type: string
+        number:
+          type: string
+        status:
+          type: string
+        order_status:
+          type: string
+        order_date:
+          type: string
+          format: date-time
+        update_ends_at:
+          type: string
+          format: date-time
+        subscription_updated_at:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        action:
+          type: string
+    OrderDetail:
+      type: object
+      properties:
+        order:
+          $ref: '#/components/schemas/Order'
+        license_details:
+          type: object
+          properties:
+            licence_code:
+              type: string
+            no_of_allowed_installation:
+              type: integer
+            expiry_dates:
+              type: object
+              properties:
+                subscription_end:
+                  type: string
+                update_end:
+                  type: string
+                support_end:
+                  type: string
+        autorenewal:
+          type: boolean
+    InstallationDetail:
+      type: object
+      properties:
+        path:
+          type: string
+        ip:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+        last_active_date:
+          type: string
+          format: date-time
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        invoice_number:
+          type: string
+        user_id:
+          type: integer
+        amount:
+          type: string
+        payment_method:
+          type: string
+        payment_status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: integer
+        number:
+          type: string
+        amount:
+          type: string
+        status:
+          type: string
+        date:
+          type: string
+          format: date-time
+        products:
+          type: array
+          items:
+            type: string
+    InvoiceDetail:
+      type: object
+      properties:
+        invoice:
+          type: object
+          properties:
+            number:
+              type: string
+            date:
+              type: string
+              format: date-time
+        from:
+          $ref: '#/components/schemas/Company'
+        to:
+          $ref: '#/components/schemas/User'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
+        totals:
+          type: object
+    Company:
+      type: object
+      properties:
+        id:
+          type: integer
+        company:
+          type: string
+        address:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        phone_code:
+          type: string
+        phone:
+          type: string
+        logo:
+          type: string
+        company_email:
+          type: string
+    InvoiceItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        invoice_id:
+          type: integer
+        product_name:
+          type: string
+        product_id:
+          type: integer
+        regular_price:
+          type: number
+        quantity:
+          type: integer
+        tax_name:
+          type: string
+        tax_percentage:
+          type: number
+        subtotal:
+          type: number
+        domain:
+          type: string
+        plan_id:
+          type: integer
+        agents:
+          type: integer
+        billing_pay:
+          type: number
+        order:
+          type: object
+          properties:
+            id:
+              type: integer
+            number:
+              type: string
+            invoice_item_id:
+              type: integer
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        image:
+          type: string
+        group:
+          type: string
+        license_type:
+          type: string
+        action:
+          type: object
+          properties:
+            edit_url:
+              type: string
+            download_url:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+    ProductDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        group_relation:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        license_type:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        taxes:
+          type: array
+          items:
+            type: object
+        plan_relation:
+          type: array
+          items:
+            type: object
+    UpdateProduct:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: integer
+        description:
+          type: string
+        product_description:
+          type: string
+        image:
+          type: string
+          format: binary
+        file:
+          type: string
+          format: binary
+        product_sku:
+          type: string
+        group:
+          type: integer
+        show_agent:
+          type: boolean
+        tax:
+          type: array
+          items:
+            type: integer
+        github_owner:
+          type: string
+        github_repository:
+          type: string
+        highlight:
+          type: boolean
+        add_to_contact:
+          type: boolean
+        can_modify_agent:
+          type: boolean
+        can_modify_quantity:
+          type: boolean
+    ProductUpload:
+      type: object
+      properties:
+        id:
+          type: integer
+        product_id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+        file:
+          type: string
+        is_private:
+          type: boolean
+        is_restricted:
+          type: boolean
+        release_type:
+          type: string
+        dependencies:
+          type: string
+    NewProduct:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: integer
+        description:
+          type: string
+        product_description:
+          type: string
+        image:
+          type: string
+          format: binary
+        product_sku:
+          type: string
+        group:
+          type: integer
+        show_agent:
+          type: boolean
+        tax:
+          type: array
+          items:
+            type: integer
+        github_owner:
+          type: string
+        github_repository:
+          type: string
+        highlight:
+          type: boolean
+        add_to_contact:
+          type: boolean
+        can_modify_agent:
+          type: boolean
+        can_modify_quantity:
+          type: boolean
+    Plan:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        product:
+          type: string
+        period:
+          type: string
+        currencies:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+    NewPlan:
+      type: object
+      properties:
+        name:
+          type: string
+        product:
+          type: integer
+        days:
+          type: integer
+        add_price:
+          type: array
+          items:
+            type: number
+        renew_price:
+          type: array
+          items:
+            type: number
+        offer_price:
+          type: array
+          items:
+            type: number
+        currency:
+          type: array
+          items:
+            type: string
+        price_description:
+          type: string
+        product_quantity:
+          type: integer
+        no_of_agents:
+          type: integer
+    PlanDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        product_relation:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        plan_price:
+          type: array
+          items:
+            type: object
+        no_of_agents:
+          type: integer
+        product_quantity:
+          type: integer
+    UpdatePlan:
+      type: object
+      properties:
+        name:
+          type: string
+        product:
+          type: integer
+        days:
+          type: integer
+        add_price:
+          type: array
+          items:
+            type: number
+        renew_price:
+          type: array
+          items:
+            type: number
+        offer_price:
+          type: array
+          items:
+            type: number
+        currency:
+          type: array
+          items:
+            type: string
+        price_description:
+          type: string
+        product_quantity:
+          type: integer
+        no_of_agents:
+          type: integer
+    Promotion:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        type:
+          type: string
+        value:
+          type: string
+        uses:
+          type: integer
+        start:
+          type: string
+          format: date-time
+        expiry:
+          type: string
+          format: date-time
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+    UpdatePromotion:
+      type: object
+      properties:
+        code:
+          type: string
+        type:
+          type: integer
+        value:
+          type: string
+        uses:
+          type: integer
+        start:
+          type: string
+          format: date-time
+        expiry:
+          type: string
+          format: date-time
+        applied:
+          type: integer
+    NewPromotion:
+      type: object
+      properties:
+        code:
+          type: string
+        type:
+          type: integer
+        value:
+          type: string
+        uses:
+          type: integer
+        start:
+          type: string
+          format: date-time
+        expiry:
+          type: string
+          format: date-time
+        applied:
+          type: integer
+    ProductGroup:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ProductGroupDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        pricing_template:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            image:
+              type: string
+        product:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+    UpdateProductGroup:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: integer
+    NewProductGroup:
+      type: object
+      properties:
+        name:
+          type: string
+        pricing_templates_id:
+          type: integer
+    Report:
+      type: object
+      properties:
+        id:
+          type: integer
+        file:
+          type: string
+        format:
+          type: string
+        type:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        created_at:
+          type: string
+          format: date-time
+    ReportSetting:
+      type: object
+      properties:
+        id:
+          type: integer
+        records:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Dashboard:
+      type: object
+      properties:
+        totalSales:
+          type: object
+        yearlySales:
+          type: object
+        monthlySales:
+          type: object
+        pendingPayments:
+          type: object
+        productInstalledRate:
+          type: object
+        paidOrderRate:
+          type: object
+        clientWithMobileAndEmailActivation:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        recentInvoices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Invoice'
+        expiringOrders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+        expiredOrders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+        clientWithOutdatedProducts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+        recentPaidOrders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+        productSoldInLast30Days:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        totalProductsSold:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'

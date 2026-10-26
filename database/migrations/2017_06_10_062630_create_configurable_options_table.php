@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('configurable_options')) {
-            Schema::create('configurable_options', function (Blueprint $table) {
+            Schema::create('configurable_options', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('group_id')->unsigned()->index('configurable_options_group_id_foreign');
                 $table->integer('type');
@@ -28,10 +26,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('configurable_options');
     }

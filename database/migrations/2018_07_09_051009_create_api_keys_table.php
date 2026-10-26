@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('api_keys')) {
-            Schema::create('api_keys', function (Blueprint $table) {
+            Schema::create('api_keys', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('rzp_key', 255)->nullable();
                 $table->string('rzp_secret', 255)->nullable();
@@ -28,10 +26,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('api_keys');
     }

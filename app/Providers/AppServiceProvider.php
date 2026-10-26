@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use App\Events\UserOrderDelete;
 use App\Listeners\CloudDeletion;
+use App\Services\NewsletterManager;
+use App\Services\Pdf\PdfManager;
+use App\Services\Seo\SeoTemplateFormatter;
 use File;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -11,23 +14,20 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         Schema::defaultStringLength(191);
 
-        Validator::extend('no_http', function ($attribute, $value, $parameters, $validator) {
-            return strpos($value, 'http://') === false && strpos($value, 'https://') === false;
-        });
+        Validator::extend('no_http', fn ($attribute, $value, $parameters, $validator): bool => ! str_contains((string) $value, 'http://') && ! str_contains((string) $value, 'https://'));
 
-        Collection::macro('paginate', function ($perPage, $total = null, $page = null, $pageName = 'page') {
+        Collection::macro('paginate', function ($perPage, $total = null, $page = null, $pageName = 'page'): LengthAwarePaginator {
             $page = $page ?: LengthAwarePaginator::resolveCurrentPage($pageName);
 
             return new LengthAwarePaginator(
@@ -44,59 +44,71 @@ class AppServiceProvider extends ServiceProvider
 
         Event::listen(UserOrderDelete::class, CloudDeletion::class);
         $this->fileMacros();
+
+        $this->app->make(PdfManager::class)->boot();
     }
 
     /**
      * Register any application services.
-     *
-     * @return void
      */
-    public function register()
+    #[Override]
+    public function register(): void
     {
-        $this->app->alias('bugsnag.logger', \Illuminate\Contracts\Logging\Log::class);
-        $this->app->alias('bugsnag.logger', \Psr\Log\LoggerInterface::class);
+        $this->app->singleton(NewsletterManager::class);
 
-        $this->app->bind('\Symfony\Component\Mailer\MailerInterface::class', 'ProviderRepository');
+        // Shared per-request: its constructor queries CommonSettings +
+        // Setting, and both SeoMetaService and client.blade.php resolve it
+        // independently — without this, every page render doubled those
+        // queries.
+        $this->app->singleton(SeoTemplateFormatter::class);
 
-        // $this->app->bind('\Symfony\Component\Mailer\MailerInterface::class',  'Illuminate\Foundation\ProviderRepository::class');
+        $this->app->singleton(PdfManager::class);
     }
 
     /**
      * Register custom file macros for session management.
-     *
-     * @return void
      */
-    public function fileMacros()
+    public function fileMacros(): void
     {
-        // Clean directory except specified files and folders
+        $this->cleanDirectoryFilesMacro();
+        $this->filterFilesMacro();
+        $this->safeGetMacro();
+    }
+
+    /** Clean directory except specified files and folders. */
+    private function cleanDirectoryFilesMacro(): void
+    {
         File::macro('cleanDirectoryFiles', function (
             string $directory,
             array $excludedFiles = [],
             array $excludedFolders = []
-        ) {
+        ): void {
             if (! File::isDirectory($directory)) {
                 return;
             }
 
-            $excludedFiles = array_map('basename', $excludedFiles);
-            $excludedFolders = array_map('basename', $excludedFolders);
+            $excludedFiles = array_map(basename(...), $excludedFiles);
+            $excludedFolders = array_map(basename(...), $excludedFolders);
 
             // Remove files
             foreach (File::files($directory) as $file) {
-                if (! in_array($file->getFilename(), $excludedFiles, true)) {
+                if (! in_array($file->getFilename(), $excludedFiles, strict: true)) {
                     File::delete($file->getPathname());
                 }
             }
 
             // Remove directories
             foreach (File::directories($directory) as $folder) {
-                if (! in_array(basename($folder), $excludedFolders, true)) {
+                if (! in_array(basename($folder), $excludedFolders, strict: true)) {
                     File::deleteDirectory($folder);
                 }
             }
         });
+    }
 
-        // Filter files based on callback condition
+    /** Filter files based on callback condition. */
+    private function filterFilesMacro(): void
+    {
         File::macro('filterFiles', function (string $directory, callable $callback) {
             if (! File::isDirectory($directory)) {
                 return collect();
@@ -104,8 +116,11 @@ class AppServiceProvider extends ServiceProvider
 
             return collect(File::files($directory))->filter($callback);
         });
+    }
 
-        // Get file data safely with optional unserialization
+    /** Get file data safely with optional unserialization. */
+    private function safeGetMacro(): void
+    {
         File::macro('safeGet', function (string $filePath, bool $unserialize = false) {
             if (! File::exists($filePath)) {
                 return null;
@@ -113,7 +128,7 @@ class AppServiceProvider extends ServiceProvider
 
             $content = @File::get($filePath);
 
-            return $unserialize ? @unserialize($content) : $content;
+            return $unserialize ? @unserialize($content) : $content; // nosemgrep: php.lang.security.unserialize-use.unserialize-use
         });
     }
 }

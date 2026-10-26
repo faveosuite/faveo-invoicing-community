@@ -1,0 +1,85 @@
+<?php
+
+namespace App\Listeners;
+
+use App\ApiKey;
+use App\Events\UserRegisteredEvent;
+use App\Model\Common\StatusSetting;
+use App\User;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Jobs\SyncJob;
+use Logger;
+use Throwable;
+
+abstract class BaseExternalSyncListener implements ShouldQueue
+{
+    use InteractsWithQueue;
+
+    public string $queue = 'default';
+
+    public int $tries = 3;
+
+    public int $backoff = 60;
+
+    abstract protected function serviceKey(): string;
+
+    abstract protected function isEnabled(): bool;
+
+    abstract protected function sync(User $user): void;
+
+    public function handle(UserRegisteredEvent $event): void
+    {
+        if (! $this->isEnabled()) {
+            return;
+        }
+
+        if ($this->requiresVerification()) {
+            if (! $this->isUserFullyVerified($event->user)) {
+                return;
+            }
+        } elseif ($event->trigger !== 'register') {
+            return;
+        }
+
+        try {
+            $this->sync($event->user);
+        } catch (Throwable $exception) {
+            // On the sync driver this runs inside the HTTP request, and a thrown error would abort
+            // the request and skip every listener registered after this one. Log it and move on.
+            // On a real queue, rethrow so the job keeps its retries and failed() reporting.
+            if ($this->job === null || $this->job instanceof SyncJob) {
+                Logger::exception($exception);
+
+                return;
+            }
+
+            throw $exception;
+        }
+    }
+
+    public function failed(UserRegisteredEvent $event, Throwable $exception): void
+    {
+        Logger::exception($exception);
+    }
+
+    protected function requiresVerification(): bool
+    {
+        try {
+            return (bool) (ApiKey::value('require_'.$this->serviceKey().'_user_verification') ?? false);
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    private function isUserFullyVerified(User $user): bool
+    {
+        /** @var StatusSetting $settings */
+        $settings = StatusSetting::select('emailverification_status', 'msg91_status', 'mobileverification_status')->first();
+
+        $isEmailVerified = ! $settings->emailverification_status || $user->email_verified;
+        $isMobileVerified = ! $settings->mobileVerificationEnabled() || $user->mobile_verified;
+
+        return $isEmailVerified && $isMobileVerified;
+    }
+}

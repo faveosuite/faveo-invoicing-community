@@ -1,17 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Common;
 
 use App\Http\Requests\Request;
+use App\Traits\RequestJsonValidation;
+use Override;
 
 class SettingRequest extends Request
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -19,25 +23,26 @@ class SettingRequest extends Request
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'company' => 'required',
-            'website' => 'url',
-            'phone' => 'regex:/\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/',
-            'address' => 'required|max:300',
-            'logo' => 'mimes:png',
-            'driver' => 'required',
-            'port' => 'integer',
-            'email' => 'required|email|unique:users,email|unique:users,user_name',
-            'password' => 'required',
-            'error_email' => 'email',
+            'company' => ['required'],
+            'website' => ['url'],
+            'phone' => ['regex:/\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/'],
+            'address' => ['required', 'max:300'],
+            'logo' => ['mimes:png'],
+            'driver' => ['required'],
+            'port' => ['integer'],
+            'email' => ['required', 'email', 'unique:users,email', 'unique:users,user_name'],
+            'password' => ['required'],
+            'error_email' => ['email'],
 
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

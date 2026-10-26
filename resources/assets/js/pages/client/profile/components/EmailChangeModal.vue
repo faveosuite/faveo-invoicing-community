@@ -1,0 +1,230 @@
+<template>
+    <Modal :showModal="show" :onClose="close" :showCloseBtn="false">
+        <template #title>
+            <h5 class="modal-title fw-bold">{{ __('message.change_email') }}</h5>
+        </template>
+
+        <template #fields>
+            <AppAlert componentName="email-change" />
+
+            <form @submit.prevent="onSubmit">
+            <!-- Step 1: enter the new email -->
+            <template v-if="step === 'enter'">
+                <ClientField type="email" name="newEmail" required
+                             :label="__('message.enter_new_email')"
+                             v-model="newEmail"
+                             autocomplete="email" :spellcheck="false"
+                             placeholder="name@example.com…"
+                             :error="emailError" />
+            </template>
+
+            <!-- Step 2/3: enter the OTP -->
+            <template v-else-if="step === 'verify_old' || step === 'verify_new'">
+                <p class="text-muted mb-3">
+                    {{ step === 'verify_old' ? __('message.otp_sent_old_email') : __('message.otp_sent_new_email') }}
+                </p>
+                <ClientField type="text" name="otp" required
+                             :label="__('message.enter_code')"
+                             v-model="otp"
+                             :autocomplete="'one-time-code'" inputmode="numeric" :spellcheck="false"
+                             digits-only :maxlength="6"
+                             :placeholder="__('message.otp_placeholder')"
+                             :error="otpError" />
+                <div class="d-flex align-items-center gap-2 mt-2">
+                    <button type="button" class="btn btn-link text-primary p-0 fw-semibold text-decoration-none"
+                            :disabled="cooldown > 0 || locked" @click="resend">
+                        <i class="fas fa-sync-alt me-1" aria-hidden="true"></i>{{ __('message.resend_otp') }}
+                    </button>
+                    <span v-if="cooldown > 0" class="text-muted fw-semibold">{{ String(cooldown).padStart(2, '0') }}s</span>
+                </div>
+            </template>
+
+            <!-- Step 4: done -->
+            <template v-else-if="step === 'done'">
+                <div class="text-center py-4">
+                    <i class="fas fa-check-circle text-success fa-3x" aria-hidden="true"></i>
+                    <p class="mt-3 mb-0 fw-bold text-2">{{ doneMessage }}</p>
+                </div>
+            </template>
+            </form>
+        </template>
+
+        <template #controls>
+            <action-button v-if="step !== 'done'" action="cancel" @click="close" />
+            <action-button v-if="step === 'enter'"
+                           action="confirm" :label="__('message.save')"
+                           :loading="busy" :disabled="!newEmail || locked" @click="submitEmail" />
+            <action-button v-else-if="step === 'done'"
+                           action="confirm" :label="__('message.done')" @click="close" />
+            <action-button v-else
+                           action="confirm" :label="__('message.verify')"
+                           :loading="busy" :disabled="locked" @click="submitOtp" />
+        </template>
+    </Modal>
+</template>
+
+<script setup>
+import { ref, watch } from 'vue'
+import http from '@/plugins/axios'
+import { __ } from '@/plugins/i18n'
+import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import Modal from '@/themes/porto/components/common/Modal.vue'
+import AppAlert from '@/components/Reusable/Alert.vue'
+import { useCooldown } from '@/core/composables/useCooldown'
+import { EMAIL_RE, otpSchema } from '@/validations/client/authSchemas.js'
+
+const props = defineProps({
+    show:         { type: Boolean, default: false },
+    currentEmail: { type: String,  default: '' },
+})
+const emit = defineEmits(['update:show', 'updated'])
+const COMPONENT = 'email-change'
+const COOLDOWN  = 120
+
+const step        = ref('enter')   // 'enter' | 'verify_old' | 'verify_new' | 'done'
+const newEmail    = ref('')
+const otp         = ref('')
+const emailError  = ref('')
+const otpError    = ref('')
+const busy        = ref(false)
+const locked      = ref(false)
+const doneMessage = ref('')
+const { cooldown, start: startCooldown, stop: stopCooldown } = useCooldown(COOLDOWN)
+
+watch(() => props.show, (open) => {
+    if (open) reset()
+    else stopCooldown()
+})
+
+// Keep OTP numeric / 6 digits.
+watch(otp, (v) => {
+    const clean = String(v).replace(/\D/g, '').slice(0, 6)
+    if (clean !== v) otp.value = clean
+    otpError.value = ''
+})
+
+function reset() {
+    step.value = 'enter'
+    newEmail.value = ''
+    otp.value = ''
+    emailError.value = ''
+    otpError.value = ''
+    doneMessage.value = ''
+    locked.value = false
+    stopCooldown()
+}
+
+// 429 = max attempts reached: show the server's message, lock the popup, then close it.
+function onError(e) {
+    errorHandler(e, COMPONENT)
+    if (e?.response?.status === 429 && !locked.value) {
+        locked.value = true
+        stopCooldown()
+        setTimeout(close, 5000)
+    }
+}
+
+function close() {
+    stopCooldown()
+    emit('update:show', false)
+}
+
+
+async function submitEmail() {
+    emailError.value = ''
+    newEmail.value = newEmail.value.trim()
+    // Same rule as the registration form.
+    if (!EMAIL_RE.test(newEmail.value)) {
+        emailError.value = __('message.contact_error_email')
+        return
+    }
+    if (newEmail.value.toLowerCase() === props.currentEmail.toLowerCase()) {
+        emailError.value = __('message.email_already_used')
+        return
+    }
+    busy.value = true
+    try {
+        const res = await http.post(`/profile/email/send-otp`, {
+            email_to_verify: newEmail.value,
+            new_email: newEmail.value,
+        })
+        const data = res.data?.data ?? {}
+        if (data.email_updated) {
+            finish(res, data.email ?? newEmail.value)
+        } else {
+            // Verification enabled — OTP sent to the current (old) email first.
+            step.value = 'verify_old'
+            otp.value = ''
+            startCooldown()
+        }
+    } catch (e) {
+        onError(e)
+    } finally {
+        busy.value = false
+    }
+}
+
+// Enter key submits the current step (same guards as the footer buttons).
+function onSubmit() {
+    if (busy.value || locked.value) return
+    if (step.value === 'enter') { if (newEmail.value) submitEmail() }
+    else if (step.value !== 'done') submitOtp()
+}
+
+async function submitOtp() {
+    if (busy.value) return
+    // Same OTP rule as the Verify page: show the error under the field instead of disabling the button.
+    try { otpSchema.validateSync({ otp: otp.value }) } catch (e) { otpError.value = e.message; return }
+    busy.value = true
+    try {
+        if (step.value === 'verify_old') {
+            await http.post(`/profile/email/verify-otp`, {
+                email_to_verify: props.currentEmail,
+                otp: otp.value,
+                verify_type: 'old_email',
+            })
+            // Old email confirmed → now send + verify the new email.
+            await http.post(`/profile/email/send-otp`, { email_to_verify: newEmail.value })
+            step.value = 'verify_new'
+            otp.value = ''
+            startCooldown()
+        } else {
+            const res = await http.post(`/profile/email/verify-otp`, {
+                email_to_verify: newEmail.value,
+                otp: otp.value,
+                verify_type: 'new_email',
+            })
+            finish(res, res.data?.data?.email ?? newEmail.value)
+        }
+    } catch (e) {
+        // A rejected code belongs under the OTP field, not in the page alert.
+        const msg = e?.response?.data?.message
+        if (msg && e.response.status < 500 && e.response.status !== 429 && e.config?.url?.includes('verify-otp')) otpError.value = msg
+        else onError(e)
+    } finally {
+        busy.value = false
+    }
+}
+
+async function resend() {
+    if (cooldown.value > 0) return
+    try {
+        const res = await http.post(`/profile/resend-otp`, {
+            type: 'email',
+            email_to_verify: step.value === 'verify_old' ? props.currentEmail : newEmail.value,
+        })
+        successHandler(res, COMPONENT)
+        startCooldown()
+    } catch (e) {
+        onError(e)
+    }
+}
+
+function finish(res, email) {
+    emit('updated', email)
+    // Stay open on a "done" step so the success message is actually seen —
+    // the modal (and its own <Alert>) would otherwise unmount immediately.
+    doneMessage.value = res?.data?.message ?? ''
+    step.value = 'done'
+}
+</script>

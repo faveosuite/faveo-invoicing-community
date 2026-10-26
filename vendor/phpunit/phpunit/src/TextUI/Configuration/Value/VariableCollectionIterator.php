@@ -9,7 +9,7 @@
  */
 namespace PHPUnit\TextUI\Configuration;
 
-use function count;
+use function assert;
 use Iterator;
 
 /**
@@ -41,7 +41,7 @@ final class VariableCollectionIterator implements Iterator
 
     public function valid(): bool
     {
-        return $this->position < count($this->variables);
+        return isset($this->variables[$this->position]);
     }
 
     /**
@@ -54,6 +54,8 @@ final class VariableCollectionIterator implements Iterator
 
     public function current(): Variable
     {
+        assert(isset($this->variables[$this->position]));
+
         return $this->variables[$this->position];
     }
 

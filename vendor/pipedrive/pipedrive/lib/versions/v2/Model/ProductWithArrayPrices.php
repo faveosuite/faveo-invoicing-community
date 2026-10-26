@@ -2,7 +2,7 @@
 /**
  * ProductWithArrayPrices
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -66,7 +66,7 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
       * @phpsalm-var array<string, string>
       */
     protected static array $openAPITypes = [
-        'id' => 'float',
+        'id' => 'int',
         'name' => 'string',
         'code' => 'string',
         'unit' => 'string',
@@ -75,10 +75,14 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
         'is_linkable' => 'bool',
         'visible_to' => '\Pipedrive\versions\v2\Model\VisibleTo',
         'owner_id' => 'int',
+        'add_time' => 'string',
+        'update_time' => 'string',
+        'description' => 'string',
+        'category' => 'string',
         'custom_fields' => 'array<string,object>',
         'billing_frequency' => '\Pipedrive\versions\v2\Model\BillingFrequency1',
         'billing_frequency_cycles' => 'int',
-        'prices' => 'object[]'
+        'prices' => '\Pipedrive\versions\v2\Model\ArrayPricesPrices[]'
     ];
 
     /**
@@ -98,6 +102,10 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
         'is_linkable' => null,
         'visible_to' => null,
         'owner_id' => null,
+        'add_time' => null,
+        'update_time' => null,
+        'description' => null,
+        'category' => null,
         'custom_fields' => null,
         'billing_frequency' => null,
         'billing_frequency_cycles' => null,
@@ -144,6 +152,10 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
         'is_linkable' => 'is_linkable',
         'visible_to' => 'visible_to',
         'owner_id' => 'owner_id',
+        'add_time' => 'add_time',
+        'update_time' => 'update_time',
+        'description' => 'description',
+        'category' => 'category',
         'custom_fields' => 'custom_fields',
         'billing_frequency' => 'billing_frequency',
         'billing_frequency_cycles' => 'billing_frequency_cycles',
@@ -165,6 +177,10 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
         'is_linkable' => 'setIsLinkable',
         'visible_to' => 'setVisibleTo',
         'owner_id' => 'setOwnerId',
+        'add_time' => 'setAddTime',
+        'update_time' => 'setUpdateTime',
+        'description' => 'setDescription',
+        'category' => 'setCategory',
         'custom_fields' => 'setCustomFields',
         'billing_frequency' => 'setBillingFrequency',
         'billing_frequency_cycles' => 'setBillingFrequencyCycles',
@@ -186,6 +202,10 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
         'is_linkable' => 'getIsLinkable',
         'visible_to' => 'getVisibleTo',
         'owner_id' => 'getOwnerId',
+        'add_time' => 'getAddTime',
+        'update_time' => 'getUpdateTime',
+        'description' => 'getDescription',
+        'category' => 'getCategory',
         'custom_fields' => 'getCustomFields',
         'billing_frequency' => 'getBillingFrequency',
         'billing_frequency_cycles' => 'getBillingFrequencyCycles',
@@ -257,7 +277,7 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['id'] = $data['id'] ?? null;
         $this->container['name'] = $data['name'] ?? null;
@@ -268,6 +288,10 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
         $this->container['is_linkable'] = $data['is_linkable'] ?? true;
         $this->container['visible_to'] = $data['visible_to'] ?? null;
         $this->container['owner_id'] = $data['owner_id'] ?? null;
+        $this->container['add_time'] = $data['add_time'] ?? null;
+        $this->container['update_time'] = $data['update_time'] ?? null;
+        $this->container['description'] = $data['description'] ?? null;
+        $this->container['category'] = $data['category'] ?? null;
         $this->container['custom_fields'] = $data['custom_fields'] ?? null;
         $this->container['billing_frequency'] = $data['billing_frequency'] ?? null;
         $this->container['billing_frequency_cycles'] = $data['billing_frequency_cycles'] ?? null;
@@ -303,7 +327,7 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets id
      *
-     * @return float|null
+     * @return int|null
      */
     public function getId()
     {
@@ -313,7 +337,7 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets id
      *
-     * @param float|null $id The ID of the product
+     * @param int|null $id The ID of the product
      *
      * @return self
      */
@@ -433,7 +457,7 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets is_deleted
      *
-     * @param bool|null $is_deleted Whether this product will be made marked as deleted or not
+     * @param bool|null $is_deleted Whether this product will be marked as deleted or not
      *
      * @return self
      */
@@ -505,13 +529,109 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets owner_id
      *
-     * @param int|null $owner_id Information about the Pipedrive user who owns the product
+     * @param int|null $owner_id The ID of the Pipedrive user who owns the product
      *
      * @return self
      */
     public function setOwnerId($owner_id): self
     {
         $this->container['owner_id'] = $owner_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets add_time
+     *
+     * @return string|null
+     */
+    public function getAddTime()
+    {
+        return $this->container['add_time'];
+    }
+
+    /**
+     * Sets add_time
+     *
+     * @param string|null $add_time The date and time when the product was added
+     *
+     * @return self
+     */
+    public function setAddTime($add_time): self
+    {
+        $this->container['add_time'] = $add_time;
+
+        return $this;
+    }
+
+    /**
+     * Gets update_time
+     *
+     * @return string|null
+     */
+    public function getUpdateTime()
+    {
+        return $this->container['update_time'];
+    }
+
+    /**
+     * Sets update_time
+     *
+     * @param string|null $update_time The date and time when the product was last updated
+     *
+     * @return self
+     */
+    public function setUpdateTime($update_time): self
+    {
+        $this->container['update_time'] = $update_time;
+
+        return $this;
+    }
+
+    /**
+     * Gets description
+     *
+     * @return string|null
+     */
+    public function getDescription()
+    {
+        return $this->container['description'];
+    }
+
+    /**
+     * Sets description
+     *
+     * @param string|null $description The description of the product
+     *
+     * @return self
+     */
+    public function setDescription($description): self
+    {
+        $this->container['description'] = $description;
+
+        return $this;
+    }
+
+    /**
+     * Gets category
+     *
+     * @return string|null
+     */
+    public function getCategory()
+    {
+        return $this->container['category'];
+    }
+
+    /**
+     * Sets category
+     *
+     * @param string|null $category The category of the product
+     *
+     * @return self
+     */
+    public function setCategory($category): self
+    {
+        $this->container['category'] = $category;
 
         return $this;
     }
@@ -529,7 +649,7 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets custom_fields
      *
-     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes
+     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes. To clear a custom field value, set it to `null`. For multi-option fields (field type `set`), use `null` to clear the selection — sending an empty array `[]` is not supported and will result in a validation error.
      *
      * @return self
      */
@@ -591,7 +711,7 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets prices
      *
-     * @return object[]|null
+     * @return \Pipedrive\versions\v2\Model\ArrayPricesPrices[]|null
      */
     public function getPrices()
     {
@@ -601,7 +721,7 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets prices
      *
-     * @param object[]|null $prices Array of objects, each containing: product_id (number), currency (string), price (number), cost (number), direct_cost (number | null), notes (string)
+     * @param \Pipedrive\versions\v2\Model\ArrayPricesPrices[]|null $prices The prices of the product in different currencies
      *
      * @return self
      */

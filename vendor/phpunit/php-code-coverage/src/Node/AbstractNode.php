@@ -11,6 +11,7 @@ namespace SebastianBergmann\CodeCoverage\Node;
 
 use const DIRECTORY_SEPARATOR;
 use function array_merge;
+use function max;
 use function str_ends_with;
 use function str_replace;
 use function substr;
@@ -23,6 +24,8 @@ use SebastianBergmann\CodeCoverage\Util\Percentage;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 abstract class AbstractNode implements Countable
 {
@@ -192,7 +195,7 @@ abstract class AbstractNode implements Countable
             $ccn += $function->ccn;
         }
 
-        return $ccn;
+        return max(0, $ccn);
     }
 
     /**
@@ -223,6 +226,8 @@ abstract class AbstractNode implements Countable
     abstract public function numberOfExecutablePaths(): int;
 
     abstract public function numberOfExecutedPaths(): int;
+
+    abstract public function numberOfFilesWithoutBranchCoverageData(): int;
 
     abstract public function numberOfClasses(): int;
 

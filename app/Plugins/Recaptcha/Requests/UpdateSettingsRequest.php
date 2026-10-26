@@ -2,49 +2,46 @@
 
 namespace App\Plugins\Recaptcha\Requests;
 
+use App\Plugins\Recaptcha\Services\RecaptchaVerifier;
+use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Request;
+use Override;
 
 class UpdateSettingsRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    use RequestJsonValidation;
+
+    public function authorize(): bool
     {
         return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
+     * @return array<mixed>
      */
-    public function rules()
+    public function rules(): array
     {
+        $isV3 = $this->usesV3();
+        $needsV2 = $this->needsV2();
+
         return [
-            'v2_site_key' => 'nullable|string',
-            'v2_secret_key' => 'nullable|string',
-            'v3_site_key' => 'nullable|string',
-            'v3_secret_key' => 'nullable|string',
-            'captcha_version' => 'required|in:v2_checkbox,v2_invisible,v3_invisible',
-            'failover_action' => 'required|in:none,v2_checkbox',
-            'score_threshold' => 'required|numeric|min:0|max:1',
-            'theme' => 'required|in:light,dark',
-            'size' => 'required|in:normal,compact',
-            'badge_position' => 'required|in:bottomright,bottomleft,inline',
-            'v2_g_recaptcha_response' => 'nullable|string',
-            'v3_g_recaptcha_response' => 'nullable|string',
+            'recaptcha_status' => ['sometimes', 'boolean'],
+            'captcha_version' => ['required', 'in:v2_checkbox,v2_invisible,v3_invisible'],
+            'failover_action' => ['required', 'in:none,v2_checkbox'],
+            'theme' => ['required', 'in:light,dark'],
+            'size' => ['required', 'in:normal,compact'],
+            'badge_position' => ['required', 'in:bottomright,bottomleft,inline'],
+            'v3_site_key' => $isV3 ? 'required|string' : 'nullable|string',
+            'v3_secret_key' => $isV3 ? 'required|string' : 'nullable|string',
+            'score_threshold' => $isV3 ? 'required|numeric|min:0|max:1' : 'nullable|numeric|min:0|max:1',
+            'v2_site_key' => $needsV2 ? 'required|string' : 'nullable|string',
+            'v2_secret_key' => $needsV2 ? 'required|string' : 'nullable|string',
+            'v2_g_recaptcha_response' => ['nullable', 'string'],
+            'v3_g_recaptcha_response' => ['nullable', 'string'],
         ];
     }
 
-    /**
-     * Get custom attributes for validator errors.
-     *
-     * @return array
-     */
+    #[Override]
     public function attributes()
     {
         return [
@@ -61,14 +58,14 @@ class UpdateSettingsRequest extends FormRequest
         ];
     }
 
-    /**
-     * Get the custom validation messages.
-     *
-     * @return array
-     */
+    #[Override]
     public function messages()
     {
         return [
+            'v3_site_key.required' => __('recaptcha::recaptcha.v3_site_key_required'),
+            'v3_secret_key.required' => __('recaptcha::recaptcha.v3_secret_key_required'),
+            'v2_site_key.required' => __('recaptcha::recaptcha.v2_site_key_required'),
+            'v2_secret_key.required' => __('recaptcha::recaptcha.v2_secret_key_required'),
             'captcha_version.required' => __('recaptcha::recaptcha.captcha_version_required'),
             'captcha_version.in' => __('recaptcha::recaptcha.captcha_version_in'),
             'failover_action.required' => __('recaptcha::recaptcha.failover_action_required'),
@@ -86,78 +83,59 @@ class UpdateSettingsRequest extends FormRequest
         ];
     }
 
-    /**
-     * Configure the validator instance.
-     *
-     * @param  \Illuminate\Validation\Validator  $validator
-     * @return void
-     */
-    public function withValidator($validator)
+    public function withValidator(mixed $validator): void
     {
-        $validator->after(function ($validator) {
-            // v2 verification
-            if ($this->filled('v2_g_recaptcha_response') && $this->filled('v2_secret_key')) {
-                $result = $this->verifyCaptcha(
-                    $this->input('v2_g_recaptcha_response'),
-                    $this->input('v2_secret_key'),
-                    'v2',
-                    $this->ip(),
-                    $this->getHost()
-                );
+        $validator->after(function ($validator): void {
+            $verifier = resolve(RecaptchaVerifier::class);
 
-                if ($result !== true) {
-                    $validator->errors()->add('v2_secret_key', $result);
-                }
+            if ($this->usesV3()) {
+                $this->checkKeys($validator, $verifier, 'v3');
             }
 
-            // v3 verification
-            if ($this->filled('v3_g_recaptcha_response') && $this->filled('v3_secret_key')) {
-                $result = $this->verifyCaptcha(
-                    $this->input('v3_g_recaptcha_response'),
-                    $this->input('v3_secret_key'),
-                    'v3',
-                    $this->ip(),
-                    $this->getHost(),
-                    $this->input('score_threshold')
-                );
-
-                if ($result !== true) {
-                    $validator->errors()->add('v3_secret_key', $result);
-                }
-            }
-
-            if (! $this->filled('v2_g_recaptcha_response') && ! $this->filled('v3_g_recaptcha_response')) {
-                $validator->errors()->add('captcha', __('recaptcha::recaptcha.captcha_verification_failed'));
+            if ($this->needsV2()) {
+                $this->checkKeys($validator, $verifier, 'v2');
             }
         });
     }
 
-    /**
-     * Returns true if successful, otherwise returns error message.
-     */
-    protected function verifyCaptcha($response, $secretKey, $type, $ip, $expectedHostname, $scoreThreshold = 0.5)
+    private function usesV3(): bool
     {
-        $httpResponse = \Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => $secretKey,
-            'response' => $response,
-            'remoteip' => $ip,
-        ]);
+        return $this->input('captcha_version') === 'v3_invisible';
+    }
 
-        $responseBody = $httpResponse->json();
+    /** v2 keys are in use: a v2 version, or v3 falling back to the v2 checkbox. */
+    private function needsV2(): bool
+    {
+        return in_array($this->input('captcha_version'), ['v2_checkbox', 'v2_invisible'], strict: true)
+            || ($this->usesV3() && $this->input('failover_action') === 'v2_checkbox');
+    }
 
-        if (! $responseBody['success']) {
-            return __('recaptcha::recaptcha.invalid_secret_or_token');
+    /**
+     * The admin must have solved this version's challenge, and (when a secret is given)
+     * Google must accept it with that secret.
+     */
+    private function checkKeys(mixed $validator, RecaptchaVerifier $verifier, string $type): void
+    {
+        if (! $this->filled($type.'_g_recaptcha_response')) {
+            $validator->errors()->add($type.'_site_key', __('recaptcha::recaptcha.complete_recaptcha_'.$type));
+
+            return;
         }
 
-        if ($type === 'v3') {
-            if (
-                ($responseBody['action'] ?? '') !== 'settings_save' ||
-                ($responseBody['hostname'] ?? '') !== $expectedHostname
-            ) {
-                return __('recaptcha::recaptcha.captcha_verification_failed');
-            }
+        if (! $this->filled($type.'_secret_key')) {
+            return;
         }
 
-        return true;
+        $result = $verifier->verify(
+            $this->input($type.'_g_recaptcha_response'),
+            $this->input($type.'_secret_key'),
+            $type,
+            (string) $this->ip(),
+            $this->getHost(),
+        );
+
+        if ($result !== true) {
+            $validator->errors()->add($type.'_secret_key', $result);
+        }
     }
 }

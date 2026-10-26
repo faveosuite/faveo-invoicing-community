@@ -1,17 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Order;
 
 use App\Http\Requests\Request;
+use App\Traits\RequestJsonValidation;
+use Override;
 
 class OrderRequest extends Request
 {
+    use RequestJsonValidation;
+
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -19,23 +23,24 @@ class OrderRequest extends Request
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'client' => 'required',
-            'payment_method' => 'required',
-            'promotion_code' => 'required',
-            'order_status' => 'required',
-            'product' => 'required',
-            //'domain'         => 'url',
-            'subscription' => 'required',
-            'price_override' => 'numeric',
-            'qty' => 'integer',
+            'client' => ['required'],
+            'payment_method' => ['required'],
+            'promotion_code' => ['required'],
+            'order_status' => ['required'],
+            'product' => ['required'],
+            // 'domain'         => 'url',
+            'subscription' => ['required'],
+            'price_override' => ['numeric'],
+            'qty' => ['integer'],
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

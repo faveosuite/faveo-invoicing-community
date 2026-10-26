@@ -29,7 +29,6 @@ return [
     'inspire' => 'Показать вдохновляющую цитату',
     'renewal:cron' => 'Автоматическое продление Cron',
     'mail-send-exception' => 'Исключение отправки почты',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => 'Уведомление об истекшем продлении',
     'renewal:notification' => 'Уведомление об автоматическом продлении',
     'cleanup:msg-reports' => 'Очистка отчетов MSG91',
@@ -40,11 +39,8 @@ return [
     'droptables' => 'Удалить все таблицы',
     'install:db' => 'Установить базу данных',
     'testing-setup' => 'Настройка тестовой среды',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'Отправка в очередь выполнена успешно',
-    // Added missing UI texts
     'cancel' => 'Отмена',
-    // Added missing messages from blade file
     'system_logs' => 'Системные журналы',
     'filter_logs' => 'Фильтровать журналы',
     'logs' => 'Журналы',
@@ -101,4 +97,16 @@ return [
     'confirm_old_email' => 'Подтвердить старый email',
     'confirm_mobile_number_change' => 'Подтвердить изменение мобильного номера',
     'logs:delete' => 'Удалить системные журналы',
+    'cloud:send-instance-emails' => 'Отправить письма облачных экземпляров',
+    'activity-logs:cleanup' => 'Очистка журналов активности',
+    'app:crack-callback-cleanup' => 'Очистка обратных вызовов взлома',
+    'app:crack-reports-cleanup' => 'Очистка отчётов о взломе',
+    'app:failed-message-delivery' => 'Повторная отправка неудачных сообщений WhatsApp',
+    'app:license-reports-cleanup' => 'Очистка отчётов о лицензиях',
+    'app:system-reports-cleanup' => 'Очистка системных отчётов',
+    'app:versions-cleanup' => 'Очистка версий',
+    'installation:logs' => 'Отметить неактивные установки',
+    'reoon:logs-deletion' => 'Очистка журналов Reoon',
+    'seo:generate-files' => 'Создать SEO-файлы',
+    'date' => 'Дата',
 ];

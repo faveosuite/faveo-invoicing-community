@@ -2,7 +2,7 @@
 /**
  * ProjectObjectFragment
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -66,6 +66,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
       * @phpsalm-var array<string, string>
       */
     protected static array $openAPITypes = [
+        'board_id' => 'float',
+        'phase_id' => 'float',
         'description' => 'string',
         'status' => 'string',
         'owner_id' => 'float',
@@ -74,7 +76,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
         'deal_ids' => 'int[]',
         'org_id' => 'float',
         'person_id' => 'float',
-        'labels' => 'int[]'
+        'labels' => 'int[]',
+        'health_status' => 'int'
     ];
 
     /**
@@ -85,6 +88,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
       * @psalm-var array<string, string|null>
       */
     protected static $openAPIFormats = [
+        'board_id' => null,
+        'phase_id' => null,
         'description' => null,
         'status' => null,
         'owner_id' => null,
@@ -93,7 +98,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
         'deal_ids' => null,
         'org_id' => null,
         'person_id' => null,
-        'labels' => null
+        'labels' => null,
+        'health_status' => null
     ];
 
     /**
@@ -127,6 +133,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
      * @var string[]
      */
     protected static $attributeMap = [
+        'board_id' => 'board_id',
+        'phase_id' => 'phase_id',
         'description' => 'description',
         'status' => 'status',
         'owner_id' => 'owner_id',
@@ -135,7 +143,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
         'deal_ids' => 'deal_ids',
         'org_id' => 'org_id',
         'person_id' => 'person_id',
-        'labels' => 'labels'
+        'labels' => 'labels',
+        'health_status' => 'health_status'
     ];
 
     /**
@@ -144,6 +153,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
      * @var string[]
      */
     protected static $setters = [
+        'board_id' => 'setBoardId',
+        'phase_id' => 'setPhaseId',
         'description' => 'setDescription',
         'status' => 'setStatus',
         'owner_id' => 'setOwnerId',
@@ -152,7 +163,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
         'deal_ids' => 'setDealIds',
         'org_id' => 'setOrgId',
         'person_id' => 'setPersonId',
-        'labels' => 'setLabels'
+        'labels' => 'setLabels',
+        'health_status' => 'setHealthStatus'
     ];
 
     /**
@@ -161,6 +173,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
      * @var string[]
      */
     protected static $getters = [
+        'board_id' => 'getBoardId',
+        'phase_id' => 'getPhaseId',
         'description' => 'getDescription',
         'status' => 'getStatus',
         'owner_id' => 'getOwnerId',
@@ -169,7 +183,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
         'deal_ids' => 'getDealIds',
         'org_id' => 'getOrgId',
         'person_id' => 'getPersonId',
-        'labels' => 'getLabels'
+        'labels' => 'getLabels',
+        'health_status' => 'getHealthStatus'
     ];
 
     /**
@@ -237,8 +252,10 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
+        $this->container['board_id'] = $data['board_id'] ?? null;
+        $this->container['phase_id'] = $data['phase_id'] ?? null;
         $this->container['description'] = $data['description'] ?? null;
         $this->container['status'] = $data['status'] ?? null;
         $this->container['owner_id'] = $data['owner_id'] ?? null;
@@ -248,6 +265,7 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
         $this->container['org_id'] = $data['org_id'] ?? null;
         $this->container['person_id'] = $data['person_id'] ?? null;
         $this->container['labels'] = $data['labels'] ?? null;
+        $this->container['health_status'] = $data['health_status'] ?? null;
     }
 
     /**
@@ -275,6 +293,54 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
         return count($this->listInvalidProperties()) === 0;
     }
 
+
+    /**
+     * Gets board_id
+     *
+     * @return float|null
+     */
+    public function getBoardId()
+    {
+        return $this->container['board_id'];
+    }
+
+    /**
+     * Sets board_id
+     *
+     * @param float|null $board_id The ID of the board this project is associated with
+     *
+     * @return self
+     */
+    public function setBoardId($board_id): self
+    {
+        $this->container['board_id'] = $board_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets phase_id
+     *
+     * @return float|null
+     */
+    public function getPhaseId()
+    {
+        return $this->container['phase_id'];
+    }
+
+    /**
+     * Sets phase_id
+     *
+     * @param float|null $phase_id The ID of the phase this project is associated with
+     *
+     * @return self
+     */
+    public function setPhaseId($phase_id): self
+    {
+        $this->container['phase_id'] = $phase_id;
+
+        return $this;
+    }
 
     /**
      * Gets description
@@ -488,6 +554,30 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
     public function setLabels($labels): self
     {
         $this->container['labels'] = $labels;
+
+        return $this;
+    }
+
+    /**
+     * Gets health_status
+     *
+     * @return int|null
+     */
+    public function getHealthStatus()
+    {
+        return $this->container['health_status'];
+    }
+
+    /**
+     * Sets health_status
+     *
+     * @param int|null $health_status The health status of the project
+     *
+     * @return self
+     */
+    public function setHealthStatus($health_status): self
+    {
+        $this->container['health_status'] = $health_status;
 
         return $this;
     }

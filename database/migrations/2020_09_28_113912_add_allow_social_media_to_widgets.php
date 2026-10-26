@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasColumn('widgets', 'allow_social_media')) {
-            Schema::table('widgets', function (Blueprint $table) {
+            Schema::table('widgets', function (Blueprint $table): void {
                 $table->boolean('allow_social_media')->default(0);
             });
         }
@@ -22,12 +20,10 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('widgets', function (Blueprint $table) {
+        Schema::table('widgets', function (Blueprint $table): void {
             $table->dropColumn('allow_social_media');
         });
     }

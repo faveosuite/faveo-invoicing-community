@@ -2,7 +2,7 @@
 /**
  * CreateManyDealProductRequestBody
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -197,7 +197,7 @@ class CreateManyDealProductRequestBody implements ModelInterface, ArrayAccess, J
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['data'] = $data['data'] ?? null;
     }
@@ -248,7 +248,7 @@ class CreateManyDealProductRequestBody implements ModelInterface, ArrayAccess, J
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v2\Model\NewDealProductRequestBody[] $data Array of products to attach to the deal. See the single product endpoint (https://developers.pipedrive.com/docs/api/v1/Deals#addDealProduct) for the expected format of array items.
+     * @param \Pipedrive\versions\v2\Model\NewDealProductRequestBody[] $data Array of products to attach to the deal. Each product object may have the following properties.
      *
      * @return self
      */

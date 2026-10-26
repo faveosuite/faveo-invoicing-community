@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Product\Product;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Logger;
 
 /*
 * Operations for License Permissions Module to be performed here
@@ -14,6 +17,9 @@ use Illuminate\Http\Request;
 */
 class LicensePermissionsController extends Controller
 {
+    /**
+     * @var LicensePermission
+     */
     public $licensePermission;
 
     public function __construct()
@@ -21,170 +27,164 @@ class LicensePermissionsController extends Controller
         $this->middleware('auth');
         $this->middleware('admin');
 
-        $licensePermission = new LicensePermission();
+        $licensePermission = new LicensePermission;
         $this->licensePermission = $licensePermission;
-    }
-
-    public function index()
-    {
-        $allPermissions = $this->licensePermission->select('id', 'permissions')->get();
-        $allLicense = LicenseType::select('name', 'id')->get();
-
-        return view('themes.default1.licence.permissions.index', compact('allPermissions', 'allLicense'));
     }
 
     /*
     * Get all the License  and their links with their permissions
     */
-    public function getPermissions(Request $request)
+    public function getPermissions(Request $request): JsonResponse
     {
         try {
-            $allPermissions = $this->licensePermission->select('id', 'permissions')->get();
-            // $licenseType = LicenseType::select('id', 'name');
+            $searchString = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'name');
+            $limit = $request->input('limit', 10);
 
-            $licenseType = LicenseType::leftJoin('license_license_permissions', 'license_license_permissions.license_type_id', '=', 'license_types.id')
-              ->leftJoin('license_permissions', 'license_permissions.id', '=', 'license_license_permissions.license_permission_id')
-              ->select('license_types.id', 'license_types.name', 'license_permissions.permissions', 'license_license_permissions.license_permission_id')->groupBy('license_types.id');
-            //   dd($licenseType->first());
+            $allPermissions = LicensePermission::select('id', 'permissions')->get();
 
-            return \DataTables::of($licenseType)
-            ->orderColumn('license_type', '-license_types.id $1')
-            ->orderColumn('permissions', '-license_types.id $1')
-            ->addColumn('checkbox', function ($model) {
-                return "<input type='checkbox' class='type_checkbox' 
-            value=".$model->id.' name=select[] id=check>';
-            })
-
-            ->addColumn('license_type', function ($model) {
-                return ucfirst($model->name);
-            })
-            ->addColumn('permissions', function ($model) {
-                $permissions = $model->permissions()->pluck('permissions');
-                $allPermissions = $this->showPermissions($permissions);
-
-                return $allPermissions;
-            })
-            ->addColumn('action', function ($model) {
-                $selectedPermission = $model->license_permission_id;
-
-                return "<p><button data-toggle='modal' 
-             data-id=".$model->id." data-permission= '$selectedPermission' 
-             class='btn btn-sm btn-secondary get-license-type addPermission'><i class='fa fa-plus'
-             style='color:white;'> </i>&nbsp;&nbsp;".__('message.add-permissions').'</button>&nbsp;</p>';
-            })
-              ->filterColumn('license_type', function ($query, $keyword) {
-                  $sql = 'name like ?';
-                  $query->whereRaw($sql, ["%{$keyword}%"]);
-              })
-                ->filterColumn('permissions', function ($query, $keyword) {
-                    $sql = 'license_permissions.permissions like ?';
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
+            $licenseTypes = LicenseType::with('permissions:id,permissions')
+                ->when($searchString, function ($query) use ($searchString): void {
+                    $query->where('name', 'like', likePattern($searchString));
                 })
+                ->orderBy($sortField, $sortOrder)
+                ->paginate($limit);
 
-            ->rawColumns(['checkbox', 'type_name', 'permissions', 'action'])
+            $data = $licenseTypes->getCollection()->map(fn ($license): array => [ // @phpstan-ignore return.type
+                'id' => $license->id,
+                'name' => $license->name,
+                'permissions' => $license->permissions->pluck('permissions'),
+                'all_permissions' => $allPermissions->map(fn ($perm): array => [
+                    'id' => $perm->id,
+                    'permissions' => $perm->permissions,
+                    'assigned' => $license->permissions->contains('id', $perm->id),
+                ]),
+            ]);
 
-            ->make(true);
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+            $licenseTypes->setCollection($data); // @phpstan-ignore argument.type
 
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /*
-    Show All Permission in Datatable
-    */
-    public function showPermissions($permissions)
-    {
-        if (count($permissions) > 0) {
-            $html = '<ul>';
-            foreach ($permissions as $permission) {
-                $html .= '<li><b>'.$permission.'</b></li>';
-            }
-
-            return $html.'</ul>';
-        } else {
-            $html = 'No Permissions Selected';
-
-            return $html;
+            return successResponse(__('message.license_types_permissions_fetched'), $licenseTypes);
+        } catch (Exception) {
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
     /*
     * Add Permission to License
     */
-    public function addPermission(Request $request)
+    public function addPermission(Request $request): JsonResponse
     {
         try {
+            /** @var LicenseType|null $licenseType */
             $licenseType = LicenseType::find($request->input('licenseId'));
 
-            $licenseType->permissions()->sync($request->input('permissionid'));
+            if (! $licenseType) {
+                return errorResponse(__('message.no_record_found'), 404);
+            }
+
+            $permissionIds = (array) $request->input('permissionid');
+            $noPermissionsId = LicensePermission::where('permissions', 'No Permissions')->value('id');
+
+            // "No Permissions" is mutually exclusive with every real permission —
+            // if it's selected alongside others, it wins and the rest are dropped.
+            if ($noPermissionsId && in_array($noPermissionsId, $permissionIds)) {
+                $permissionIds = [$noPermissionsId];
+            }
+
+            $licenseType->permissions()->sync($permissionIds);
 
             return successResponse(__('message.permissions_updated_successfully'));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-            $result = [$ex->getMessage()];
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return response()->json(compact('result'), 500);
+            return errorResponse(__('message.sorry_something_wrong'));
         }
     }
+
+    /*
+    Show All Permission in Datatable
+    */
+    //            $html = '<ul>';
+    //                $html .= '<li><b>'.$permission.'</b></li>';
+    //            }
+    //
+    //            return $html.'</ul>';
+    //            $html = 'No Permissions Selected';
+    //
+    //            return $html;
+    //        }
+    //    }
 
     /*
      For Ticking permission for a License Type
     */
 
-    public function tickPermission(Request $request)
-    {
-        $licenseTypeInstance = LicenseType::find($request->input('license'));
-        $allPermission = $licenseTypeInstance->permissions;
-        if (count($allPermission) > 0) {
-            $permissionsArray = $allPermission->pluck('id');
-        } else {
-            $permissionsArray = [];
-        }
+    //        $allPermission = $licenseTypeInstance->permissions;
+    //            $permissionsArray = $allPermission->pluck('id');
+    //            $permissionsArray = [];
+    //        }
+    //
+    //        return response()->json(['permissions' => $permissionsArray, 'message' => 'success']);
+    //    }
 
-        return response()->json(['permissions' => $permissionsArray, 'message' => 'success']);
+    /**
+     * Maps the human-readable permission labels stored in `license_permissions.permissions`
+     * to the camelCase keys used throughout the codebase (e.g. `$permissions['downloadPermission']`).
+     *
+     * @return array<string, string>
+     */
+    public static function permissionMap(): array
+    {
+        return [
+            'Generate Updates Expiry Date' => 'generateUpdatesxpiryDate',
+            'Generate License Expiry Date' => 'generateLicenseExpiryDate',
+            'Generate Support Expiry Date' => 'generateSupportExpiryDate',
+            'Can be Downloaded' => 'downloadPermission',
+            'No Permissions' => 'noPermissions',
+            'Allow Downloads Before Updates Expire' => 'allowDownloadTillExpiry',
+        ];
     }
 
     /**
      * Get All the Permissions Allowed for a Product.
      *
      * @param  int  $productid  Id of the Product
-     * @return [array] Returns all the Permissions in booleam Form.
+     * @return array<string, bool> Every permission key, true when the product's license type grants it.
      */
-    public static function getPermissionsForProduct(int $productid)
+    public static function getPermissionsForProduct(int $productid): array
     {
         try {
-            $map = [
-                'Generate Updates Expiry Date' => 'generateUpdatesxpiryDate',
-                'Generate License Expiry Date' => 'generateLicenseExpiryDate',
-                'Generate Support Expiry Date' => 'generateSupportExpiryDate',
-                'Can be Downloaded' => 'downloadPermission',
-                'No Permissions' => 'noPermissions',
-                'Allow Downloads Before Updates Expire' => 'allowDownloadTillExpiry',
-            ];
-
-            $result = array_fill_keys(array_values($map), 0);
-
-            $product = Product::find($productid);
-
-            if (! $product || ! $product->licenseType || ! $product->licenseType->permissions) {
-                return $result;
-            }
-
-            $permissions = $product->licenseType->permissions->pluck('permissions')->toArray();
-
-            foreach ($permissions as $permission) {
-                if (isset($map[$permission])) {
-                    $result[$map[$permission]] = 1;
-                }
-            }
-
-            return $result;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return self::permissionsFor(Product::find($productid));
+        } catch (Exception $exception) {
+            Logger::exception($exception);
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
+    }
+
+    /**
+     * Same as {@see getPermissionsForProduct}, from a product already in hand. Uses its
+     * licenseType.permissions relations, so a list that eager-loads them queries once.
+     *
+     * @return array<string, bool>
+     */
+    public static function permissionsFor(?Product $product): array
+    {
+        // Loaded with a column list that left out `type`: its license type can't be found, and
+        // every permission would silently read as off — so look the product up in full.
+        if ($product instanceof Product && ! array_key_exists('type', $product->getAttributes())) {
+            $product = $product->fresh();
+        }
+
+        $map = self::permissionMap();
+        $result = array_fill_keys(array_values($map), false);
+
+        foreach ($product?->licenseType->permissions ?? [] as $permission) {
+            if (isset($map[$permission->permissions])) {
+                $result[$map[$permission->permissions]] = true;
+            }
+        }
+
+        return $result;
     }
 }

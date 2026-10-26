@@ -1,9 +1,6 @@
 <?php
 
 return [
-    /*
-    * Recaptcha Settings Page
-    */
     'captcha_settings' => 'reCAPTCHA-Einstellungen',
     'captcha_configuration' => 'reCAPTCHA-Konfiguration',
     'captcha_version' => 'reCAPTCHA-Version',
@@ -15,10 +12,6 @@ return [
     'none' => 'Keine',
     'fallback_v2_checkbox' => 'Fallback auf reCAPTCHA v2 Kontrollkästchen',
     'action_if_captcha_fails' => 'Aktion, die ausgeführt werden soll, wenn reCAPTCHA fehlschlägt',
-
-    /*
-    * Recaptcha v3 Settings
-    */
     'recaptcha_v3_settings' => 'reCAPTCHA v3-Einstellungen',
     'v3_site_key' => 'v3-Site-Schlüssel',
     'enter_v3_site_key' => 'Geben Sie Ihren reCAPTCHA v3-Site-Schlüssel ein',
@@ -27,20 +20,12 @@ return [
     'v3_score_threshold' => 'v3-Score-Schwellenwert',
     'v3_score_hint' => 'Wert zwischen 0,0 und 1,0 (höher ist besser)',
     'v3_preview' => 'v3-Vorschau',
-
-    /*
-    * Recaptcha v2 Settings
-    */
     'recaptcha_v2_settings' => 'reCAPTCHA v2-Einstellungen',
     'v2_site_key' => 'v2-Site-Schlüssel',
     'enter_v2_site_key' => 'Geben Sie Ihren reCAPTCHA v2-Site-Schlüssel ein',
     'v2_secret_key' => 'v2-Geheimschlüssel',
     'enter_v2_secret_key' => 'Geben Sie Ihren reCAPTCHA v2-Geheimschlüssel ein',
     'v2_preview' => 'v2-Vorschau',
-
-    /*
-    * Appearance
-    */
     'appearance_messages' => 'Erscheinungsbild',
     'theme' => 'Thema',
     'theme_light' => 'Hell',
@@ -52,28 +37,12 @@ return [
     'badge_bottomright' => 'Unten rechts',
     'badge_bottomleft' => 'Unten links',
     'badge_inline' => 'Inline',
-
-    /*
-    * Common
-    */
     'save' => 'Speichern',
     'saving' => 'Wird gespeichert',
     'home' => 'Startseite',
     'settings' => 'Einstellungen',
-
-    /*
-    * Success messages
-    */
     'captcha_settings_updated' => 'reCAPTCHA-Einstellungen erfolgreich aktualisiert!',
-
-    /*
-    * Error messages
-    */
     'captcha_message' => 'reCAPTCHA-Überprüfung fehlgeschlagen. Bitte versuchen Sie es erneut.',
-
-    /*
-    * JavaScript validation messages
-    */
     'field_required_condition' => 'Dieses Feld ist erforderlich, wenn die Bedingung erfüllt ist',
     'select_captcha_version' => 'Bitte wählen Sie eine reCAPTCHA-Version aus',
     'v3_site_key_required' => 'reCAPTCHA v3-Site-Schlüssel ist erforderlich',
@@ -90,16 +59,8 @@ return [
     'failed_generate_v2_token' => 'Fehler beim Generieren des reCAPTCHA v2-Tokens.',
     'settings_saved' => 'Einstellungen gespeichert.',
     'failed_save_settings' => 'Fehler beim Speichern der Einstellungen. Bitte versuchen Sie es erneut.',
-
-    /*
-    * Backend validation messages
-    */
     'invalid_secret_or_token' => 'Geheimschlüssel oder Antwort-Token ist ungültig',
     'captcha_verification_failed' => 'reCAPTCHA-Überprüfung fehlgeschlagen (Score/Aktion/Hostname-Nichtübereinstimmung)',
-
-    /*
-    * Validation messages
-    */
     'captcha_version_required' => 'reCAPTCHA-Version ist erforderlich',
     'captcha_version_in' => 'Ausgewählte reCAPTCHA-Version ist ungültig',
     'failover_action_required' => 'Failover-Aktion ist erforderlich',

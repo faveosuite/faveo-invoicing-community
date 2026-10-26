@@ -2,7 +2,7 @@
 /**
  * FollowerChangelogItem
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -212,7 +212,7 @@ class FollowerChangelogItem implements ModelInterface, ArrayAccess, JsonSerializ
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['action'] = $data['action'] ?? null;
         $this->container['actor_user_id'] = $data['actor_user_id'] ?? null;

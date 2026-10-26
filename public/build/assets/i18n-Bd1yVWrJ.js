@@ -1,0 +1,1 @@
+function e(e,t={}){if(!e)return e;let n=e.split(`.`),r=typeof translator>`u`?{}:translator;for(let t of n)if(typeof r==`object`&&r&&t in r)r=r[t];else return e;return typeof r==`string`?Object.entries(t).reduce((e,[t,n])=>e.replace(RegExp(`:${t}`,`gi`),String(n)),r):e}var t={install(t){globalThis.__=e,t.config.globalProperties.__=e}};export{t as n,e as t};

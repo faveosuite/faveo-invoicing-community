@@ -3,20 +3,22 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 
 class PreferredDomain
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  Request  $request
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
-        if (starts_with($request->header('host'), 'www.')) {
-            $host = str_replace('www.', '', $request->header('host'));
+        if (Str::startsWith((string) $request->header('host'), 'www.')) {
+            $host = str_replace('www.', '', (string) $request->header('host'));
             $request->headers->set('host', $host);
 
             return Redirect::to($request->fullUrl(), 301);

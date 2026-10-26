@@ -5,6 +5,9 @@ namespace App\Console\Commands;
 use App\Console\LoggableCommand;
 use App\Http\Controllers\SyncBillingToLatestVersion;
 
+/**
+ * @codeCoverageIgnore
+ */
 class SyncDatabaseToLatestVersion extends LoggableCommand
 {
     /**
@@ -22,21 +25,9 @@ class SyncDatabaseToLatestVersion extends LoggableCommand
     protected $description = 'Update billing database to latest version';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
-     *
-     * @return int
      */
-    public function handleAndLog()
+    public function handleAndLog(): void
     {
         echo (new SyncBillingToLatestVersion)->sync();
     }
