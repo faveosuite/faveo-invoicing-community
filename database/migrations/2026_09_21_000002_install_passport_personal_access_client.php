@@ -1,9 +1,10 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Artisan;
 use Laravel\Passport\Client;
+use Laravel\Passport\ClientRepository;
 use Laravel\Passport\Passport;
+use phpseclib3\Crypt\RSA;
 
 return new class extends Migration
 {
@@ -11,8 +12,12 @@ return new class extends Migration
     {
         $keys = [storage_path('oauth-private.key'), storage_path('oauth-public.key')];
 
+        // Passport only registers its artisan commands in the console, and the
+        // web installer runs migrations over HTTP, so do the work directly.
         if (count(array_filter($keys, 'file_exists')) < 2) {
-            Artisan::call('passport:keys');
+            $key = RSA::createKey(4096);
+            file_put_contents($keys[1], (string) $key->getPublicKey());
+            file_put_contents($keys[0], (string) $key);
         }
 
         // Passport refuses key files readable beyond the owner.
@@ -29,12 +34,7 @@ return new class extends Migration
             ->contains(fn (Client $client): bool => $client->hasGrantType('personal_access'));
 
         if (! $exists) {
-            Artisan::call('passport:client', [
-                '--personal' => true,
-                '--name' => 'Personal Access Client',
-                '--provider' => $provider,
-                '--no-interaction' => true,
-            ]);
+            app(ClientRepository::class)->createPersonalAccessGrantClient('Personal Access Client', $provider);
         }
     }
 
