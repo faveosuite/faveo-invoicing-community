@@ -69,6 +69,8 @@ class HomeControllerPricingDataTest extends TestCase
         $response->assertJsonStructure(['products', 'currency', 'currency_symbol']);
         $this->assertSame(['shown'], array_column($response->json('products'), 'name'));
         $this->assertSame('desc', $response->json('products.0.price_description'));
+        $this->assertArrayNotHasKey('product_key', $response->json('products.0'));
+        $this->assertArrayNotHasKey('apl_salt', $response->json('products.0'));
     }
 
     public function test_cloud_product_needs_monthly_and_yearly_price(): void

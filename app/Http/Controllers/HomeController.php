@@ -551,7 +551,13 @@ class HomeController extends BaseHomeController
                 })
                 ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10,2)) ASC')
                 ->orderBy('products.created_at', 'ASC')
-                ->select('products.*', 'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
+                // Public, unauthenticated feed: list only what a pricing card shows. Never `products.*`,
+                // which would leak product_key, apl_salt, file and server paths.
+                ->select(
+                    'products.id', 'products.name', 'products.description', 'products.short_description', 'products.product_description',
+                    'products.category', 'products.image', 'products.shoping_cart_link', 'products.highlight', 'products.status',
+                    'products.show_agent', 'products.can_modify_agent', 'products.can_modify_quantity', 'products.show_product_quantity',
+                    'plan_prices.add_price','plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
                 ->get();
 
             $page = resolve(PageController::class);
