@@ -526,6 +526,7 @@ class HomeController extends BaseHomeController
                 ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
                 ->where('products.group', $request->query('group'))
                 ->where('products.hidden', '!=', 1)
+                ->where('plans.status', 1)
                 ->where('plan_prices.currency', $currency)
                 // A cloud (status 1) product is listed only when it has both a monthly and a yearly price in this currency.
                 ->where(function ($query) use ($currency): void {
@@ -536,12 +537,14 @@ class HomeController extends BaseHomeController
                                     ->from('plans as p1')
                                     ->join('plan_prices as pp1', 'pp1.plan_id', '=', 'p1.id')
                                     ->whereColumn('p1.product', 'products.id')
+                                    ->where('p1.status', 1)
                                     ->whereIn('p1.days', [30, 31])
                                     ->where('pp1.currency', $currency))
                                 ->whereExists(fn ($y) => $y->select(DB::raw(1))
                                     ->from('plans as p2')
                                     ->join('plan_prices as pp2', 'pp2.plan_id', '=', 'p2.id')
                                     ->whereColumn('p2.product', 'products.id')
+                                    ->where('p2.status', 1)
                                     ->whereIn('p2.days', [365, 366])
                                     ->where('pp2.currency', $currency));
                         });

@@ -38,9 +38,9 @@ class HomeControllerPricingDataTest extends TestCase
         ]);
     }
 
-    private function price(int $product, int $days, string $currency = 'USD', string $amount = '10'): void
+    private function price(int $product, int $days, string $currency = 'USD', string $amount = '10', int $status = 1): void
     {
-        $plan = DB::table('plans')->insertGetId(['name' => 'p'.uniqid(), 'product' => $product, 'days' => $days, 'status' => 1]);
+        $plan = DB::table('plans')->insertGetId(['name' => 'p'.uniqid(), 'product' => $product, 'days' => $days, 'status' => $status]);
         DB::table('plan_prices')->insert(['plan_id' => $plan, 'currency' => $currency, 'add_price' => $amount, 'renew_price' => $amount, 'price_description' => 'desc']);
     }
 
@@ -86,5 +86,22 @@ class HomeControllerPricingDataTest extends TestCase
         $this->assertSame(['both', 'both'], array_column($rows, 'name'));
         $this->assertEqualsCanonicalizing([30, 365], array_map('intval', array_column($rows, 'days')));
         $this->assertSame('per month', $rows[0]['price_description']);
+    }
+
+    public function test_inactive_plans_are_not_listed(): void
+    {
+        $product = $this->product('with-inactive', 0);
+        $this->price($product, 365);
+        $this->price($product, 14, status: 0);
+
+        // An inactive monthly plan must not make a cloud product look complete.
+        $cloud = $this->product('cloud-inactive-monthly', 1);
+        $this->price($cloud, 30, status: 0);
+        $this->price($cloud, 365);
+
+        $rows = $this->pricing(['group' => $this->group, 'ipAddress' => '8.8.8.8'])->assertOk()->json('products');
+
+        $this->assertSame(['with-inactive'], array_column($rows, 'name'));
+        $this->assertSame([365], array_map('intval', array_column($rows, 'days')));
     }
 }
