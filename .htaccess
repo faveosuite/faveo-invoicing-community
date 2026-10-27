@@ -1,4 +1,11 @@
-<Files .env>
+# Restrict access to DotFiles (like .htaccess, .env, .gitignore....)
+<FilesMatch "^\.">
     Order allow,deny
     Deny from all
-</Files>
+</FilesMatch>
+
+# FilesMatch only checks file names; files inside .git/ (config, HEAD...) don't start with a dot
+RedirectMatch 404 /\.git
+
+# hiding browsing through directory structure other than public
+Options -Indexes

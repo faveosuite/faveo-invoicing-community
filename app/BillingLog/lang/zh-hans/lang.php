@@ -29,7 +29,6 @@ return [
     'inspire' => '显示励志名言',
     'renewal:cron' => '自动续订计划任务',
     'mail-send-exception' => '邮件发送异常',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => '过期续订通知',
     'renewal:notification' => '自动续订通知',
     'cleanup:msg-reports' => '清理MSG91报告',
@@ -40,11 +39,8 @@ return [
     'droptables' => '删除所有表',
     'install:db' => '安装数据库',
     'testing-setup' => '设置测试环境',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => '队列发送成功',
-    // Added missing UI texts
     'cancel' => '取消',
-    // Added missing messages from blade file
     'system_logs' => '系统日志',
     'filter_logs' => '筛选日志',
     'logs' => '日志',
@@ -101,4 +97,16 @@ return [
     'confirm_old_email' => '确认旧邮箱',
     'confirm_mobile_number_change' => '确认更改手机号',
     'logs:delete' => '删除系统日志',
+    'cloud:send-instance-emails' => '发送云实例邮件',
+    'activity-logs:cleanup' => '清理活动日志',
+    'app:crack-callback-cleanup' => '清理破解回调',
+    'app:crack-reports-cleanup' => '清理破解报告',
+    'app:failed-message-delivery' => '重新发送失败的 WhatsApp 消息',
+    'app:license-reports-cleanup' => '清理许可证报告',
+    'app:system-reports-cleanup' => '清理系统报告',
+    'app:versions-cleanup' => '清理版本',
+    'installation:logs' => '标记非活动安装',
+    'reoon:logs-deletion' => '清理 Reoon 日志',
+    'seo:generate-files' => '生成 SEO 文件',
+    'date' => '日期',
 ];

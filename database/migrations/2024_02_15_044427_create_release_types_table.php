@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('release_types', function (Blueprint $table) {
+        Schema::create('release_types', function (Blueprint $table): void {
             $table->id();
             $table->string('type')->nullable();
             $table->timestamps();

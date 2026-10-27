@@ -127,6 +127,12 @@ class FrameworkBundle extends Bundle
         if ($this->container->hasParameter('kernel.trust_x_sendfile_type_header') && $this->container->getParameter('kernel.trust_x_sendfile_type_header')) {
             BinaryFileResponse::trustXSendfileTypeHeader();
         }
+
+        // Instantiate the mime_types service so its setDefault() call fires.
+        // The service is made public by AddMimeTypeGuesserPass only when custom guessers are tagged.
+        if ($this->container->has('mime_types')) {
+            $this->container->get('mime_types');
+        }
     }
 
     public function build(ContainerBuilder $container): void
@@ -221,7 +227,7 @@ class FrameworkBundle extends Bundle
      */
     public static function considerProfilerEnabled(): bool
     {
-        return !($GLOBALS['app'] ?? null) instanceof Application || empty($_GET) && \in_array('--profile', $_SERVER['argv'] ?? [], true);
+        return !($GLOBALS['app'] ?? null) instanceof Application || (\in_array(\PHP_SAPI, ['cli', 'phpdbg', 'embed'], true) || !isset($_SERVER['QUERY_STRING'])) && \in_array('--profile', $_SERVER['argv'] ?? [], true);
     }
 
     private function addCompilerPassIfExists(ContainerBuilder $container, string $class, string $type = PassConfig::TYPE_BEFORE_OPTIMIZATION, int $priority = 0): void

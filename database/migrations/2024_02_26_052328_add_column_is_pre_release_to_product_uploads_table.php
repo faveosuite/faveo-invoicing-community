@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         if (! Schema::hasColumn('product_uploads', 'is_pre_release')) {
-            Schema::table('product_uploads', function (Blueprint $table) {
+            Schema::table('product_uploads', function (Blueprint $table): void {
                 $table->tinyInteger('is_pre_release')->default(0);
             });
         }
@@ -23,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('product_uploads', function (Blueprint $table) {
+        Schema::table('product_uploads', function (Blueprint $table): void {
             $table->dropColumn('is_pre_release');
         });
     }

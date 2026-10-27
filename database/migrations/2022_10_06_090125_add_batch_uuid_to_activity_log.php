@@ -4,17 +4,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddBatchUuidToActivityLog extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasColumn('activity_log', 'batch_uuid')) {
-            Schema::table('activity_log', function (Blueprint $table) {
+            Schema::table('activity_log', function (Blueprint $table): void {
                 $table->string('batch_uuid')->nullable();
             });
         }
@@ -22,13 +20,11 @@ class AddBatchUuidToActivityLog extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('activity_log', function (Blueprint $table) {
+        Schema::table('activity_log', function (Blueprint $table): void {
             $table->dropColumn('batch_uuid');
         });
     }
-}
+};

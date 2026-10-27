@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/infection/infection/0.32.3/resources/schema.json",
+  "phpUnit": {
+    "customPath": "vendor/bin/phpunit"
+  },
+  "staticAnalysisTool": "phpstan",
+  "phpStan": {
+    "customPath": "tools/phpstan"
+  },
+  "threads": "max",
+  "source": {
+    "directories": [
+      "src"
+    ]
+  },
+  "mutators": {
+    "@default": true
+  },
+  "minMsi": 100,
+  "minCoveredMsi": 100
+}

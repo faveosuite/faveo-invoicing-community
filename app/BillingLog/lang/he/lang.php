@@ -29,7 +29,6 @@ return [
     'inspire' => 'הצג ציטוט מעורר השראה',
     'renewal:cron' => 'קרון חידוש אוטומטי',
     'mail-send-exception' => 'חריג בשליחת דוא"ל',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => 'הודעת חידוש לאחר פקיעה',
     'renewal:notification' => 'הודעת חידוש אוטומטי',
     'cleanup:msg-reports' => 'ניקוי דוחות MSG91',
@@ -40,11 +39,8 @@ return [
     'droptables' => 'מחק את כל הטבלאות',
     'install:db' => 'התקן מסד נתונים',
     'testing-setup' => 'הגדר סביבת בדיקה',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'משלוח בתור הצליח',
-    // Added missing UI texts
     'cancel' => 'בטל',
-    // Added missing messages from blade file
     'system_logs' => 'יומני מערכת',
     'filter_logs' => 'סנן יומנים',
     'logs' => 'יומנים',
@@ -101,4 +97,16 @@ return [
     'confirm_old_email' => 'אשר אימייל ישן',
     'confirm_mobile_number_change' => 'אשר שינוי מספר נייד',
     'logs:delete' => 'מחיקת יומני מערכת',
+    'cloud:send-instance-emails' => 'שליחת הודעות דוא"ל למופעי ענן',
+    'activity-logs:cleanup' => 'ניקוי יומני פעילות',
+    'app:crack-callback-cleanup' => 'ניקוי קריאות חוזרות של פריצה',
+    'app:crack-reports-cleanup' => 'ניקוי דוחות פריצה',
+    'app:failed-message-delivery' => 'שליחה חוזרת של הודעות WhatsApp שנכשלו',
+    'app:license-reports-cleanup' => 'ניקוי דוחות רישיון',
+    'app:system-reports-cleanup' => 'ניקוי דוחות מערכת',
+    'app:versions-cleanup' => 'ניקוי גרסאות',
+    'installation:logs' => 'סימון התקנות לא פעילות',
+    'reoon:logs-deletion' => 'ניקוי יומני Reoon',
+    'seo:generate-files' => 'יצירת קובצי SEO',
+    'date' => 'תאריך',
 ];

@@ -27,7 +27,9 @@ use function trim;
 use PHPUnit\Event\Code\Test;
 use PHPUnit\Event\Code\TestMethod;
 use PHPUnit\Event\Test\AfterLastTestMethodErrored;
+use PHPUnit\Event\Test\AfterLastTestMethodFailed;
 use PHPUnit\Event\Test\BeforeFirstTestMethodErrored;
+use PHPUnit\Event\Test\BeforeFirstTestMethodFailed;
 use PHPUnit\Event\Test\ConsideredRisky;
 use PHPUnit\Event\Test\DeprecationTriggered;
 use PHPUnit\Event\Test\ErrorTriggered;
@@ -40,6 +42,7 @@ use PHPUnit\Event\Test\PhpunitNoticeTriggered;
 use PHPUnit\Event\Test\PhpunitWarningTriggered;
 use PHPUnit\Event\Test\PhpWarningTriggered;
 use PHPUnit\Event\Test\WarningTriggered;
+use PHPUnit\Event\TestRunner\Issue as TestRunnerIssue;
 use PHPUnit\TestRunner\TestResult\Issues\Issue;
 use PHPUnit\TestRunner\TestResult\TestResult;
 use PHPUnit\TextUI\Output\Printer;
@@ -136,6 +139,25 @@ final class ResultPrinter
         if ($this->displayDetailsOnSkippedTests) {
             $this->printSkippedTestSuites($result);
             $this->printSkippedTests($result);
+        }
+
+        if ($this->displayDetailsOnTestsThatTriggerErrors) {
+            $this->printIssuesTriggeredOutsideOfTests($result->testRunnerTriggeredIssueErrorEvents(), 'error');
+        }
+
+        if ($this->displayDetailsOnTestsThatTriggerWarnings) {
+            $this->printIssuesTriggeredOutsideOfTests($result->testRunnerTriggeredIssuePhpWarningEvents(), 'PHP warning');
+            $this->printIssuesTriggeredOutsideOfTests($result->testRunnerTriggeredIssueWarningEvents(), 'warning');
+        }
+
+        if ($this->displayDetailsOnTestsThatTriggerNotices) {
+            $this->printIssuesTriggeredOutsideOfTests($result->testRunnerTriggeredIssuePhpNoticeEvents(), 'PHP notice');
+            $this->printIssuesTriggeredOutsideOfTests($result->testRunnerTriggeredIssueNoticeEvents(), 'notice');
+        }
+
+        if ($this->displayDetailsOnTestsThatTriggerDeprecations) {
+            $this->printIssuesTriggeredOutsideOfTests($result->testRunnerTriggeredIssuePhpDeprecationEvents(), 'PHP deprecation');
+            $this->printIssuesTriggeredOutsideOfTests($result->testRunnerTriggeredIssueDeprecationEvents(), 'deprecation');
         }
 
         if ($this->displayDetailsOnTestsThatTriggerErrors) {
@@ -275,6 +297,38 @@ final class ResultPrinter
         $this->printList($elements);
     }
 
+    /**
+     * @param list<\PHPUnit\Event\TestRunner\ErrorTriggered|\PHPUnit\Event\TestRunner\PhpDeprecationTriggered|\PHPUnit\Event\TestRunner\PhpNoticeTriggered|\PHPUnit\Event\TestRunner\PhpWarningTriggered|TestRunnerIssue\DeprecationTriggered|TestRunnerIssue\NoticeTriggered|TestRunnerIssue\WarningTriggered> $events
+     * @param non-empty-string                                                                                                                                                                                                                                                                                  $type
+     */
+    private function printIssuesTriggeredOutsideOfTests(array $events, string $type): void
+    {
+        if ($events === []) {
+            return;
+        }
+
+        $elements = [];
+        $seen     = [];
+
+        foreach ($events as $event) {
+            $key = $event->file() . ':' . $event->line() . ':' . $event->message();
+
+            if (isset($seen[$key])) {
+                continue;
+            }
+
+            $elements[] = [
+                'title' => $event->file() . ':' . $event->line(),
+                'body'  => $event->message(),
+            ];
+
+            $seen[$key] = true;
+        }
+
+        $this->printIssueTriggeredOutsideOfTestListHeader(count($elements), $type);
+        $this->printList($elements);
+    }
+
     private function printDetailsOnTestsThatTriggeredPhpunitWarnings(TestResult $result): void
     {
         if (!$result->hasTestTriggeredPhpunitWarningEvents()) {
@@ -326,6 +380,12 @@ final class ResultPrinter
         $elements = [];
 
         foreach ($result->testFailedEvents() as $event) {
+            if ($event instanceof AfterLastTestMethodFailed || $event instanceof BeforeFirstTestMethodFailed) {
+                $title = $event->testClassName();
+            } else {
+                $title = $this->name($event->test());
+            }
+
             $body = $event->throwable()->asString();
 
             if (str_starts_with($body, 'AssertionError: ')) {
@@ -333,7 +393,7 @@ final class ResultPrinter
             }
 
             $elements[] = [
-                'title' => $this->name($event->test()),
+                'title' => $title,
                 'body'  => $body,
             ];
         }
@@ -454,7 +514,11 @@ final class ResultPrinter
             $body = trim($issue->description()) . PHP_EOL . PHP_EOL;
 
             if ($stackTrace && $issue->hasStackTrace()) {
-                $body .= trim($issue->stackTrace()) . PHP_EOL . PHP_EOL;
+                $issueStackTrace = $issue->stackTrace();
+
+                assert($issueStackTrace !== null);
+
+                $body .= trim($issueStackTrace) . PHP_EOL . PHP_EOL;
             }
 
             if (!$issue->triggeredInTest()) {
@@ -496,6 +560,19 @@ final class ResultPrinter
                 $numberOfIssues,
                 $type,
                 $numberOfIssues !== 1 ? 's' : '',
+            ),
+        );
+    }
+
+    private function printIssueTriggeredOutsideOfTestListHeader(int $number, string $type): void
+    {
+        $this->printListHeader(
+            sprintf(
+                "There %s %d %s%s triggered outside of tests:\n\n",
+                ($number === 1) ? 'was' : 'were',
+                $number,
+                $type,
+                ($number === 1) ? '' : 's',
             ),
         );
     }
@@ -599,6 +676,8 @@ final class ResultPrinter
         $issues   = 0;
 
         foreach ($events as $reasons) {
+            assert(isset($reasons[0]));
+
             $test         = $reasons[0]->test();
             $testLocation = $this->testLocation($test);
             $title        = $this->name($test);
@@ -666,6 +745,8 @@ final class ResultPrinter
 
         if (count($lines) > 1) {
             foreach (range(1, count($lines) - 1) as $line) {
+                assert(isset($lines[$line]));
+
                 $buffer .= '  ' . $lines[$line] . PHP_EOL;
             }
         }

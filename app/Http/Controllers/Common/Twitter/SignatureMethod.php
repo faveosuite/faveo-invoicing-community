@@ -10,6 +10,8 @@ namespace App\Http\Controllers\Common\Twitter;
 /**
  * A class for implementing a Signature Method
  * See section 9 ("Signing Requests") in the spec.
+ *
+ * @codeCoverageIgnore
  */
 abstract class SignatureMethod
 {
@@ -26,9 +28,6 @@ abstract class SignatureMethod
      * the encoding is handled in OAuthRequest when the final
      * request is serialized.
      *
-     * @param  Request  $request
-     * @param  Consumer  $consumer
-     * @param  Token  $token
      * @return string
      */
     abstract public function buildSignature(Request $request, Consumer $consumer, ?Token $token = null);
@@ -36,9 +35,6 @@ abstract class SignatureMethod
     /**
      * Verifies that a given signature is correct.
      *
-     * @param  Request  $request
-     * @param  Consumer  $consumer
-     * @param  Token  $token
      * @param  string  $signature
      * @return bool
      */
@@ -47,11 +43,11 @@ abstract class SignatureMethod
         $built = $this->buildSignature($request, $consumer, $token);
 
         // Check for zero length, although unlikely here
-        if (strlen($built) == 0 || strlen($signature) == 0) {
+        if ((string) $built === '' || (string) $signature === '') {
             return false;
         }
 
-        if (strlen($built) != strlen($signature)) {
+        if (strlen($built) !== strlen($signature)) {
             return false;
         }
 
@@ -61,6 +57,6 @@ abstract class SignatureMethod
             $result |= ord($built[$i]) ^ ord($signature[$i]);
         }
 
-        return $result == 0;
+        return $result === 0;
     }
 }

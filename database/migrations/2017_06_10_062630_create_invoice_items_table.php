@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('invoice_items')) {
-            Schema::create('invoice_items', function (Blueprint $table) {
+            Schema::create('invoice_items', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('invoice_id')->unsigned()->index('invoice_items_invoice_id_foreign');
                 $table->string('product_name');
@@ -35,10 +33,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('invoice_items');
     }

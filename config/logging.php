@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -50,7 +52,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single', 'daily', 'slack'],
+            'channels' => array_filter(['single', 'daily', env('LOG_SLACK_WEBHOOK_URL') ? 'slack' : null]),
             'ignore_exceptions' => false,
         ],
 

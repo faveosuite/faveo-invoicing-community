@@ -4,91 +4,49 @@ namespace App\Jobs;
 
 use App\BillingLog\Model\MailLog;
 use App\Http\Controllers\Common\PhpMailController;
-use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
 
 class SendEmail implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Queueable;
 
-    public $tries = 5;
+    public int $tries = 5;
 
-    protected $from;
-
-    protected $to;
-
-    protected $template_data;
-
-    protected $template_name;
-
-    protected $replace;
-
-    protected $type;
-
-    protected $bcc;
-    protected $fromname;
-    protected $toname;
-
-    protected $cc;
-
-    protected $attach;
-
-    protected $logIdentifier;
-
-    protected $auto_reply;
+    /**
+     * Exponential backoff with proportional jitter (25% of base) for transient
+     * SMTP failures. Proportional jitter gives consistent spread at every delay
+     * level — fixed jitter clusters retries at longer intervals.
+     *
+     * @return array<int, int>
+     */
+    public function backoff(): array
+    {
+        return array_map(
+            fn ($base) => $base + random_int(0, (int) ($base * 0.25)),
+            [30, 60, 120, 300, 600]
+        );
+    }
 
     /**
      * Create a new job instance.
-     *
-     * @return void
      */
-    public function __construct(
-        $from,
-        $to,
-        $template_data,
-        $template_name,
-        $replace = [],
-        $type = '',
-        $bcc = [],
-        $fromname = '',
-        $toname = '',
-        $cc = [],
-        $attach = [],
-        $logIdentifier,
-        $auto_reply = false,
-    ) {
-        $this->from = $from;
-        $this->to = $to;
-        $this->template_data = $template_data;
-        $this->template_name = $template_name;
-        $this->replace = $replace;
-        $this->type = $type;
-        $this->bcc = $bcc;
-        $this->fromname = $fromname;
-        $this->toname = $toname;
-        $this->cc = $cc;
-        $this->attach = $attach;
-        $this->logIdentifier = $logIdentifier;
-        $this->auto_reply = $auto_reply;
+    public function __construct(protected mixed $from, protected mixed $to, protected mixed $template_data, protected mixed $template_name, protected mixed $replace = [], protected mixed $type = '', protected mixed $bcc = [], protected mixed $fromname = '', protected mixed $toname = '', protected mixed $cc = [], protected mixed $attach = [], protected mixed $logIdentifier = null, protected mixed $auto_reply = false)
+    {
     }
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle(PhpMailController $phpMailController)
+    public function handle(PhpMailController $phpMailController): void
     {
         if (MailLog::whereId($this->logIdentifier)->value('status') == 'sent') {
-            $this->job->delete();
+            $this->job?->delete();
 
             return;
         }
 
-        return $phpMailController->mailing(
+        $phpMailController->mailing(
             $this->from,
             $this->to,
             $this->template_data,

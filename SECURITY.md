@@ -2,22 +2,21 @@
 
 ## Supported Versions
 
-Check mark versions are supported with security patches.
+Only versions with a check mark receive security patches.
 
 | Version   | Supported          |
 | --------- | ------------------ |
 | 4.0.2.6   | :white_check_mark: |
-| 4.0.2.5   | :x:                |
-| < 4.0.2.5 | :x:                |
+| < 4.0.2.6 | :x:                |
 
-## Supported Updates
+## Security Updates
 
-Security updates will be released once a month. If it's a high priority, we will release updates twice a month.
+Security updates are released monthly, or twice a month for critical issues.
 
 ## Reporting a Vulnerability
 
-Please report (suspected) security vulnerabilities to support@faveohelpdesk.com. You will receive a response from us within 48 hours. If the issue is confirmed, we will release a patch as soon as possible, depending on complexity, but historically within a few days.
+Email suspected vulnerabilities to [support@faveohelpdesk.com](mailto:support@faveohelpdesk.com). We reply within 48 hours and, once confirmed, usually release a patch within a few days, depending on complexity.
 
-If you discover a security vulnerability in Faveo Invoicing Community, please disclose it via [our support page](https://support.faveohelpdesk.com). Information about bounties, CVEs, response times, and past reports are all there.
+You can also report through [our support page](https://support.faveohelpdesk.com), which has details on bounties, CVEs, response times and past reports.
 
-Thank you for improving the security of Faveo Invoicing Community.
+Thank you for helping keep Faveo Invoicing Community secure.

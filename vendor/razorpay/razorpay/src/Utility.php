@@ -78,28 +78,26 @@ class Utility
     
     private function encrypt($dataToEncrypt, $secret) {
         try {
-            // Use the first 16 bytes of the secret as the key
             $key = substr($secret, 0, 16);
-    
-            // Use the first 12 bytes of the key as IV
-            $iv = substr($key, 0, 12);
-    
-            // Encrypt the data using AES-128-GCM
+
+            // Generate a fresh random 12-byte nonce per call (fixes AES-GCM nonce reuse).
+            // A static IV derived from the key allows keystream recovery and tag forgery
+            // (NIST SP 800-38D §8.3 Forbidden Attack) using only two captured ciphertexts.
+            $iv = random_bytes(12);
+
             $cipher = 'aes-128-gcm';
-            $tag = ''; // Authentication tag will be filled after encryption
+            $tag = '';
             $encryptedData = openssl_encrypt($dataToEncrypt, $cipher, $key, OPENSSL_RAW_DATA, $iv, $tag, '', 16);
-    
+
             if ($encryptedData === false) {
-                throw new Exception('Encryption failed');
+                throw new \Exception('Encryption failed');
             }
-    
-            // Concatenate encrypted data with the authentication tag
-            $finalData = $encryptedData . $tag;
-    
-            // Convert to hex string
-            return bin2hex($finalData);
-        } catch (Exception $e) {
-            throw new Exception('Encryption failed: ' . $e->getMessage());
+
+            // Output format: iv (12 bytes) || ciphertext || tag (16 bytes), hex-encoded.
+            // Receiver must read the first 24 hex chars as the IV before decrypting.
+            return bin2hex($iv . $encryptedData . $tag);
+        } catch (\Exception $e) {
+            throw new \Exception('Encryption failed: ' . $e->getMessage());
         }
     }
 

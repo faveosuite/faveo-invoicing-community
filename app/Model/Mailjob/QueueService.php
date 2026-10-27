@@ -2,78 +2,95 @@
 
 namespace App\Model\Mailjob;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $short_name
+ * @property int $status
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, FaveoQueue> $extraFieldRelation
+ * @property-read int|null $extra_field_relation_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService whereShortName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class QueueService extends Model
 {
     protected $table = 'queue_services';
 
     protected $fillable = ['name', 'short_name', 'status'];
 
-    public function extraFieldRelation()
+    /**
+     * @return HasMany<Model, Model>
+     */
+    public function extraFieldRelation(): HasMany
     {
-        $related = \App\Model\Mailjob\FaveoQueue::class;
+        $related = FaveoQueue::class;
 
-        return $this->hasMany($related, 'service_id');
+        return $this->hasMany($related, 'service_id'); // @phpstan-ignore return.type
     }
 
-    public function getExtraField($key)
+    public function getExtraField(mixed $key): mixed
     {
         $value = '';
         $setting = $this->extraFieldRelation()->where('key', $key)->first();
         if ($setting) {
-            $value = $setting->value;
+            return $setting->value;
         }
 
         return $value;
     }
 
-    public function getName()
-    {
-        $name = $this->attributes['name'];
-        $id = $this->attributes['id'];
-        if ($name == 'Sync' or $name == 'Database') {
-            $html = $name;
-        } else {
-            $html = '<a href='.url('queue/'.$id).'>'.$name.'</a>';
-        }
-
-        return $html;
-    }
-
-    public function getStatus()
-    {
-        $status = $this->attributes['status'];
-        $html = "<span class='badge badge-primary' style='background-color:crimson !important;'>".__('message.inactive').'</span>';
-        if ($status == 1) {
-            $html = "<span class='badge badge-primary' style='background-color:darkcyan !important;'>".__('message.active').'</span>';
-        }
-
-        return $html;
-    }
-
-    public function getAction()
-    {
-        $id = $this->attributes['id'];
-        $status = $this->attributes['status'];
-        $html = '<form method="post" action='.url('queue/'.$id.'/activate').'>'.'<input type="hidden" name="_token" value='.\Session::token().'>'.'
-                                <button type="submit"  class="btn btn-secondary btn-sm btn-xs"><i class="fa fa-check-circle">&nbsp;&nbsp;</i>'.\Lang::get('message.activate').'</button></form>';
-
-        if ($status == 1) {
-            $html = "<a href='#' class='btn btn-secondary btn-sm btn-xs disabled' ><i class='fa fa-check-circle'>&nbsp;&nbsp;</i>".\Lang::get('message.activate').'</a>';
-        }
-
-        return $html;
-    }
-
-    public function isActivate()
+    public function isActivate(): mixed
     {
         $check = true;
         $settings = $this->extraFieldRelation()->get();
         if ($settings->count() == 0) {
-            $check = false;
+            return false;
         }
 
         return $check;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function getQueueDetails(): array
+    {
+        $id = $this->attributes['id'];
+        $name = $this->attributes['name'];
+        $status = $this->attributes['status'];
+
+        return [
+            'id' => $id,
+            'name' => [
+                'text' => $name,
+                'link' => ($name == 'Sync' || $name == 'Database') ? null : url('queue/'.$id),
+            ],
+            'status' => [
+                'code' => (int) $status,
+                'label' => $status == 1 ? __('message.active') : __('message.inactive'),
+            ],
+            'action' => [
+                'type' => $status == 1 ? 'activated' : 'activate',
+                'url' => url(sprintf('queue/%s/activate', $id)),
+                'disabled' => (bool) $status,
+            ],
+        ];
     }
 }

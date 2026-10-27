@@ -1,0 +1,259 @@
+{
+    "base": {
+        "mail.driver": "smtp",
+        "mail.host": "base.host",
+        "mail.port": "25",
+        "mail.password": "base-pass",
+        "mail.security": null,
+        "mail.sendmail": "/usr/sbin/sendmail -bs",
+        "mail.from.address": "base@x.test",
+        "mail.from.name": "Base",
+        "mail.username": "base-user",
+        "services.mailgun": {
+            "domain": null,
+            "secret": null,
+            "endpoint": "api.mailgun.net",
+            "scheme": "https"
+        },
+        "services.ses": {
+            "key": "base-key",
+            "secret": "base-secret",
+            "region": "us-east-1"
+        }
+    },
+    "cases": {
+        "smtp full": {
+            "input": {
+                "driver": "smtp",
+                "email": "a@x.test",
+                "company": "Acme",
+                "host": "smtp.x",
+                "port": 587,
+                "password": "p",
+                "encryption": "tls"
+            },
+            "config": {
+                "mail.driver": "smtp",
+                "mail.host": "smtp.x",
+                "mail.port": 587,
+                "mail.password": "p",
+                "mail.security": "tls",
+                "mail.sendmail": "/usr/sbin/sendmail -t -i -fa@x.test",
+                "mail.from.address": "a@x.test",
+                "mail.from.name": "Acme",
+                "mail.username": "a@x.test",
+                "services.mailgun": {
+                    "domain": null,
+                    "secret": null,
+                    "endpoint": "api.mailgun.net",
+                    "scheme": "https"
+                },
+                "services.ses": {
+                    "key": "base-key",
+                    "secret": "base-secret",
+                    "region": "us-east-1"
+                }
+            }
+        },
+        "mail minimal": {
+            "input": {
+                "driver": "mail"
+            },
+            "config": {
+                "mail.driver": "mail",
+                "mail.host": null,
+                "mail.port": null,
+                "mail.password": null,
+                "mail.security": null,
+                "mail.sendmail": "/usr/sbin/sendmail -t -i -f",
+                "mail.from.address": "",
+                "mail.from.name": "",
+                "mail.username": "",
+                "services.mailgun": {
+                    "domain": null,
+                    "secret": null,
+                    "endpoint": "api.mailgun.net",
+                    "scheme": "https"
+                },
+                "services.ses": {
+                    "key": "base-key",
+                    "secret": "base-secret",
+                    "region": "us-east-1"
+                }
+            }
+        },
+        "no driver": {
+            "input": {
+                "email": "b@x.test",
+                "host": "h"
+            },
+            "config": {
+                "mail.driver": null,
+                "mail.host": "h",
+                "mail.port": null,
+                "mail.password": null,
+                "mail.security": null,
+                "mail.sendmail": "/usr/sbin/sendmail -t -i -fb@x.test",
+                "mail.from.address": "b@x.test",
+                "mail.from.name": "",
+                "mail.username": "b@x.test",
+                "services.mailgun": {
+                    "domain": null,
+                    "secret": null,
+                    "endpoint": "api.mailgun.net",
+                    "scheme": "https"
+                },
+                "services.ses": {
+                    "key": "base-key",
+                    "secret": "base-secret",
+                    "region": "us-east-1"
+                }
+            }
+        },
+        "null driver": {
+            "input": {
+                "driver": null,
+                "company": "C"
+            },
+            "config": {
+                "mail.driver": null,
+                "mail.host": null,
+                "mail.port": null,
+                "mail.password": null,
+                "mail.security": null,
+                "mail.sendmail": "/usr/sbin/sendmail -t -i -f",
+                "mail.from.address": "",
+                "mail.from.name": "C",
+                "mail.username": "",
+                "services.mailgun": {
+                    "domain": null,
+                    "secret": null,
+                    "endpoint": "api.mailgun.net",
+                    "scheme": "https"
+                },
+                "services.ses": {
+                    "key": "base-key",
+                    "secret": "base-secret",
+                    "region": "us-east-1"
+                }
+            }
+        },
+        "mailgun": {
+            "input": {
+                "driver": "mailgun",
+                "email": "m@x.test",
+                "company": "MG",
+                "domain": "mg.x",
+                "secret": "s"
+            },
+            "config": {
+                "mail.driver": "mailgun",
+                "mail.host": "base.host",
+                "mail.port": "25",
+                "mail.password": "base-pass",
+                "mail.security": null,
+                "mail.sendmail": "/usr/sbin/sendmail -bs",
+                "mail.from.address": "m@x.test",
+                "mail.from.name": "MG",
+                "mail.username": "m@x.test",
+                "services.mailgun": {
+                    "domain": "mg.x",
+                    "secret": "s",
+                    "endpoint": "api.mailgun.net",
+                    "scheme": "https"
+                },
+                "services.ses": {
+                    "key": "base-key",
+                    "secret": "base-secret",
+                    "region": "us-east-1"
+                }
+            }
+        },
+        "ses partial": {
+            "input": {
+                "driver": "ses",
+                "key": "K"
+            },
+            "config": {
+                "mail.driver": "ses",
+                "mail.host": "base.host",
+                "mail.port": "25",
+                "mail.password": "base-pass",
+                "mail.security": null,
+                "mail.sendmail": "/usr/sbin/sendmail -bs",
+                "mail.from.address": "",
+                "mail.from.name": "",
+                "mail.username": "",
+                "services.mailgun": {
+                    "domain": null,
+                    "secret": null,
+                    "endpoint": "api.mailgun.net",
+                    "scheme": "https"
+                },
+                "services.ses": {
+                    "key": "K",
+                    "secret": "base-secret",
+                    "region": "us-east-1"
+                }
+            }
+        },
+        "unknown service": {
+            "input": {
+                "driver": "nosuchservice",
+                "email": "u@x.test"
+            },
+            "config": {
+                "mail.driver": "nosuchservice",
+                "mail.host": "base.host",
+                "mail.port": "25",
+                "mail.password": "base-pass",
+                "mail.security": null,
+                "mail.sendmail": "/usr/sbin/sendmail -bs",
+                "mail.from.address": "u@x.test",
+                "mail.from.name": "",
+                "mail.username": "u@x.test",
+                "services.mailgun": {
+                    "domain": null,
+                    "secret": null,
+                    "endpoint": "api.mailgun.net",
+                    "scheme": "https"
+                },
+                "services.ses": {
+                    "key": "base-key",
+                    "secret": "base-secret",
+                    "region": "us-east-1"
+                }
+            }
+        },
+        "empty strings": {
+            "input": {
+                "driver": "",
+                "email": "",
+                "company": "",
+                "host": ""
+            },
+            "config": {
+                "mail.driver": "",
+                "mail.host": "",
+                "mail.port": null,
+                "mail.password": null,
+                "mail.security": null,
+                "mail.sendmail": "/usr/sbin/sendmail -t -i -f",
+                "mail.from.address": "",
+                "mail.from.name": "",
+                "mail.username": "",
+                "services.mailgun": {
+                    "domain": null,
+                    "secret": null,
+                    "endpoint": "api.mailgun.net",
+                    "scheme": "https"
+                },
+                "services.ses": {
+                    "key": "base-key",
+                    "secret": "base-secret",
+                    "region": "us-east-1"
+                }
+            }
+        }
+    }
+}

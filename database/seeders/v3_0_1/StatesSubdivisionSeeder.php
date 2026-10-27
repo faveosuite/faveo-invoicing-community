@@ -2,7 +2,6 @@
 
 namespace Database\Seeders\v3_0_1;
 
-
 use App\Model\Common\State;
 use Illuminate\Database\Seeder;
 
@@ -10,12 +9,9 @@ class StatesSubdivisionSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
-
 
         State::create([
             'state_subdivision_id' => 48251,
@@ -26,7 +22,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'region',
             'state_subdivision_code' => 'AL-011',
         ]);
-         State::create([
+        State::create([
             'state_subdivision_id' => 48252,
             'country_code_char2' => 'BH',
             'country_code_char3' => 'BHR',
@@ -35,7 +31,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'island',
             'state_subdivision_code' => 'BH-14',
         ]);
-          State::create([
+        State::create([
             'state_subdivision_id' => 48253,
             'country_code_char2' => 'BH',
             'country_code_char3' => 'BHR',
@@ -44,7 +40,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'island',
             'state_subdivision_code' => 'BH-14',
         ]);
-          State::create([
+        State::create([
             'state_subdivision_id' => 48254,
             'country_code_char2' => 'BH',
             'country_code_char3' => 'BHR',
@@ -53,7 +49,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'state',
             'state_subdivision_code' => 'BH-00',
         ]);
-         State::create([
+        State::create([
             'state_subdivision_id' => 48255,
             'country_code_char2' => 'BH',
             'country_code_char3' => 'BHR',
@@ -86,7 +82,7 @@ class StatesSubdivisionSeeder extends Seeder
             'country_code_char3' => 'BMU',
             'state_subdivision_name' => 'Hamilton',
             'state_subdivision_alternate_names' => '',
-            'primary_level_name' => 'state',   
+            'primary_level_name' => 'state',
             'state_subdivision_code' => 'BM-HA',
         ]);
         State::create([
@@ -95,7 +91,7 @@ class StatesSubdivisionSeeder extends Seeder
             'country_code_char3' => 'BMU',
             'state_subdivision_name' => 'Devonshire ',
             'state_subdivision_alternate_names' => '',
-            'primary_level_name' => 'state',   
+            'primary_level_name' => 'state',
             'state_subdivision_code' => 'BM-DS',
         ]);
         State::create([
@@ -104,7 +100,7 @@ class StatesSubdivisionSeeder extends Seeder
             'country_code_char3' => 'BMU',
             'state_subdivision_name' => 'Saint George',
             'state_subdivision_alternate_names' => '',
-            'primary_level_name' => 'state',   
+            'primary_level_name' => 'state',
             'state_subdivision_code' => 'BM-GC',
         ]);
         State::create([
@@ -113,7 +109,7 @@ class StatesSubdivisionSeeder extends Seeder
             'country_code_char3' => 'BMU',
             'state_subdivision_name' => 'Hamilton City ',
             'state_subdivision_alternate_names' => '',
-            'primary_level_name' => 'municipality',   
+            'primary_level_name' => 'municipality',
             'state_subdivision_code' => 'BM-HC',
         ]);
         State::create([
@@ -122,7 +118,7 @@ class StatesSubdivisionSeeder extends Seeder
             'country_code_char3' => 'BMU',
             'state_subdivision_name' => 'Pembroke',
             'state_subdivision_alternate_names' => '',
-            'primary_level_name' => 'state',   
+            'primary_level_name' => 'state',
             'state_subdivision_code' => 'BM-PB',
         ]);
         State::create([
@@ -131,7 +127,7 @@ class StatesSubdivisionSeeder extends Seeder
             'country_code_char3' => 'BMU',
             'state_subdivision_name' => 'Paget',
             'state_subdivision_alternate_names' => '',
-            'primary_level_name' => 'state',   
+            'primary_level_name' => 'state',
             'state_subdivision_code' => 'BM-PG',
         ]);
         State::create([
@@ -140,7 +136,7 @@ class StatesSubdivisionSeeder extends Seeder
             'country_code_char3' => 'BMU',
             'state_subdivision_name' => 'Sandys',
             'state_subdivision_alternate_names' => '',
-            'primary_level_name' => 'state',   
+            'primary_level_name' => 'state',
             'state_subdivision_code' => 'BM-SA',
         ]);
         State::create([
@@ -149,7 +145,7 @@ class StatesSubdivisionSeeder extends Seeder
             'country_code_char3' => 'BMU',
             'state_subdivision_name' => 'Saint Georges',
             'state_subdivision_alternate_names' => '',
-            'primary_level_name' => 'state',   
+            'primary_level_name' => 'state',
             'state_subdivision_code' => 'BM-SG',
         ]);
         State::create([
@@ -158,7 +154,7 @@ class StatesSubdivisionSeeder extends Seeder
             'country_code_char3' => 'BMU',
             'state_subdivision_name' => 'Southampton',
             'state_subdivision_alternate_names' => '',
-            'primary_level_name' => 'state',   
+            'primary_level_name' => 'state',
             'state_subdivision_code' => 'BM-SH',
         ]);
         State::create([
@@ -167,7 +163,7 @@ class StatesSubdivisionSeeder extends Seeder
             'country_code_char3' => 'BMU',
             'state_subdivision_name' => 'Smiths',
             'state_subdivision_alternate_names' => '',
-            'primary_level_name' => 'state',   
+            'primary_level_name' => 'state',
             'state_subdivision_code' => 'BM-SM',
         ]);
         State::create([
@@ -176,10 +172,10 @@ class StatesSubdivisionSeeder extends Seeder
             'country_code_char3' => 'BMU',
             'state_subdivision_name' => 'Warwick ',
             'state_subdivision_alternate_names' => '',
-            'primary_level_name' => 'state',   
+            'primary_level_name' => 'state',
             'state_subdivision_code' => 'BM-WA',
         ]);
-          State::create([
+        State::create([
             'state_subdivision_id' => 48269,
             'country_code_char2' => 'GM',
             'country_code_char3' => 'GMB',
@@ -188,7 +184,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'division',
             'state_subdivision_code' => 'GM-M',
         ]);
-           State::create([
+        State::create([
             'state_subdivision_id' => 48270,
             'country_code_char2' => 'MC',
             'country_code_char3' => 'MCO',
@@ -197,7 +193,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'quarter',
             'state_subdivision_code' => 'MC-MA',
         ]);
-            State::create([
+        State::create([
             'state_subdivision_id' => 48271,
             'country_code_char2' => 'MC',
             'country_code_char3' => 'MCO',
@@ -206,7 +202,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'quarter',
             'state_subdivision_code' => 'MC-MO',
         ]);
-             State::create([
+        State::create([
             'state_subdivision_id' => 48272,
             'country_code_char2' => 'MC',
             'country_code_char3' => 'MCO',
@@ -215,7 +211,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'quarter',
             'state_subdivision_code' => 'MC-MG',
         ]);
-              State::create([
+        State::create([
             'state_subdivision_id' => 48273,
             'country_code_char2' => 'MC',
             'country_code_char3' => 'MCO',
@@ -314,7 +310,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'municipality',
             'state_subdivision_code' => 'AX-FN',
         ]);
-         State::create([
+        State::create([
             'state_subdivision_id' => 48284,
             'country_code_char2' => 'AX',
             'country_code_char3' => 'ALA',
@@ -386,7 +382,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'municipality',
             'state_subdivision_code' => 'AX-GT',
         ]);
-         State::create([
+        State::create([
             'state_subdivision_id' => 48292,
             'country_code_char2' => 'AX',
             'country_code_char3' => 'ALA',
@@ -441,7 +437,7 @@ class StatesSubdivisionSeeder extends Seeder
             'state_subdivision_code' => 'SS-EC',
         ]);
 
-          State::create([
+        State::create([
             'state_subdivision_id' => 48298,
             'country_code_char2' => 'SS',
             'country_code_char3' => 'SSD',
@@ -450,7 +446,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'states',
             'state_subdivision_code' => 'SS-EE',
         ]);
-           State::create([
+        State::create([
             'state_subdivision_id' => 48299,
             'country_code_char2' => 'SS',
             'country_code_char3' => 'SSD',
@@ -459,7 +455,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'states',
             'state_subdivision_code' => 'SS-JG',
         ]);
-            State::create([
+        State::create([
             'state_subdivision_id' => 48300,
             'country_code_char2' => 'SS',
             'country_code_char3' => 'SSD',
@@ -468,7 +464,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'states',
             'state_subdivision_code' => 'SS-LK',
         ]);
-             State::create([
+        State::create([
             'state_subdivision_id' => 48301,
             'country_code_char2' => 'SS',
             'country_code_char3' => 'SSD',
@@ -477,7 +473,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'states',
             'state_subdivision_code' => 'SS-BN',
         ]);
-            State::create([
+        State::create([
             'state_subdivision_id' => 48302,
             'country_code_char2' => 'SS',
             'country_code_char3' => 'SSD',
@@ -486,7 +482,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'states',
             'state_subdivision_code' => 'SS-UY',
         ]);
-            State::create([
+        State::create([
             'state_subdivision_id' => 48303,
             'country_code_char2' => 'SS',
             'country_code_char3' => 'SSD',
@@ -495,7 +491,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'states',
             'state_subdivision_code' => 'SS-NU',
         ]);
-            State::create([
+        State::create([
             'state_subdivision_id' => 48304,
             'country_code_char2' => 'SS',
             'country_code_char3' => 'SSD',
@@ -504,7 +500,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'states',
             'state_subdivision_code' => 'SS-WR',
         ]);
-             State::create([
+        State::create([
             'state_subdivision_id' => 48305,
             'country_code_char2' => 'SS',
             'country_code_char3' => 'SSD',
@@ -513,7 +509,7 @@ class StatesSubdivisionSeeder extends Seeder
             'primary_level_name' => 'states',
             'state_subdivision_code' => 'SS-BW',
         ]);
-            State::create([
+        State::create([
             'state_subdivision_id' => 48306,
             'country_code_char2' => 'SS',
             'country_code_char3' => 'SSD',
@@ -523,10 +519,8 @@ class StatesSubdivisionSeeder extends Seeder
             'state_subdivision_code' => 'SS-EW',
         ]);
 
-            State::where('state_subdivision_id','18329')->update(['state_subdivision_name' => 'Dushambe']);
-            State::where('state_subdivision_id','18567')->update(['state_subdivision_name' => 'Ashgabat']);
+        State::where('state_subdivision_id', '18329')->update(['state_subdivision_name' => 'Dushambe']);
+        State::where('state_subdivision_id', '18567')->update(['state_subdivision_name' => 'Ashgabat']);
 
-
-
-      }
+    }
 }

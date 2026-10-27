@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('plan_prices', function (Blueprint $table) {
+        Schema::table('plan_prices', function (Blueprint $table): void {
             $table->dropColumn('country_id');
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('plan_prices', function (Blueprint $table) {
+        Schema::table('plan_prices', function (Blueprint $table): void {
             $table->unsignedBigInteger('country_id')->nullable();
         });
     }

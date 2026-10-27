@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             $table->boolean('system_log_status')->default(0)->after('msg91_report_delete_status');
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             $table->dropColumn('system_log_status');
         });
     }

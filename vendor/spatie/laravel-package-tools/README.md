@@ -24,6 +24,7 @@ use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Spatie\LaravelPackageTools\Package;
 use MyPackage\ViewComponents\Alert;
 use Spatie\LaravelPackageTools\Commands\Concerns;
+use Spatie\LaravelPackageTools\Commands\InstallCommand;
 
 class YourPackageServiceProvider extends PackageServiceProvider
 {
@@ -78,20 +79,13 @@ skeleton is structured perfectly to work perfectly with the `PackageServiceProvi
 To avoid needing to scroll through to find the right usage section, here is a Table of Contents:
 
 * [Directory Structure](#directory-structure)
-* [Making your functionality publishable](#making-your-functionality-publishable)
 * [Getting Started](#getting-started)
 * [Assets](#assets)
 * [Blade Components](#blade-view-components)
-* [Blade Anonymous Components](#blade-anonymous-components)
-* [Blade Custom Directives](#blade-custom-directives)
-* [Blade Custom Echo Handlers](#blade-custom-echo-handlers)
-* [Blade Custom Conditionals](#blade-custom-conditionals)
-* [Commands - Callable and Console](#commands-callable-and-console)
-* [Optimize Commands (Laravel v11+)](#optimize-commands)
+* [Commands - Callable and Console](#commands---callable-and-console)
 * [Config Files](#config-files)
 * [Inertia Components](#inertia-components)
-* [Livewire Views and Components](#livewire-views-and-components)
-* [Database Migrations](#database-migrations)
+* [Working with migrations](#working-with-migrations)
 * [Routes](#routes)
 * [Publishable Service Providers](#publishable-service-providers)
 * [Translations](#translations)
@@ -155,7 +149,7 @@ and the remainder of the name used as a short-name instead when publishing files
 
 And now let's look at all the different Laravel functions this supports...
 
-assing the package name to `name` is mandatory.
+assigning the package name to `name` is mandatory.
 
 ### Assets
 

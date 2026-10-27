@@ -8,12 +8,10 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('cloud_email', function (Blueprint $table) {
+        Schema::create('cloud_email', function (Blueprint $table): void {
             $table->id();
             $table->longText('result_message');
             $table->longText('user');
@@ -26,10 +24,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('cloud_email');
     }

@@ -29,7 +29,6 @@ return [
     'inspire' => 'Tampilkan kutipan inspiratif',
     'renewal:cron' => 'Cron Perpanjangan Otomatis',
     'mail-send-exception' => 'Exception Pengiriman Email',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => 'Notifikasi Perpanjangan Kedaluwarsa',
     'renewal:notification' => 'Notifikasi Perpanjangan Otomatis',
     'cleanup:msg-reports' => 'Pembersihan Laporan MSG91',
@@ -40,11 +39,8 @@ return [
     'droptables' => 'Hapus Semua Tabel',
     'install:db' => 'Instal Database',
     'testing-setup' => 'Siapkan Lingkungan Pengujian',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'Pengiriman antrian berhasil',
-    // Added missing UI texts
     'cancel' => 'Batalkan',
-    // Added missing messages from blade file
     'system_logs' => 'Log Sistem',
     'filter_logs' => 'Filter Log',
     'logs' => 'Log',
@@ -101,4 +97,16 @@ return [
     'confirm_old_email' => 'Konfirmasi email lama',
     'confirm_mobile_number_change' => 'Konfirmasi perubahan nomor ponsel',
     'logs:delete' => 'Hapus Log Sistem',
+    'cloud:send-instance-emails' => 'Kirim Email Instans Cloud',
+    'activity-logs:cleanup' => 'Pembersihan Log Aktivitas',
+    'app:crack-callback-cleanup' => 'Pembersihan Callback Cracking',
+    'app:crack-reports-cleanup' => 'Pembersihan Laporan Cracking',
+    'app:failed-message-delivery' => 'Kirim Ulang Pesan WhatsApp yang Gagal',
+    'app:license-reports-cleanup' => 'Pembersihan Laporan Lisensi',
+    'app:system-reports-cleanup' => 'Pembersihan Laporan Sistem',
+    'app:versions-cleanup' => 'Pembersihan Versi',
+    'installation:logs' => 'Tandai Instalasi Tidak Aktif',
+    'reoon:logs-deletion' => 'Pembersihan Log Reoon',
+    'seo:generate-files' => 'Buat File SEO',
+    'date' => 'Tanggal',
 ];

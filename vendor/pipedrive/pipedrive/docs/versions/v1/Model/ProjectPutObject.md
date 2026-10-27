@@ -16,5 +16,6 @@ Name | Type | Description | Notes
 **org_id** | **float** | The ID of the organization this project is associated with | [optional]
 **person_id** | **float** | The ID of the person this project is associated with | [optional]
 **labels** | **int[]** | An array of IDs of the labels this project has | [optional]
+**health_status** | **int** | The health status of the project | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

@@ -27,8 +27,9 @@ class TimeitCommand extends Command
     const RESULT_MSG = '<info>Command took %.6f seconds to complete.</info>';
     const AVG_RESULT_MSG = '<info>Command took %.6f seconds on average (%.6f median; %.6f total) to complete.</info>';
 
-    // All times stored as nanoseconds!
-    private static ?int $start = null;
+    // All times stored as nanoseconds (int on 64-bit, float on 32-bit overflow)
+    /** @var int|float|null */
+    private static $start = null;
     private static array $times = [];
 
     private CodeArgumentParser $parser;
@@ -107,7 +108,7 @@ HELP
             $total = \array_sum($times);
             \rsort($times);
             // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible (guaranteed by loop: count($times) >= $num)
-            $median = $times[(int) \round($num / 2)];
+            $median = $times[\intdiv($num, 2)];
 
             $output->writeln(\sprintf(self::AVG_RESULT_MSG, ($total / $num) / 1e+9, $median / 1e+9, $total / 1e+9));
         }

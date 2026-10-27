@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @see https://github.com/pionl/laravel-chunk-upload
  */
@@ -32,6 +33,11 @@ return [
                 'browser' => false, // instead of session we can use the ip and browser?
             ],
         ],
+    ],
+    'logging' => [
+        // Enables the debug/info logging of parallel upload chunk and merge events.
+        // Disabled by default as it can be noisy in production.
+        'enabled' => env('CHUNK_UPLOAD_LOGGING_ENABLED', false),
     ],
     'handlers' => [
         // A list of handlers/providers that will be appended to existing list of handlers

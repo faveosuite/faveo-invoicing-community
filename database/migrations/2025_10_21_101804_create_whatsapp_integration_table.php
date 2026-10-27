@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('whatsapp_integration', function (Blueprint $table) {
+        Schema::create('whatsapp_integration', function (Blueprint $table): void {
             $table->id();
             $table->string('app_id');
             $table->string('app_secret');

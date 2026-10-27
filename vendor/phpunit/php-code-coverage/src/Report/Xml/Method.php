@@ -9,13 +9,17 @@
  */
 namespace SebastianBergmann\CodeCoverage\Report\Xml;
 
+use SebastianBergmann\CodeCoverage\Util\EnsuresUtf8;
 use XMLWriter;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final readonly class Method
 {
+    use EnsuresUtf8;
     private XMLWriter $xmlWriter;
 
     public function __construct(
@@ -31,8 +35,8 @@ final readonly class Method
     ) {
         $this->xmlWriter = $xmlWriter;
 
-        $this->xmlWriter->writeAttribute('name', $name);
-        $this->xmlWriter->writeAttribute('signature', $signature);
+        $this->xmlWriter->writeAttribute('name', $this->ensureUtf8($name));
+        $this->xmlWriter->writeAttribute('signature', $this->ensureUtf8($signature));
 
         $this->xmlWriter->writeAttribute('start', $start);
 

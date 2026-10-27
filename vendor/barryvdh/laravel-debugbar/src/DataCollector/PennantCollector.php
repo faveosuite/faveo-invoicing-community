@@ -1,41 +1,28 @@
 <?php
 
-namespace Barryvdh\Debugbar\DataCollector;
+declare(strict_types=1);
+
+namespace Fruitcake\LaravelDebugbar\DataCollector;
 
 use DebugBar\DataCollector\DataCollector;
 use DebugBar\DataCollector\DataCollectorInterface;
 use DebugBar\DataCollector\Renderable;
-use Illuminate\Support\Facades\Config;
+use Laravel\Pennant\Feature;
 
 class PennantCollector extends DataCollector implements DataCollectorInterface, Renderable
 {
-    /** @var  \Laravel\Pennant\FeatureManager */
-    protected $manager;
-
-    /**
-     * Create a new SessionCollector
-     *
-     * @param \Laravel\Pennant\FeatureManager $manager
-     */
-    public function __construct($manager)
-    {
-        $this->manager = $manager;
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function collect()
+    public function collect(): array
     {
-        $store = $this->manager->store(Config::get('pennant.default'));
-
-        return $store->values($store->stored());
+        return Feature::all();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'pennant';
     }
@@ -43,15 +30,15 @@ class PennantCollector extends DataCollector implements DataCollectorInterface, 
     /**
      * {@inheritDoc}
      */
-    public function getWidgets()
+    public function getWidgets(): array
     {
         return [
             "pennant" => [
                 "icon" => "flag",
                 "widget" => "PhpDebugBar.Widgets.VariableListWidget",
                 "map" => "pennant",
-                "default" => "{}"
-            ]
+                "default" => "{}",
+            ],
         ];
     }
 }

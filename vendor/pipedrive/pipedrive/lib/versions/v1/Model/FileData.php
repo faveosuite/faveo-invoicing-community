@@ -2,7 +2,7 @@
 /**
  * FileData
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -75,6 +75,7 @@ class FileData implements ModelInterface, ArrayAccess, JsonSerializable
         'product_id' => 'int',
         'activity_id' => 'int',
         'lead_id' => 'string',
+        'project_id' => 'int',
         'add_time' => 'string',
         'update_time' => 'string',
         'file_name' => 'string',
@@ -92,6 +93,7 @@ class FileData implements ModelInterface, ArrayAccess, JsonSerializable
         'org_name' => 'string',
         'product_name' => 'string',
         'lead_name' => 'string',
+        'project_name' => 'string',
         'url' => 'string',
         'name' => 'string',
         'description' => 'string'
@@ -113,6 +115,7 @@ class FileData implements ModelInterface, ArrayAccess, JsonSerializable
         'product_id' => null,
         'activity_id' => null,
         'lead_id' => 'uuid',
+        'project_id' => null,
         'add_time' => null,
         'update_time' => null,
         'file_name' => null,
@@ -130,6 +133,7 @@ class FileData implements ModelInterface, ArrayAccess, JsonSerializable
         'org_name' => null,
         'product_name' => null,
         'lead_name' => null,
+        'project_name' => null,
         'url' => null,
         'name' => null,
         'description' => null
@@ -174,6 +178,7 @@ class FileData implements ModelInterface, ArrayAccess, JsonSerializable
         'product_id' => 'product_id',
         'activity_id' => 'activity_id',
         'lead_id' => 'lead_id',
+        'project_id' => 'project_id',
         'add_time' => 'add_time',
         'update_time' => 'update_time',
         'file_name' => 'file_name',
@@ -191,6 +196,7 @@ class FileData implements ModelInterface, ArrayAccess, JsonSerializable
         'org_name' => 'org_name',
         'product_name' => 'product_name',
         'lead_name' => 'lead_name',
+        'project_name' => 'project_name',
         'url' => 'url',
         'name' => 'name',
         'description' => 'description'
@@ -210,6 +216,7 @@ class FileData implements ModelInterface, ArrayAccess, JsonSerializable
         'product_id' => 'setProductId',
         'activity_id' => 'setActivityId',
         'lead_id' => 'setLeadId',
+        'project_id' => 'setProjectId',
         'add_time' => 'setAddTime',
         'update_time' => 'setUpdateTime',
         'file_name' => 'setFileName',
@@ -227,6 +234,7 @@ class FileData implements ModelInterface, ArrayAccess, JsonSerializable
         'org_name' => 'setOrgName',
         'product_name' => 'setProductName',
         'lead_name' => 'setLeadName',
+        'project_name' => 'setProjectName',
         'url' => 'setUrl',
         'name' => 'setName',
         'description' => 'setDescription'
@@ -246,6 +254,7 @@ class FileData implements ModelInterface, ArrayAccess, JsonSerializable
         'product_id' => 'getProductId',
         'activity_id' => 'getActivityId',
         'lead_id' => 'getLeadId',
+        'project_id' => 'getProjectId',
         'add_time' => 'getAddTime',
         'update_time' => 'getUpdateTime',
         'file_name' => 'getFileName',
@@ -263,6 +272,7 @@ class FileData implements ModelInterface, ArrayAccess, JsonSerializable
         'org_name' => 'getOrgName',
         'product_name' => 'getProductName',
         'lead_name' => 'getLeadName',
+        'project_name' => 'getProjectName',
         'url' => 'getUrl',
         'name' => 'getName',
         'description' => 'getDescription'
@@ -333,7 +343,7 @@ class FileData implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['id'] = $data['id'] ?? null;
         $this->container['user_id'] = $data['user_id'] ?? null;
@@ -343,6 +353,7 @@ class FileData implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['product_id'] = $data['product_id'] ?? null;
         $this->container['activity_id'] = $data['activity_id'] ?? null;
         $this->container['lead_id'] = $data['lead_id'] ?? null;
+        $this->container['project_id'] = $data['project_id'] ?? null;
         $this->container['add_time'] = $data['add_time'] ?? null;
         $this->container['update_time'] = $data['update_time'] ?? null;
         $this->container['file_name'] = $data['file_name'] ?? null;
@@ -360,6 +371,7 @@ class FileData implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['org_name'] = $data['org_name'] ?? null;
         $this->container['product_name'] = $data['product_name'] ?? null;
         $this->container['lead_name'] = $data['lead_name'] ?? null;
+        $this->container['project_name'] = $data['project_name'] ?? null;
         $this->container['url'] = $data['url'] ?? null;
         $this->container['name'] = $data['name'] ?? null;
         $this->container['description'] = $data['description'] ?? null;
@@ -579,6 +591,30 @@ class FileData implements ModelInterface, ArrayAccess, JsonSerializable
     public function setLeadId($lead_id): self
     {
         $this->container['lead_id'] = $lead_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets project_id
+     *
+     * @return int|null
+     */
+    public function getProjectId()
+    {
+        return $this->container['project_id'];
+    }
+
+    /**
+     * Sets project_id
+     *
+     * @param int|null $project_id The ID of the project to associate the file with
+     *
+     * @return self
+     */
+    public function setProjectId($project_id): self
+    {
+        $this->container['project_id'] = $project_id;
 
         return $this;
     }
@@ -987,6 +1023,30 @@ class FileData implements ModelInterface, ArrayAccess, JsonSerializable
     public function setLeadName($lead_name): self
     {
         $this->container['lead_name'] = $lead_name;
+
+        return $this;
+    }
+
+    /**
+     * Gets project_name
+     *
+     * @return string|null
+     */
+    public function getProjectName()
+    {
+        return $this->container['project_name'];
+    }
+
+    /**
+     * Sets project_name
+     *
+     * @param string|null $project_name The name of the project associated with the file
+     *
+     * @return self
+     */
+    public function setProjectName($project_name): self
+    {
+        $this->container['project_name'] = $project_name;
 
         return $this;
     }
