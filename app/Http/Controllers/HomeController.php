@@ -557,7 +557,7 @@ class HomeController extends BaseHomeController
                     'products.id', 'products.name', 'products.description', 'products.short_description', 'products.product_description',
                     'products.category', 'products.image', 'products.shoping_cart_link', 'products.highlight', 'products.status',
                     'products.show_agent', 'products.can_modify_agent', 'products.can_modify_quantity', 'products.show_product_quantity',
-                    'plan_prices.add_price','plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
+                    'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
                 ->get();
 
             $page = resolve(PageController::class);
