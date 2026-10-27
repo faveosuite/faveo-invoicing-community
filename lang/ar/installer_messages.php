@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'title' => 'مثبت Agora Invoicing',
     'probe' => 'اختبارات Agora Invoicing',
     'magic_phrase' => 'ما هي العبارة السحرية',
@@ -20,7 +19,6 @@ return [
     'off_apache' => 'معطّل (إذا كنت تستخدم Apache، تأكد من أن <var><strong>AllowOverride</strong></var> مضبوطة على <var><strong>All</strong></var> في إعدادات Apache)',
     'rewrite_engine' => 'محرك إعادة الكتابة',
     'user_url' => 'رابط صديق للمستخدم',
-
     'host' => 'المضيف',
     'host_tooltip' => 'إذا كان MySQL مثبتًا على نفس الخادم مثل Agora Invoicing، اجعلها localhost',
     'database_name_label' => 'اسم قاعدة البيانات',
@@ -30,7 +28,6 @@ return [
     'password_label' => 'كلمة المرور',
     'test_prerequisites_message' => 'سيتم التحقق من المتطلبات الأساسية لتثبيت Agora Invoicing',
     'previous' => 'السابق',
-
     'sign_up_as_admin' => 'التسجيل كمسؤول',
     'first_name' => 'الاسم الأول',
     'first_name_required' => 'الاسم الأول مطلوب',
@@ -44,14 +41,27 @@ return [
     'confirm_password_required' => 'تأكيد كلمة المرور مطلوب',
     'password_requirements' => 'يجب أن تحتوي كلمة المرور على:',
     'password_requirements_list' => [
-        ['id' => 'length', 'text' => 'بين 8-16 حرفًا'],
-        ['id' => 'letter', 'text' => 'أحرف صغيرة (a-z)'],
-        ['id' => 'capital', 'text' => 'أحرف كبيرة (A-Z)'],
-        ['id' => 'number', 'text' => 'أرقام (0-9)'],
-        ['id' => 'space', 'text' => 'أحرف خاصة (~*!@$#%_+.?:,{ })'],
+        [
+            'id' => 'length',
+            'text' => 'بين 8-16 حرفًا',
+        ],
+        [
+            'id' => 'letter',
+            'text' => 'أحرف صغيرة (a-z)',
+        ],
+        [
+            'id' => 'capital',
+            'text' => 'أحرف كبيرة (A-Z)',
+        ],
+        [
+            'id' => 'number',
+            'text' => 'أرقام (0-9)',
+        ],
+        [
+            'id' => 'space',
+            'text' => 'أحرف خاصة (~*!@$#%_+.?:,{ })',
+        ],
     ],
-
-    // معلومات النظام
     'system_information' => 'معلومات النظام',
     'environment' => 'البيئة',
     'environment_required' => 'البيئة مطلوبة',
@@ -63,42 +73,29 @@ return [
     'file' => 'ملف',
     'redis' => 'Redis',
     'password' => 'كلمة المرور',
-
-    // إعداد Redis
     'redis_setup' => 'إعداد Redis',
     'redis_host' => 'مضيف Redis',
     'redis_port' => 'منفذ Redis',
     'redis_password' => 'كلمة مرور Redis',
-
-    // الأزرار
     'continue' => 'متابعة',
-
-    // الإعداد النهائي
     'final_setup' => 'تطبيق Agora Invoicing جاهز!',
     'installation_complete' => 'تهانينا! لقد أكملت التثبيت بنجاح.',
-
-    // المزيد من المعلومات
     'learn_more' => 'معرفة المزيد',
     'knowledge_base' => 'قاعدة المعرفة',
     'email_support' => 'الدعم عبر البريد الإلكتروني',
-
-    // الخطوة التالية
     'next_step' => 'الخطوة التالية',
     'login_button' => 'تسجيل الدخول إلى Agora Invoicing',
-
     'pre_migration_success' => 'تم اختبار التهيئة المسبقة بنجاح',
     'migrating_tables' => 'ترحيل الجداول في قاعدة البيانات',
     'db_connection_error' => 'تعذر تحديث اتصال قاعدة البيانات.',
     'database_setup_success' => 'تم إعداد قاعدة البيانات بنجاح.',
     'env_file_created' => 'تم إنشاء ملف التهيئة بنجاح',
     'pre_migration_test' => 'جارٍ تشغيل اختبار التهيئة المسبقة',
-
     'redis_host_required' => 'مضيف Redis مطلوب.',
     'redis_password_required' => 'كلمة مرور Redis مطلوبة.',
     'redis_port_required' => 'منفذ Redis مطلوب.',
     'password_regex' => 'يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل، وحرف كبير، وحرف صغير، ورقم، وحرف خاص واحد على الأقل.',
     'setup_completed' => 'تم الإعداد بنجاح!',
-
     'database' => 'قاعدة البيانات',
     'selected' => 'محدد',
     'mysql_version_is' => 'إصدار MySQL هو',
@@ -111,6 +108,9 @@ return [
     'magic_phrase_not_work' => 'العبارة السحرية التي أدخلتها غير صحيحة.',
     'magic_required' => 'العبارة السحرية مطلوبة.',
     'user_name_regex' => 'يجب أن يكون اسم المستخدم بين 3-20 حرفًا ويمكن أن يحتوي فقط على الحروف، والأرقام، والمسافات، والشرطات السفلية، والشرطات، والنقاط، ورمز @.',
+    'user_name' => 'اسم المستخدم',
+    'user_email' => 'البريد الإلكتروني للمستخدم',
+    'password_not_match' => 'كلمات المرور غير متطابقة',
     'installation_check' => 'سيقوم هذا الاختبار بالتحقق من المتطلبات الأساسية اللازمة لتثبيت Agora Invoice Community',
     'db_setup_error_1' => 'هذا يعني إما أن معلومات اسم المستخدم وكلمة المرور غير صحيحة أو أن المضيف غير متاح.',
     'db_setup_error_2' => 'هل أنت متأكد من أن لديك قاعدة بيانات موجودة بالفعل بالاسم الذي أدخلته؟',
@@ -153,7 +153,5 @@ return [
     'language' => 'اللغة',
     'tooltip_timezone' => 'يتم استخدام المنطقة الزمنية للمتصفح في البداية. اختر منطقة زمنية مختلفة إذا لزم الأمر.',
     'tooltip_language' => 'يتم تحميل اللغة الافتراضية في البداية. اختر لغة مختلفة إذا لزم الأمر.',
-    'password_not_match' => 'كلمات المرور غير متطابقة',
     'enter_magic_phrase' => 'أدخل العبارة السحرية',
-
 ];

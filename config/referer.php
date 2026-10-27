@@ -1,5 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
+use Spatie\Referer\Sources\RequestHeader;
+use Spatie\Referer\Sources\UtmSource;
+
 return [
 
     /*
@@ -11,7 +16,7 @@ return [
      * The sources used to determine the referer.
      */
     'sources' => [
-        Spatie\Referer\Sources\UtmSource::class,
-        Spatie\Referer\Sources\RequestHeader::class,
+        UtmSource::class,
+        RequestHeader::class,
     ],
 ];

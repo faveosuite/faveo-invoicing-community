@@ -29,7 +29,6 @@ return [
     'inspire' => '顯示勵志名言',
     'renewal:cron' => '自動續訂排程任務',
     'mail-send-exception' => '郵件發送異常',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => '過期續訂通知',
     'renewal:notification' => '自動續訂通知',
     'cleanup:msg-reports' => '清理MSG91報告',
@@ -40,11 +39,8 @@ return [
     'droptables' => '刪除所有表',
     'install:db' => '安裝資料庫',
     'testing-setup' => '設定測試環境',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => '佇列發送成功',
-    // Added missing UI texts
     'cancel' => '取消',
-    // Added missing messages from blade file
     'system_logs' => '系統日誌',
     'filter_logs' => '篩選日誌',
     'logs' => '日誌',
@@ -101,4 +97,16 @@ return [
     'confirm_old_email' => '確認舊電子郵件',
     'confirm_mobile_number_change' => '確認更改手機號碼',
     'logs:delete' => '刪除系統日誌',
+    'cloud:send-instance-emails' => '發送雲端實例郵件',
+    'activity-logs:cleanup' => '清理活動日誌',
+    'app:crack-callback-cleanup' => '清理破解回呼',
+    'app:crack-reports-cleanup' => '清理破解報告',
+    'app:failed-message-delivery' => '重新傳送失敗的 WhatsApp 訊息',
+    'app:license-reports-cleanup' => '清理授權報告',
+    'app:system-reports-cleanup' => '清理系統報告',
+    'app:versions-cleanup' => '清理版本',
+    'installation:logs' => '標記非使用中的安裝',
+    'reoon:logs-deletion' => '清理 Reoon 日誌',
+    'seo:generate-files' => '產生 SEO 檔案',
+    'date' => '日期',
 ];

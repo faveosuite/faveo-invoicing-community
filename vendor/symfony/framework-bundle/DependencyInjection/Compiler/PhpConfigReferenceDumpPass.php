@@ -46,7 +46,10 @@ class PhpConfigReferenceDumpPass implements CompilerPassInterface
             {APP_PARAM}
             public static function config(array $config): array
             {
-                return AppReference::config($config);
+                /** @var ConfigType $config */
+                $config = AppReference::config($config);
+
+                return $config;
             }
         }
 

@@ -2,6 +2,55 @@
 
 All notable changes to `spatie/laravel-activitylog` will be documented in this file
 
+## 4.12.3 - 2026-03-24
+
+### What's Changed
+
+* Fix LogOptions closure preventing model serialization in queued listeners (#1453) by @morloderex
+
+## 4.12.2 - 2026-03-24
+
+### What's Changed
+
+* Use try/finally in withinBatch to close batch when callback throws (#1449) by @isaackaara
+
+## 4.12.1 - 2026-02-22
+
+### What's Changed
+
+* Bump actions/stale from 9.1.0 to 10.2.0 by @dependabot[bot] in https://github.com/spatie/laravel-activitylog/pull/1446
+* Fix activitylog cleanup to require integer days input by @sandeep728 in https://github.com/spatie/laravel-activitylog/pull/1448
+
+### New Contributors
+
+* @sandeep728 made their first contribution in https://github.com/spatie/laravel-activitylog/pull/1448
+
+**Full Changelog**: https://github.com/spatie/laravel-activitylog/compare/4.12.0...4.12.1
+
+## 4.12.0 - 2026-02-21
+
+### What's Changed
+
+- Add Laravel 13 support
+
+## 4.11.0 - 2026-01-31
+
+### What's Changed
+
+* Update issue template by @AlexVanderbist in https://github.com/spatie/laravel-activitylog/pull/1410
+* Bump dependabot/fetch-metadata from 2.4.0 to 2.5.0 by @dependabot[bot] in https://github.com/spatie/laravel-activitylog/pull/1437
+* Fix issue where activity is `null` by @rojtjo in https://github.com/spatie/laravel-activitylog/pull/1439
+* fix logUnguarded() to respect Model::unguard() by @freekmurze in https://github.com/spatie/laravel-activitylog/pull/1444
+* check for empty logs after pipeline runs by @freekmurze in https://github.com/spatie/laravel-activitylog/pull/1443
+* fix subject() throwing exception for non-SoftDeletes models by @freekmurze in https://github.com/spatie/laravel-activitylog/pull/1442
+* fix tapActivity being called twice by @freekmurze in https://github.com/spatie/laravel-activitylog/pull/1441
+
+### New Contributors
+
+* @rojtjo made their first contribution in https://github.com/spatie/laravel-activitylog/pull/1439
+
+**Full Changelog**: https://github.com/spatie/laravel-activitylog/compare/4.10.2...4.11.0
+
 ## 4.10.2 - 2025-06-15
 
 ### What's Changed

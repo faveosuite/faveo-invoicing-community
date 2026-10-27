@@ -2,25 +2,21 @@
 
 namespace Database\Seeders\v2_0_2;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Model\Common\TemplateType;
-use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
 use DB;
+use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         $this->call([TemplateTypeTableSeeder::class]);
         $this->command->info('Template Type table seeded!');
- 
+
         $this->call([TemplateTableSeeder::class]);
         $this->command->info('Template table seeded!');
 
@@ -29,9 +25,9 @@ class DatabaseSeeder extends Seeder
     }
 }
 
-    class TemplateTypeTableSeeder extends Seeder
-   {
-    public function run()
+class TemplateTypeTableSeeder extends Seeder
+{
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
@@ -40,19 +36,18 @@ class DatabaseSeeder extends Seeder
         TemplateType::create(['id' => 14, 'name' => 'payment_failed']);
         TemplateType::create(['id' => 15, 'name' => 'card_failed']);
 
-
     }
-  }
+}
 
-  class TemplateTableSeeder extends Seeder
-   {
-    public function run()
+class TemplateTableSeeder extends Seeder
+{
+    public function run(): void
     {
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        Template::where('id',11)->delete();
+        Template::where('id', 11)->delete();
         Template::create(['id' => 12, 'name' => '[Faveo Helpdesk] Auto renewal reminder', 'type' => 12, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
@@ -139,8 +134,7 @@ class DatabaseSeeder extends Seeder
 </table>
 <p>&nbsp;</p>']);
 
-
-Template::create(['id' => 13, 'name' => '[Faveo Helpdesk] Autopayment successfull', 'type' => 13, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::create(['id' => 13, 'name' => '[Faveo Helpdesk] Autopayment successfull', 'type' => 13, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
 <td style="width: 30px;">&nbsp;</td>
@@ -228,8 +222,7 @@ Template::create(['id' => 13, 'name' => '[Faveo Helpdesk] Autopayment successful
 </table>
 <p>&nbsp;</p>']);
 
-
-Template::create(['id' => 14, 'name' => '[Faveo Helpdesk] AutoPayment failed', 'type' => 14, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::create(['id' => 14, 'name' => '[Faveo Helpdesk] AutoPayment failed', 'type' => 14, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
 <td style="width: 30px;">&nbsp;</td>
@@ -319,7 +312,7 @@ Template::create(['id' => 14, 'name' => '[Faveo Helpdesk] AutoPayment failed', '
 </table>
 <p>&nbsp;</p>']);
 
-Template::create(['id' => 15, 'name' => '[Faveo Helpdesk]Creditcard failed', 'type' => 15, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::create(['id' => 15, 'name' => '[Faveo Helpdesk]Creditcard failed', 'type' => 15, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
 <td style="width: 30px;">&nbsp;</td>
@@ -410,5 +403,4 @@ Template::create(['id' => 15, 'name' => '[Faveo Helpdesk]Creditcard failed', 'ty
 </table>
 <p>&nbsp;</p>']);
     }
-    
-   }
+}

@@ -11,11 +11,14 @@ namespace SebastianBergmann\CodeCoverage\Data;
 
 use function array_merge;
 use function array_unique;
+use function array_values;
 use NoDiscard;
 use SebastianBergmann\CodeCoverage\Driver\XdebugDriver;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
  * @phpstan-import-type TestIdType from ProcessedCodeCoverageData
  * @phpstan-import-type XdebugPathCoverageType from XdebugDriver
@@ -60,7 +63,7 @@ final class ProcessedPathCoverageData
 
         return new self(
             $this->path,
-            array_unique(array_merge($this->hit, $data->hit)),
+            array_values(array_unique(array_merge($this->hit, $data->hit))),
         );
     }
 

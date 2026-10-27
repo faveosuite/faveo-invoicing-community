@@ -11,19 +11,19 @@ class DropZoneUploadHandler extends ChunksInRequestUploadHandler
 {
     use HandleParallelUploadTrait;
 
-    const CHUNK_UUID_INDEX = 'dzuuid';
-    const CHUNK_INDEX = 'dzchunkindex';
-    const CHUNK_FILE_SIZE_INDEX = 'dztotalfilesize';
-    const CHUNK_SIZE_INDEX = 'dzchunksize';
-    const CHUNK_TOTAL_INDEX = 'dztotalchunkcount';
-    const CHUNK_OFFSET_INDEX = 'dzchunkbyteoffset';
+    public const CHUNK_UUID_INDEX = 'dzuuid';
+    public const CHUNK_INDEX = 'dzchunkindex';
+    public const CHUNK_FILE_SIZE_INDEX = 'dztotalfilesize';
+    public const CHUNK_SIZE_INDEX = 'dzchunksize';
+    public const CHUNK_TOTAL_INDEX = 'dztotalchunkcount';
+    public const CHUNK_OFFSET_INDEX = 'dzchunkbyteoffset';
 
     /**
      * The DropZone file uuid.
      *
      * @var string|null
      */
-    protected $fileUuid = null;
+    protected $fileUuid;
 
     /**
      * AbstractReceiver constructor.
@@ -35,7 +35,7 @@ class DropZoneUploadHandler extends ChunksInRequestUploadHandler
     public function __construct(Request $request, $file, $config)
     {
         parent::__construct($request, $file, $config);
-        $this->fileUuid = $request->get(self::CHUNK_UUID_INDEX);
+        $this->fileUuid = $request->input(self::CHUNK_UUID_INDEX);
     }
 
     /**
@@ -45,7 +45,7 @@ class DropZoneUploadHandler extends ChunksInRequestUploadHandler
      */
     public function getChunkFileName()
     {
-        return $this->createChunkFileName($this->fileUuid, $this->getCurrentChunk());
+        return $this->createChunkFileName('dz', $this->fileUuid, $this->getCurrentChunk());
     }
 
     /**
@@ -57,7 +57,7 @@ class DropZoneUploadHandler extends ChunksInRequestUploadHandler
      */
     protected function getCurrentChunkFromRequest(Request $request)
     {
-        return intval($request->get(self::CHUNK_INDEX, 0)) + 1;
+        return intval($request->input(self::CHUNK_INDEX, 0)) + 1;
     }
 
     /**
@@ -69,7 +69,7 @@ class DropZoneUploadHandler extends ChunksInRequestUploadHandler
      */
     protected function getTotalChunksFromRequest(Request $request)
     {
-        return intval($request->get(self::CHUNK_TOTAL_INDEX, 1));
+        return intval($request->input(self::CHUNK_TOTAL_INDEX, 1));
     }
 
     /**
@@ -81,7 +81,12 @@ class DropZoneUploadHandler extends ChunksInRequestUploadHandler
      */
     public static function canBeUsedForRequest(Request $request)
     {
-        return $request->has(self::CHUNK_UUID_INDEX) && $request->has(self::CHUNK_TOTAL_INDEX) &&
-            $request->has(self::CHUNK_INDEX);
+        return $request->has(self::CHUNK_UUID_INDEX) && $request->has(self::CHUNK_TOTAL_INDEX)
+            && $request->has(self::CHUNK_INDEX);
+    }
+
+    public function requiresFinalChunkOnLastChunk(): bool
+    {
+        return false;
     }
 }

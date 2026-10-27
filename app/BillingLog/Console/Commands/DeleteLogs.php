@@ -4,10 +4,8 @@ namespace App\BillingLog\Console\Commands;
 
 use App\BillingLog\Controllers\LogViewController;
 use App\Console\LoggableCommand;
-use App\Model\Common\StatusSetting;
-use App\Model\Mailjob\ExpiryMailDay;
-use Carbon\Carbon;
-use Illuminate\Console\Command;
+use App\Model\Mailjob\Condition;
+use Illuminate\Support\Facades\Date;
 
 class DeleteLogs extends LoggableCommand
 {
@@ -26,29 +24,17 @@ class DeleteLogs extends LoggableCommand
     protected $description = 'Deletes system logs older than';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handleAndLog()
+    public function handleAndLog(): void
     {
-        if (StatusSetting::value('system_log_status') != 1) {
+        if (! Condition::isActive('systemLogs')) {
             return;
         }
 
-        $days = ExpiryMailDay::value('system_logs_days');
+        $days = (int) Condition::dayCount('systemLogs');
 
-        $deleteBefore = Carbon::now()->subDays($days)->endOfDay();
+        $deleteBefore = Date::now()->subDays($days)->endOfDay();
 
         (new LogViewController)->deleteLogsByDate(
             ['mail', 'cron', 'exception', 'failed_jobs'],

@@ -29,7 +29,6 @@ return [
     'inspire' => 'Ein inspirierendes Zitat anzeigen',
     'renewal:cron' => 'Automatische Verlängerung Cron',
     'mail-send-exception' => 'Mail-Sendeausnahme',
-    // Added missing language keys for cron commands
     'postexpiry:notification' => 'Abgelaufene Verlängerungsbenachrichtigung',
     'renewal:notification' => 'Automatische Verlängerungsbenachrichtigung',
     'cleanup:msg-reports' => 'MSG91-Berichte bereinigen',
@@ -40,11 +39,8 @@ return [
     'droptables' => 'Alle Tabellen löschen',
     'install:db' => 'Datenbank installieren',
     'testing-setup' => 'Testumgebung einrichten',
-    // Added missing queued dispatch message
     'queued_dispatch_successfully' => 'Warteschlangenversand erfolgreich',
-    // Added missing UI texts
     'cancel' => 'Abbrechen',
-    // Added missing messages from blade file
     'system_logs' => 'Systemprotokolle',
     'filter_logs' => 'Protokolle filtern',
     'logs' => 'Protokolle',
@@ -101,4 +97,16 @@ return [
     'confirm_old_email' => 'Alte E-Mail bestätigen',
     'confirm_mobile_number_change' => 'Änderung der Mobilnummer bestätigen',
     'logs:delete' => 'Systemprotokolle löschen',
+    'cloud:send-instance-emails' => 'Cloud-Instanz-E-Mails senden',
+    'activity-logs:cleanup' => 'Aktivitätsprotokolle bereinigen',
+    'app:crack-callback-cleanup' => 'Cracking-Callbacks bereinigen',
+    'app:crack-reports-cleanup' => 'Cracking-Berichte bereinigen',
+    'app:failed-message-delivery' => 'Fehlgeschlagene WhatsApp-Nachrichten erneut senden',
+    'app:license-reports-cleanup' => 'Lizenzberichte bereinigen',
+    'app:system-reports-cleanup' => 'Systemberichte bereinigen',
+    'app:versions-cleanup' => 'Versionen bereinigen',
+    'installation:logs' => 'Inaktive Installationen markieren',
+    'reoon:logs-deletion' => 'Reoon-Protokolle bereinigen',
+    'seo:generate-files' => 'SEO-Dateien generieren',
+    'date' => 'Datum',
 ];

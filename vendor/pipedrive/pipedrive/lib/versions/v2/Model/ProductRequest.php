@@ -2,7 +2,7 @@
 /**
  * ProductRequest
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -74,7 +74,8 @@ class ProductRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'owner_id' => 'int',
         'is_linkable' => 'bool',
         'visible_to' => '\Pipedrive\versions\v2\Model\VisibleTo',
-        'prices' => 'object[]'
+        'prices' => 'object[]',
+        'custom_fields' => 'array<string,object>'
     ];
 
     /**
@@ -93,7 +94,8 @@ class ProductRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'owner_id' => null,
         'is_linkable' => null,
         'visible_to' => null,
-        'prices' => null
+        'prices' => null,
+        'custom_fields' => null
     ];
 
     /**
@@ -135,7 +137,8 @@ class ProductRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'owner_id' => 'owner_id',
         'is_linkable' => 'is_linkable',
         'visible_to' => 'visible_to',
-        'prices' => 'prices'
+        'prices' => 'prices',
+        'custom_fields' => 'custom_fields'
     ];
 
     /**
@@ -152,7 +155,8 @@ class ProductRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'owner_id' => 'setOwnerId',
         'is_linkable' => 'setIsLinkable',
         'visible_to' => 'setVisibleTo',
-        'prices' => 'setPrices'
+        'prices' => 'setPrices',
+        'custom_fields' => 'setCustomFields'
     ];
 
     /**
@@ -169,7 +173,8 @@ class ProductRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'owner_id' => 'getOwnerId',
         'is_linkable' => 'getIsLinkable',
         'visible_to' => 'getVisibleTo',
-        'prices' => 'getPrices'
+        'prices' => 'getPrices',
+        'custom_fields' => 'getCustomFields'
     ];
 
     /**
@@ -237,7 +242,7 @@ class ProductRequest implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['code'] = $data['code'] ?? null;
         $this->container['description'] = $data['description'] ?? null;
@@ -248,6 +253,7 @@ class ProductRequest implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['is_linkable'] = $data['is_linkable'] ?? true;
         $this->container['visible_to'] = $data['visible_to'] ?? null;
         $this->container['prices'] = $data['prices'] ?? null;
+        $this->container['custom_fields'] = $data['custom_fields'] ?? null;
     }
 
     /**
@@ -488,6 +494,30 @@ class ProductRequest implements ModelInterface, ArrayAccess, JsonSerializable
     public function setPrices($prices): self
     {
         $this->container['prices'] = $prices;
+
+        return $this;
+    }
+
+    /**
+     * Gets custom_fields
+     *
+     * @return array<string,object>|null
+     */
+    public function getCustomFields()
+    {
+        return $this->container['custom_fields'];
+    }
+
+    /**
+     * Sets custom_fields
+     *
+     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes. To clear a custom field value, set it to `null`. For multi-option fields (field type `set`), use `null` to clear the selection — sending an empty array `[]` is not supported and will result in a validation error.
+     *
+     * @return self
+     */
+    public function setCustomFields($custom_fields): self
+    {
+        $this->container['custom_fields'] = $custom_fields;
 
         return $this;
     }

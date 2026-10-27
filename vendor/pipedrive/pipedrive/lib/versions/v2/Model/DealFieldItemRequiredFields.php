@@ -2,7 +2,7 @@
 /**
  * DealFieldItemRequiredFields
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -225,7 +225,7 @@ class DealFieldItemRequiredFields implements ModelInterface, ArrayAccess, JsonSe
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['enabled'] = $data['enabled'] ?? null;
         $this->container['stage_ids'] = $data['stage_ids'] ?? null;

@@ -3,278 +3,124 @@
 namespace App\Console;
 
 use App\BillingLog\Console\Commands\DeleteLogs;
+use App\Console\Commands\AutorenewalExpirymail;
+use App\Console\Commands\CleanupActivityLogs;
+use App\Console\Commands\CleanupMsg91Reports;
+use App\Console\Commands\DropTables;
+use App\Console\Commands\ExpiryCron;
+use App\Console\Commands\FailedMessageDelivery;
+use App\Console\Commands\GenerateSeoFiles;
+use App\Console\Commands\Inspire;
+use App\Console\Commands\Install;
+use App\Console\Commands\InstallDB;
+use App\Console\Commands\invoiceDeletion;
+use App\Console\Commands\moveImages;
+use App\Console\Commands\PostExpiryCron;
+use App\Console\Commands\RenewalCron;
+use App\Console\Commands\ReoonLogsDeletion;
+use App\Console\Commands\SendCloudInstanceEmails;
 use App\Console\Commands\SetupTestEnv;
-use App\Jobs\NotifyMail;
-use App\Model\Common\Setting;
-use App\Model\Common\StatusSetting;
-use App\Model\Mailjob\ActivityLogDay;
-use App\Model\Mailjob\CloudEmail as cloudemailsend;
-use GuzzleHttp\Client;
+use App\Console\Commands\SyncDatabaseToLatestVersion;
+use App\Jobs\DeleteExpiredCloudInstances;
+use App\Model\Mailjob\Condition;
+use File;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Schema;
+use Override;
 
 class Kernel extends ConsoleKernel
 {
-    /**
-     * The Artisan commands provided by your application.
-     *
-     * @var array
-     */
+    /** @var array<mixed> */
     protected $commands = [
-        //
-        \App\Console\Commands\Inspire::class,
-        \App\Console\Commands\Install::class,
-        \App\Console\Commands\DropTables::class,
-        \App\Console\Commands\InstallDB::class,
-        \App\Console\Commands\ExpiryCron::class,
+        Inspire::class,
+        Install::class,
+        DropTables::class,
+        InstallDB::class,
+        ExpiryCron::class,
         SetupTestEnv::class,
-        \App\Console\Commands\SyncDatabaseToLatestVersion::class,
-        \App\Console\Commands\RenewalCron::class,
-        \App\Console\Commands\AutorenewalExpirymail::class,
-        \App\Console\Commands\PostExpiryCron::class,
-        \App\Console\Commands\moveImages::class,
-        \App\Console\Commands\invoiceDeletion::class,
-        \App\Console\Commands\CleanupMsg91Reports::class,
+        SyncDatabaseToLatestVersion::class,
+        RenewalCron::class,
+        AutorenewalExpirymail::class,
+        PostExpiryCron::class,
+        moveImages::class,
+        invoiceDeletion::class,
+        CleanupMsg91Reports::class,
         DeleteLogs::class,
-        \App\Console\Commands\ReoonLogsDeletion::class,
-        \App\Console\Commands\FailedMessageDelivery::class,
+        ReoonLogsDeletion::class,
+        FailedMessageDelivery::class,
+        GenerateSeoFiles::class,
+        CleanupActivityLogs::class,
+        SendCloudInstanceEmails::class,
     ];
 
-    /**
-     * Define the application's command schedule.
-     *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
-     * @return void
-     */
-    protected function schedule(Schedule $schedule)
+    #[Override]
+    protected function schedule(Schedule $schedule): void
     {
-        $this->execute($schedule, 'expiryMail');
-        $this->execute($schedule, 'deleteLogs');
-        $schedule->command('renewal:cron')->everyFiveMinutes();
+        // Overlapping runs created two Stripe subscriptions for one renewal.
+        $schedule->command('renewal:cron')->everyFiveMinutes()->withoutOverlapping(60)->onOneServer();
         $schedule->command('app:failed-message-delivery')->hourly();
-        $this->execute($schedule, 'subsExpirymail');
-        $this->execute($schedule, 'postExpirymail');
-        $this->execute($schedule, 'invoice');
-        $this->execute($schedule, 'msg91Reports');
-        $this->execute($schedule, 'reoon');
-        $this->execute($schedule, 'systemLogs');
+        $schedule->command('seo:generate-files')->hourly();
 
-        // Schedule the cloudEmail method
-        //Should not be touched unless you are changing something with cloud
-        $schedule->call(function () {
-            $lockFilePath = storage_path('cloudEmail.lock');
+        // Background: each domain check can take up to 10s and must not hold up the tasks after it.
+        $schedule->command('cloud:send-instance-emails')->everyFiveMinutes()->withoutOverlapping(60)->runInBackground();
 
-            // Check if the lock file exists
-            if (! file_exists($lockFilePath)) {
-                // Create the lock file
-                file_put_contents($lockFilePath, '');
-
-                // Execute the cloudEmail method
-                $this->cloudEmail();
-
-                // Remove the lock file
-                unlink($lockFilePath);
-            }
-        })->everyFiveMinutes()->name('sendCloudEmail');
-
-        if (config('database.DB_INSTALL')) {
-            $condition = new \App\Model\Mailjob\Condition();
-            $command = $condition->getConditionValue($task = 'cloud');
-            $this->getCondition($schedule->job(new NotifyMail), $command);
-        }
+        $this->scheduleConfigurableTasks($schedule);
     }
 
-    public function execute($schedule, $task)
+    public function scheduleConfigurableTasks(Schedule $schedule): void
     {
-        $env = base_path('.env');
-        if (\File::exists($env) && (env('DB_INSTALL') == 1)) {
-            $expiryMailStatus = StatusSetting::pluck('expiry_mail')->first();
-            $logDeleteStatus = StatusSetting::pluck('activity_log_delete')->first();
-            $RenewalexpiryMailStatus = StatusSetting::pluck('subs_expirymail')->first();
-            $postExpirystatus = StatusSetting::pluck('post_expirymail')->first();
-            $invoiceDeletionstatus = StatusSetting::pluck('invoice_deletion_status')->first();
-            $delLogDays = ActivityLogDay::pluck('days')->first();
-            if (\Schema::hasColumn('status_settings', 'msg91_report_delete_status')) {
-                $msgDeletionStatus = StatusSetting::value('msg91_report_delete_status');
-            }
-            if (\Schema::hasColumn('status_settings', 'reoon_deletion_status')) {
-                $reoonStatus = StatusSetting::pluck('reoon_deletion_status')->first();
-            }
-            if (\Schema::hasColumn('status_settings', 'system_log_status')) {
-                $systemLogsStatus = StatusSetting::pluck('system_log_status')->first();
-            }
-            if ($delLogDays == null) {
-                $delLogDays = 99999999;
-            }
-            \Config::set('activitylog.delete_records_older_than_days', $delLogDays);
-            $condition = new \App\Model\Mailjob\Condition();
-            $command = $condition->getConditionValue($task);
-            switch ($task) {
-                case 'expiryMail':
-                    if ($expiryMailStatus == 1) {
-                        return $this->getCondition($schedule->command('expiry:notification'), $command);
-                    }
-
-                case 'deleteLogs':
-                    if ($logDeleteStatus == 1) {
-                        return $this->getCondition($schedule->command('activitylog:clean --force'), $command);
-                    }
-
-                case 'subsExpirymail':
-                    if ($RenewalexpiryMailStatus) {
-                        return $this->getCondition($schedule->command('renewal:notification'), $command);
-                    }
-                case 'postExpirymail':
-                    if ($postExpirystatus) {
-                        return $this->getCondition($schedule->command('postexpiry:notification'), $command);
-                    }
-                case 'invoice':
-                    if ($invoiceDeletionstatus) {
-                        return $this->getCondition($schedule->command('invoices:delete'), $command);
-                    }
-                case 'msg91Reports':
-                    if (isset($msgDeletionStatus) && $msgDeletionStatus) {
-                        return $this->getCondition($schedule->command('cleanup:msg-reports'), $command);
-                    }
-                case 'reoon':
-                    if (isset($reoonStatus) && $reoonStatus) {
-                        return $this->getCondition($schedule->command('reoon:logs-deletion'), $command);
-                    }
-                case 'systemLogs':
-                    if (isset($systemLogsStatus) && $systemLogsStatus) {
-                        return $this->getCondition($schedule->command('logs:delete'), $command);
-                    }
-            }
+        // schedule() also runs when `migrate` boots, before these columns exist.
+        if (! $this->isInstalled() || ! Schema::hasColumn('conditions', 'active')) {
+            return;
         }
-    }
 
-    public function getCondition($schedule, $command)
-    {
-        $condition = $command['condition'];
-        $at = $command['at'];
-        switch ($condition) {
-            case 'everyMinute':
-                return $schedule->everyMinute();
-            case 'everyFiveMinutes':
-                return $schedule->everyFiveMinutes();
-            case 'everyTenMinutes':
-                return $schedule->everyTenMinutes();
-            case 'everyThirtyMinutes':
-                return $schedule->everyThirtyMinutes();
-            case 'hourly':
-                return $schedule->hourly();
-            case 'daily':
-                return $schedule->daily();
-            case 'dailyAt':
-                return $this->getConditionWithOption($schedule, $condition, $at);
-            case 'weekly':
-                return $schedule->weekly();
-            case 'monthly':
-                return $schedule->monthly();
-            case 'yearly':
-                return $schedule->yearly();
-            default:
-                return $schedule->everyMinute();
-        }
-    }
+        foreach (Condition::where('active', true)->orderBy('id')->get() as $task) {
+            $event = match (true) {
+                $task->job === 'cloud' => $schedule->job(new DeleteExpiredCloudInstances), // a queued job, not a command
+                $task->command !== null => $schedule->command($task->command),
+                default => null,
+            };
+            if ($event === null) {
+                continue;
+            }
 
-    public function getConditionWithOption($schedule, $command, $at)
-    {
-        switch ($command) {
-            case 'dailyAt':
-                return $schedule->dailyAt($at);
+            $this->getCondition($event, $task->frequency());
+
+            if ($task->is_background) {
+                $event->runInBackground();
+            }
         }
     }
 
     /**
-     * Register the Closure based commands for the application.
-     *
-     * @return void
+     * @param  array<mixed>  $command
      */
-    protected function commands()
+    public function getCondition(mixed $schedule, array $command): mixed
+    {
+        return match ($command['condition']) {
+            'everyFiveMinutes' => $schedule->everyFiveMinutes(),
+            'everyTenMinutes' => $schedule->everyTenMinutes(),
+            'everyThirtyMinutes' => $schedule->everyThirtyMinutes(),
+            'hourly' => $schedule->hourly(),
+            'daily' => $schedule->daily(),
+            'dailyAt' => $schedule->dailyAt($command['at']),
+            'weekly' => $schedule->weekly(),
+            'monthly' => $schedule->monthly(),
+            'yearly' => $schedule->yearly(),
+            default => $schedule->everyMinute(),
+        };
+    }
+
+    #[Override]
+    protected function commands(): void
     {
         require base_path('routes/console.php');
     }
 
-    //This is to send an email to the client when the custom domain has been created properly
-    public function cloudEmail()
+    private function isInstalled(): bool
     {
-        try {
-            $contact = getContactData();
-            $setting = Setting::find(1);
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
-            $clouds = cloudemailsend::cursor();
-
-            foreach ($clouds as $cloud) {
-                if ($this->checkTheAvailabilityOfCustomDomain($cloud->domain, $cloud->counter, $cloud->user)) {
-                    $userData = $cloud->result_message.'.<br> Email:'.' '.$cloud->user.'<br>'.'Password:'.' '.$cloud->result_password;
-                    $mail->SendEmail($setting->email, $cloud->user, $userData, 'New instance created', 'cloud-instance-created');
-                    cloudemailsend::where('domain', $cloud->domain)->delete();
-                }
-            }
-        } catch(\Exception $e) {
-            $this->googleChat($e->getMessage());
-        }
-    }
-
-    private function checkTheAvailabilityOfCustomDomain($domain, $counter, $user)
-    {
-        $client = new Client();
-        try {
-            $response = $client->get('https://'.$domain);
-            $statusCode = $response->getStatusCode();
-            if ($statusCode >= 200 && $statusCode < 300) {
-                $this->prepareMessages($domain, $counter, $user, true);
-
-                return true;
-            }
-        } catch (\Exception $e) {
-            $this->prepareMessages($domain, $counter, $user);
-
-            // The domain is not reachable or the SSL certificate is invalid.
-            return false;
-        }
-        $this->prepareMessages($domain, $counter, $user);
-
-        return false;
-    }
-
-    private function googleChat($text)
-    {
-        $url = env('GOOGLE_CHAT');
-        $message = [
-            'text' => $text,
-        ];
-        $message_headers = [
-            'Content-Type' => 'application/json; charset=UTF-8',
-        ];
-        $client = new Client();
-        $client->post($url, [
-            'headers' => $message_headers,
-            'body' => json_encode($message),
-        ]);
-    }
-
-    private function prepareMessages($domain, $counter, $user, $success = false)
-    {
-        $lockFilePath = storage_path('cloudMessage.lock');
-
-        // Check if the lock file exists
-        if (! file_exists($lockFilePath)) {
-            // Create the lock file
-            file_put_contents($lockFilePath, '');
-
-            // Execute the cloudEmail method
-            if ($success) {
-                $this->googleChat('Hello, It has come to my notice that this domain has been created successfully Domain name:'.$domain.' and this is their email: '.$user."\u{2705}\u{2705}\u{2705}");
-            } else {
-                cloudemailsend::where('domain', $domain)->increment('counter');
-                if ($counter == 30) {
-                    $this->googleChat('Hello, It has come to my notice that this domain has not been created successfully Domain name:'.$domain.' and this is their email: '.$user.'&#10060;'."\u{2716}\u{2716}\u{2716}");
-                }
-            }
-            // Remove the lock file
-            unlink($lockFilePath);
-        }
+        // The env file actually loaded: .env in production, .env.testing under APP_ENV=testing (CI).
+        return File::exists(app()->environmentFilePath()) && config('custom.db_install') == 1;
     }
 }

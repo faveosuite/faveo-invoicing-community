@@ -13,6 +13,7 @@ namespace Psy;
 
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
@@ -194,7 +195,7 @@ class ProjectTrust
      */
     public function warnTrustPersistenceFailed(string $root, OutputInterface $output): void
     {
-        if ($output instanceof \Symfony\Component\Console\Output\ConsoleOutput) {
+        if ($output instanceof ConsoleOutput) {
             $output = $output->getErrorOutput();
         }
 
@@ -214,7 +215,7 @@ class ProjectTrust
         }
 
         $this->warnedUntrustedAutoload = true;
-        if ($output instanceof \Symfony\Component\Console\Output\ConsoleOutput) {
+        if ($output instanceof ConsoleOutput) {
             $output = $output->getErrorOutput();
         }
 
@@ -354,8 +355,37 @@ class ProjectTrust
             }
         }
 
-        if (isset($_SERVER['PSYSH_UNTRUSTED_PROJECT']) && $_SERVER['PSYSH_UNTRUSTED_PROJECT']) {
-            return $this->normalizeProjectRoot($_SERVER['PSYSH_UNTRUSTED_PROJECT']);
+        if (($untrustedProjectRoot = $this->getUntrustedProjectRootHint()) !== null) {
+            return $this->normalizeProjectRoot($untrustedProjectRoot);
+        }
+
+        return null;
+    }
+
+    /**
+     * Only prompt about local PsySH binaries when a launcher detected one.
+     */
+    public function shouldPromptForLocalPsyshBinary(): bool
+    {
+        return $this->getUntrustedProjectRootHint() !== null;
+    }
+
+    /**
+     * Get untrusted project root hint from environment, if present.
+     */
+    private function getUntrustedProjectRootHint(): ?string
+    {
+        if (isset($_SERVER['PSYSH_UNTRUSTED_PROJECT'])
+            && \is_string($_SERVER['PSYSH_UNTRUSTED_PROJECT'])
+            && $_SERVER['PSYSH_UNTRUSTED_PROJECT'] !== ''
+        ) {
+            return $_SERVER['PSYSH_UNTRUSTED_PROJECT'];
+        }
+
+        $env = \getenv('PSYSH_UNTRUSTED_PROJECT');
+
+        if (\is_string($env) && $env !== '') {
+            return $env;
         }
 
         return null;

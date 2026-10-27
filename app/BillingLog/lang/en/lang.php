@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => 'Default',
     'cloud-instance-created' => 'Cloud Instance Created',
@@ -102,4 +104,16 @@ return [
     'confirm_old_email' => 'Confirm Old Email',
     'confirm_mobile_number_change' => 'Confirm Mobile Number Change',
     'logs:delete' => 'Delete System Logs',
+    'cloud:send-instance-emails' => 'Send Cloud Instance Emails',
+    'activity-logs:cleanup' => 'Activity Logs Cleanup',
+    'app:crack-callback-cleanup' => 'Cracking Callbacks Cleanup',
+    'app:crack-reports-cleanup' => 'Cracking Reports Cleanup',
+    'app:failed-message-delivery' => 'Retry Failed WhatsApp Messages',
+    'app:license-reports-cleanup' => 'License Reports Cleanup',
+    'app:system-reports-cleanup' => 'System Reports Cleanup',
+    'app:versions-cleanup' => 'Versions Cleanup',
+    'installation:logs' => 'Mark Inactive Installations',
+    'reoon:logs-deletion' => 'Reoon Logs Cleanup',
+    'seo:generate-files' => 'Generate SEO Files',
+    'date' => 'Date',
 ];

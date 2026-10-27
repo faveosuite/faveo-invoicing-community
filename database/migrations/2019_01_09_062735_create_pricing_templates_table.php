@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('pricing_templates')) {
-            Schema::create('pricing_templates', function (Blueprint $table) {
+            Schema::create('pricing_templates', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->longText('data');
                 $table->string('image');
@@ -26,10 +24,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('pricing_templates');
     }

@@ -2,6 +2,8 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Collection;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -11,38 +13,40 @@ class InvoiceExport implements FromCollection, WithHeadings, WithTitle
 {
     use Exportable;
 
-    protected $selectedColumns;
-    protected $invoicesData;
-    protected $sheetIndex;
-
-    public function __construct($selectedColumns, $invoicesData, $sheetIndex)
+    /**
+     * @param  Enumerable<covariant int|string, covariant mixed>  $invoicesData
+     */
+    public function __construct(protected mixed $selectedColumns, protected Enumerable $invoicesData, protected mixed $sheetIndex)
     {
-        $this->selectedColumns = $selectedColumns;
-        $this->invoicesData = $invoicesData;
-        $this->sheetIndex = $sheetIndex;
     }
 
-    public function collection()
+    /**
+     * @return Collection<int|string, mixed>
+     */
+    public function collection(): Collection
     {
         return collect($this->invoicesData);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function headings(): array
     {
         $headingsMap = [
-            'user_id' => 'User',
+            'user_id' => 'Contact',
             'email' => 'Email',
             'mobile' => 'Mobile',
             'country' => 'Country',
             'grand_total' => 'Total',
             'number' => 'InvoiceNo',
+            'product' => 'Product',
             'date' => 'Date',
             'status' => 'Status',
+            'type' => 'Type',
         ];
 
-        return array_map(function ($column) use ($headingsMap) {
-            return $headingsMap[$column] ?? $column;
-        }, $this->selectedColumns);
+        return array_map(fn ($column) => $headingsMap[$column] ?? $column, $this->selectedColumns);
     }
 
     public function title(): string

@@ -8,12 +8,10 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('group_features', function (Blueprint $table) {
+        Schema::table('group_features', function (Blueprint $table): void {
             // Get all indexes for the group_features table
             $indexes = DB::select('SHOW INDEX FROM group_features');
 
@@ -31,20 +29,18 @@ return new class extends Migration
                 $table->foreign('group_id')
                     ->references('id')
                     ->on('product_groups')
-                    ->onUpdate('RESTRICT')
-                    ->onDelete('RESTRICT');
+                    ->onUpdate('restrict')
+                    ->onDelete('restrict');
             }
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('group_features', function (Blueprint $table) {
+        Schema::table('group_features', function (Blueprint $table): void {
             $table->dropForeign('group_features_group_id_foreign');
         });
     }

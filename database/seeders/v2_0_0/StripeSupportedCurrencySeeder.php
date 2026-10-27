@@ -9,10 +9,8 @@ class StripeSupportedCurrencySeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         StripePayment::create([
             'currencies' => 'USD',

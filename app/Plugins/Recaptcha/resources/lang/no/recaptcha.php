@@ -1,9 +1,6 @@
 <?php
 
 return [
-    /*
-    * Recaptcha Settings Page
-    */
     'captcha_settings' => 'reCAPTCHA-innstillinger',
     'captcha_configuration' => 'reCAPTCHA-konfigurasjon',
     'captcha_version' => 'reCAPTCHA-versjon',
@@ -15,10 +12,6 @@ return [
     'none' => 'Ingen',
     'fallback_v2_checkbox' => 'Tilbakefall til reCAPTCHA v2-avmerkingsboks',
     'action_if_captcha_fails' => 'Handling som skal utføres hvis reCAPTCHA mislykkes',
-
-    /*
-    * Recaptcha v3 Settings
-    */
     'recaptcha_v3_settings' => 'reCAPTCHA v3-innstillinger',
     'v3_site_key' => 'v3-nettstedsnøkkel',
     'enter_v3_site_key' => 'Skriv inn din reCAPTCHA v3-nettstedsnøkkel',
@@ -27,20 +20,12 @@ return [
     'v3_score_threshold' => 'v3-poengterskel',
     'v3_score_hint' => 'Verdi mellom 0,0 og 1,0 (høyere er bedre)',
     'v3_preview' => 'v3-forhåndsvisning',
-
-    /*
-    * Recaptcha v2 Settings
-    */
     'recaptcha_v2_settings' => 'reCAPTCHA v2-innstillinger',
     'v2_site_key' => 'v2-nettstedsnøkkel',
     'enter_v2_site_key' => 'Skriv inn din reCAPTCHA v2-nettstedsnøkkel',
     'v2_secret_key' => 'v2-hemmelig nøkkel',
     'enter_v2_secret_key' => 'Skriv inn din reCAPTCHA v2-hemmelige nøkkel',
     'v2_preview' => 'v2-forhåndsvisning',
-
-    /*
-    * Appearance
-    */
     'appearance_messages' => 'Utseende',
     'theme' => 'Tema',
     'theme_light' => 'Lyst',
@@ -52,28 +37,12 @@ return [
     'badge_bottomright' => 'Nede til høyre',
     'badge_bottomleft' => 'Nede til venstre',
     'badge_inline' => 'Innebygd',
-
-    /*
-    * Common
-    */
     'save' => 'Lagre',
     'saving' => 'Lagrer',
     'home' => 'Hjem',
     'settings' => 'Innstillinger',
-
-    /*
-    * Success messages
-    */
     'captcha_settings_updated' => 'reCAPTCHA-innstillingene ble oppdatert!',
-
-    /*
-    * Error messages
-    */
     'captcha_message' => 'reCAPTCHA-verifisering mislyktes. Prøv på nytt.',
-
-    /*
-    * JavaScript validation messages
-    */
     'field_required_condition' => 'Dette feltet er obligatorisk når betingelsen er oppfylt',
     'select_captcha_version' => 'Velg en reCAPTCHA-versjon',
     'v3_site_key_required' => 'reCAPTCHA v3-nettstedsnøkkel er obligatorisk',
@@ -90,16 +59,8 @@ return [
     'failed_generate_v2_token' => 'Kunne ikke generere reCAPTCHA v2-token.',
     'settings_saved' => 'Innstillingene er lagret.',
     'failed_save_settings' => 'Kunne ikke lagre innstillingene. Prøv på nytt.',
-
-    /*
-    * Backend validation messages
-    */
     'invalid_secret_or_token' => 'Hemmelig nøkkel eller responstoken er ugyldig',
     'captcha_verification_failed' => 'reCAPTCHA-verifisering mislyktes (poengsum/handling/vertsnavn stemmer ikke overens)',
-
-    /*
-    * Validation messages
-    */
     'captcha_version_required' => 'reCAPTCHA-versjon er obligatorisk',
     'captcha_version_in' => 'Valgt reCAPTCHA-versjon er ugyldig',
     'failover_action_required' => 'Failover-handling er obligatorisk',

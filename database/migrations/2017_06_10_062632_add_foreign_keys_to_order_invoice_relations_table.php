@@ -8,17 +8,15 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('order_invoice_relations', function (Blueprint $table) {
+        Schema::table('order_invoice_relations', function (Blueprint $table): void {
             // Get all indexes for the order_invoice_relations table
             $indexes = DB::select('SHOW INDEX FROM order_invoice_relations');
 
             // Helper to check if a specific index exists
-            $indexExists = function ($indexName) use ($indexes) {
+            $indexExists = function ($indexName) use ($indexes): bool {
                 foreach ($indexes as $index) {
                     if ($index->Key_name === $indexName) {
                         return true;
@@ -33,8 +31,8 @@ return new class extends Migration
                 $table->foreign('invoice_id')
                     ->references('id')
                     ->on('invoices')
-                    ->onUpdate('RESTRICT')
-                    ->onDelete('RESTRICT');
+                    ->onUpdate('restrict')
+                    ->onDelete('restrict');
             }
 
             // Check and add foreign key for order_id
@@ -42,20 +40,18 @@ return new class extends Migration
                 $table->foreign('order_id')
                     ->references('id')
                     ->on('orders')
-                    ->onUpdate('RESTRICT')
-                    ->onDelete('RESTRICT');
+                    ->onUpdate('restrict')
+                    ->onDelete('restrict');
             }
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('order_invoice_relations', function (Blueprint $table) {
+        Schema::table('order_invoice_relations', function (Blueprint $table): void {
             $table->dropForeign('order_invoice_relations_invoice_id_foreign');
             $table->dropForeign('order_invoice_relations_order_id_foreign');
         });

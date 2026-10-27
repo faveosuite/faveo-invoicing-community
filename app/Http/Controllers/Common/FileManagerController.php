@@ -4,15 +4,37 @@ namespace App\Http\Controllers\Common;
 
 use App\Facades\Attach;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class FileManagerController extends Controller
 {
-    public function previewFile(Request $request)
+    // Shared by every TinyMCE instance (tinyMceDefaults.js' images_upload_handler) —
+    // Pages, Product/ProductVersion descriptions, email templates, footer widget.
+    public function uploadEditorImage(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => ['required', 'image', 'mimes:jpeg,png,jpg,webp,gif', 'max:20000'],
+        ]);
+
+        $path = Attach::put('images/editor', $request->file('file'), null, true);
+
+        if (! $path) {
+            return errorResponse(__('message.something_went_wrong'));
+        }
+
+        return response()->json(['location' => Attach::getUrlPath($path)]);
+    }
+
+    public function previewFile(Request $request): mixed
     {
         $path = $request->input('path');
 
-        if (! $path || ! Attach::exists($path)) {
+        // Public on purpose (S3 image URLs on guest pages), so only the image folders are served —
+        // the same disk also holds keys, exports and product builds.
+        if (! $path || str_contains((string) $path, '..') || ! Str::startsWith($path, ['images/', 'common/images/', 'admin/images/'])
+            || ! Attach::exists($path)) {
             abort(404, __('message.file_not_exist'));
         }
 
@@ -20,9 +42,9 @@ class FileManagerController extends Controller
 
         $fileMetadata = Attach::getMetadata($path);
 
-        $fileName = basename($path);
+        $fileName = basename((string) $path);
 
-        return response()->stream(function () use ($fileStream) {
+        return response()->stream(function () use ($fileStream): void {
             fpassthru($fileStream);
         }, 200, [
             'Content-Type' => $fileMetadata['type'],

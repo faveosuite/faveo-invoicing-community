@@ -2,9 +2,9 @@
 
 namespace Pion\Laravel\ChunkUpload\Config;
 
+use Illuminate\Support\Facades\Config;
+
 /**
- * Class FileConfig.
- *
  * Enables loading a config settings from the Laravel Config facade.
  */
 class FileConfig extends AbstractConfig
@@ -12,7 +12,7 @@ class FileConfig extends AbstractConfig
     /**
      * The file name of the config.
      */
-    const FILE_NAME = 'chunk-upload';
+    public const FILE_NAME = 'chunk-upload';
 
     /**
      * Returns a list custom handlers (custom, override).
@@ -89,6 +89,16 @@ class FileConfig extends AbstractConfig
     }
 
     /**
+     * Should logging be enabled?
+     *
+     * @return bool
+     */
+    public function loggingEnabled()
+    {
+        return $this->get('logging.enabled', false);
+    }
+
+    /**
      * Returns a chunks config value.
      *
      * @param string     $key     the config name is prepended to the key value
@@ -100,6 +110,6 @@ class FileConfig extends AbstractConfig
      */
     public function get($key, $default = null)
     {
-        return config(self::FILE_NAME.'.'.$key, $default);
+        return Config::get(self::FILE_NAME.'.'.$key, $default);
     }
 }
