@@ -432,12 +432,37 @@ class CampaignsTest extends DBTestCase
     public function test_it_subscribes_to_the_list_the_admin_picked(): void
     {
         ZohoIntegration::wherePlatform('campaigns')->update(['list_key' => 'picked_key']);
-        Http::fake(['*/listsubscribe*' => Http::response(['status' => 'success'])]);
+        Http::swap(new Factory);
+        Http::fake([
+            '*/getmailinglists*' => Http::response(['list_of_details' => [['listname' => 'Picked', 'listkey' => 'picked_key']]]),
+            '*/listsubscribe*' => Http::response(['status' => 'success']),
+        ]);
 
         new Campaigns()->subscribe('test@example.com');
 
         Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/listsubscribe')
             && str_contains((string) $request->url(), 'listkey=picked_key'));
+    }
+
+    public function test_a_stale_saved_list_key_falls_back_to_auto_creating_the_default_list(): void
+    {
+        ZohoIntegration::wherePlatform('campaigns')->update(['list_key' => 'deleted_key']);
+        Config::set('zoho_campaigns.defaultListName', 'New List');
+        Http::swap(new Factory);
+        Http::preventStrayRequests();
+        Http::fake([
+            '*/getmailinglists*' => Http::sequence()
+                ->push(['list_of_details' => [['listname' => 'Other List', 'listkey' => 'other_key']]])
+                ->push(['list_of_details' => [['listname' => 'New List', 'listkey' => 'new_key']]]),
+            '*/addlistandcontacts*' => Http::response(['status' => 'success']),
+            '*/listsubscribe*' => Http::response(['status' => 'success']),
+        ]);
+
+        new Campaigns()->subscribe('test@example.com');
+
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/addlistandcontacts'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/listsubscribe')
+            && str_contains((string) $request->url(), 'listkey=new_key'));
     }
 
     public function test_mailing_lists_are_listed_for_the_settings_page(): void

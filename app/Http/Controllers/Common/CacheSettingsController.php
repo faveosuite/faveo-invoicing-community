@@ -132,7 +132,7 @@ class CacheSettingsController extends Controller
                 'redis' => $this->testRedis(
                     $data['REDIS_HOST'] ?? config('database.redis.default.host', self::LOCAL_HOST),
                     (int) ($data['REDIS_PORT'] ?? config('database.redis.default.port', 6379)),
-                    $data['REDIS_PASSWORD'] ?? config('database.redis.default.password', '')
+                    (string) ($data['REDIS_PASSWORD'] ?? config('database.redis.default.password'))
                 ),
                 'memcached' => $this->testMemcached(
                     $data['MEMCACHED_HOST'] ?? config('cache.stores.memcached.servers.0.host', self::LOCAL_HOST),

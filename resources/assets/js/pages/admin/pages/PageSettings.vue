@@ -55,8 +55,7 @@ const loading = ref(true)
 const saving = ref(false)
 
 // '' represents "My Invoices" (no custom page picked) — never sent to the
-// backend as-is, translated to null in save(). Custom pages are capped at
-// 3 (see PageController::createPage), so no pagination/search is needed.
+// backend as-is, translated to null in save().
 const pageOptions = ref([{ id: '', name: __('message.my_invoices') }])
 
 const form = reactive({
@@ -68,7 +67,8 @@ onMounted(async () => {
     try {
         const [settingsRes, pagesRes] = await Promise.all([
             http.get('/page-settings'),
-            http.get('/pages'),
+            // ponytail: one big page instead of a searchable select; fine until there are 1000+ pages
+            http.get('/pages', { params: { limit: 1000 } }),
         ])
 
         const pages = pagesRes.data?.data?.data ?? []

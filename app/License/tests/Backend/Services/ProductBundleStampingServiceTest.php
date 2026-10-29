@@ -133,7 +133,8 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         $this->assertStringContainsString('APP_VERSION=1.2.3', $config);
         $this->assertStringContainsString('PRODUCT_ID='.$product->id, $config);
         $this->assertStringContainsString('LICENSE_MODE=DATABASE', $config);
-        $this->assertStringNotContainsString('ED25519_PUBLIC_KEY', $config);
+        $this->assertStringContainsString('ED25519_PUBLIC_KEY='.new Ed25519SigningService()->publicKey(), $config);
+        $this->assertStringContainsString('SERVER_URL='.rtrim((string) config('app.url'), '/')."\n", $config);
         $this->assertMatchesRegularExpression('/^APL_SALT=[0-9a-f]{16}$/m', $config);
 
         // Nothing is ever removed from the zip — every plugin folder ships
@@ -368,6 +369,15 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
         $this->assertInstanceOf(BinaryFileResponse::class, $response);
         $this->assertStringContainsString('my-product-1.0.0.zip', (string) $response->headers->get('Content-Disposition'));
+
+        // Signed exactly as faveo/license-client checks it: Ed25519 over "product_id|version|sha256" of the stamped file.
+        $sha256 = hash_file('sha256', $response->getFile()->getPathname());
+        $this->assertSame($sha256, $response->headers->get('archive_sha256'));
+        $this->assertTrue(sodium_crypto_sign_verify_detached(
+            base64_decode((string) $response->headers->get('archive_signature')),
+            $product->id.'|1.0.0|'.$sha256,
+            base64_decode(new Ed25519SigningService()->publicKey()),
+        ));
 
         // deleteFileAfterSend() only fires on a real HTTP send, which never
         // happens here — clean up the stamped output file ourselves.

@@ -80,8 +80,15 @@ class ProductBundleStampingService
     public function downloadResponseFor(ProductUpload $version, Product $product, string $storagePath, ?Order $order = null): Response
     {
         $localStampedPath = $this->stampToLocalFile($storagePath, $product, $version->version, $order);
+        $sha256 = (string) hash_file('sha256', $localStampedPath);
 
-        return response()->download($localStampedPath, $this->downloadName($product, $version->version, pathinfo($storagePath, PATHINFO_EXTENSION)))->deleteFileAfterSend();
+        $response = response()->download($localStampedPath, $this->downloadName($product, $version->version, pathinfo($storagePath, PATHINFO_EXTENSION)))->deleteFileAfterSend();
+
+        // faveo/license-client refuses an update archive unless these match: Ed25519 over "product_id|version|sha256".
+        $response->headers->set('archive_sha256', $sha256);
+        $response->headers->set('archive_signature', $this->signingService->sign($product->id.'|'.$version->version.'|'.$sha256));
+
+        return $response;
     }
 
     /**
@@ -238,13 +245,13 @@ class ProductBundleStampingService
     /**
      * Builds the full contents of a product's config file (APL_SALT,
      * PRODUCT_KEY, APP_NAME, APP_VERSION, PRODUCT_ID,
-     * PRODUCT_NAME_FOR_AUTO_UPDATE, LICENSE_MODE) — written wherever that
-     * product's own config_file_path points.
+     * PRODUCT_NAME_FOR_AUTO_UPDATE, LICENSE_MODE, ED25519_PUBLIC_KEY, SERVER_URL) —
+     * written wherever that product's own config_file_path points.
      *
-     * When $order is set and in File mode, also switches LICENSE_MODE to
-     * FILE and adds the signing public key, so the installed product can
-     * verify the license file (see writeProductFiles) offline. Otherwise
-     * LICENSE_MODE is DATABASE and no key is added.
+     * When $order is set and in File mode, LICENSE_MODE is FILE so the
+     * installed product verifies the license file (see writeProductFiles)
+     * offline; otherwise DATABASE. The public key is always added: it also
+     * verifies update archive signatures (see downloadResponseFor).
      */
     private function buildFaveoConfig(Product $targetProduct, string $version, ?Order $order = null): string
     {
@@ -258,13 +265,11 @@ class ProductBundleStampingService
             'PRODUCT_ID='.$targetProduct->id,
             'PRODUCT_NAME_FOR_AUTO_UPDATE='.$targetProduct->name,
             'LICENSE_MODE='.($isFileMode ? 'FILE' : 'DATABASE'),
+            'ED25519_PUBLIC_KEY='.$this->signingService->publicKey(),
+            // The billing this build came from, so the installed product calls it back for licence checks and updates.
+            'SERVER_URL='.rtrim((string) config('app.url'), '/'),
+            '',
         ];
-
-        if ($isFileMode) {
-            $lines[] = 'ED25519_PUBLIC_KEY='.$this->signingService->publicKey();
-        }
-
-        $lines[] = '';
 
         return implode("\n", $lines);
     }

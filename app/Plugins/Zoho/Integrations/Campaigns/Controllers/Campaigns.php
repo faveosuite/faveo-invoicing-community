@@ -229,7 +229,8 @@ class Campaigns
      */
     protected function resolveListKey(?string $list = null, ?string $email = null): string
     {
-        if ($list === null && $this->defaultListKey !== null) {
+        // Trust the saved key only while that list still exists in Zoho; otherwise fall through to name lookup / auto-create.
+        if ($list === null && $this->defaultListKey && $this->lists->contains('listKey', $this->defaultListKey)) {
             return $this->defaultListKey;
         }
 
