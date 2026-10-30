@@ -20,7 +20,9 @@ use App\Plugins\Payment\Exceptions\PaymentException;
  */
 class SubscriptionService
 {
-    public function __construct(private readonly PaymentService $payments) {}
+    public function __construct(private readonly PaymentService $payments)
+    {
+    }
 
     /**
      * Open a recurring subscription on a gateway.

@@ -33,7 +33,8 @@ class SubscriptionWebhookService
 {
     public function __construct(
         private readonly ConcretePostSubscriptionHandleController $handler
-    ) {}
+    ) {
+    }
 
     // ── Stripe ────────────────────────────────────────────────────────────
 

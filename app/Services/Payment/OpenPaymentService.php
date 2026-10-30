@@ -33,7 +33,9 @@ class OpenPaymentService
 {
     private const DISPLAY_DATETIME = 'd M Y H:i';
 
-    public function __construct(private readonly PaymentService $payments) {}
+    public function __construct(private readonly PaymentService $payments)
+    {
+    }
 
     /** Stripe publishable key, for the client to initialise Stripe.js. */
     public function publishableKey(): string

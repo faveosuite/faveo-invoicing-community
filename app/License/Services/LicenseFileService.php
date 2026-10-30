@@ -18,7 +18,9 @@ use SodiumException;
  */
 class LicenseFileService
 {
-    public function __construct(protected Ed25519SigningService $signingService) {}
+    public function __construct(protected Ed25519SigningService $signingService)
+    {
+    }
 
     /**
      * Builds the license file for whichever product is being downloaded —

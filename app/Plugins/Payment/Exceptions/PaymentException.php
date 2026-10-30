@@ -11,4 +11,6 @@ use RuntimeException;
  * vendor SDK exceptions and rethrow as a PaymentException, so callers depend on
  * the package's own type rather than on Stripe's or Razorpay's SDK internals.
  */
-class PaymentException extends RuntimeException {}
+class PaymentException extends RuntimeException
+{
+}
