@@ -59,7 +59,8 @@ final readonly class StripeGateway implements CardPaymentGateway, PaymentGateway
         private string $secretKey,
         private string $publishableKey = '',
         private string $webhookSecret = '',
-    ) {}
+    ) {
+    }
 
     public function name(): string
     {

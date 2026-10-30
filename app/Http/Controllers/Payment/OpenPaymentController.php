@@ -33,7 +33,9 @@ use Throwable;
  */
 class OpenPaymentController extends Controller
 {
-    public function __construct(private readonly OpenPaymentService $payments) {}
+    public function __construct(private readonly OpenPaymentService $payments)
+    {
+    }
 
     /**
      * Create order.

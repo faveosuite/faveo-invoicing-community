@@ -14,7 +14,9 @@ use RuntimeException;
  */
 class CloudApi
 {
-    public function __construct(private readonly Client $client, private readonly ?FaveoCloud $cloud = null) {}
+    public function __construct(private readonly Client $client, private readonly ?FaveoCloud $cloud = null)
+    {
+    }
 
     /**
      * GET with the app key as ?key=.

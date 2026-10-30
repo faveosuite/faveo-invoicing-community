@@ -23,5 +23,6 @@ final readonly class PaymentResult
         public ?string $reference = null,
         public string $status = '',
         public array $raw = [],
-    ) {}
+    ) {
+    }
 }

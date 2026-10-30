@@ -32,7 +32,8 @@ class ProductBundleStampingService
     public function __construct(
         protected Ed25519SigningService $signingService,
         protected LicenseFileService $licenseFileService,
-    ) {}
+    ) {
+    }
 
     /**
      * Stamps $targetProduct's identity into a local temp copy of the

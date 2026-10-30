@@ -13,7 +13,9 @@ use Throwable;
 
 class SubscriptionRenewalService
 {
-    public function __construct(private LicenseService $licenseService) {}
+    public function __construct(private LicenseService $licenseService)
+    {
+    }
 
     /**
      * Extend subscription dates by the plan's days, then sync with the license server.

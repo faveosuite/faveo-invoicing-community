@@ -9,4 +9,6 @@ use App\Http\Controllers\Controller;
 // ///
 // Handles Operations for Setting up Product Plans //
 // ///
-class ExtendedPlanController extends Controller {}
+class ExtendedPlanController extends Controller
+{
+}

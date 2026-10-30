@@ -27,7 +27,8 @@ class AutoRenewalController extends Controller
     public function __construct(
         private readonly PaymentService $payments,
         private readonly AutoRenewalActivationService $activation,
-    ) {}
+    ) {
+    }
 
     /**
      * Create a Stripe PaymentIntent for card verification.

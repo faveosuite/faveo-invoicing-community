@@ -16,7 +16,9 @@ class OrderExport implements FromCollection, WithHeadings, WithTitle
     /**
      * @param  Enumerable<covariant int|string, covariant mixed>  $ordersData
      */
-    public function __construct(protected mixed $selectedColumns, protected Enumerable $ordersData, protected mixed $sheetIndex) {}
+    public function __construct(protected mixed $selectedColumns, protected Enumerable $ordersData, protected mixed $sheetIndex)
+    {
+    }
 
     /**
      * @return Collection<int|string, mixed>

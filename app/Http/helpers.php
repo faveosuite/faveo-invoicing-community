@@ -1192,7 +1192,7 @@ function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds 
     $path = parse_url($url, PHP_URL_PATH);
     $identifier = $perSite
         ? (string) $host
-        : ($host).($path);
+        : ($host).$path;
 
     $key = 'api_rate_next_allowed_'.md5($identifier);
 

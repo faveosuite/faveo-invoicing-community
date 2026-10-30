@@ -60,9 +60,13 @@ class ConsoleCommandsTest extends DBTestCase
                     return null;
                 }
 
-                public function cronCompleted(mixed $id = null): void {}
+                public function cronCompleted(mixed $id = null): void
+                {
+                }
 
-                public function cronFailed(mixed $id = null, mixed $exception = null): void {}
+                public function cronFailed(mixed $id = null, mixed $exception = null): void
+                {
+                }
             };
         });
 

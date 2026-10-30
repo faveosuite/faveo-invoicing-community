@@ -49,7 +49,9 @@ class SeoMetaService // NOSONAR - large existing class, kept as is: splitting it
     /** @var array<string, array{title:string,description:string,robots:string,canonical:string,image:?string,og_title:string,og_description:string}> */
     private array $resolved = [];
 
-    public function __construct(private readonly SeoTemplateFormatter $formatter) {}
+    public function __construct(private readonly SeoTemplateFormatter $formatter)
+    {
+    }
 
     /**
      * @return array{title:string,description:string,robots:string,canonical:string,image:?string,og_title:string,og_description:string}
