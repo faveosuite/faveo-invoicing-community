@@ -27,6 +27,7 @@ class WhatsappControllerTest extends DBTestCase
         $cont = WhatsappIntegration::create(['app_id' => 'fsfdsf', 'config_id' => 'fsfdsf', 'app_secret' => 'fsfdsf', 'verify_token' => 'fsfdsf']);
         $response = $this->call('GET', 'whatsapp-integration-info');
         $response->assertStatus(200);
+
         $data = $response->json()['data'];
         $this->assertEquals($cont->app_id, $data['app_id']);
     }
@@ -166,13 +167,13 @@ class WhatsappControllerTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
 
-        $record = \App\WhatsappIntegrationUser::create([
+        $record = WhatsappIntegrationUser::create([
             'user_id' => $user->id,
             'waba_id' => 'waba-'.uniqid(),
             'phone_number_id' => 'ph-'.uniqid(),
             'access_token' => 'tok-'.uniqid(),
             'user_callback_url' => 'https://callback.test.local',
-            'order_id' => \App\Model\Order\Order::value('id') ?? 0,
+            'order_id' => Order::value('id') ?? 0,
         ]);
 
         $response = $this->getJson('/get-webhook-url?id='.$record->id);
@@ -193,13 +194,13 @@ class WhatsappControllerTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
 
-        $record = \App\WhatsappIntegrationUser::create([
+        $record = WhatsappIntegrationUser::create([
             'user_id' => $user->id,
             'waba_id' => 'waba-'.uniqid(),
             'phone_number_id' => 'ph-'.uniqid(),
             'access_token' => 'tok-'.uniqid(),
             'user_callback_url' => 'https://old-url.test',
-            'order_id' => \App\Model\Order\Order::value('id') ?? 0,
+            'order_id' => Order::value('id') ?? 0,
         ]);
 
         $response = $this->postJson('/webhook-url-edit', [

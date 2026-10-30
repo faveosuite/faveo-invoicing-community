@@ -30,7 +30,7 @@ class AdminTest extends DBTestCase
 
     private function passThrough(): Closure
     {
-        return fn ($request) => new Response('ok', 200);
+        return fn ($request): Response => new Response('ok', 200);
     }
 
     // --- admin role ---
@@ -73,7 +73,7 @@ class AdminTest extends DBTestCase
         // Response must be a redirect or 401 (not 200)
         $statusCode = $response->getStatusCode();
         $this->assertTrue(
-            in_array($statusCode, [301, 302, 401], true),
+            in_array($statusCode, [301, 302, 401], strict: true),
             "Expected redirect or 401, got $statusCode"
         );
     }
@@ -110,10 +110,10 @@ class AdminTest extends DBTestCase
         try {
             $response = $this->middleware->handle($request, $this->passThrough());
             $this->assertNotEquals(200, $response->getStatusCode());
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // Admin middleware assumes Auth::user() is set; null user causes an exception.
             // This is expected behavior when no auth guard is active.
-            $this->assertTrue(true, 'Exception expected when user is null: '.$e->getMessage());
+            $this->assertTrue(true, 'Exception expected when user is null: '.$throwable->getMessage());
         }
     }
 }

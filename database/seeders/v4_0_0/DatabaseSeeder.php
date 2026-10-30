@@ -19,16 +19,16 @@ class DatabaseSeeder extends Seeder
         Widgets::where('type', 'footer4')->delete();
 
         $this->call([TemplateTypeTableSeeder::class]);
-        $this->command->info('Template Type table seeded!');
+        $this->command?->info('Template Type table seeded!');
 
         $this->call([TemplateTableSeeder::class]);
-        $this->command->info('Template table seeded!');
+        $this->command?->info('Template table seeded!');
 
         $this->call([PricingTemplateSeeder::class]);
-        $this->command->info('Pricing Template Table Seeded!');
+        $this->command?->info('Pricing Template Table Seeded!');
 
         $this->call([PricingTemplateSeeder::class]);
-        $this->command->info('Pricing Template Table Seeded!');
+        $this->command?->info('Pricing Template Table Seeded!');
 
     }
 }

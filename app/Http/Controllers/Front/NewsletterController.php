@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class NewsletterController extends Controller
 {
-    public function __construct(private readonly NewsletterManager $manager)
-    {
-    }
+    public function __construct(private readonly NewsletterManager $manager) {}
 
     public function subscribe(Request $request): JsonResponse
     {

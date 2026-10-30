@@ -1,13 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Concerns;
 
-use Illuminate\Support\Collection;
+use Illuminate\Support\Enumerable;
 
-interface FromCollection
+/**
+ * @template TKey of array-key = array-key
+ * @template TValue = mixed
+ */
+interface FromCollection extends Export
 {
     /**
-     * @return Collection
+     * @return Enumerable<TKey, TValue>
      */
-    public function collection();
+    public function collection(): Enumerable;
 }

@@ -7,6 +7,7 @@ namespace Tests\Unit\Backend\Plugins\Recaptcha;
 use App\Model\Common\StatusSetting;
 use App\Plugins\Recaptcha\Middleware\RecaptchaMiddleware;
 use App\Plugins\Recaptcha\Model\RecaptchaSetting;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
@@ -48,7 +49,7 @@ class RecaptchaMiddlewareTest extends DBTestCase
         $request = Request::create('https://'.self::HOST.'/x', 'POST', ['g-recaptcha-response' => $token]);
         $this->app->instance('request', $request);
 
-        return new RecaptchaMiddleware()->handle($request, fn () => response('passed'), $action);
+        return new RecaptchaMiddleware()->handle($request, fn (): ResponseFactory|\Illuminate\Http\Response => response('passed'), $action);
     }
 
     public function test_v3_token_with_matching_action_passes(): void
@@ -83,7 +84,7 @@ class RecaptchaMiddlewareTest extends DBTestCase
     public function test_failed_token_while_in_v2_mode_asks_for_the_checkbox_again(): void
     {
         // e.g. the user reloaded, so the form went back to v3 and sent a v3 token.
-        Session::put('recaptcha_v2_fallback_login', true);
+        Session::put('recaptcha_v2_fallback_login', value: true);
         $this->fakeGoogle(['v2-secret' => ['success' => false]]);
 
         $response = $this->check('login');

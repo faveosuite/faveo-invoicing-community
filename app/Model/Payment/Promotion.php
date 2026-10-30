@@ -3,6 +3,7 @@
 namespace App\Model\Payment;
 
 use App\BaseModel;
+use App\Model\Order\Invoice;
 use App\Model\Product\Product;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Collection;
@@ -109,7 +110,7 @@ class Promotion extends BaseModel
      */
     public function isUsedUp(?int $exceptInvoiceId = null): bool
     {
-        return \App\Model\Order\Invoice::where('coupon_code', $this->code)
+        return Invoice::where('coupon_code', $this->code)
             ->whereIn('status', ['success', 'partially paid'])
             ->when($exceptInvoiceId, fn ($q) => $q->whereKeyNot($exceptInvoiceId))
             ->count() >= (int) $this->uses;

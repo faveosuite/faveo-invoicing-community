@@ -69,11 +69,12 @@ class FreeTrialService
         $response = new TenantController(new Client, new FaveoCloud)
             ->createTenant(new Request(['orderNo' => $order->number, 'domain' => $domain]));
 
-        $body = $response->getData(true);
+        $body = $response->getData(assoc: true);
         if (! ($body['success'] ?? false)) {
             $message = $body['message'] ?? '';
             throw new RuntimeException(is_string($message) && $message !== '' ? $message : __('message.cannot_generate_freetrial_cloud_instance'));
         }
+
         $result = $body['data'] ?? [];
 
         DB::table('free_trial_allowed')->insert([

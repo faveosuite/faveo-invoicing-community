@@ -93,6 +93,7 @@ class SettingsController extends Controller
         // Left blank = keep the saved key (the page never receives it).
         $apiKey = trim((string) $request->input('mailchimp_auth_key'));
         $apiKey = $apiKey !== '' ? $apiKey : (string) MailchimpSetting::value('api_key');
+
         $status = $request->input('status', 0);
 
         if ($apiKey === '') {
@@ -246,14 +247,14 @@ class SettingsController extends Controller
         ]);
 
         $mapped = array_filter($mapping);
-        $missing = $fields->where('required', true)->whereNotIn('tag', $mapped)->pluck('name')->all();
+        $missing = $fields->where('required', operator: true)->whereNotIn('tag', $mapped)->pluck('name')->all();
 
         if ($missing !== []) {
             return errorResponse(__('message.mailchimp_required_missing', ['fields' => implode(', ', $missing)]), 422);
         }
 
         try {
-            MailchimpFieldAgoraRelation::firstOrNew()->fill(array_fill_keys(self::USER_FIELDS, null))->fill($mapping)->save();
+            MailchimpFieldAgoraRelation::firstOrNew()->fill(array_fill_keys(self::USER_FIELDS, value: null))->fill($mapping)->save();
 
             return successResponse(__('message.updated-successfully'));
         } catch (Throwable $throwable) {
@@ -303,7 +304,7 @@ class SettingsController extends Controller
 
             // Validate that the category has Yes/No options
             $options = resolve(MailchimpService::class)->getInterestGroupOptions($categoryId);
-            $names = array_map(fn (array $o) => strtolower((string) $o['name']), $options);
+            $names = array_map(fn (array $o): string => strtolower((string) $o['name']), $options);
 
             $hasYes = array_intersect($names, ['yes', 'true']) !== [];
             $hasNo = array_intersect($names, ['no', 'false']) !== [];

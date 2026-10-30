@@ -15,10 +15,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([TemplateTypeTableSeeder::class]);
-        $this->command->info('Template Type table seeded!');
+        $this->command?->info('Template Type table seeded!');
 
         $this->call([TemplateTableSeeder::class]);
-        $this->command->info('Template table seeded!');
+        $this->command?->info('Template table seeded!');
 
         $this->call(SettingsSeeder::class);
 

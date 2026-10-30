@@ -51,8 +51,8 @@ class TaxOptionTest extends TestCase
 
     public function test_activity_log_mappings_format_each_option(): void
     {
-        $mappings = (new \ReflectionMethod(TaxOption::class, 'getMappings'))->invoke(new TaxOption);
-        $format = fn (string $key, mixed $value) => [$mappings[$key][0], $mappings[$key][1]($value)];
+        $mappings = new \ReflectionMethod(TaxOption::class, 'getMappings')->invoke(new TaxOption);
+        $format = fn (string $key, mixed $value): array => [$mappings[$key][0], $mappings[$key][1]($value)];
 
         $this->assertSame(['Tax Enable', __('message.active')], $format('tax_enable', 1));
         $this->assertSame(['Tax Enable', __('message.inactive')], $format('tax_enable', '1'));

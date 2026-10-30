@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     '2fa_setup' => '2단계 인증 설정',
     'actions' => '작업',
@@ -18,7 +20,7 @@ return [
     'dashboard' => '대시보드',
     'dashboard_show' => '대시보드',
     'callbacks_count' => '콜백 수',
-    'callbacks_description' => '기존 라이선스 확인 콜백을 확인합니다. 콜백을 삭제해야 하는 경우 클라이언트 또는 라이선스 코드를 확인하고 \'제출\' 버튼을 클릭하세요.',
+    'callbacks_description' => "기존 라이선스 확인 콜백을 확인합니다. 콜백을 삭제해야 하는 경우 클라이언트 또는 라이선스 코드를 확인하고 '제출' 버튼을 클릭하세요.",
     'adddd' => '라이선스가 성공적으로 추가되었습니다',
     'admin_privileges' => '관리자 권한',
     'Api_Acess_not_allowed' => 'API 액세스가 허용되지 않습니다',

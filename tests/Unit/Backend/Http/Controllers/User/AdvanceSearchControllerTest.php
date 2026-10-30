@@ -25,7 +25,7 @@ class AdvanceSearchControllerTest extends DBTestCase
     public function test_get_extra_amt_returns_balance_for_a_currency(): void
     {
         $user = User::factory()->create();
-        app(CreditBalanceService::class)->grant($user->id, 'USD', 40.0, CreditTransaction::TYPE_OVERPAYMENT);
+        resolve(CreditBalanceService::class)->grant($user->id, 'USD', 40.0, CreditTransaction::TYPE_OVERPAYMENT);
 
         $this->assertSame(40.0, new AdvanceSearchController()->getExtraAmt($user->id, 'USD'));
     }
@@ -33,8 +33,8 @@ class AdvanceSearchControllerTest extends DBTestCase
     public function test_get_extra_amt_with_no_currency_sums_across_currencies(): void
     {
         $user = User::factory()->create();
-        app(CreditBalanceService::class)->grant($user->id, 'USD', 40.0, CreditTransaction::TYPE_OVERPAYMENT);
-        app(CreditBalanceService::class)->grant($user->id, 'INR', 1000.0, CreditTransaction::TYPE_OVERPAYMENT);
+        resolve(CreditBalanceService::class)->grant($user->id, 'USD', 40.0, CreditTransaction::TYPE_OVERPAYMENT);
+        resolve(CreditBalanceService::class)->grant($user->id, 'INR', 1000.0, CreditTransaction::TYPE_OVERPAYMENT);
 
         $this->assertSame(1040.0, new AdvanceSearchController()->getExtraAmt($user->id));
     }

@@ -54,11 +54,12 @@ class GuestCartTest extends DBTestCase
     {
         $this->cart->add(['product_id' => 1, 'plan_id' => 1, 'quantity' => 1], 'USD');
         $items = $this->cart->all();
-        if (! empty($items)) {
+        if ($items !== []) {
             $id = array_key_first($items);
             $this->cart->remove((int) $id);
             $this->assertFalse($this->cart->has((int) $id));
         }
+
         $this->assertTrue(true);
     }
 
@@ -66,10 +67,11 @@ class GuestCartTest extends DBTestCase
     {
         $this->cart->add(['product_id' => 1, 'plan_id' => 1, 'quantity' => 1], 'USD');
         $items = $this->cart->all();
-        if (! empty($items)) {
+        if ($items !== []) {
             $id = array_key_first($items);
             $this->cart->update((int) $id, ['quantity' => 3]);
         }
+
         $this->assertTrue(true);
     }
 
@@ -83,6 +85,7 @@ class GuestCartTest extends DBTestCase
     {
         $this->cart->add(['product_id' => 1, 'plan_id' => 1, 'quantity' => 1], 'USD');
         $this->cart->add(['product_id' => 2, 'plan_id' => 2, 'quantity' => 2], 'USD');
+
         $all = $this->cart->all();
         $this->assertCount(2, $all);
     }

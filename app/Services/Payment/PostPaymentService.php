@@ -26,6 +26,7 @@ use App\Traits\TaxCalculation;
 use App\User;
 use DB;
 use GuzzleHttp\Client;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Logger;
@@ -39,8 +40,7 @@ class PostPaymentService
 
     public function __construct(
         private readonly AutoRenewalActivationService $autoRenewal,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<mixed>
@@ -198,7 +198,7 @@ class PostPaymentService
         // connection, so the rewrite must be committed first — same reason as
         // provisionCloudTenantAfterCommit(). Otherwise it sees "license not found"
         // and the change is reverted.
-        DB::afterCommit(fn () => $cloud->doTheAgentAltering(
+        DB::afterCommit(fn (): JsonResponse => $cloud->doTheAgentAltering(
             $metadata['new_agents'],
             $metadata['old_license'],
             $metadata['order_id'],
@@ -395,11 +395,13 @@ class PostPaymentService
         if (empty($planDetails['plan'])) {
             return;
         }
+
         $cost = resolve(SubscriptionController::class)->calculateRenewalCost($subscription, $planDetails, $order);
         $cost = ProcessingFee::addTo($cost, strtolower($gateway));
+
         $tax = $this->calculateTax($subscription->product_id, (string) $invoiceUser->state, (string) $invoiceUser->country);
         $amount = rounding((new InvoiceController)->calculateTotal($tax['value'], $cost));
-        $renewPrice = intval(calculateUnitCost($invoice->currency, (float) $amount));
+        $renewPrice = intval(calculateUnitCost($invoice->currency, $amount));
 
         // The gateway driver fetches the live subscription, skips the update when
         // the price/interval already matches or the subscription is inactive, and
@@ -421,8 +423,8 @@ class PostPaymentService
                 // Auto_renewal row, so a later re-enable isn't silently ignored).
                 $this->autoRenewal->deactivate($subscription, cancelAtGateway: false);
             }
-        } catch (Throwable $e) {
-            Logger::exception($e);
+        } catch (Throwable $throwable) {
+            Logger::exception($throwable);
         }
     }
 }

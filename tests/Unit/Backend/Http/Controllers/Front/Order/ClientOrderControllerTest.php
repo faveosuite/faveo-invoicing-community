@@ -3,6 +3,7 @@
 namespace Tests\Unit\Backend\Http\Controllers\Front\Order;
 
 use App\ApiKey;
+use App\Http\Controllers\Github\GithubApiController;
 use App\License\Services\InstallationService;
 use App\Model\Common\Setting;
 use App\Model\License\LicensePermission;
@@ -306,6 +307,7 @@ class ClientOrderControllerTest extends DBTestCase
         $response = $this->getJson('/renew-popup-details/'.$product->id);
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+
         $data = $response->json('data');
         $this->assertArrayHasKey('plans', $data);
         $this->assertArrayHasKey('user_id', $data);
@@ -319,6 +321,7 @@ class ClientOrderControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $response = $this->getJson('/renew-popup-details/999999');
         $response->assertStatus(200);
+
         $data = $response->json('data');
         $this->assertIsArray($data['plans']);
         $this->assertCount(0, $data['plans']);
@@ -345,6 +348,7 @@ class ClientOrderControllerTest extends DBTestCase
         $response = $this->getJson('/get-my-installations/'.$order->id);
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+
         $data = $response->json('data');
         $this->assertArrayHasKey('data', $data);
     }
@@ -360,6 +364,7 @@ class ClientOrderControllerTest extends DBTestCase
         foreach ($permissions as $name) {
             $type->permissions()->attach(LicensePermission::firstOrCreate(['permissions' => $name])->id);
         }
+
         $product = Product::factory()->create(['type' => $type->id] + $productAttributes);
         $order = Order::factory()->create(['client' => $user->id, 'product' => $product->id, 'order_status' => 'executed']);
         Subscription::factory()->create($subscription + [
@@ -377,10 +382,11 @@ class ClientOrderControllerTest extends DBTestCase
         $order = $this->policyOrder($user, [], ['github_owner' => 'acme', 'github_repository' => 'app']);
 
         // Never asks GitHub for anything.
-        $github = Mockery::mock(\App\Http\Controllers\Github\GithubApiController::class);
+        $github = Mockery::mock(GithubApiController::class);
         $github->shouldNotReceive('releases');
         $github->shouldNotReceive('downloadZipball');
-        $this->app->instance(\App\Http\Controllers\Github\GithubApiController::class, $github);
+
+        $this->app->instance(GithubApiController::class, $github);
 
         $this->getJson('/get-versions/'.$order->id)
             ->assertStatus(400)

@@ -6,6 +6,7 @@ namespace Tests\Unit\Backend\Http\Middleware;
 
 use App\Http\Middleware\VerifyThirdPartyApps;
 use App\ThirdPartyApp;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Tests\TestCase;
@@ -16,7 +17,7 @@ class VerifyThirdPartyAppsTest extends TestCase
 
     private function next(): \Closure
     {
-        return fn ($req) => response('passed');
+        return fn ($req): ResponseFactory|\Illuminate\Http\Response => response('passed');
     }
 
     public function test_blocks_request_with_old_timestamp(): void
@@ -24,8 +25,8 @@ class VerifyThirdPartyAppsTest extends TestCase
         $request = Request::create('/api/test', 'POST');
         $request->merge(['timestamp' => time() - 1000]); // 1000 seconds old > 900
 
-        $response = (new VerifyThirdPartyApps())->handle($request, $this->next());
-        $data = json_decode($response->getContent(), true);
+        $response = new VerifyThirdPartyApps()->handle($request, $this->next());
+        $data = json_decode($response->getContent(), associative: true);
 
         $this->assertSame('fails', $data['result']['status']);
     }
@@ -43,8 +44,8 @@ class VerifyThirdPartyAppsTest extends TestCase
         $request->headers->set('app-key', $app->app_key);
         $request->headers->set('signature', 'wrong-signature');
 
-        $response = (new VerifyThirdPartyApps())->handle($request, $this->next());
-        $data = json_decode($response->getContent(), true);
+        $response = new VerifyThirdPartyApps()->handle($request, $this->next());
+        $data = json_decode($response->getContent(), associative: true);
 
         $this->assertSame('fails', $data['result']['status']);
     }
@@ -54,7 +55,7 @@ class VerifyThirdPartyAppsTest extends TestCase
         $request = Request::create('/api/test', 'POST');
         $request->merge(['timestamp' => time() + 100000]);
 
-        $response = (new VerifyThirdPartyApps())->handle($request, $this->next());
+        $response = new VerifyThirdPartyApps()->handle($request, $this->next());
 
         $this->assertSame(401, $response->getStatusCode());
     }
@@ -66,7 +67,7 @@ class VerifyThirdPartyAppsTest extends TestCase
         $request->headers->set('app-key', 'no-such-key-'.uniqid());
         $request->headers->set('signature', hash_hmac('sha256', '', ''));
 
-        $response = (new VerifyThirdPartyApps())->handle($request, $this->next());
+        $response = new VerifyThirdPartyApps()->handle($request, $this->next());
 
         $this->assertSame(401, $response->getStatusCode());
     }
@@ -84,7 +85,7 @@ class VerifyThirdPartyAppsTest extends TestCase
         $request->headers->set('app-key', $app->app_key);
         $request->headers->set('signature', hash_hmac('sha256', '', ''));
 
-        $response = (new VerifyThirdPartyApps())->handle($request, $this->next());
+        $response = new VerifyThirdPartyApps()->handle($request, $this->next());
 
         $this->assertSame(401, $response->getStatusCode());
     }
@@ -106,7 +107,7 @@ class VerifyThirdPartyAppsTest extends TestCase
         $request->headers->set('app-key', $app->app_key);
         $request->headers->set('signature', $signature);
 
-        $response = (new VerifyThirdPartyApps())->handle($request, $this->next());
+        $response = new VerifyThirdPartyApps()->handle($request, $this->next());
 
         $this->assertSame('passed', $response->getContent());
     }

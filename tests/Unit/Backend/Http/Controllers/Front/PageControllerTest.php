@@ -2,7 +2,14 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Front;
 
+use App\Http\Controllers\Front\PageController;
+use App\Model\Common\CommonSettings;
+use App\Model\Common\Setting;
 use App\Model\Front\FrontendPage;
+use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
+use App\Model\Product\Product;
+use App\Services\Seo\SeoTemplateFormatter;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -139,7 +146,7 @@ class PageControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
 
-        $page = \App\Model\Front\FrontendPage::create([
+        $page = FrontendPage::create([
             'name' => 'Test Page',
             'slug' => 'test-page-'.uniqid(),
             'content' => '<p>Hello</p>',
@@ -160,15 +167,15 @@ class PageControllerTest extends DBTestCase
 
     public function test_page_by_slug_falls_back_to_the_bare_name_when_page_has_no_own_meta(): void
     {
-        \App\Model\Common\Setting::find(1)->update(['company' => 'Acme Inc', 'favicon_title_client' => '']);
-        \App\Model\Common\CommonSettings::where('option_name', 'seo')->where('optional_field', 'general_description')->delete();
+        Setting::find(1)->update(['company' => 'Acme Inc', 'favicon_title_client' => '']);
+        CommonSettings::where('option_name', 'seo')->where('optional_field', 'general_description')->delete();
         // SeoTemplateFormatter is bound as a singleton (AppServiceProvider)
         // and caches Setting/CommonSettings at construction — forget it so
         // the values just set above are actually picked up when the
         // controller resolves it fresh for this request.
-        $this->app->forgetInstance(\App\Services\Seo\SeoTemplateFormatter::class);
+        $this->app->forgetInstance(SeoTemplateFormatter::class);
 
-        $page = \App\Model\Front\FrontendPage::create([
+        $page = FrontendPage::create([
             'name' => 'Refund Policy',
             'slug' => 'refund-policy-'.uniqid(),
             'content' => '<p>...</p>',
@@ -188,18 +195,19 @@ class PageControllerTest extends DBTestCase
     /** Sets the company + General SEO OG values, then makes the formatter singleton re-read them. */
     private function seoSettings(string $ogTitle, string $ogDescription): void
     {
-        \App\Model\Common\Setting::find(1)->update(['company' => 'Acme Inc', 'favicon_title_client' => '']);
-        \App\Model\Common\CommonSettings::where('option_name', 'seo')->whereIn('optional_field', ['general_description', 'general_og_title', 'general_og_description'])->delete();
+        Setting::find(1)->update(['company' => 'Acme Inc', 'favicon_title_client' => '']);
+        CommonSettings::where('option_name', 'seo')->whereIn('optional_field', ['general_description', 'general_og_title', 'general_og_description'])->delete();
         foreach (['general_og_title' => $ogTitle, 'general_og_description' => $ogDescription] as $field => $value) {
-            \App\Model\Common\CommonSettings::create(['option_name' => 'seo', 'optional_field' => $field, 'option_value' => $value]);
+            CommonSettings::create(['option_name' => 'seo', 'optional_field' => $field, 'option_value' => $value]);
         }
-        $this->app->forgetInstance(\App\Services\Seo\SeoTemplateFormatter::class);
+
+        $this->app->forgetInstance(SeoTemplateFormatter::class);
     }
 
     /** @param  array<string, string|null>  $meta */
-    private function publishedPage(array $meta): \App\Model\Front\FrontendPage
+    private function publishedPage(array $meta): FrontendPage
     {
-        return \App\Model\Front\FrontendPage::create([
+        return FrontendPage::create([
             'name' => 'Refund Policy',
             'slug' => 'refund-policy-'.uniqid(),
             'content' => '<p>...</p>',
@@ -280,7 +288,7 @@ class PageControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
 
-        $controller = new \App\Http\Controllers\Front\PageController;
+        $controller = new PageController;
         $result = $controller->getPriceDescription(999999);
 
         $this->assertSame('', $result);
@@ -291,29 +299,29 @@ class PageControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
 
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'Test Product '.uniqid()]);
+        $product = Product::first() ?? Product::create(['name' => 'Test Product '.uniqid()]);
 
-        $controller = new \App\Http\Controllers\Front\PageController;
+        $controller = new PageController;
         $result = $controller->getPriceDescription($product->id);
 
         $this->assertIsString($result);
     }
 
     /** Product with one active plan of $days days priced $price (null = no price row). */
-    private function pricedProduct(array $product, int $days, ?float $price, ?int $agents = null, ?string $description = 'One Time'): \App\Model\Product\Product
+    private function pricedProduct(array $product, int $days, ?float $price, ?int $agents = null, ?string $description = 'One Time'): Product
     {
-        $product = \App\Model\Product\Product::create($product + ['name' => 'Price '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::create(['name' => 'P'.uniqid(), 'product' => $product->id, 'days' => $days, 'status' => 1]);
+        $product = Product::create($product + ['name' => 'Price '.uniqid()]);
+        $plan = Plan::create(['name' => 'P'.uniqid(), 'product' => $product->id, 'days' => $days, 'status' => 1]);
         if ($price !== null) {
-            \App\Model\Payment\PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'USD', 'add_price' => $price, 'renew_price' => $price, 'no_of_agents' => $agents, 'price_description' => $description]);
+            PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'USD', 'add_price' => $price, 'renew_price' => $price, 'no_of_agents' => $agents, 'price_description' => $description]);
         }
 
         return $product;
     }
 
-    private function priceDescription(\App\Model\Product\Product $product, array $days = [365, 366]): string
+    private function priceDescription(Product $product, array $days = [365, 366]): string
     {
-        return (new \App\Http\Controllers\Front\PageController)->getPriceDescription($product->id, $days);
+        return (new PageController)->getPriceDescription($product->id, $days);
     }
 
     public function test_get_price_description_for_an_active_product(): void
@@ -329,14 +337,14 @@ class PageControllerTest extends DBTestCase
         $this->assertSame('One Time', $this->priceDescription($this->pricedProduct(['status' => 0], 365, 10)));
         // No plan of the asked length: falls back to the first plan's text.
         $this->assertSame('Per Hour', $this->priceDescription($this->pricedProduct(['status' => 0], 30, 10, description: 'Per Hour')));
-        $this->assertSame('', $this->priceDescription($this->pricedProduct(['status' => 0], 30, null)));
+        $this->assertSame('', $this->priceDescription($this->pricedProduct(['status' => 0], 30, price: null)));
     }
 
     public function test_get_price_description_is_empty_for_contact_sales_or_no_matching_plan(): void
     {
         $this->assertSame('', $this->priceDescription($this->pricedProduct(['status' => 1, 'add_to_contact' => 1], 365, 10)));
         $this->assertSame('', $this->priceDescription($this->pricedProduct(['status' => 1], 30, 10)));
-        $this->assertSame('', $this->priceDescription($this->pricedProduct(['status' => 1], 365, null)));
+        $this->assertSame('', $this->priceDescription($this->pricedProduct(['status' => 1], 365, price: null)));
     }
 
     // =========================================================================
@@ -345,7 +353,7 @@ class PageControllerTest extends DBTestCase
 
     public function test_transform_returns_empty_string_for_empty_transform_array(): void
     {
-        $controller = new \App\Http\Controllers\Front\PageController;
+        $controller = new PageController;
         $result = $controller->transform('invoice', 'test data', []);
 
         $this->assertSame('', $result);
@@ -353,7 +361,7 @@ class PageControllerTest extends DBTestCase
 
     public function test_key_array_returns_array_of_keys(): void
     {
-        $controller = new \App\Http\Controllers\Front\PageController;
+        $controller = new PageController;
         $result = $controller->keyArray(['key1' => 'val1', 'key2' => 'val2']);
 
         $this->assertIsArray($result);
@@ -362,7 +370,7 @@ class PageControllerTest extends DBTestCase
 
     public function test_value_array_returns_array_of_values(): void
     {
-        $controller = new \App\Http\Controllers\Front\PageController;
+        $controller = new PageController;
         $result = $controller->valueArray(['key1' => 'val1', 'key2' => 'val2']);
 
         $this->assertIsArray($result);

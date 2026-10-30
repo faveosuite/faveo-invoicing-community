@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     '2fa_setup' => '2-stapsverificatie instellen',
     'actions' => 'Acties',
@@ -18,7 +20,7 @@ return [
     'dashboard' => 'Dashboard',
     'dashboard_show' => 'Dashboard',
     'callbacks_count' => 'Aantal callbacks',
-    'callbacks_description' => 'Bestaande licentie-verificatiecallbacks bekijken. Als een callback verwijderd moet worden, controleer dan de klant of licentiecode en klik op de knop \'Verzenden\'.',
+    'callbacks_description' => "Bestaande licentie-verificatiecallbacks bekijken. Als een callback verwijderd moet worden, controleer dan de klant of licentiecode en klik op de knop 'Verzenden'.",
     'adddd' => 'Licentie succesvol toegevoegd',
     'admin_privileges' => 'Beheerdersrechten',
     'Api_Acess_not_allowed' => 'API-toegang niet toegestaan',

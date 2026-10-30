@@ -23,7 +23,7 @@ class SubscriptionRenewalServiceTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = app(SubscriptionRenewalService::class);
+        $this->service = resolve(SubscriptionRenewalService::class);
     }
 
     private function makeSubscription(array $attrs = []): Subscription
@@ -59,7 +59,6 @@ class SubscriptionRenewalServiceTest extends DBTestCase
     public function test_set_date_returns_early_when_permission_not_granted(): void
     {
         $sub = $this->makeSubscription();
-        $original = $sub->ends_at;
 
         // LicensePermissionsController::getPermissionsForProduct returns false for the permission
         // When permission is false, setDate returns without updating

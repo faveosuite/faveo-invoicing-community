@@ -11,6 +11,7 @@ use App\License\tests\Backend\LicenseTestCase;
 use App\Model\Configure\ProductPluginGroup;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
+use Illuminate\Support\Facades\File;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
@@ -86,7 +87,7 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
             $this->service->stampToLocalFile('canonical/path.zip', $product, '1.0.0');
         } finally {
-            @unlink($sourceZip);
+            File::delete($sourceZip);
         }
     }
 
@@ -104,14 +105,14 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         try {
             $this->service->stampToLocalFile('some/path.zip', $product, '1.0.0');
             $this->fail('Expected RuntimeException was not thrown.');
-        } catch (RuntimeException $e) {
-            $this->assertStringContainsString('Unable to open canonical build for stamping', $e->getMessage());
+        } catch (RuntimeException $runtimeException) {
+            $this->assertStringContainsString('Unable to open canonical build for stamping', $runtimeException->getMessage());
         }
 
         $after = glob(sys_get_temp_dir().'/product_bundle_*');
         $this->assertSame($before, $after);
 
-        @unlink($garbageSource);
+        File::delete($garbageSource);
     }
 
     #[Test]
@@ -144,8 +145,8 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         $product->refresh();
         $this->assertNotEmpty($product->apl_salt);
 
-        @unlink($resultPath);
-        @unlink($sourceZip);
+        File::delete($resultPath);
+        File::delete($sourceZip);
     }
 
     #[Test]
@@ -167,9 +168,9 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         $this->assertNotEmpty($firstSalt);
         $this->assertSame($firstSalt, $secondSalt);
 
-        @unlink($first);
-        @unlink($second);
-        @unlink($sourceZip);
+        File::delete($first);
+        File::delete($second);
+        File::delete($sourceZip);
     }
 
     #[Test]
@@ -195,8 +196,8 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         $this->assertStringContainsString("'product_key' => 'OLDKEY'", $pluginConfig);
         $this->assertStringContainsString("'product_id' => 999", $pluginConfig);
 
-        @unlink($resultPath);
-        @unlink($sourceZip);
+        File::delete($resultPath);
+        File::delete($sourceZip);
     }
 
     #[Test]
@@ -221,8 +222,8 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         $this->assertTrue($this->zipHasEntry($resultPath, 'app/Plugins/not-bundled/config.php'));
         $this->assertTrue($this->zipHasEntry($resultPath, 'app/Plugins/not-bundled/public/index.php'));
 
-        @unlink($resultPath);
-        @unlink($sourceZip);
+        File::delete($resultPath);
+        File::delete($sourceZip);
     }
 
     #[Test]
@@ -244,8 +245,8 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         $this->assertStringContainsString("'product_key' => 'OLD'", $config);
         $this->assertTrue($this->zipHasEntry($resultPath, 'public/index.php'));
 
-        @unlink($resultPath);
-        @unlink($sourceZip);
+        File::delete($resultPath);
+        File::delete($sourceZip);
     }
 
     #[Test]
@@ -269,8 +270,8 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         $config = $this->readZipEntry($resultPath, 'config.php');
         $this->assertStringContainsString("'product_key' => 'OLD'", $config);
 
-        @unlink($resultPath);
-        @unlink($sourceZip);
+        File::delete($resultPath);
+        File::delete($sourceZip);
     }
 
     #[Test]
@@ -306,13 +307,13 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
         $licenseJson = $this->readZipEntry($resultPath, 'public/script/signature/license.json');
         $this->assertNotNull($licenseJson);
-        $decoded = json_decode($licenseJson, true);
-        $payload = json_decode($decoded['license'], true);
+        $decoded = json_decode($licenseJson, associative: true);
+        $payload = json_decode($decoded['license'], associative: true);
         $this->assertSame($license->license_code, $payload['license_code']);
         $this->assertNotEmpty($decoded['signature']);
 
-        @unlink($resultPath);
-        @unlink($sourceZip);
+        File::delete($resultPath);
+        File::delete($sourceZip);
     }
 
     #[Test]
@@ -350,8 +351,8 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         $this->assertTrue($this->zipHasEntry($resultPath, 'public/script/signature/license.json'));
         $this->assertFalse($this->zipHasEntry($resultPath, 'app/Plugins/my-plugin/public/script/signature/license.json'));
 
-        @unlink($resultPath);
-        @unlink($sourceZip);
+        File::delete($resultPath);
+        File::delete($sourceZip);
     }
 
     #[Test]
@@ -371,8 +372,8 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
         // deleteFileAfterSend() only fires on a real HTTP send, which never
         // happens here — clean up the stamped output file ourselves.
-        @unlink($response->getFile()->getPathname());
-        @unlink($sourceZip);
+        File::delete($response->getFile()->getPathname());
+        File::delete($sourceZip);
     }
 
     #[Test]
@@ -391,7 +392,7 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         $this->assertFalse($this->zipHasEntry($zipball, 'storage/faveoconfig.ini')); // not at the zip root
         $this->assertSame('<?php', $this->readZipEntry($zipball, 'acme-app-abc1234/index.php'));
 
-        @unlink($zipball);
+        File::delete($zipball);
     }
 
     #[Test]
@@ -407,7 +408,7 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         $this->assertSame($zipball, $response->getFile()->getPathname());
         $this->assertSame($before, md5_file($zipball));
 
-        @unlink($zipball);
+        File::delete($zipball);
     }
 
     #[Test]
@@ -437,6 +438,7 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         foreach ($entries as $name => $content) {
             $zip->addFromString($name, $content);
         }
+
         $zip->close();
 
         return $path;
@@ -446,6 +448,7 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
     {
         $zip = new ZipArchive;
         $zip->open($zipPath);
+
         $content = $zip->getFromName($entryName);
         $zip->close();
 
@@ -456,6 +459,7 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
     {
         $zip = new ZipArchive;
         $zip->open($zipPath);
+
         $has = $zip->locateName($entryName) !== false;
         $zip->close();
 

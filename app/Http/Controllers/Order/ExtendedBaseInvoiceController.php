@@ -12,6 +12,7 @@ use App\Services\Payment\UnappliedPaymentService;
 use App\User;
 use DB;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -64,10 +65,10 @@ class ExtendedBaseInvoiceController extends Controller
                 'invoices' => $invoices,
                 'currencies' => $currencies,
             ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -94,7 +95,7 @@ class ExtendedBaseInvoiceController extends Controller
 
             return successResponse(__('message.saved-successfully'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -288,7 +289,7 @@ class ExtendedBaseInvoiceController extends Controller
                     }
 
                     $wasPaid = $this->isPaid($invoice);
-                    app(UnappliedPaymentService::class)->apply(
+                    resolve(UnappliedPaymentService::class)->apply(
                         $clientid,
                         (string) $payment->currency,
                         $amount,
@@ -400,7 +401,7 @@ class ExtendedBaseInvoiceController extends Controller
                     }
 
                     // Throws insufficient_credit_balance if this invoice's currency can't cover it.
-                    app(CreditBalanceService::class)->apply($clientid, $invoice->currency, $amount, (int) $invoice->id);
+                    resolve(CreditBalanceService::class)->apply($clientid, $invoice->currency, $amount, (int) $invoice->id);
 
                     // Spending credit is still money settling an invoice, so it
                     // gets a payment of its own with a single allocation.
@@ -445,7 +446,7 @@ class ExtendedBaseInvoiceController extends Controller
     private function fulfilIfJustPaid(Invoice $invoice, bool $wasPaid, string $paymentMethod): void
     {
         if (! $wasPaid && strtolower((string) $invoice->status) === 'success') {
-            app(PostPaymentService::class)->handle($invoice, $paymentMethod);
+            resolve(PostPaymentService::class)->handle($invoice, $paymentMethod);
         }
     }
 }

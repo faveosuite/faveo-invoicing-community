@@ -174,7 +174,7 @@ $apiInstance = new Pipedrive\versions\v2\Api\ActivitiesApi(
     $config
 );
 $filter_id = 56; // int | If supplied, only activities matching the specified filter are returned
-$ids = 'ids_example'; // string | Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response.
+$ids = array(56); // int[] | Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response.
 $owner_id = 56; // int | If supplied, only activities owned by the specified user are returned. If filter_id is provided, this is ignored.
 $deal_id = 56; // int | If supplied, only activities linked to the specified deal are returned. If filter_id is provided, this is ignored.
 $lead_id = 'lead_id_example'; // string | If supplied, only activities linked to the specified lead are returned. If filter_id is provided, this is ignored.
@@ -185,7 +185,7 @@ $updated_since = 'updated_since_example'; // string | If set, only activities wi
 $updated_until = 'updated_until_example'; // string | If set, only activities with an `update_time` earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z.
 $sort_by = 'id'; // string | The field to sort by. Supported fields: `id`, `update_time`, `add_time`, `due_date`.
 $sort_direction = 'asc'; // string | The sorting direction. Supported values: `asc`, `desc`.
-$include_fields = 'include_fields_example'; // string | Optional comma separated string array of additional fields to include
+$include_fields = array('include_fields_example'); // string[] | Optional comma separated string array of additional fields to include
 $limit = 100; // int | For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed.
 $cursor = 'cursor_example'; // string | For pagination, the marker (an opaque string value) representing the first item on the next page
 
@@ -202,7 +202,7 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **filter_id** | **int**| If supplied, only activities matching the specified filter are returned | [optional]
- **ids** | **string**| Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. | [optional]
+ **ids** | [**int[]**](../Model/int.md)| Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. | [optional]
  **owner_id** | **int**| If supplied, only activities owned by the specified user are returned. If filter_id is provided, this is ignored. | [optional]
  **deal_id** | **int**| If supplied, only activities linked to the specified deal are returned. If filter_id is provided, this is ignored. | [optional]
  **lead_id** | **string**| If supplied, only activities linked to the specified lead are returned. If filter_id is provided, this is ignored. | [optional]
@@ -213,7 +213,7 @@ Name | Type | Description  | Notes
  **updated_until** | **string**| If set, only activities with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. | [optional]
  **sort_by** | **string**| The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;, &#x60;due_date&#x60;. | [optional] [default to &#39;id&#39;]
  **sort_direction** | **string**| The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. | [optional] [default to &#39;asc&#39;]
- **include_fields** | **string**| Optional comma separated string array of additional fields to include | [optional]
+ **include_fields** | [**string[]**](../Model/string.md)| Optional comma separated string array of additional fields to include | [optional]
  **limit** | **int**| For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. | [optional]
  **cursor** | **string**| For pagination, the marker (an opaque string value) representing the first item on the next page | [optional]
 
@@ -267,7 +267,7 @@ $apiInstance = new Pipedrive\versions\v2\Api\ActivitiesApi(
     $config
 );
 $id = 56; // int | The ID of the activity
-$include_fields = 'include_fields_example'; // string | Optional comma separated string array of additional fields to include
+$include_fields = array('include_fields_example'); // string[] | Optional comma separated string array of additional fields to include
 
 try {
     $result = $apiInstance->getActivity($id, $include_fields);
@@ -282,7 +282,7 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **int**| The ID of the activity |
- **include_fields** | **string**| Optional comma separated string array of additional fields to include | [optional]
+ **include_fields** | [**string[]**](../Model/string.md)| Optional comma separated string array of additional fields to include | [optional]
 
 ### Return type
 

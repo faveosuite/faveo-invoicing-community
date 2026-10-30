@@ -180,7 +180,7 @@ class SeoDefaultPageControllerTest extends DBTestCase
     public function test_update_still_returns_success_even_if_seo_file_regeneration_fails(): void
     {
         SeoDefaultPage::factory()->create(['page_key' => 'login']);
-        $this->mock(SeoFileGenerator::class, function ($mock) {
+        $this->mock(SeoFileGenerator::class, function ($mock): void {
             $mock->shouldReceive('generateAll')->once()->andThrow(new \RuntimeException('disk full'));
         });
 

@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Payment;
 
+use App\Http\Controllers\Payment\PromotionController;
+use App\Http\Middleware\Install;
+use App\Model\Order\Invoice;
+use App\Model\Payment\PromoProductRelation;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
 use App\Model\Product\Product;
+use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -17,7 +22,7 @@ class PromotionControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     private function validPromoPayload(string $suffix = ''): array
@@ -101,6 +106,7 @@ class PromotionControllerTest extends DBTestCase
         $response = $this->postJson('/promotionCreate', []);
 
         $response->assertStatus(412);
+
         $errors = $response->json('message');
 
         foreach (['code', 'type', 'applied', 'uses', 'start', 'expiry', 'value'] as $field) {
@@ -179,7 +185,7 @@ class PromotionControllerTest extends DBTestCase
         foreach (['Zzz Coupon Product', 'Aaa Coupon Product'] as $i => $name) {
             $product = Product::factory()->create(['name' => $name]);
             $promo = Promotion::create(['code' => 'SORTPROD'.$i, 'type' => $type->id, 'value' => '5', 'uses' => 1, 'start' => '2025-01-01', 'expiry' => '2025-12-31']);
-            \App\Model\Payment\PromoProductRelation::create(['promotion_id' => $promo->id, 'product_id' => $product->id]);
+            PromoProductRelation::create(['promotion_id' => $promo->id, 'product_id' => $product->id]);
         }
 
         $names = collect($this->getJson('/promotions?search-query=SORTPROD&sort-field=products&sort-order=asc')->json('data.data'))
@@ -242,7 +248,7 @@ class PromotionControllerTest extends DBTestCase
 
     public function test_check_number_of_uses_enforces_single_use_and_multi_use_limits(): void
     {
-        $controller = resolve(\App\Http\Controllers\Payment\PromotionController::class);
+        $controller = resolve(PromotionController::class);
         $type = PromotionType::first() ?? PromotionType::create(['name' => 'Percent']);
 
         // Single-use coupon
@@ -260,8 +266,8 @@ class PromotionControllerTest extends DBTestCase
         $this->assertSame('success', $controller->checkNumberOfUses($codeSingle));
 
         // An unpaid invoice with this code is only a reservation — the coupon is still usable
-        $client = \App\User::factory()->create(['role' => 'user']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $client = User::factory()->create(['role' => 'user']);
+        $invoice = Invoice::factory()->create([
             'user_id' => $client->id,
             'coupon_code' => $codeSingle,
             'grand_total' => 50.0,
@@ -276,7 +282,7 @@ class PromotionControllerTest extends DBTestCase
 
     public function test_check_expiry_validates_dates_accurately(): void
     {
-        $controller = resolve(\App\Http\Controllers\Payment\PromotionController::class);
+        $controller = resolve(PromotionController::class);
         $type = PromotionType::first() ?? PromotionType::create(['name' => 'Percent']);
 
         $codeActive = 'ACTIVE'.uniqid();

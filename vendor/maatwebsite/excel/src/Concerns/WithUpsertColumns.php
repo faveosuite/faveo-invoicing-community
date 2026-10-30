@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Concerns;
 
 interface WithUpsertColumns
 {
     /**
-     * @return array
+     * @return list<string>
      */
-    public function upsertColumns();
+    public function upsertColumns(): array;
 }

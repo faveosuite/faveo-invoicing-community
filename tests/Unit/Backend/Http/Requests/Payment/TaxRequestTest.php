@@ -14,7 +14,7 @@ class TaxRequestTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->req = new TaxRequest();
+        $this->req = new TaxRequest;
     }
 
     public function test_authorize_returns_true(): void

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Auth;
 
+use App\Http\Middleware\Install;
+use App\Model\Common\StatusSetting;
 use App\SocialAccount;
 use App\SocialLogin;
 use App\User;
@@ -21,7 +23,7 @@ class SocialAuthControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     private function provider(?string $email, array $raw = [], string $id = 'pid-1'): void
@@ -136,7 +138,7 @@ class SocialAuthControllerTest extends TestCase
     public function test_complete_saves_no_user_when_the_link_fails(): void
     {
         $email = 'social-'.uniqid().'@example.com';
-        \App\Model\Common\StatusSetting::query()->update(['terms' => 0, 'emailverification_status' => 0, 'msg91_status' => 0]);
+        StatusSetting::query()->update(['terms' => 0, 'emailverification_status' => 0, 'msg91_status' => 0]);
         // Same provider identity already linked (e.g. finished in another tab) → the link insert fails.
         SocialAccount::create(['user_id' => User::factory()->create()->id, 'provider' => 'google', 'provider_id' => 'pid-taken']);
 
@@ -154,7 +156,7 @@ class SocialAuthControllerTest extends TestCase
 
     public function test_2fa_user_can_reach_the_2fa_step(): void
     {
-        \App\Model\Common\StatusSetting::query()->update(['emailverification_status' => 0, 'msg91_status' => 0]);
+        StatusSetting::query()->update(['emailverification_status' => 0, 'msg91_status' => 0]);
         $user = User::factory()->create(['role' => 'user', 'active' => 1, 'is_2fa_enabled' => 1]);
         SocialAccount::create(['user_id' => $user->id, 'provider' => 'google', 'provider_id' => 'pid-1']);
         $this->provider($user->email, ['email_verified' => true]);
@@ -184,7 +186,7 @@ class SocialAuthControllerTest extends TestCase
     public function test_complete_creates_verified_user_and_logs_in(): void
     {
         $email = 'social-'.uniqid().'@example.com';
-        \App\Model\Common\StatusSetting::query()->update(['terms' => 0, 'emailverification_status' => 0, 'msg91_status' => 0]);
+        StatusSetting::query()->update(['terms' => 0, 'emailverification_status' => 0, 'msg91_status' => 0]);
 
         $this->withSession(['social_signup' => [
             'provider' => 'google', 'provider_id' => 'pid-new', 'first_name' => 'Jane', 'last_name' => 'Doe',

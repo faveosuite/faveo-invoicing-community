@@ -18,6 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\TemplateController;
 use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Bundle\FrameworkBundle\Routing\DelegatingLoader;
 use Symfony\Bundle\FrameworkBundle\Routing\RedirectableCompiledUrlMatcher;
+use Symfony\Bundle\FrameworkBundle\Routing\RequestContextResetter;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\HttpKernel\EventListener\RouterListener;
@@ -158,8 +159,8 @@ return static function (ContainerConfigurator $container) {
             ->factory([RequestContext::class, 'fromUri'])
             ->args([
                 param('router.request_context.base_url'),
-                param('router.request_context.host'),
-                param('router.request_context.scheme'),
+                abstract_arg('Set in FrameworkExtension from the "router.request_context.host" parameter'),
+                abstract_arg('Set in FrameworkExtension from the "router.request_context.scheme" parameter'),
                 param('request_listener.http_port'),
                 param('request_listener.https_port'),
             ])
@@ -167,7 +168,11 @@ return static function (ContainerConfigurator $container) {
                 '_functions' => service('router.expression_language_provider')->ignoreOnInvalid(),
                 '_locale' => '%kernel.default_locale%',
             ]])
+            ->configurator(service('router.request_context.resetter'))
         ->alias(RequestContext::class, 'router.request_context')
+
+        ->set('router.request_context.resetter', RequestContextResetter::class)
+            ->tag('kernel.reset', ['method' => 'reset'])
 
         ->set('router.expression_language_provider', ExpressionLanguageProvider::class)
             ->args([

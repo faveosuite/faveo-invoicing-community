@@ -33,6 +33,7 @@ use Predis\Response\ErrorInterface as ErrorResponseInterface;
 use Predis\Response\ServerException;
 use Predis\Retry\Retry;
 use Predis\Retry\Strategy\ExponentialBackoff;
+use Throwable;
 
 /**
  * @author Daniele Alessandri <suppakilla@gmail.com>
@@ -753,9 +754,12 @@ class SentinelReplication extends AbstractAggregateConnection implements Replica
             return $response;
         };
 
-        $failCallback = function (CommunicationException $exception) {
+        $failCallback = function (Throwable $exception) {
             $this->wipeServerList();
-            $exception->getConnection()->disconnect();
+
+            if ($exception instanceof CommunicationException) {
+                $exception->getConnection()->disconnect();
+            }
         };
 
         return $retry->callWithRetry($doCallback, $failCallback);
@@ -839,5 +843,13 @@ class SentinelReplication extends AbstractAggregateConnection implements Replica
         }
 
         return null;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return implode(',', array_keys($this->pool));
     }
 }

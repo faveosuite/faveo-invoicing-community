@@ -7,6 +7,7 @@ use App\Model\Order\Order;
 use App\Model\Product\Subscription;
 use App\Services\SubscriptionRenewalService;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
@@ -64,12 +65,12 @@ trait UpdateDates
                 return errorResponse(__('message.fields_not_permitted', ['fields' => implode(', ', $skipped)]));
             }
 
-            if ($skipped) {
+            if ($skipped !== []) {
                 return successResponse(__('message.some_fields_not_permitted', ['fields' => implode(', ', $skipped)]));
             }
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);

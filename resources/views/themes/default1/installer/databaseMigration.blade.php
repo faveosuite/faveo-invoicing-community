@@ -166,7 +166,7 @@
              *
              * @return object connection object
              */
-            function getDBConnection()
+            function getDBConnection(): false|\mysqli
             {
                 try {
                     $connection = mysqli_init();
@@ -188,7 +188,6 @@
                 } catch (Exception $exception) {
                     return false;
                 }
-                return $connection;
             }
 
             if (DB_HOST && DB_USER && DB_NAME) {

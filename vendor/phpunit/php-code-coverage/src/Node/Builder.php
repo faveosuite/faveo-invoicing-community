@@ -10,7 +10,7 @@
 namespace SebastianBergmann\CodeCoverage\Node;
 
 use const DIRECTORY_SEPARATOR;
-use function array_shift;
+use function array_pop;
 use function explode;
 use function is_array;
 use function is_file;
@@ -19,6 +19,7 @@ use function substr;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Data\ProcessedCodeCoverageData;
 use SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser;
+use SebastianBergmann\CodeCoverage\Test\TestSizes;
 use SebastianBergmann\CodeCoverage\Util\PathReducer;
 
 /**
@@ -27,6 +28,10 @@ use SebastianBergmann\CodeCoverage\Util\PathReducer;
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
  * @phpstan-import-type TestType from CodeCoverage
+ * @phpstan-import-type TestIndexType from ProcessedCodeCoverageData
+ * @phpstan-import-type TestSizeSet from TestSizes
+ *
+ * @phpstan-type TestDataType array{name: non-empty-string, size: string, status: string, time: float}
  */
 final readonly class Builder
 {
@@ -63,20 +68,59 @@ final readonly class Builder
 
         $root = new Directory($rootPath, null);
 
+        $testData = $this->testDataByTestIndex($codeCoverage->testIds(), $testResults);
+
         $this->addItems(
             $root,
             $this->buildDirectoryStructure($codeCoverage),
-            $testResults,
+            $testData,
+            // The test data is the same for every file of the report, so the
+            // size of each test is resolved to its bit here instead of once
+            // per file
+            File::sizeBitByTestIndex($testData),
+            $codeCoverage->collectsHitCounts(),
         );
 
         return $root;
     }
 
     /**
-     * @param array<array-key, mixed>           $items
-     * @param array<non-empty-string, TestType> $tests
+     * Combines the test index to test id table of the coverage data with the test results into
+     * a map of test index to test data, so that consumers of the report tree can resolve the
+     * test indexes used in the coverage data without a separate lookup table.
+     *
+     * @param array<TestIndexType, non-empty-string> $testIds
+     * @param array<non-empty-string, TestType>      $testResults
+     *
+     * @return array<TestIndexType, TestDataType>
      */
-    private function addItems(Directory $root, array $items, array $tests): void
+    private function testDataByTestIndex(array $testIds, array $testResults): array
+    {
+        $testData = [];
+
+        foreach ($testIds as $index => $id) {
+            // Coverage data and test results are provided through separate setters
+            // and can disagree; a test that covered code must remain attributable
+            // in reports even when its metadata is missing
+            $result = $testResults[$id] ?? ['size' => 'unknown', 'status' => 'unknown', 'time' => 0.0];
+
+            $testData[$index] = [
+                'name'   => $id,
+                'size'   => $result['size'],
+                'status' => $result['status'],
+                'time'   => $result['time'],
+            ];
+        }
+
+        return $testData;
+    }
+
+    /**
+     * @param array<array-key, mixed>            $items
+     * @param array<TestIndexType, TestDataType> $tests
+     * @param array<TestIndexType, TestSizeSet>  $sizeBitByTestIndex
+     */
+    private function addItems(Directory $root, array $items, array $tests, array $sizeBitByTestIndex, bool $collectsHitCounts): void
     {
         foreach ($items as $key => $value) {
             $key = (string) $key;
@@ -103,13 +147,15 @@ final readonly class Builder
                             $analysisResult->functions(),
                             $analysisResult->linesOfCode(),
                             $value->functionCoverage !== [],
+                            $collectsHitCounts,
+                            $sizeBitByTestIndex,
                         ),
                     );
                 }
             } elseif (is_array($value)) {
                 $child = $root->addDirectory($key);
 
-                $this->addItems($child, $value, $tests);
+                $this->addItems($child, $value, $tests, $sizeBitByTestIndex, $collectsHitCounts);
             }
         }
     }
@@ -164,51 +210,27 @@ final readonly class Builder
         $functionCoverage = $codeCoverage->functionCoverage();
 
         foreach ($codeCoverage->coveredFiles() as $originalPath) {
-            $result = $this->insertIntoDirectoryStructure(
-                $result,
-                explode(DIRECTORY_SEPARATOR, $originalPath),
-                new FileCoverageData(
-                    $lineCoverage[$originalPath] ?? [],
-                    $functionCoverage[$originalPath] ?? [],
-                ),
+            $segments = explode(DIRECTORY_SEPARATOR, $originalPath);
+            $file     = array_pop($segments);
+
+            $cursor = &$result;
+
+            foreach ($segments as $segment) {
+                if (!isset($cursor[$segment]) || !is_array($cursor[$segment])) {
+                    $cursor[$segment] = [];
+                }
+
+                $cursor = &$cursor[$segment];
+            }
+
+            $cursor[$file . '/f'] = new FileCoverageData(
+                $lineCoverage[$originalPath] ?? [],
+                $functionCoverage[$originalPath] ?? [],
             );
+
+            unset($cursor);
         }
 
         return $result;
-    }
-
-    /**
-     * @param array<array-key, mixed> $structure
-     * @param list<string>            $path
-     *
-     * @return array<array-key, mixed>
-     */
-    private function insertIntoDirectoryStructure(array $structure, array $path, FileCoverageData $leaf): array
-    {
-        $segment = array_shift($path);
-
-        if ($segment === null) {
-            // @codeCoverageIgnoreStart
-            return $structure;
-            // @codeCoverageIgnoreEnd
-        }
-
-        if ($path === []) {
-            $structure[$segment . '/f'] = $leaf;
-
-            return $structure;
-        }
-
-        $child = $structure[$segment] ?? [];
-
-        if (!is_array($child)) {
-            // @codeCoverageIgnoreStart
-            $child = [];
-            // @codeCoverageIgnoreEnd
-        }
-
-        $structure[$segment] = $this->insertIntoDirectoryStructure($child, $path, $leaf);
-
-        return $structure;
     }
 }

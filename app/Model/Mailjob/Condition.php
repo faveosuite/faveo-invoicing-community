@@ -33,12 +33,6 @@ class Condition extends Model
 
     protected $fillable = ['job', 'value', 'command', 'active', 'is_background', 'days'];
 
-    protected $casts = [
-        'active' => 'boolean',
-        'is_background' => 'boolean',
-        'days' => 'json',
-    ];
-
     public static function isActive(string $job): bool
     {
         return (bool) static::where('job', $job)->value('active');
@@ -71,7 +65,7 @@ class Condition extends Model
      */
     public function getConditionValue(mixed $job): array
     {
-        return self::parseValue($this->where('job', $job)->value('value'));
+        return $this->parseValue($this->where('job', $job)->value('value'));
     }
 
     /**
@@ -81,7 +75,7 @@ class Condition extends Model
      */
     public function frequency(): array
     {
-        return self::parseValue($this->value);
+        return $this->parseValue($this->value);
     }
 
     /**
@@ -89,7 +83,7 @@ class Condition extends Model
      *
      * @return array{condition: string, at: string}
      */
-    private static function parseValue(?string $value): array
+    private function parseValue(?string $value): array
     {
         $parts = explode(',', (string) $value);
 
@@ -103,5 +97,14 @@ class Condition extends Model
         }
 
         return '';
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'active' => 'boolean',
+            'is_background' => 'boolean',
+            'days' => 'json',
+        ];
     }
 }

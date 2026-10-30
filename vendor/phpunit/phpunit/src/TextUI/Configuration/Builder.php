@@ -9,6 +9,7 @@
  */
 namespace PHPUnit\TextUI\Configuration;
 
+use PHPUnit\Event\Facade as EventFacade;
 use PHPUnit\TextUI\CliArguments\Builder as CliConfigurationBuilder;
 use PHPUnit\TextUI\CliArguments\Exception as CliConfigurationException;
 use PHPUnit\TextUI\CliArguments\XmlConfigurationFileFinder;
@@ -31,17 +32,19 @@ final readonly class Builder
     public function build(array $argv): Configuration
     {
         try {
-            $cliConfiguration  = (new CliConfigurationBuilder)->fromParameters($argv);
+            $emitter           = EventFacade::emitter();
+            $cliConfiguration  = new CliConfigurationBuilder($emitter)->fromParameters($argv);
             $configurationFile = (new XmlConfigurationFileFinder)->find($cliConfiguration);
             $xmlConfiguration  = DefaultConfiguration::create();
 
             if ($configurationFile !== false) {
-                $xmlConfiguration = (new Loader)->load($configurationFile);
+                $xmlConfiguration = new Loader($emitter)->load($configurationFile);
             }
 
             return Registry::init(
                 $cliConfiguration,
                 $xmlConfiguration,
+                $emitter,
             );
         } catch (CliConfigurationException|XmlConfigurationException $e) {
             throw new ConfigurationCannotBeBuiltException(

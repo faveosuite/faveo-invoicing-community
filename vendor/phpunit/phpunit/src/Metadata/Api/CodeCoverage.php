@@ -14,14 +14,21 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Metadata\CoversClass;
 use PHPUnit\Metadata\CoversClassesThatExtendClass;
 use PHPUnit\Metadata\CoversClassesThatImplementInterface;
+use PHPUnit\Metadata\CoversDirectory;
+use PHPUnit\Metadata\CoversDirectoryRecursively;
+use PHPUnit\Metadata\CoversFile;
 use PHPUnit\Metadata\CoversFunction;
 use PHPUnit\Metadata\CoversMethod;
 use PHPUnit\Metadata\CoversNamespace;
 use PHPUnit\Metadata\CoversTrait;
+use PHPUnit\Metadata\MetadataCollection;
 use PHPUnit\Metadata\Parser\Registry;
 use PHPUnit\Metadata\UsesClass;
 use PHPUnit\Metadata\UsesClassesThatExtendClass;
 use PHPUnit\Metadata\UsesClassesThatImplementInterface;
+use PHPUnit\Metadata\UsesDirectory;
+use PHPUnit\Metadata\UsesDirectoryRecursively;
+use PHPUnit\Metadata\UsesFile;
 use PHPUnit\Metadata\UsesFunction;
 use PHPUnit\Metadata\UsesMethod;
 use PHPUnit\Metadata\UsesNamespace;
@@ -42,9 +49,50 @@ final class CodeCoverage
      */
     public function coversTargets(string $className, string $methodName): TargetCollection
     {
+        return $this->coversTargetsFor(Registry::parser()->forClassAndMethod($className, $methodName));
+    }
+
+    /**
+     * @param class-string     $className
+     * @param non-empty-string $methodName
+     */
+    public function usesTargets(string $className, string $methodName): TargetCollection
+    {
+        return $this->usesTargetsFor(Registry::parser()->forClassAndMethod($className, $methodName));
+    }
+
+    public function shouldCodeCoverageBeCollectedFor(TestCase $test): bool
+    {
+        if (Registry::parser()->forClassAndMethod($test::class, $test->name())->isCoversNothing()->isNotEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param class-string $className
+     */
+    public function coversNothingContradictsCoversOrUses(string $className): bool
+    {
+        $classLevel = Registry::parser()->forClass($className);
+
+        if ($classLevel->isCoversNothing()->isEmpty()) {
+            return false;
+        }
+
+        if ($this->coversTargetsFor($classLevel)->isNotEmpty() || $this->usesTargetsFor($classLevel)->isNotEmpty()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function coversTargetsFor(MetadataCollection $metadataCollection): TargetCollection
+    {
         $targets = [];
 
-        foreach (Registry::parser()->forClassAndMethod($className, $methodName) as $metadata) {
+        foreach ($metadataCollection as $metadata) {
             if ($metadata->isCoversNamespace()) {
                 assert($metadata instanceof CoversNamespace);
 
@@ -86,20 +134,34 @@ final class CodeCoverage
 
                 $targets[] = Target::forTrait($metadata->traitName());
             }
+
+            if ($metadata->isCoversFile()) {
+                assert($metadata instanceof CoversFile);
+
+                $targets[] = Target::forFile($metadata->path());
+            }
+
+            if ($metadata->isCoversDirectory()) {
+                assert($metadata instanceof CoversDirectory);
+
+                $targets[] = Target::forDirectory($metadata->directory());
+            }
+
+            if ($metadata->isCoversDirectoryRecursively()) {
+                assert($metadata instanceof CoversDirectoryRecursively);
+
+                $targets[] = Target::forDirectoryRecursively($metadata->directory());
+            }
         }
 
         return TargetCollection::fromArray($targets);
     }
 
-    /**
-     * @param class-string     $className
-     * @param non-empty-string $methodName
-     */
-    public function usesTargets(string $className, string $methodName): TargetCollection
+    private function usesTargetsFor(MetadataCollection $metadataCollection): TargetCollection
     {
         $targets = [];
 
-        foreach (Registry::parser()->forClassAndMethod($className, $methodName) as $metadata) {
+        foreach ($metadataCollection as $metadata) {
             if ($metadata->isUsesNamespace()) {
                 assert($metadata instanceof UsesNamespace);
 
@@ -141,19 +203,26 @@ final class CodeCoverage
 
                 $targets[] = Target::forTrait($metadata->traitName());
             }
+
+            if ($metadata->isUsesFile()) {
+                assert($metadata instanceof UsesFile);
+
+                $targets[] = Target::forFile($metadata->path());
+            }
+
+            if ($metadata->isUsesDirectory()) {
+                assert($metadata instanceof UsesDirectory);
+
+                $targets[] = Target::forDirectory($metadata->directory());
+            }
+
+            if ($metadata->isUsesDirectoryRecursively()) {
+                assert($metadata instanceof UsesDirectoryRecursively);
+
+                $targets[] = Target::forDirectoryRecursively($metadata->directory());
+            }
         }
 
         return TargetCollection::fromArray($targets);
-    }
-
-    public function shouldCodeCoverageBeCollectedFor(TestCase $test): bool
-    {
-        $parser = Registry::parser();
-
-        if ($parser->forClass($test::class)->isCoversNothing()->isNotEmpty()) {
-            return false;
-        }
-
-        return true;
     }
 }

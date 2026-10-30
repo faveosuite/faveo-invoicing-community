@@ -55,7 +55,7 @@ class RegisterController extends Controller
             $reoonProvider = EmailMobileValidationProviders::where('provider', 'reoon')
                 ->select('api_key', 'mode', 'accepted_output')
                 ->firstOrFail();
-            ['api_key' => $apikey, 'mode' => $mode, 'accepted_output' => $accepted_output] = $reoonProvider->toArray();
+            [$apikey, $mode, $accepted_output] = [$reoonProvider->api_key, $reoonProvider->mode, $reoonProvider->accepted_output];
 
             $response = Http::get('https://emailverifier.reoon.com/api/v1/verify', [
                 'email' => $email,
@@ -66,7 +66,7 @@ class RegisterController extends Controller
             $status = $content['status'];
             $statusBit = $map[$status] ?? 0;
             $emailResult = EmailValidationResults::create(['email' => $email, 'status' => $status, 'method' => $content['verification_mode'], 'result' => json_encode($content), 'registration' => 'Completed']);
-            if (($statusBit & $accepted_output) || $content['status'] == 'valid' || isset($content['reason']) && $content['reason'] == 'Not enough credits available. Please recharge.' || $content['status'] == 'error') {
+            if (($statusBit & (int) $accepted_output) || $content['status'] == 'valid' || isset($content['reason']) && $content['reason'] == 'Not enough credits available. Please recharge.' || $content['status'] == 'error') {
                 return ['status' => true, 'id' => $emailResult->id];
             }
 
@@ -81,10 +81,10 @@ class RegisterController extends Controller
 
     private function vonagePhoneVerification(mixed $provider, string $phone): bool
     {
-        ['api_key' => $apikey, 'mode' => $mode,'api_secret' => $apisecret] = EmailMobileValidationProviders::where('provider', $provider)
+        $vonage = EmailMobileValidationProviders::where('provider', $provider)
             ->select('api_key', 'mode', 'api_secret')
-            ->firstOrFail()
-            ->toArray();
+            ->firstOrFail();
+        [$apikey, $mode, $apisecret] = [$vonage->api_key, $vonage->mode, $vonage->api_secret];
 
         $response = Http::get('https://api.nexmo.com/ni/'.$mode.'/json', [
             'api_key' => $apikey,

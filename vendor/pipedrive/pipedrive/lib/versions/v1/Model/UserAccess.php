@@ -195,6 +195,7 @@ class UserAccess implements ModelInterface, ArrayAccess, JsonSerializable
     const APP_PROJECTS = 'projects';
     const APP_ACCOUNT_SETTINGS = 'account_settings';
     const APP_PARTNERSHIP = 'partnership';
+    const APP_NOVA = 'nova';
 
     /**
      * Gets allowable values of the enum
@@ -212,6 +213,7 @@ class UserAccess implements ModelInterface, ArrayAccess, JsonSerializable
             self::APP_PROJECTS,
             self::APP_ACCOUNT_SETTINGS,
             self::APP_PARTNERSHIP,
+            self::APP_NOVA,
         ];
     }
 

@@ -11,10 +11,13 @@ namespace PHPUnit\Runner\Phpt;
 
 use const DIRECTORY_SEPARATOR;
 use function assert;
+use function count;
 use function dirname;
 use function explode;
 use function file;
 use function file_get_contents;
+use function implode;
+use function in_array;
 use function is_array;
 use function is_file;
 use function is_readable;
@@ -22,6 +25,7 @@ use function is_string;
 use function preg_match;
 use function realpath;
 use function rtrim;
+use function sprintf;
 use function str_contains;
 use function trim;
 use PHPUnit\Runner\Exception;
@@ -35,6 +39,64 @@ use PHPUnit\Runner\Exception;
  */
 final readonly class Parser
 {
+    private const array SUPPORTED_SECTIONS = [
+        'TEST',
+        'FILE',
+        'FILEEOF',
+        'FILE_EXTERNAL',
+        'EXPECT',
+        'EXPECT_EXTERNAL',
+        'EXPECTF',
+        'EXPECTF_EXTERNAL',
+        'EXPECTREGEX',
+        'EXPECTREGEX_EXTERNAL',
+        'INI',
+        'ENV',
+        'SKIPIF',
+        'XFAIL',
+        'CLEAN',
+        'STDIN',
+        'ARGS',
+    ];
+    private const array UNSUPPORTED_SECTIONS = [
+        'CGI',
+        'COOKIE',
+        'DEFLATE_POST',
+        'EXPECTHEADERS',
+        'EXTENSIONS',
+        'GET',
+        'GZIP_POST',
+        'HEADERS',
+        'PHPDBG',
+        'POST',
+        'POST_RAW',
+        'PUT',
+        'REDIRECTTEST',
+        'REQUEST',
+    ];
+    private const array IGNORED_SECTIONS = [
+        'CAPTURE_STDIO',
+        'CONFLICTS',
+        'CREDITS',
+        'DESCRIPTION',
+        'FLAKY',
+        'WHITESPACE_SENSITIVE',
+        'XLEAK',
+    ];
+    private const array FILE_SECTIONS = [
+        'FILE',
+        'FILEEOF',
+        'FILE_EXTERNAL',
+    ];
+    private const array EXPECTATION_SECTIONS = [
+        'EXPECT',
+        'EXPECT_EXTERNAL',
+        'EXPECTF',
+        'EXPECTF_EXTERNAL',
+        'EXPECTREGEX',
+        'EXPECTREGEX_EXTERNAL',
+    ];
+
     /**
      * @param non-empty-string $phptFile
      *
@@ -46,23 +108,6 @@ final readonly class Parser
     {
         $sections = [];
         $section  = '';
-
-        $unsupportedSections = [
-            'CGI',
-            'COOKIE',
-            'DEFLATE_POST',
-            'EXPECTHEADERS',
-            'EXTENSIONS',
-            'GET',
-            'GZIP_POST',
-            'HEADERS',
-            'PHPDBG',
-            'POST',
-            'POST_RAW',
-            'PUT',
-            'REDIRECTTEST',
-            'REQUEST',
-        ];
 
         $lines = @file($phptFile);
 
@@ -76,7 +121,18 @@ final readonly class Parser
             $lineNr++;
 
             if (preg_match('/^--([_A-Z]+)--/', $line, $result) === 1) {
-                $section                        = $result[1];
+                $section = $result[1];
+
+                if (!in_array($section, self::SUPPORTED_SECTIONS, true) &&
+                    !in_array($section, self::UNSUPPORTED_SECTIONS, true) &&
+                    !in_array($section, self::IGNORED_SECTIONS, true)) {
+                    throw new UnknownPhptSectionException($section);
+                }
+
+                if (isset($sections[$section])) {
+                    throw new DuplicatePhptSectionException($section);
+                }
+
                 $sections[$section]             = '';
                 $sections[$section . '_offset'] = (string) $lineNr;
 
@@ -84,13 +140,22 @@ final readonly class Parser
             }
 
             if ($section === '') {
-                throw new InvalidPhptFileException;
+                throw new InvalidPhptFileException(
+                    sprintf(
+                        'PHPT file must not contain text before its first section (line %d)',
+                        $lineNr,
+                    ),
+                );
             }
 
             assert(isset($sections[$section]));
 
             $sections[$section] .= $line;
         }
+
+        $codeSection = $this->ensureExactlyOneSectionOf($sections, self::FILE_SECTIONS);
+
+        $this->ensureExactlyOneSectionOf($sections, self::EXPECTATION_SECTIONS);
 
         if (isset($sections['FILEEOF'])) {
             $sections['FILE'] = rtrim($sections['FILEEOF'], "\r\n");
@@ -99,13 +164,14 @@ final readonly class Parser
         }
 
         $this->parseExternal($phptFile, $sections);
-        $this->validate($sections);
 
-        foreach ($unsupportedSections as $unsupportedSection) {
+        foreach (self::UNSUPPORTED_SECTIONS as $unsupportedSection) {
             if (isset($sections[$unsupportedSection])) {
                 throw new UnsupportedPhptSectionException($unsupportedSection);
             }
         }
+
+        $this->ensureCodeIsNotEmpty($sections, $codeSection);
 
         return $sections;
     }
@@ -203,7 +269,6 @@ final readonly class Parser
                 $contents     = file_get_contents($externalPath);
 
                 assert($contents !== false);
-                assert($contents !== '');
 
                 $sections[$section] = $contents;
 
@@ -220,20 +285,63 @@ final readonly class Parser
     }
 
     /**
+     * @param array<non-empty-string, string>  $sections
+     * @param non-empty-list<non-empty-string> $sectionFamily
+     *
+     * @throws ConflictingPhptSectionsException
+     * @throws InvalidPhptFileException
+     *
+     * @return non-empty-string
+     */
+    private function ensureExactlyOneSectionOf(array $sections, array $sectionFamily): string
+    {
+        $found = [];
+
+        foreach ($sectionFamily as $name) {
+            if (isset($sections[$name])) {
+                $found[] = $name;
+            }
+        }
+
+        if ($found === []) {
+            throw new InvalidPhptFileException(
+                sprintf(
+                    'PHPT file must contain one of the sections --%s--',
+                    implode('--, --', $sectionFamily),
+                ),
+            );
+        }
+
+        if (count($found) > 1) {
+            throw new ConflictingPhptSectionsException($found);
+        }
+
+        return $found[0];
+    }
+
+    /**
      * @param array<non-empty-string, string> $sections
+     * @param non-empty-string                $codeSection
      *
      * @throws InvalidPhptFileException
      */
-    private function validate(array $sections): void
+    private function ensureCodeIsNotEmpty(array $sections, string $codeSection): void
     {
-        if (!isset($sections['FILE'])) {
-            throw new InvalidPhptFileException;
+        if (isset($sections['FILE']) && $sections['FILE'] !== '') {
+            return;
         }
 
-        if (!isset($sections['EXPECT']) &&
-            !isset($sections['EXPECTF']) &&
-            !isset($sections['EXPECTREGEX'])) {
-            throw new InvalidPhptFileException;
+        if ($codeSection === 'FILE_EXTERNAL') {
+            throw new InvalidPhptFileException(
+                'File referenced by --FILE_EXTERNAL-- section is empty',
+            );
         }
+
+        throw new InvalidPhptFileException(
+            sprintf(
+                '--%s-- section is empty',
+                $codeSection,
+            ),
+        );
     }
 }

@@ -20,10 +20,10 @@ class DatabaseSeeder extends Seeder
         ReportSetting::truncate();
 
         $this->call([ReportColumnSeeder::class]);
-        $this->command->info('Report column Table Seeded!');
+        $this->command?->info('Report column Table Seeded!');
 
         $this->call([ReportSettingSeeder::class]);
-        $this->command->info('Report column Table Seeded!');
+        $this->command?->info('Report column Table Seeded!');
 
         $this->call([
             TemplateTableSeeder::class,

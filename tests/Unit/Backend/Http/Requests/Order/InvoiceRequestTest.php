@@ -11,7 +11,7 @@ class InvoiceRequestTest extends TestCase
 {
     private function rules(): array
     {
-        return (new InvoiceRequest())->rules();
+        return new InvoiceRequest()->rules();
     }
 
     private function valid(): array
@@ -21,7 +21,7 @@ class InvoiceRequestTest extends TestCase
 
     public function test_authorize_returns_true(): void
     {
-        $this->assertTrue((new InvoiceRequest())->authorize());
+        $this->assertTrue(new InvoiceRequest()->authorize());
     }
 
     public function test_validation_passes_with_valid_data(): void
@@ -72,6 +72,6 @@ class InvoiceRequestTest extends TestCase
 
     public function test_messages_returns_non_empty_array(): void
     {
-        $this->assertNotEmpty((new InvoiceRequest())->messages());
+        $this->assertNotEmpty(new InvoiceRequest()->messages());
     }
 }

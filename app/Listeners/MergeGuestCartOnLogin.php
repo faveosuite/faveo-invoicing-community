@@ -7,9 +7,7 @@ use Illuminate\Auth\Events\Login;
 
 class MergeGuestCartOnLogin
 {
-    public function __construct(private readonly CartService $cartService)
-    {
-    }
+    public function __construct(private readonly CartService $cartService) {}
 
     /**
      * When a user logs in, fold any cart they built as a guest (held in the

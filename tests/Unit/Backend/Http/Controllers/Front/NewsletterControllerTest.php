@@ -50,8 +50,9 @@ class NewsletterControllerTest extends DBTestCase
         $provider->shouldReceive('isEnabled')->andReturn(true);
         $provider->shouldReceive('subscribeEmail')->once();
 
-        $manager = new NewsletterManager();
+        $manager = new NewsletterManager;
         $manager->register($provider);
+
         $this->app->instance(NewsletterManager::class, $manager);
 
         $response = $this->postJson('/newsletter/subscribe', [

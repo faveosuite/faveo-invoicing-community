@@ -9,9 +9,7 @@ use Throwable;
 
 class UnsubscribeOnUserDeleted
 {
-    public function __construct(private readonly MailchimpService $service)
-    {
-    }
+    public function __construct(private readonly MailchimpService $service) {}
 
     public function handle(string $email): void
     {

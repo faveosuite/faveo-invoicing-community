@@ -45,8 +45,7 @@ class InvoicePaymentService
         private readonly PaymentService $payments,
         private readonly PostPaymentService $postPayment,
         private readonly AutoRenewalActivationService $autoRenewal,
-    ) {
-    }
+    ) {}
 
     /** Stripe publishable key, for the SPA to initialise Stripe.js. */
     public function publishableKey(): string
@@ -69,13 +68,13 @@ class InvoicePaymentService
      */
     public function availableCredit(int $userId, string $currency): float
     {
-        return app(AdvanceSearchController::class)->getExtraAmt($userId, $currency);
+        return resolve(AdvanceSearchController::class)->getExtraAmt($userId, $currency);
     }
 
     /** Spend that credit balance against an invoice. */
     private function spendBalance(Invoice $invoice, float $amount): void
     {
-        app(InvoiceController::class)->updatePaymentByInvoice(
+        resolve(InvoiceController::class)->updatePaymentByInvoice(
             (int) $invoice->user_id,
             [$invoice->id],
             'Credit Balance',
@@ -156,9 +155,6 @@ class InvoicePaymentService
     {
         try {
             $names = SettingsController::checkPaymentGateway($currency);
-            if (! is_array($names)) {
-                return [];
-            }
 
             return array_map(fn ($name): array => [
                 'name' => $name,
@@ -283,7 +279,7 @@ class InvoicePaymentService
         // guard that can't race: only one caller's update can affect a row, so
         // the loser (affected count 0) safely reports success without
         // repeating any of the work below.
-        return DB::transaction(function () use ($invoice, $gateway, $result, $creditApplied) {
+        return DB::transaction(function () use ($invoice, $gateway, $result, $creditApplied): true {
             $claimed = $invoice->newQuery()
                 ->whereKey($invoice->id)
                 ->where('status', '!=', 'success')
@@ -292,6 +288,7 @@ class InvoicePaymentService
             if (! $claimed) {
                 return true;
             }
+
             $invoice->refresh();
 
             if ($creditApplied > 0) {

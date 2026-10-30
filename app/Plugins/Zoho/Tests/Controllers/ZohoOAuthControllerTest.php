@@ -363,7 +363,7 @@ class ZohoOAuthControllerTest extends DBTestCase
         ZohoOAuthClient::create(['integration_id' => $integration->id, 'client_id' => 'id', 'client_secret' => 's', 'region' => 'eu']);
         ZohoOAuthToken::create(['integration_id' => $integration->id, 'access_token' => 'a', 'refresh_token' => 'r', 'expires_at' => now()->addHour()]);
 
-        $crm = array_column($this->controller->getIntegrations()->getData(true)['data'], null, 'platform')['crm'];
+        $crm = array_column($this->controller->getIntegrations()->getData(assoc: true)['data'], column_key: null, index_key: 'platform')['crm'];
 
         $this->assertTrue($crm['has_token']);
         $this->assertSame('Europe', $crm['region']);

@@ -69,7 +69,7 @@ class ProductSearchItemItem implements ModelInterface, ArrayAccess, JsonSerializ
         'id' => 'int',
         'type' => 'string',
         'name' => 'string',
-        'code' => 'int',
+        'code' => 'string',
         'visible_to' => 'int',
         'owner' => '\Pipedrive\versions\v2\Model\ProductSearchItemItemOwner',
         'custom_fields' => 'string[]'
@@ -339,7 +339,7 @@ class ProductSearchItemItem implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Gets code
      *
-     * @return int|null
+     * @return string|null
      */
     public function getCode()
     {
@@ -349,7 +349,7 @@ class ProductSearchItemItem implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Sets code
      *
-     * @param int|null $code The code of the product
+     * @param string|null $code The code of the product
      *
      * @return self
      */

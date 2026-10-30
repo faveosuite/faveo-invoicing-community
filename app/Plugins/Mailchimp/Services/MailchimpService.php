@@ -236,8 +236,8 @@ class MailchimpService
         foreach (array_diff($relation->getFillable(), ['is_paid_yes', 'is_paid_no']) as $column) {
             $tag = $relation->getAttribute($column);
 
-            if (filled($tag) && ! in_array($tag, $tags, true)) {
-                $relation->setAttribute($column, null);
+            if (filled($tag) && ! in_array($tag, $tags, strict: true)) {
+                $relation->setAttribute($column, value: null);
                 $removed[] = ucfirst(str_replace('_', ' ', $column));
             }
         }
@@ -326,8 +326,8 @@ class MailchimpService
         $relation = MailchimpFieldAgoraRelation::first();
 
         foreach (['is_paid_yes', 'is_paid_no'] as $column) {
-            if ($relation instanceof MailchimpFieldAgoraRelation && filled($relation->getAttribute($column)) && ! in_array($relation->getAttribute($column), $interestIds, true)) {
-                $relation->setAttribute($column, null);
+            if ($relation instanceof MailchimpFieldAgoraRelation && filled($relation->getAttribute($column)) && ! in_array($relation->getAttribute($column), $interestIds, strict: true)) {
+                $relation->setAttribute($column, value: null);
             }
         }
 

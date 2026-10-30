@@ -11,7 +11,7 @@ class OrderRequestTest extends TestCase
 {
     private function rules(): array
     {
-        return (new OrderRequest())->rules();
+        return new OrderRequest()->rules();
     }
 
     private function valid(): array
@@ -24,7 +24,7 @@ class OrderRequestTest extends TestCase
 
     public function test_authorize_returns_true(): void
     {
-        $this->assertTrue((new OrderRequest())->authorize());
+        $this->assertTrue(new OrderRequest()->authorize());
     }
 
     public function test_validation_passes_with_valid_data(): void
@@ -57,7 +57,7 @@ class OrderRequestTest extends TestCase
 
     public function test_messages_returns_expected_keys(): void
     {
-        $messages = (new OrderRequest())->messages();
+        $messages = new OrderRequest()->messages();
 
         $this->assertIsArray($messages);
         $this->assertArrayHasKey('client.required', $messages);

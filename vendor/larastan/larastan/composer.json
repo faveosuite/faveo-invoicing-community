@@ -12,7 +12,6 @@
     ],
     "require": {
         "php": "^8.2",
-        "ext-json": "*",
         "iamcal/sql-parser": "^0.7.0",
         "illuminate/console": "^11.44.2 || ^12.4.1 || ^13",
         "illuminate/container": "^11.44.2 || ^12.4.1 || ^13",
@@ -21,7 +20,7 @@
         "illuminate/http": "^11.44.2 || ^12.4.1 || ^13",
         "illuminate/pipeline": "^11.44.2 || ^12.4.1 || ^13",
         "illuminate/support": "^11.44.2 || ^12.4.1 || ^13",
-        "phpstan/phpstan": "^2.2.0"
+        "phpstan/phpstan": "^2.3.0"
     },
     "require-dev": {
         "doctrine/coding-standard": "^14",
@@ -31,7 +30,7 @@
         "orchestra/canvas": "^v9.2.2 || ^10.0.1 || ^11",
         "orchestra/testbench-core": "^9.12.0 || ^10.1 || ^11",
         "phpstan/phpstan-deprecation-rules": "^2.0.1",
-        "phpunit/phpunit": "^10.5.35 || ^11.5.15 || ^12.5.8 || ^13.1.8"
+        "phpunit/phpunit": "^10.5.35 || ^11.5.15 || ^12.5.8 || ^13.3.0"
     },
     "suggest": {
         "orchestra/testbench": "Using Larastan for analysing a package needs Testbench",

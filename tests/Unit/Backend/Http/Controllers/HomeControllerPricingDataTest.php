@@ -7,6 +7,7 @@ namespace Tests\Unit\Backend\Http\Controllers;
 use App\Http\Middleware\Install;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 use Torann\GeoIP\Facades\GeoIP;
 use Torann\GeoIP\Location;
@@ -44,7 +45,7 @@ class HomeControllerPricingDataTest extends TestCase
         DB::table('plan_prices')->insert(['plan_id' => $plan, 'currency' => $currency, 'add_price' => $amount, 'renew_price' => $amount, 'price_description' => 'desc']);
     }
 
-    private function pricing(array $query): \Illuminate\Testing\TestResponse
+    private function pricing(array $query): TestResponse
     {
         return $this->getJson('/pricing/data?'.http_build_query($query));
     }

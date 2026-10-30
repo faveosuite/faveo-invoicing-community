@@ -4,6 +4,7 @@ namespace Tests\Unit\Backend\Http\Controllers\Front;
 
 use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\Front\PageController;
+use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
@@ -90,7 +91,7 @@ class StoreTest extends DBTestCase
         // ONE plan with a PlanPrice. A second plan WITHOUT PlanPrice triggers the continue.
         $user = User::factory()->create(['country' => 'US', 'email' => 'store-skip-test-'.uniqid().'@test.local']);
         $this->actingAs($user);
-        $currency = \App\Model\Payment\Currency::where('code', 'USD')->value('code') ?? 'USD';
+        $currency = Currency::where('code', 'USD')->value('code') ?? 'USD';
 
         $group = ProductGroup::create(['name' => 'no-price-group-'.uniqid(), 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id, 'hidden' => 0]);
@@ -117,6 +118,7 @@ class StoreTest extends DBTestCase
 
         $response = $this->call('GET', 'store/'.$group->id.'/products');
         $response->assertStatus(200);
+
         $json = $response->json();
         $this->assertNotEmpty($json['data']['products']);
         $this->assertEquals($product->name, $json['data']['products'][0]['name']);

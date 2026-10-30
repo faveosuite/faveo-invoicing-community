@@ -17,7 +17,7 @@ class DependencyController extends NonPublicDependencies
     {
         // Only these lookups feed guest/client forms; the rest expose users, products and pricing.
         abort_unless(
-            in_array($type, ['time-zones', 'languages', 'countries', 'states'], true) || $request->user()?->role === 'admin',
+            in_array($type, ['time-zones', 'languages', 'countries', 'states'], strict: true) || $request->user()?->role === 'admin',
             403
         );
 

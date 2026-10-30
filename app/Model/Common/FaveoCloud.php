@@ -59,12 +59,6 @@ class FaveoCloud extends Model
         'cloud_auth', 'cloud_oauth_token', 'google_chat_webhook',
     ];
 
-    protected $casts = [
-        'cloud_auth' => 'encrypted',
-        'cloud_oauth_token' => 'encrypted',
-        'google_chat_webhook' => 'encrypted',
-    ];
-
     protected string $logName = 'cloud';
 
     protected string $logNameColumn = 'Faveo Cloud';
@@ -91,6 +85,15 @@ class FaveoCloud extends Model
         return [
             'cloud_central_domain' => ['Cloud Central Domain', fn ($value) => $value],
             'cloud_cname' => ['Cloud Cname', fn ($value) => $value],
+        ];
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'cloud_auth' => 'encrypted',
+            'cloud_oauth_token' => 'encrypted',
+            'google_chat_webhook' => 'encrypted',
         ];
     }
 }

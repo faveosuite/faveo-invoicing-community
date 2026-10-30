@@ -10,8 +10,8 @@ use PhpOffice\PhpSpreadsheet\Calculation\Functions;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Exception as PhpSpreadsheetException;
-use PhpOffice\PhpSpreadsheet\Shared\Date as SharedDate;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use Throwable;
 
 class Date
 {
@@ -25,7 +25,7 @@ class Date
      *
      * @var string[]
      */
-    public static $monthNames = [
+    public static array $monthNames = [
         'Jan' => 'January',
         'Feb' => 'February',
         'Mar' => 'March',
@@ -43,7 +43,7 @@ class Date
     /**
      * @var string[]
      */
-    public static $numberSuffixes = [
+    public static array $numberSuffixes = [
         'st',
         'nd',
         'rd',
@@ -53,30 +53,26 @@ class Date
     /**
      * Base calendar year to use for calculations
      * Value is either CALENDAR_WINDOWS_1900 (1900) or CALENDAR_MAC_1904 (1904).
-     *
-     * @var int
      */
-    protected static $excelCalendar = self::CALENDAR_WINDOWS_1900;
+    protected static int $excelCalendar = self::CALENDAR_WINDOWS_1900;
 
     /**
      * Default timezone to use for DateTime objects.
-     *
-     * @var null|DateTimeZone
      */
-    protected static $defaultTimeZone;
+    protected static ?DateTimeZone $defaultTimeZone = null;
 
     /**
      * Set the Excel calendar (Windows 1900 or Mac 1904).
      *
-     * @param int $baseYear Excel base date (1900 or 1904)
+     * @param ?int $baseYear Excel base date (1900 or 1904)
      *
      * @return bool Success or failure
      */
-    public static function setExcelCalendar($baseYear)
+    public static function setExcelCalendar(?int $baseYear): bool
     {
         if (
-            ($baseYear == self::CALENDAR_WINDOWS_1900) ||
-            ($baseYear == self::CALENDAR_MAC_1904)
+            ($baseYear === self::CALENDAR_WINDOWS_1900)
+            || ($baseYear === self::CALENDAR_MAC_1904)
         ) {
             self::$excelCalendar = $baseYear;
 
@@ -91,7 +87,7 @@ class Date
      *
      * @return int Excel base date (1900 or 1904)
      */
-    public static function getExcelCalendar()
+    public static function getExcelCalendar(): int
     {
         return self::$excelCalendar;
     }
@@ -103,13 +99,13 @@ class Date
      *
      * @return bool Success or failure
      */
-    public static function setDefaultTimezone($timeZone)
+    public static function setDefaultTimezone($timeZone): bool
     {
         try {
             $timeZone = self::validateTimeZone($timeZone);
             self::$defaultTimeZone = $timeZone;
             $retval = true;
-        } catch (PhpSpreadsheetException $e) {
+        } catch (PhpSpreadsheetException) {
             $retval = false;
         }
 
@@ -147,7 +143,7 @@ class Date
      *
      * @return ?DateTimeZone The timezone as a timezone object
      */
-    private static function validateTimeZone($timeZone)
+    private static function validateTimeZone($timeZone): ?DateTimeZone
     {
         if ($timeZone instanceof DateTimeZone || $timeZone === null) {
             return $timeZone;
@@ -163,10 +159,8 @@ class Date
      * @param mixed $value Converts a date/time in ISO-8601 standard format date string to an Excel
      *                         serialized timestamp.
      *                     See https://en.wikipedia.org/wiki/ISO_8601 for details of the ISO-8601 standard format.
-     *
-     * @return float|int
      */
-    public static function convertIsoDate($value)
+    public static function convertIsoDate(mixed $value, ?int $calendar = null): float|int
     {
         if (!is_string($value)) {
             throw new Exception('Non-string value supplied for Iso Date conversion');
@@ -179,10 +173,7 @@ class Date
             throw new Exception("Invalid string $value supplied for datatype Date");
         }
 
-        $newValue = SharedDate::PHPToExcel($date);
-        if ($newValue === false) {
-            throw new Exception("Invalid string $value supplied for datatype Date");
-        }
+        $newValue = self::dateTimeToExcel($date, $calendar);
 
         if (preg_match('/^\s*\d?\d:\d\d(:\d\d([.]\d+)?)?\s*(am|pm)?\s*$/i', $value) == 1) {
             $newValue = fmod($newValue, 1.0);
@@ -199,18 +190,21 @@ class Date
      *                                           if you don't want to treat it as a UTC value
      *                                           Use the default (UTC) unless you absolutely need a conversion
      *
+     * @throws \Exception
+     *
      * @return DateTime PHP date/time object
      */
-    public static function excelToDateTimeObject($excelTimestamp, $timeZone = null)
+    public static function excelToDateTimeObject(float|int $excelTimestamp, null|DateTimeZone|string $timeZone = null, ?int $calendar = null): DateTime
     {
+        $calendar ??= self::$excelCalendar;
         $timeZone = ($timeZone === null) ? self::getDefaultTimezone() : self::validateTimeZone($timeZone);
         if (Functions::getCompatibilityMode() == Functions::COMPATIBILITY_EXCEL) {
-            if ($excelTimestamp < 1 && self::$excelCalendar === self::CALENDAR_WINDOWS_1900) {
+            if ($excelTimestamp < 1 && $calendar === self::CALENDAR_WINDOWS_1900) {
                 // Unix timestamp base date
                 $baseDate = new DateTime('1970-01-01', $timeZone);
             } else {
                 // MS Excel calendar base dates
-                if (self::$excelCalendar == self::CALENDAR_WINDOWS_1900) {
+                if ($calendar == self::CALENDAR_WINDOWS_1900) {
                     // Allow adjustment for 1900 Leap Year in MS Excel
                     $baseDate = ($excelTimestamp < 60) ? new DateTime('1899-12-31', $timeZone) : new DateTime('1899-12-30', $timeZone);
                 } else {
@@ -221,21 +215,30 @@ class Date
             $baseDate = new DateTime('1899-12-30', $timeZone);
         }
 
+        if (is_int($excelTimestamp)) {
+            if ($excelTimestamp >= 0) {
+                return self::safeModify($baseDate, "+ $excelTimestamp days");
+            }
+
+            return self::safeModify($baseDate, "$excelTimestamp days");
+        }
         $days = floor($excelTimestamp);
         $partDay = $excelTimestamp - $days;
-        $hours = floor($partDay * 24);
-        $partDay = $partDay * 24 - $hours;
-        $minutes = floor($partDay * 60);
-        $partDay = $partDay * 60 - $minutes;
-        $seconds = round($partDay * 60);
+        $hms = 86400 * $partDay;
+        $microseconds = (int) round(fmod($hms, 1) * 1000000);
+        $hms = (int) floor($hms);
+        $hours = intdiv($hms, 3600);
+        $hms -= $hours * 3600;
+        $minutes = intdiv($hms, 60);
+        $seconds = $hms % 60;
 
         if ($days >= 0) {
             $days = '+' . $days;
         }
         $interval = $days . ' days';
 
-        return $baseDate->modify($interval)
-            ->setTime((int) $hours, (int) $minutes, (int) $seconds);
+        return self::safeModify($baseDate, $interval)
+            ->setTime($hours, $minutes, $seconds, $microseconds);
     }
 
     /**
@@ -250,10 +253,12 @@ class Date
      *
      * @return int Unix timetamp for this date/time
      */
-    public static function excelToTimestamp($excelTimestamp, $timeZone = null)
+    public static function excelToTimestamp($excelTimestamp, $timeZone = null, ?int $calendar = null): int
     {
-        return (int) self::excelToDateTimeObject($excelTimestamp, $timeZone)
-            ->format('U');
+        $dto = self::excelToDateTimeObject($excelTimestamp, $timeZone, $calendar);
+        self::roundMicroseconds($dto);
+
+        return (int) $dto->format('U');
     }
 
     /**
@@ -265,14 +270,16 @@ class Date
      * @return false|float Excel date/time value
      *                                  or boolean FALSE on failure
      */
-    public static function PHPToExcel($dateValue)
+    public static function PHPToExcel(mixed $dateValue, ?int $calendar = null)
     {
         if ((is_object($dateValue)) && ($dateValue instanceof DateTimeInterface)) {
-            return self::dateTimeToExcel($dateValue);
-        } elseif (is_numeric($dateValue)) {
-            return self::timestampToExcel($dateValue);
-        } elseif (is_string($dateValue)) {
-            return self::stringToExcel($dateValue);
+            return self::dateTimeToExcel($dateValue, $calendar);
+        }
+        if (is_numeric($dateValue)) {
+            return self::timestampToExcel($dateValue, $calendar);
+        }
+        if (is_string($dateValue)) {
+            return self::stringToExcel($dateValue, $calendar);
         }
 
         return false;
@@ -285,15 +292,18 @@ class Date
      *
      * @return float MS Excel serialized date/time value
      */
-    public static function dateTimeToExcel(DateTimeInterface $dateValue)
+    public static function dateTimeToExcel(DateTimeInterface $dateValue, ?int $calendar = null): float
     {
+        $seconds = (float) sprintf('%d.%06d', $dateValue->format('s'), $dateValue->format('u'));
+
         return self::formattedPHPToExcel(
             (int) $dateValue->format('Y'),
             (int) $dateValue->format('m'),
             (int) $dateValue->format('d'),
             (int) $dateValue->format('H'),
             (int) $dateValue->format('i'),
-            (int) $dateValue->format('s')
+            $seconds,
+            $calendar
         );
     }
 
@@ -306,30 +316,24 @@ class Date
      *
      * @return false|float MS Excel serialized date/time value
      */
-    public static function timestampToExcel($unixTimestamp)
+    public static function timestampToExcel($unixTimestamp, ?int $calendar = null): bool|float
     {
         if (!is_numeric($unixTimestamp)) {
             return false;
         }
 
-        return self::dateTimeToExcel(new DateTime('@' . $unixTimestamp));
+        return self::dateTimeToExcel(new DateTime('@' . $unixTimestamp), $calendar);
     }
 
     /**
      * formattedPHPToExcel.
      *
-     * @param int $year
-     * @param int $month
-     * @param int $day
-     * @param int $hours
-     * @param int $minutes
-     * @param int $seconds
-     *
      * @return float Excel date/time value
      */
-    public static function formattedPHPToExcel($year, $month, $day, $hours = 0, $minutes = 0, $seconds = 0)
+    public static function formattedPHPToExcel(int $year, int $month, int $day, int $hours = 0, int $minutes = 0, float|int $seconds = 0, ?int $calendar = null): float
     {
-        if (self::$excelCalendar == self::CALENDAR_WINDOWS_1900) {
+        $calendar ??= self::$excelCalendar;
+        if ($calendar === self::CALENDAR_WINDOWS_1900) {
             //
             //    Fudge factor for the erroneous fact that the year 1900 is treated as a Leap Year in MS Excel
             //    This affects every date following 28th February 1900
@@ -364,12 +368,8 @@ class Date
 
     /**
      * Is a given cell a date/time?
-     *
-     * @param mixed $value
-     *
-     * @return bool
      */
-    public static function isDateTime(Cell $cell, $value = null, bool $dateWithoutTimeOkay = true)
+    public static function isDateTime(Cell $cell, mixed $value = null, bool $dateWithoutTimeOkay = true): bool
     {
         $result = false;
         $worksheet = $cell->getWorksheetOrNull();
@@ -379,15 +379,23 @@ class Date
             $selected = $worksheet->getSelectedCells();
 
             try {
-                $result = is_numeric($value ?? $cell->getCalculatedValue()) &&
-                    self::isDateTimeFormat(
+                if ($value === null) {
+                    $value = Functions::flattenSingleValue(
+                        $cell->getCalculatedValue()
+                    );
+                }
+                if (is_numeric($value)) {
+                    $result = self::isDateTimeFormat(
                         $worksheet->getStyle(
                             $cell->getCoordinate()
                         )->getNumberFormat(),
                         $dateWithoutTimeOkay
                     );
-            } catch (Exception $e) {
-                // Result is already false, so no need to actually do anything here
+                    /** @var float|int $value */
+                    self::excelToDateTimeObject($value);
+                }
+            } catch (Throwable) {
+                $result = false;
             }
             $worksheet->setSelectedCells($selected);
             $spreadsheet->setActiveSheetIndex($index);
@@ -398,10 +406,8 @@ class Date
 
     /**
      * Is a given NumberFormat code a date/time format code?
-     *
-     * @return bool
      */
-    public static function isDateTimeFormat(NumberFormat $excelFormatCode, bool $dateWithoutTimeOkay = true)
+    public static function isDateTimeFormat(NumberFormat $excelFormatCode, bool $dateWithoutTimeOkay = true): bool
     {
         return self::isDateTimeFormatCode((string) $excelFormatCode->getFormatCode(), $dateWithoutTimeOkay);
     }
@@ -411,12 +417,8 @@ class Date
 
     /**
      * Is a given number format code a date/time?
-     *
-     * @param string $excelFormatCode
-     *
-     * @return bool
      */
-    public static function isDateTimeFormatCode($excelFormatCode, bool $dateWithoutTimeOkay = true)
+    public static function isDateTimeFormatCode(string $excelFormatCode, bool $dateWithoutTimeOkay = true): bool
     {
         if (strtolower($excelFormatCode) === strtolower(NumberFormat::FORMAT_GENERAL)) {
             //    "General" contains an epoch letter 'e', so we trap for it explicitly here (case-insensitive check)
@@ -428,32 +430,33 @@ class Date
         }
 
         // Switch on formatcode
+        $excelFormatCode = (string) NumberFormat::convertSystemFormats($excelFormatCode);
         if (in_array($excelFormatCode, NumberFormat::DATE_TIME_OR_DATETIME_ARRAY, true)) {
             return $dateWithoutTimeOkay || in_array($excelFormatCode, NumberFormat::TIME_OR_DATETIME_ARRAY);
         }
 
         //    Typically number, currency or accounting (or occasionally fraction) formats
-        if ((substr($excelFormatCode, 0, 1) == '_') || (substr($excelFormatCode, 0, 2) == '0 ')) {
+        if ((str_starts_with($excelFormatCode, '_')) || (str_starts_with($excelFormatCode, '0 '))) {
             return false;
         }
         // Some "special formats" provided in German Excel versions were detected as date time value,
         // so filter them out here - "\C\H\-00000" (Switzerland) and "\D-00000" (Germany).
-        if (\strpos($excelFormatCode, '-00000') !== false) {
+        if (str_contains($excelFormatCode, '-00000')) {
             return false;
         }
         $possibleFormatCharacters = $dateWithoutTimeOkay ? self::POSSIBLE_DATETIME_FORMAT_CHARACTERS : self::POSSIBLE_TIME_FORMAT_CHARACTERS;
         // Try checking for any of the date formatting characters that don't appear within square braces
-        if (preg_match('/(^|\])[^\[]*[' . $possibleFormatCharacters . ']/i', $excelFormatCode)) {
+        if (preg_match('/(^|])[^\[]*[' . $possibleFormatCharacters . ']/i', $excelFormatCode)) {
             //    We might also have a format mask containing quoted strings...
             //        we don't want to test for any of our characters within the quoted blocks
-            if (strpos($excelFormatCode, '"') !== false) {
+            if (str_contains($excelFormatCode, '"')) {
                 $segMatcher = false;
                 foreach (explode('"', $excelFormatCode) as $subVal) {
                     //    Only test in alternate array entries (the non-quoted blocks)
                     $segMatcher = $segMatcher === false;
                     if (
-                        $segMatcher &&
-                        (preg_match('/(^|\])[^\[]*[' . $possibleFormatCharacters . ']/i', $subVal))
+                        $segMatcher
+                        && (preg_match('/(^|])[^\[]*[' . $possibleFormatCharacters . ']/i', $subVal))
                     ) {
                         return true;
                     }
@@ -476,22 +479,22 @@ class Date
      *
      * @return false|float Excel date/time serial value
      */
-    public static function stringToExcel($dateValue)
+    public static function stringToExcel(string $dateValue, ?int $calendar = null): bool|float
     {
         if (strlen($dateValue) < 2) {
             return false;
         }
-        if (!preg_match('/^(\d{1,4}[ \.\/\-][A-Z]{3,9}([ \.\/\-]\d{1,4})?|[A-Z]{3,9}[ \.\/\-]\d{1,4}([ \.\/\-]\d{1,4})?|\d{1,4}[ \.\/\-]\d{1,4}([ \.\/\-]\d{1,4})?)( \d{1,2}:\d{1,2}(:\d{1,2})?)?$/iu', $dateValue)) {
+        if (!preg_match('/^(\d{1,4}[ .\/\-][A-Z]{3,9}([ .\/\-]\d{1,4})?|[A-Z]{3,9}[ .\/\-]\d{1,4}([ .\/\-]\d{1,4})?|\d{1,4}[ .\/\-]\d{1,4}([ .\/\-]\d{1,4})?)( \d{1,2}:\d{1,2}(:\d{1,2}([.]\d+)?)?)?$/iu', $dateValue)) {
             return false;
         }
 
-        $dateValueNew = DateTimeExcel\DateValue::fromString($dateValue);
+        $dateValueNew = DateTimeExcel\DateValue::fromString2($dateValue, $calendar);
 
         if (!is_float($dateValueNew)) {
             return false;
         }
 
-        if (strpos($dateValue, ':') !== false) {
+        if (str_contains($dateValue, ':')) {
             $timeValue = DateTimeExcel\TimeValue::fromString($dateValue);
             if (!is_float($timeValue)) {
                 return false;
@@ -509,7 +512,7 @@ class Date
      *
      * @return int|string Month number (1 - 12), or the original string argument if it isn't a valid month name
      */
-    public static function monthStringToNumber($monthName)
+    public static function monthStringToNumber(string $monthName)
     {
         $monthIndex = 1;
         foreach (self::$monthNames as $shortMonthName => $longMonthName) {
@@ -529,7 +532,7 @@ class Date
      *
      * @return int|string The integer value with any ordinal stripped, or the original string argument if it isn't a valid numeric
      */
-    public static function dayStringToNumber($day)
+    public static function dayStringToNumber(string $day)
     {
         $strippedDayValue = (str_replace(self::$numberSuffixes, '', $day));
         if (is_numeric($strippedDayValue)) {
@@ -552,5 +555,93 @@ class Date
         $dtobj = self::dateTimeFromTimestamp($date, $timeZone);
 
         return $dtobj->format($format);
+    }
+
+    /**
+     * Round the given DateTime object to seconds.
+     */
+    public static function roundMicroseconds(DateTime $dti): void
+    {
+        $microseconds = (int) $dti->format('u');
+        $rounded = (int) round($microseconds, -6);
+        $modify = $rounded - $microseconds;
+        if ($modify !== 0) {
+            self::safeModify($dti, ($modify > 0 ? '+' : '') . $modify . ' microseconds');
+        }
+    }
+
+    /**
+     * Safely modifies a DateTime object using a specified modification string.
+     *
+     * Prior to PHP 8.3, DateTime::modify() would return false on failure but would also
+     * emit an E_WARNING. Starting with PHP 8.3, DateTime::modify() throws a DateMalformedStringException
+     * on failure instead of returning false or emitting warnings.
+     *
+     * This method provides consistent exception-based error handling across PHP versions:
+     * - For PHP 8.3+: Uses the native exception-throwing behavior of modify()
+     * - For PHP < 8.3: Converts warnings to exceptions using a custom error handler
+     *
+     * This ensures that calling code can rely on exception handling for all date modification
+     * failures regardless of the PHP version in use.
+     *
+     * @param DateTime $dateTime The DateTime object to be modified.
+     * @param string $modifier A modification string, such as '+1 day', '-2 hours', 'last Monday', etc.
+     *
+     * @throws PhpSpreadsheetException If an error occurs during the date modification process.
+     *
+     * @return DateTime The modified DateTime object.
+     *
+     * @codeCoverageIgnore
+     */
+    protected static function safeModify(DateTime $dateTime, string $modifier): DateTime
+    {
+        /**
+         * Starting with PHP 8.3, DateTime::modify() throws a DateMalformedStringException on failure instead of
+         * returning false or emitting warnings, so we don't need the error handler overhead and can just consume the
+         * DateTime.modify() method.
+         */
+        if (PHP_VERSION_ID >= 80300) {
+            return $dateTime->modify($modifier);
+        }
+
+        set_error_handler(
+            /**
+             * A selective error handler meant to capture E_WARNING such the following:
+             *
+             * > Warning: DateTime::modify(): Failed to parse time string (+ 3172011706730017 days)
+             * > at position 0 (+): Unexpected character in
+             * > […]/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Shared/Date.php on line 220
+             *
+             * @param int $severity The severity level of the error.
+             * @param string $message The error message to process.
+             *
+             * @throws PhpSpreadsheetException If the severity is E_WARNING and the message matches the specified
+             *                                 condition.
+             *
+             * @return bool Returns false if the error is not of type E_WARNING or if the message does not match
+             *              the specified condition. Throws PhpSpreadsheetException when conditions are met.
+             */
+            static function (int $severity, string $message): bool {
+                if ($severity !== E_WARNING) {
+                    return false;
+                }
+                if (!str_starts_with($message, 'DateTime::modify()')) {
+                    return false;
+                }
+
+                throw new PhpSpreadsheetException($message);
+            }
+        );
+
+        try {
+            $result = $dateTime->modify($modifier);
+            if ($result === false) {
+                throw new PhpSpreadsheetException('Failed to modify date with interval: ' . $modifier);
+            }
+
+            return $result;
+        } finally {
+            restore_error_handler();
+        }
     }
 }

@@ -35,8 +35,11 @@ trait FollowRedirectsTrait
             return new AsyncResponse($this->client, $method, $url, $options);
         }
 
+        // $url already contains the query: it must not be added again to redirect targets
+        unset($options['query']);
         $options['max_redirects'] = 0;
         $redirectHeaders = [
+            'scheme' => parse_url($url, \PHP_URL_SCHEME),
             'host' => $host,
             'port' => parse_url($url, \PHP_URL_PORT),
             'with_auth' => $options['headers'],
@@ -80,9 +83,9 @@ trait FollowRedirectsTrait
                 }
             }
 
-            // Authorization and Cookie headers MUST NOT follow except for the initial host name
+            // Authorization and Cookie headers MUST NOT follow except for the initial scheme, host and port
             $port = parse_url($url, \PHP_URL_PORT);
-            $options['headers'] = $redirectHeaders['host'] === $host && ($redirectHeaders['port'] ?? null) === $port ? $redirectHeaders['with_auth'] : $redirectHeaders['no_auth'];
+            $options['headers'] = parse_url($url, \PHP_URL_SCHEME) === $redirectHeaders['scheme'] && $redirectHeaders['host'] === $host && ($redirectHeaders['port'] ?? null) === $port ? $redirectHeaders['with_auth'] : $redirectHeaders['no_auth'];
 
             static $redirectCount = 0;
             $context->setInfo('redirect_count', ++$redirectCount);

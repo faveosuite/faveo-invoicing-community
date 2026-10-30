@@ -64,8 +64,6 @@ final readonly class Builder
         if (str_contains($originUrl, '@')) {
             $tmp = explode('@', $originUrl);
 
-            assert(isset($tmp[1]));
-
             $originUrl = $tmp[1];
         }
 
@@ -94,5 +92,24 @@ final readonly class Builder
         }
 
         return new State($originUrl, $branch, $commit, $status === '', $status);
+    }
+
+    /**
+     * Returns the hash of the commit that is checked out, for which, unlike
+     * for build(), no origin remote needs to be configured, and false when the
+     * working directory is not part of a Git repository, the repository has
+     * no commit yet, or Git cannot be run.
+     *
+     * @return false|non-empty-string
+     */
+    public function commit(): false|string
+    {
+        $commit = $this->runner->run('rev-parse --verify HEAD');
+
+        if ($commit === false || $commit === '') {
+            return false;
+        }
+
+        return $commit;
     }
 }

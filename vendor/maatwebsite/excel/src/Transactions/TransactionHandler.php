@@ -1,12 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Transactions;
 
 interface TransactionHandler
 {
-    /**
-     * @param  callable  $callback
-     * @return mixed
-     */
-    public function __invoke(callable $callback);
+    public function __invoke(callable $callback): mixed;
 }

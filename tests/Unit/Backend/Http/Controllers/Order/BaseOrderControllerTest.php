@@ -8,6 +8,7 @@ use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
+use App\Model\Product\Subscription;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Date;
 use Mockery\MockInterface;
@@ -84,7 +85,7 @@ class BaseOrderControllerTest extends DBTestCase
     private function assertExpiryUpdated(string $field, $orderId, string $dateInMDY): void
     {
         $expectedDate = Date::createFromFormat('m/d/Y', $dateInMDY)?->format('Y-m-d');
-        $subscription = \App\Model\Product\Subscription::where('order_id', $orderId)->first();
+        $subscription = Subscription::where('order_id', $orderId)->first();
         $this->assertNotNull($subscription, "Subscription not found for order $orderId");
         $actualDate = $subscription->$field ? Date::parse($subscription->$field)->format('Y-m-d') : null;
         $this->assertEquals($expectedDate, $actualDate, "Expected $field to be $expectedDate");
@@ -121,7 +122,7 @@ class BaseOrderControllerTest extends DBTestCase
         $this->mockPermissions($order->product, []); // no permissions attached at all
         $this->mockLicenseController();
 
-        $before = \App\Model\Product\Subscription::where('order_id', $order->id)->first()?->update_ends_at;
+        $before = Subscription::where('order_id', $order->id)->first()?->update_ends_at;
 
         $response = $this->postJson('/update-license-details', [
             'orderid' => $order->id,
@@ -129,7 +130,8 @@ class BaseOrderControllerTest extends DBTestCase
         ]);
 
         $response->assertJson(['success' => false]);
-        $after = \App\Model\Product\Subscription::where('order_id', $order->id)->first()?->update_ends_at;
+
+        $after = Subscription::where('order_id', $order->id)->first()?->update_ends_at;
         $this->assertEquals($before, $after);
     }
 
@@ -191,7 +193,7 @@ class BaseOrderControllerTest extends DBTestCase
         $this->mockLicenseController();
 
         $updateDate = $this->date();
-        $licenseBefore = \App\Model\Product\Subscription::where('order_id', $order->id)->first()?->ends_at;
+        $licenseBefore = Subscription::where('order_id', $order->id)->first()?->ends_at;
 
         $response = $this->postJson('/update-license-details', [
             'orderid' => $order->id,
@@ -203,7 +205,7 @@ class BaseOrderControllerTest extends DBTestCase
         $this->assertStringContainsString(__('message.license_expiry'), (string) $response->json('message'));
         $this->assertExpiryUpdated('update_ends_at', $order->id, $updateDate);
 
-        $licenseAfter = \App\Model\Product\Subscription::where('order_id', $order->id)->first()?->ends_at;
+        $licenseAfter = Subscription::where('order_id', $order->id)->first()?->ends_at;
         $this->assertEquals($licenseBefore, $licenseAfter);
     }
 

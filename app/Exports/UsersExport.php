@@ -16,9 +16,7 @@ class UsersExport implements FromCollection, WithHeadings, WithTitle
     /**
      * @param  Enumerable<covariant int|string, covariant mixed>  $usersData
      */
-    public function __construct(protected mixed $selectedColumns, protected Enumerable $usersData, protected mixed $sheetIndex)
-    {
-    }
+    public function __construct(protected mixed $selectedColumns, protected Enumerable $usersData, protected mixed $sheetIndex) {}
 
     /**
      * @return Collection<int|string, mixed>

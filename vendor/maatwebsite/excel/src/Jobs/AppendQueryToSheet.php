@@ -2,10 +2,12 @@
 
 namespace Maatwebsite\Excel\Jobs;
 
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Maatwebsite\Excel\Concerns\Export;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterChunk;
@@ -13,84 +15,45 @@ use Maatwebsite\Excel\Files\TemporaryFile;
 use Maatwebsite\Excel\HasEventBus;
 use Maatwebsite\Excel\Jobs\Middleware\LocalizeJob;
 use Maatwebsite\Excel\Writer;
+use PhpOffice\PhpSpreadsheet\Exception;
 
 class AppendQueryToSheet implements ShouldQueue
 {
-    use Queueable, Dispatchable, ProxyFailures, InteractsWithQueue, HasEventBus;
+    use Batchable, Dispatchable, HasEventBus, InteractsWithQueue, ProxyFailures, Queueable;
 
-    /**
-     * @var TemporaryFile
-     */
-    public $temporaryFile;
-
-    /**
-     * @var string
-     */
-    public $writerType;
-
-    /**
-     * @var int
-     */
-    public $sheetIndex;
-
-    /**
-     * @var FromQuery
-     */
-    public $sheetExport;
-
-    /**
-     * @var int
-     */
-    public $page;
-
-    /**
-     * @var int
-     */
-    public $chunkSize;
-
-    /**
-     * @param  FromQuery  $sheetExport
-     * @param  TemporaryFile  $temporaryFile
-     * @param  string  $writerType
-     * @param  int  $sheetIndex
-     * @param  int  $page
-     * @param  int  $chunkSize
-     */
     public function __construct(
-        FromQuery $sheetExport,
-        TemporaryFile $temporaryFile,
-        string $writerType,
-        int $sheetIndex,
-        int $page,
-        int $chunkSize
+        public FromQuery $sheetExport,
+        public TemporaryFile $temporaryFile,
+        public string $writerType,
+        public int $sheetIndex,
+        public int $page,
+        public int $chunkSize,
+        public ?Export $export = null,
     ) {
-        $this->sheetExport   = $sheetExport;
-        $this->temporaryFile = $temporaryFile;
-        $this->writerType    = $writerType;
-        $this->sheetIndex    = $sheetIndex;
-        $this->page          = $page;
-        $this->chunkSize     = $chunkSize;
     }
 
     /**
      * Get the middleware the job should be dispatched through.
      *
-     * @return array
+     * @return array<int, object>
      */
-    public function middleware()
+    public function middleware(): array
     {
         return (method_exists($this->sheetExport, 'middleware')) ? $this->sheetExport->middleware() : [];
     }
 
     /**
-     * @param  Writer  $writer
-     *
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws Exception
      * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
      */
-    public function handle(Writer $writer)
+    public function handle(Writer $writer): void
     {
-        (new LocalizeJob($this->sheetExport))->handle($this, function () use ($writer) {
+        // Determine if the batch has been cancelled...
+        if ($this->batch()?->cancelled()) {
+            return;
+        }
+
+        (new LocalizeJob($this->sheetExport))->handle($this, function () use ($writer): void {
             if ($this->sheetExport instanceof WithEvents) {
                 $this->registerListeners($this->sheetExport->registerEvents());
             }
@@ -103,9 +66,10 @@ class AppendQueryToSheet implements ShouldQueue
 
             $sheet->appendRows($query->get(), $this->sheetExport);
 
-            $writer->write($this->sheetExport, $this->temporaryFile, $this->writerType);
-
             $this->raise(new AfterChunk($sheet, $this->sheetExport, ($this->page - 1) * $this->chunkSize));
+
+            $writer->write($this->export ?? $this->sheetExport, $this->temporaryFile, $this->writerType);
+
             $this->clearListeners();
         });
     }

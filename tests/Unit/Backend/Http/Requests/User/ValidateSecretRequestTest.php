@@ -11,7 +11,7 @@ class ValidateSecretRequestTest extends TestCase
 {
     private function rules(): array
     {
-        return (new ValidateSecretRequest())->rules();
+        return new ValidateSecretRequest()->rules();
     }
 
     public function test_totp_is_required(): void
@@ -40,6 +40,6 @@ class ValidateSecretRequestTest extends TestCase
 
     public function test_messages_returns_non_empty_array(): void
     {
-        $this->assertNotEmpty((new ValidateSecretRequest())->messages());
+        $this->assertNotEmpty(new ValidateSecretRequest()->messages());
     }
 }

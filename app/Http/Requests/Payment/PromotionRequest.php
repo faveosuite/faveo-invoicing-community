@@ -70,7 +70,7 @@ class PromotionRequest extends Request
 
         return Price::where('product_id', $productId)->pluck('price')
             ->merge(PlanPrice::whereIn('plan_id', $planIds)->pluck('add_price'))
-            ->map(fn ($v) => (float) $v)
+            ->map(fn ($v): float => (float) $v)
             ->max() ?? 0.0;
     }
 

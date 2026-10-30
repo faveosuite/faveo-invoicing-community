@@ -2,7 +2,7 @@
 
 namespace PhpOffice\PhpSpreadsheet\Collection;
 
-use Generator;
+use PhpOffice\PhpSpreadsheet\Cell\AddressRange;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception as PhpSpreadsheetException;
@@ -12,40 +12,30 @@ use Psr\SimpleCache\CacheInterface;
 
 class Cells
 {
-    protected const MAX_COLUMN_ID = 16384;
+    /** @deprecated 5.6.0 use AddressRange::MAX_COLUMN_INT */
+    protected const MAX_COLUMN_ID = AddressRange::MAX_COLUMN_INT;
 
-    /**
-     * @var CacheInterface
-     */
-    private $cache;
+    private CacheInterface $cache;
 
     /**
      * Parent worksheet.
-     *
-     * @var null|Worksheet
      */
-    private $parent;
+    private ?Worksheet $parent;
 
     /**
      * The currently active Cell.
-     *
-     * @var null|Cell
      */
-    private $currentCell;
+    private ?Cell $currentCell = null;
 
     /**
      * Coordinate of the currently active Cell.
-     *
-     * @var null|string
      */
-    private $currentCoordinate;
+    private ?string $currentCoordinate = null;
 
     /**
      * Flag indicating whether the currently active Cell requires saving.
-     *
-     * @var bool
      */
-    private $currentCellIsDirty = false;
+    private bool $currentCellIsDirty = false;
 
     /**
      * An index of existing cells. int pointer to the coordinate (0-base-indexed row * 16,384 + 1-base indexed column)
@@ -53,14 +43,31 @@ class Cells
      *
      * @var int[]
      */
-    private $index = [];
+    private array $index = [];
+
+    /**
+     * Flag to avoid sorting the index every time.
+     */
+    private bool $indexSorted = false;
+
+    /**
+     * Index keys cache to avoid recalculating on large arrays.
+     *
+     * @var null|string[]
+     */
+    private ?array $indexKeysCache = null;
+
+    /**
+     * Index values cache to avoid recalculating on large arrays.
+     *
+     * @var null|int[]
+     */
+    private ?array $indexValuesCache = null;
 
     /**
      * Prefix used to uniquely identify cache data for this worksheet.
-     *
-     * @var string
      */
-    private $cachePrefix;
+    private string $cachePrefix;
 
     /**
      * Initialise this new cell collection.
@@ -79,10 +86,8 @@ class Cells
 
     /**
      * Return the parent worksheet for this cell collection.
-     *
-     * @return null|Worksheet
      */
-    public function getParent()
+    public function getParent(): ?Worksheet
     {
         return $this->parent;
     }
@@ -92,9 +97,14 @@ class Cells
      *
      * @param string $cellCoordinate Coordinate of the cell to check
      */
-    public function has($cellCoordinate): bool
+    public function has(string $cellCoordinate): bool
     {
         return ($cellCoordinate === $this->currentCoordinate) || isset($this->index[$cellCoordinate]);
+    }
+
+    public function has2(string $cellCoordinate): bool
+    {
+        return isset($this->index[$cellCoordinate]);
     }
 
     /**
@@ -112,7 +122,7 @@ class Cells
      *
      * @param string $cellCoordinate Coordinate of the cell to delete
      */
-    public function delete($cellCoordinate): void
+    public function delete(string $cellCoordinate): void
     {
         if ($cellCoordinate === $this->currentCoordinate && $this->currentCell !== null) {
             $this->currentCell->detach();
@@ -123,6 +133,10 @@ class Cells
 
         unset($this->index[$cellCoordinate]);
 
+        // Clear index caches
+        $this->indexKeysCache = null;
+        $this->indexValuesCache = null;
+
         // Delete the entry from cache
         $this->cache->delete($this->cachePrefix . $cellCoordinate);
     }
@@ -132,9 +146,14 @@ class Cells
      *
      * @return string[]
      */
-    public function getCoordinates()
+    public function getCoordinates(): array
     {
-        return array_keys($this->index);
+        // Build or rebuild index keys cache
+        if ($this->indexKeysCache === null) {
+            $this->indexKeysCache = array_keys($this->index);
+        }
+
+        return $this->indexKeysCache;
     }
 
     /**
@@ -142,19 +161,51 @@ class Cells
      *
      * @return string[]
      */
-    public function getSortedCoordinates()
+    public function getSortedCoordinates(): array
     {
-        asort($this->index);
+        // Sort only when required
+        if (!$this->indexSorted) {
+            asort($this->index);
+            $this->indexSorted = true;
+            // Clear unsorted cache
+            $this->indexKeysCache = null;
+            $this->indexValuesCache = null;
+        }
 
-        return array_keys($this->index);
+        // Build or rebuild index keys cache
+        if ($this->indexKeysCache === null) {
+            $this->indexKeysCache = array_keys($this->index);
+        }
+
+        return $this->indexKeysCache;
+    }
+
+    /**
+     * Get a sorted list of all cell coordinates currently held in the collection by index (16384*row+column).
+     *
+     * @return int[]
+     */
+    public function getSortedCoordinatesInt(): array
+    {
+        if (!$this->indexSorted) {
+            asort($this->index);
+            $this->indexSorted = true;
+            // Clear unsorted cache
+            $this->indexKeysCache = null;
+            $this->indexValuesCache = null;
+        }
+
+        if ($this->indexValuesCache === null) {
+            $this->indexValuesCache = array_values($this->index);
+        }
+
+        return $this->indexValuesCache;
     }
 
     /**
      * Return the cell coordinate of the currently active cell object.
-     *
-     * @return null|string
      */
-    public function getCurrentCoordinate()
+    public function getCurrentCoordinate(): ?string
     {
         return $this->currentCoordinate;
     }
@@ -186,16 +237,16 @@ class Cells
     /**
      * Get highest worksheet column and highest row that have cell records.
      *
-     * @return array Highest column name and highest row number
+     * @return array{row: int, column: string} Highest column name and highest row number
      */
-    public function getHighestRowAndColumn()
+    public function getHighestRowAndColumn(): array
     {
         // Lookup highest column and highest row
         $maxRow = $maxColumn = 1;
         foreach ($this->index as $coordinate) {
-            $row = (int) floor($coordinate / self::MAX_COLUMN_ID) + 1;
+            $row = (int) floor(($coordinate - 1) / AddressRange::MAX_COLUMN_INT) + 1;
             $maxRow = ($maxRow > $row) ? $maxRow : $row;
-            $column = $coordinate % self::MAX_COLUMN_ID;
+            $column = ($coordinate % AddressRange::MAX_COLUMN_INT) ?: AddressRange::MAX_COLUMN_INT;
             $maxColumn = ($maxColumn > $column) ? $maxColumn : $column;
         }
 
@@ -213,7 +264,7 @@ class Cells
      *
      * @return string Highest column name
      */
-    public function getHighestColumn($row = null)
+    public function getHighestColumn($row = null): string
     {
         if ($row === null) {
             return $this->getHighestRowAndColumn()['column'];
@@ -225,14 +276,14 @@ class Cells
         }
 
         $maxColumn = 1;
-        $toRow = $row * self::MAX_COLUMN_ID;
-        $fromRow = --$row * self::MAX_COLUMN_ID;
+        $toRow = $row * AddressRange::MAX_COLUMN_INT;
+        $fromRow = --$row * AddressRange::MAX_COLUMN_INT;
         foreach ($this->index as $coordinate) {
             if ($coordinate < $fromRow || $coordinate >= $toRow) {
                 continue;
             }
-            $column = $coordinate % self::MAX_COLUMN_ID;
-            $maxColumn = $maxColumn > $column ? $maxColumn : $column;
+            $column = ($coordinate % AddressRange::MAX_COLUMN_INT) ?: AddressRange::MAX_COLUMN_INT;
+            $maxColumn = max($column, $maxColumn);
         }
 
         return Coordinate::stringFromColumnIndex($maxColumn);
@@ -246,7 +297,7 @@ class Cells
      *
      * @return int Highest row number
      */
-    public function getHighestRow($column = null)
+    public function getHighestRow(?string $column = null): int
     {
         if ($column === null) {
             return $this->getHighestRowAndColumn()['row'];
@@ -255,10 +306,10 @@ class Cells
         $maxRow = 1;
         $columnIndex = Coordinate::columnIndexFromString($column);
         foreach ($this->index as $coordinate) {
-            if ($coordinate % self::MAX_COLUMN_ID !== $columnIndex) {
+            if ($coordinate % AddressRange::MAX_COLUMN_INT !== $columnIndex) {
                 continue;
             }
-            $row = (int) floor($coordinate / self::MAX_COLUMN_ID) + 1;
+            $row = (int) floor($coordinate / AddressRange::MAX_COLUMN_INT) + 1;
             $maxRow = ($maxRow > $row) ? $maxRow : $row;
         }
 
@@ -270,7 +321,7 @@ class Cells
      *
      * @return string Unique Reference
      */
-    private function getUniqueID()
+    private function getUniqueID(): string
     {
         $cacheType = Settings::getCache();
 
@@ -281,10 +332,8 @@ class Cells
 
     /**
      * Clone the cell collection.
-     *
-     * @return self
      */
-    public function cloneCellCollection(Worksheet $worksheet)
+    public function cloneCellCollection(Worksheet $worksheet): static
     {
         $this->storeCurrentCell();
         $newCollection = clone $this;
@@ -296,12 +345,17 @@ class Cells
             $newCollection->index[$key] = $value;
             $stored = $newCollection->cache->set(
                 $newCollection->cachePrefix . $key,
-                clone $this->cache->get($this->cachePrefix . $key)
+                clone $this->getCache($key)
             );
             if ($stored === false) {
                 $this->destructIfNeeded($newCollection, 'Failed to copy cells in cache');
             }
         }
+
+        // Clear index sorted flag and index caches
+        $newCollection->indexSorted = false;
+        $newCollection->indexKeysCache = null;
+        $newCollection->indexValuesCache = null;
 
         return $newCollection;
     }
@@ -319,12 +373,12 @@ class Cells
             throw new PhpSpreadsheetException('Row number must be a positive integer');
         }
 
-        $toRow = $row * self::MAX_COLUMN_ID;
-        $fromRow = --$row * self::MAX_COLUMN_ID;
+        $toRow = $row * AddressRange::MAX_COLUMN_INT;
+        $fromRow = --$row * AddressRange::MAX_COLUMN_INT;
         foreach ($this->index as $coordinate) {
             if ($coordinate >= $fromRow && $coordinate < $toRow) {
-                $row = (int) floor($coordinate / self::MAX_COLUMN_ID) + 1;
-                $column = Coordinate::stringFromColumnIndex($coordinate % self::MAX_COLUMN_ID);
+                $row = (int) floor($coordinate / AddressRange::MAX_COLUMN_INT) + 1;
+                $column = Coordinate::stringFromColumnIndex($coordinate % AddressRange::MAX_COLUMN_INT);
                 $this->delete("{$column}{$row}");
             }
         }
@@ -335,15 +389,15 @@ class Cells
      *
      * @param string $column Column ID to remove
      */
-    public function removeColumn($column): void
+    public function removeColumn(string $column): void
     {
         $this->storeCurrentCell();
 
         $columnIndex = Coordinate::columnIndexFromString($column);
         foreach ($this->index as $coordinate) {
-            if ($coordinate % self::MAX_COLUMN_ID === $columnIndex) {
-                $row = (int) floor($coordinate / self::MAX_COLUMN_ID) + 1;
-                $column = Coordinate::stringFromColumnIndex($coordinate % self::MAX_COLUMN_ID);
+            if ($coordinate % AddressRange::MAX_COLUMN_INT === $columnIndex) {
+                $row = (int) floor($coordinate / AddressRange::MAX_COLUMN_INT) + 1;
+                $column = Coordinate::stringFromColumnIndex($coordinate % AddressRange::MAX_COLUMN_INT);
                 $this->delete("{$column}{$row}");
             }
         }
@@ -356,7 +410,7 @@ class Cells
     private function storeCurrentCell(): void
     {
         if ($this->currentCellIsDirty && isset($this->currentCoordinate, $this->currentCell)) {
-            $this->currentCell->/** @scrutinizer ignore-call */ detach();
+            $this->currentCell->detach();
 
             $stored = $this->cache->set($this->cachePrefix . $this->currentCoordinate, $this->currentCell);
             if ($stored === false) {
@@ -381,10 +435,8 @@ class Cells
      *
      * @param string $cellCoordinate Coordinate of the cell to update
      * @param Cell $cell Cell to update
-     *
-     * @return Cell
      */
-    public function add($cellCoordinate, Cell $cell)
+    public function add(string $cellCoordinate, Cell $cell): Cell
     {
         if ($cellCoordinate !== $this->currentCoordinate) {
             $this->storeCurrentCell();
@@ -392,7 +444,13 @@ class Cells
         $column = 0;
         $row = '';
         sscanf($cellCoordinate, '%[A-Z]%d', $column, $row);
-        $this->index[$cellCoordinate] = (--$row * self::MAX_COLUMN_ID) + Coordinate::columnIndexFromString((string) $column);
+        /** @var int $row */
+        $this->index[$cellCoordinate] = (--$row * AddressRange::MAX_COLUMN_INT) + Coordinate::columnIndexFromString((string) $column);
+
+        // Clear index sorted flag and index caches
+        $this->indexSorted = false;
+        $this->indexKeysCache = null;
+        $this->indexValuesCache = null;
 
         $this->currentCoordinate = $cellCoordinate;
         $this->currentCell = $cell;
@@ -408,7 +466,7 @@ class Cells
      *
      * @return null|Cell Cell that was found, or null if not found
      */
-    public function get($cellCoordinate)
+    public function get(string $cellCoordinate): ?Cell
     {
         if ($cellCoordinate === $this->currentCoordinate) {
             return $this->currentCell;
@@ -420,11 +478,7 @@ class Cells
             return null;
         }
 
-        // Check if the entry that has been requested actually exists in the cache
-        $cell = $this->cache->get($this->cachePrefix . $cellCoordinate);
-        if ($cell === null) {
-            throw new PhpSpreadsheetException("Cell entry {$cellCoordinate} no longer exists in cache. This probably means that the cache was cleared by someone else.");
-        }
+        $cell = $this->getcache($cellCoordinate);
 
         // Set current entry to the requested entry
         $this->currentCoordinate = $cellCoordinate;
@@ -452,6 +506,11 @@ class Cells
 
         $this->index = [];
 
+        // Clear index sorted flag and index caches
+        $this->indexSorted = false;
+        $this->indexKeysCache = null;
+        $this->indexValuesCache = null;
+
         // detach ourself from the worksheet, so that it can then delete this object successfully
         $this->parent = null;
     }
@@ -462,17 +521,28 @@ class Cells
     public function __destruct()
     {
         $this->cache->deleteMultiple($this->getAllCacheKeys());
+        $this->parent = null;
     }
 
     /**
      * Returns all known cache keys.
      *
-     * @return Generator|string[]
+     * @return iterable<string>
      */
-    private function getAllCacheKeys()
+    private function getAllCacheKeys(): iterable
     {
         foreach ($this->index as $coordinate => $value) {
             yield $this->cachePrefix . $coordinate;
         }
+    }
+
+    private function getCache(string $cellCoordinate): Cell
+    {
+        $cell = $this->cache->get($this->cachePrefix . $cellCoordinate);
+        if (!($cell instanceof Cell)) {
+            throw new PhpSpreadsheetException("Cell entry {$cellCoordinate} no longer exists in cache. This probably means that the cache was cleared by someone else.");
+        }
+
+        return $cell;
     }
 }

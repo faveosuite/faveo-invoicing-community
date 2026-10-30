@@ -4,23 +4,14 @@ namespace Maatwebsite\Excel\Concerns;
 
 trait RemembersRowNumber
 {
-    /**
-     * @var int
-     */
-    protected $rowNumber;
+    protected ?int $rowNumber = null;
 
-    /**
-     * @param  int  $rowNumber
-     */
-    public function rememberRowNumber(int $rowNumber)
+    public function rememberRowNumber(int $rowNumber): void
     {
         $this->rowNumber = $rowNumber;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getRowNumber()
+    public function getRowNumber(): ?int
     {
         return $this->rowNumber;
     }

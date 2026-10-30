@@ -64,11 +64,13 @@ class PageRequest extends Request
                     if (! $value) {
                         return;
                     }
+
                     if ((int) $value === (int) $this->route('id')) {
                         $fail(__('validation.frontend_pages.parent_page_id.self'));
 
                         return;
                     }
+
                     // whereNotIn(..., [null, 0]) would silently never match — SQL's
                     // `NOT IN` with a NULL in the list evaluates to NULL, not true.
                     $parentHasParent = FrontendPage::whereKey($value)

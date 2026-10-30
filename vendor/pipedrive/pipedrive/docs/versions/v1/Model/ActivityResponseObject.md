@@ -14,6 +14,7 @@ Name | Type | Description | Notes
 **org_id** | **int** | The ID of the organization this activity is associated with | [optional]
 **location** | **string** | The address of the activity. | [optional]
 **public_description** | **string** | Additional details about the activity that is synced to your external calendar. Unlike the note added to the activity, the description is publicly visible to any guests added to the activity. | [optional]
+**outcome** | **int** | The ID of the Outcome for the activity. The available Outcome values depend on the activity type and can be retrieved using the Activity Fields API. Set to &#x60;null&#x60; to clear the Outcome. | [optional]
 **id** | **int** | The ID of the activity, generated when the activity was created | [optional]
 **note** | **string** | The note of the activity (HTML format) | [optional]
 **done** | **bool** | Whether the activity is done or not | [optional]

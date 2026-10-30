@@ -2,6 +2,62 @@
 
 All notable changes to `spatie/laravel-activitylog` will be documented in this file
 
+## 5.1.2 - 2026-10-19
+
+### What changed
+
+- Move the Laravel Boost activitylog reference into an on-demand `activitylog-development` skill, with a short guideline and a direct-file fallback when skills are unavailable.
+- Complete the standalone skill examples.
+- Explicitly test PHP 8.4 and 8.5 with Laravel 12/Pest 4 and Laravel 13/Pest 5, including lowest and latest dependencies.
+- Run read-only Pint and PHPStan checks for fork pull requests and fix the authentication test fixture for current Laravel.
+
+No package runtime behavior or supported Laravel versions changed.
+
+**Full changelog**: https://github.com/spatie/laravel-activitylog/compare/5.1.1...5.1.2
+
+Thanks to @benddailey for #1475.
+
+## 5.1.1 - 2026-09-08
+
+Restores Laravel 12 support, which 5.1.0 dropped unintentionally.
+
+### What's Changed
+
+* Restore Laravel 12 support by @freekmurze in https://github.com/spatie/laravel-activitylog/pull/1473
+
+**Full Changelog**: https://github.com/spatie/laravel-activitylog/compare/5.1.0...5.1.1
+
+## 5.1.0 - 2026-08-12
+
+### What's Changed
+
+* Bump dependabot/fetch-metadata from 2.5.0 to 3.0.0 by @dependabot[bot] in https://github.com/spatie/laravel-activitylog/pull/1454
+* Bump dependabot/fetch-metadata from 3.0.0 to 3.1.0 by @dependabot[bot] in https://github.com/spatie/laravel-activitylog/pull/1457
+* Optimize migration snippet to target only affected rows using JSON queries by @msonowal in https://github.com/spatie/laravel-activitylog/pull/1455
+* Bump actions/checkout from 3 to 7 by @dependabot[bot] in https://github.com/spatie/laravel-activitylog/pull/1462
+* Bump stefanzweifel/git-auto-commit-action from 5.2.0 to 7.2.0 by @dependabot[bot] in https://github.com/spatie/laravel-activitylog/pull/1463
+* Fix outdated docs subdomain links in requirements by @lazerg in https://github.com/spatie/laravel-activitylog/pull/1466
+* Fix composer.json homepage to point at this repository by @ademola-emmanuel in https://github.com/spatie/laravel-activitylog/pull/1467
+* Update pestphp/pest requirement from ^4.0 to ^5.0 by @dependabot[bot] in https://github.com/spatie/laravel-activitylog/pull/1468
+* Add BackedEnum support for log name by @alexanderkroneis in https://github.com/spatie/laravel-activitylog/pull/1461
+
+### New Contributors
+
+* @msonowal made their first contribution in https://github.com/spatie/laravel-activitylog/pull/1455
+* @lazerg made their first contribution in https://github.com/spatie/laravel-activitylog/pull/1466
+* @ademola-emmanuel made their first contribution in https://github.com/spatie/laravel-activitylog/pull/1467
+* @alexanderkroneis made their first contribution in https://github.com/spatie/laravel-activitylog/pull/1461
+
+**Full Changelog**: https://github.com/spatie/laravel-activitylog/compare/5.0.0...5.1.0
+
+## 5.0.0 - 2026-03-25
+
+### What's Changed
+
+* v5: PHP 8.4+, Laravel 11+, modernized API by @freekmurze in https://github.com/spatie/laravel-activitylog/pull/1452
+
+**Full Changelog**: https://github.com/spatie/laravel-activitylog/compare/4.12.3...5.0.0
+
 ## 4.12.3 - 2026-03-24
 
 ### What's Changed

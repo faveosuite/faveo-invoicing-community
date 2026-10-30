@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => '默认',
     'cloud-instance-created' => '云实例已创建',

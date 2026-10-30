@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * Links a user to an account at an OAuth provider (google, github, twitter, linkedin).
@@ -13,8 +14,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $user_id
  * @property string $provider
  * @property string $provider_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialAccount newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialAccount newQuery()

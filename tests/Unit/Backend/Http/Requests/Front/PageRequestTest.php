@@ -12,7 +12,7 @@ class PageRequestTest extends TestCase
 {
     private function rules(string $method = 'POST'): array
     {
-        $request = new PageRequest();
+        $request = new PageRequest;
         $request->setMethod($method);
 
         return $request->rules();
@@ -20,7 +20,7 @@ class PageRequestTest extends TestCase
 
     public function test_authorize_returns_true(): void
     {
-        $this->assertTrue((new PageRequest())->authorize());
+        $this->assertTrue(new PageRequest()->authorize());
     }
 
     public function test_name_slug_and_content_are_required_on_create(): void

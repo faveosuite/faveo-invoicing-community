@@ -18,6 +18,7 @@ Name | Type | Description | Notes
 **channel_id** | **string** | The optional ID to further distinguish the Marketing channel. | [optional]
 **source_deal_id** | **int** | The ID of the deal if the lead was converted from a deal. | [optional]
 **is_archived** | **bool** | A flag indicating whether the lead is archived or not | [optional]
+**archive_reason** | **string** | The reason for archiving the lead. Automatically cleared when the lead is unarchived. | [optional]
 **was_seen** | **bool** | A flag indicating whether the lead was seen by someone in the Pipedrive UI | [optional]
 **value** | [**\Pipedrive\versions\v1\Model\LeadValue**](LeadValue.md) |  | [optional]
 **expected_close_date** | **\DateTime** | The date of when the deal which will be created from the lead is expected to be closed. In ISO 8601 format: YYYY-MM-DD. | [optional]

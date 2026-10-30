@@ -7,6 +7,8 @@ namespace Tests\Unit\Backend\Http\Controllers\Common;
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Order\Invoice;
+use App\Model\Payment\Period;
+use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use Tests\DBTestCase;
 
@@ -102,6 +104,7 @@ class DependencyControllerTest extends DBTestCase
         $response = $this->getJson('/dependency/products?permission=downloadPermission');
 
         $response->assertStatus(200);
+
         $childIds = array_column($this->productChildren($response), 'id');
 
         $this->assertContains($withPermission->id, $childIds);
@@ -116,6 +119,7 @@ class DependencyControllerTest extends DBTestCase
         $response = $this->getJson('/dependency/products');
 
         $response->assertStatus(200);
+
         $child = collect($this->productChildren($response))->firstWhere('id', $product->id);
 
         $this->assertNotNull($child);
@@ -155,9 +159,9 @@ class DependencyControllerTest extends DBTestCase
     public function test_product_plans_show_the_same_period_as_the_plan_list(): void
     {
         $product = Product::factory()->create();
-        $yearly = \App\Model\Payment\Plan::create(['name' => 'Yearly', 'product' => $product->id, 'days' => 365]);
-        $oneTime = \App\Model\Payment\Plan::create(['name' => 'Lifetime', 'product' => $product->id, 'days' => 365]);
-        $oneTime->periods()->attach(\App\Model\Payment\Period::firstOrCreate(['name' => 'One Time'], ['days' => 365])->id);
+        $yearly = Plan::create(['name' => 'Yearly', 'product' => $product->id, 'days' => 365]);
+        $oneTime = Plan::create(['name' => 'Lifetime', 'product' => $product->id, 'days' => 365]);
+        $oneTime->periods()->attach(Period::firstOrCreate(['name' => 'One Time'], ['days' => 365])->id);
 
         $plans = collect($this->getJson('/dependency/product-plans?product_id='.$product->id.'&paginate=1')->assertOk()->json('data.data'))->keyBy('name');
 

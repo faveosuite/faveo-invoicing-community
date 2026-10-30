@@ -34,7 +34,7 @@ class SeoFileGeneratorTest extends DBTestCase
         SeoDefaultPage::query()->delete();
         FrontendPage::query()->delete();
 
-        $this->generator = new SeoFileGenerator();
+        $this->generator = new SeoFileGenerator;
     }
 
     // --- generateSitemap() ---

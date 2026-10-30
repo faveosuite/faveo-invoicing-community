@@ -7,30 +7,21 @@ use Illuminate\Foundation\Bus\Dispatchable;
 
 class QueueImport implements ShouldQueue
 {
-    use ExtendedQueueable, Dispatchable;
+    use Dispatchable, ExtendedQueueable;
 
-    /**
-     * @var int
-     */
-    public $tries;
+    public ?int $tries;
 
-    /**
-     * @var int
-     */
-    public $timeout;
+    public ?int $timeout;
 
-    /**
-     * @param  ShouldQueue  $import
-     */
     public function __construct(?ShouldQueue $import = null)
     {
-        if ($import) {
+        if ($import instanceof ShouldQueue) {
             $this->timeout = $import->timeout ?? null;
             $this->tries   = $import->tries ?? null;
         }
     }
 
-    public function handle()
+    public function handle(): void
     {
         //
     }

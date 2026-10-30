@@ -14,7 +14,7 @@ class PhoneNumberTest extends TestCase
     public function test_empty_string_is_skipped(): void
     {
         $fails = false;
-        (new PhoneNumber('US'))->validate('phone', '', function () use (&$fails): void {
+        new PhoneNumber('US')->validate('phone', '', function () use (&$fails): void {
             $fails = true;
         });
 
@@ -24,7 +24,7 @@ class PhoneNumberTest extends TestCase
     public function test_null_value_is_skipped(): void
     {
         $fails = false;
-        (new PhoneNumber('US'))->validate('phone', null, function () use (&$fails): void {
+        new PhoneNumber('US')->validate('phone', value: null, fail: function () use (&$fails): void {
             $fails = true;
         });
 
@@ -34,7 +34,7 @@ class PhoneNumberTest extends TestCase
     public function test_whitespace_only_is_skipped(): void
     {
         $fails = false;
-        (new PhoneNumber('US'))->validate('phone', '   ', function () use (&$fails): void {
+        new PhoneNumber('US')->validate('phone', '   ', function () use (&$fails): void {
             $fails = true;
         });
 
@@ -46,7 +46,7 @@ class PhoneNumberTest extends TestCase
     public function test_valid_us_e164_number_passes(): void
     {
         $fails = false;
-        (new PhoneNumber('US'))->validate('phone', '+12025551234', function () use (&$fails): void {
+        new PhoneNumber('US')->validate('phone', '+12025551234', function () use (&$fails): void {
             $fails = true;
         });
 
@@ -56,7 +56,7 @@ class PhoneNumberTest extends TestCase
     public function test_valid_in_number_passes(): void
     {
         $fails = false;
-        (new PhoneNumber('IN'))->validate('phone', '+919876543210', function () use (&$fails): void {
+        new PhoneNumber('IN')->validate('phone', '+919876543210', function () use (&$fails): void {
             $fails = true;
         });
 
@@ -66,7 +66,7 @@ class PhoneNumberTest extends TestCase
     public function test_valid_gb_number_passes(): void
     {
         $fails = false;
-        (new PhoneNumber('GB'))->validate('phone', '+441234567890', function () use (&$fails): void {
+        new PhoneNumber('GB')->validate('phone', '+441234567890', function () use (&$fails): void {
             $fails = true;
         });
 
@@ -78,7 +78,7 @@ class PhoneNumberTest extends TestCase
     public function test_letters_only_fails(): void
     {
         $fails = false;
-        (new PhoneNumber('US'))->validate('phone', 'notaphone', function () use (&$fails): void {
+        new PhoneNumber('US')->validate('phone', 'notaphone', function () use (&$fails): void {
             $fails = true;
         });
 
@@ -88,7 +88,7 @@ class PhoneNumberTest extends TestCase
     public function test_too_short_number_fails(): void
     {
         $fails = false;
-        (new PhoneNumber('US'))->validate('phone', '123', function () use (&$fails): void {
+        new PhoneNumber('US')->validate('phone', '123', function () use (&$fails): void {
             $fails = true;
         });
 
@@ -98,7 +98,7 @@ class PhoneNumberTest extends TestCase
     public function test_sql_injection_payload_fails(): void
     {
         $fails = false;
-        (new PhoneNumber('US'))->validate('phone', "'; DROP TABLE users; --", function () use (&$fails): void {
+        new PhoneNumber('US')->validate('phone', "'; DROP TABLE users; --", function () use (&$fails): void {
             $fails = true;
         });
 
@@ -108,7 +108,7 @@ class PhoneNumberTest extends TestCase
     public function test_xss_payload_fails(): void
     {
         $fails = false;
-        (new PhoneNumber('US'))->validate('phone', '<script>alert(1)</script>', function () use (&$fails): void {
+        new PhoneNumber('US')->validate('phone', '<script>alert(1)</script>', function () use (&$fails): void {
             $fails = true;
         });
 
@@ -118,7 +118,7 @@ class PhoneNumberTest extends TestCase
     public function test_random_string_fails(): void
     {
         $fails = false;
-        (new PhoneNumber('US'))->validate('phone', 'hello world', function () use (&$fails): void {
+        new PhoneNumber('US')->validate('phone', 'hello world', function () use (&$fails): void {
             $fails = true;
         });
 
@@ -132,7 +132,7 @@ class PhoneNumberTest extends TestCase
         // We just assert the rule doesn't throw — the specific fail/pass depends on the
         // library's loose vs strict interpretation.
         $fails = false;
-        (new PhoneNumber('IN'))->validate('phone', '+12025551234', function () use (&$fails): void {
+        new PhoneNumber('IN')->validate('phone', '+12025551234', function () use (&$fails): void {
             $fails = true;
         });
 

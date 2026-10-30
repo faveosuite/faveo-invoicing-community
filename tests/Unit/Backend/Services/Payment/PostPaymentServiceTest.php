@@ -4,17 +4,24 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Services\Payment;
 
+use App\Auto_renewal;
 use App\Model\Cart\Cart;
 use App\Model\Cart\CartItem;
+use App\Model\Common\Setting;
+use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
+use App\Model\Product\Subscription;
+use App\Plugins\Payment\Dto\SubscriptionResult;
 use App\Services\Payment\AutoRenewalActivationService;
 use App\Services\Payment\PostPaymentService;
+use App\Services\Payment\SubscriptionService;
 use App\User;
 use Illuminate\Support\Facades\DB;
 use Mockery;
@@ -195,7 +202,7 @@ class PostPaymentServiceTest extends DBTestCase
         try {
             $result = $this->service->handle($invoice, 'Stripe');
             $this->assertIsArray($result);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // Some sub-dependencies may fail — method body was entered
             $this->assertTrue(true);
         }
@@ -213,7 +220,7 @@ class PostPaymentServiceTest extends DBTestCase
         try {
             $result = $this->service->handle($invoice, 'Stripe');
             $this->assertIsArray($result);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             $this->assertTrue(true);
         }
     }
@@ -246,7 +253,7 @@ class PostPaymentServiceTest extends DBTestCase
             $result = $this->service->handle($invoice, 'Stripe');
             $this->assertIsArray($result);
             $this->assertSame('success', $result['status']);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // Method body was entered and executed
             $this->assertTrue(true);
         }
@@ -274,7 +281,7 @@ class PostPaymentServiceTest extends DBTestCase
         try {
             $this->service->handle($invoice, 'Razorpay');
             $this->assertTrue(true);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             $this->assertTrue(true);
         }
     }
@@ -302,7 +309,7 @@ class PostPaymentServiceTest extends DBTestCase
         try {
             $result = $this->service->handle($invoice, 'Stripe');
             $this->assertIsArray($result);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // RuntimeException: new order not found — method was entered
             $this->assertTrue(true);
         }
@@ -325,7 +332,7 @@ class PostPaymentServiceTest extends DBTestCase
         try {
             $result = $this->service->handle($invoice, 'Stripe');
             $this->assertIsArray($result);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             $this->assertTrue(true);
         }
     }
@@ -351,7 +358,7 @@ class PostPaymentServiceTest extends DBTestCase
         $order = Order::factory()->create(['product' => $product->id, 'client' => $this->user->id, 'order_status' => 'executed']);
         OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
 
-        $pending = static fn (): int => count(app('db.transactions')->callbackApplicableTransactions()->last()?->getCallbacks() ?? []);
+        $pending = static fn (): int => count(resolve('db.transactions')->callbackApplicableTransactions()->last()?->getCallbacks() ?? []);
 
         $added = null;
         DB::transaction(function () use ($invoice, $pending, &$added): void {
@@ -375,14 +382,14 @@ class PostPaymentServiceTest extends DBTestCase
         $invoice = Invoice::factory()->create(['user_id' => $this->user->id, 'grand_total' => 100.0]);
 
         // Create an order already executed (exists = true) linked via OrderInvoiceRelation
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'PPSvc '.uniqid()]);
-        $order = \App\Model\Order\Order::create([
+        $product = Product::first() ?? Product::create(['name' => 'PPSvc '.uniqid()]);
+        $order = Order::create([
             'client' => $this->user->id,
             'product' => $product?->id ?? 1,
             'order_status' => 'executed',
             'number' => mt_rand(100000, 999999),
         ]);
-        \App\Model\Order\OrderInvoiceRelation::create([
+        OrderInvoiceRelation::create([
             'order_id' => $order->id,
             'invoice_id' => $invoice->id,
         ]);
@@ -404,7 +411,7 @@ class PostPaymentServiceTest extends DBTestCase
         try {
             $this->getPrivateMethod($this->service, 'executeOrders', [$invoice]);
             $this->assertTrue(true);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             $this->assertTrue(true); // executeOrder threw — code path was entered
         }
     }
@@ -429,18 +436,18 @@ class PostPaymentServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
 
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'PPSvc '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'PPPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'PPSvc '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'PPPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create(['user_id' => $this->user->id, 'grand_total' => 50.0, 'currency' => 'USD']);
-        $order = \App\Model\Order\Order::create([
+        $order = Order::create([
             'client' => $this->user->id,
             'product' => $product->id,
             'order_status' => 'executed',
             'number' => mt_rand(100000, 999999),
         ]);
-        \App\Model\Product\Subscription::create([
+        Subscription::create([
             'order_id' => $order->id,
             'product_id' => $product->id,
             'plan_id' => $plan->id,
@@ -474,7 +481,7 @@ class PostPaymentServiceTest extends DBTestCase
             $result = $this->service->handle($invoice, 'Stripe');
             $this->assertIsArray($result);
             $this->assertSame('success', $result['status']);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // executeOrders / event dispatch may throw — code was entered
             $this->assertTrue(true);
         }
@@ -489,8 +496,8 @@ class PostPaymentServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
 
-        \App\Model\Common\Setting::where('id', 1)->update(['autorenewal_status' => 1]);
-        \App\Model\Common\StatusSetting::where('id', 1)->update(['razorpay_auto_renewal' => 1]);
+        Setting::where('id', 1)->update(['autorenewal_status' => 1]);
+        StatusSetting::where('id', 1)->update(['razorpay_auto_renewal' => 1]);
 
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create([
@@ -499,19 +506,19 @@ class PostPaymentServiceTest extends DBTestCase
             'metadata' => ['auto_renew_opt_in' => true],
         ]);
 
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'PPSvc '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'PPPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'PPSvc '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'PPPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $orders = [];
         foreach (range(1, 2) as $i) {
-            $order = \App\Model\Order\Order::create([
+            $order = Order::create([
                 'client' => $this->user->id,
                 'product' => $product->id,
                 'order_status' => 'executed',
                 'number' => mt_rand(100000, 999999),
             ]);
-            \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
-            \App\Model\Product\Subscription::create([
+            OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
+            Subscription::create([
                 'order_id' => $order->id,
                 'product_id' => $product->id,
                 'plan_id' => $plan->id,
@@ -524,7 +531,7 @@ class PostPaymentServiceTest extends DBTestCase
         $activatedOrderIds = [];
         $mockAutoRenewal->shouldReceive('activate')
             ->times(2)
-            ->withArgs(function ($order, $user, $gateway, $reference) use (&$activatedOrderIds, $invoice) {
+            ->withArgs(function ($order, $user, $gateway, $reference) use (&$activatedOrderIds, $invoice): bool {
                 $activatedOrderIds[] = $order->id;
 
                 return $gateway === 'razorpay' && $reference === 'invoice_'.$invoice->id;
@@ -569,24 +576,24 @@ class PostPaymentServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
         $this->user->update(['country' => 'US']);
-        $product = \App\Model\Product\Product::factory()->create(['can_modify_agent' => 1]);
-        $plan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        \App\Model\Payment\PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD', 'renew_price' => $renewPrice, 'no_of_agents' => $planAgents]);
-        $order = \App\Model\Order\Order::create(['client' => $this->user->id, 'product' => $product->id, 'order_status' => 'executed',
+        $product = Product::factory()->create(['can_modify_agent' => 1]);
+        $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD', 'renew_price' => $renewPrice, 'no_of_agents' => $planAgents]);
+        $order = Order::create(['client' => $this->user->id, 'product' => $product->id, 'order_status' => 'executed',
             'number' => mt_rand(100000, 999999), 'serial_key' => 'ABCDEFGHIJKL'.$serialLastFour]);
-        $sub = \App\Model\Product\Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $this->user->id,
+        $sub = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $this->user->id,
             'is_subscribed' => 1, 'autoRenew_status' => '3']);
-        \Illuminate\Support\Facades\DB::table('subscriptions')->where('id', $sub->id)->update(['subscribe_id' => 'sub_test']); // not mass-assignable
+        DB::table('subscriptions')->where('id', $sub->id)->update(['subscribe_id' => 'sub_test']); // not mass-assignable
         $invoice = Invoice::factory()->create(['user_id' => $this->user->id, 'grand_total' => 50.0, 'currency' => 'USD']);
 
         $sent = null;
-        $gateways = \Mockery::mock(\App\Services\Payment\SubscriptionService::class);
-        $gateways->shouldReceive('updateSubscriptionPrice')->once()->andReturnUsing(function ($gateway, $id, $request) use (&$sent) {
+        $gateways = Mockery::mock(SubscriptionService::class);
+        $gateways->shouldReceive('updateSubscriptionPrice')->once()->andReturnUsing(function ($gateway, $id, $request) use (&$sent): SubscriptionResult {
             $sent = $request->amountMinor;
 
-            return new \App\Plugins\Payment\Dto\SubscriptionResult('Stripe', 'sub_test', 'active', []);
+            return new SubscriptionResult('Stripe', 'sub_test', 'active', []);
         });
-        $this->app->instance(\App\Services\Payment\SubscriptionService::class, $gateways);
+        $this->app->instance(SubscriptionService::class, $gateways);
 
         $this->getPrivateMethod($this->service, 'updateSubscriptionPriceIfNeeded', [$order->id, $invoice]);
 
@@ -615,27 +622,27 @@ class PostPaymentServiceTest extends DBTestCase
     public function test_auto_renewal_moves_to_the_new_order_and_leaves_the_terminated_one(): void
     {
         $this->getLoggedInUser('user');
-        $product = \App\Model\Product\Product::factory()->create();
-        $plan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        $make = function (string $status) use ($product, $plan) {
-            $order = \App\Model\Order\Order::create(['client' => $this->user->id, 'product' => $product->id, 'order_status' => $status, 'number' => mt_rand(100000, 999999)]);
-            $sub = \App\Model\Product\Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $this->user->id]);
+        $product = Product::factory()->create();
+        $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
+        $make = function (string $status) use ($product, $plan): array {
+            $order = Order::create(['client' => $this->user->id, 'product' => $product->id, 'order_status' => $status, 'number' => mt_rand(100000, 999999)]);
+            $sub = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $this->user->id]);
 
             return [$order, $sub];
         };
         [$old, $oldSub] = $make('Terminated');
         [$new] = $make('executed');
-        \Illuminate\Support\Facades\DB::table('subscriptions')->where('id', $oldSub->id)->update(['subscribe_id' => 'sub_live', 'is_subscribed' => 1, 'autoRenew_status' => '3']);
-        \Illuminate\Support\Facades\DB::table('terminated_order_upgrade')->insert(['terminated_order_id' => $old->id, 'upgraded_order_id' => $new->id]);
+        DB::table('subscriptions')->where('id', $oldSub->id)->update(['subscribe_id' => 'sub_live', 'is_subscribed' => 1, 'autoRenew_status' => '3']);
+        DB::table('terminated_order_upgrade')->insert(['terminated_order_id' => $old->id, 'upgraded_order_id' => $new->id]);
 
-        $gateways = \Mockery::mock(\App\Services\Payment\SubscriptionService::class);
-        $gateways->shouldReceive('updateSubscriptionPrice')->andReturn(new \App\Plugins\Payment\Dto\SubscriptionResult('Stripe', 'sub_live', 'active', []));
-        $this->app->instance(\App\Services\Payment\SubscriptionService::class, $gateways);
+        $gateways = Mockery::mock(SubscriptionService::class);
+        $gateways->shouldReceive('updateSubscriptionPrice')->andReturn(new SubscriptionResult('Stripe', 'sub_live', 'active', []));
+        $this->app->instance(SubscriptionService::class, $gateways);
 
         $this->getPrivateMethod($this->service, 'moveAutoRenewalToNewOrder', [$new->id, Invoice::factory()->create(['user_id' => $this->user->id, 'currency' => 'USD'])]);
 
         // The renewal webhook looks subscriptions up by subscribe_id and takes the first match.
-        $holders = \App\Model\Product\Subscription::where('subscribe_id', 'sub_live')->pluck('order_id')->all();
+        $holders = Subscription::where('subscribe_id', 'sub_live')->pluck('order_id')->all();
         $this->assertSame([$new->id], $holders);
         $this->assertSame(0, (int) $oldSub->fresh()->is_subscribed);
     }
@@ -646,33 +653,33 @@ class PostPaymentServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
         $this->user->update(['country' => 'US']);
-        $product = \App\Model\Product\Product::factory()->create(['can_modify_agent' => 1]);
-        $plan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        \App\Model\Payment\PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD', 'renew_price' => 50, 'no_of_agents' => 1]);
-        $order = \App\Model\Order\Order::create(['client' => $this->user->id, 'product' => $product->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999), 'serial_key' => 'ABCDEFGHIJKL0001']);
-        $sub = \App\Model\Product\Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $this->user->id, 'is_subscribed' => 1, 'autoRenew_status' => '3']);
-        \Illuminate\Support\Facades\DB::table('subscriptions')->where('id', $sub->id)->update(['subscribe_id' => 'sub_test']);
-        \App\Auto_renewal::create(['user_id' => $this->user->id, 'order_id' => $order->id, 'payment_method' => 'stripe']);
+        $product = Product::factory()->create(['can_modify_agent' => 1]);
+        $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD', 'renew_price' => 50, 'no_of_agents' => 1]);
+        $order = Order::create(['client' => $this->user->id, 'product' => $product->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999), 'serial_key' => 'ABCDEFGHIJKL0001']);
+        $sub = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $this->user->id, 'is_subscribed' => 1, 'autoRenew_status' => '3']);
+        DB::table('subscriptions')->where('id', $sub->id)->update(['subscribe_id' => 'sub_test']);
+        Auto_renewal::create(['user_id' => $this->user->id, 'order_id' => $order->id, 'payment_method' => 'stripe']);
 
-        $gateways = \Mockery::mock(\App\Services\Payment\SubscriptionService::class);
-        $gateways->shouldReceive('updateSubscriptionPrice')->andReturn(new \App\Plugins\Payment\Dto\SubscriptionResult('Stripe', 'sub_test', 'canceled', ['cancelled' => true]));
+        $gateways = Mockery::mock(SubscriptionService::class);
+        $gateways->shouldReceive('updateSubscriptionPrice')->andReturn(new SubscriptionResult('Stripe', 'sub_test', 'canceled', ['cancelled' => true]));
         $gateways->shouldNotReceive('cancelSubscription'); // already cancelled at Stripe
-        $this->app->instance(\App\Services\Payment\SubscriptionService::class, $gateways);
+        $this->app->instance(SubscriptionService::class, $gateways);
 
-        $service = app(\App\Services\Payment\PostPaymentService::class); // fresh: resolves the mocked gateway service
+        $service = resolve(PostPaymentService::class); // fresh: resolves the mocked gateway service
         $this->getPrivateMethod($service, 'updateSubscriptionPriceIfNeeded', [$order->id, Invoice::factory()->create(['user_id' => $this->user->id, 'currency' => 'USD'])]);
 
-        $this->assertSame(0, \App\Auto_renewal::where('order_id', $order->id)->count());
+        $this->assertSame(0, Auto_renewal::where('order_id', $order->id)->count());
         $this->assertSame(0, (int) $sub->fresh()->is_subscribed);
     }
 
     // ── Batch 3 #13: only the cart that became this invoice is emptied ──
 
-    private function cartWithOneItem(?int $invoiceId): \App\Model\Cart\Cart
+    private function cartWithOneItem(?int $invoiceId): Cart
     {
-        $cart = \App\Model\Cart\Cart::firstOrCreate(['user_id' => $this->user->id], ['currency' => 'USD']);
+        $cart = Cart::firstOrCreate(['user_id' => $this->user->id], ['currency' => 'USD']);
         $cart->update(['invoice_id' => $invoiceId]);
-        $cart->items()->create(['product_id' => \App\Model\Product\Product::factory()->create()->id, 'plan_id' => null, 'quantity' => 1, 'agents' => 1]);
+        $cart->items()->create(['product_id' => Product::factory()->create()->id, 'plan_id' => null, 'quantity' => 1, 'agents' => 1]);
 
         return $cart;
     }

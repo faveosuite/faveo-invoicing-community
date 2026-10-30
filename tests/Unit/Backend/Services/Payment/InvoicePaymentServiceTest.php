@@ -6,13 +6,26 @@ namespace Tests\Unit\Backend\Services\Payment;
 
 use App\Jobs\SendEmail;
 use App\Model\Common\Setting;
+use App\Model\Common\StatusSetting;
+use App\Model\Order\CreditTransaction;
 use App\Model\Order\Invoice;
+use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
+use App\Model\Order\Payment;
+use App\Model\Payment\Plan;
+use App\Model\Payment\Promotion;
+use App\Model\Product\Product;
+use App\Model\Product\Subscription;
 use App\Plugins\Payment\Dto\PaymentResult;
 use App\Plugins\Payment\Dto\PaymentSession;
+use App\Plugins\Payment\Support\Money;
 use App\Services\Payment\AutoRenewalActivationService;
+use App\Services\Payment\CreditBalanceService;
 use App\Services\Payment\InvoicePaymentService;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\PostPaymentService;
+use App\Services\Payment\UnappliedPaymentService;
+use App\User;
 use DB;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Queue;
@@ -43,7 +56,7 @@ class InvoicePaymentServiceTest extends DBTestCase
     {
         return [
             $where => ['invoice_id' => (string) $invoice->id] + $stamp,
-            'amount_received' => $minor ?? \App\Plugins\Payment\Support\Money::toMinor((float) $invoice->grand_total * 1.1, (string) $invoice->currency),
+            'amount_received' => $minor ?? Money::toMinor((float) $invoice->grand_total * 1.1, (string) $invoice->currency),
             'currency' => strtolower($currency ?? (string) $invoice->currency),
         ];
     }
@@ -76,7 +89,7 @@ class InvoicePaymentServiceTest extends DBTestCase
 
     private function couponInvoices(): array
     {
-        $promo = \App\Model\Payment\Promotion::create([
+        $promo = Promotion::create([
             'code' => 'T'.strtoupper(uniqid()), 'type' => 2, 'uses' => 1, 'value' => '10',
             'start' => now()->subDay()->toDateTimeString(), 'expiry' => now()->addDay()->toDateTimeString(),
         ]);
@@ -123,7 +136,7 @@ class InvoicePaymentServiceTest extends DBTestCase
         $invoice = Invoice::factory()->create(['grand_total' => 100.0]);
 
         // A payment for the full amount, allocated to this invoice.
-        \App\Model\Order\Payment::create([
+        Payment::create([
             'user_id' => $invoice->user_id,
             'amount' => 100.0,
             'payment_method' => 'Stripe',
@@ -141,7 +154,7 @@ class InvoicePaymentServiceTest extends DBTestCase
         $invoice = Invoice::factory()->create(['grand_total' => 0.0, 'status' => 'pending']);
 
         $this->postPayment->shouldReceive('handle')->once()->with(Mockery::on(
-            fn ($arg) => $arg->id === $invoice->id
+            fn ($arg): bool => $arg->id === $invoice->id
         ), 'Credit Balance')->andReturn([]);
 
         $result = $this->service->applyCredit($invoice);
@@ -161,9 +174,9 @@ class InvoicePaymentServiceTest extends DBTestCase
 
     public function test_available_credit_reads_from_the_ledger_for_the_given_currency(): void
     {
-        $user = \App\User::factory()->create();
-        app(\App\Services\Payment\CreditBalanceService::class)->grant(
-            $user->id, 'USD', 75.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT
+        $user = User::factory()->create();
+        resolve(CreditBalanceService::class)->grant(
+            $user->id, 'USD', 75.0, CreditTransaction::TYPE_OVERPAYMENT
         );
 
         $this->assertSame(75.0, $this->service->availableCredit($user->id, 'USD'));
@@ -171,9 +184,9 @@ class InvoicePaymentServiceTest extends DBTestCase
 
     public function test_available_credit_does_not_leak_across_currencies(): void
     {
-        $user = \App\User::factory()->create();
-        app(\App\Services\Payment\CreditBalanceService::class)->grant(
-            $user->id, 'INR', 5000.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT
+        $user = User::factory()->create();
+        resolve(CreditBalanceService::class)->grant(
+            $user->id, 'INR', 5000.0, CreditTransaction::TYPE_OVERPAYMENT
         );
 
         $this->assertSame(0.0, $this->service->availableCredit($user->id, 'USD'));
@@ -181,10 +194,10 @@ class InvoicePaymentServiceTest extends DBTestCase
 
     public function test_available_credit_excludes_unapplied_payment(): void
     {
-        $user = \App\User::factory()->create();
-        app(\App\Services\Payment\UnappliedPaymentService::class)->record($user->id, 'USD', 60.0, 'cash');
-        app(\App\Services\Payment\CreditBalanceService::class)->grant(
-            $user->id, 'USD', 90.0, \App\Model\Order\CreditTransaction::TYPE_DOWNGRADE_PRORATION
+        $user = User::factory()->create();
+        resolve(UnappliedPaymentService::class)->record($user->id, 'USD', 60.0, 'cash');
+        resolve(CreditBalanceService::class)->grant(
+            $user->id, 'USD', 90.0, CreditTransaction::TYPE_DOWNGRADE_PRORATION
         );
 
         // Unapplied payment is the client's own unallocated money, not credit
@@ -195,15 +208,15 @@ class InvoicePaymentServiceTest extends DBTestCase
 
     public function test_apply_credit_only_spends_ledger_credit_never_unapplied_payment(): void
     {
-        $user = \App\User::factory()->create(['role' => 'user', 'email' => 'spend-order-'.uniqid().'@test.local']);
+        $user = User::factory()->create(['role' => 'user', 'email' => 'spend-order-'.uniqid().'@test.local']);
         $invoice = Invoice::factory()->create([
             'user_id' => $user->id, 'grand_total' => 90.0, 'currency' => 'USD', 'status' => 'pending',
         ]);
 
-        $unapplied = app(\App\Services\Payment\UnappliedPaymentService::class);
-        $credit = app(\App\Services\Payment\CreditBalanceService::class);
+        $unapplied = resolve(UnappliedPaymentService::class);
+        $credit = resolve(CreditBalanceService::class);
         $unapplied->record($user->id, 'USD', 60.0, 'cash');
-        $credit->grant($user->id, 'USD', 90.0, \App\Model\Order\CreditTransaction::TYPE_DOWNGRADE_PRORATION);
+        $credit->grant($user->id, 'USD', 90.0, CreditTransaction::TYPE_DOWNGRADE_PRORATION);
 
         $this->postPayment->shouldReceive('handle')->once()->andReturn([]);
 
@@ -419,24 +432,24 @@ class InvoicePaymentServiceTest extends DBTestCase
      */
     public function test_activate_auto_renewal_opt_in_activates_every_order_on_invoice(): void
     {
-        \App\Model\Common\Setting::where('id', 1)->update(['autorenewal_status' => 1]);
-        \App\Model\Common\StatusSetting::where('id', 1)->update(['stripe_auto_renewal' => 1]);
+        Setting::where('id', 1)->update(['autorenewal_status' => 1]);
+        StatusSetting::where('id', 1)->update(['stripe_auto_renewal' => 1]);
 
         $invoice = Invoice::factory()->create(['grand_total' => 100.0]);
 
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'PPSvc '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'PPPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'PPSvc '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'PPPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $orderIds = [];
         foreach (range(1, 2) as $i) {
-            $order = \App\Model\Order\Order::create([
+            $order = Order::create([
                 'client' => $invoice->user_id,
                 'product' => $product->id,
                 'order_status' => 'executed',
                 'number' => mt_rand(100000, 999999),
             ]);
-            \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
-            \App\Model\Product\Subscription::create([
+            OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
+            Subscription::create([
                 'order_id' => $order->id,
                 'product_id' => $product->id,
                 'plan_id' => $plan->id,
@@ -449,7 +462,7 @@ class InvoicePaymentServiceTest extends DBTestCase
         $activatedOrderIds = [];
         $mockAutoRenewal->shouldReceive('activate')
             ->times(2)
-            ->withArgs(function ($order, $user, $gateway, $reference) use (&$activatedOrderIds) {
+            ->withArgs(function ($order, $user, $gateway, $reference) use (&$activatedOrderIds): bool {
                 $activatedOrderIds[] = $order->id;
 
                 return $gateway === 'stripe' && $reference === 'pi_test_123';
@@ -483,7 +496,7 @@ class InvoicePaymentServiceTest extends DBTestCase
     {
         return Invoice::factory()->create(array_filter([
             'grand_total' => $total, 'currency' => 'USD', 'processing_fee' => null, 'status' => 'pending', 'user_id' => $userId,
-        ], fn ($v) => $v !== null));
+        ], fn (float|int|string|null $v): bool => $v !== null));
     }
 
     private function refusesWith(Invoice $invoice, array $raw, array $payload = []): void
@@ -534,8 +547,8 @@ class InvoicePaymentServiceTest extends DBTestCase
 
     public function test_confirm_spends_razorpay_credit_stamped_in_notes(): void
     {
-        $user = \App\User::factory()->create(['email' => 'rzp-credit-'.uniqid().'@test.local']);
-        app(\App\Services\Payment\CreditBalanceService::class)->grant($user->id, 'USD', 50.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT);
+        $user = User::factory()->create(['email' => 'rzp-credit-'.uniqid().'@test.local']);
+        resolve(CreditBalanceService::class)->grant($user->id, 'USD', 50.0, CreditTransaction::TYPE_OVERPAYMENT);
         $invoice = $this->pendingInvoice(100.0, $user->id);
 
         // Razorpay returns our metadata as `notes`, values stringified; it charged the other $50.
@@ -549,8 +562,8 @@ class InvoicePaymentServiceTest extends DBTestCase
 
     public function test_confirm_ignores_a_credit_amount_sent_by_the_browser(): void
     {
-        $user = \App\User::factory()->create(['email' => 'rzp-credit-'.uniqid().'@test.local']);
-        app(\App\Services\Payment\CreditBalanceService::class)->grant($user->id, 'USD', 50.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT);
+        $user = User::factory()->create(['email' => 'rzp-credit-'.uniqid().'@test.local']);
+        resolve(CreditBalanceService::class)->grant($user->id, 'USD', 50.0, CreditTransaction::TYPE_OVERPAYMENT);
         $invoice = $this->pendingInvoice(100.0, $user->id);
 
         // Payment opened WITHOUT credit, only $50 paid, browser claims credit_applied=50.
@@ -564,7 +577,7 @@ class InvoicePaymentServiceTest extends DBTestCase
     {
         $invoice = $this->pendingInvoice(100.0);
         $this->payments->shouldReceive('capture')->once()
-            ->withArgs(fn ($gateway, $payload) => $payload['is_webhook'] === false)
+            ->withArgs(fn ($gateway, $payload): bool => $payload['is_webhook'] === false)
             ->andReturn(new PaymentResult(paid: false, gateway: 'Razorpay'));
 
         $this->assertFalse($this->service->confirm($invoice, 'Razorpay', ['razorpay_payment_id' => 'pay_x', 'is_webhook' => true]));
@@ -574,7 +587,7 @@ class InvoicePaymentServiceTest extends DBTestCase
     {
         $invoice = $this->pendingInvoice(100.0);
         $this->payments->shouldReceive('capture')->once()
-            ->withArgs(fn ($gateway, $payload) => $payload['is_webhook'] === true)
+            ->withArgs(fn ($gateway, $payload): bool => $payload['is_webhook'] === true)
             ->andReturn(new PaymentResult(paid: false, gateway: 'Razorpay'));
 
         $this->assertFalse($this->service->confirm($invoice, 'Razorpay', ['razorpay_payment_id' => 'pay_x'], verifiedWebhook: true));
@@ -584,7 +597,7 @@ class InvoicePaymentServiceTest extends DBTestCase
     {
         Queue::fake();
         Setting::where('id', 1)->update(['sending_status' => 1]);
-        $invoice = Invoice::factory()->create(['user_id' => \App\User::factory()->create()->id, 'grand_total' => 100, 'status' => 'pending']);
+        $invoice = Invoice::factory()->create(['user_id' => User::factory()->create()->id, 'grand_total' => 100, 'status' => 'pending']);
 
         $this->service->notifyFailure($invoice, 'Your card was declined.');
 
@@ -595,7 +608,7 @@ class InvoicePaymentServiceTest extends DBTestCase
     {
         Queue::fake();
         Setting::where('id', 1)->update(['sending_status' => 1]);
-        $invoice = Invoice::factory()->create(['user_id' => \App\User::factory()->create()->id, 'grand_total' => 0, 'status' => 'success']);
+        $invoice = Invoice::factory()->create(['user_id' => User::factory()->create()->id, 'grand_total' => 0, 'status' => 'success']);
 
         $this->service->notifyFailure($invoice, 'Your card was declined.');
 
@@ -606,7 +619,7 @@ class InvoicePaymentServiceTest extends DBTestCase
     {
         Queue::fake();
         Setting::where('id', 1)->update(['sending_status' => 0]);
-        $invoice = Invoice::factory()->create(['user_id' => \App\User::factory()->create()->id, 'grand_total' => 100, 'status' => 'pending']);
+        $invoice = Invoice::factory()->create(['user_id' => User::factory()->create()->id, 'grand_total' => 100, 'status' => 'pending']);
 
         $this->service->notifyFailure($invoice, 'Your card was declined.');
 

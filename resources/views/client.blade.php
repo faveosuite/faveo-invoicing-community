@@ -36,7 +36,7 @@ $productGroups = \App\Model\Product\ProductGroup::select('id', 'name')
         'name' => $g->name,
     ]]);
 
-$seoService = app(\App\Services\Seo\SeoMetaService::class);
+$seoService = resolve(\App\Services\Seo\SeoMetaService::class);
 $seo = $seoService->resolve(request()->path());
 
 // Every other client-SPA route's title/description, pre-resolved through the

@@ -7,6 +7,7 @@ use App\Http\Requests\Email\EmailSettingRequest;
 use App\Model\Common\Setting;
 use Config;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Mail;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
@@ -67,7 +68,7 @@ class EmailSettingsController extends Controller
             $this->emailConfig->save();
 
             return successResponse(__('message.email_settings_saved'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
@@ -85,7 +86,7 @@ class EmailSettingsController extends Controller
      *
      * @return string returns formatted message
      */
-    private function errorhandler()
+    private function errorhandler(): string
     {
         return ($this->error instanceof Throwable) ? $this->error->getMessage() : (string) $this->error;
     }

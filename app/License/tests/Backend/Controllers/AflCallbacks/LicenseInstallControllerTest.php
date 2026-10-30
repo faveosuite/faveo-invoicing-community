@@ -4,11 +4,14 @@ namespace App\License\tests\Backend\Controllers\AflCallbacks;
 
 use App\License\Controllers\AflCallbacks\LicenseInstallController;
 use App\License\Helpers\LicenseValidator;
+use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseNotification;
+use App\License\Models\LicenseReport;
 use App\License\Services\BannedHostService;
 use App\License\Services\InstallationService;
 use App\License\tests\Backend\LicenseTestCase;
+use App\Model\Product\Product;
 use Mockery;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -106,13 +109,13 @@ class LicenseInstallControllerTest extends LicenseTestCase
      * (installation domain "example.com/helpdesk") with every request check passing,
      * and returns the notification case. $registers: whether the install is expected to be saved.
      */
-    private function installCase(\App\License\Models\License $license, bool $registers, mixed $clientId = null): ?string
+    private function installCase(License $license, bool $registers, mixed $clientId = null): ?string
     {
         $validator = Mockery::mock(LicenseValidator::class)->makePartial();
         $validator->shouldReceive('resolveIp')->andReturn('127.0.0.1');
         $validator->shouldReceive('isValidLicenseRequest', 'validateInstallationHash', 'verifyScriptSignature')->andReturn(true);
         $validator->shouldReceive('isBanned')->andReturn(false);
-        $validator->shouldReceive('validateProduct')->andReturn(\App\Model\Product\Product::find($license->product_id));
+        $validator->shouldReceive('validateProduct')->andReturn(Product::find($license->product_id));
         $validator->shouldReceive('findLicense')->andReturn($license);
         $validator->shouldReceive('validateLicense')->andReturn(['valid' => true, 'license' => $license]);
 
@@ -131,7 +134,7 @@ class LicenseInstallControllerTest extends LicenseTestCase
         ], 'POST'))->headers->get('notification_case');
     }
 
-    private function installationHere(\App\License\Models\License $license, array $attributes = []): void
+    private function installationHere(License $license, array $attributes = []): void
     {
         $this->createInstallation(['license' => $license, 'installation_ip' => '127.0.0.1', 'installation_domain' => 'example.com/helpdesk'] + $attributes);
     }
@@ -175,7 +178,7 @@ class LicenseInstallControllerTest extends LicenseTestCase
 
         $this->assertSame('notification_license_limit', $this->installCase($license, registers: false));
         // A rejected install is reported as an error, not a success.
-        $report = \App\License\Models\LicenseReport::where('license_code', $license->license_code)->latest('id')->first();
+        $report = LicenseReport::where('license_code', $license->license_code)->latest('id')->first();
         $this->assertSame(0, $report->report_status);
         $this->assertSame(0, $report->report_system); // a License Report, not a System Report
     }

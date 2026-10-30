@@ -177,7 +177,7 @@ $apiInstance = new Pipedrive\versions\v1\Api\FiltersApi(
     new GuzzleHttp\Client(),
     $config
 );
-$ids = 'ids_example'; // string | The comma-separated filter IDs to delete
+$ids = array(56); // int[] | The comma-separated filter IDs to delete
 
 try {
     $result = $apiInstance->deleteFilters($ids);
@@ -191,7 +191,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **ids** | **string**| The comma-separated filter IDs to delete |
+ **ids** | [**int[]**](../Model/int.md)| The comma-separated filter IDs to delete |
 
 ### Return type
 

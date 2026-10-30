@@ -336,6 +336,13 @@ class UsersApi
                 'Missing the required parameter $id when calling getUserFollowers'
             );
         }
+        if ($limit !== null && $limit > 500) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling UsersApi.getUserFollowers, must be smaller than or equal to 500.');
+        }
+        if ($limit !== null && $limit < 1) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling UsersApi.getUserFollowers, must be bigger than or equal to 1.');
+        }
+
 
         $resourcePath = '/users/{id}/followers';
         $formParams = [];
@@ -416,11 +423,11 @@ class UsersApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 

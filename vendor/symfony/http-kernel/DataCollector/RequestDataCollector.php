@@ -130,6 +130,8 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
 
         $this->data['content'] = $content;
 
+        $this->data['curlCommand'] = $this->computeCurlCommand($request, $content);
+
         foreach ($this->data as $key => $value) {
             if (!\is_array($value)) {
                 continue;
@@ -494,5 +496,80 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
         }
 
         return \is_string($controller) ? $controller : 'n/a';
+    }
+
+    private function computeCurlCommand(Request $request, ?string $content): string
+    {
+        $command = ['curl', '--compressed'];
+
+        $method = $request->getMethod();
+
+        if (Request::METHOD_HEAD === $method) {
+            $command[] = '--head';
+        } elseif (Request::METHOD_GET !== $method) {
+            $command[] = \sprintf('--request %s', $method);
+        }
+
+        $command[] = \sprintf('--url %s', $this->escapeArgument($request->getUri()));
+
+        foreach ($request->headers->all() as $name => $values) {
+            if (\in_array(strtolower($name), ['host', 'cookie'], true)) {
+                continue;
+            }
+
+            $command[] = '--header '.$this->escapeArgument(ucwords($name, '-').': '.implode(', ', $values));
+        }
+
+        if ($cookies = $this->flattenCookieArrayForCurl($request->cookies->all())) {
+            $command[] = '--cookie '.$this->escapeArgument(implode('; ', array_map(
+                static fn ($name, $value) => $name.'='.$value,
+                array_keys($cookies),
+                $cookies
+            )));
+        }
+
+        if ($content && \in_array($method, [Request::METHOD_POST, Request::METHOD_PUT, Request::METHOD_PATCH, Request::METHOD_DELETE], true)) {
+            $command[] = '--data-raw '.$this->escapeArgument($content);
+        }
+
+        return implode(" \\\n  ", $command);
+    }
+
+    public function getCurlCommand(): string
+    {
+        return $this->data['curlCommand'] ?? '';
+    }
+
+    /**
+     * The command joins its arguments with "\" line continuations, so it targets a POSIX
+     * shell on every platform. escapeshellarg() cannot be used: it drops bytes that are
+     * not valid in the current locale, and turns "%" into a space on Windows.
+     */
+    private function escapeArgument(string $value): string
+    {
+        return "'".str_replace("'", "'\\''", $value)."'";
+    }
+
+    /**
+     * @param array<array-key, mixed> $data
+     *
+     * @return array<array-key, string>
+     */
+    private function flattenCookieArrayForCurl(array $data, string $prefix = ''): array
+    {
+        $pairs = [];
+
+        foreach ($data as $key => $value) {
+            $key = rawurlencode((string) $key);
+            $name = '' === $prefix ? $key : $prefix.'['.$key.']';
+
+            if (\is_array($value)) {
+                $pairs += $this->flattenCookieArrayForCurl($value, $name);
+            } else {
+                $pairs[$name] = rawurlencode((string) $value);
+            }
+        }
+
+        return $pairs;
     }
 }

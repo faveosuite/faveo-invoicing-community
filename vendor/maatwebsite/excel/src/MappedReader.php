@@ -9,20 +9,18 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithCalculatedFormulas;
 use Maatwebsite\Excel\Concerns\WithFormatData;
 use Maatwebsite\Excel\Concerns\WithMappedCells;
+use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class MappedReader
 {
     /**
-     * @param  WithMappedCells  $import
-     * @param  Worksheet  $worksheet
-     *
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws Exception
      */
-    public function map(WithMappedCells $import, Worksheet $worksheet)
+    public function map(WithMappedCells $import, Worksheet $worksheet): void
     {
         $mapped = $import->mapping();
-        array_walk_recursive($mapped, function (&$coordinate) use ($import, $worksheet) {
+        array_walk_recursive($mapped, function (&$coordinate) use ($import, $worksheet): void {
             $cell = Cell::make($worksheet, $coordinate);
 
             $coordinate = $cell->getValue(

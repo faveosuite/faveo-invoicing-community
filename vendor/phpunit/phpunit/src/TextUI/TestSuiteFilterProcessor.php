@@ -15,6 +15,7 @@ use function array_map;
 use function file;
 use PHPUnit\Event;
 use PHPUnit\Framework\TestSuite;
+use PHPUnit\Metadata\Api\Groups;
 use PHPUnit\Runner\Filter\Factory;
 use PHPUnit\TextUI\Configuration\Configuration;
 use PHPUnit\TextUI\Configuration\FilterNotConfiguredException;
@@ -26,6 +27,13 @@ use PHPUnit\TextUI\Configuration\FilterNotConfiguredException;
  */
 final readonly class TestSuiteFilterProcessor
 {
+    private Event\Emitter $emitter;
+
+    public function __construct(Event\Emitter $emitter)
+    {
+        $this->emitter = $emitter;
+    }
+
     /**
      * @throws Event\RuntimeException
      * @throws FilterNotConfiguredException
@@ -62,7 +70,7 @@ final readonly class TestSuiteFilterProcessor
         if ($configuration->hasTestsCovering()) {
             $factory->addIncludeGroupFilter(
                 array_map(
-                    static fn (string $name): string => '__phpunit_covers_' . $name,
+                    Groups::virtualGroupForCovers(...),
                     $configuration->testsCovering(),
                 ),
             );
@@ -71,7 +79,7 @@ final readonly class TestSuiteFilterProcessor
         if ($configuration->hasTestsUsing()) {
             $factory->addIncludeGroupFilter(
                 array_map(
-                    static fn (string $name): string => '__phpunit_uses_' . $name,
+                    Groups::virtualGroupForUses(...),
                     $configuration->testsUsing(),
                 ),
             );
@@ -80,7 +88,7 @@ final readonly class TestSuiteFilterProcessor
         if ($configuration->hasTestsRequiringPhpExtension()) {
             $factory->addIncludeGroupFilter(
                 array_map(
-                    static fn (string $name): string => '__phpunit_requires_php_extension' . $name,
+                    Groups::virtualGroupForRequiredPhpExtension(...),
                     $configuration->testsRequiringPhpExtension(),
                 ),
             );
@@ -128,7 +136,7 @@ final readonly class TestSuiteFilterProcessor
 
         $suite->injectFilter($factory);
 
-        Event\Facade::emitter()->testSuiteFiltered(
+        $this->emitter->testSuiteFiltered(
             Event\TestSuite\TestSuiteBuilder::from($suite),
         );
     }

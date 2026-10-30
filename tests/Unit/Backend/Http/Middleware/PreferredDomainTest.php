@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Middleware;
 
 use App\Http\Middleware\PreferredDomain;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Tests\TestCase;
 
@@ -12,7 +13,7 @@ class PreferredDomainTest extends TestCase
 {
     private function next(): \Closure
     {
-        return fn ($req) => response('passed');
+        return fn ($req): ResponseFactory|\Illuminate\Http\Response => response('passed');
     }
 
     public function test_redirects_www_to_non_www(): void
@@ -20,7 +21,7 @@ class PreferredDomainTest extends TestCase
         $request = Request::create('http://www.example.com/page', 'GET');
         $request->headers->set('host', 'www.example.com');
 
-        $response = (new PreferredDomain())->handle($request, $this->next());
+        $response = new PreferredDomain()->handle($request, $this->next());
 
         $this->assertSame(301, $response->getStatusCode());
         $this->assertStringContainsString('example.com', $response->headers->get('Location'));
@@ -32,7 +33,7 @@ class PreferredDomainTest extends TestCase
         $request = Request::create('http://example.com/page', 'GET');
         $request->headers->set('host', 'example.com');
 
-        $response = (new PreferredDomain())->handle($request, $this->next());
+        $response = new PreferredDomain()->handle($request, $this->next());
 
         $this->assertSame('passed', $response->getContent());
     }

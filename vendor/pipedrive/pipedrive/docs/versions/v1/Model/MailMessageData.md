@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **cc** | [**\Pipedrive\versions\v1\Model\MailParticipant[]**](MailParticipant.md) | The array of mail message copies (object) | [optional]
 **bcc** | [**\Pipedrive\versions\v1\Model\MailParticipant[]**](MailParticipant.md) | The array of mail message blind copies (object) | [optional]
 **body_url** | **string** | The mail message body URL | [optional]
+**body** | **string** | The mail message body content. Only present when &#x60;include_body&#x3D;1&#x60; is passed. | [optional]
 **account_id** | **string** | The connection account ID | [optional]
 **user_id** | **int** | ID of the user whom mail message will be assigned to | [optional]
 **mail_thread_id** | **int** | ID of the mail message thread | [optional]

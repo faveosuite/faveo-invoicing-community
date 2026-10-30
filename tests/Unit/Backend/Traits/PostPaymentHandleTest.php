@@ -50,8 +50,8 @@ class PostPaymentHandleTest extends DBTestCase
         // Method sends mail via array mailer (no real email sent in tests).
         // Setting::find(1) exists in test DB. Payment/Order may be null (guarded by if).
         try {
-            ConcretePostPaymentHandle::sendFailedPaymenttoAdmin($invoice, 100.0, 'Test Product', 'Payment declined', $user);
-        } catch (\Throwable $e) {
+            ConcretePostPaymentHandle::sendFailedPaymenttoAdmin($invoice, 100.0, 'Test Product', 'Payment declined');
+        } catch (\Throwable $throwable) {
             // Some dependencies (Setting::find(1) company_email) may be null
             // in this DB. Acceptable — the method body was entered.
         }
@@ -79,7 +79,7 @@ class PostPaymentHandleTest extends DBTestCase
 
         try {
             ConcretePostPaymentHandle::sendPaymentSuccessMailtoAdmin($invoice, 150.0, $user, 'Test Product');
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // Same as above — method body entered even if email fails
         }
 

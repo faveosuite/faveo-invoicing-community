@@ -24,7 +24,7 @@ class ZohoConnectHelper
                 'field_name' => $z->display_name,
                 'type' => $z->field_type,
                 // Campaigns' Contact Email is always sent from the user's email, so the admin never has to map it.
-                'is_mandatory' => $z->is_mandatory && ! ($platform === 'campaigns' && $z->zoho_key === 'contact_email'),
+                'is_mandatory' => $z->is_mandatory && ($platform !== 'campaigns' || $z->zoho_key !== 'contact_email'),
             ])
             ->values();
     }
@@ -278,13 +278,13 @@ class ZohoConnectHelper
             return null;
         }
 
-        if (in_array($zohoType, self::LOCAL_MAPPING_BLOCKED_TYPES, true)) {
+        if (in_array($zohoType, self::LOCAL_MAPPING_BLOCKED_TYPES, strict: true)) {
             return __(self::LOCAL_MAPPING_BLOCKED_LANG_KEYS[$zohoType], ['field' => $zohoField->display_name]);
         }
 
         $allowedLocalTypes = self::TYPE_COMPATIBILITY[$zohoType] ?? [];
 
-        if (! in_array($localType, $allowedLocalTypes, true)) {
+        if (! in_array($localType, $allowedLocalTypes, strict: true)) {
             return __('message.zoho_mapping_type_mismatch', [
                 'field' => $zohoField->display_name,
                 'zoho_type' => self::describeType($zohoType),

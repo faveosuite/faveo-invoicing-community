@@ -67,7 +67,7 @@ class VersionInstallation extends Model
     }
 
     /**
-     * @param  Builder<Model>  $query
+     * @param  Builder<static>  $query
      */
     #[Scope]
     protected function active(Builder $query): mixed

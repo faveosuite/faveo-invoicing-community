@@ -218,7 +218,7 @@ class Message
      * Add a recipient to the message.
      *
      * @param  string|array  $address
-     * @param  string  $name
+     * @param  string|null  $name
      * @param  string  $type
      * @return $this
      */
@@ -396,7 +396,7 @@ class Message
                 },
                 function ($data) use ($file) {
                     $this->message->addPart(
-                        $part = $part = (new DataPart($data(), $file->as, $file->mime))->asInline()
+                        $part = (new DataPart($data(), $file->as, $file->mime))->asInline()
                     );
 
                     return "cid:{$part->getContentId()}";

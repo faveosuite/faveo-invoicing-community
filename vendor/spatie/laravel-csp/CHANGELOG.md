@@ -2,6 +2,88 @@
 
 All notable changes to `laravel-csp` will be documented in this file
 
+## 3.30.0 - 2026-10-19
+
+### What's Changed
+
+- Add the trusted-types CSP directive and the allow-duplicates keyword, with documentation and regression coverage for enforcing and report-only policies.
+- Preserve valid hash-like Trusted Types policy names without quoting them as script hashes.
+- Test PHP 8.3, 8.4, and 8.5 with Laravel 12 and 13, using Pest 5 where supported and Pest 4 for compatible older environments. Update the test checkout action to v7.
+- Drop end-of-life Laravel 11 support. PHP 8.3 remains supported.
+
+Thanks to @alex-ng-wesoft for the original contribution in #227.
+
+**Full Changelog**: https://github.com/spatie/laravel-csp/compare/3.29.0...3.30.0
+
+## 3.29.0 - 2026-09-09
+
+### What's Changed
+
+* Add Google Ads preset by @jhhazelaar in https://github.com/spatie/laravel-csp/pull/226
+
+### New Contributors
+
+* @jhhazelaar made their first contribution in https://github.com/spatie/laravel-csp/pull/226
+
+**Full Changelog**: https://github.com/spatie/laravel-csp/compare/3.28.3...3.29.0
+
+## 3.28.3 - 2026-09-03
+
+### What's Changed
+
+* Fix Intercom preset conflicting with Basic preset by @Seb33300 in https://github.com/spatie/laravel-csp/pull/224
+
+**Full Changelog**: https://github.com/spatie/laravel-csp/compare/3.28.2...3.28.3
+
+## 3.28.2 - 2026-09-03
+
+### What's Changed
+
+* Add FONT directive to Cloudflare CDN preset by @Seb33300 in https://github.com/spatie/laravel-csp/pull/225
+
+### New Contributors
+
+* @Seb33300 made their first contribution in https://github.com/spatie/laravel-csp/pull/225
+
+**Full Changelog**: https://github.com/spatie/laravel-csp/compare/3.28.1...3.28.2
+
+## 3.28.1 - 2026-09-01
+
+### What's Changed
+
+* Add child-src to the Sentry preset and correct its comment by @freekmurze in https://github.com/spatie/laravel-csp/pull/223
+
+**Full Changelog**: https://github.com/spatie/laravel-csp/compare/3.28.0...3.28.1
+
+## 3.28.0 - 2026-09-01
+
+### What's Changed
+
+* Remove dead matrix excludes by @freekmurze in https://github.com/spatie/laravel-csp/pull/220
+* Fix #219: replace php-cs-fixer with Pint by @freekmurze in https://github.com/spatie/laravel-csp/pull/221
+* Allow blob workers in the Sentry preset by @chinmaypurav in https://github.com/spatie/laravel-csp/pull/222
+
+**Full Changelog**: https://github.com/spatie/laravel-csp/compare/3.27.0...3.28.0
+
+## 3.27.0 - 2026-08-17
+
+### What's Changed
+
+* chore: update snapshots to Pest V4 by @chinmaypurav in https://github.com/spatie/laravel-csp/pull/216
+* chore: Add Firebase CSP by @chinmaypurav in https://github.com/spatie/laravel-csp/pull/215
+* Add support for Pest 5 by @freekmurze in https://github.com/spatie/laravel-csp/pull/217
+
+**Full Changelog**: https://github.com/spatie/laravel-csp/compare/3.26.0...3.27.0
+
+## 3.26.0 - 2026-06-26
+
+### What's Changed
+
+* Add a There There preset by @freekmurze in https://github.com/spatie/laravel-csp/pull/213
+* Drop roave/security-advisories to unblock CI by @freekmurze in https://github.com/spatie/laravel-csp/pull/214
+
+**Full Changelog**: https://github.com/spatie/laravel-csp/compare/3.25.1...3.26.0
+
 ## 3.25.1 - 2026-06-02
 
 ### What's Changed

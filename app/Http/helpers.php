@@ -85,7 +85,7 @@ function isInstall(): bool
  */
 function errorResponse(string|array $message, int $statusCode = 400, mixed $data = null): JsonResponse
 {
-    return response()->json(array_filter(['success' => false, 'message' => $message, 'data' => $data], fn ($v) => $v !== null), $statusCode);
+    return response()->json(array_filter(['success' => false, 'message' => $message, 'data' => $data], fn ($v): bool => $v !== null), $statusCode);
 }
 
 /**
@@ -195,12 +195,14 @@ function userTimezone(): string
         if (! $tz) {
             continue;
         }
+
         // The timezones table still lists old names (US/Samoa, US/Pacific…) this PHP build
         // rejects — use their current name (Pacific/Pago_Pago, America/Los_Angeles) instead.
-        if (! in_array($tz, $valid, true) && class_exists(IntlTimeZone::class)) {
+        if (! in_array($tz, $valid, strict: true) && class_exists(IntlTimeZone::class)) {
             $tz = IntlTimeZone::getCanonicalID($tz) ?: $tz;
         }
-        if (in_array($tz, $valid, true)) {
+
+        if (in_array($tz, $valid, strict: true)) {
             return $tz;
         }
     }
@@ -562,7 +564,7 @@ function userCountryId(): mixed
 function setServiceConfig(object $emailConfig): void
 {
     $sendingProtocol = isset($emailConfig->driver) ? (string) $emailConfig->driver : null;
-    if ($sendingProtocol && $sendingProtocol != 'smtp' && $sendingProtocol != 'mail') {
+    if ($sendingProtocol && $sendingProtocol !== 'smtp' && $sendingProtocol !== 'mail') {
         $services = Config::get('services.'.$sendingProtocol);
         $dynamicServiceConfig = [];
 
@@ -626,6 +628,7 @@ function getRootUrl(mixed $url, int $remove_scheme, int $remove_www, int $remove
     if (! is_array($url_array)) {
         return '';
     }
+
     $scheme = $url_array['scheme'] ?? '';
 
     $url = str_ireplace($scheme.'://', '', (string) $url); // make URL without scheme, so no :// is included when searching for first or last /
@@ -660,6 +663,7 @@ function getContactData(): array
     if (! $setting) {
         return ['logo' => '', 'contact' => ''];
     }
+
     $countryCode = Country::where('country_code_char2', $setting->country)->value('phonecode');
     $logo = '<img style="max-width: 20%;height: auto;" src="'.$setting->logo.'" />';
     $billingContact = '
@@ -896,10 +900,12 @@ function getUrl(): string
     if (! is_string($host)) {
         $host = '';
     }
+
     $scriptName = Illuminate\Support\Facades\Request::server('SCRIPT_NAME');
     if (! is_string($scriptName)) {
         $scriptName = '';
     }
+
     $path = dirname($scriptName);
 
     return $protocol.'://'.$host.$path;
@@ -1186,7 +1192,7 @@ function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds 
     $path = parse_url($url, PHP_URL_PATH);
     $identifier = $perSite
         ? (string) $host
-        : ((string) $host).((string) $path);
+        : ($host).($path);
 
     $key = 'api_rate_next_allowed_'.md5($identifier);
 
@@ -1287,7 +1293,7 @@ function commonSettings(string $option, string $optionField, string $returnColum
 function agentCount(mixed $agents): int
 {
     if (is_string($agents) && str_starts_with(trim($agents), '[')) {
-        $decoded = json_decode($agents, true);
+        $decoded = json_decode($agents, associative: true);
 
         return is_array($decoded) && $decoded !== [] ? (int) reset($decoded) : 0;
     }

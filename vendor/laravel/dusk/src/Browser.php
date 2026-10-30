@@ -337,6 +337,7 @@ class Browser
 
         $html = $this->driver->findElement(WebDriverBy::tagName('html'));
 
+        /** @phpstan-ignore empty.variable */
         if (! empty($html) && $html->getSize()->getWidth() > 0 && $html->getSize()->getHeight() > 0) {
             $this->resize($html->getSize()->getWidth(), $html->getSize()->getHeight());
         }
@@ -639,7 +640,7 @@ class Browser
      * Return a browser scoped to the given component.
      *
      * @param  \Laravel\Dusk\Component  $component
-     * @return \Laravel\Dusk\Browser
+     * @return static
      */
     public function component(Component $component)
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => '預設',
     'cloud-instance-created' => '雲端實例已建立',

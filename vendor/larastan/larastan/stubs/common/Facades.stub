@@ -25,8 +25,20 @@ class Cache extends Facade {}
 class DB extends Facade {}
 
 /**
+ * @mixin \Illuminate\Database\Schema\Builder
+ */
+class Schema extends Facade {}
+
+/**
+ * @mixin \Illuminate\Contracts\Events\Dispatcher
+ * @mixin \Illuminate\Support\Testing\Fakes\EventFake
+ */
+class Event extends Facade {}
+
+/**
  * @mixin \Illuminate\Queue\QueueManager
  * @mixin \Illuminate\Queue\Queue
+ * @mixin \Illuminate\Support\Testing\Fakes\QueueFake
  */
 class Queue extends Facade {}
 
@@ -63,9 +75,28 @@ class Cookie extends Facade {
 /**
  * @mixin \Illuminate\Config\Repository
  */
- class Config extends Facade {}
+class Config extends Facade {}
 
 /**
  * @mixin \Illuminate\Http\Client\Factory
  */
- class Http extends Facade {}
+class Http extends Facade {}
+
+/**
+ * @mixin \Illuminate\View\Factory
+ */
+class View extends Facade {}
+
+/**
+ * @mixin \Illuminate\Routing\Router
+ */
+class Route extends Facade {
+    /**
+     * @param  string  $uri
+     * @param  view-string  $view
+     * @param  array<string, mixed>  $data
+     * @param  array<string, string>  $headers
+     * @return \Illuminate\Routing\Route
+     */
+    public static function view($uri, $view, $data = [], int $status = 200, array $headers = []);
+}

@@ -33,9 +33,7 @@ use Throwable;
  */
 class OpenPaymentController extends Controller
 {
-    public function __construct(private readonly OpenPaymentService $payments)
-    {
-    }
+    public function __construct(private readonly OpenPaymentService $payments) {}
 
     /**
      * Create order.
@@ -337,7 +335,7 @@ class OpenPaymentController extends Controller
 
             $allowedSortFields = ['name', 'email', 'company', 'transaction_id', 'amount', 'currency', 'gateway', 'payment_status', 'created_at'];
             $sortField = $request->input('sort-field', 'created_at');
-            $sortField = in_array($sortField, $allowedSortFields, true) ? $sortField : 'created_at';
+            $sortField = in_array($sortField, $allowedSortFields, strict: true) ? $sortField : 'created_at';
             $sortOrder = $request->input('sort-order') === 'asc' ? 'asc' : 'desc';
 
             $perPage = (int) ($request->input('limit') ?: $request->input('per_page', 10));
@@ -364,7 +362,7 @@ class OpenPaymentController extends Controller
 
             // currency_symbol is flattened onto each row for the frontend table;
             // currencyInfo is eager-loaded above so this doesn't N+1.
-            $orders->getCollection()->transform(fn (OpenPaymentOrder $order) => [
+            $orders->getCollection()->transform(fn (OpenPaymentOrder $order): array => [
                 ...$order->makeHidden('currencyInfo')->toArray(),
                 'currency_symbol' => $order->currencyInfo?->symbol,
             ]);

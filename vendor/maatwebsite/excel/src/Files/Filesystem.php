@@ -6,23 +6,13 @@ use Illuminate\Contracts\Filesystem\Factory;
 
 class Filesystem
 {
-    /**
-     * @var Factory
-     */
-    private $filesystem;
-
-    /**
-     * @param  Factory  $filesystem
-     */
-    public function __construct(Factory $filesystem)
-    {
-        $this->filesystem = $filesystem;
+    public function __construct(
+        private readonly Factory $filesystem,
+    ) {
     }
 
     /**
-     * @param  string|null  $disk
-     * @param  array  $diskOptions
-     * @return Disk
+     * @param  array<string, mixed>  $diskOptions
      */
     public function disk(?string $disk = null, array $diskOptions = []): Disk
     {

@@ -71,6 +71,18 @@ abstract class ComponentHook
         };
     }
 
+    function callRenderPlaceholder(...$params) {
+        $callbacks = [];
+
+        if (method_exists($this, 'renderPlaceholder')) $callbacks[] = $this->renderPlaceholder(...$params);
+
+        return function (...$params) use ($callbacks) {
+            foreach ($callbacks as $callback) {
+                if (is_callable($callback)) $callback(...$params);
+            }
+        };
+    }
+
     function callDehydrate(...$params) {
         if (method_exists($this, 'dehydrate')) $this->dehydrate(...$params);
     }
@@ -106,6 +118,11 @@ abstract class ComponentHook
     function storeGet($key, $default = null)
     {
         return store($this->component)->get($key, $default);
+    }
+
+    function storeFind($key, $iKey = null, $default = null)
+    {
+        return store($this->component)->find($key, $iKey, $default);
     }
 
     function storeHas($key)

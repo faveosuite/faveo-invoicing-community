@@ -26,8 +26,8 @@ class ReportExportTest extends TestCase
     private function injectMockController(ReportExport $job): ConcreteExportHandleController
     {
         $mock = Mockery::mock(ConcreteExportHandleController::class);
-        $prop = (new \ReflectionClass($job))->getProperty('exportHandleController');
-        $prop->setAccessible(true);
+        $prop = new \ReflectionClass($job)->getProperty('exportHandleController');
+        $prop->setAccessible(accessible: true);
         $prop->setValue($job, $mock);
 
         return $mock;
@@ -101,7 +101,7 @@ class ReportExportTest extends TestCase
         $job = $this->makeJob('tenats');
         $mock = $this->injectMockController($job);
         $called = false;
-        $mock->shouldReceive('tenantExports')->once()->andReturnUsing(function () use (&$called) {
+        $mock->shouldReceive('tenantExports')->once()->andReturnUsing(function () use (&$called): void {
             $called = true;
         });
 

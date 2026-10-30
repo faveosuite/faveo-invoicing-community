@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => '기본값',
     'cloud-instance-created' => '클라우드 인스턴스 생성됨',

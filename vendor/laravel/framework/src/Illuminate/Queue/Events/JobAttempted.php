@@ -9,12 +9,14 @@ class JobAttempted
      *
      * @param  string  $connectionName  The connection name.
      * @param  \Illuminate\Contracts\Queue\Job  $job  The job instance.
-     * @param  bool  $exceptionOccurred  Indicates if an exception occurred while processing the job.
+     * @param  \Throwable|null  $exception  The exception, if one occurred while processing the job.
+     * @param  float|null  $duration  The number of milliseconds the job took to process.
      */
     public function __construct(
         public $connectionName,
         public $job,
-        public $exceptionOccurred = false,
+        public $exception = null,
+        public $duration = null,
     ) {
     }
 
@@ -25,6 +27,6 @@ class JobAttempted
      */
     public function successful(): bool
     {
-        return ! $this->job->hasFailed() && ! $this->exceptionOccurred;
+        return ! $this->job->hasFailed() && is_null($this->exception);
     }
 }

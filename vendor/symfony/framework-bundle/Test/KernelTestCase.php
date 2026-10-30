@@ -27,6 +27,7 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 abstract class KernelTestCase extends TestCase
 {
+    use ConsoleCommandAssertionsTrait;
     use MailerAssertionsTrait;
     use NotificationAssertionsTrait;
 
@@ -175,6 +176,9 @@ abstract class KernelTestCase extends TestCase
             if ($container instanceof ResetInterface) {
                 $container->reset();
             }
+
+            // Collect cycles once the container released its services, so that they are destroyed now and not one test later
+            gc_collect_cycles();
 
             if (null !== $httpCacheDir && is_dir($httpCacheDir)) {
                 (new Filesystem())->remove($httpCacheDir);

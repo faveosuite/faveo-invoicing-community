@@ -39,7 +39,7 @@ class LicenseOption extends Model
     ];
 
     /**
-     * @param  Builder<Model>  $query
+     * @param  Builder<static>  $query
      */
     #[Scope]
     protected function group(Builder $query, mixed $group): mixed

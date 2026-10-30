@@ -14,6 +14,7 @@ use App\Services\Payment\UnappliedPaymentService;
 use App\User;
 use Exception;
 use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Lang;
 
@@ -150,7 +151,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
             // that payment — not the client's credit balance, which is a
             // different pool entirely (see UnappliedPaymentService).
             $currency = (string) $payment->currency;
-            $unapplied = app(UnappliedPaymentService::class)->unappliedOn($clientid, (int) $payment->id);
+            $unapplied = resolve(UnappliedPaymentService::class)->unappliedOn($clientid, (int) $payment->id);
             $symbol = Currency::where('code', $currency)->value('symbol');
 
             // Only invoices this money could actually pay: same client, still
@@ -184,7 +185,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
                 'symbol' => $symbol,
                 'currency' => $currency,
             ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);

@@ -11,6 +11,7 @@ use App\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class ZohoCrmController extends ZohoBaseController
 {
@@ -77,7 +78,7 @@ class ZohoCrmController extends ZohoBaseController
             $this->addUserDataToCrm($data['email']);
 
             return successResponse('CRM contact created successfully');
-        } catch (\Illuminate\Validation\ValidationException $exception) {
+        } catch (ValidationException $exception) {
             return errorResponse($exception->getMessage());
         } catch (Exception $exception) {
             \Logger::exception($exception);

@@ -23,8 +23,8 @@ return new class extends Migration
 
         Schema::table('conditions', function (Blueprint $table): void {
             $table->string('command')->nullable()->after('value');
-            $table->boolean('active')->default(false)->after('command');
-            $table->boolean('is_background')->default(false)->after('active');
+            $table->boolean('active')->default(value: false)->after('command');
+            $table->boolean('is_background')->default(value: false)->after('active');
             $table->json('days')->nullable()->after('is_background');
             $table->unique('job');
         });

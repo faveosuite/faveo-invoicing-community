@@ -86,6 +86,7 @@ foreach ($addedLines as $relPath => $lines) {
             $uncoveredByFile[$relPath][] = $lineNum;
         }
         fwrite(STDERR, "[UNCOVERED] {$relPath}: not in clover (no test exercises this file)\n");
+
         continue;
     }
 

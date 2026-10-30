@@ -46,6 +46,5 @@ final readonly class SubscriptionRequest
         public int $totalCount = 100,
         public bool $includeUpfrontCharge = true,
         public array $metadata = [],
-    ) {
-    }
+    ) {}
 }

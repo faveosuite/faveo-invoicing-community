@@ -124,7 +124,11 @@ class MessagesCollector extends AbstractLogger implements DataCollectorInterface
 
     protected function compactMessageDump(?string $messageHtml): ?string
     {
-        $pos = strpos((string) $messageHtml, 'sf-dump-expanded');
+        if ($messageHtml === null) {
+            return null;
+        }
+
+        $pos = strpos($messageHtml, 'sf-dump-expanded');
         if ($pos !== false) {
             $messageHtml = substr_replace($messageHtml, 'sf-dump-compact', $pos, 16);
         }
@@ -164,7 +168,8 @@ class MessagesCollector extends AbstractLogger implements DataCollectorInterface
         $messageJson = null;
 
         if ($isString) {
-            $messageText = $formattedMessage;
+            // Shown as text, so use the unescaped string when the formatter returns HTML
+            $messageText = $this->isHtmlVarDumperUsed() ? $message : $formattedMessage;
         } else {
             if ($message instanceof MessageInterface) {
                 $messageText = $message->getText();
@@ -188,8 +193,11 @@ class MessagesCollector extends AbstractLogger implements DataCollectorInterface
                 if ($this->isJsonVarDumperUsed()) {
                     $contextJson[$key] = $formatted;
                     $context[$key] = null;
-                } else {
+                } elseif ($this->isHtmlVarDumperUsed()) {
                     $context[$key] = $formatted;
+                } else {
+                    // Context is rendered as HTML, so escape plain text output
+                    $context[$key] = htmlspecialchars((string) $formatted, ENT_QUOTES, 'UTF-8');
                 }
             }
         } else {

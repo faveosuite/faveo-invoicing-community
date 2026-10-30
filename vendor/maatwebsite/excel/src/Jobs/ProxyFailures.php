@@ -6,10 +6,7 @@ use Throwable;
 
 trait ProxyFailures
 {
-    /**
-     * @param  Throwable  $e
-     */
-    public function failed(Throwable $e)
+    public function failed(Throwable $e): void
     {
         if (method_exists($this->sheetExport, 'failed')) {
             $this->sheetExport->failed($e);

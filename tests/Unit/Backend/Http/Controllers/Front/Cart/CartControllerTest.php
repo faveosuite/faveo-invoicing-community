@@ -82,7 +82,7 @@ class CartControllerTest extends DBTestCase
         $product = Product::factory()->create();
         $plan = Plan::factory()->create(['product' => $product->id, 'status' => 1]);
         // A priced plan: a plan with no price in the cart's currency is now refused (it priced at 0).
-        \App\Model\Payment\PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => getCurrencyForClient((string) $user->country)]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => getCurrencyForClient((string) $user->country)]);
 
         $response = $this->postJson('my-cart/items', [
             'product_id' => $product->id,
@@ -116,12 +116,12 @@ class CartControllerTest extends DBTestCase
             'plan_id' => $plan->id,
         ]);
         $addResponse->assertStatus(200);
+
         $cartData = $addResponse->json('data');
 
         if (! empty($cartData['items'])) {
             $itemId = $cartData['items'][0]['id'];
             $this->deleteJson("my-cart/items/{$itemId}")->assertStatus(200);
-        } else {
         }
     }
 

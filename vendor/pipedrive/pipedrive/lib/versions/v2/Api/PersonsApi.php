@@ -127,15 +127,15 @@ class PersonsApi
      *
      * Add a new person
      *
-     * @param  \Pipedrive\versions\v2\Model\PersonRequestBody|null $person_request_body person_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\PostPersonRequestBody|null $post_person_request_body post_person_request_body (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v2\Model\PostPatchGetPerson
      */
-    public function addPerson($person_request_body = null)
+    public function addPerson($post_person_request_body = null)
     {
-        list($response) = $this->addPersonWithHttpInfo($person_request_body);
+        list($response) = $this->addPersonWithHttpInfo($post_person_request_body);
         return $response;
     }
 
@@ -144,15 +144,15 @@ class PersonsApi
      *
      * Add a new person
      *
-     * @param  \Pipedrive\versions\v2\Model\PersonRequestBody|null $person_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\PostPersonRequestBody|null $post_person_request_body (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v2\Model\PostPatchGetPerson, HTTP status code, HTTP response headers (array of strings)
      */
-    public function addPersonWithHttpInfo($person_request_body = null)
+    public function addPersonWithHttpInfo($post_person_request_body = null)
     {
-        $request = $this->addPersonRequest($person_request_body);
+        $request = $this->addPersonRequest($post_person_request_body);
 
         try {
             $options = $this->createHttpClientOption();
@@ -161,7 +161,7 @@ class PersonsApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->addPersonRequest($person_request_body);
+                    $request = $this->addPersonRequest($post_person_request_body);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -245,14 +245,14 @@ class PersonsApi
      *
      * Add a new person
      *
-     * @param  \Pipedrive\versions\v2\Model\PersonRequestBody|null $person_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\PostPersonRequestBody|null $post_person_request_body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function addPersonAsync($person_request_body = null): PromiseInterface
+    public function addPersonAsync($post_person_request_body = null): PromiseInterface
     {
-        return $this->addPersonAsyncWithHttpInfo($person_request_body)
+        return $this->addPersonAsyncWithHttpInfo($post_person_request_body)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -265,15 +265,15 @@ class PersonsApi
      *
      * Add a new person
      *
-     * @param  \Pipedrive\versions\v2\Model\PersonRequestBody|null $person_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\PostPersonRequestBody|null $post_person_request_body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function addPersonAsyncWithHttpInfo($person_request_body = null): PromiseInterface
+    public function addPersonAsyncWithHttpInfo($post_person_request_body = null): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v2\Model\PostPatchGetPerson';
-        $request = $this->addPersonRequest($person_request_body);
+        $request = $this->addPersonRequest($post_person_request_body);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -312,12 +312,12 @@ class PersonsApi
     /**
      * Create request for operation 'addPerson'
      *
-     * @param  \Pipedrive\versions\v2\Model\PersonRequestBody|null $person_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\PostPersonRequestBody|null $post_person_request_body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function addPersonRequest($person_request_body = null): Request
+    public function addPersonRequest($post_person_request_body = null): Request
     {
 
         $resourcePath = '/persons';
@@ -344,11 +344,11 @@ class PersonsApi
         }
 
         // for model (json/xml)
-        if (isset($person_request_body)) {
+        if (isset($post_person_request_body)) {
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($person_request_body));
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($post_person_request_body));
             } else {
-                $httpBody = $person_request_body;
+                $httpBody = $post_person_request_body;
             }
         } elseif (count($formParams) > 0) {
             /* @phpstan-ignore-next-line */
@@ -381,11 +381,11 @@ class PersonsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -688,11 +688,11 @@ class PersonsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -984,11 +984,11 @@ class PersonsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1300,11 +1300,11 @@ class PersonsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1334,8 +1334,8 @@ class PersonsApi
      * Get details of a person
      *
      * @param  int $id The ID of the person (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      *
@@ -1355,8 +1355,8 @@ class PersonsApi
      * Get details of a person
      *
      * @param  int $id The ID of the person (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      *
@@ -1460,8 +1460,8 @@ class PersonsApi
      * Get details of a person
      *
      * @param  int $id The ID of the person (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      *
@@ -1484,8 +1484,8 @@ class PersonsApi
      * Get details of a person
      *
      * @param  int $id The ID of the person (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      *
@@ -1535,8 +1535,8 @@ class PersonsApi
      * Create request for operation 'getPerson'
      *
      * @param  int $id The ID of the person (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      *
@@ -1553,6 +1553,11 @@ class PersonsApi
             );
         }
 
+        if ($custom_fields !== null && count($custom_fields) > 15) {
+            throw new \InvalidArgumentException('invalid value for "$custom_fields" when calling PersonsApi.getPerson, number of items must be less than or equal to 15.');
+        }
+
+
         $resourcePath = '/persons/{id}';
         $formParams = [];
         $queryParams = [];
@@ -1563,7 +1568,7 @@ class PersonsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($include_fields)) {
-            $include_fields = ObjectSerializer::serializeCollection($include_fields, '', true);
+            $include_fields = ObjectSerializer::serializeCollection($include_fields, 'form', true);
         }
         if ($include_fields !== null) {
             $queryParams['include_fields'] = $include_fields;
@@ -1571,7 +1576,7 @@ class PersonsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($custom_fields)) {
-            $custom_fields = ObjectSerializer::serializeCollection($custom_fields, '', true);
+            $custom_fields = ObjectSerializer::serializeCollection($custom_fields, 'form', true);
         }
         if ($custom_fields !== null) {
             $queryParams['custom_fields'] = $custom_fields;
@@ -1648,11 +1653,11 @@ class PersonsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1890,6 +1895,13 @@ class PersonsApi
                 'Missing the required parameter $id when calling getPersonFollowers'
             );
         }
+        if ($limit !== null && $limit > 500) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling PersonsApi.getPersonFollowers, must be smaller than or equal to 500.');
+        }
+        if ($limit !== null && $limit < 1) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling PersonsApi.getPersonFollowers, must be bigger than or equal to 1.');
+        }
+
 
         $resourcePath = '/persons/{id}/followers';
         $formParams = [];
@@ -1970,11 +1982,11 @@ class PersonsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -2212,6 +2224,13 @@ class PersonsApi
                 'Missing the required parameter $id when calling getPersonFollowersChangelog'
             );
         }
+        if ($limit !== null && $limit > 500) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling PersonsApi.getPersonFollowersChangelog, must be smaller than or equal to 500.');
+        }
+        if ($limit !== null && $limit < 1) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling PersonsApi.getPersonFollowersChangelog, must be bigger than or equal to 1.');
+        }
+
 
         $resourcePath = '/persons/{id}/followers/changelog';
         $formParams = [];
@@ -2292,11 +2311,11 @@ class PersonsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -2588,11 +2607,11 @@ class PersonsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -2622,7 +2641,7 @@ class PersonsApi
      * Get all persons
      *
      * @param  int|null $filter_id If supplied, only persons matching the specified filter are returned (optional)
-     * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
+     * @param  int[]|null $ids Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $org_id If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $deal_id If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
@@ -2630,8 +2649,8 @@ class PersonsApi
      * @param  string|null $updated_until If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
@@ -2653,7 +2672,7 @@ class PersonsApi
      * Get all persons
      *
      * @param  int|null $filter_id If supplied, only persons matching the specified filter are returned (optional)
-     * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
+     * @param  int[]|null $ids Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $org_id If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $deal_id If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
@@ -2661,8 +2680,8 @@ class PersonsApi
      * @param  string|null $updated_until If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
@@ -2768,7 +2787,7 @@ class PersonsApi
      * Get all persons
      *
      * @param  int|null $filter_id If supplied, only persons matching the specified filter are returned (optional)
-     * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
+     * @param  int[]|null $ids Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $org_id If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $deal_id If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
@@ -2776,8 +2795,8 @@ class PersonsApi
      * @param  string|null $updated_until If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
@@ -2802,7 +2821,7 @@ class PersonsApi
      * Get all persons
      *
      * @param  int|null $filter_id If supplied, only persons matching the specified filter are returned (optional)
-     * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
+     * @param  int[]|null $ids Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $org_id If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $deal_id If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
@@ -2810,8 +2829,8 @@ class PersonsApi
      * @param  string|null $updated_until If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
@@ -2863,7 +2882,7 @@ class PersonsApi
      * Create request for operation 'getPersons'
      *
      * @param  int|null $filter_id If supplied, only persons matching the specified filter are returned (optional)
-     * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
+     * @param  int[]|null $ids Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $org_id If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $deal_id If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
@@ -2871,8 +2890,8 @@ class PersonsApi
      * @param  string|null $updated_until If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
@@ -2883,6 +2902,22 @@ class PersonsApi
      */
     public function getPersonsRequest($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $include_option_labels = null, $include_labels = null, $limit = null, $cursor = null): Request
     {
+        if ($ids !== null && count($ids) > 100) {
+            throw new \InvalidArgumentException('invalid value for "$ids" when calling PersonsApi.getPersons, number of items must be less than or equal to 100.');
+        }
+
+
+        if ($custom_fields !== null && count($custom_fields) > 15) {
+            throw new \InvalidArgumentException('invalid value for "$custom_fields" when calling PersonsApi.getPersons, number of items must be less than or equal to 15.');
+        }
+
+        if ($limit !== null && $limit > 500) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling PersonsApi.getPersons, must be smaller than or equal to 500.');
+        }
+        if ($limit !== null && $limit < 1) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling PersonsApi.getPersons, must be bigger than or equal to 1.');
+        }
+
 
         $resourcePath = '/persons';
         $formParams = [];
@@ -2902,7 +2937,7 @@ class PersonsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($ids)) {
-            $ids = ObjectSerializer::serializeCollection($ids, '', true);
+            $ids = ObjectSerializer::serializeCollection($ids, 'form', true);
         }
         if ($ids !== null) {
             $queryParams['ids'] = $ids;
@@ -2966,7 +3001,7 @@ class PersonsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($include_fields)) {
-            $include_fields = ObjectSerializer::serializeCollection($include_fields, '', true);
+            $include_fields = ObjectSerializer::serializeCollection($include_fields, 'form', true);
         }
         if ($include_fields !== null) {
             $queryParams['include_fields'] = $include_fields;
@@ -2974,7 +3009,7 @@ class PersonsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($custom_fields)) {
-            $custom_fields = ObjectSerializer::serializeCollection($custom_fields, '', true);
+            $custom_fields = ObjectSerializer::serializeCollection($custom_fields, 'form', true);
         }
         if ($custom_fields !== null) {
             $queryParams['custom_fields'] = $custom_fields;
@@ -3059,11 +3094,11 @@ class PersonsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -3093,11 +3128,11 @@ class PersonsApi
      * Search persons
      *
      * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
-     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
+     * @param  string[]|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
      * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
      * @param  int|null $organization_id Will filter persons by the provided organization ID. The upper limit of found persons associated with the organization is 2000. (optional)
-     * @param  string|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
-     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  string[]|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws ApiException on non-2xx response
@@ -3116,11 +3151,11 @@ class PersonsApi
      * Search persons
      *
      * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
-     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
+     * @param  string[]|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
      * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
      * @param  int|null $organization_id Will filter persons by the provided organization ID. The upper limit of found persons associated with the organization is 2000. (optional)
-     * @param  string|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
-     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  string[]|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws ApiException on non-2xx response
@@ -3223,11 +3258,11 @@ class PersonsApi
      * Search persons
      *
      * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
-     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
+     * @param  string[]|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
      * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
      * @param  int|null $organization_id Will filter persons by the provided organization ID. The upper limit of found persons associated with the organization is 2000. (optional)
-     * @param  string|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
-     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  string[]|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
@@ -3249,11 +3284,11 @@ class PersonsApi
      * Search persons
      *
      * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
-     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
+     * @param  string[]|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
      * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
      * @param  int|null $organization_id Will filter persons by the provided organization ID. The upper limit of found persons associated with the organization is 2000. (optional)
-     * @param  string|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
-     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  string[]|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
@@ -3302,11 +3337,11 @@ class PersonsApi
      * Create request for operation 'searchPersons'
      *
      * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
-     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
+     * @param  string[]|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
      * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
      * @param  int|null $organization_id Will filter persons by the provided organization ID. The upper limit of found persons associated with the organization is 2000. (optional)
-     * @param  string|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
-     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  string[]|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
@@ -3321,6 +3356,15 @@ class PersonsApi
                 'Missing the required parameter $term when calling searchPersons'
             );
         }
+
+
+        if ($limit !== null && $limit > 100) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling PersonsApi.searchPersons, must be smaller than or equal to 100.');
+        }
+        if ($limit !== null && $limit < 1) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling PersonsApi.searchPersons, must be bigger than or equal to 1.');
+        }
+
 
         $resourcePath = '/persons/search';
         $formParams = [];
@@ -3340,7 +3384,7 @@ class PersonsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($fields)) {
-            $fields = ObjectSerializer::serializeCollection($fields, '', true);
+            $fields = ObjectSerializer::serializeCollection($fields, 'form', true);
         }
         if ($fields !== null) {
             $queryParams['fields'] = $fields;
@@ -3364,7 +3408,7 @@ class PersonsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($include_fields)) {
-            $include_fields = ObjectSerializer::serializeCollection($include_fields, '', true);
+            $include_fields = ObjectSerializer::serializeCollection($include_fields, 'form', true);
         }
         if ($include_fields !== null) {
             $queryParams['include_fields'] = $include_fields;
@@ -3433,11 +3477,11 @@ class PersonsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -3467,15 +3511,15 @@ class PersonsApi
      * Update a person
      *
      * @param  int $id The ID of the person (required)
-     * @param  \Pipedrive\versions\v2\Model\PersonRequestBody|null $person_request_body person_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\UpdatePersonRequestBody|null $update_person_request_body update_person_request_body (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v2\Model\PostPatchGetPerson
      */
-    public function updatePerson($id, $person_request_body = null)
+    public function updatePerson($id, $update_person_request_body = null)
     {
-        list($response) = $this->updatePersonWithHttpInfo($id, $person_request_body);
+        list($response) = $this->updatePersonWithHttpInfo($id, $update_person_request_body);
         return $response;
     }
 
@@ -3485,15 +3529,15 @@ class PersonsApi
      * Update a person
      *
      * @param  int $id The ID of the person (required)
-     * @param  \Pipedrive\versions\v2\Model\PersonRequestBody|null $person_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\UpdatePersonRequestBody|null $update_person_request_body (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v2\Model\PostPatchGetPerson, HTTP status code, HTTP response headers (array of strings)
      */
-    public function updatePersonWithHttpInfo($id, $person_request_body = null)
+    public function updatePersonWithHttpInfo($id, $update_person_request_body = null)
     {
-        $request = $this->updatePersonRequest($id, $person_request_body);
+        $request = $this->updatePersonRequest($id, $update_person_request_body);
 
         try {
             $options = $this->createHttpClientOption();
@@ -3502,7 +3546,7 @@ class PersonsApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->updatePersonRequest($id, $person_request_body);
+                    $request = $this->updatePersonRequest($id, $update_person_request_body);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -3587,14 +3631,14 @@ class PersonsApi
      * Update a person
      *
      * @param  int $id The ID of the person (required)
-     * @param  \Pipedrive\versions\v2\Model\PersonRequestBody|null $person_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\UpdatePersonRequestBody|null $update_person_request_body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function updatePersonAsync($id, $person_request_body = null): PromiseInterface
+    public function updatePersonAsync($id, $update_person_request_body = null): PromiseInterface
     {
-        return $this->updatePersonAsyncWithHttpInfo($id, $person_request_body)
+        return $this->updatePersonAsyncWithHttpInfo($id, $update_person_request_body)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -3608,15 +3652,15 @@ class PersonsApi
      * Update a person
      *
      * @param  int $id The ID of the person (required)
-     * @param  \Pipedrive\versions\v2\Model\PersonRequestBody|null $person_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\UpdatePersonRequestBody|null $update_person_request_body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function updatePersonAsyncWithHttpInfo($id, $person_request_body = null): PromiseInterface
+    public function updatePersonAsyncWithHttpInfo($id, $update_person_request_body = null): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v2\Model\PostPatchGetPerson';
-        $request = $this->updatePersonRequest($id, $person_request_body);
+        $request = $this->updatePersonRequest($id, $update_person_request_body);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -3656,12 +3700,12 @@ class PersonsApi
      * Create request for operation 'updatePerson'
      *
      * @param  int $id The ID of the person (required)
-     * @param  \Pipedrive\versions\v2\Model\PersonRequestBody|null $person_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\UpdatePersonRequestBody|null $update_person_request_body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function updatePersonRequest($id, $person_request_body = null): Request
+    public function updatePersonRequest($id, $update_person_request_body = null): Request
     {
         // verify the required parameter 'id' is set
         /* @phpstan-ignore-next-line */
@@ -3703,11 +3747,11 @@ class PersonsApi
         }
 
         // for model (json/xml)
-        if (isset($person_request_body)) {
+        if (isset($update_person_request_body)) {
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($person_request_body));
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($update_person_request_body));
             } else {
-                $httpBody = $person_request_body;
+                $httpBody = $update_person_request_body;
             }
         } elseif (count($formParams) > 0) {
             /* @phpstan-ignore-next-line */
@@ -3740,11 +3784,11 @@ class PersonsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 

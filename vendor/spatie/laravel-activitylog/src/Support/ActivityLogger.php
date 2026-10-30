@@ -2,6 +2,7 @@
 
 namespace Spatie\Activitylog\Support;
 
+use BackedEnum;
 use Closure;
 use DateTimeInterface;
 use Illuminate\Contracts\Config\Repository;
@@ -25,6 +26,8 @@ class ActivityLogger
     protected ActivityLogStatus $logStatus;
 
     protected ?ActivityContract $activity = null;
+
+    protected bool $causerWasSet = false;
 
     public function __construct(Repository $config, ActivityLogStatus $logStatus, CauserResolver $causerResolver)
     {
@@ -64,6 +67,8 @@ class ActivityLogger
 
         $this->getActivity()->causer()->associate($model);
 
+        $this->causerWasSet = true;
+
         return $this;
     }
 
@@ -74,10 +79,9 @@ class ActivityLogger
 
     public function causedByAnonymous(): static
     {
-        $activity = $this->getActivity();
+        $this->getActivity()->causer()->dissociate();
 
-        $activity->causer_id = null;
-        $activity->causer_type = null;
+        $this->causerWasSet = true;
 
         return $this;
     }
@@ -129,20 +133,23 @@ class ActivityLogger
         return $this;
     }
 
-    public function useLog(?string $logName): static
+    public function useLog(BackedEnum|string|null $logName): static
     {
-        $this->getActivity()->log_name = $logName;
+        $this->getActivity()->log_name = $logName instanceof BackedEnum ? $logName->value : $logName;
 
         return $this;
     }
 
-    public function inLog(?string $logName): static
+    public function inLog(BackedEnum|string|null $logName): static
     {
         return $this->useLog($logName);
     }
 
     public function tap(callable $callback, ?string $eventName = null): static
     {
+        $this->useDefaultCauserIfNoneWasGiven();
+        $this->causerWasSet = true;
+
         call_user_func($callback, $this->getActivity(), $eventName);
 
         return $this;
@@ -167,6 +174,8 @@ class ActivityLogger
         if ($this->logStatus->disabled()) {
             return null;
         }
+
+        $this->useDefaultCauserIfNoneWasGiven();
 
         $activity = Config::logActivityAction()->execute(
             $this->getActivity(),
@@ -197,13 +206,31 @@ class ActivityLogger
     {
         if (! $this->activity instanceof ActivityContract) {
             $this->activity = Config::activityModelInstance();
+            $this->causerWasSet = false;
+
             $this
                 ->useLog($this->defaultLogName)
                 ->withChanges([])
-                ->withProperties([])
-                ->causedBy($this->causerResolver->resolve());
+                ->withProperties([]);
         }
 
         return $this->activity;
+    }
+
+    protected function useDefaultCauserIfNoneWasGiven(): void
+    {
+        $activity = $this->getActivity();
+
+        if ($this->causerWasSet) {
+            return;
+        }
+
+        if ($activity instanceof Model) {
+            if ($activity->getAttribute('causer_id') !== null) {
+                return;
+            }
+        }
+
+        $activity->causer()->associate($this->causerResolver->resolve());
     }
 }

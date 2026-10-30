@@ -9,6 +9,7 @@ use App\License\Services\LicenseService;
 use App\Model\Order\Order;
 use DB;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -102,10 +103,10 @@ class ExtendedOrderController extends Controller
             });
 
             return successResponse(__('message.license_reissued'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }

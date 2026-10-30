@@ -2,7 +2,10 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Common;
 
+use App\ApiKey;
+use App\Http\Controllers\Common\PaymentSettingsController;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\File;
 use Tests\DBTestCase;
 
 class PaymentSettingsControllerTest extends DBTestCase
@@ -26,7 +29,7 @@ class PaymentSettingsControllerTest extends DBTestCase
 
     public function test_gateway_list_flags_a_missing_webhook_secret(): void
     {
-        \App\ApiKey::query()->update(['stripe_webhook_secret' => 'whsec_test', 'razorpay_webhook_secret' => '']);
+        ApiKey::query()->update(['stripe_webhook_secret' => 'whsec_test', 'razorpay_webhook_secret' => '']);
 
         $gateways = collect($this->getJson('/payment-gateway-list')->assertOk()->json('data'))->keyBy('name');
 
@@ -36,7 +39,7 @@ class PaymentSettingsControllerTest extends DBTestCase
 
     public function test_fetch_config_can_be_called_directly(): void
     {
-        $controller = new \App\Http\Controllers\Common\PaymentSettingsController;
+        $controller = new PaymentSettingsController;
 
         $result = $controller->fetchConfig();
 
@@ -45,7 +48,7 @@ class PaymentSettingsControllerTest extends DBTestCase
 
     public function test_get_payment_plugin_map_returns_array(): void
     {
-        $controller = new \App\Http\Controllers\Common\PaymentSettingsController;
+        $controller = new PaymentSettingsController;
 
         $result = $controller->getPaymentPluginMap();
 
@@ -54,7 +57,7 @@ class PaymentSettingsControllerTest extends DBTestCase
 
     public function test_read_configs_returns_result(): void
     {
-        $controller = new \App\Http\Controllers\Common\PaymentSettingsController;
+        $controller = new PaymentSettingsController;
 
         $result = $controller->readConfigs();
 
@@ -65,28 +68,29 @@ class PaymentSettingsControllerTest extends DBTestCase
     private function readConfigsFrom(array $layout, array $looseFiles = []): array|string
     {
         $app = sys_get_temp_dir().'/plugins_'.uniqid();
-        \Illuminate\Support\Facades\File::makeDirectory($app.'/Plugins', recursive: true);
+        File::makeDirectory($app.'/Plugins', recursive: true);
         foreach ($layout as $plugin => $hasConfig) {
-            \Illuminate\Support\Facades\File::makeDirectory($app.'/Plugins/'.$plugin);
-            \Illuminate\Support\Facades\File::put($app.'/Plugins/'.$plugin.'/ServiceProvider.php', '<?php');
+            File::makeDirectory($app.'/Plugins/'.$plugin);
+            File::put($app.'/Plugins/'.$plugin.'/ServiceProvider.php', '<?php');
             if ($hasConfig) {
-                \Illuminate\Support\Facades\File::put($app.'/Plugins/'.$plugin.'/config.php', '<?php return [];');
+                File::put($app.'/Plugins/'.$plugin.'/config.php', '<?php return [];');
             }
         }
+
         foreach ($looseFiles as $file) {
-            \Illuminate\Support\Facades\File::put($app.'/Plugins/'.$file, 'x');
+            File::put($app.'/Plugins/'.$file, 'x');
         }
 
         $original = app_path();
         $this->app->useAppPath($app);
         try {
-            $result = (new \App\Http\Controllers\Common\PaymentSettingsController)->readConfigs();
+            $result = (new PaymentSettingsController)->readConfigs();
         } finally {
             $this->app->useAppPath($original);
-            \Illuminate\Support\Facades\File::deleteDirectory($app);
+            File::deleteDirectory($app);
         }
 
-        return is_array($result) ? array_map(fn ($path) => str_replace($app, 'APP', $path), $result) : $result;
+        return is_array($result) ? array_map(fn ($path): string|array => str_replace($app, 'APP', $path), $result) : $result;
     }
 
     public function test_read_configs_lists_each_plugin_config_in_folder_order(): void

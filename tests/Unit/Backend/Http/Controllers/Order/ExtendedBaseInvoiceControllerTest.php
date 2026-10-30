@@ -2,6 +2,14 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Order;
 
+use App\Http\Middleware\Install;
+use App\Model\Order\CreditTransaction;
+use App\Model\Order\Invoice;
+use App\Model\Order\Payment;
+use App\Model\Order\PaymentInvoice;
+use App\Services\Payment\CreditBalanceService;
+use App\Services\Payment\PostPaymentService;
+use App\Services\Payment\UnappliedPaymentService;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
@@ -13,7 +21,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     // =========================================================================
@@ -97,7 +105,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     public function test_new_payment_returns_200_with_invoices_and_currencies(): void
     {
         $this->getLoggedInUser('admin');
-        $client = \App\User::factory()->create(['role' => 'user', 'email' => 'newpay-'.uniqid().'@test.local']);
+        $client = User::factory()->create(['role' => 'user', 'email' => 'newpay-'.uniqid().'@test.local']);
         $response = $this->getJson('/newPayment/receive?clientid='.$client->id);
         $response->assertStatus(200)->assertJson(['success' => true])
             ->assertJsonStructure(['data' => ['invoices', 'currencies']]);
@@ -118,8 +126,8 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     public function test_post_edit_invoice_updates_existing_returns_405(): void
     {
         $this->getLoggedInUser('admin');
-        $client = \App\User::factory()->create(['email' => 'edit-inv-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $client->id, 'grand_total' => 100.0, 'status' => 'pending']);
+        $client = User::factory()->create(['email' => 'edit-inv-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create(['user_id' => $client->id, 'grand_total' => 100.0, 'status' => 'pending']);
         $response = $this->postJson('/invoice/edit/'.$invoice->id, ['grand_total' => 150.0, 'status' => 'success']);
         $response->assertStatus(405);
     }
@@ -127,8 +135,8 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     public function test_post_edit_invoice_with_all_required_fields_returns_405(): void
     {
         $this->getLoggedInUser('admin');
-        $client = \App\User::factory()->create(['email' => 'post-edit-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $client = User::factory()->create(['email' => 'post-edit-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create([
             'user_id' => $client->id,
             'grand_total' => 100.0,
             'status' => 'pending',
@@ -146,8 +154,8 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     public function test_post_edit_invoice_missing_date_returns_405(): void
     {
         $this->getLoggedInUser('admin');
-        $client = \App\User::factory()->create(['email' => 'edit-nod-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $client->id]);
+        $client = User::factory()->create(['email' => 'edit-nod-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create(['user_id' => $client->id]);
 
         $response = $this->postJson('/invoice/edit/'.$invoice->id, [
             'total' => 150.0,
@@ -160,8 +168,8 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     public function test_post_edit_invoice_missing_total_returns_405(): void
     {
         $this->getLoggedInUser('admin');
-        $client = \App\User::factory()->create(['email' => 'edit-nototal-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $client->id]);
+        $client = User::factory()->create(['email' => 'edit-nototal-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create(['user_id' => $client->id]);
 
         $response = $this->postJson('/invoice/edit/'.$invoice->id, [
             'date' => '2025-06-01',
@@ -179,7 +187,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user', 'email' => 'multi-pay-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $invoice = Invoice::factory()->create([
             'user_id' => $client->id,
             'grand_total' => 100.0,
             'currency' => 'USD',
@@ -206,7 +214,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
             'status' => 'success',
         ]);
         // One payment for the money received, one allocation for where it went.
-        $this->assertSame(1, \App\Model\Order\Payment::where('user_id', $client->id)->count());
+        $this->assertSame(1, Payment::where('user_id', $client->id)->count());
         $this->assertDatabaseHas('payment_invoice', ['invoice_id' => $invoice->id, 'amount' => 100]);
     }
 
@@ -214,7 +222,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user', 'email' => 'partial-pay-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $invoice = Invoice::factory()->create([
             'user_id' => $client->id,
             'grand_total' => 200.0,
             'currency' => 'USD',
@@ -259,9 +267,9 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
         // Nothing was allocated, so the whole receipt stays an unapplied
         // PAYMENT — real money arrived, and recording it as credit would say
         // we granted the client something instead.
-        $this->assertSame(200.0, (new \App\Services\Payment\UnappliedPaymentService)->balance($client->id, 'USD'));
-        $this->assertSame(0.0, (new \App\Services\Payment\CreditBalanceService)->balance($client->id, 'USD'));
-        $this->assertSame(0, \App\Model\Order\CreditTransaction::where('user_id', $client->id)->count());
+        $this->assertSame(200.0, (new UnappliedPaymentService)->balance($client->id, 'USD'));
+        $this->assertSame(0.0, (new CreditBalanceService)->balance($client->id, 'USD'));
+        $this->assertSame(0, CreditTransaction::where('user_id', $client->id)->count());
         $this->assertDatabaseHas('payments', [
             'user_id' => $client->id,
             'amount' => 200,
@@ -269,8 +277,8 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
             'currency' => 'USD',
         ]);
         // Nothing claimed it, so it has no allocations at all.
-        $this->assertSame(0, \App\Model\Order\PaymentInvoice::whereIn(
-            'payment_id', \App\Model\Order\Payment::where('user_id', $client->id)->pluck('id')
+        $this->assertSame(0, PaymentInvoice::whereIn(
+            'payment_id', Payment::where('user_id', $client->id)->pluck('id')
         )->count());
     }
 
@@ -282,11 +290,11 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user', 'email' => 'apply-one-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $invoice = Invoice::factory()->create([
             'user_id' => $client->id, 'grand_total' => 30.0, 'currency' => 'USD', 'status' => 'pending',
         ]);
 
-        $unapplied = new \App\Services\Payment\UnappliedPaymentService;
+        $unapplied = new UnappliedPaymentService;
         $target = $unapplied->record($client->id, 'USD', 30.0, 'check');
         $other = $unapplied->record($client->id, 'USD', 500.0, 'cash');
 
@@ -309,10 +317,10 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user', 'email' => 'apply-split-'.uniqid().'@test.local']);
-        $a = \App\Model\Order\Invoice::factory()->create(['user_id' => $client->id, 'grand_total' => 20.0, 'currency' => 'USD', 'status' => 'pending']);
-        $b = \App\Model\Order\Invoice::factory()->create(['user_id' => $client->id, 'grand_total' => 50.0, 'currency' => 'USD', 'status' => 'pending']);
+        $a = Invoice::factory()->create(['user_id' => $client->id, 'grand_total' => 20.0, 'currency' => 'USD', 'status' => 'pending']);
+        $b = Invoice::factory()->create(['user_id' => $client->id, 'grand_total' => 50.0, 'currency' => 'USD', 'status' => 'pending']);
 
-        $unapplied = new \App\Services\Payment\UnappliedPaymentService;
+        $unapplied = new UnappliedPaymentService;
         $payment = $unapplied->record($client->id, 'USD', 30.0, 'check');
 
         $this->postJson("/payments/{$payment->id}/apply", [
@@ -323,7 +331,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
 
         // Still ONE payment for one real receipt — the split lives in the
         // allocation table, not in cloned payment rows.
-        $this->assertSame(1, \App\Model\Order\Payment::where('user_id', $client->id)->count());
+        $this->assertSame(1, Payment::where('user_id', $client->id)->count());
         $this->assertSame(30.0, (float) $payment->fresh()->amount);
 
         $allocations = $payment->allocations()->orderBy('invoice_id')->get();
@@ -343,11 +351,11 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user', 'email' => 'apply-over-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $invoice = Invoice::factory()->create([
             'user_id' => $client->id, 'grand_total' => 400.0, 'currency' => 'USD', 'status' => 'pending',
         ]);
 
-        $unapplied = new \App\Services\Payment\UnappliedPaymentService;
+        $unapplied = new UnappliedPaymentService;
         $target = $unapplied->record($client->id, 'USD', 30.0, 'check');
         $unapplied->record($client->id, 'USD', 500.0, 'cash');
 
@@ -366,11 +374,11 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user', 'email' => 'apply-cur-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $invoice = Invoice::factory()->create([
             'user_id' => $client->id, 'grand_total' => 20.0, 'currency' => 'INR', 'status' => 'pending',
         ]);
 
-        $unapplied = new \App\Services\Payment\UnappliedPaymentService;
+        $unapplied = new UnappliedPaymentService;
         $target = $unapplied->record($client->id, 'USD', 30.0, 'check');
 
         $response = $this->postJson("/payments/{$target->id}/apply", [
@@ -391,7 +399,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user', 'email' => 'upd-pay-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $invoice = Invoice::factory()->create([
             'user_id' => $client->id,
             'grand_total' => 100.0,
             'currency' => 'USD',
@@ -399,8 +407,8 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
         ]);
 
         // Seed a credit balance for the client
-        (new \App\Services\Payment\CreditBalanceService)->grant(
-            $client->id, 'USD', 200.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT
+        (new CreditBalanceService)->grant(
+            $client->id, 'USD', 200.0, CreditTransaction::TYPE_OVERPAYMENT
         );
 
         // invoiceChecked and invoiceAmount are parallel arrays: key = numeric index
@@ -415,12 +423,12 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
             ->assertJson(['success' => true]);
 
         // 200 credit - 100 applied = 100 left; invoice is now fully paid.
-        $this->assertSame(100.0, (new \App\Services\Payment\CreditBalanceService)->balance($client->id, 'USD'));
+        $this->assertSame(100.0, (new CreditBalanceService)->balance($client->id, 'USD'));
         $this->assertDatabaseHas('credit_transactions', [
             'user_id' => $client->id,
             'currency' => 'USD',
             'amount' => '-100',
-            'type' => \App\Model\Order\CreditTransaction::TYPE_APPLIED_TO_INVOICE,
+            'type' => CreditTransaction::TYPE_APPLIED_TO_INVOICE,
             'invoice_id' => $invoice->id,
         ]);
         $this->assertDatabaseHas('invoices', ['id' => $invoice->id, 'status' => 'success']);
@@ -430,7 +438,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user', 'email' => 'over-pay-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $invoice = Invoice::factory()->create([
             'user_id' => $client->id,
             'grand_total' => 100.0,
             'currency' => 'USD',
@@ -450,7 +458,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
         // Rolled back whole: no payment row, invoice untouched, nothing banked.
         $this->assertDatabaseMissing('payment_invoice', ['invoice_id' => $invoice->id]);
         $this->assertDatabaseHas('invoices', ['id' => $invoice->id, 'status' => 'pending']);
-        $this->assertSame(0.0, (new \App\Services\Payment\UnappliedPaymentService)->balance($client->id, 'USD'));
+        $this->assertSame(0.0, (new UnappliedPaymentService)->balance($client->id, 'USD'));
     }
 
     public function test_post_new_multiple_payment_rejects_another_clients_invoice(): void
@@ -458,7 +466,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user', 'email' => 'payer-'.uniqid().'@test.local']);
         $stranger = User::factory()->create(['role' => 'user', 'email' => 'stranger-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $invoice = Invoice::factory()->create([
             'user_id' => $stranger->id,
             'grand_total' => 100.0,
             'currency' => 'USD',
@@ -482,15 +490,15 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user', 'email' => 'credit-method-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $invoice = Invoice::factory()->create([
             'user_id' => $client->id,
             'grand_total' => 100.0,
             'currency' => 'USD',
             'status' => 'pending',
         ]);
 
-        (new \App\Services\Payment\CreditBalanceService)->grant(
-            $client->id, 'USD', 100.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT
+        (new CreditBalanceService)->grant(
+            $client->id, 'USD', 100.0, CreditTransaction::TYPE_OVERPAYMENT
         );
 
         $response = $this->postJson("/newMultiplePayment/receive/{$client->id}", [
@@ -505,7 +513,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
         $response->assertStatus(200)->assertJson(['success' => true]);
 
         // Paying by credit spends the balance rather than inventing money.
-        $this->assertSame(0.0, (new \App\Services\Payment\CreditBalanceService)->balance($client->id, 'USD'));
+        $this->assertSame(0.0, (new CreditBalanceService)->balance($client->id, 'USD'));
         $this->assertDatabaseHas('invoices', ['id' => $invoice->id, 'status' => 'success']);
     }
 
@@ -513,7 +521,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user', 'email' => 'nocredit-method-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $invoice = Invoice::factory()->create([
             'user_id' => $client->id,
             'grand_total' => 100.0,
             'currency' => 'USD',
@@ -538,7 +546,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user', 'email' => 'nocredit-pay-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $invoice = Invoice::factory()->create([
             'user_id' => $client->id,
             'grand_total' => 100.0,
             'currency' => 'USD',
@@ -558,7 +566,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
         $this->assertFalse($response->json('success'));
     }
 
-    public function test_update_new_multiple_payment_missing_invoiceChecked_returns_422(): void
+    public function test_update_new_multiple_payment_missing_invoice_checked_returns_422(): void
     {
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user', 'email' => 'upd-valid-'.uniqid().'@test.local']);
@@ -578,16 +586,16 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     private function pendingClientInvoice(float $total): array
     {
         $client = User::factory()->create(['role' => 'user', 'email' => 'fulfil-once-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $client->id, 'grand_total' => $total, 'currency' => 'USD', 'status' => 'pending']);
+        $invoice = Invoice::factory()->create(['user_id' => $client->id, 'grand_total' => $total, 'currency' => 'USD', 'status' => 'pending']);
 
         return [$client, $invoice];
     }
 
     private function expectFulfilment(int $times): void
     {
-        $post = \Mockery::mock(\App\Services\Payment\PostPaymentService::class);
+        $post = \Mockery::mock(PostPaymentService::class);
         $post->shouldReceive('handle')->times($times);
-        $this->app->instance(\App\Services\Payment\PostPaymentService::class, $post);
+        $this->app->instance(PostPaymentService::class, $post);
     }
 
     public function test_a_payment_that_completes_an_invoice_fulfils_it_once(): void

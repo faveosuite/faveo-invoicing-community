@@ -388,11 +388,11 @@ class ProductFieldsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -702,11 +702,11 @@ class ProductFieldsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -998,11 +998,11 @@ class ProductFieldsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1312,11 +1312,11 @@ class ProductFieldsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1346,7 +1346,7 @@ class ProductFieldsApi
      * Get one product field
      *
      * @param  string $field_code The unique code identifying the field (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
@@ -1364,7 +1364,7 @@ class ProductFieldsApi
      * Get one product field
      *
      * @param  string $field_code The unique code identifying the field (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
@@ -1466,7 +1466,7 @@ class ProductFieldsApi
      * Get one product field
      *
      * @param  string $field_code The unique code identifying the field (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
@@ -1487,7 +1487,7 @@ class ProductFieldsApi
      * Get one product field
      *
      * @param  string $field_code The unique code identifying the field (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
@@ -1535,7 +1535,7 @@ class ProductFieldsApi
      * Create request for operation 'getProductField'
      *
      * @param  string $field_code The unique code identifying the field (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
@@ -1550,6 +1550,7 @@ class ProductFieldsApi
             );
         }
 
+
         $resourcePath = '/productFields/{field_code}';
         $formParams = [];
         $queryParams = [];
@@ -1560,7 +1561,7 @@ class ProductFieldsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($include_fields)) {
-            $include_fields = ObjectSerializer::serializeCollection($include_fields, '', true);
+            $include_fields = ObjectSerializer::serializeCollection($include_fields, 'form', true);
         }
         if ($include_fields !== null) {
             $queryParams['include_fields'] = $include_fields;
@@ -1621,11 +1622,11 @@ class ProductFieldsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1654,7 +1655,7 @@ class ProductFieldsApi
      *
      * Get all product fields
      *
-     * @param  string|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
@@ -1673,7 +1674,7 @@ class ProductFieldsApi
      *
      * Get all product fields
      *
-     * @param  string|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
@@ -1776,7 +1777,7 @@ class ProductFieldsApi
      *
      * Get all product fields
      *
-     * @param  string|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
@@ -1798,7 +1799,7 @@ class ProductFieldsApi
      *
      * Get all product fields
      *
-     * @param  string|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
@@ -1847,7 +1848,7 @@ class ProductFieldsApi
     /**
      * Create request for operation 'getProductFields'
      *
-     * @param  string|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional data namespaces to include in response (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
@@ -1856,6 +1857,14 @@ class ProductFieldsApi
      */
     public function getProductFieldsRequest($include_fields = null, $limit = null, $cursor = null): Request
     {
+
+        if ($limit !== null && $limit > 500) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling ProductFieldsApi.getProductFields, must be smaller than or equal to 500.');
+        }
+        if ($limit !== null && $limit < 1) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling ProductFieldsApi.getProductFields, must be bigger than or equal to 1.');
+        }
+
 
         $resourcePath = '/productFields';
         $formParams = [];
@@ -1867,7 +1876,7 @@ class ProductFieldsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($include_fields)) {
-            $include_fields = ObjectSerializer::serializeCollection($include_fields, '', true);
+            $include_fields = ObjectSerializer::serializeCollection($include_fields, 'form', true);
         }
         if ($include_fields !== null) {
             $queryParams['include_fields'] = $include_fields;
@@ -1936,11 +1945,11 @@ class ProductFieldsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -2250,11 +2259,11 @@ class ProductFieldsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -2564,11 +2573,11 @@ class ProductFieldsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 

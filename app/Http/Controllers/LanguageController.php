@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Model\Common\Language;
 use App\Model\Common\Setting;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Validation\ValidationException;
 
 class LanguageController extends Controller
 {
@@ -158,9 +160,9 @@ class LanguageController extends Controller
             $language->save();
 
             return successResponse(__('message.language_status_updated_successfully'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
-        } catch (\Illuminate\Validation\ValidationException $exception) {
+        } catch (ValidationException $exception) {
             return errorResponse($exception->getMessage());
         } catch (Exception $exception) {
             \Logger::exception($exception);
@@ -180,9 +182,9 @@ class LanguageController extends Controller
             $setting->save();
 
             return successResponse(__('message.language_set_as_default'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
-        } catch (\Illuminate\Validation\ValidationException $exception) {
+        } catch (ValidationException $exception) {
             return errorResponse($exception->getMessage());
         } catch (Exception $exception) {
             \Logger::exception($exception);

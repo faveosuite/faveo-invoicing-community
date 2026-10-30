@@ -16,12 +16,14 @@ use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\InvoiceTaxLine;
 use App\Model\Order\Order;
+use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Services\Cloud\CloudApi;
+use App\Services\Payment\CreditBalanceService;
 use App\Traits\TaxCalculation;
 use App\User;
 use Crypt;
@@ -30,6 +32,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -123,6 +126,7 @@ class CloudExtraActivities extends Controller
             if ($order instanceof JsonResponse) {
                 return $order;
             }
+
             $plan = Plan::find($planId);
 
             $planDetails = userCurrencyAndPrice($this->authUser()->id, $plan);
@@ -137,7 +141,7 @@ class CloudExtraActivities extends Controller
                 // the rest (discount) is banked as credit.
                 'credit_applied' => currencyFormat((float) $calc['priceoldplan'] - (float) ($calc['discount'] ?? 0), $calc['currency'], includeSymbol: false),
                 'priceperagent' => currencyFormat($planDetails['plan']->add_price ?? 0, $calc['currency'], includeSymbol: false),
-                'currency_symbol' => \App\Model\Payment\Currency::where('code', $calc['currency'])->value('symbol') ?? $calc['currency'],
+                'currency_symbol' => Currency::where('code', $calc['currency'])->value('symbol') ?? $calc['currency'],
             ];
         } catch (Exception $exception) {
             Logger::exception($exception);
@@ -235,6 +239,7 @@ class CloudExtraActivities extends Controller
             if ($order instanceof JsonResponse) {
                 return $order;
             }
+
             $oldAgents = $this->licenseAgents($order->serial_key);
             $desiredAgents = (int) $request->input('desiredAgents');
 
@@ -266,6 +271,7 @@ class CloudExtraActivities extends Controller
             if ($items === []) {
                 return errorResponse(trans('message.cart_plan_no_price_in_currency'));
             }
+
             $invoice = new RenewController()->renewBySubId($sub->id, $items['planId'], '', $items['price'], '', isAgentIncrease: false, agents: $desiredAgents);
             if (! $invoice instanceof InvoiceItem) {
                 return errorResponse(trans('message.something_went_wrong'));
@@ -412,6 +418,7 @@ class CloudExtraActivities extends Controller
             if (! $sub) {
                 return [];
             }
+
             $planId ??= $sub->plan_id;
             $plan = Plan::with('productRelation')->find($planId);
             if (! $plan) {
@@ -422,6 +429,7 @@ class CloudExtraActivities extends Controller
             if (! $product) {
                 return [];
             }
+
             $planTarget = $product->planRelation->find($planId);
             $currency = userCurrencyAndPrice('', $planTarget);
             $ends_at = (string) $sub->ends_at;
@@ -429,6 +437,7 @@ class CloudExtraActivities extends Controller
             if ($base_price === null) {
                 return [];
             }
+
             $oldAgents = (int) substr($oldLicense, 12, 16);
             $planDays = (int) $plan->days;
 
@@ -445,6 +454,7 @@ class CloudExtraActivities extends Controller
                     // No agent change requested: $totalAgents stays 0.
                     break;
             }
+
             $price = $this->agentProration($ends_at, $base_price, $totalAgents, $oldAgents, $planDays)['price'];
 
             return [
@@ -548,6 +558,7 @@ class CloudExtraActivities extends Controller
             if (! $planOld || ! $productOld) {
                 return $empty;
             }
+
             $currencyOld = userCurrencyAndPrice('', $productOld->planRelation->find($sub->plan_id));
             $base_priceOld = PlanPrice::where('plan_id', $sub->plan_id)->where('currency', $currencyOld['currency'])->value('add_price') * $agents;
             $planDaysOld = (int) $planOld->days;
@@ -557,6 +568,7 @@ class CloudExtraActivities extends Controller
             if (! $planNew || ! $productNew) {
                 return $empty;
             }
+
             $currencyNew = userCurrencyAndPrice('', $productNew->planRelation->find($planIdNew));
             $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->value('add_price') * $agents;
             $planDaysNew = (int) $planNew->days;
@@ -636,8 +648,6 @@ class CloudExtraActivities extends Controller
     private function lessPriceNewDaysNotEqualToOldDays(int $daysRemain, int $planDaysNew, int $planDaysOld, int|float $pricePerDayForNewPlan, int|float $pricePerDayForOldPlan): array
     {
         $discount = null;
-
-        $term = [];
         if ($daysRemain <= $planDaysNew && $planDaysOld > $planDaysNew) {
             $priceToBePaid = $pricePerDayForNewPlan * $daysRemain;
             $priceRemaining = $pricePerDayForOldPlan * $daysRemain;
@@ -856,6 +866,7 @@ class CloudExtraActivities extends Controller
             } catch (Exception $exception) {
                 $result = ['error' => $exception->getMessage()];
             }
+
             // Paid for already, so billing still switches orders; the instance needs fixing by hand.
             if (($result['status'] ?? null) !== 'success') {
                 Logger::exception(new Exception(sprintf('Cloud plan change failed for %s (order %d → %d), apply it manually: %s', $installationPath, $terminatedOrderId, $newActiveOrderId, json_encode($result))));
@@ -891,7 +902,7 @@ class CloudExtraActivities extends Controller
         // the payment (the credit landed on the admin's account) and from webhooks (no user at all).
         $client = User::findOrFail((int) Order::whereKey($terminatedOrderId)->value('client'));
 
-        app(\App\Services\Payment\CreditBalanceService::class)->grant(
+        resolve(CreditBalanceService::class)->grant(
             $client->id,
             $currency ?? getCurrencyForClient((string) $client->country),
             $discount,
@@ -920,6 +931,7 @@ class CloudExtraActivities extends Controller
             if ($order instanceof JsonResponse) {
                 return $order;
             }
+
             $oldAgents = $this->licenseAgents($order->serial_key);
             $desiredAgents = (int) $request->input('desiredAgents');
 
@@ -928,6 +940,7 @@ class CloudExtraActivities extends Controller
             if (! $product instanceof Product) {
                 throw new Exception('Product not found');
             }
+
             $plan = $product->planRelation->find($planId);
             $currency = userCurrencyAndPrice('', $plan);
             $ends_at = (string) Subscription::where('order_id', $order->id)->value('ends_at');
@@ -952,7 +965,7 @@ class CloudExtraActivities extends Controller
                 'currentAgentsCost' => currencyFormat($calc['priceRemaining'], $currency['currency'], includeSymbol: false),
                 'newAgentsCost' => currencyFormat($calc['priceToBePaid'], $currency['currency'], includeSymbol: false),
                 'priceToPay' => currencyFormat($calc['price'], $currency['currency'], includeSymbol: false),
-                'currency_symbol' => \App\Model\Payment\Currency::where('code', $currency['currency'])->value('symbol') ?? $currency['currency'],
+                'currency_symbol' => Currency::where('code', $currency['currency'])->value('symbol') ?? $currency['currency'],
             ];
         } catch (Exception $exception) {
             Logger::exception($exception);
@@ -972,14 +985,14 @@ class CloudExtraActivities extends Controller
 
         try {
             $body = $api->raw('POST', '/checkDomain', ['form_params' => ['domain' => $domain, 'key' => $key]]);
-        } catch (GuzzleException $e) {
+        } catch (GuzzleException $guzzleException) {
             // Guzzle errors are RuntimeExceptions carrying the raw response HTML — never surface that.
-            Logger::exception($e);
+            Logger::exception($guzzleException);
 
-            throw new RuntimeException(__('message.cloud_server_unavailable'));
+            throw new RuntimeException(__('message.cloud_server_unavailable'), $guzzleException->getCode(), $guzzleException);
         }
 
-        $flag = strstr($body, '{', true);
+        $flag = strstr($body, '{', before_needle: true);
 
         // Same truthiness as development; a body starting with "{" gives an empty flag → null → taken.
         return (bool) json_decode($flag === false ? $body : $flag);
@@ -1048,10 +1061,10 @@ class CloudExtraActivities extends Controller
             }
 
             return successResponse(trans('message.pop_delete'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }

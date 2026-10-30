@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     '2fa_setup' => 'Configurar verificação em 2 etapas',
     'actions' => 'Ações',
@@ -18,7 +20,7 @@ return [
     'dashboard' => 'Painel',
     'dashboard_show' => 'Painel',
     'callbacks_count' => 'Contagem de callbacks',
-    'callbacks_description' => 'Visualizar callbacks de verificação de licença existentes. Se algum callback precisar ser excluído, verifique o cliente ou o código de licença e clique no botão \'Enviar\'.',
+    'callbacks_description' => "Visualizar callbacks de verificação de licença existentes. Se algum callback precisar ser excluído, verifique o cliente ou o código de licença e clique no botão 'Enviar'.",
     'adddd' => 'Licença adicionada com sucesso',
     'admin_privileges' => 'Privilégios de administrador',
     'Api_Acess_not_allowed' => 'Acesso à API não permitido',

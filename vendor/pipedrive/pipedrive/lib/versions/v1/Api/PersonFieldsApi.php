@@ -381,11 +381,11 @@ class PersonFieldsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -677,11 +677,11 @@ class PersonFieldsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -710,7 +710,7 @@ class PersonFieldsApi
      *
      * Delete multiple person fields in bulk
      *
-     * @param  string $ids The comma-separated field IDs to delete (required)
+     * @param  int[] $ids The comma-separated field IDs to delete (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
@@ -727,7 +727,7 @@ class PersonFieldsApi
      *
      * Delete multiple person fields in bulk
      *
-     * @param  string $ids The comma-separated field IDs to delete (required)
+     * @param  int[] $ids The comma-separated field IDs to delete (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
@@ -828,7 +828,7 @@ class PersonFieldsApi
      *
      * Delete multiple person fields in bulk
      *
-     * @param  string $ids The comma-separated field IDs to delete (required)
+     * @param  int[] $ids The comma-separated field IDs to delete (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
@@ -848,7 +848,7 @@ class PersonFieldsApi
      *
      * Delete multiple person fields in bulk
      *
-     * @param  string $ids The comma-separated field IDs to delete (required)
+     * @param  int[] $ids The comma-separated field IDs to delete (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
@@ -895,7 +895,7 @@ class PersonFieldsApi
     /**
      * Create request for operation 'deletePersonFields'
      *
-     * @param  string $ids The comma-separated field IDs to delete (required)
+     * @param  int[] $ids The comma-separated field IDs to delete (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
@@ -910,6 +910,7 @@ class PersonFieldsApi
             );
         }
 
+
         $resourcePath = '/personFields';
         $formParams = [];
         $queryParams = [];
@@ -920,7 +921,7 @@ class PersonFieldsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($ids)) {
-            $ids = ObjectSerializer::serializeCollection($ids, '', true);
+            $ids = ObjectSerializer::serializeCollection($ids, 'form', true);
         }
         if ($ids !== null) {
             $queryParams['ids'] = $ids;
@@ -973,11 +974,11 @@ class PersonFieldsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1269,11 +1270,11 @@ class PersonFieldsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1571,11 +1572,11 @@ class PersonFieldsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1878,11 +1879,11 @@ class PersonFieldsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 

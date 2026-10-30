@@ -14,8 +14,8 @@ class QueryFormatter extends DataFormatter
      */
     public function formatSql(string $sql): string
     {
-        $sql = preg_replace("/\?(?=(?:[^'\\\']*'[^'\\']*')*[^'\\\']*$)(?:\?)/", '?', $sql);
-        return trim(preg_replace("/\s*\n\s*/", "\n", $sql));
+        $sql = preg_replace("/\?(?=(?:[^'\\\']*'[^'\\']*')*[^'\\\']*$)(?:\?)/", '?', $sql) ?? $sql;
+        return trim(preg_replace("/\s*\n\s*/", "\n", $sql) ?? $sql);
     }
 
     /**
@@ -97,6 +97,8 @@ class QueryFormatter extends DataFormatter
 
             if ($binding === null) {
                 $binding = 'NULL';
+            } elseif (is_bool($binding)) {
+                $binding = $binding ? 'TRUE' : 'FALSE';
             } elseif (! is_int($binding) && ! is_float($binding)) {
                 $binding = $this->quoteBinding($binding, $pdo);
             }
@@ -107,7 +109,7 @@ class QueryFormatter extends DataFormatter
             $regex = is_numeric($key)
                 ? "/(?<!\?)\?(?=(?:[^'\\\\']*'[^'\\\\']*')*[^'\\\\']*$)(?!\?)/"
                 : "/:{$key}(?![A-Za-z0-9_])(?=(?:[^'\\\\']*'[^'\\\\']*')*[^'\\\\']*$)/";
-            $sql = preg_replace($regex, addcslashes((string) $binding, '$'), $sql, is_numeric($key) ? 1 : -1);
+            $sql = preg_replace($regex, addcslashes((string) $binding, '$'), $sql, is_numeric($key) ? 1 : -1) ?? $sql;
         }
 
         return $sql;

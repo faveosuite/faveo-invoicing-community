@@ -80,6 +80,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'channel_id' => 'string',
         'source_deal_id' => 'int',
         'is_archived' => 'bool',
+        'archive_reason' => 'string',
         'was_seen' => 'bool',
         'value' => '\Pipedrive\versions\v1\Model\LeadValue',
         'expected_close_date' => '\DateTime',
@@ -112,6 +113,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'channel_id' => null,
         'source_deal_id' => null,
         'is_archived' => null,
+        'archive_reason' => null,
         'was_seen' => null,
         'value' => null,
         'expected_close_date' => 'date',
@@ -167,6 +169,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'channel_id' => 'channel_id',
         'source_deal_id' => 'source_deal_id',
         'is_archived' => 'is_archived',
+        'archive_reason' => 'archive_reason',
         'was_seen' => 'was_seen',
         'value' => 'value',
         'expected_close_date' => 'expected_close_date',
@@ -197,6 +200,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'channel_id' => 'setChannelId',
         'source_deal_id' => 'setSourceDealId',
         'is_archived' => 'setIsArchived',
+        'archive_reason' => 'setArchiveReason',
         'was_seen' => 'setWasSeen',
         'value' => 'setValue',
         'expected_close_date' => 'setExpectedCloseDate',
@@ -227,6 +231,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'channel_id' => 'getChannelId',
         'source_deal_id' => 'getSourceDealId',
         'is_archived' => 'getIsArchived',
+        'archive_reason' => 'getArchiveReason',
         'was_seen' => 'getWasSeen',
         'value' => 'getValue',
         'expected_close_date' => 'getExpectedCloseDate',
@@ -318,6 +323,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['channel_id'] = $data['channel_id'] ?? null;
         $this->container['source_deal_id'] = $data['source_deal_id'] ?? null;
         $this->container['is_archived'] = $data['is_archived'] ?? null;
+        $this->container['archive_reason'] = $data['archive_reason'] ?? null;
         $this->container['was_seen'] = $data['was_seen'] ?? null;
         $this->container['value'] = $data['value'] ?? null;
         $this->container['expected_close_date'] = $data['expected_close_date'] ?? null;
@@ -686,6 +692,30 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     public function setIsArchived($is_archived): self
     {
         $this->container['is_archived'] = $is_archived;
+
+        return $this;
+    }
+
+    /**
+     * Gets archive_reason
+     *
+     * @return string|null
+     */
+    public function getArchiveReason()
+    {
+        return $this->container['archive_reason'];
+    }
+
+    /**
+     * Sets archive_reason
+     *
+     * @param string|null $archive_reason The reason for archiving the lead. Automatically cleared when the lead is unarchived.
+     *
+     * @return self
+     */
+    public function setArchiveReason($archive_reason): self
+    {
+        $this->container['archive_reason'] = $archive_reason;
 
         return $this;
     }

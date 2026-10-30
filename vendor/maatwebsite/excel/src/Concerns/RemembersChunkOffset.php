@@ -4,23 +4,14 @@ namespace Maatwebsite\Excel\Concerns;
 
 trait RemembersChunkOffset
 {
-    /**
-     * @var int|null
-     */
-    protected $chunkOffset;
+    protected ?int $chunkOffset = null;
 
-    /**
-     * @param  int  $chunkOffset
-     */
-    public function setChunkOffset(int $chunkOffset)
+    public function setChunkOffset(int $chunkOffset): void
     {
         $this->chunkOffset = $chunkOffset;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getChunkOffset()
+    public function getChunkOffset(): ?int
     {
         return $this->chunkOffset;
     }

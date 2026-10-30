@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Concerns;
 
 use Maatwebsite\Excel\Events\AfterBatch;
@@ -15,7 +17,7 @@ use Maatwebsite\Excel\Events\ImportFailed;
 trait RegistersEventListeners
 {
     /**
-     * @return array
+     * @return array<string, callable>
      */
     public function registerEvents(): array
     {
@@ -33,7 +35,7 @@ trait RegistersEventListeners
         $listeners = [];
 
         foreach ($listenersClasses as $class => $name) {
-            // Method names are case insensitive in php
+            // Method names are case-insensitive in php
             if (method_exists($this, $name)) {
                 // Allow methods to not be static
                 $listeners[$class] = [$this, $name];

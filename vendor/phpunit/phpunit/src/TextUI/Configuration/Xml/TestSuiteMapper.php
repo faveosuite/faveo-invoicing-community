@@ -16,9 +16,12 @@ use function is_file;
 use function sprintf;
 use function str_contains;
 use function version_compare;
-use PHPUnit\Event\Facade as EventFacade;
+use PHPUnit\Event\Emitter;
 use PHPUnit\Framework\Exception as FrameworkException;
 use PHPUnit\Framework\TestSuite as TestSuiteObject;
+use PHPUnit\Runner\Filter\CompiledGroupFilter;
+use PHPUnit\Runner\TestIndex\NullTestFileSkipper;
+use PHPUnit\Runner\TestIndex\TestFileSkipper;
 use PHPUnit\TextUI\Configuration\TestSuiteCollection;
 use PHPUnit\TextUI\RuntimeException;
 use PHPUnit\TextUI\TestDirectoryNotFoundException;
@@ -32,19 +35,34 @@ use SebastianBergmann\FileIterator\Facade;
  */
 final readonly class TestSuiteMapper
 {
+    private Emitter $emitter;
+    private TestFileSkipper $skipper;
+
+    public function __construct(Emitter $emitter, ?TestFileSkipper $skipper = null)
+    {
+        if ($skipper === null) {
+            $skipper = new NullTestFileSkipper;
+        }
+
+        $this->emitter = $emitter;
+        $this->skipper = $skipper;
+    }
+
     /**
      * @param non-empty-string       $xmlConfigurationFile
      * @param list<non-empty-string> $includeTestSuites
      * @param list<non-empty-string> $excludeTestSuites
+     * @param positive-int           $numberOfRuns
+     * @param positive-int           $maxAttempts
      *
      * @throws RuntimeException
      * @throws TestDirectoryNotFoundException
      * @throws TestFileNotFoundException
      */
-    public function map(string $xmlConfigurationFile, TestSuiteCollection $configuredTestSuites, array $includeTestSuites, array $excludeTestSuites): TestSuiteObject
+    public function map(string $xmlConfigurationFile, TestSuiteCollection $configuredTestSuites, array $includeTestSuites, array $excludeTestSuites, int $numberOfRuns = 1, int $maxAttempts = 1): TestSuiteObject
     {
         try {
-            $result    = TestSuiteObject::empty($xmlConfigurationFile);
+            $result    = TestSuiteObject::empty($xmlConfigurationFile, $this->emitter);
             $processed = [];
 
             foreach ($configuredTestSuites as $configuredTestSuite) {
@@ -63,7 +81,7 @@ final readonly class TestSuiteMapper
                     $exclude[] = $file->path();
                 }
 
-                $testSuite = TestSuiteObject::empty($configuredTestSuite->name());
+                $testSuite = TestSuiteObject::empty($configuredTestSuite->name(), $this->emitter);
                 $empty     = true;
 
                 foreach ($configuredTestSuite->directories() as $directory) {
@@ -84,24 +102,33 @@ final readonly class TestSuiteMapper
 
                     $groups = $directory->groups();
 
-                    foreach ($files as $file) {
-                        if (isset($processed[$file])) {
-                            EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
-                                sprintf(
-                                    'Cannot add file %s to test suite "%s" as it was already added to test suite "%s"',
-                                    $file,
-                                    $testSuiteName,
-                                    $processed[$file],
-                                ),
-                            );
+                    $this->warnAboutGroupNamesThatCannotBeSelected($groups, $directory->path());
 
+                    foreach ($files as $file) {
+                        if ($this->wasAlreadyAddedToAnotherTestSuite($processed, $file, $testSuiteName)) {
                             continue;
                         }
 
+                        /*
+                         * A file that is not loaded is bookkept as if it were:
+                         * whether a file was already added to another test
+                         * suite, and whether a test suite has files at all,
+                         * must not depend on whether the file has to be loaded.
+                         */
                         $processed[$file] = $testSuiteName;
                         $empty            = false;
 
-                        $testSuite->addTestFile($file, $groups);
+                        if ($this->skipper->canSkipLoading($file, $groups)) {
+                            continue;
+                        }
+
+                        $this->skipper->record(
+                            $file,
+                            static function () use ($testSuite, $file, $groups, $numberOfRuns, $maxAttempts): void
+                            {
+                                $testSuite->addTestFile($file, $groups, $numberOfRuns, $maxAttempts);
+                            },
+                        );
                     }
                 }
 
@@ -114,23 +141,26 @@ final readonly class TestSuiteMapper
                         continue;
                     }
 
-                    if (isset($processed[$file->path()])) {
-                        EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
-                            sprintf(
-                                'Cannot add file %s to test suite "%s" as it was already added to test suite "%s"',
-                                $file->path(),
-                                $testSuiteName,
-                                $processed[$file->path()],
-                            ),
-                        );
-
+                    if ($this->wasAlreadyAddedToAnotherTestSuite($processed, $file->path(), $testSuiteName)) {
                         continue;
                     }
 
                     $processed[$file->path()] = $testSuiteName;
                     $empty                    = false;
 
-                    $testSuite->addTestFile($file->path(), $file->groups());
+                    $this->warnAboutGroupNamesThatCannotBeSelected($file->groups(), $file->path());
+
+                    if ($this->skipper->canSkipLoading($file->path(), $file->groups())) {
+                        continue;
+                    }
+
+                    $this->skipper->record(
+                        $file->path(),
+                        static function () use ($testSuite, $file, $numberOfRuns, $maxAttempts): void
+                        {
+                            $testSuite->addTestFile($file->path(), $file->groups(), $numberOfRuns, $maxAttempts);
+                        },
+                    );
                 }
 
                 if (!$empty) {
@@ -139,6 +169,7 @@ final readonly class TestSuiteMapper
             }
 
             return $result;
+            // @codeCoverageIgnoreStart
         } catch (FrameworkException $e) {
             throw new RuntimeException(
                 $e->getMessage(),
@@ -146,5 +177,56 @@ final readonly class TestSuiteMapper
                 $e,
             );
         }
+        // @codeCoverageIgnoreEnd
+    }
+
+    /**
+     * The name of a group that the --group and --exclude-group CLI options
+     * parse as a conjunction of the names of other groups cannot be used to
+     * select the tests in it, see CompiledGroupFilter. The group is still
+     * assigned to the tests: dropping it would take them out of a group the
+     * test suite is expected to have.
+     *
+     * @param list<non-empty-string> $groups
+     * @param non-empty-string       $path
+     */
+    private function warnAboutGroupNamesThatCannotBeSelected(array $groups, string $path): void
+    {
+        foreach ($groups as $group) {
+            if (!CompiledGroupFilter::isConjunction($group)) {
+                continue;
+            }
+
+            $this->emitter->testRunnerTriggeredPhpunitWarning(
+                sprintf(
+                    'Group name "%s" configured for %s cannot be used to select tests: "+" combines several group names into a selection of the tests that are in all of them',
+                    $group,
+                    $path,
+                ),
+            );
+        }
+    }
+
+    /**
+     * @param array<non-empty-string, non-empty-string> $processed
+     * @param non-empty-string                          $file
+     * @param non-empty-string                          $testSuiteName
+     */
+    private function wasAlreadyAddedToAnotherTestSuite(array $processed, string $file, string $testSuiteName): bool
+    {
+        if (!isset($processed[$file])) {
+            return false;
+        }
+
+        $this->emitter->testRunnerTriggeredPhpunitWarning(
+            sprintf(
+                'Cannot add file %s to test suite "%s" as it was already added to test suite "%s"',
+                $file,
+                $testSuiteName,
+                $processed[$file],
+            ),
+        );
+
+        return true;
     }
 }

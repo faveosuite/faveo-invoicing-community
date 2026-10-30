@@ -70,7 +70,7 @@ class DealNonStrictModeFieldsCreatorUserId implements ModelInterface, ArrayAcces
         'id' => 'int',
         'name' => 'string',
         'email' => 'string',
-        'has_pic' => 'bool',
+        'has_pic' => 'int',
         'pic_hash' => 'string',
         'active_flag' => 'bool',
         'value' => 'int'
@@ -340,7 +340,7 @@ class DealNonStrictModeFieldsCreatorUserId implements ModelInterface, ArrayAcces
     /**
      * Gets has_pic
      *
-     * @return bool|null
+     * @return int|null
      */
     public function getHasPic()
     {
@@ -350,7 +350,7 @@ class DealNonStrictModeFieldsCreatorUserId implements ModelInterface, ArrayAcces
     /**
      * Sets has_pic
      *
-     * @param bool|null $has_pic If the creator has a picture or not
+     * @param int|null $has_pic If the creator has a picture or not
      *
      * @return self
      */

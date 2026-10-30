@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\DependencyInjection;
 
+use ProxyManager\Proxy\LazyLoadingInterface;
 use Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
 use Symfony\Component\DependencyInjection\Argument\ServiceLocator as ArgumentServiceLocator;
 use Symfony\Component\DependencyInjection\Exception\EnvNotFoundException;
@@ -24,6 +25,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBa
 use Symfony\Component\DependencyInjection\ParameterBag\FrozenParameterBag;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\VarExporter\LazyObjectInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 // Help opcache.preload discover always-needed symbols
@@ -223,8 +225,8 @@ class Container implements ContainerInterface, ResetInterface
             } elseif (isset($container->methodMap[$id])) {
                 return /* self::IGNORE_ON_UNINITIALIZED_REFERENCE */ 4 === $invalidBehavior ? null : $container->{$container->methodMap[$id]}($container);
             }
-        } catch (\Exception $e) {
-            unset($container->services[$id]);
+        } catch (\Throwable $e) {
+            unset($container->services[$id], $container->privates[$id]);
 
             throw $e;
         } finally {
@@ -281,7 +283,7 @@ class Container implements ContainerInterface, ResetInterface
 
         foreach ($services as $service) {
             try {
-                if ($service instanceof ResetInterface) {
+                if ($service instanceof ResetInterface && !self::isUninitializedLazyObject($service)) {
                     $service->reset();
                 }
             } catch (\Throwable) {
@@ -294,6 +296,8 @@ class Container implements ContainerInterface, ResetInterface
         // tears down the entire container. ServicesResetter::reset() handles calling
         // reset methods on tracked instances during the request lifecycle.
         $this->resetMap = null;
+        // the closures that reference the container itself are created again when needed
+        unset($this->getEnv, $this->getService);
     }
 
     /**
@@ -433,6 +437,19 @@ class Container implements ContainerInterface, ResetInterface
     final protected function getResetMap(): \WeakMap
     {
         return $this->resetMap ??= new \WeakMap();
+    }
+
+    private static function isUninitializedLazyObject(object $service): bool
+    {
+        if ($service instanceof LazyObjectInterface && !$service->isLazyObjectInitialized(true)) {
+            return true;
+        }
+
+        if ($service instanceof LazyLoadingInterface && !$service->isProxyInitialized()) {
+            return true;
+        }
+
+        return (new \ReflectionClass($service))->isUninitializedLazyObject($service);
     }
 
     private function __clone()

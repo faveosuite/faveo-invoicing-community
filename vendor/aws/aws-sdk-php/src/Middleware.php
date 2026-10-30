@@ -179,7 +179,10 @@ final class Middleware
 
                 // Credential signing path
                 $credentialPromise = ($signer instanceof S3ExpressSignature)
-                    ? $config['s3_express_identity_provider']($command)
+                    ? $config['s3_express_identity_provider'](
+                        $command,
+                        $credProvider()->wait()
+                    )
                     : $credProvider();
 
                 return $credentialPromise->then(function (CredentialsInterface $creds) use ($handler,
@@ -265,7 +268,7 @@ final class Middleware
                 RequestInterface $request
             ) use ($handler){
                 return $handler($command, $request->withHeader(
-                    'aws-sdk-invocation-id',
+                    'amz-sdk-invocation-id',
                     md5(uniqid(gethostname(), true))
                 ));
             };

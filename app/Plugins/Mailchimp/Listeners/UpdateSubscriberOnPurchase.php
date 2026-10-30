@@ -22,9 +22,7 @@ class UpdateSubscriberOnPurchase implements ShouldQueue
 
     public int $backoff = 60;
 
-    public function __construct(private readonly MailchimpService $service)
-    {
-    }
+    public function __construct(private readonly MailchimpService $service) {}
 
     public function handle(OrderPlacedEvent $event): void
     {

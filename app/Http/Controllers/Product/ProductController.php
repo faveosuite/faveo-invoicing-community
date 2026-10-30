@@ -24,6 +24,7 @@ use App\Traits\Product\AppliesBuildToProducts;
 use App\Traits\Upload\ChunkUpload;
 use DB;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -265,7 +266,7 @@ class ProductController extends BaseProductController
                 'product' => $product,
                 'github_status' => (bool) $githubStatus,
             ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
@@ -377,7 +378,7 @@ class ProductController extends BaseProductController
                 'is_restricted' => (bool) $u->is_restricted,
                 'dependencies' => ProductUpload::decodeDependencies($u->getRawOriginal('dependencies')),
             ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
@@ -431,7 +432,7 @@ class ProductController extends BaseProductController
             }
 
             return successResponse(__('message.product_updated_successfully'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
@@ -477,11 +478,13 @@ class ProductController extends BaseProductController
             if (! $request->filled('github_owner') || blank($value)) {
                 return;
             }
+
             try {
                 $exists = resolve(GithubApiController::class)->repositoryExists((string) $request->input('github_owner'), (string) $value);
             } catch (Exception) {
                 $exists = false; // no GitHub settings row yet
             }
+
             if (! $exists) {
                 $fail(__('message.github_repository_invalid'));
             }
@@ -534,6 +537,7 @@ class ProductController extends BaseProductController
         if (array_key_exists('parent', $validated)) {
             $validated['parent'] = (int) $validated['parent'];
         }
+
         foreach (['shoping_cart_link', 'github_owner', 'github_repository', 'version'] as $field) {
             if (array_key_exists($field, $validated)) {
                 $validated[$field] = (string) $validated[$field];
@@ -640,6 +644,7 @@ class ProductController extends BaseProductController
         if (array_key_exists('parent', $validated)) {
             $validated['parent'] = (int) $validated['parent'];
         }
+
         foreach (['shoping_cart_link', 'github_owner', 'github_repository', 'version'] as $field) {
             if (array_key_exists($field, $validated)) {
                 $validated[$field] = (string) $validated[$field];
@@ -691,7 +696,7 @@ class ProductController extends BaseProductController
             });
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);

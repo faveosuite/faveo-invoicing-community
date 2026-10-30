@@ -14,24 +14,16 @@ class HeadingRowExtractor
     /**
      * @const int
      */
-    const DEFAULT_HEADING_ROW = 1;
+    public const int DEFAULT_HEADING_ROW = 1;
 
-    /**
-     * @param  WithHeadingRow|mixed  $importable
-     * @return int
-     */
-    public static function headingRow($importable): int
+    public static function headingRow(mixed $importable): int
     {
         return method_exists($importable, 'headingRow')
             ? $importable->headingRow()
             : self::DEFAULT_HEADING_ROW;
     }
 
-    /**
-     * @param  WithHeadingRow|mixed  $importable
-     * @return int
-     */
-    public static function determineStartRow($importable): int
+    public static function determineStartRow(mixed $importable): int
     {
         if ($importable instanceof WithStartRow) {
             return $importable->startRow();
@@ -44,11 +36,9 @@ class HeadingRowExtractor
     }
 
     /**
-     * @param  Worksheet  $worksheet
-     * @param  WithHeadingRow|mixed  $importable
-     * @return array
+     * @return array<array-key, mixed>
      */
-    public static function extract(Worksheet $worksheet, $importable): array
+    public static function extract(Worksheet $worksheet, mixed $importable): array
     {
         if (!$importable instanceof WithHeadingRow) {
             return [];
@@ -63,11 +53,10 @@ class HeadingRowExtractor
     }
 
     /**
-     * @param  array  $headingRow
-     * @param  WithGroupedHeadingRow|mixed  $importable
-     * @return array
+     * @param  array<array-key, mixed>  $headingRow
+     * @return array<int, bool>
      */
-    public static function extractGrouping($headingRow, $importable)
+    public static function extractGrouping(array $headingRow, mixed $importable): array
     {
         $headerIsGrouped = array_fill(0, count($headingRow), false);
 
@@ -75,7 +64,7 @@ class HeadingRowExtractor
             return $headerIsGrouped;
         }
 
-        array_walk($headerIsGrouped, function (&$value, $key) use ($headingRow) {
+        array_walk($headerIsGrouped, function (&$value, $key) use ($headingRow): void {
             if (array_count_values($headingRow)[$headingRow[$key]] > 1) {
                 $value = true;
             }

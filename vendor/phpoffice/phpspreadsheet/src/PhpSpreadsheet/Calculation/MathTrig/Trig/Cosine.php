@@ -17,11 +17,11 @@ class Cosine
      *
      * @param mixed $number Should be numeric, or can be an array of numbers
      *
-     * @return array|float|string cosine
+     * @return array<mixed>|float|string cosine
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */
-    public static function cos($number)
+    public static function cos(mixed $number): array|string|float
     {
         if (is_array($number)) {
             return self::evaluateSingleArgumentArray([self::class, __FUNCTION__], $number);
@@ -43,11 +43,11 @@ class Cosine
      *
      * @param mixed $number Should be numeric, or can be an array of numbers
      *
-     * @return array|float|string hyperbolic cosine
+     * @return array<mixed>|float|string hyperbolic cosine
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */
-    public static function cosh($number)
+    public static function cosh(mixed $number): array|string|float
     {
         if (is_array($number)) {
             return self::evaluateSingleArgumentArray([self::class, __FUNCTION__], $number);
@@ -67,9 +67,9 @@ class Cosine
      *
      * Returns the arccosine of a number.
      *
-     * @param array|float $number Number, or can be an array of numbers
+     * @param array<mixed>|float $number Number, or can be an array of numbers
      *
-     * @return array|float|string The arccosine of the number
+     * @return array<mixed>|float|string The arccosine of the number
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */
@@ -93,9 +93,9 @@ class Cosine
      *
      * Returns the arc inverse hyperbolic cosine of a number.
      *
-     * @param array|float $number Number, or can be an array of numbers
+     * @param array<mixed>|float $number Number, or can be an array of numbers
      *
-     * @return array|float|string The inverse hyperbolic cosine of the number, or an error string
+     * @return array<mixed>|float|string The inverse hyperbolic cosine of the number, or an error string
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => 'Padrão',
     'cloud-instance-created' => 'Instância na Nuvem Criada',

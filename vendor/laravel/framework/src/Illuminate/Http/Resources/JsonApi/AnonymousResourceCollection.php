@@ -3,11 +3,13 @@
 namespace Illuminate\Http\Resources\JsonApi;
 
 use Illuminate\Container\Container;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection as BaseAnonymousResourceCollection;
 use Illuminate\Support\Arr;
 
-class AnonymousResourceCollection extends \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+class AnonymousResourceCollection extends BaseAnonymousResourceCollection
 {
     use Concerns\ResolvesJsonApiRequest;
 
@@ -43,9 +45,28 @@ class AnonymousResourceCollection extends \Illuminate\Http\Resources\Json\Anonym
     #[\Override]
     public function toAttributes(Request $request)
     {
+        $this->loadMissingRequestedRelationships($request);
+
         return $this->collection
             ->map(fn ($resource) => $resource->resolveResourceData($request))
             ->all();
+    }
+
+    /**
+     * Load the requested relationships for all of the resources at once.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     */
+    protected function loadMissingRequestedRelationships(Request $request)
+    {
+        $resource = $this->collection->first();
+
+        if ($resource instanceof JsonApiResource) {
+            $resource->loadMissingRequestedRelationshipsOn(
+                $this->resolveJsonApiRequestFrom($request), $this->collection->pluck('resource')->whereInstanceOf(Model::class)
+            );
+        }
     }
 
     /**
@@ -76,7 +97,7 @@ class AnonymousResourceCollection extends \Illuminate\Http\Resources\Json\Anonym
     /**
      * Resolve the HTTP request instance from container.
      *
-     * @return \Illuminate\Http\Resources\JsonApi\SparseRequest
+     * @return \Illuminate\Http\Resources\JsonApi\JsonApiRequest
      */
     #[\Override]
     protected function resolveRequestFromContainer()

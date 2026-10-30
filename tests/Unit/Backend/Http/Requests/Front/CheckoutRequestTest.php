@@ -11,7 +11,7 @@ class CheckoutRequestTest extends TestCase
 {
     private function postRules(): array
     {
-        $request = new CheckoutRequest();
+        $request = new CheckoutRequest;
         $request->setMethod('POST');
 
         return $request->rules();
@@ -27,7 +27,7 @@ class CheckoutRequestTest extends TestCase
 
     public function test_authorize_returns_true(): void
     {
-        $this->assertTrue((new CheckoutRequest())->authorize());
+        $this->assertTrue(new CheckoutRequest()->authorize());
     }
 
     public function test_validation_passes_with_valid_post_data(): void
@@ -71,16 +71,18 @@ class CheckoutRequestTest extends TestCase
 
     public function test_get_method_returns_empty_rules(): void
     {
-        $request = new CheckoutRequest();
+        $request = new CheckoutRequest;
         $request->setMethod('GET');
+
         $v = validator(['anything' => 'value'], $request->rules());
         $this->assertFalse($v->fails());
     }
 
     public function test_patch_rules_contain_expected_keys(): void
     {
-        $request = new CheckoutRequest();
+        $request = new CheckoutRequest;
         $request->setMethod('PATCH');
+
         $rules = $request->rules();
 
         $this->assertArrayHasKey('first_name', $rules);
@@ -90,8 +92,9 @@ class CheckoutRequestTest extends TestCase
 
     public function test_patch_email_does_not_require_uniqueness(): void
     {
-        $request = new CheckoutRequest();
+        $request = new CheckoutRequest;
         $request->setMethod('PATCH');
+
         $rules = $request->rules();
 
         // PATCH email rule is 'required|email' without unique constraint
@@ -100,7 +103,7 @@ class CheckoutRequestTest extends TestCase
 
     public function test_messages_returns_expected_keys(): void
     {
-        $messages = (new CheckoutRequest())->messages();
+        $messages = new CheckoutRequest()->messages();
 
         $this->assertIsArray($messages);
         $this->assertArrayHasKey('first_name.required', $messages);

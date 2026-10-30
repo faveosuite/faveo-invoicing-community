@@ -3,6 +3,7 @@
 namespace Tests\Unit\Backend\Helper;
 
 use App\Model\Common\Setting;
+use App\Model\Common\Timezone;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
@@ -60,7 +61,7 @@ class HelpersBoostTest extends DBTestCase
     public function test_error_response_returns_json_with_success_false(): void
     {
         $response = errorResponse('Something went wrong');
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
         $this->assertFalse($data['success']);
         $this->assertEquals('Something went wrong', $data['message']);
         $this->assertEquals(400, $response->getStatusCode());
@@ -75,7 +76,7 @@ class HelpersBoostTest extends DBTestCase
     public function test_success_response_returns_json_with_success_true(): void
     {
         $response = successResponse('Done', ['key' => 'value']);
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
         $this->assertTrue($data['success']);
         $this->assertEquals('Done', $data['message']);
         $this->assertEquals(['key' => 'value'], $data['data']);
@@ -84,7 +85,7 @@ class HelpersBoostTest extends DBTestCase
     public function test_success_response_without_message(): void
     {
         $response = successResponse('', ['items' => []]);
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
         $this->assertTrue($data['success']);
         $this->assertArrayNotHasKey('message', $data);
     }
@@ -208,7 +209,7 @@ class HelpersBoostTest extends DBTestCase
     {
         $exception = new \RuntimeException('Test error message', 500);
         $response = exceptionResponse($exception);
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
         $this->assertFalse($data['success']);
     }
 
@@ -308,7 +309,7 @@ class HelpersBoostTest extends DBTestCase
     {
         $user = User::factory()->create(['role' => 'user']);
         $this->actingAs($user);
-        $result = authorizeOwnership($user->id, false);
+        $result = authorizeOwnership($user->id, allowAdmin: false);
         $this->assertTrue($result);
     }
 
@@ -317,7 +318,7 @@ class HelpersBoostTest extends DBTestCase
         $user = User::factory()->create(['role' => 'user']);
         $user2 = User::factory()->create(['role' => 'user']);
         $this->actingAs($user);
-        $result = authorizeOwnership($user2->id, false);
+        $result = authorizeOwnership($user2->id, allowAdmin: false);
         $this->assertFalse($result);
     }
 
@@ -326,7 +327,7 @@ class HelpersBoostTest extends DBTestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $user = User::factory()->create(['role' => 'user']);
         $this->actingAs($admin);
-        $result = authorizeOwnership($user->id, true);
+        $result = authorizeOwnership($user->id, allowAdmin: true);
         $this->assertTrue($result);
     }
 
@@ -354,7 +355,7 @@ class HelpersBoostTest extends DBTestCase
     public function test_user_day_bounds_follow_the_users_timezone(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
-        $user->setRelation('timezone', new \App\Model\Common\Timezone(['name' => 'Asia/Kolkata']));
+        $user->setRelation('timezone', new Timezone(['name' => 'Asia/Kolkata']));
         $this->actingAs($user);
 
         // 19 Oct in IST is 18 Oct 18:30 → 19 Oct 18:29:59 UTC.

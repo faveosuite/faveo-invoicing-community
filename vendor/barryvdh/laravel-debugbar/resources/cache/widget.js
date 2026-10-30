@@ -22,13 +22,24 @@
             fetch(el.getAttribute('data-url'), {
                 method: 'DELETE'
             }).then((response) => {
-                if (response.ok) {
+                if (!response.ok) {
+                    throw new Error(`HTTP error: ${response.status}`);
+                }
+
+                return response.json();
+            }).then((data) => {
+                if (data?.success) {
                     el.style.transition = 'opacity 200ms';
                     el.style.opacity = '0';
                     setTimeout(() => el.remove(), 200);
+                } else {
+                    throw new Error('CacheManager could not forget the cache key.');
                 }
             }).catch((err) => {
-                console.error('Failed to forget cache key:', err);
+                alert(`Failed to forget cache key: ${err.message}`);
+                el.addEventListener('click', (e) => {
+                    this.onForgetClick(e, el);
+                }, {once: true});
             });
         }
 

@@ -23,7 +23,7 @@
         "guzzlehttp/psr7": "^2.0"
     },
     "require-dev": {
-        "pestphp/pest": "^2.0",
+        "pestphp/pest": "^3.0",
         "phpstan/phpstan": "^1.10"
     },
     "autoload": {

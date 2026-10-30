@@ -24,8 +24,7 @@ class NotifyManagerChange implements ShouldQueue
         private array $userIds,
         private string $managerColumn,
         private int $newManagerId
-    ) {
-    }
+    ) {}
 
     public function handle(PhpMailController $mailer): void
     {

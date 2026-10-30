@@ -39,8 +39,7 @@ class PaymentController extends Controller
     public function __construct(
         private readonly InvoicePaymentService $invoices,
         private readonly OpenPaymentService $webhooks,
-    ) {
-    }
+    ) {}
 
     public function payInit(Request $request, int $invoice): JsonResponse
     {
@@ -113,7 +112,7 @@ class PaymentController extends Controller
      * invoice_tax_lines (every invoice — cart, admin, renewal, and historical
      * via backfill — has these). Grouped per tax label.
      *
-     * @return array{subtotal: float, taxes: array<int, array{label:string, amount:float}>, tax_total: float, grand_total: float}
+     * @return array{subtotal: mixed, subtotal_ex_tax: mixed, prices_include_tax: bool, tax_label: string, taxes: array<int, array{label: string|null, rate: float, amount: mixed}>, tax_total: mixed, discount: mixed, coupon_code: string|null, grand_total: mixed}
      */
     private function invoiceSummary(Invoice $model, mixed $items): array
     {

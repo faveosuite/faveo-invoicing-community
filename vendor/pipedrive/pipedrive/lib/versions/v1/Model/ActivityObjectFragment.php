@@ -75,7 +75,8 @@ class ActivityObjectFragment implements ModelInterface, ArrayAccess, JsonSeriali
         'project_id' => 'int',
         'org_id' => 'int',
         'location' => 'string',
-        'public_description' => 'string'
+        'public_description' => 'string',
+        'outcome' => 'int'
     ];
 
     /**
@@ -95,7 +96,8 @@ class ActivityObjectFragment implements ModelInterface, ArrayAccess, JsonSeriali
         'project_id' => null,
         'org_id' => null,
         'location' => null,
-        'public_description' => null
+        'public_description' => null,
+        'outcome' => null
     ];
 
     /**
@@ -138,7 +140,8 @@ class ActivityObjectFragment implements ModelInterface, ArrayAccess, JsonSeriali
         'project_id' => 'project_id',
         'org_id' => 'org_id',
         'location' => 'location',
-        'public_description' => 'public_description'
+        'public_description' => 'public_description',
+        'outcome' => 'outcome'
     ];
 
     /**
@@ -156,7 +159,8 @@ class ActivityObjectFragment implements ModelInterface, ArrayAccess, JsonSeriali
         'project_id' => 'setProjectId',
         'org_id' => 'setOrgId',
         'location' => 'setLocation',
-        'public_description' => 'setPublicDescription'
+        'public_description' => 'setPublicDescription',
+        'outcome' => 'setOutcome'
     ];
 
     /**
@@ -174,7 +178,8 @@ class ActivityObjectFragment implements ModelInterface, ArrayAccess, JsonSeriali
         'project_id' => 'getProjectId',
         'org_id' => 'getOrgId',
         'location' => 'getLocation',
-        'public_description' => 'getPublicDescription'
+        'public_description' => 'getPublicDescription',
+        'outcome' => 'getOutcome'
     ];
 
     /**
@@ -254,6 +259,7 @@ class ActivityObjectFragment implements ModelInterface, ArrayAccess, JsonSeriali
         $this->container['org_id'] = $data['org_id'] ?? null;
         $this->container['location'] = $data['location'] ?? null;
         $this->container['public_description'] = $data['public_description'] ?? null;
+        $this->container['outcome'] = $data['outcome'] ?? null;
     }
 
     /**
@@ -518,6 +524,30 @@ class ActivityObjectFragment implements ModelInterface, ArrayAccess, JsonSeriali
     public function setPublicDescription($public_description): self
     {
         $this->container['public_description'] = $public_description;
+
+        return $this;
+    }
+
+    /**
+     * Gets outcome
+     *
+     * @return int|null
+     */
+    public function getOutcome()
+    {
+        return $this->container['outcome'];
+    }
+
+    /**
+     * Sets outcome
+     *
+     * @param int|null $outcome The ID of the Outcome for the activity. The available Outcome values depend on the activity type and can be retrieved using the Activity Fields API. Set to `null` to clear the Outcome.
+     *
+     * @return self
+     */
+    public function setOutcome($outcome): self
+    {
+        $this->container['outcome'] = $outcome;
 
         return $this;
     }

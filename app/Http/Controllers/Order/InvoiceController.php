@@ -34,6 +34,7 @@ use Auth;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -250,7 +251,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             return successResponse('', $invoice);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -320,6 +321,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             if (! $user instanceof User) {
                 throw new Exception('User not found.');
             }
+
             $user_state = (string) ($user->state ?? '');
             $user_country = (string) ($user->country ?? '');
             $tax = $this->calculateTax($product->id, $user_state, $user_country, taxCaluculationFromAdminPanel: true);
@@ -352,7 +354,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             // 'Paid' (checkout/cart flow) and 'Success' (manual payment recording,
             // client renewals) both mean "fully paid" — see ExtendedBaseInvoiceController
             // and RenewController::successRenew().
-            if (! in_array($invoice->status, ['Paid', 'Success'], true)) {
+            if (! in_array($invoice->status, ['Paid', 'Success'], strict: true)) {
                 return errorResponse(__('message.invoice-not-paid'));
             }
 
@@ -385,10 +387,10 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             }
 
             return successResponse(__('message.order-executed-successfully'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse([__('message.sorry_something_wrong')]);
         }
@@ -432,10 +434,10 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             }
 
             return $items;
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -484,6 +486,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             if (! $authUser instanceof User) {
                 return errorResponse(__('message.unauthorized_action'), 401);
             }
+
             if ($invoice->user_id != $authUser->id && $authUser->role != 'admin') {
                 return errorResponse(__('message.invalid_user'));
             }
@@ -525,8 +528,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 // Render here, inside the try: the builder alone defers Chrome until Laravel sends the
                 // response, where a missing/wrong Chrome path escapes this catch as a bare 500.
                 ->toResponse($request);
-        } catch (Throwable $exception) {
-            \Logger::exception($exception);
+        } catch (Throwable $throwable) {
+            Logger::exception($throwable);
 
             // Only an admin can fix the Chrome path, so only they get pointed at it.
             return errorResponse(Auth::user()?->role === 'admin'
@@ -545,6 +548,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             if (! $authUser instanceof User) {
                 return errorResponse(__('message.unauthorized_action'), 401);
             }
+
             $email = $authUser->email;
             $driver = QueueService::where('status', '1')->first();
             if (! $driver instanceof QueueService) {
@@ -705,6 +709,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $pricesIncludeTax = $taxTotal > 0
                 && abs($netOfDiscount - $grandTotal) < abs($netOfDiscount + $taxTotal - $grandTotal);
         }
+
         $processingFee = $formatCurrency ? currencyFormat($feeAmount, $invoice->currency) : round($feeAmount, 2);
 
         // Subtotal shown ex-tax: for tax-inclusive pricing the item subtotal is

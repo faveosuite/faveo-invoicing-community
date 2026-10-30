@@ -45,7 +45,7 @@ class ProcessingFee
     /** `$base` plus the gateway's fee — the amount actually charged. */
     public static function addTo(float $base, ?string $gateway): float
     {
-        return (float) rounding($base * (1 + self::percent($gateway) / 100));
+        return rounding($base * (1 + self::percent($gateway) / 100));
     }
 
     /** Just the fee portion added when charging `$base` on `$gateway`. */

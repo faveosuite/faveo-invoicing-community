@@ -381,11 +381,11 @@ class LeadsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -698,11 +698,11 @@ class LeadsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1065,11 +1065,11 @@ class LeadsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1382,11 +1382,11 @@ class LeadsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1678,11 +1678,11 @@ class LeadsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1718,7 +1718,7 @@ class LeadsApi
      * @param  int|null $organization_id If supplied, only leads matching the given organization will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;organization_id&#x60; when supplied. (optional)
      * @param  int|null $filter_id The ID of the filter to use (optional)
      * @param  string|null $updated_since If set, only leads with an &#x60;update_time&#x60; later than or equal to this time are returned. In ISO 8601 format, e.g. 2025-01-01T10:20:00Z. (optional)
-     * @param  string|null $sort The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). (optional)
+     * @param  string|null $sort The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). Supported fields: id, title, owner_id, creator_id, label_ids, value, source_name, was_seen, expected_close_date, next_activity_id, add_time, update_time, visible_to, and custom fields. (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
@@ -1742,7 +1742,7 @@ class LeadsApi
      * @param  int|null $organization_id If supplied, only leads matching the given organization will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;organization_id&#x60; when supplied. (optional)
      * @param  int|null $filter_id The ID of the filter to use (optional)
      * @param  string|null $updated_since If set, only leads with an &#x60;update_time&#x60; later than or equal to this time are returned. In ISO 8601 format, e.g. 2025-01-01T10:20:00Z. (optional)
-     * @param  string|null $sort The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). (optional)
+     * @param  string|null $sort The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). Supported fields: id, title, owner_id, creator_id, label_ids, value, source_name, was_seen, expected_close_date, next_activity_id, add_time, update_time, visible_to, and custom fields. (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
@@ -1850,7 +1850,7 @@ class LeadsApi
      * @param  int|null $organization_id If supplied, only leads matching the given organization will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;organization_id&#x60; when supplied. (optional)
      * @param  int|null $filter_id The ID of the filter to use (optional)
      * @param  string|null $updated_since If set, only leads with an &#x60;update_time&#x60; later than or equal to this time are returned. In ISO 8601 format, e.g. 2025-01-01T10:20:00Z. (optional)
-     * @param  string|null $sort The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). (optional)
+     * @param  string|null $sort The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). Supported fields: id, title, owner_id, creator_id, label_ids, value, source_name, was_seen, expected_close_date, next_activity_id, add_time, update_time, visible_to, and custom fields. (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
@@ -1877,7 +1877,7 @@ class LeadsApi
      * @param  int|null $organization_id If supplied, only leads matching the given organization will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;organization_id&#x60; when supplied. (optional)
      * @param  int|null $filter_id The ID of the filter to use (optional)
      * @param  string|null $updated_since If set, only leads with an &#x60;update_time&#x60; later than or equal to this time are returned. In ISO 8601 format, e.g. 2025-01-01T10:20:00Z. (optional)
-     * @param  string|null $sort The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). (optional)
+     * @param  string|null $sort The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). Supported fields: id, title, owner_id, creator_id, label_ids, value, source_name, was_seen, expected_close_date, next_activity_id, add_time, update_time, visible_to, and custom fields. (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
@@ -1931,7 +1931,7 @@ class LeadsApi
      * @param  int|null $organization_id If supplied, only leads matching the given organization will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;organization_id&#x60; when supplied. (optional)
      * @param  int|null $filter_id The ID of the filter to use (optional)
      * @param  string|null $updated_since If set, only leads with an &#x60;update_time&#x60; later than or equal to this time are returned. In ISO 8601 format, e.g. 2025-01-01T10:20:00Z. (optional)
-     * @param  string|null $sort The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). (optional)
+     * @param  string|null $sort The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). Supported fields: id, title, owner_id, creator_id, label_ids, value, source_name, was_seen, expected_close_date, next_activity_id, add_time, update_time, visible_to, and custom fields. (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
@@ -2058,11 +2058,11 @@ class LeadsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -2092,11 +2092,11 @@ class LeadsApi
      * Search leads
      *
      * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
-     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. (optional)
+     * @param  string[]|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. (optional)
      * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
      * @param  int|null $person_id Will filter leads by the provided person ID. The upper limit of found leads associated with the person is 2000. (optional)
      * @param  int|null $organization_id Will filter leads by the provided organization ID. The upper limit of found leads associated with the organization is 2000. (optional)
-     * @param  string|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
+     * @param  string[]|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
      * @param  int|0 $start Pagination start. Note that the pagination is based on main results and does not include related items when using &#x60;search_for_related_items&#x60; parameter. (optional, default to 0)
      * @param  int|null $limit Items shown per page (optional)
      *
@@ -2116,11 +2116,11 @@ class LeadsApi
      * Search leads
      *
      * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
-     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. (optional)
+     * @param  string[]|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. (optional)
      * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
      * @param  int|null $person_id Will filter leads by the provided person ID. The upper limit of found leads associated with the person is 2000. (optional)
      * @param  int|null $organization_id Will filter leads by the provided organization ID. The upper limit of found leads associated with the organization is 2000. (optional)
-     * @param  string|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
+     * @param  string[]|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
      * @param  int|0 $start Pagination start. Note that the pagination is based on main results and does not include related items when using &#x60;search_for_related_items&#x60; parameter. (optional, default to 0)
      * @param  int|null $limit Items shown per page (optional)
      *
@@ -2224,11 +2224,11 @@ class LeadsApi
      * Search leads
      *
      * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
-     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. (optional)
+     * @param  string[]|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. (optional)
      * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
      * @param  int|null $person_id Will filter leads by the provided person ID. The upper limit of found leads associated with the person is 2000. (optional)
      * @param  int|null $organization_id Will filter leads by the provided organization ID. The upper limit of found leads associated with the organization is 2000. (optional)
-     * @param  string|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
+     * @param  string[]|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
      * @param  int|0 $start Pagination start. Note that the pagination is based on main results and does not include related items when using &#x60;search_for_related_items&#x60; parameter. (optional, default to 0)
      * @param  int|null $limit Items shown per page (optional)
      *
@@ -2251,11 +2251,11 @@ class LeadsApi
      * Search leads
      *
      * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
-     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. (optional)
+     * @param  string[]|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. (optional)
      * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
      * @param  int|null $person_id Will filter leads by the provided person ID. The upper limit of found leads associated with the person is 2000. (optional)
      * @param  int|null $organization_id Will filter leads by the provided organization ID. The upper limit of found leads associated with the organization is 2000. (optional)
-     * @param  string|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
+     * @param  string[]|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
      * @param  int|0 $start Pagination start. Note that the pagination is based on main results and does not include related items when using &#x60;search_for_related_items&#x60; parameter. (optional, default to 0)
      * @param  int|null $limit Items shown per page (optional)
      *
@@ -2305,11 +2305,11 @@ class LeadsApi
      * Create request for operation 'searchLeads'
      *
      * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
-     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. (optional)
+     * @param  string[]|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. (optional)
      * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
      * @param  int|null $person_id Will filter leads by the provided person ID. The upper limit of found leads associated with the person is 2000. (optional)
      * @param  int|null $organization_id Will filter leads by the provided organization ID. The upper limit of found leads associated with the organization is 2000. (optional)
-     * @param  string|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
+     * @param  string[]|null $include_fields Supports including optional fields in the results which are not provided by default (optional)
      * @param  int|0 $start Pagination start. Note that the pagination is based on main results and does not include related items when using &#x60;search_for_related_items&#x60; parameter. (optional, default to 0)
      * @param  int|null $limit Items shown per page (optional)
      *
@@ -2325,6 +2325,8 @@ class LeadsApi
                 'Missing the required parameter $term when calling searchLeads'
             );
         }
+
+
 
         $resourcePath = '/leads/search';
         $formParams = [];
@@ -2344,7 +2346,7 @@ class LeadsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($fields)) {
-            $fields = ObjectSerializer::serializeCollection($fields, '', true);
+            $fields = ObjectSerializer::serializeCollection($fields, 'form', true);
         }
         if ($fields !== null) {
             $queryParams['fields'] = $fields;
@@ -2376,7 +2378,7 @@ class LeadsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($include_fields)) {
-            $include_fields = ObjectSerializer::serializeCollection($include_fields, '', true);
+            $include_fields = ObjectSerializer::serializeCollection($include_fields, 'form', true);
         }
         if ($include_fields !== null) {
             $queryParams['include_fields'] = $include_fields;
@@ -2445,11 +2447,11 @@ class LeadsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -2773,11 +2775,11 @@ class LeadsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 

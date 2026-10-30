@@ -21,13 +21,13 @@ class Factorial
      * Excel Function:
      *        FACT(factVal)
      *
-     * @param array|float $factVal Factorial Value, or can be an array of numbers
+     * @param array<mixed>|float $factVal Factorial Value, or can be an array of numbers
      *
-     * @return array|float|int|string Factorial, or a string containing an error
+     * @return array<mixed>|float|int|string Factorial, or a string containing an error
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */
-    public static function fact($factVal)
+    public static function fact($factVal): array|string|float|int
     {
         if (is_array($factVal)) {
             return self::evaluateSingleArgumentArray([self::class, __FUNCTION__], $factVal);
@@ -63,13 +63,13 @@ class Factorial
      * Excel Function:
      *        FACTDOUBLE(factVal)
      *
-     * @param array|float $factVal Factorial Value, or can be an array of numbers
+     * @param array<mixed>|float $factVal Factorial Value, or can be an array of numbers
      *
-     * @return array|float|int|string Double Factorial, or a string containing an error
+     * @return array<mixed>|float|int|string Double Factorial, or a string containing an error
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */
-    public static function factDouble($factVal)
+    public static function factDouble($factVal): array|string|float|int
     {
         if (is_array($factVal)) {
             return self::evaluateSingleArgumentArray([self::class, __FUNCTION__], $factVal);
@@ -99,9 +99,9 @@ class Factorial
      *
      * @param mixed[] $args An array of mixed values for the Data Series
      *
-     * @return float|string The result, or a string containing an error
+     * @return float|int|string The result, or a string containing an error
      */
-    public static function multinomial(...$args)
+    public static function multinomial(...$args): string|int|float
     {
         $summer = 0;
         $divisor = 1;
@@ -113,7 +113,9 @@ class Factorial
                 Helpers::validateNotNegative($arg);
                 $arg = (int) $arg;
                 $summer += $arg;
-                $divisor *= self::fact($arg);
+                /** @var float|int */
+                $temp = self::fact($arg);
+                $divisor *= $temp;
             }
         } catch (Exception $e) {
             return $e->getMessage();

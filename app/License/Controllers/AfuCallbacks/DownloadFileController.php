@@ -17,9 +17,7 @@ class DownloadFileController extends Controller
 {
     use AfuCallbackHelpers;
 
-    public function __construct(protected LicenseValidator $validator, protected ProductBundleStampingService $stampingService)
-    {
-    }
+    public function __construct(protected LicenseValidator $validator, protected ProductBundleStampingService $stampingService) {}
 
     /**
      * Download version file

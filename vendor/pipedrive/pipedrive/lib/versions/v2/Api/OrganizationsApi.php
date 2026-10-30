@@ -127,15 +127,15 @@ class OrganizationsApi
      *
      * Add a new organization
      *
-     * @param  \Pipedrive\versions\v2\Model\OrganizationRequestBody|null $organization_request_body organization_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\PostOrganizationRequestBody|null $post_organization_request_body post_organization_request_body (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v2\Model\PostPatchGetOrganization
      */
-    public function addOrganization($organization_request_body = null)
+    public function addOrganization($post_organization_request_body = null)
     {
-        list($response) = $this->addOrganizationWithHttpInfo($organization_request_body);
+        list($response) = $this->addOrganizationWithHttpInfo($post_organization_request_body);
         return $response;
     }
 
@@ -144,15 +144,15 @@ class OrganizationsApi
      *
      * Add a new organization
      *
-     * @param  \Pipedrive\versions\v2\Model\OrganizationRequestBody|null $organization_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\PostOrganizationRequestBody|null $post_organization_request_body (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v2\Model\PostPatchGetOrganization, HTTP status code, HTTP response headers (array of strings)
      */
-    public function addOrganizationWithHttpInfo($organization_request_body = null)
+    public function addOrganizationWithHttpInfo($post_organization_request_body = null)
     {
-        $request = $this->addOrganizationRequest($organization_request_body);
+        $request = $this->addOrganizationRequest($post_organization_request_body);
 
         try {
             $options = $this->createHttpClientOption();
@@ -161,7 +161,7 @@ class OrganizationsApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->addOrganizationRequest($organization_request_body);
+                    $request = $this->addOrganizationRequest($post_organization_request_body);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -245,14 +245,14 @@ class OrganizationsApi
      *
      * Add a new organization
      *
-     * @param  \Pipedrive\versions\v2\Model\OrganizationRequestBody|null $organization_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\PostOrganizationRequestBody|null $post_organization_request_body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function addOrganizationAsync($organization_request_body = null): PromiseInterface
+    public function addOrganizationAsync($post_organization_request_body = null): PromiseInterface
     {
-        return $this->addOrganizationAsyncWithHttpInfo($organization_request_body)
+        return $this->addOrganizationAsyncWithHttpInfo($post_organization_request_body)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -265,15 +265,15 @@ class OrganizationsApi
      *
      * Add a new organization
      *
-     * @param  \Pipedrive\versions\v2\Model\OrganizationRequestBody|null $organization_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\PostOrganizationRequestBody|null $post_organization_request_body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function addOrganizationAsyncWithHttpInfo($organization_request_body = null): PromiseInterface
+    public function addOrganizationAsyncWithHttpInfo($post_organization_request_body = null): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v2\Model\PostPatchGetOrganization';
-        $request = $this->addOrganizationRequest($organization_request_body);
+        $request = $this->addOrganizationRequest($post_organization_request_body);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -312,12 +312,12 @@ class OrganizationsApi
     /**
      * Create request for operation 'addOrganization'
      *
-     * @param  \Pipedrive\versions\v2\Model\OrganizationRequestBody|null $organization_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\PostOrganizationRequestBody|null $post_organization_request_body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function addOrganizationRequest($organization_request_body = null): Request
+    public function addOrganizationRequest($post_organization_request_body = null): Request
     {
 
         $resourcePath = '/organizations';
@@ -344,11 +344,11 @@ class OrganizationsApi
         }
 
         // for model (json/xml)
-        if (isset($organization_request_body)) {
+        if (isset($post_organization_request_body)) {
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($organization_request_body));
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($post_organization_request_body));
             } else {
-                $httpBody = $organization_request_body;
+                $httpBody = $post_organization_request_body;
             }
         } elseif (count($formParams) > 0) {
             /* @phpstan-ignore-next-line */
@@ -381,11 +381,11 @@ class OrganizationsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -688,11 +688,11 @@ class OrganizationsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -984,11 +984,11 @@ class OrganizationsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1300,11 +1300,11 @@ class OrganizationsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1334,8 +1334,8 @@ class OrganizationsApi
      * Get details of a organization
      *
      * @param  int $id The ID of the organization (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      *
@@ -1355,8 +1355,8 @@ class OrganizationsApi
      * Get details of a organization
      *
      * @param  int $id The ID of the organization (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      *
@@ -1460,8 +1460,8 @@ class OrganizationsApi
      * Get details of a organization
      *
      * @param  int $id The ID of the organization (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      *
@@ -1484,8 +1484,8 @@ class OrganizationsApi
      * Get details of a organization
      *
      * @param  int $id The ID of the organization (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      *
@@ -1535,8 +1535,8 @@ class OrganizationsApi
      * Create request for operation 'getOrganization'
      *
      * @param  int $id The ID of the organization (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      *
@@ -1553,6 +1553,11 @@ class OrganizationsApi
             );
         }
 
+        if ($custom_fields !== null && count($custom_fields) > 15) {
+            throw new \InvalidArgumentException('invalid value for "$custom_fields" when calling OrganizationsApi.getOrganization, number of items must be less than or equal to 15.');
+        }
+
+
         $resourcePath = '/organizations/{id}';
         $formParams = [];
         $queryParams = [];
@@ -1563,7 +1568,7 @@ class OrganizationsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($include_fields)) {
-            $include_fields = ObjectSerializer::serializeCollection($include_fields, '', true);
+            $include_fields = ObjectSerializer::serializeCollection($include_fields, 'form', true);
         }
         if ($include_fields !== null) {
             $queryParams['include_fields'] = $include_fields;
@@ -1571,7 +1576,7 @@ class OrganizationsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($custom_fields)) {
-            $custom_fields = ObjectSerializer::serializeCollection($custom_fields, '', true);
+            $custom_fields = ObjectSerializer::serializeCollection($custom_fields, 'form', true);
         }
         if ($custom_fields !== null) {
             $queryParams['custom_fields'] = $custom_fields;
@@ -1648,11 +1653,11 @@ class OrganizationsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1890,6 +1895,13 @@ class OrganizationsApi
                 'Missing the required parameter $id when calling getOrganizationFollowers'
             );
         }
+        if ($limit !== null && $limit > 500) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling OrganizationsApi.getOrganizationFollowers, must be smaller than or equal to 500.');
+        }
+        if ($limit !== null && $limit < 1) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling OrganizationsApi.getOrganizationFollowers, must be bigger than or equal to 1.');
+        }
+
 
         $resourcePath = '/organizations/{id}/followers';
         $formParams = [];
@@ -1970,11 +1982,11 @@ class OrganizationsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -2212,6 +2224,13 @@ class OrganizationsApi
                 'Missing the required parameter $id when calling getOrganizationFollowersChangelog'
             );
         }
+        if ($limit !== null && $limit > 500) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling OrganizationsApi.getOrganizationFollowersChangelog, must be smaller than or equal to 500.');
+        }
+        if ($limit !== null && $limit < 1) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling OrganizationsApi.getOrganizationFollowersChangelog, must be bigger than or equal to 1.');
+        }
+
 
         $resourcePath = '/organizations/{id}/followers/changelog';
         $formParams = [];
@@ -2292,11 +2311,11 @@ class OrganizationsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -2326,14 +2345,14 @@ class OrganizationsApi
      * Get all organizations
      *
      * @param  int|null $filter_id If supplied, only organizations matching the specified filter are returned (optional)
-     * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
+     * @param  int[]|null $ids Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only organizations owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only organizations with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only organizations with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
@@ -2355,14 +2374,14 @@ class OrganizationsApi
      * Get all organizations
      *
      * @param  int|null $filter_id If supplied, only organizations matching the specified filter are returned (optional)
-     * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
+     * @param  int[]|null $ids Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only organizations owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only organizations with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only organizations with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
@@ -2468,14 +2487,14 @@ class OrganizationsApi
      * Get all organizations
      *
      * @param  int|null $filter_id If supplied, only organizations matching the specified filter are returned (optional)
-     * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
+     * @param  int[]|null $ids Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only organizations owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only organizations with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only organizations with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
@@ -2500,14 +2519,14 @@ class OrganizationsApi
      * Get all organizations
      *
      * @param  int|null $filter_id If supplied, only organizations matching the specified filter are returned (optional)
-     * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
+     * @param  int[]|null $ids Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only organizations owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only organizations with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only organizations with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
@@ -2559,14 +2578,14 @@ class OrganizationsApi
      * Create request for operation 'getOrganizations'
      *
      * @param  int|null $filter_id If supplied, only organizations matching the specified filter are returned (optional)
-     * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
+     * @param  int[]|null $ids Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only organizations owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only organizations with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only organizations with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
-     * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
      * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
      * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
@@ -2577,6 +2596,22 @@ class OrganizationsApi
      */
     public function getOrganizationsRequest($filter_id = null, $ids = null, $owner_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $include_option_labels = null, $include_labels = null, $limit = null, $cursor = null): Request
     {
+        if ($ids !== null && count($ids) > 100) {
+            throw new \InvalidArgumentException('invalid value for "$ids" when calling OrganizationsApi.getOrganizations, number of items must be less than or equal to 100.');
+        }
+
+
+        if ($custom_fields !== null && count($custom_fields) > 15) {
+            throw new \InvalidArgumentException('invalid value for "$custom_fields" when calling OrganizationsApi.getOrganizations, number of items must be less than or equal to 15.');
+        }
+
+        if ($limit !== null && $limit > 500) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling OrganizationsApi.getOrganizations, must be smaller than or equal to 500.');
+        }
+        if ($limit !== null && $limit < 1) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling OrganizationsApi.getOrganizations, must be bigger than or equal to 1.');
+        }
+
 
         $resourcePath = '/organizations';
         $formParams = [];
@@ -2596,7 +2631,7 @@ class OrganizationsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($ids)) {
-            $ids = ObjectSerializer::serializeCollection($ids, '', true);
+            $ids = ObjectSerializer::serializeCollection($ids, 'form', true);
         }
         if ($ids !== null) {
             $queryParams['ids'] = $ids;
@@ -2644,7 +2679,7 @@ class OrganizationsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($include_fields)) {
-            $include_fields = ObjectSerializer::serializeCollection($include_fields, '', true);
+            $include_fields = ObjectSerializer::serializeCollection($include_fields, 'form', true);
         }
         if ($include_fields !== null) {
             $queryParams['include_fields'] = $include_fields;
@@ -2652,7 +2687,7 @@ class OrganizationsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($custom_fields)) {
-            $custom_fields = ObjectSerializer::serializeCollection($custom_fields, '', true);
+            $custom_fields = ObjectSerializer::serializeCollection($custom_fields, 'form', true);
         }
         if ($custom_fields !== null) {
             $queryParams['custom_fields'] = $custom_fields;
@@ -2737,11 +2772,11 @@ class OrganizationsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -2771,9 +2806,9 @@ class OrganizationsApi
      * Search organizations
      *
      * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
-     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
+     * @param  string[]|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
      * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
-     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws ApiException on non-2xx response
@@ -2792,9 +2827,9 @@ class OrganizationsApi
      * Search organizations
      *
      * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
-     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
+     * @param  string[]|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
      * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
-     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws ApiException on non-2xx response
@@ -2897,9 +2932,9 @@ class OrganizationsApi
      * Search organizations
      *
      * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
-     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
+     * @param  string[]|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
      * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
-     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
@@ -2921,9 +2956,9 @@ class OrganizationsApi
      * Search organizations
      *
      * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
-     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
+     * @param  string[]|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
      * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
-     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
@@ -2972,9 +3007,9 @@ class OrganizationsApi
      * Create request for operation 'searchOrganization'
      *
      * @param  string $term The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. (required)
-     * @param  string|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
+     * @param  string[]|null $fields A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. (optional)
      * @param  bool|null $exact_match When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. (optional)
-     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
+     * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
@@ -2989,6 +3024,14 @@ class OrganizationsApi
                 'Missing the required parameter $term when calling searchOrganization'
             );
         }
+
+        if ($limit !== null && $limit > 100) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling OrganizationsApi.searchOrganization, must be smaller than or equal to 100.');
+        }
+        if ($limit !== null && $limit < 1) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling OrganizationsApi.searchOrganization, must be bigger than or equal to 1.');
+        }
+
 
         $resourcePath = '/organizations/search';
         $formParams = [];
@@ -3008,7 +3051,7 @@ class OrganizationsApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($fields)) {
-            $fields = ObjectSerializer::serializeCollection($fields, '', true);
+            $fields = ObjectSerializer::serializeCollection($fields, 'form', true);
         }
         if ($fields !== null) {
             $queryParams['fields'] = $fields;
@@ -3085,11 +3128,11 @@ class OrganizationsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -3119,15 +3162,15 @@ class OrganizationsApi
      * Update a organization
      *
      * @param  int $id The ID of the organization (required)
-     * @param  \Pipedrive\versions\v2\Model\OrganizationRequestBody|null $organization_request_body organization_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\UpdateOrganizationRequestBody|null $update_organization_request_body update_organization_request_body (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v2\Model\PostPatchGetOrganization
      */
-    public function updateOrganization($id, $organization_request_body = null)
+    public function updateOrganization($id, $update_organization_request_body = null)
     {
-        list($response) = $this->updateOrganizationWithHttpInfo($id, $organization_request_body);
+        list($response) = $this->updateOrganizationWithHttpInfo($id, $update_organization_request_body);
         return $response;
     }
 
@@ -3137,15 +3180,15 @@ class OrganizationsApi
      * Update a organization
      *
      * @param  int $id The ID of the organization (required)
-     * @param  \Pipedrive\versions\v2\Model\OrganizationRequestBody|null $organization_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\UpdateOrganizationRequestBody|null $update_organization_request_body (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v2\Model\PostPatchGetOrganization, HTTP status code, HTTP response headers (array of strings)
      */
-    public function updateOrganizationWithHttpInfo($id, $organization_request_body = null)
+    public function updateOrganizationWithHttpInfo($id, $update_organization_request_body = null)
     {
-        $request = $this->updateOrganizationRequest($id, $organization_request_body);
+        $request = $this->updateOrganizationRequest($id, $update_organization_request_body);
 
         try {
             $options = $this->createHttpClientOption();
@@ -3154,7 +3197,7 @@ class OrganizationsApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->updateOrganizationRequest($id, $organization_request_body);
+                    $request = $this->updateOrganizationRequest($id, $update_organization_request_body);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -3239,14 +3282,14 @@ class OrganizationsApi
      * Update a organization
      *
      * @param  int $id The ID of the organization (required)
-     * @param  \Pipedrive\versions\v2\Model\OrganizationRequestBody|null $organization_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\UpdateOrganizationRequestBody|null $update_organization_request_body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function updateOrganizationAsync($id, $organization_request_body = null): PromiseInterface
+    public function updateOrganizationAsync($id, $update_organization_request_body = null): PromiseInterface
     {
-        return $this->updateOrganizationAsyncWithHttpInfo($id, $organization_request_body)
+        return $this->updateOrganizationAsyncWithHttpInfo($id, $update_organization_request_body)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -3260,15 +3303,15 @@ class OrganizationsApi
      * Update a organization
      *
      * @param  int $id The ID of the organization (required)
-     * @param  \Pipedrive\versions\v2\Model\OrganizationRequestBody|null $organization_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\UpdateOrganizationRequestBody|null $update_organization_request_body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function updateOrganizationAsyncWithHttpInfo($id, $organization_request_body = null): PromiseInterface
+    public function updateOrganizationAsyncWithHttpInfo($id, $update_organization_request_body = null): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v2\Model\PostPatchGetOrganization';
-        $request = $this->updateOrganizationRequest($id, $organization_request_body);
+        $request = $this->updateOrganizationRequest($id, $update_organization_request_body);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -3308,12 +3351,12 @@ class OrganizationsApi
      * Create request for operation 'updateOrganization'
      *
      * @param  int $id The ID of the organization (required)
-     * @param  \Pipedrive\versions\v2\Model\OrganizationRequestBody|null $organization_request_body (optional)
+     * @param  \Pipedrive\versions\v2\Model\UpdateOrganizationRequestBody|null $update_organization_request_body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function updateOrganizationRequest($id, $organization_request_body = null): Request
+    public function updateOrganizationRequest($id, $update_organization_request_body = null): Request
     {
         // verify the required parameter 'id' is set
         /* @phpstan-ignore-next-line */
@@ -3355,11 +3398,11 @@ class OrganizationsApi
         }
 
         // for model (json/xml)
-        if (isset($organization_request_body)) {
+        if (isset($update_organization_request_body)) {
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($organization_request_body));
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($update_organization_request_body));
             } else {
-                $httpBody = $organization_request_body;
+                $httpBody = $update_organization_request_body;
             }
         } elseif (count($formParams) > 0) {
             /* @phpstan-ignore-next-line */
@@ -3392,11 +3435,11 @@ class OrganizationsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 

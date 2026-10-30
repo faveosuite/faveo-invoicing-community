@@ -4925,7 +4925,7 @@ return [
     ],
     [
         'state_subdivision_id' => '493',
-        'state_subdivision_name' => 'Grand\'Anse Mahé',
+        'state_subdivision_name' => "Grand'Anse Mahé",
         'country_code' => 'SC',
         'iso2' => '13',
         'primary_level_name' => 'district',
@@ -24785,7 +24785,7 @@ return [
     ],
     [
         'state_subdivision_id' => '2479',
-        'state_subdivision_name' => 'N\'zi-Comoé',
+        'state_subdivision_name' => "N'zi-Comoé",
         'country_code' => 'CI',
         'iso2' => '11',
         'primary_level_name' => 'region',
@@ -46695,7 +46695,7 @@ return [
     ],
     [
         'state_subdivision_id' => '4670',
-        'state_subdivision_name' => 'Côte-d\'Or',
+        'state_subdivision_name' => "Côte-d'Or",
         'country_code' => 'FR',
         'iso2' => '21',
         'primary_level_name' => 'metropolitan department',
@@ -46705,7 +46705,7 @@ return [
     ],
     [
         'state_subdivision_id' => '4671',
-        'state_subdivision_name' => 'Côtes-d\'Armor',
+        'state_subdivision_name' => "Côtes-d'Armor",
         'country_code' => 'FR',
         'iso2' => '22',
         'primary_level_name' => 'metropolitan department',

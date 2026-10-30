@@ -4,10 +4,24 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Front;
 
+use App\Auto_renewal;
+use App\Http\Controllers\RazorpayController;
+use App\Model\Common\Setting;
+use App\Model\Common\StatusSetting;
 use App\Model\Order\Order;
+use App\Model\Payment\Plan;
+use App\Model\Plugin;
+use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Plugins\Payment\Contracts\PaymentGateway;
+use App\Plugins\Payment\Dto\PaymentResult;
+use App\Plugins\Payment\Dto\SubscriptionResult;
+use App\Plugins\Payment\PaymentGatewayManager;
+use App\Plugins\Payment\Support\Money;
+use App\Services\Payment\AutoRenewalActivationService;
 use App\Services\Payment\PaymentService;
 use App\User;
+use Illuminate\Testing\TestResponse;
 use Mockery;
 use Tests\DBTestCase;
 
@@ -29,9 +43,9 @@ class AutoRenewalControllerTest extends DBTestCase
     /** Auto-renewal switched on for both gateways, as OrderPolicy::enableAutoRenew requires. */
     private function offerAutoRenewal(): void
     {
-        \App\Model\Common\Setting::where('id', 1)->update(['autorenewal_status' => 1]);
-        \App\Model\Common\StatusSetting::query()->update(['stripe_auto_renewal' => 1, 'razorpay_auto_renewal' => 1]);
-        \App\Model\Plugin::whereIn('name', ['Stripe', 'Razorpay'])->update(['status' => 1]);
+        Setting::where('id', 1)->update(['autorenewal_status' => 1]);
+        StatusSetting::query()->update(['stripe_auto_renewal' => 1, 'razorpay_auto_renewal' => 1]);
+        Plugin::whereIn('name', ['Stripe', 'Razorpay'])->update(['status' => 1]);
         $this->user->update(['country' => 'IN']);
     }
 
@@ -90,9 +104,9 @@ class AutoRenewalControllerTest extends DBTestCase
         $paymentServiceMock = Mockery::mock(PaymentService::class);
         $this->app->instance(PaymentService::class, $paymentServiceMock);
 
-        $order = \App\Model\Order\Order::where('client', $this->user->id)->first();
+        $order = Order::where('client', $this->user->id)->first();
         if (! $order) {
-            $order = \App\Model\Order\Order::create(['client' => $this->user->id, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
+            $order = Order::create(['client' => $this->user->id, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
         }
 
         $response = $this->postJson("/auto-renewal/{$order->id}/disable");
@@ -142,8 +156,8 @@ class AutoRenewalControllerTest extends DBTestCase
 
     public function test_disable_with_subscription_no_gateway_sub_returns_200(): void
     {
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'AutoR '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'ARPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'AutoR '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'ARPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $order = Order::create([
             'client' => $this->user->id,
@@ -179,8 +193,8 @@ class AutoRenewalControllerTest extends DBTestCase
 
     public function test_disable_deletes_auto_renewal_row_so_reactivation_is_not_blocked(): void
     {
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'AutoR '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'ARPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'AutoR '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'ARPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $order = Order::create([
             'client' => $this->user->id,
@@ -196,7 +210,7 @@ class AutoRenewalControllerTest extends DBTestCase
             'rzp_subscription' => 1,
             'subscribe_id' => '',
         ]);
-        \App\Auto_renewal::create([
+        Auto_renewal::create([
             'user_id' => $this->user->id,
             'customer_id' => 'pay_old_123',
             'payment_method' => 'razorpay',
@@ -265,11 +279,11 @@ class AutoRenewalControllerTest extends DBTestCase
         /** @var Order $order */
         $order = Order::factory()->withRelations()->create(['client' => $this->user->id, 'order_status' => 'executed']);
 
-        $mockController = Mockery::mock(\App\Http\Controllers\RazorpayController::class);
+        $mockController = Mockery::mock(RazorpayController::class);
         $mockController->shouldReceive('handleRzpAutoPay')
             ->once()
-            ->andReturn(new \App\Plugins\Payment\Dto\SubscriptionResult('Razorpay', 'sub_test_123', 'created'));
-        $this->app->instance(\App\Http\Controllers\RazorpayController::class, $mockController);
+            ->andReturn(new SubscriptionResult('Razorpay', 'sub_test_123', 'created'));
+        $this->app->instance(RazorpayController::class, $mockController);
 
         $response = $this->postJson("/auto-renewal/{$order->id}/razorpay/order");
         $response->assertStatus(200);
@@ -289,9 +303,9 @@ class AutoRenewalControllerTest extends DBTestCase
         $order = Order::factory()->withRelations()->create(['client' => $this->user->id, 'order_status' => 'executed']);
         $before = \DB::table('subscriptions')->where('order_id', $order->id)->first(['is_subscribed', 'rzp_subscription', 'subscribe_id']);
 
-        $mockController = Mockery::mock(\App\Http\Controllers\RazorpayController::class);
+        $mockController = Mockery::mock(RazorpayController::class);
         $mockController->shouldReceive('handleRzpAutoPay')->once()->andThrow(new \Exception('Currency provided is not supported'));
-        $this->app->instance(\App\Http\Controllers\RazorpayController::class, $mockController);
+        $this->app->instance(RazorpayController::class, $mockController);
 
         $this->postJson("/auto-renewal/{$order->id}/razorpay/order")->assertStatus(400);
 
@@ -355,8 +369,8 @@ class AutoRenewalControllerTest extends DBTestCase
 
     public function test_razorpay_confirm_activates_subscription_fully_on_success(): void
     {
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'AutoR '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'ARPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'AutoR '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'ARPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $order = Order::create([
             'client' => $this->user->id,
@@ -377,7 +391,7 @@ class AutoRenewalControllerTest extends DBTestCase
 
         $paymentServiceMock = Mockery::mock(PaymentService::class);
         $paymentServiceMock->shouldReceive('capture')->once()->andReturn(
-            new \App\Plugins\Payment\Dto\PaymentResult(true, 'Razorpay', 'pay_test', 'captured')
+            new PaymentResult(paid: true, gateway: 'Razorpay', reference: 'pay_test', status: 'captured')
         );
         $this->app->instance(PaymentService::class, $paymentServiceMock);
 
@@ -410,8 +424,8 @@ class AutoRenewalControllerTest extends DBTestCase
 
     public function test_razorpay_confirm_rejects_mismatched_subscription_id(): void
     {
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'AutoR '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'ARPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'AutoR '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'ARPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $order = Order::create([
             'client' => $this->user->id,
@@ -432,6 +446,7 @@ class AutoRenewalControllerTest extends DBTestCase
 
         $paymentServiceMock = Mockery::mock(PaymentService::class);
         $paymentServiceMock->shouldNotReceive('capture');
+
         $this->app->instance(PaymentService::class, $paymentServiceMock);
 
         $response = $this->postJson("/auto-renewal/{$order->id}/razorpay/confirm", [
@@ -450,17 +465,17 @@ class AutoRenewalControllerTest extends DBTestCase
     // ── C5: only this order's own card-check charge may be refunded ──
 
     /** Mocks capture() → $raw, and asserts whether the full refund is attempted. */
-    private function stripeConfirmWith(Order $order, array $raw, bool $expectRefund): \Illuminate\Testing\TestResponse
+    private function stripeConfirmWith(Order $order, array $raw, bool $expectRefund): TestResponse
     {
-        $gateway = Mockery::mock(\App\Plugins\Payment\Contracts\PaymentGateway::class);
+        $gateway = Mockery::mock(PaymentGateway::class);
         $expectRefund
             ? $gateway->shouldReceive('refundPayment')->once()->with('pi_test')
             : $gateway->shouldNotReceive('refundPayment');
         // The manager is final — use a real one with the mocked Stripe gateway registered.
-        $manager = (new \App\Plugins\Payment\PaymentGatewayManager)->register('Stripe', fn () => $gateway);
+        $manager = (new PaymentGatewayManager)->register('Stripe', fn () => $gateway);
 
         $payments = Mockery::mock(PaymentService::class);
-        $payments->shouldReceive('capture')->andReturn(new \App\Plugins\Payment\Dto\PaymentResult(paid: true, gateway: 'Stripe', reference: 'pi_test', raw: $raw));
+        $payments->shouldReceive('capture')->andReturn(new PaymentResult(paid: true, gateway: 'Stripe', reference: 'pi_test', raw: $raw));
         $payments->shouldReceive('manager')->andReturn($manager);
         $this->app->instance(PaymentService::class, $payments);
 
@@ -474,7 +489,7 @@ class AutoRenewalControllerTest extends DBTestCase
         return array_replace([
             'metadata' => ['order_id' => (string) $order->id, 'user_id' => (string) $this->user->id],
             'currency' => strtolower($currency),
-            'amount_received' => \App\Plugins\Payment\Support\Money::toMinor(getMinimumAmountForPayments($currency, 'stripe'), $currency),
+            'amount_received' => Money::toMinor(getMinimumAmountForPayments($currency, 'stripe'), $currency),
         ], $overrides);
     }
 
@@ -513,14 +528,14 @@ class AutoRenewalControllerTest extends DBTestCase
     public function test_stripe_confirm_returns_the_real_auto_renew_state(): void
     {
         $order = Order::create(['client' => $this->user->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999)]);
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'AutoR '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'ARPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'AutoR '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'ARPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
         $subscription = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'is_subscribed' => 0]);
-        $activation = Mockery::mock(\App\Services\Payment\AutoRenewalActivationService::class);
+        $activation = Mockery::mock(AutoRenewalActivationService::class);
         $activation->shouldReceive('activate')->once()->andReturnUsing(function () use ($subscription): void {
             Subscription::where('id', $subscription->id)->update(['is_subscribed' => 1, 'autoRenew_status' => 3]);
         });
-        $this->app->instance(\App\Services\Payment\AutoRenewalActivationService::class, $activation);
+        $this->app->instance(AutoRenewalActivationService::class, $activation);
 
         $this->stripeConfirmWith($order, $this->verificationCharge($order), expectRefund: true)
             ->assertOk()
@@ -530,11 +545,12 @@ class AutoRenewalControllerTest extends DBTestCase
     public function test_turning_auto_renewal_on_is_refused_for_a_gateway_that_is_not_offered(): void
     {
         $this->offerAutoRenewal();
-        \App\Model\Common\StatusSetting::query()->update(['stripe_auto_renewal' => 0]);
+        StatusSetting::query()->update(['stripe_auto_renewal' => 0]);
         $order = Order::factory()->withRelations()->create(['client' => $this->user->id, 'order_status' => 'executed']);
 
         $paymentServiceMock = Mockery::mock(PaymentService::class);
         $paymentServiceMock->shouldNotReceive('startCardPayment');
+
         $this->app->instance(PaymentService::class, $paymentServiceMock);
 
         $this->postJson("/auto-renewal/{$order->id}/stripe/session")->assertStatus(403);

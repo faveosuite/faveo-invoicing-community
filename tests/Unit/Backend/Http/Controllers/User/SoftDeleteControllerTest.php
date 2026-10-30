@@ -4,6 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\User;
 
+use App\Http\Middleware\Install;
+use App\License\Models\License;
+use App\Model\Order\CreditTransaction;
+use App\Model\Order\Invoice;
+use App\Model\Order\InvoiceTaxLine;
+use App\Model\Order\Order;
+use App\Model\Order\Payment;
+use App\Model\Order\UserCreditBalance;
+use App\User;
 use Tests\DBTestCase;
 
 class SoftDeleteControllerTest extends DBTestCase
@@ -11,7 +20,7 @@ class SoftDeleteControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     // --- GET /soft-delete ---
@@ -76,14 +85,14 @@ class SoftDeleteControllerTest extends DBTestCase
     public function test_permanent_delete_removes_the_users_money_and_license_records(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['role' => 'user']);
-        $order = \App\Model\Order\Order::factory()->create(['client' => $user->id]);
-        \App\License\Models\License::create(['product_id' => $order->product, 'license_code' => 'P'.$order->number, 'license_order_number' => $order->number]);
-        $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $user->id]);
-        \App\Model\Order\InvoiceTaxLine::create(['invoice_id' => $invoice->id, 'label' => 'GST', 'rate' => 18, 'compound' => 0, 'amount' => 1]);
-        $payment = \App\Model\Order\Payment::create(['user_id' => $user->id, 'amount' => 10, 'payment_method' => 'Credit Balance', 'payment_status' => 'success']);
-        \App\Model\Order\CreditTransaction::create(['user_id' => $user->id, 'currency' => 'USD', 'amount' => 5, 'type' => \App\Model\Order\CreditTransaction::TYPE_MANUAL_GRANT]);
-        \App\Model\Order\UserCreditBalance::create(['user_id' => $user->id, 'currency' => 'USD', 'balance' => 5]);
+        $user = User::factory()->create(['role' => 'user']);
+        $order = Order::factory()->create(['client' => $user->id]);
+        License::create(['product_id' => $order->product, 'license_code' => 'P'.$order->number, 'license_order_number' => $order->number]);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+        InvoiceTaxLine::create(['invoice_id' => $invoice->id, 'label' => 'GST', 'rate' => 18, 'compound' => 0, 'amount' => 1]);
+        $payment = Payment::create(['user_id' => $user->id, 'amount' => 10, 'payment_method' => 'Credit Balance', 'payment_status' => 'success']);
+        CreditTransaction::create(['user_id' => $user->id, 'currency' => 'USD', 'amount' => 5, 'type' => CreditTransaction::TYPE_MANUAL_GRANT]);
+        UserCreditBalance::create(['user_id' => $user->id, 'currency' => 'USD', 'balance' => 5]);
         $user->delete();
 
         $this->deleteJson('/permanent-delete-client', ['user_ids' => [$user->id]])->assertOk();

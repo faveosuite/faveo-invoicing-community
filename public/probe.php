@@ -1,17 +1,17 @@
 <?php
-require __DIR__ . '/../bootstrap/autoload.php';
+require __DIR__.'/../bootstrap/autoload.php';
 $config = require_once '../config/app.php';
 
 use App\Http\Controllers\BillingInstaller\BillingDependencyController;
 
-require_once dirname(__DIR__, 1) . '/app/Http/helpers.php';
+require_once dirname(__DIR__, 1).'/app/Http/helpers.php';
 
 $passwordMatched = false;
 $showError = false;
 $env = '../.env';
 $envFound = is_file($env);
 if ($envFound) {
-    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__.'/..');
     $dotenv->load();
 }
 if (isset($_POST['submit'])) {
@@ -30,25 +30,25 @@ $currentLang = 'en';
 function fetchLang(): array
 {
     $locale = $_ENV['APP_LOCALE'] ?? 'en';
-    $langPath = dirname(__DIR__) . '/lang/' . $locale . '/installer_messages.php';
+    $langPath = dirname(__DIR__).'/lang/'.$locale.'/installer_messages.php';
 
-    if (!is_file($langPath)) {
+    if (! is_file($langPath)) {
         $locale = 'en';
-        $langPath = dirname(__DIR__) . '/lang/en/installer_messages.php';
+        $langPath = dirname(__DIR__).'/lang/en/installer_messages.php';
     }
 
     return [
-            'lang' => require $langPath,
-            'currentLang' => $locale,
+        'lang' => require $langPath,
+        'currentLang' => $locale,
     ];
 }
 
 $fetchLang = fetchLang();
 $lang = $fetchLang['lang'];
 $currentLang = $fetchLang['currentLang'];
-$isRtl    = in_array($currentLang, ['ar', 'he']);
-$baseUrl  = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
-    . '://' . ($_SERVER['HTTP_HOST'] ?? '') . dirname($_SERVER['SCRIPT_NAME'] ?? '');
+$isRtl = in_array($currentLang, ['ar', 'he']);
+$baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
+    .'://'.($_SERVER['HTTP_HOST'] ?? '').dirname($_SERVER['SCRIPT_NAME'] ?? '');
 
 $localeMap = [
     'ar' => 'ae', 'bsn' => 'bs', 'de' => 'de', 'en' => 'us', 'en-gb' => 'gb',
@@ -57,8 +57,8 @@ $localeMap = [
     'vi' => 'vn', 'zh-hans' => 'cn', 'zh-hant' => 'cn', 'ja' => 'jp',
     'ta' => 'in', 'hi' => 'in', 'he' => 'il', 'tr' => 'tr',
 ];
-$languages = array_map('basename', glob(dirname(__DIR__) . '/lang/*', GLOB_ONLYDIR));
-$langConfig = require dirname(__DIR__) . '/config/languages.php';
+$languages = array_map('basename', glob(dirname(__DIR__).'/lang/*', GLOB_ONLYDIR));
+$langConfig = require dirname(__DIR__).'/config/languages.php';
 ?>
 <!Doctype html>
 <html lang="<?= $currentLang ?>" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
@@ -133,47 +133,47 @@ $langConfig = require dirname(__DIR__) . '/config/languages.php';
                     <a class="nav-link" id="languageButton" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                         <?php
                         $localeMap = [
-                                'ar' => 'ae',
-                                'bsn' => 'bs',
-                                'de' => 'de',
-                                'en' => 'us',
-                                'en-gb' => 'gb',
-                                'es' => 'es',
-                                'fr' => 'fr',
-                                'id' => 'id',
-                                'it' => 'it',
-                                'kr' => 'kr',
-                                'mt' => 'mt',
-                                'nl' => 'nl',
-                                'no' => 'no',
-                                'pt' => 'pt',
-                                'ru' => 'ru',
-                                'vi' => 'vn',
-                                'zh-hans' => 'cn',
-                                'zh-hant' => 'cn',
-                                'ja' => 'jp',
-                                'ta' => 'in',
-                                'hi' => 'in',
-                                'he' => 'il',
-                                'tr' => 'tr',
+                            'ar' => 'ae',
+                            'bsn' => 'bs',
+                            'de' => 'de',
+                            'en' => 'us',
+                            'en-gb' => 'gb',
+                            'es' => 'es',
+                            'fr' => 'fr',
+                            'id' => 'id',
+                            'it' => 'it',
+                            'kr' => 'kr',
+                            'mt' => 'mt',
+                            'nl' => 'nl',
+                            'no' => 'no',
+                            'pt' => 'pt',
+                            'ru' => 'ru',
+                            'vi' => 'vn',
+                            'zh-hans' => 'cn',
+                            'zh-hant' => 'cn',
+                            'ja' => 'jp',
+                            'ta' => 'in',
+                            'hi' => 'in',
+                            'he' => 'il',
+                            'tr' => 'tr',
                         ];
 
-                        $currentLanguage = $currentLang;
-                        $flagClass = 'fi fi-' . strtolower($localeMap[$currentLanguage] ?? 'us');
-                        ?>
+$currentLanguage = $currentLang;
+$flagClass = 'fi fi-'.strtolower($localeMap[$currentLanguage] ?? 'us');
+?>
                         <i id="flagIcon" class="<?= $flagClass ?>"></i>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end p-0" id="language-dropdown">
-                        <?php foreach ($languages as $locale):
+                        <?php foreach ($languages as $locale) {
                             $flagCode = $localeMap[$locale] ?? $locale;
                             $name = $langConfig[$locale][0] ?? $locale;
-                        ?>
+                            ?>
                         <a href="javascript:;" class="dropdown-item<?= $locale === $currentLang ? ' active' : '' ?>"
                            data-locale="<?= htmlspecialchars($locale) ?>">
                             <i class="fi fi-<?= strtolower($flagCode) ?> me-2"></i>
                             <?= htmlspecialchars($name) ?>
                         </a>
-                        <?php endforeach; ?>
+                        <?php } ?>
                     </div>
                 </li>
             </ul>
@@ -183,7 +183,7 @@ $langConfig = require dirname(__DIR__) . '/config/languages.php';
 
     <main class="app-main">
     <?php
-    if ($envFound && !$passwordMatched) {
+    if ($envFound && ! $passwordMatched) {
         ?>
         <div class="app-content">
             <div class="content">
@@ -266,50 +266,63 @@ $langConfig = require dirname(__DIR__) . '/config/languages.php';
             <div class="container py-3">
 
                 <?php
-                function colorClass(string $color): string {
+                function colorClass(string $color): string
+                {
                     return match ($color) {
-                        'green'  => 'text-success',
-                        'red'    => 'text-danger',
-                        default  => 'text-warning',
+                        'green' => 'text-success',
+                        'red' => 'text-danger',
+                        default => 'text-warning',
                     };
                 }
-                $errorCount = 0;
-                $basePath = substr(__DIR__, 0, -6);
-                $billingController = new BillingDependencyController('probe');
-                $dirDetails = $billingController->validateDirectory($basePath, $errorCount);
-                $reqDetails = (new BillingDependencyController('probe'))->validateRequisites($errorCount);
-                $extDetails = (new BillingDependencyController('probe'))->validatePHPExtensions($errorCount);
-                $phpIniFile = php_ini_loaded_file();
-                $extString = str_replace(
-                    [':php_ini_file', ':extensionName', ':url'],
-                    [$phpIniFile, $extDetails[0]['extensionName'] ?? '', 'https://support.faveohelpdesk.com/show/how-to-enable-required-php-extension-on-different-servers-for-faveo-installation'],
-                    $lang['extension_not_enabled']
-                );
-                function getLicenseUrl(): string {
-                    $url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https://' : 'http://';
-                    $url .= $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-                    return str_replace('probe.php', 'db-setup', $url);
-                }
-                function checkUserFriendlyUrl(): ?bool {
-                    if (!function_exists('curl_init')) return null;
-                    try {
-                        $ch = curl_init(getLicenseUrl());
-                        curl_setopt_array($ch, [CURLOPT_HEADER => true, CURLOPT_NOBODY => true, CURLOPT_RETURNTRANSFER => 1, CURLOPT_TIMEOUT => 10]);
-                        curl_exec($ch);
-                        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                        curl_close($ch);
-                        return $code != 404;
-                    } catch (Exception $e) { return null; }
-                }
-                $redirect = function_exists('apache_get_modules') ? (int) in_array('mod_rewrite', apache_get_modules()) : 2;
-                $rewriteClass  = $redirect === 2 ? 'text-warning' : ($redirect ? 'text-success' : 'text-danger');
-                $rewriteString = $redirect === 2 ? 'Unable to detect' : ($redirect ? 'Enabled' : 'OFF');
-                if (!$redirect && $redirect !== 2) $errorCount++;
-                $userFriendlyUrl = checkUserFriendlyUrl();
-                $urlClass  = $userFriendlyUrl === false ? 'text-danger' : ($userFriendlyUrl === true ? 'text-success' : 'text-warning');
-                $urlString = $userFriendlyUrl === false ? $lang['off_apache'] : ($userFriendlyUrl === true ? 'Enabled' : 'Unable to detect');
-                if ($userFriendlyUrl === false) $errorCount++;
-                ?>
+        $errorCount = 0;
+        $basePath = substr(__DIR__, 0, -6);
+        $billingController = new BillingDependencyController('probe');
+        $dirDetails = $billingController->validateDirectory($basePath, $errorCount);
+        $reqDetails = (new BillingDependencyController('probe'))->validateRequisites($errorCount);
+        $extDetails = (new BillingDependencyController('probe'))->validatePHPExtensions($errorCount);
+        $phpIniFile = php_ini_loaded_file();
+        $extString = str_replace(
+            [':php_ini_file', ':extensionName', ':url'],
+            [$phpIniFile, $extDetails[0]['extensionName'] ?? '', 'https://support.faveohelpdesk.com/show/how-to-enable-required-php-extension-on-different-servers-for-faveo-installation'],
+            $lang['extension_not_enabled']
+        );
+        function getLicenseUrl(): string
+        {
+            $url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https://' : 'http://';
+            $url .= $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+
+            return str_replace('probe.php', 'db-setup', $url);
+        }
+        function checkUserFriendlyUrl(): ?bool
+        {
+            if (! function_exists('curl_init')) {
+                return null;
+            }
+            try {
+                $ch = curl_init(getLicenseUrl());
+                curl_setopt_array($ch, [CURLOPT_HEADER => true, CURLOPT_NOBODY => true, CURLOPT_RETURNTRANSFER => 1, CURLOPT_TIMEOUT => 10]);
+                curl_exec($ch);
+                $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+
+                return $code != 404;
+            } catch (Exception $e) {
+                return null;
+            }
+        }
+        $redirect = function_exists('apache_get_modules') ? (int) in_array('mod_rewrite', apache_get_modules()) : 2;
+        $rewriteClass = $redirect === 2 ? 'text-warning' : ($redirect ? 'text-success' : 'text-danger');
+        $rewriteString = $redirect === 2 ? 'Unable to detect' : ($redirect ? 'Enabled' : 'OFF');
+        if (! $redirect && $redirect !== 2) {
+            $errorCount++;
+        }
+        $userFriendlyUrl = checkUserFriendlyUrl();
+        $urlClass = $userFriendlyUrl === false ? 'text-danger' : ($userFriendlyUrl === true ? 'text-success' : 'text-warning');
+        $urlString = $userFriendlyUrl === false ? $lang['off_apache'] : ($userFriendlyUrl === true ? 'Enabled' : 'Unable to detect');
+        if ($userFriendlyUrl === false) {
+            $errorCount++;
+        }
+        ?>
 
                 <div class="col-xl-10 mx-auto">
                 <ol class="wizard-steps mb-4">

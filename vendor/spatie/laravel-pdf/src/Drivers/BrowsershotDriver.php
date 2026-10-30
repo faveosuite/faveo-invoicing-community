@@ -112,6 +112,10 @@ class BrowsershotDriver implements PdfDriver, SupportsReadiness
             $browsershot->taggedPdf();
         }
 
+        if ($options->documentOutline) {
+            $browsershot->setOption('outline', true);
+        }
+
         if ($options->waitForReady !== null) {
             $browsershot->waitForFunction($options->waitForReady, null, $options->waitForReadyTimeout ?? 30000);
         }

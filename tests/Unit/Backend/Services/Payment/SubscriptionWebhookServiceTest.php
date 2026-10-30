@@ -2,7 +2,19 @@
 
 namespace Tests\Unit\Backend\Services\Payment;
 
+use App\Auto_renewal;
 use App\Http\Controllers\ConcretePostSubscriptionHandleController;
+use App\Model\Common\StatusSetting;
+use App\Model\Order\Invoice;
+use App\Model\Order\Order;
+use App\Model\Order\Payment;
+use App\Model\Payment\GatewayEvent;
+use App\Model\Payment\Plan;
+use App\Model\Product\Product;
+use App\Model\Product\Subscription;
+use App\Services\Payment\AutoRenewalActivationService;
+use App\Services\Payment\ProcessingFee;
+use App\Services\Payment\SubscriptionService;
 use App\Services\Payment\SubscriptionWebhookService;
 use App\Services\Payment\WebhookDispatcher;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -61,7 +73,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     public function test_dispatcher_on_returns_self_for_chaining(): void
     {
         $dispatcher = new WebhookDispatcher;
-        $result = $dispatcher->on('e', fn () => null);
+        $result = $dispatcher->on('e', fn (): null => null);
         $this->assertSame($dispatcher, $result);
     }
 
@@ -263,10 +275,10 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
 
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'WebhookTest '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
-        $order = \App\Model\Order\Order::create([
+        $order = Order::create([
             'client' => $this->user->id,
             'product' => $product->id,
             'order_status' => 'executed',
@@ -274,7 +286,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         ]);
 
         $subId = 'sub_del_'.uniqid();
-        $sub1 = \App\Model\Product\Subscription::create([
+        $sub1 = Subscription::create([
             'order_id' => $order->id,
             'product_id' => $product->id,
             'plan_id' => $plan->id,
@@ -288,12 +300,12 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         // Real handler — customer.subscription.deleted now also notifies (via
         // sendFailedPayment), so a bare Mockery mock with no expectations
         // can no longer stand in for it.
-        $handler = new \App\Http\Controllers\ConcretePostSubscriptionHandleController(
-            new \App\Model\Order\Invoice, new \App\Model\Order\Order,
-            new \App\Model\Common\StatusSetting, new \App\Model\Payment\Plan,
-            new \App\Model\Product\Subscription, new \App\Model\Order\Payment
+        $handler = new ConcretePostSubscriptionHandleController(
+            new Invoice, new Order,
+            new StatusSetting, new Plan,
+            new Subscription, new Payment
         );
-        $service = new \App\Services\Payment\SubscriptionWebhookService($handler);
+        $service = new SubscriptionWebhookService($handler);
 
         $service->handleStripeEvent([
             'type' => 'customer.subscription.deleted',
@@ -301,7 +313,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         ]);
 
         // Fetch fresh from DB and verify update
-        $updated = \App\Model\Product\Subscription::where('order_id', $order->id)->first();
+        $updated = Subscription::where('order_id', $order->id)->first();
         $this->assertNotNull($updated, 'Subscription should exist');
         $this->assertEquals(0, (int) $updated->is_subscribed, 'is_subscribed should be 0 after deletion');
         $this->assertEquals(0, (int) $updated->autoRenew_status, 'autoRenew_status should be 0 after deletion');
@@ -316,10 +328,10 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
 
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'WebhookTest '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
-        $order = \App\Model\Order\Order::create([
+        $order = Order::create([
             'client' => $this->user->id,
             'product' => $product->id,
             'order_status' => 'executed',
@@ -327,7 +339,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         ]);
 
         $subId = 'sub_fail_'.uniqid();
-        $sub = \App\Model\Product\Subscription::create([
+        $sub = Subscription::create([
             'order_id' => $order->id,
             'product_id' => $product->id,
             'plan_id' => $plan->id,
@@ -350,7 +362,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
             'data' => ['object' => ['subscription' => $subId, 'currency' => 'usd']],
         ]);
 
-        $updated = \App\Model\Product\Subscription::find($sub->id);
+        $updated = Subscription::find($sub->id);
         $this->assertEquals(1, (int) $updated->autoRenew_status,
             'autoRenew_status should be untouched after a single failed attempt — Stripe may still retry');
         $this->assertEquals(1, (int) $updated->is_subscribed,
@@ -365,10 +377,10 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
 
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'WebhookTest '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
-        $order = \App\Model\Order\Order::create([
+        $order = Order::create([
             'client' => $this->user->id,
             'product' => $product->id,
             'order_status' => 'executed',
@@ -377,7 +389,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
 
         $subId = 'sub_halt_'.uniqid();
         // is_subscribed=0 so gateway cancellation is skipped but DB update still runs
-        $sub = \App\Model\Product\Subscription::create([
+        $sub = Subscription::create([
             'order_id' => $order->id,
             'product_id' => $product->id,
             'plan_id' => $plan->id,
@@ -389,12 +401,12 @@ class SubscriptionWebhookServiceTest extends DBTestCase
             ->where('id', $sub->id)
             ->update(['subscribe_id' => $subId, 'rzp_subscription' => '1']);
 
-        $handler = new \App\Http\Controllers\ConcretePostSubscriptionHandleController(
-            new \App\Model\Order\Invoice, new \App\Model\Order\Order,
-            new \App\Model\Common\StatusSetting, new \App\Model\Payment\Plan,
-            new \App\Model\Product\Subscription, new \App\Model\Order\Payment
+        $handler = new ConcretePostSubscriptionHandleController(
+            new Invoice, new Order,
+            new StatusSetting, new Plan,
+            new Subscription, new Payment
         );
-        $service = new \App\Services\Payment\SubscriptionWebhookService($handler);
+        $service = new SubscriptionWebhookService($handler);
 
         $service->handleRazorpayEvent([
             'event' => 'subscription.halted',
@@ -404,7 +416,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         ]);
 
         // After halt: disableAutorenewalStatusByOrderId resets autoRenew_status
-        $updated = \App\Model\Product\Subscription::find($sub->id);
+        $updated = Subscription::find($sub->id);
         $this->assertEquals(0, (int) $updated->autoRenew_status,
             'autoRenew_status should be 0 after Razorpay subscription halt');
     }
@@ -418,10 +430,10 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
 
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'WebhookTest '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
-        $order = \App\Model\Order\Order::create([
+        $order = Order::create([
             'client' => $this->user->id,
             'product' => $product->id,
             'order_status' => 'executed',
@@ -429,7 +441,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         ]);
 
         $subId = 'sub_halt_live_'.uniqid();
-        $sub = \App\Model\Product\Subscription::create([
+        $sub = Subscription::create([
             'order_id' => $order->id,
             'product_id' => $product->id,
             'plan_id' => $plan->id,
@@ -441,23 +453,23 @@ class SubscriptionWebhookServiceTest extends DBTestCase
             ->where('id', $sub->id)
             ->update(['subscribe_id' => $subId, 'rzp_subscription' => '1']);
 
-        $this->mock(\App\Services\Payment\SubscriptionService::class, function ($mock): void {
+        $this->mock(SubscriptionService::class, function ($mock): void {
             $mock->shouldNotReceive('cancelSubscription');
         });
 
-        $handler = new \App\Http\Controllers\ConcretePostSubscriptionHandleController(
-            new \App\Model\Order\Invoice, new \App\Model\Order\Order,
-            new \App\Model\Common\StatusSetting, new \App\Model\Payment\Plan,
-            new \App\Model\Product\Subscription, new \App\Model\Order\Payment
+        $handler = new ConcretePostSubscriptionHandleController(
+            new Invoice, new Order,
+            new StatusSetting, new Plan,
+            new Subscription, new Payment
         );
-        $service = new \App\Services\Payment\SubscriptionWebhookService($handler);
+        $service = new SubscriptionWebhookService($handler);
 
         $service->handleRazorpayEvent([
             'event' => 'subscription.halted',
             'payload' => ['subscription' => ['entity' => ['id' => $subId]]],
         ]);
 
-        $updated = \App\Model\Product\Subscription::find($sub->id);
+        $updated = Subscription::find($sub->id);
         $this->assertEquals(0, (int) $updated->is_subscribed, 'is_subscribed should still be reset locally');
         $this->assertSame($subId, (string) $updated->subscribe_id,
             'subscribe_id must survive a halt — Razorpay can still recover it, and a later subscription.charged for this id is matched by subscribe_id');
@@ -471,10 +483,10 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
 
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'WebhookTest '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
-        $order = \App\Model\Order\Order::create([
+        $order = Order::create([
             'client' => $this->user->id,
             'product' => $product->id,
             'order_status' => 'executed',
@@ -485,7 +497,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         // findOrCreateRenewalInvoice()'s shortcut — reused as-is instead of
         // going through full invoice generation, which needs unrelated setup
         // (tax config, numbering) this test isn't about.
-        $pendingRenewalInvoice = \App\Model\Order\Invoice::create([
+        $pendingRenewalInvoice = Invoice::create([
             'user_id' => $this->user->id,
             'status' => 'pending',
             'is_renewed' => 1,
@@ -500,7 +512,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         ]);
 
         $subId = 'sub_recover_'.uniqid();
-        $sub = \App\Model\Product\Subscription::create([
+        $sub = Subscription::create([
             'order_id' => $order->id,
             'product_id' => $product->id,
             'plan_id' => $plan->id,
@@ -512,16 +524,16 @@ class SubscriptionWebhookServiceTest extends DBTestCase
             ->where('id', $sub->id)
             ->update(['subscribe_id' => $subId, 'rzp_subscription' => '1']);
 
-        $this->mock(\App\Services\Payment\SubscriptionService::class, function ($mock): void {
+        $this->mock(SubscriptionService::class, function ($mock): void {
             $mock->shouldNotReceive('cancelSubscription');
         });
 
-        $handler = new \App\Http\Controllers\ConcretePostSubscriptionHandleController(
-            new \App\Model\Order\Invoice, new \App\Model\Order\Order,
-            new \App\Model\Common\StatusSetting, new \App\Model\Payment\Plan,
-            new \App\Model\Product\Subscription, new \App\Model\Order\Payment
+        $handler = new ConcretePostSubscriptionHandleController(
+            new Invoice, new Order,
+            new StatusSetting, new Plan,
+            new Subscription, new Payment
         );
-        $service = new \App\Services\Payment\SubscriptionWebhookService($handler);
+        $service = new SubscriptionWebhookService($handler);
 
         // First, the halt.
         $service->handleRazorpayEvent([
@@ -552,7 +564,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         $this->assertSame(3, (int) $row->rzp_subscription);
         $this->assertSame($subId, (string) $row->subscribe_id);
         // deactivate() deleted it; without it, a later disable/re-enable silently does nothing.
-        $this->assertTrue(\App\Auto_renewal::where('order_id', $order->id)->where('payment_method', 'razorpay')->exists());
+        $this->assertTrue(Auto_renewal::where('order_id', $order->id)->where('payment_method', 'razorpay')->exists());
 
         // A second halt later on must be handled again, not ignored as a duplicate of the first.
         $service->handleRazorpayEvent([
@@ -567,15 +579,15 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         // A user/admin disable clears subscribe_id, so a late charge can't match it and
         // reactivate it. Only a halt keeps the id.
         $this->getLoggedInUser('user');
-        $product = \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
-        $order = \App\Model\Order\Order::create(['client' => $this->user->id, 'product' => $product->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999)]);
-        $sub = \App\Model\Product\Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $this->user->id, 'is_subscribed' => 1]);
+        $product = Product::create(['name' => 'WebhookTest '.uniqid()]);
+        $plan = Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $order = Order::create(['client' => $this->user->id, 'product' => $product->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999)]);
+        $sub = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $this->user->id, 'is_subscribed' => 1]);
         $subId = 'sub_disabled_'.uniqid();
         \Illuminate\Support\Facades\DB::table('subscriptions')->where('id', $sub->id)->update(['subscribe_id' => $subId, 'rzp_subscription' => '3']);
 
-        $this->mock(\App\Services\Payment\SubscriptionService::class, fn ($mock) => $mock->shouldReceive('cancelSubscription'));
-        resolve(\App\Services\Payment\AutoRenewalActivationService::class)->deactivate($sub->fresh(), cancelAtGateway: true);
+        $this->mock(SubscriptionService::class, fn ($mock) => $mock->shouldReceive('cancelSubscription'));
+        resolve(AutoRenewalActivationService::class)->deactivate($sub->fresh(), cancelAtGateway: true);
 
         $this->makeWebhookService()->handleRazorpayEvent([
             'event' => 'subscription.charged',
@@ -586,7 +598,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         ]);
 
         $this->assertSame(0, (int) \Illuminate\Support\Facades\DB::table('subscriptions')->where('id', $sub->id)->value('is_subscribed'));
-        $this->assertFalse(\App\Auto_renewal::where('order_id', $order->id)->exists());
+        $this->assertFalse(Auto_renewal::where('order_id', $order->id)->exists());
     }
 
     // =========================================================================
@@ -597,10 +609,10 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
 
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'WebhookTest '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
-        $order = \App\Model\Order\Order::create([
+        $order = Order::create([
             'client' => $this->user->id,
             'product' => $product->id,
             'order_status' => 'executed',
@@ -608,7 +620,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         ]);
 
         $subId = 'sub_pending_'.uniqid();
-        $sub = \App\Model\Product\Subscription::create([
+        $sub = Subscription::create([
             'order_id' => $order->id,
             'product_id' => $product->id,
             'plan_id' => $plan->id,
@@ -628,7 +640,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
             'payload' => ['subscription' => ['entity' => ['id' => $subId]]],
         ]);
 
-        $updated = \App\Model\Product\Subscription::find($sub->id);
+        $updated = Subscription::find($sub->id);
         $this->assertEquals(1, (int) $updated->is_subscribed, 'is_subscribed should be untouched while Razorpay is still retrying');
         $this->assertSame($subId, (string) $updated->subscribe_id, 'subscribe_id should be untouched while Razorpay is still retrying');
     }
@@ -728,10 +740,10 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
 
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'WebhookTest '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
-        $order = \App\Model\Order\Order::create([
+        $order = Order::create([
             'client' => $this->user->id,
             'product' => $product->id,
             'order_status' => 'executed',
@@ -739,7 +751,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         ]);
 
         $subId = 'sub_dup_'.uniqid();
-        $sub = \App\Model\Product\Subscription::create([
+        $sub = Subscription::create([
             'order_id' => $order->id,
             'product_id' => $product->id,
             'plan_id' => $plan->id,
@@ -780,10 +792,10 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
 
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'WebhookTest '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
-        $order = \App\Model\Order\Order::create([
+        $order = Order::create([
             'client' => $this->user->id,
             'product' => $product->id,
             'order_status' => 'executed',
@@ -791,7 +803,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         ]);
 
         $subId = 'sub_rzp_dup_'.uniqid();
-        $sub = \App\Model\Product\Subscription::create([
+        $sub = Subscription::create([
             'order_id' => $order->id,
             'product_id' => $product->id,
             'plan_id' => $plan->id,
@@ -834,10 +846,10 @@ class SubscriptionWebhookServiceTest extends DBTestCase
 
     public function test_a_renewal_that_fails_mid_way_can_be_retried(): void
     {
-        $sub = \App\Model\Product\Subscription::factory()->create();
+        $sub = Subscription::factory()->create();
         \DB::table('subscriptions')->where('id', $sub->id)->update(['subscribe_id' => 'sub_retry', 'order_id' => 99999999]); // order missing → throws
         $eventId = 'evt_'.uniqid();
-        $service = resolve(\App\Services\Payment\SubscriptionWebhookService::class);
+        $service = resolve(SubscriptionWebhookService::class);
 
         try {
             $service->handleStripeEvent($this->stripeRenewalEvent($eventId, 'sub_retry'));
@@ -846,18 +858,18 @@ class SubscriptionWebhookServiceTest extends DBTestCase
             // the webhook endpoint answers 500, so Stripe retries
         }
 
-        $this->assertSame(0, \App\Model\Payment\GatewayEvent::where(['gateway' => 'stripe', 'event_id' => $eventId])->count());
+        $this->assertSame(0, GatewayEvent::where(['gateway' => 'stripe', 'event_id' => $eventId])->count());
     }
 
     public function test_a_handled_event_keeps_its_claim_so_redeliveries_are_ignored(): void
     {
         $eventId = 'evt_'.uniqid();
-        $service = resolve(\App\Services\Payment\SubscriptionWebhookService::class);
+        $service = resolve(SubscriptionWebhookService::class);
 
         // No matching subscription: logged and returned — handled, not failed.
         $service->handleStripeEvent($this->stripeRenewalEvent($eventId, 'sub_nobody_'.uniqid()));
 
-        $this->assertSame(1, \App\Model\Payment\GatewayEvent::where(['gateway' => 'stripe', 'event_id' => $eventId])->count());
+        $this->assertSame(1, GatewayEvent::where(['gateway' => 'stripe', 'event_id' => $eventId])->count());
     }
 
     // ── Batch 3 #7: the renewal invoice uses the currency the gateway charged in ──
@@ -866,16 +878,16 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
         $this->user->update(['country' => 'US']); // would resolve to USD
-        $product = \App\Model\Product\Product::factory()->create();
-        $plan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        $order = \App\Model\Order\Order::create(['client' => $this->user->id, 'product' => $product->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999)]);
-        $sub = \App\Model\Product\Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $this->user->id, 'is_subscribed' => 1, 'autoRenew_status' => 3]);
+        $product = Product::factory()->create();
+        $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
+        $order = Order::create(['client' => $this->user->id, 'product' => $product->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999)]);
+        $sub = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $this->user->id, 'is_subscribed' => 1, 'autoRenew_status' => 3]);
         $subId = 'sub_cur_'.uniqid();
         \Illuminate\Support\Facades\DB::table('subscriptions')->where('id', $sub->id)->update(['subscribe_id' => $subId]);
 
         $renewed = null;
         $handler = Mockery::mock(ConcretePostSubscriptionHandleController::class);
-        $handler->shouldReceive('successRenew')->once()->andReturnUsing(function ($invoice) use (&$renewed) {
+        $handler->shouldReceive('successRenew')->once()->andReturnUsing(function ($invoice) use (&$renewed): int {
             $renewed = $invoice;
 
             return 1;
@@ -883,7 +895,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         $handler->shouldReceive('recordPayment')->once();
         $handler->shouldReceive('sendPaymentSuccessMail', 'PaymentSuccessMailtoAdmin')->zeroOrMoreTimes();
 
-        (new SubscriptionWebhookService($handler))->handleStripeEvent(['id' => 'evt_'.uniqid(), 'type' => 'invoice.payment_succeeded', 'data' => ['object' => [
+        new SubscriptionWebhookService($handler)->handleStripeEvent(['id' => 'evt_'.uniqid(), 'type' => 'invoice.payment_succeeded', 'data' => ['object' => [
             'billing_reason' => 'subscription_cycle', 'subscription' => $subId, 'amount_paid' => 99900, 'currency' => 'inr',
         ]]]);
 
@@ -892,20 +904,20 @@ class SubscriptionWebhookServiceTest extends DBTestCase
 
     public function test_the_renewal_invoice_shows_the_processing_fee_on_top_not_inside_the_price(): void
     {
-        \App\Services\Payment\ProcessingFee::store('stripe', 5);
-        $this->assertSame(5.0, \App\Services\Payment\ProcessingFee::percent('stripe'), 'stripe fee row missing in test DB');
+        ProcessingFee::store('stripe', 5);
+        $this->assertSame(5.0, ProcessingFee::percent('stripe'), 'stripe fee row missing in test DB');
 
         $this->getLoggedInUser('user');
-        $product = \App\Model\Product\Product::factory()->create();
-        $plan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        $order = \App\Model\Order\Order::create(['client' => $this->user->id, 'product' => $product->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999)]);
-        $sub = \App\Model\Product\Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $this->user->id, 'is_subscribed' => 1, 'autoRenew_status' => 3]);
+        $product = Product::factory()->create();
+        $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
+        $order = Order::create(['client' => $this->user->id, 'product' => $product->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999)]);
+        $sub = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $this->user->id, 'is_subscribed' => 1, 'autoRenew_status' => 3]);
         $subId = 'sub_fee_'.uniqid();
         \Illuminate\Support\Facades\DB::table('subscriptions')->where('id', $sub->id)->update(['subscribe_id' => $subId]);
 
         $renewed = null;
         $handler = Mockery::mock(ConcretePostSubscriptionHandleController::class);
-        $handler->shouldReceive('successRenew')->once()->andReturnUsing(function ($invoice) use (&$renewed) {
+        $handler->shouldReceive('successRenew')->once()->andReturnUsing(function ($invoice) use (&$renewed): int {
             $renewed = $invoice;
 
             return 1;
@@ -914,7 +926,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         $handler->shouldReceive('sendPaymentSuccessMail', 'PaymentSuccessMailtoAdmin')->zeroOrMoreTimes();
 
         // Charged 525 = plan price 500 + 5% fee (no tax for this user).
-        (new SubscriptionWebhookService($handler))->handleStripeEvent(['id' => 'evt_'.uniqid(), 'type' => 'invoice.payment_succeeded', 'data' => ['object' => [
+        new SubscriptionWebhookService($handler)->handleStripeEvent(['id' => 'evt_'.uniqid(), 'type' => 'invoice.payment_succeeded', 'data' => ['object' => [
             'billing_reason' => 'subscription_cycle', 'subscription' => $subId, 'amount_paid' => 52500, 'currency' => 'usd',
         ]]]);
 

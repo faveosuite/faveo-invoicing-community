@@ -7,9 +7,7 @@ use Illuminate\Support\Facades\Date;
 
 class Orders extends Controller
 {
-    public function __construct(public mixed $orderid)
-    {
-    }
+    public function __construct(public mixed $orderid) {}
 
     public function getOrder(): mixed
     {

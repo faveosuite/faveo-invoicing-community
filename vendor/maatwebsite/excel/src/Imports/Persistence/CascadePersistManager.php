@@ -11,34 +11,18 @@ use Maatwebsite\Excel\Transactions\TransactionHandler;
 /** @todo  */
 class CascadePersistManager
 {
-    /**
-     * @var TransactionHandler
-     */
-    private $transaction;
+    private readonly TransactionHandler $transaction;
 
-    /**
-     * @param  TransactionHandler  $transaction
-     */
     public function __construct(TransactionHandler $transaction)
     {
         $this->transaction = $transaction;
     }
 
-    /**
-     * @param  Model  $model
-     * @return bool
-     */
     public function persist(Model $model): bool
     {
-        return ($this->transaction)(function () use ($model) {
-            return $this->save($model);
-        });
+        return ($this->transaction)(fn (): bool => $this->save($model));
     }
 
-    /**
-     * @param  Model  $model
-     * @return bool
-     */
     private function save(Model $model): bool
     {
         if (!$model->save()) {
@@ -52,16 +36,12 @@ class CascadePersistManager
 
             $relation = $model->{$relationName}();
 
-            if ($relation instanceof BelongsTo) {
-                if (!$this->persistBelongsTo($relation, $models)) {
-                    return false;
-                }
+            if ($relation instanceof BelongsTo && !$this->persistBelongsTo($relation, $models)) {
+                return false;
             }
 
-            if ($relation instanceof BelongsToMany) {
-                if (!$this->persistBelongsToMany($relation, $models)) {
-                    return false;
-                }
+            if ($relation instanceof BelongsToMany && !$this->persistBelongsToMany($relation, $models)) {
+                return false;
             }
         }
 
@@ -73,9 +53,8 @@ class CascadePersistManager
     }
 
     /**
-     * @param  BelongsTo  $relation
-     * @param  array  $models
-     * @return bool
+     * @param  BelongsTo<Model, Model>  $relation
+     * @param  array<array-key, Model>  $models
      */
     private function persistBelongsTo(BelongsTo $relation, array $models): bool
     {
@@ -94,9 +73,8 @@ class CascadePersistManager
     }
 
     /**
-     * @param  BelongsToMany  $relation
-     * @param  array  $models
-     * @return bool
+     * @param  BelongsToMany<Model, Model>  $relation
+     * @param  array<array-key, Model>  $models
      */
     private function persistBelongsToMany(BelongsToMany $relation, array $models): bool
     {

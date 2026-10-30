@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => 'Varsayılan',
     'cloud-instance-created' => 'Bulut örneği oluşturuldu',

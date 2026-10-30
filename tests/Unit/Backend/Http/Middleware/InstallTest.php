@@ -17,12 +17,12 @@ class InstallTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->middleware = new Install();
+        $this->middleware = new Install;
     }
 
     private function passThrough(): \Closure
     {
-        return fn ($request) => new Response('ok', 200);
+        return fn ($request): Response => new Response('ok', 200);
     }
 
     // --- Installed state ---

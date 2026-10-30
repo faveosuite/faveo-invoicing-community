@@ -11,12 +11,12 @@ class ProductRequestTest extends TestCase
 {
     private function rules(): array
     {
-        return (new ProductRequest())->rules();
+        return new ProductRequest()->rules();
     }
 
     public function test_authorize_returns_true(): void
     {
-        $this->assertTrue((new ProductRequest())->authorize());
+        $this->assertTrue(new ProductRequest()->authorize());
     }
 
     public function test_rules_require_core_fields(): void
@@ -44,6 +44,6 @@ class ProductRequestTest extends TestCase
 
     public function test_messages_returns_non_empty_array(): void
     {
-        $this->assertNotEmpty((new ProductRequest())->messages());
+        $this->assertNotEmpty(new ProductRequest()->messages());
     }
 }

@@ -147,8 +147,8 @@ class RazorpayGatewayTest extends TestCase
                 'razorpay_signature' => $signature,
             ]);
             $this->fail('Expected a PaymentException from the order fetch (fake test credentials, no real Razorpay account behind them).');
-        } catch (PaymentException $exception) {
-            $this->assertNotInstanceOf(SignatureVerificationException::class, $exception);
+        } catch (PaymentException $paymentException) {
+            $this->assertNotInstanceOf(SignatureVerificationException::class, $paymentException);
         }
     }
 }

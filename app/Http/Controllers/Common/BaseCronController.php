@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
 use App\Model\Common\Setting;
+use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Mailjob\Condition;
 use App\Model\Order\Invoice;
@@ -37,6 +38,7 @@ class BaseCronController extends Controller
         if (! $order) {
             return null;
         }
+
         /** @var mixed $invoice */
         $invoice = $order->invoice()->first();
 
@@ -216,6 +218,7 @@ class BaseCronController extends Controller
         if (! $product) {
             return;
         }
+
         $product_type = $product->type;
         $expiryDays = Condition::dayCount('cloud') ?? 0;
 
@@ -225,7 +228,7 @@ class BaseCronController extends Controller
         }
 
         $template = TemplateType::getSelectedTemplate('subscription_going_to_end_mail');
-        if (! $template) {
+        if (! $template instanceof Template) {
             return;
         }
 
@@ -233,12 +236,14 @@ class BaseCronController extends Controller
         if ($date === false) {
             return;
         }
+
         $formattedEnd = date_format($date, self::DATE_FORMAT);
 
         $delDate = strtotime($formattedEnd.' +'.$expiryDays.' days');
         if ($delDate === false) {
             return;
         }
+
         $deletionDate = date(self::DATE_FORMAT, $delDate);
 
         $replace = [
@@ -266,11 +271,13 @@ class BaseCronController extends Controller
         if (! $product) {
             return;
         }
+
         $product_type = $product->type;
         $plan_id = Subscription::find($sub);
         if (! $plan_id) {
             return;
         }
+
         $currency = getCurrencyForClient((string) $user->country);
 
         $renewPrice = PlanPrice::where('plan_id', $plan_id->plan_id)->where('currency', $currency)->value('renew_price');
@@ -285,7 +292,7 @@ class BaseCronController extends Controller
 
         // template
         $template = TemplateType::getSelectedTemplate('auto_subscription_going_to_end');
-        if (! $template) {
+        if (! $template instanceof Template) {
             return;
         }
 
@@ -293,11 +300,13 @@ class BaseCronController extends Controller
         if ($date === false) {
             return;
         }
+
         $formattedEnd = date_format($date, 'l, F j, Y ');
         $delDate = strtotime($formattedEnd.' +'.$expiryDays.' days');
         if ($delDate === false) {
             return;
         }
+
         $deletionDate = date(self::DATE_FORMAT, $delDate);
 
         $replace = [
@@ -328,6 +337,7 @@ class BaseCronController extends Controller
         if (! $product) {
             return;
         }
+
         $product_type = $product->type;
         $expiryDays = Condition::dayCount('cloud') ?? 0;
 
@@ -341,7 +351,7 @@ class BaseCronController extends Controller
 
         // template
         $template = TemplateType::getSelectedTemplate('subscription_over_mail');
-        if (! $template) {
+        if (! $template instanceof Template) {
             return;
         }
 
@@ -349,11 +359,13 @@ class BaseCronController extends Controller
         if ($date === false) {
             return;
         }
+
         $formattedEnd = date_format($date, 'l, F j, Y ');
         $delDate = strtotime($formattedEnd.' +'.$expiryDays.' days');
         if ($delDate === false) {
             return;
         }
+
         $deletionDate = date(self::DATE_FORMAT, $delDate);
 
         $replace = [

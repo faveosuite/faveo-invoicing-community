@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Product;
 
 use App\Enums\OrderAbility;
 use App\Http\Controllers\Github\GithubApiController;
+use App\License\Models\License;
 use App\License\Services\LicenseService;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -219,10 +221,10 @@ class BaseProductController extends ExtendedBaseProductController
             ];
 
             return successResponse('', $result);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -274,7 +276,7 @@ class BaseProductController extends ExtendedBaseProductController
         $license_code = $request->input('license_code');
 
         $licenseRecord = $licenseService->findByCode($license_code);
-        $product = $licenseRecord ? [collect($licenseRecord)->toArray()] : [];
+        $product = $licenseRecord instanceof License ? [collect($licenseRecord)->toArray()] : [];
 
         if ($product === []) {
             return errorResponse(__('message.product_not_found'));

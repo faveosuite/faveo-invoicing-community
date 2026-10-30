@@ -8,20 +8,17 @@ use Throwable;
 trait SkipsErrors
 {
     /**
-     * @var Throwable[]
+     * @var array<int, Throwable>
      */
-    protected $errors = [];
+    protected array $errors = [];
 
-    /**
-     * @param  Throwable  $e
-     */
-    public function onError(Throwable $e)
+    public function onError(Throwable $e): void
     {
         $this->errors[] = $e;
     }
 
     /**
-     * @return Throwable[]|Collection
+     * @return Collection<int, Throwable>
      */
     public function errors(): Collection
     {

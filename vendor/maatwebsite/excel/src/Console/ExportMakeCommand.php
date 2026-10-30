@@ -3,6 +3,7 @@
 namespace Maatwebsite\Excel\Console;
 
 use Illuminate\Console\GeneratorCommand;
+use Override;
 use Symfony\Component\Console\Input\InputOption;
 
 class ExportMakeCommand extends GeneratorCommand
@@ -32,16 +33,16 @@ class ExportMakeCommand extends GeneratorCommand
 
     /**
      * Get the stub file for the generator.
-     *
-     * @return string
      */
-    protected function getStub()
+    protected function getStub(): string
     {
         if ($this->option('model') && $this->option('query')) {
             return $this->resolveStubPath('/stubs/export.query-model.stub');
-        } elseif ($this->option('model')) {
+        }
+        if ($this->option('model')) {
             return $this->resolveStubPath('/stubs/export.model.stub');
-        } elseif ($this->option('query')) {
+        }
+        if ($this->option('query')) {
             return $this->resolveStubPath('/stubs/export.query.stub');
         }
 
@@ -54,6 +55,7 @@ class ExportMakeCommand extends GeneratorCommand
      * @param  string  $rootNamespace
      * @return string
      */
+    #[Override]
     protected function getDefaultNamespace($rootNamespace)
     {
         return $rootNamespace . '\Exports';
@@ -66,6 +68,7 @@ class ExportMakeCommand extends GeneratorCommand
      * @param  string  $name
      * @return string
      */
+    #[Override]
     protected function buildClass($name)
     {
         $replace = [];
@@ -74,15 +77,13 @@ class ExportMakeCommand extends GeneratorCommand
         }
 
         return str_replace(
-            array_keys($replace), array_values($replace), parent::buildClass($name)
+            array_keys($replace),
+            array_values($replace),
+            parent::buildClass($name)
         );
     }
 
-    /**
-     * Get the console command options.
-     *
-     * @return array
-     */
+    #[Override]
     protected function getOptions()
     {
         return [

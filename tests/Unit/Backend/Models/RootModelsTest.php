@@ -15,6 +15,7 @@ use App\Payment_log;
 use App\ReportColumn;
 use App\ReportSetting;
 use App\ThirdPartyApp;
+use App\User;
 use App\UserBackupCodes;
 use App\UserLinkReport;
 use App\VerificationAttempt;
@@ -29,17 +30,17 @@ class RootModelsTest extends TestCase
 
     public function test_cloud_popup_table_name(): void
     {
-        $this->assertSame('cloud_pop_up', (new CloudPopUp())->getTable());
+        $this->assertSame('cloud_pop_up', new CloudPopUp()->getTable());
     }
 
     public function test_cloud_popup_guarded_is_empty(): void
     {
-        $this->assertSame([], (new CloudPopUp())->getGuarded());
+        $this->assertSame([], new CloudPopUp()->getGuarded());
     }
 
     public function test_cloud_popup_get_mappings(): void
     {
-        $model = new CloudPopUp();
+        $model = new CloudPopUp;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertArrayHasKey('cloud_top_message', $mappings);
@@ -51,19 +52,19 @@ class RootModelsTest extends TestCase
 
     public function test_default_page_table_name(): void
     {
-        $this->assertSame('default_pages', (new DefaultPage())->getTable());
+        $this->assertSame('default_pages', new DefaultPage()->getTable());
     }
 
     public function test_default_page_fillable(): void
     {
-        $model = new DefaultPage();
+        $model = new DefaultPage;
         $this->assertContains('page_id', $model->getFillable());
         $this->assertContains('page_url', $model->getFillable());
     }
 
     public function test_default_page_get_mappings(): void
     {
-        $model = new DefaultPage();
+        $model = new DefaultPage;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertArrayHasKey('page_id', $mappings);
@@ -74,19 +75,19 @@ class RootModelsTest extends TestCase
 
     public function test_demo_page_table_name(): void
     {
-        $this->assertSame('demo_pages', (new Demo_page())->getTable());
+        $this->assertSame('demo_pages', new Demo_page()->getTable());
     }
 
     public function test_demo_page_fillable(): void
     {
-        $model = new Demo_page();
+        $model = new Demo_page;
         $this->assertContains('id', $model->getFillable());
         $this->assertContains('status', $model->getFillable());
     }
 
     public function test_demo_page_get_mappings_active(): void
     {
-        $model = new Demo_page();
+        $model = new Demo_page;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertArrayHasKey('status', $mappings);
@@ -96,7 +97,7 @@ class RootModelsTest extends TestCase
 
     public function test_demo_page_get_mappings_inactive(): void
     {
-        $model = new Demo_page();
+        $model = new Demo_page;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $result = $mappings['status'][1](0);
@@ -107,19 +108,19 @@ class RootModelsTest extends TestCase
 
     public function test_filesystem_settings_table_name(): void
     {
-        $this->assertSame('settings_filesystem', (new FileSystemSettings())->getTable());
+        $this->assertSame('settings_filesystem', new FileSystemSettings()->getTable());
     }
 
     public function test_filesystem_settings_fillable(): void
     {
-        $model = new FileSystemSettings();
+        $model = new FileSystemSettings;
         $this->assertContains('disk', $model->getFillable());
         $this->assertContains('local_file_storage_path', $model->getFillable());
     }
 
     public function test_filesystem_settings_get_mappings(): void
     {
-        $model = new FileSystemSettings();
+        $model = new FileSystemSettings;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertArrayHasKey('disk', $mappings);
@@ -130,12 +131,12 @@ class RootModelsTest extends TestCase
 
     public function test_payment_log_table_name(): void
     {
-        $this->assertSame('payment_logs', (new Payment_log())->getTable());
+        $this->assertSame('payment_logs', new Payment_log()->getTable());
     }
 
     public function test_payment_log_fillable(): void
     {
-        $model = new Payment_log();
+        $model = new Payment_log;
         $this->assertContains('from', $model->getFillable());
         $this->assertContains('status', $model->getFillable());
         $this->assertContains('amount', $model->getFillable());
@@ -143,19 +144,19 @@ class RootModelsTest extends TestCase
 
     public function test_payment_log_timestamps_enabled(): void
     {
-        $this->assertTrue((new Payment_log())->timestamps);
+        $this->assertTrue((new Payment_log)->timestamps);
     }
 
     // ───────────── ReportColumn ─────────────
 
     public function test_report_column_table_name(): void
     {
-        $this->assertSame('report_columns', (new ReportColumn())->getTable());
+        $this->assertSame('report_columns', new ReportColumn()->getTable());
     }
 
     public function test_report_column_fillable(): void
     {
-        $model = new ReportColumn();
+        $model = new ReportColumn;
         $this->assertContains('key', $model->getFillable());
         $this->assertContains('label', $model->getFillable());
         $this->assertContains('type', $model->getFillable());
@@ -164,24 +165,24 @@ class RootModelsTest extends TestCase
 
     public function test_report_column_user_link_reports_relation(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new ReportColumn())->userLinkReports());
+        $this->assertInstanceOf(HasMany::class, new ReportColumn()->userLinkReports());
     }
 
     // ───────────── ReportSetting ─────────────
 
     public function test_report_setting_table_name(): void
     {
-        $this->assertSame('report_settings', (new ReportSetting())->getTable());
+        $this->assertSame('report_settings', new ReportSetting()->getTable());
     }
 
     public function test_report_setting_fillable(): void
     {
-        $this->assertContains('records', (new ReportSetting())->getFillable());
+        $this->assertContains('records', new ReportSetting()->getFillable());
     }
 
     public function test_report_setting_get_mappings(): void
     {
-        $model = new ReportSetting();
+        $model = new ReportSetting;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertArrayHasKey('records', $mappings);
@@ -191,12 +192,12 @@ class RootModelsTest extends TestCase
 
     public function test_third_party_app_table_name(): void
     {
-        $this->assertSame('third_party_apps', (new ThirdPartyApp())->getTable());
+        $this->assertSame('third_party_apps', new ThirdPartyApp()->getTable());
     }
 
     public function test_third_party_app_fillable(): void
     {
-        $model = new ThirdPartyApp();
+        $model = new ThirdPartyApp;
         $this->assertContains('app_name', $model->getFillable());
         $this->assertContains('app_key', $model->getFillable());
         $this->assertContains('app_secret', $model->getFillable());
@@ -204,7 +205,7 @@ class RootModelsTest extends TestCase
 
     public function test_third_party_app_get_mappings(): void
     {
-        $model = new ThirdPartyApp();
+        $model = new ThirdPartyApp;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertArrayHasKey('app_name', $mappings);
@@ -216,12 +217,12 @@ class RootModelsTest extends TestCase
 
     public function test_user_link_report_table_name(): void
     {
-        $this->assertSame('users_link_reports', (new UserLinkReport())->getTable());
+        $this->assertSame('users_link_reports', new UserLinkReport()->getTable());
     }
 
     public function test_user_link_report_fillable(): void
     {
-        $model = new UserLinkReport();
+        $model = new UserLinkReport;
         $this->assertContains('user_id', $model->getFillable());
         $this->assertContains('column_id', $model->getFillable());
         $this->assertContains('type', $model->getFillable());
@@ -229,29 +230,29 @@ class RootModelsTest extends TestCase
 
     public function test_user_link_report_user_relation(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new UserLinkReport())->user());
+        $this->assertInstanceOf(BelongsTo::class, new UserLinkReport()->user());
     }
 
     public function test_user_link_report_report_column_relation(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new UserLinkReport())->reportColumn());
+        $this->assertInstanceOf(BelongsTo::class, new UserLinkReport()->reportColumn());
     }
 
     // ───────────── VerificationAttempt ─────────────
 
     public function test_verification_attempt_table_name(): void
     {
-        $this->assertSame('verification_attempts', (new VerificationAttempt())->getTable());
+        $this->assertSame('verification_attempts', new VerificationAttempt()->getTable());
     }
 
     public function test_verification_attempt_primary_key(): void
     {
-        $this->assertSame('user_id', (new VerificationAttempt())->getKeyName());
+        $this->assertSame('user_id', new VerificationAttempt()->getKeyName());
     }
 
     public function test_verification_attempt_fillable(): void
     {
-        $model = new VerificationAttempt();
+        $model = new VerificationAttempt;
         $this->assertContains('user_id', $model->getFillable());
         $this->assertContains('mobile_attempt', $model->getFillable());
         $this->assertContains('email_attempt', $model->getFillable());
@@ -259,19 +260,19 @@ class RootModelsTest extends TestCase
 
     public function test_verification_attempt_user_relation(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new VerificationAttempt())->user());
+        $this->assertInstanceOf(BelongsTo::class, new VerificationAttempt()->user());
     }
 
     // ───────────── ApiKey ─────────────
 
     public function test_api_key_table_name(): void
     {
-        $this->assertSame('api_keys', (new ApiKey())->getTable());
+        $this->assertSame('api_keys', new ApiKey()->getTable());
     }
 
     public function test_api_key_fillable_contains_key_fields(): void
     {
-        $model = new ApiKey();
+        $model = new ApiKey;
         $fillable = $model->getFillable();
         $this->assertContains('rzp_key', $fillable);
         $this->assertContains('stripe_key', $fillable);
@@ -281,20 +282,20 @@ class RootModelsTest extends TestCase
 
     public function test_api_key_get_log_url_default(): void
     {
-        $model = new ApiKey();
+        $model = new ApiKey;
         $url = $model->getLogUrl();
         $this->assertStringContainsString('admin/settings/api/third-party', $url);
     }
 
     public function test_api_key_get_log_name_default(): void
     {
-        $model = new ApiKey();
+        $model = new ApiKey;
         $this->assertSame('api_key', $model->getLogName());
     }
 
     public function test_api_key_get_mappings_callbacks(): void
     {
-        $model = new ApiKey();
+        $model = new ApiKey;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertArrayHasKey('rzp_key', $mappings);
@@ -309,12 +310,12 @@ class RootModelsTest extends TestCase
 
     public function test_comment_table_name(): void
     {
-        $this->assertSame('comments', (new Comment())->getTable());
+        $this->assertSame('comments', new Comment()->getTable());
     }
 
     public function test_comment_fillable(): void
     {
-        $model = new Comment();
+        $model = new Comment;
         $this->assertContains('user_id', $model->getFillable());
         $this->assertContains('updated_by_user_id', $model->getFillable());
         $this->assertContains('description', $model->getFillable());
@@ -322,19 +323,19 @@ class RootModelsTest extends TestCase
 
     public function test_comment_user_relation(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new Comment())->user());
+        $this->assertInstanceOf(BelongsTo::class, new Comment()->user());
     }
 
     // ───────────── ExportDetail ─────────────
 
     public function test_export_detail_table_name(): void
     {
-        $this->assertSame('export_details', (new ExportDetail())->getTable());
+        $this->assertSame('export_details', new ExportDetail()->getTable());
     }
 
     public function test_export_detail_fillable(): void
     {
-        $model = new ExportDetail();
+        $model = new ExportDetail;
         $this->assertContains('user_id', $model->getFillable());
         $this->assertContains('file', $model->getFillable());
         $this->assertContains('file_path', $model->getFillable());
@@ -343,12 +344,12 @@ class RootModelsTest extends TestCase
 
     public function test_export_detail_user_relation(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new ExportDetail())->user());
+        $this->assertInstanceOf(BelongsTo::class, new ExportDetail()->user());
     }
 
     public function test_export_detail_get_mappings(): void
     {
-        $model = new ExportDetail();
+        $model = new ExportDetail;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertArrayHasKey('user_id', $mappings);
@@ -359,12 +360,12 @@ class RootModelsTest extends TestCase
 
     public function test_whatsapp_integration_user_table_name(): void
     {
-        $this->assertSame('whatsapp_integration_user', (new WhatsappIntegrationUser())->getTable());
+        $this->assertSame('whatsapp_integration_user', new WhatsappIntegrationUser()->getTable());
     }
 
     public function test_whatsapp_integration_user_fillable(): void
     {
-        $model = new WhatsappIntegrationUser();
+        $model = new WhatsappIntegrationUser;
         $this->assertContains('waba_id', $model->getFillable());
         $this->assertContains('user_id', $model->getFillable());
         $this->assertContains('access_token', $model->getFillable());
@@ -372,12 +373,12 @@ class RootModelsTest extends TestCase
 
     public function test_whatsapp_integration_user_user_relation(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new WhatsappIntegrationUser())->user());
+        $this->assertInstanceOf(BelongsTo::class, new WhatsappIntegrationUser()->user());
     }
 
     public function test_whatsapp_integration_user_get_mappings(): void
     {
-        $model = new WhatsappIntegrationUser();
+        $model = new WhatsappIntegrationUser;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertArrayHasKey('phone_number', $mappings);
@@ -392,14 +393,14 @@ class RootModelsTest extends TestCase
 
     public function test_whatsapp_integration_user_access_token_decrypts_on_get(): void
     {
-        $model = new WhatsappIntegrationUser();
+        $model = new WhatsappIntegrationUser;
         $model->access_token = 'my-secret';
         $this->assertSame('my-secret', $model->access_token);
     }
 
     public function test_whatsapp_integration_user_access_token_returns_raw_on_decrypt_failure(): void
     {
-        $model = new WhatsappIntegrationUser();
+        $model = new WhatsappIntegrationUser;
         $model->setRawAttributes(['access_token' => 'not-encrypted']);
         // DecryptException falls back to raw value
         $this->assertSame('not-encrypted', $model->access_token);
@@ -409,7 +410,7 @@ class RootModelsTest extends TestCase
     {
         // Regression: SystemActivityLogsTrait::getLogName() reads $this->logName (instance),
         // so declaring it `protected static` silently resolves to an empty log name.
-        $model = new WhatsappIntegrationUser();
+        $model = new WhatsappIntegrationUser;
         $this->assertSame('message.phoneNumber', $model->getActivitylogOptions()->logName);
     }
 
@@ -417,23 +418,23 @@ class RootModelsTest extends TestCase
 
     public function test_payment_log_user_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new Payment_log())->user());
+        $this->assertInstanceOf(BelongsTo::class, new Payment_log()->user());
     }
 
     public function test_payment_log_order_details_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new Payment_log())->orderDetails());
+        $this->assertInstanceOf(BelongsTo::class, new Payment_log()->orderDetails());
     }
 
     public function test_payment_log_user_relation_uses_email_as_foreign_key(): void
     {
-        $relation = (new Payment_log())->user();
+        $relation = new Payment_log()->user();
         $this->assertSame('from', $relation->getForeignKeyName());
     }
 
     public function test_payment_log_order_details_relation_uses_order_as_foreign_key(): void
     {
-        $relation = (new Payment_log())->orderDetails();
+        $relation = new Payment_log()->orderDetails();
         $this->assertSame('order', $relation->getForeignKeyName());
     }
 
@@ -441,24 +442,24 @@ class RootModelsTest extends TestCase
 
     public function test_user_backup_codes_table_name(): void
     {
-        $this->assertSame('user_backup_codes', (new UserBackupCodes())->getTable());
+        $this->assertSame('user_backup_codes', new UserBackupCodes()->getTable());
     }
 
     public function test_user_backup_codes_fillable_contains_expected_fields(): void
     {
-        $fillable = (new UserBackupCodes())->getFillable();
+        $fillable = new UserBackupCodes()->getFillable();
         $this->assertContains('user_id', $fillable);
         $this->assertContains('backup_codes', $fillable);
     }
 
     public function test_user_backup_codes_user_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new UserBackupCodes())->user());
+        $this->assertInstanceOf(BelongsTo::class, new UserBackupCodes()->user());
     }
 
     public function test_user_profile_pic_falls_back_to_default_avatar_for_an_invalid_email(): void
     {
-        $user = new \App\User();
+        $user = new User;
         $user->setRawAttributes(['email' => 'abc-', 'profile_pic' => '']);
 
         // Used to throw InvalidEmailException and 500 the admin user page.

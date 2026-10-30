@@ -174,7 +174,7 @@ $apiInstance = new Pipedrive\versions\v1\Api\PersonFieldsApi(
     new GuzzleHttp\Client(),
     $config
 );
-$ids = 'ids_example'; // string | The comma-separated field IDs to delete
+$ids = array(56); // int[] | The comma-separated field IDs to delete
 
 try {
     $result = $apiInstance->deletePersonFields($ids);
@@ -188,7 +188,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **ids** | **string**| The comma-separated field IDs to delete |
+ **ids** | [**int[]**](../Model/int.md)| The comma-separated field IDs to delete |
 
 ### Return type
 

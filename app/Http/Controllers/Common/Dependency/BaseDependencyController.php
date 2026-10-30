@@ -146,11 +146,11 @@ class BaseDependencyController extends Controller
 
         $this->paginate = (bool) $request->input('paginate');
 
-        $this->limitByStatus = $request->input('limit-by-status', true);
+        $this->limitByStatus = $request->input('limit-by-status', default: true);
 
-        $this->request->client_visibility = (bool) $request->input('client_visibility', false);
+        $this->request->client_visibility = (bool) $request->input('client_visibility', default: false);
 
-        $this->request->purpose_of_status = (bool) $request->input('purpose_of_status', false);
+        $this->request->purpose_of_status = (bool) $request->input('purpose_of_status', default: false);
 
         $this->request->purpose_of_status_id = $request->input('purpose_of_status_id') ?: null;
 

@@ -10,7 +10,7 @@ class Argon2IdHasher extends ArgonHasher
      * Check the given plain value against a hash.
      *
      * @param  string  $value
-     * @param  string  $hashedValue
+     * @param  string|null  $hashedValue
      * @param  array  $options
      * @return bool
      *
@@ -18,7 +18,7 @@ class Argon2IdHasher extends ArgonHasher
      */
     public function check(#[\SensitiveParameter] $value, $hashedValue, array $options = [])
     {
-        if (is_null($hashedValue) || strlen($hashedValue) === 0) {
+        if (is_null($hashedValue) || (string) $hashedValue === '') {
             return false;
         }
 
@@ -43,7 +43,7 @@ class Argon2IdHasher extends ArgonHasher
     /**
      * Get the algorithm that should be used for hashing.
      *
-     * @return int
+     * @return string
      */
     protected function algorithm()
     {

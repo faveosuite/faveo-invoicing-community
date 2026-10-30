@@ -20,12 +20,15 @@ use SebastianBergmann\CodeCoverage\Data\ProcessedClassType;
 use SebastianBergmann\CodeCoverage\Data\ProcessedFunctionType;
 use SebastianBergmann\CodeCoverage\Data\ProcessedTraitType;
 use SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode;
+use SebastianBergmann\CodeCoverage\Test\TestSizes;
 use SebastianBergmann\CodeCoverage\Util\Percentage;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @phpstan-import-type TestSizeSet from TestSizes
  */
 abstract class AbstractNode implements Countable
 {
@@ -136,6 +139,17 @@ abstract class AbstractNode implements Countable
         );
     }
 
+    /**
+     * @param TestSizeSet $testSizes
+     */
+    public function percentageOfExecutedLinesByTestSize(int $testSizes): Percentage
+    {
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfExecutedLinesByTestSize($testSizes),
+            $this->numberOfExecutableLines(),
+        );
+    }
+
     public function percentageOfExecutedBranches(): Percentage
     {
         return Percentage::fromFractionAndTotal(
@@ -163,6 +177,14 @@ abstract class AbstractNode implements Countable
     }
 
     /**
+     * @param TestSizeSet $testSizes
+     */
+    public function numberOfTestedClassesAndTraitsByTestSize(int $testSizes): int
+    {
+        return $this->numberOfTestedClassesByTestSize($testSizes) + $this->numberOfTestedTraitsByTestSize($testSizes);
+    }
+
+    /**
      * @return array<string, ProcessedClassType|ProcessedTraitType>
      */
     public function classesAndTraits(): array
@@ -178,6 +200,14 @@ abstract class AbstractNode implements Countable
     public function numberOfTestedFunctionsAndMethods(): int
     {
         return $this->numberOfTestedFunctions() + $this->numberOfTestedMethods();
+    }
+
+    /**
+     * @param TestSizeSet $testSizes
+     */
+    public function numberOfTestedFunctionsAndMethodsByTestSize(int $testSizes): int
+    {
+        return $this->numberOfTestedFunctionsByTestSize($testSizes) + $this->numberOfTestedMethodsByTestSize($testSizes);
     }
 
     /**
@@ -219,6 +249,11 @@ abstract class AbstractNode implements Countable
 
     abstract public function numberOfExecutedLines(): int;
 
+    /**
+     * @param TestSizeSet $testSizes
+     */
+    abstract public function numberOfExecutedLinesByTestSize(int $testSizes): int;
+
     abstract public function numberOfExecutableBranches(): int;
 
     abstract public function numberOfExecutedBranches(): int;
@@ -233,17 +268,37 @@ abstract class AbstractNode implements Countable
 
     abstract public function numberOfTestedClasses(): int;
 
+    /**
+     * @param TestSizeSet $testSizes
+     */
+    abstract public function numberOfTestedClassesByTestSize(int $testSizes): int;
+
     abstract public function numberOfTraits(): int;
 
     abstract public function numberOfTestedTraits(): int;
+
+    /**
+     * @param TestSizeSet $testSizes
+     */
+    abstract public function numberOfTestedTraitsByTestSize(int $testSizes): int;
 
     abstract public function numberOfMethods(): int;
 
     abstract public function numberOfTestedMethods(): int;
 
+    /**
+     * @param TestSizeSet $testSizes
+     */
+    abstract public function numberOfTestedMethodsByTestSize(int $testSizes): int;
+
     abstract public function numberOfFunctions(): int;
 
     abstract public function numberOfTestedFunctions(): int;
+
+    /**
+     * @param TestSizeSet $testSizes
+     */
+    abstract public function numberOfTestedFunctionsByTestSize(int $testSizes): int;
 
     private function processId(): void
     {

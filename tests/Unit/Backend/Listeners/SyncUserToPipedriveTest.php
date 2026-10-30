@@ -10,6 +10,7 @@ use App\Http\Controllers\Common\PipedriveController;
 use App\Listeners\SyncUserToPipedrive;
 use App\Model\Common\StatusSetting;
 use App\User;
+use Illuminate\Contracts\Queue\Job;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery;
@@ -29,12 +30,12 @@ class SyncUserToPipedriveTest extends TestCase
 
     public function test_implements_should_queue(): void
     {
-        $this->assertInstanceOf(ShouldQueue::class, new SyncUserToPipedrive());
+        $this->assertInstanceOf(ShouldQueue::class, new SyncUserToPipedrive);
     }
 
     public function test_max_tries_is_three(): void
     {
-        $this->assertSame(3, (new SyncUserToPipedrive())->tries);
+        $this->assertSame(3, (new SyncUserToPipedrive)->tries);
     }
 
     // --- handle(): pipedrive disabled → does not sync ---
@@ -44,7 +45,7 @@ class SyncUserToPipedriveTest extends TestCase
         // Ensure pipedrive_status = 0 (disabled) in real DB (read-only, no write needed)
         $user = User::factory()->create();
         $event = new UserRegisteredEvent($user, 'register');
-        $listener = new SyncUserToPipedrive();
+        $listener = new SyncUserToPipedrive;
 
         // When isEnabled() returns false, sync() must never be called.
         // We test this by verifying handle() completes without calling the external service.
@@ -67,11 +68,11 @@ class SyncUserToPipedriveTest extends TestCase
         // Wait, actually it checks isEnabled() FIRST, then trigger.
         // So we test: if enabled, but trigger is admin_create and verification not required → skipped.
         $user = User::factory()->create();
-        $event = new UserRegisteredEvent($user, 'admin_create');
+        new UserRegisteredEvent($user, 'admin_create');
 
         // We can't easily mock the static DB calls inside isEnabled()/requiresVerification()
         // without alias mocking. Instead, check the serviceKey() returns 'pipedrive'.
-        $listener = new SyncUserToPipedrive();
+        $listener = new SyncUserToPipedrive;
         $this->assertSame('pipedrive', $this->getPrivateMethod($listener, 'serviceKey'));
     }
 
@@ -79,7 +80,7 @@ class SyncUserToPipedriveTest extends TestCase
 
     public function test_service_key_is_pipedrive(): void
     {
-        $listener = new SyncUserToPipedrive();
+        $listener = new SyncUserToPipedrive;
         $this->assertSame('pipedrive', $this->getPrivateMethod($listener, 'serviceKey'));
     }
 
@@ -87,7 +88,7 @@ class SyncUserToPipedriveTest extends TestCase
 
     public function test_is_enabled_returns_bool(): void
     {
-        $listener = new SyncUserToPipedrive();
+        $listener = new SyncUserToPipedrive;
         $result = $this->getPrivateMethod($listener, 'isEnabled');
 
         $this->assertIsBool($result);
@@ -107,7 +108,7 @@ class SyncUserToPipedriveTest extends TestCase
         $mockPipedrive->shouldReceive('addUserToPipedrive')->once()->with($user);
         $this->app->instance(PipedriveController::class, $mockPipedrive);
 
-        $listener = new SyncUserToPipedrive();
+        $listener = new SyncUserToPipedrive;
 
         try {
             $listener->handle($event);
@@ -132,9 +133,10 @@ class SyncUserToPipedriveTest extends TestCase
 
         $mockPipedrive = Mockery::mock(PipedriveController::class);
         $mockPipedrive->shouldNotReceive('addUserToPipedrive');
+
         $this->app->instance(PipedriveController::class, $mockPipedrive);
 
-        (new SyncUserToPipedrive())->handle($event);
+        new SyncUserToPipedrive()->handle($event);
 
         $this->assertTrue(true);
 
@@ -156,7 +158,7 @@ class SyncUserToPipedriveTest extends TestCase
         $this->app->instance(PipedriveController::class, $mockPipedrive);
 
         // No job attached = running inline (sync driver): the error is logged, not thrown.
-        (new SyncUserToPipedrive())->handle($event);
+        new SyncUserToPipedrive()->handle($event);
 
         $this->assertTrue(true);
     }
@@ -173,8 +175,8 @@ class SyncUserToPipedriveTest extends TestCase
         $mockPipedrive->shouldReceive('addUserToPipedrive')->once()->andThrow(new \RuntimeException('API key has been disabled'));
         $this->app->instance(PipedriveController::class, $mockPipedrive);
 
-        $listener = new SyncUserToPipedrive();
-        $listener->setJob(Mockery::mock(\Illuminate\Contracts\Queue\Job::class));
+        $listener = new SyncUserToPipedrive;
+        $listener->setJob(Mockery::mock(Job::class));
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessageIsOrContains('API key has been disabled');
@@ -187,7 +189,7 @@ class SyncUserToPipedriveTest extends TestCase
     public function test_failed_logs_exception(): void
     {
         $logged = false;
-        \Logger::shouldReceive('exception')->once()->andReturnUsing(function () use (&$logged) {
+        \Logger::shouldReceive('exception')->once()->andReturnUsing(function () use (&$logged): void {
             $logged = true;
         });
 
@@ -195,7 +197,7 @@ class SyncUserToPipedriveTest extends TestCase
         $event = new UserRegisteredEvent($user, 'register');
         $exception = new \RuntimeException('Test failure');
 
-        (new SyncUserToPipedrive())->failed($event, $exception);
+        new SyncUserToPipedrive()->failed($event, $exception);
 
         $this->assertTrue($logged, 'Logger::exception was not called');
     }
@@ -204,7 +206,7 @@ class SyncUserToPipedriveTest extends TestCase
 
     public function test_requires_verification_returns_false_when_key_missing(): void
     {
-        $listener = new SyncUserToPipedrive();
+        $listener = new SyncUserToPipedrive;
         $result = $this->getPrivateMethod($listener, 'requiresVerification');
 
         $this->assertIsBool($result);
@@ -227,7 +229,7 @@ class SyncUserToPipedriveTest extends TestCase
         $this->app->instance(PipedriveController::class, $mockPipedrive);
 
         try {
-            (new SyncUserToPipedrive())->handle($event);
+            new SyncUserToPipedrive()->handle($event);
         } catch (\Throwable) {
             // ok
         }
@@ -255,9 +257,10 @@ class SyncUserToPipedriveTest extends TestCase
 
         $mockPipedrive = Mockery::mock(PipedriveController::class);
         $mockPipedrive->shouldNotReceive('addUserToPipedrive');
+
         $this->app->instance(PipedriveController::class, $mockPipedrive);
 
-        (new SyncUserToPipedrive())->handle($event);
+        new SyncUserToPipedrive()->handle($event);
 
         $this->assertTrue(true);
 

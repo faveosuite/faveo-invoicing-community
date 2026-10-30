@@ -179,7 +179,7 @@ class OrderSearchController extends Controller
         } elseif ($renewal === 'active_subscription') {
             // No end date = lifetime license, which never expires.
             $query->whereHas('subscription', function (\Illuminate\Contracts\Database\Query\Builder $q) use ($now): void {
-                $q->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>=', $now));
+                $q->where(fn (\Illuminate\Contracts\Database\Query\Builder $q) => $q->whereNull('ends_at')->orWhere('ends_at', '>=', $now));
             });
         } elseif ($renewal === 'expiring_subscription') {
             $thirtyDaysFromNow = $now->copy()->addDays(30);
@@ -198,7 +198,7 @@ class OrderSearchController extends Controller
             return;
         }
 
-        if (! in_array($version, ['Latest', 'Outdated'], true)) {
+        if (! in_array($version, ['Latest', 'Outdated'], strict: true)) {
             $query->whereIn('orders.number', $this->installedOrderNumbers(fn ($q) => $q->where('installation_logs.version_number', $version)));
 
             return;

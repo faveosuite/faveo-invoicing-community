@@ -11,6 +11,7 @@ use App\Model\Common\TemplateType;
 use DB;
 use Exception;
 use Illuminate\Container\Container;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Queue\Jobs\Job;
@@ -130,10 +131,10 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             Logger::outgoingMailSent($id);
 
             return successResponse(trans('log::lang.queued_dispatch_successfully'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }

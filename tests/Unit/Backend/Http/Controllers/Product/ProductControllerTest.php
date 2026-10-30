@@ -5,9 +5,17 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Controllers\Product;
 
 use App\Facades\Attach;
+use App\Http\Controllers\Product\ProductController;
+use App\Http\Middleware\Install;
+use App\License\Services\ProductBundleStampingService;
+use App\Model\License\LicenseType;
+use App\Model\Payment\Plan;
+use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
+use App\Model\Product\ProductGroup;
 use App\Model\Product\ProductUpload;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Tests\DBTestCase;
 
@@ -18,7 +26,7 @@ class ProductControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     // --- GET /products ---
@@ -71,6 +79,7 @@ class ProductControllerTest extends DBTestCase
         $response = $this->postJson('/product', []);
 
         $response->assertStatus(412);
+
         $errors = $response->json('message');
 
         foreach (['name', 'type', 'group'] as $field) {
@@ -149,7 +158,7 @@ class ProductControllerTest extends DBTestCase
     public function test_get_existing_product_returns_200(): void
     {
         $this->getLoggedInUser('admin');
-        $product = \App\Model\Product\Product::factory()->create();
+        $product = Product::factory()->create();
         $response = $this->getJson("/product/{$product->id}");
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
@@ -205,12 +214,12 @@ class ProductControllerTest extends DBTestCase
         // Covers lines 423+: productCreate
         $this->getLoggedInUser('admin');
 
-        $product = Product::factory()->make();
+        Product::factory()->make();
         $response = $this->postJson('/product', [
             'name' => 'Test Product '.uniqid(),
-            'type' => \App\Model\License\LicenseType::factory()->create()->id,
+            'type' => LicenseType::factory()->create()->id,
             'product_type' => 'independent',
-            'group' => \App\Model\Product\ProductGroup::factory()->create()->id,
+            'group' => ProductGroup::factory()->create()->id,
             'require_domain' => 0,
             'description' => 'Test description',
             'product_description' => 'Full description',
@@ -231,9 +240,9 @@ class ProductControllerTest extends DBTestCase
 
         $response = $this->patchJson('/product/'.$product->id, [
             'name' => 'Updated Product',
-            'type' => \App\Model\License\LicenseType::factory()->create()->id,
+            'type' => LicenseType::factory()->create()->id,
             'product_type' => 'independent',
-            'group' => \App\Model\Product\ProductGroup::factory()->create()->id,
+            'group' => ProductGroup::factory()->create()->id,
             'require_domain' => 0,
             'description' => 'Updated description',
             'product_description' => 'Updated full description',
@@ -287,12 +296,12 @@ class ProductControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $controller = new \App\Http\Controllers\Product\ProductController($this->app->make(\App\License\Services\ProductBundleStampingService::class));
-        $request = new \Illuminate\Http\Request;
+        $controller = new ProductController($this->app->make(ProductBundleStampingService::class));
+        $request = new Request;
         $request->merge(['limit' => 10, 'page' => 1]);
 
         $response = $controller->getProductDropdown($request);
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
 
         $this->assertTrue($body['success']);
         $this->assertArrayHasKey('data', $body['data']);
@@ -302,12 +311,12 @@ class ProductControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $controller = new \App\Http\Controllers\Product\ProductController($this->app->make(\App\License\Services\ProductBundleStampingService::class));
-        $request = new \Illuminate\Http\Request;
+        $controller = new ProductController($this->app->make(ProductBundleStampingService::class));
+        $request = new Request;
         $request->merge(['search-query' => '__no_match_xyzzy__', 'limit' => 10]);
 
         $response = $controller->getProductDropdown($request);
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
 
         $this->assertTrue($body['success']);
         $this->assertEmpty($body['data']['data']);
@@ -321,12 +330,12 @@ class ProductControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $controller = new \App\Http\Controllers\Product\ProductController($this->app->make(\App\License\Services\ProductBundleStampingService::class));
-        $request = new \Illuminate\Http\Request;
+        $controller = new ProductController($this->app->make(ProductBundleStampingService::class));
+        $request = new Request;
         $request->merge(['limit' => 10]);
 
         $response = $controller->getProductPlans($request, 999999);
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
 
         $this->assertTrue($body['success']);
         $this->assertEmpty($body['data']['data']);
@@ -336,14 +345,14 @@ class ProductControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'Test Product '.uniqid()]);
+        $product = Product::first() ?? Product::create(['name' => 'Test Product '.uniqid()]);
 
-        $controller = new \App\Http\Controllers\Product\ProductController($this->app->make(\App\License\Services\ProductBundleStampingService::class));
-        $request = new \Illuminate\Http\Request;
+        $controller = new ProductController($this->app->make(ProductBundleStampingService::class));
+        $request = new Request;
         $request->merge(['search-query' => '__no_plan_xyzzy__', 'limit' => 10]);
 
         $response = $controller->getProductPlans($request, $product->id);
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
 
         $this->assertTrue($body['success']);
         $this->assertEmpty($body['data']['data']);
@@ -383,6 +392,7 @@ class ProductControllerTest extends DBTestCase
         $response = $this->postJson("/product/upload/{$product->id}", []);
 
         $response->assertStatus(412);
+
         $errors = $response->json('message');
         foreach (['producttitle', 'version', 'dependencies'] as $field) {
             $this->assertArrayHasKey($field, $errors, "Expected '$field' validation error");
@@ -470,7 +480,7 @@ class ProductControllerTest extends DBTestCase
     public function test_update_product_upload_with_valid_data_returns_200(): void
     {
         $this->getLoggedInUser('admin');
-        $upload = \App\Model\Product\ProductUpload::factory()->create();
+        $upload = ProductUpload::factory()->create();
 
         $response = $this->patchJson("/product/upload/{$upload->id}", [
             'title' => 'Updated Title',
@@ -489,7 +499,7 @@ class ProductControllerTest extends DBTestCase
     public function test_update_product_upload_missing_required_fields_returns_422(): void
     {
         $this->getLoggedInUser('admin');
-        $upload = \App\Model\Product\ProductUpload::factory()->create();
+        $upload = ProductUpload::factory()->create();
 
         $response = $this->patchJson("/product/upload/{$upload->id}", [
             // 'title' missing — required; 'dependencies' and 'release_type' also required
@@ -506,7 +516,7 @@ class ProductControllerTest extends DBTestCase
     public function test_update_product_upload_with_new_filename_updates_file_field(): void
     {
         $this->getLoggedInUser('admin');
-        $upload = \App\Model\Product\ProductUpload::factory()->create();
+        $upload = ProductUpload::factory()->create();
 
         $response = $this->patchJson("/product/upload/{$upload->id}", [
             'title' => 'Renamed Release',
@@ -535,7 +545,7 @@ class ProductControllerTest extends DBTestCase
     public function test_get_product_upload_returns_200_for_existing(): void
     {
         $this->getLoggedInUser('admin');
-        $upload = \App\Model\Product\ProductUpload::factory()->create();
+        $upload = ProductUpload::factory()->create();
 
         $response = $this->getJson("/product/upload/{$upload->id}");
 
@@ -587,6 +597,7 @@ class ProductControllerTest extends DBTestCase
         $response = $this->getJson("/product/{$product->id}");
 
         $response->assertStatus(200);
+
         $productData = $response->json('data.product');
         $this->assertEquals($product->id, $productData['id']);
         $this->assertEquals($product->name, $productData['name']);
@@ -600,7 +611,7 @@ class ProductControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $product = Product::factory()->create();
-        \App\Model\Product\ProductUpload::factory()->create([
+        ProductUpload::factory()->create([
             'product_id' => $product->id,
             'title' => 'My Special Release',
         ]);
@@ -665,6 +676,7 @@ class ProductControllerTest extends DBTestCase
         $response = $this->getJson('/products?limit=5');
 
         $response->assertStatus(200);
+
         $data = $response->json('data.data');
         $this->assertNotEmpty($data);
         $this->assertArrayHasKey('id', $data[0]);
@@ -708,11 +720,12 @@ class ProductControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $product = Product::factory()->create();
         foreach (['v9.4.3', 'v10.0.0', 'v10.1.0'] as $version) {
-            \App\Model\Product\ProductUpload::create([
+            ProductUpload::create([
                 'product_id' => $product->id, 'title' => $version, 'version' => $version,
                 'file' => 'x.zip', 'is_private' => 0, 'release_type' => 'official',
             ]);
         }
+
         $versions = fn (string $query) => collect($this->getJson("/product/uploads/{$product->id}{$query}")->json('data.data'))->pluck('version')->all();
 
         $this->assertSame(['v10.1.0', 'v10.0.0', 'v9.4.3'], $versions(''));
@@ -726,7 +739,7 @@ class ProductControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         Attach::shouldReceive('exists')->with('products/core-build.zip')->andReturn(true);
         $product = Product::factory()->create();
-        $payload = fn (string $type) => [
+        $payload = fn (string $type): array => [
             'filename' => 'core-build.zip', 'dependencies' => ['core'], 'description' => 'Bulk apply',
             'release_type' => $type, 'products' => [['id' => $product->id, 'version' => '1.0.0']],
         ];
@@ -788,9 +801,9 @@ class ProductControllerTest extends DBTestCase
     {
         return array_merge([
             'name' => 'Test Product '.uniqid(),
-            'type' => \App\Model\License\LicenseType::factory()->create()->id,
+            'type' => LicenseType::factory()->create()->id,
             'product_type' => 'independent',
-            'group' => \App\Model\Product\ProductGroup::factory()->create()->id,
+            'group' => ProductGroup::factory()->create()->id,
             'require_domain' => 0,
             'description' => 'Test description',
             'product_description' => 'Full description',
@@ -832,9 +845,9 @@ class ProductControllerTest extends DBTestCase
     public function test_deleting_a_product_removes_its_plans_and_cloud_setting(): void
     {
         $this->getLoggedInUser('admin');
-        $product = \App\Model\Product\Product::factory()->create();
-        $plan = \App\Model\Payment\Plan::create(['name' => 'Gone '.uniqid(), 'product' => $product->id, 'days' => 30]);
-        \App\Model\Product\CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
+        $product = Product::factory()->create();
+        $plan = Plan::create(['name' => 'Gone '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
 
         $this->deleteJson('/products', ['product_ids' => [$product->id]])->assertOk();
 

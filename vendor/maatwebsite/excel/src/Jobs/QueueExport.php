@@ -2,65 +2,51 @@
 
 namespace Maatwebsite\Excel\Jobs;
 
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Maatwebsite\Excel\Concerns\Export;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Exceptions\NoSheetsFoundException;
 use Maatwebsite\Excel\Files\TemporaryFile;
 use Maatwebsite\Excel\Jobs\Middleware\LocalizeJob;
 use Maatwebsite\Excel\Writer;
+use PhpOffice\PhpSpreadsheet\Exception;
 use Throwable;
 
 class QueueExport implements ShouldQueue
 {
-    use ExtendedQueueable, Dispatchable, InteractsWithQueue;
+    use Batchable, Dispatchable, ExtendedQueueable, InteractsWithQueue;
 
-    /**
-     * @var object
-     */
-    public $export;
-
-    /**
-     * @var string
-     */
-    private $writerType;
-
-    /**
-     * @var TemporaryFile
-     */
-    private $temporaryFile;
-
-    /**
-     * @param  object  $export
-     * @param  TemporaryFile  $temporaryFile
-     * @param  string  $writerType
-     */
-    public function __construct($export, TemporaryFile $temporaryFile, string $writerType)
-    {
-        $this->export        = $export;
-        $this->writerType    = $writerType;
-        $this->temporaryFile = $temporaryFile;
+    public function __construct(
+        public Export $export,
+        private readonly TemporaryFile $temporaryFile,
+        private readonly string $writerType,
+    ) {
     }
 
     /**
      * Get the middleware the job should be dispatched through.
      *
-     * @return array
+     * @return array<int, object>
      */
-    public function middleware()
+    public function middleware(): array
     {
         return (method_exists($this->export, 'middleware')) ? $this->export->middleware() : [];
     }
 
     /**
-     * @param  Writer  $writer
-     *
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws Exception
      */
-    public function handle(Writer $writer)
+    public function handle(Writer $writer): void
     {
-        (new LocalizeJob($this->export))->handle($this, function () use ($writer) {
+        // Determine if the batch has been cancelled...
+        if ($this->batch()?->cancelled()) {
+            return;
+        }
+
+        (new LocalizeJob($this->export))->handle($this, function () use ($writer): void {
             $writer->open($this->export);
 
             $sheetExports = [$this->export];
@@ -74,7 +60,7 @@ class QueueExport implements ShouldQueue
 
             // Pre-create the worksheets
             foreach ($sheetExports as $sheetIndex => $sheetExport) {
-                $sheet = $writer->addNewSheet($sheetIndex);
+                $sheet = $writer->getSheetForExport($sheetIndex);
                 $sheet->open($sheetExport);
             }
 
@@ -83,10 +69,7 @@ class QueueExport implements ShouldQueue
         });
     }
 
-    /**
-     * @param  Throwable  $e
-     */
-    public function failed(Throwable $e)
+    public function failed(Throwable $e): void
     {
         if (method_exists($this->export, 'failed')) {
             $this->export->failed($e);

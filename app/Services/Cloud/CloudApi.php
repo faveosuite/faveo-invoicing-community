@@ -14,9 +14,7 @@ use RuntimeException;
  */
 class CloudApi
 {
-    public function __construct(private readonly Client $client, private readonly ?FaveoCloud $cloud = null)
-    {
-    }
+    public function __construct(private readonly Client $client, private readonly ?FaveoCloud $cloud = null) {}
 
     /**
      * GET with the app key as ?key=.
@@ -55,6 +53,7 @@ class CloudApi
         if (! $this->cloud?->cloud_central_domain) {
             throw new RuntimeException('Faveo Cloud central domain is not configured.');
         }
+
         $options['headers'] = ($options['headers'] ?? []) + ['Accept' => 'application/json'];
 
         return (string) $this->client->request($method, $this->cloud->cloud_central_domain.$endpoint, $options)->getBody();
@@ -78,7 +77,7 @@ class CloudApi
      */
     private function decode(string $endpoint, string $body): array
     {
-        $result = json_decode(substr($body, (int) strpos($body, '{')), true);
+        $result = json_decode(substr($body, (int) strpos($body, '{')), associative: true);
         if (! is_array($result)) {
             throw new RuntimeException(sprintf('Cloud %s returned an unreadable response: %s', $endpoint, Str::limit($body, 500)));
         }

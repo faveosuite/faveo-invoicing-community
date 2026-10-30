@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Backend\Http\Controllers\Order;
 
+use App\Http\Middleware\Install;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -16,7 +19,7 @@ class RenewRouteAuthTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     public function test_guests_cannot_reach_any_renew_endpoint(): void

@@ -242,7 +242,7 @@ class RenewController extends BaseRenewController
             // must be settled or cancelled first — the same rule as admin renew. Otherwise plan A
             // then plan B left two renewal invoices, and paying both extended the dates twice.
             $unpaid = $order->latestUnpaidInvoice();
-            if ($unpaid) {
+            if ($unpaid instanceof Invoice) {
                 return errorResponse(__('message.renew_blocked_unpaid_invoice', ['number' => $unpaid->number]));
             }
 

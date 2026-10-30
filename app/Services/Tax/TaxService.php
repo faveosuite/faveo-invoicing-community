@@ -20,8 +20,7 @@ class TaxService
     public function __construct(
         private readonly TaxRateResolver $resolver,
         private readonly TaxEngine $engine,
-    ) {
-    }
+    ) {}
 
     /**
      * Full tax breakdown for a single taxable amount (one invoice line total).

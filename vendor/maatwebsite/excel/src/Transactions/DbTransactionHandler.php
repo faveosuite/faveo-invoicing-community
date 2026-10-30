@@ -2,30 +2,26 @@
 
 namespace Maatwebsite\Excel\Transactions;
 
+use Closure;
 use Illuminate\Database\ConnectionInterface;
+use Throwable;
 
 class DbTransactionHandler implements TransactionHandler
 {
-    /**
-     * @var ConnectionInterface
-     */
-    private $connection;
-
-    /**
-     * @param  ConnectionInterface  $connection
-     */
-    public function __construct(ConnectionInterface $connection)
-    {
-        $this->connection = $connection;
+    public function __construct(
+        private readonly ConnectionInterface $connection,
+    ) {
     }
 
     /**
-     * @param  callable  $callback
-     * @return mixed
+     * @template TReturn
      *
-     * @throws \Throwable
+     * @param  Closure():TReturn  $callback
+     * @return TReturn
+     *
+     * @throws Throwable
      */
-    public function __invoke(callable $callback)
+    public function __invoke(callable $callback): mixed
     {
         return $this->connection->transaction($callback);
     }

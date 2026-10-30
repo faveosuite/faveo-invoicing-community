@@ -41,8 +41,7 @@ class SubscriptionController extends Controller
 
     public function __construct(
         protected ConcretePostSubscriptionHandleController $PostSubscriptionHandle
-    ) {
-    }
+    ) {}
 
     // ── Cron entry point ──────────────────────────────────────────────────
 
@@ -165,6 +164,7 @@ class SubscriptionController extends Controller
             if (! $subscription instanceof Subscription) {
                 throw new Exception('Subscription not found.');
             }
+
             $plan = Plan::findOrFail($subscription->plan_id);
             $order = Order::findOrFail($subscription->order_id);
             $user = User::findOrFail($subscription->user_id);
@@ -346,6 +346,7 @@ class SubscriptionController extends Controller
         if (! $order instanceof Order || ! $user instanceof User) {
             return;
         }
+
         $productName = (string) Product::where('id', $subscription->product_id)->value('name');
         $cost = (float) $invoice->grand_total;
 
@@ -491,6 +492,7 @@ class SubscriptionController extends Controller
         if (! $setting instanceof Setting) {
             return;
         }
+
         $contact = getContactData();
         $templateName = $immediate ? 'razorpay_autorenew_setup' : 'stripe_subscription_authentication';
         $template = TemplateType::where('name', $templateName)

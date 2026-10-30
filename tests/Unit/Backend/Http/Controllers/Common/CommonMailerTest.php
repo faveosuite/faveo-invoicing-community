@@ -14,7 +14,7 @@ class CommonMailerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->mailer = new CommonMailer();
+        $this->mailer = new CommonMailer;
     }
 
     public function test_set_smtp_driver_returns_false_for_empty_config(): void

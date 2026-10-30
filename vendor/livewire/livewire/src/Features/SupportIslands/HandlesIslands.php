@@ -6,6 +6,8 @@ use Livewire\Mechanisms\ExtendBlade\ExtendBlade;
 use Livewire\Features\SupportStreaming\SupportStreaming;
 use Livewire\Features\SupportIslands\Compiler\IslandCompiler;
 use Livewire\Drawer\Utils;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 use function Livewire\trigger;
 
@@ -15,6 +17,7 @@ trait HandlesIslands
     protected $islandsHaveMounted = false;
     protected $islandIsTopLevelRender = false;
     protected $renderedIslandFragments = [];
+    protected $implicitIslandMorphs = [];
 
     public function islandIsMounting()
     {
@@ -104,6 +107,34 @@ trait HandlesIslands
         ]);
     }
 
+    public function triggerImplicitIslandRender($name, $mode = 'morph', $mount = false)
+    {
+        $this->skipRender();
+
+        if ($mode !== 'morph') {
+            $this->renderIsland(name: $name, mode: $mode, mount: $mount);
+
+            return;
+        }
+
+        if (isset($this->implicitIslandMorphs[$name])) {
+            $this->implicitIslandMorphs[$name]['mount'] = $this->implicitIslandMorphs[$name]['mount'] || $mount;
+
+            return;
+        }
+
+        $this->implicitIslandMorphs[$name] = compact('name', 'mode', 'mount');
+    }
+
+    public function renderImplicitIslandMorphs()
+    {
+        foreach ($this->implicitIslandMorphs as $island) {
+            $this->renderIsland(...$island);
+        }
+
+        $this->implicitIslandMorphs = [];
+    }
+
     public function renderIsland($name, $content = null, $mode = 'morph', $with = [], $mount = false)
     {
         $islands = $this->getIslands();
@@ -114,9 +145,6 @@ trait HandlesIslands
                 $token = $island['token'];
 
                 if (! $token) continue;
-
-                // Skip if this island was already rendered in this request...
-                if ($this->islandAlreadyRendered($name, $token)) continue;
 
                 // If the island is lazy, we need to mount it, but to ensure any nested islands render,
                 // we need to set the `$islandsHaveMounted` flag to false and reset it back after the
@@ -138,17 +166,6 @@ trait HandlesIslands
                 $finish();
             }
         }
-    }
-
-    protected function islandAlreadyRendered($name, $token)
-    {
-        foreach ($this->renderedIslandFragments as $fragment) {
-            if (str_contains($fragment, "name={$name}|token={$token}")) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public function streamIsland($name, $content = null, $mode = 'morph', $with = [])
@@ -190,6 +207,10 @@ trait HandlesIslands
             $this->regenerateIslandCacheFiles();
         }
 
+        if (! file_exists($path)) {
+            $this->regenerateIncludedIslandCacheFiles($token);
+        }
+
         $view = app('view')->file($path);
 
         app(ExtendBlade::class)->startLivewireRendering($this);
@@ -202,9 +223,18 @@ trait HandlesIslands
 
         $view->with($data);
 
+        // Blade components and third-party packages detect the Livewire context
+        // through the shared "__livewire" variable, so an island render has to
+        // share it the same way a full component render does...
+        $revertShare = Utils::shareWithViews('__livewire', $this);
+
         $finish = trigger('renderIsland', $this, $name, $view, $properties);
 
-        $html = $view->render();
+        try {
+            $html = $view->render();
+        } finally {
+            $revertShare();
+        }
 
         $replaceHtml = function ($newHtml) use (&$html) {
             $html = $newHtml;
@@ -242,6 +272,31 @@ trait HandlesIslands
         }
 
         app('blade.compiler')->compile($viewPath);
+    }
+
+    protected function regenerateIncludedIslandCacheFiles($token)
+    {
+        // Islands in an @include'd partial are only compiled with that partial,
+        // so find the partial whose path hash matches the token and compile it...
+        $hash = Str::before($token, '-');
+        $finder = app('view')->getFinder();
+        $cacheManager = app('livewire.compiler')->cacheManager;
+
+        foreach (array_merge($finder->getPaths(), ...array_values($finder->getHints())) as $directory) {
+            if (! is_dir($directory)) continue;
+
+            foreach (File::allFiles($directory) as $file) {
+                $path = $file->getPathname();
+
+                if (! str_ends_with($path, '.blade.php')) continue;
+
+                if ($cacheManager->getHash($path) !== $hash) continue;
+
+                app('blade.compiler')->compile($path);
+
+                return;
+            }
+        }
     }
 
     protected function wrapWithFragmentMarkers($output, $metadata)

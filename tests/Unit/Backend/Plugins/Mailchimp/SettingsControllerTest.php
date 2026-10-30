@@ -57,7 +57,7 @@ class SettingsControllerTest extends DBTestCase
             'us7.api.mailchimp.com/3.0/*' => Http::response(['account_name' => 'Faveo Test']),
         ]);
 
-        $data = $this->controller->getSettings()->getData(true)['data'];
+        $data = $this->controller->getSettings()->getData(assoc: true)['data'];
 
         $this->assertSame(self::KEY, $data['api_key']);
         $this->assertTrue($data['has_key']);
@@ -111,7 +111,7 @@ class SettingsControllerTest extends DBTestCase
 
     public function test_field_mapping_requires_the_fields_mailchimp_requires(): void
     {
-        app('translator')->addLines(['message.mailchimp_required_missing' => 'Map the fields Mailchimp requires: :fields'], 'en');
+        resolve('translator')->addLines(['message.mailchimp_required_missing' => 'Map the fields Mailchimp requires: :fields'], 'en');
         $response = $this->controller->saveFieldMapping(new Request(['first_name' => 'FNAME']));
 
         $this->assertSame(422, $response->getStatusCode());
@@ -146,7 +146,7 @@ class SettingsControllerTest extends DBTestCase
 
     public function test_send_test_says_so_when_nothing_is_mapped(): void
     {
-        MailchimpFieldAgoraRelation::firstOrNew()->fill(array_fill_keys(['first_name', 'last_name', 'company', 'mobile', 'address', 'town', 'country', 'state', 'zip', 'active', 'role', 'source'], null))->save();
+        MailchimpFieldAgoraRelation::firstOrNew()->fill(array_fill_keys(['first_name', 'last_name', 'company', 'mobile', 'address', 'town', 'country', 'state', 'zip', 'active', 'role', 'source'], value: null))->save();
         $this->actingAs(User::factory()->create());
 
         $response = $this->controller->sendTest();
@@ -157,7 +157,7 @@ class SettingsControllerTest extends DBTestCase
 
     public function test_send_test_shows_mailchimps_reason_when_it_fails(): void
     {
-        app('translator')->addLines(['message.mailchimp_test_failed' => 'Mailchimp rejected the test: :reason'], 'en');
+        resolve('translator')->addLines(['message.mailchimp_test_failed' => 'Mailchimp rejected the test: :reason'], 'en');
         MailchimpFieldAgoraRelation::firstOrNew()->fill(['first_name' => 'FNAME', 'company' => 'COMPANY'])->save();
         $this->actingAs(User::factory()->create(['first_name' => 'Ann', 'company' => 'Acme']));
         Http::fake(['us7.api.mailchimp.com/3.0/lists/list1/members' => Http::response(['detail' => 'Your merge fields were invalid.'], 400)]);
@@ -203,7 +203,7 @@ class SettingsControllerTest extends DBTestCase
         MailchimpGroupAgoraRelation::create(['agora_product_id' => 99, 'mailchimp_group_cat_id' => 'stale']);
         MailchimpGroupAgoraRelation::create(['agora_product_id' => 99, 'mailchimp_group_cat_id' => 'good']);
 
-        $this->assertSame(['yes1' => true, 'good' => true], resolve(ContactBuilder::class)->purchaseInterests(99, true));
+        $this->assertSame(['yes1' => true, 'good' => true], resolve(ContactBuilder::class)->purchaseInterests(99, isPaid: true));
     }
 
     public function test_mailchimp_errors_name_the_invalid_fields(): void
@@ -214,10 +214,10 @@ class SettingsControllerTest extends DBTestCase
         ], 400)]);
 
         try {
-            (new MailchimpClient(self::KEY))->post('lists/list1/members');
+            new MailchimpClient(self::KEY)->post('lists/list1/members');
             $this->fail('Expected a MailchimpApiException.');
-        } catch (MailchimpApiException $e) {
-            $this->assertStringContainsString('MMERGE5: Merge field does not exist', $e->getMessage());
+        } catch (MailchimpApiException $mailchimpApiException) {
+            $this->assertStringContainsString('MMERGE5: Merge field does not exist', $mailchimpApiException->getMessage());
         }
     }
 

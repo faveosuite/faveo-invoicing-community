@@ -297,7 +297,7 @@ class BaseHomeController extends Controller
             $lastFour = $this->getLastFourDigistsOfLicenseCode($request->input('product'));
             $existingLicense = $this->orderForLicenseCode($licCode);
 
-            if ($existingLicense) {// If the license code that is sent in the request exists in billing
+            if ($existingLicense instanceof Order) {// If the license code that is sent in the request exists in billing
                 resolve(InstallationService::class)->deleteByLicenseCode($licCode); // Delete the installations for the current license before updating license so that no Faveo installation exists on the user domain/IP path and the install slots are freed
 
                 $serial_key = substr((string) $licCode, 0, 12).$lastFour; // The new License Code

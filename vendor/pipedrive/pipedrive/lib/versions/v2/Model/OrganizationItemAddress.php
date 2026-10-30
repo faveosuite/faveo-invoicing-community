@@ -38,6 +38,7 @@ use Pipedrive\versions\v2\ObjectSerializer;
  * OrganizationItemAddress Class Doc Comment
  *
  * @category Class
+ * @description The address of the organization
  * @package  Pipedrive\versions\v2
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech

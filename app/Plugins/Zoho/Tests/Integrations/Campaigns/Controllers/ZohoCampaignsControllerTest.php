@@ -266,7 +266,7 @@ class ZohoCampaignsControllerTest extends DBTestCase
 
     public function test_get_lists_returns_zoho_lists_and_the_default_name(): void
     {
-        $data = $this->controller->getLists()->getData(true)['data'];
+        $data = $this->controller->getLists()->getData(assoc: true)['data'];
 
         $this->assertSame([['key' => 'test_list_key', 'name' => 'Test List']], $data['lists']);
         $this->assertSame('Test List', $data['default_list_name']);

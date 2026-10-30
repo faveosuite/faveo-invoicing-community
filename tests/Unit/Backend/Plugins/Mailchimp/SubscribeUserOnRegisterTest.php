@@ -25,7 +25,7 @@ class SubscribeUserOnRegisterTest extends DBTestCase
 
         $user = User::factory()->create(['email_verified' => 0]);
 
-        (new SubscribeUserOnRegister($service))->handle(new UserRegisteredEvent($user, 'register'));
+        new SubscribeUserOnRegister($service)->handle(new UserRegisteredEvent($user, 'register'));
     }
 
     public function test_a_user_is_sent_to_mailchimp_once_verified(): void
@@ -35,6 +35,6 @@ class SubscribeUserOnRegisterTest extends DBTestCase
         $service = $this->mock(MailchimpService::class);
         $service->shouldReceive('subscribe')->once()->withArgs(fn (User $sent): bool => $sent->is($user));
 
-        (new SubscribeUserOnRegister($service))->handle(new UserRegisteredEvent($user, 'verify'));
+        new SubscribeUserOnRegister($service)->handle(new UserRegisteredEvent($user, 'verify'));
     }
 }

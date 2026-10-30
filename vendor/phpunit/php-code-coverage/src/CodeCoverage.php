@@ -9,7 +9,6 @@
  */
 namespace SebastianBergmann\CodeCoverage;
 
-use function array_merge;
 use SebastianBergmann\CodeCoverage\Data\ProcessedCodeCoverageData;
 use SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData;
 use SebastianBergmann\CodeCoverage\Driver\Driver;
@@ -49,6 +48,14 @@ final class CodeCoverage
     private bool $includeUncoveredFiles              = true;
     private bool $ignoreDeprecatedCode               = false;
     private bool $useAnnotationsForIgnoringCode      = true;
+    private bool $collectDataNotFilteredUsingTargets = false;
+
+    /**
+     * The code coverage data for the test that was processed most recently, as
+     * it was before it was filtered using the code coverage targets that test
+     * declares.
+     */
+    private ?RawCodeCoverageData $dataNotFilteredUsingTargets = null;
 
     /**
      * @var list<class-string>
@@ -72,7 +79,7 @@ final class CodeCoverage
     {
         $this->driver = $driver;
         $this->filter = $filter;
-        $this->data   = new ProcessedCodeCoverageData;
+        $this->data   = new ProcessedCodeCoverageData($driver->collectsHitCounts());
     }
 
     /**
@@ -92,11 +99,12 @@ final class CodeCoverage
      */
     public function clear(): void
     {
-        $this->currentId    = null;
-        $this->currentSize  = null;
-        $this->data         = new ProcessedCodeCoverageData;
-        $this->tests        = [];
-        $this->cachedReport = null;
+        $this->currentId                   = null;
+        $this->currentSize                 = null;
+        $this->data                        = new ProcessedCodeCoverageData($this->driver->collectsHitCounts());
+        $this->tests                       = [];
+        $this->cachedReport                = null;
+        $this->dataNotFilteredUsingTargets = null;
     }
 
     /**
@@ -154,6 +162,21 @@ final class CodeCoverage
     }
 
     /**
+     * Returns the files that could not be parsed for static analysis,
+     * mapped to the parser's error message.
+     *
+     * Code coverage for these files is based on the raw data reported by the
+     * driver: no refinement of executable lines, no dead code detection, and
+     * no information about code units.
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function parseErrors(): array
+    {
+        return $this->analyser()->parseErrors();
+    }
+
+    /**
      * @param non-empty-string $id
      */
     public function start(string $id, ?TestSize $size = null, bool $clear = false): void
@@ -167,7 +190,8 @@ final class CodeCoverage
 
         $this->driver->start();
 
-        $this->cachedReport = null;
+        $this->cachedReport                = null;
+        $this->dataNotFilteredUsingTargets = null;
     }
 
     public function stop(bool $append = true, ?TestStatus $status = null, null|false|TargetCollection $covers = null, ?TargetCollection $uses = null, float $time = 0.0): RawCodeCoverageData
@@ -229,13 +253,26 @@ final class CodeCoverage
             $filterProcessor->applyIgnoredLinesFilter($rawData, $this->filter, $this->analyser());
         }
 
-        $this->data->initializeUnseenData($rawData);
-
-        if (!$append) {
-            return;
+        /*
+         * The data is kept before it is filtered using the code coverage
+         * targets of the test, and before it is discarded for a test that
+         * declares that it covers nothing: what a test executed is not what it
+         * declares it covers, and a consumer that asks what code a test
+         * depends on needs the former.
+         */
+        if ($this->collectDataNotFilteredUsingTargets) {
+            $this->dataNotFilteredUsingTargets = clone $rawData;
         }
 
         if ($id === self::UNCOVERED_FILES) {
+            $this->data->initializeUncoveredFiles($rawData);
+
+            return;
+        }
+
+        $this->data->initializeUnseenData($rawData);
+
+        if (!$append) {
             return;
         }
 
@@ -294,7 +331,13 @@ final class CodeCoverage
 
         $this->data->merge($that->data);
 
-        $this->tests = array_merge($this->tests, $that->getTests());
+        // The tests are added to the ones merged so far rather than merged
+        // with them into a new array: that would copy every test merged so
+        // far on each merge, which made merging the code coverage of many
+        // processes, one after another, quadratic.
+        foreach ($that->getTests() as $id => $test) {
+            $this->tests[$id] = $test;
+        }
 
         $this->cachedReport = null;
     }
@@ -337,6 +380,54 @@ final class CodeCoverage
     public function doNotIgnoreDeprecatedCode(): void
     {
         $this->ignoreDeprecatedCode = false;
+    }
+
+    /**
+     * Keeps the code coverage data for each test as it was before it was
+     * filtered using the code coverage targets that test declares.
+     *
+     * The data is kept for one test at a time, and is only meaningful until the
+     * next test is processed.
+     */
+    public function enableCollectionOfDataNotFilteredUsingTargets(): void
+    {
+        $this->collectDataNotFilteredUsingTargets = true;
+    }
+
+    public function disableCollectionOfDataNotFilteredUsingTargets(): void
+    {
+        $this->collectDataNotFilteredUsingTargets = false;
+        $this->dataNotFilteredUsingTargets        = null;
+    }
+
+    /**
+     * @phpstan-assert-if-true !null $this->dataNotFilteredUsingTargets
+     */
+    public function hasDataNotFilteredUsingTargets(): bool
+    {
+        return $this->dataNotFilteredUsingTargets !== null;
+    }
+
+    /**
+     * Returns the code coverage data for the test that was processed most
+     * recently, as it was before it was filtered using the code coverage
+     * targets that test declares.
+     *
+     * The data is still filtered using the code coverage filter: code that is
+     * not part of the code that is subject to code coverage analysis is not
+     * reported by the driver in the first place.
+     *
+     * @throws DataNotFilteredUsingTargetsNotCollectedException
+     */
+    public function dataNotFilteredUsingTargets(): RawCodeCoverageData
+    {
+        if (!$this->hasDataNotFilteredUsingTargets()) {
+            throw new DataNotFilteredUsingTargetsNotCollectedException(
+                'Code coverage data that is not filtered using code coverage targets was not collected',
+            );
+        }
+
+        return $this->dataNotFilteredUsingTargets;
     }
 
     /**

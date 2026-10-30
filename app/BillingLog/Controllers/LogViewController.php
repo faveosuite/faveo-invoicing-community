@@ -8,6 +8,7 @@ use App\BillingLog\Model\LogCategory;
 use App\BillingLog\Model\MailLog;
 use DB;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
@@ -16,6 +17,7 @@ class LogViewController
 {
     private string $searchString = '';
 
+    /** @var 'asc'|'desc' */
     private string $sortOrder = 'desc';
 
     private string $sortField = 'created_at';
@@ -61,7 +63,7 @@ class LogViewController
                 ->whereBetween('created_at', [userDayStart($date), userDayEnd($date)])
                 ->when($this->searchString, function ($q): void {
                     $search = $this->searchString;
-                    $q->where(function ($q) use ($search): void {
+                    $q->where(function (Builder $q) use ($search): void {
                         $q->where('message', 'like', likePattern($search))
                             ->orWhere('file', 'like', likePattern($search));
                     });
@@ -131,7 +133,7 @@ class LogViewController
                 ->when($status, fn ($q) => $q->where('status', $status))
                 ->when($this->searchString, function ($q): void {
                     $search = $this->searchString;
-                    $q->where(function ($sub) use ($search): void {
+                    $q->where(function (Builder $sub) use ($search): void {
                         $sub->where('sender_mail', 'like', likePattern($search))
                             ->orWhere('receiver_mail', 'like', likePattern($search))
                             ->orWhere('carbon_copy', 'like', likePattern($search));
@@ -185,7 +187,7 @@ class LogViewController
     private function applyListFiltersForLogs(Request $request): void
     {
         $this->searchString = $request->input('search-query', '');
-        $this->sortOrder = $request->input('sort-order', 'desc');
+        $this->sortOrder = strtolower((string) $request->input('sort-order')) === 'asc' ? 'asc' : 'desc';
         $this->sortField = $request->input('sort-field', 'created_at');
         $this->limit = $request->input('limit', 10);
     }

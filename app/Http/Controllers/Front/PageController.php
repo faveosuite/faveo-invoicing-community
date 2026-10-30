@@ -14,6 +14,7 @@ use App\Model\Common\Country;
 use App\Model\Common\Setting;
 use App\Model\Common\State;
 use App\Model\Common\StatusSetting;
+use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Front\FrontendPage;
 use App\Model\Payment\Plan;
@@ -24,6 +25,7 @@ use Config;
 use DateTime;
 use Exception;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -87,7 +89,7 @@ class PageController extends Controller
 
             return successResponse('', $page);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -130,10 +132,10 @@ class PageController extends Controller
                 'recaptcha_key' => $apiKeys->nocaptcha_sitekey ?? null,
                 'msg91_status' => (bool) ($status->msg91_status ?? false),
             ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -275,9 +277,10 @@ class PageController extends Controller
             $set = $set->findOrFail(1);
 
             $template = TemplateType::getSelectedTemplate('contact_us');
-            if (! $template) {
+            if (! $template instanceof Template) {
                 throw new Exception('Template not found');
             }
+
             $replace = [
                 // Visitor text goes into an HTML email: escape it, and keep the message's line breaks.
                 'name' => e($request->input('conName')),
@@ -300,10 +303,10 @@ class PageController extends Controller
             }
 
             return successResponse(__('message.message_sent_successfully_400'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -358,7 +361,7 @@ class PageController extends Controller
     {
         $spamKeywords = ['viagra', 'casino', 'lottery', 'free money', 'enlargement', 'promotions'];
 
-        return array_any($spamKeywords, fn ($keyword): bool => stripos($text, (string) $keyword) !== false);
+        return array_any($spamKeywords, fn (string $keyword): bool => stripos($text, (string) $keyword) !== false);
     }
 
     public function postDemoReq(ContactRequest $request): JsonResponse
@@ -375,9 +378,10 @@ class PageController extends Controller
             $set = $set->findOrFail(1);
 
             $template = TemplateType::getSelectedTemplate('demo_request');
-            if (! $template) {
+            if (! $template instanceof Template) {
                 throw new Exception('Template not found');
             }
+
             $replace = [
                 // Visitor text goes into an HTML email: escape it, and keep the message's line breaks.
                 'name' => e($request->input('demoname')),
@@ -394,7 +398,7 @@ class PageController extends Controller
             ];
             $type = (string) ($template->type()->value('name') ?? '');
             $product = $request->input('product') != 'online' ? $request->input('product') : 'our product ';
-            $templatename = (string) $template->name.' '.'for'.' '.$product;
+            $templatename = $template->name.' '.'for'.' '.$product;
 
             if (emailSendingStatus()) {
                 $mail = new PhpMailController;
@@ -402,10 +406,10 @@ class PageController extends Controller
             }
 
             return successResponse(__('message.message_sent_successfully_400'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -508,7 +512,7 @@ class PageController extends Controller
     private function regenerateSeoFiles(): void
     {
         try {
-            app(SeoFileGenerator::class)->generateAll();
+            resolve(SeoFileGenerator::class)->generateAll();
         } catch (Throwable $throwable) {
             report($throwable);
         }
@@ -569,7 +573,7 @@ class PageController extends Controller
 
             return successResponse(__('message.saved-successfully'), $page);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -583,10 +587,10 @@ class PageController extends Controller
             $data['og_image'] = $page->og_image ? Attach::getUrlPath('images/'.$page->og_image) : null;
 
             return successResponse('', $data);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -622,10 +626,10 @@ class PageController extends Controller
             $this->regenerateSeoFiles();
 
             return successResponse(__('message.updated-successfully'), $page);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Throwable $throwable) {
-            \Logger::exception($throwable);
+            Logger::exception($throwable);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }

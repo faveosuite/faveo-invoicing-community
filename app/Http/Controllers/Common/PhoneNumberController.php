@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Common;
 
 use Exception;
 use libphonenumber\NumberParseException;
+use libphonenumber\PhoneNumber;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberType;
 use libphonenumber\PhoneNumberUtil;
@@ -230,7 +231,7 @@ class PhoneNumberController
         try {
             $type = $mobile ? PhoneNumberType::MOBILE : PhoneNumberType::FIXED_LINE;
             $example = $this->phoneUtil->getExampleNumberForType($countryCode, $type);
-            if ($example === null) {
+            if (! $example instanceof PhoneNumber) {
                 return null;
             }
 

@@ -3,8 +3,10 @@
 namespace Tests\Unit\Backend\Traits;
 
 use App\ApiKey;
+use App\Http\Controllers\Common\SettingsController;
 use App\Model\Common\StatusSetting;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\Request;
 use Tests\DBTestCase;
 
 class ApiKeySettingsTest extends DBTestCase
@@ -150,8 +152,8 @@ class ApiKeySettingsTest extends DBTestCase
     public function test_update_details_persists_to_database(): void
     {
         // Call updateDetails directly through the SettingsController
-        $controller = new \App\Http\Controllers\Common\SettingsController();
-        $request = new \Illuminate\Http\Request();
+        $controller = new SettingsController;
+        $request = new Request;
         $request->merge(['status' => 1, 'update_api_secret' => 'test_secret', 'update_api_url' => 'https://update.example.com']);
 
         $result = $controller->updateDetails($request);
@@ -165,8 +167,8 @@ class ApiKeySettingsTest extends DBTestCase
 
     public function test_update_email_details_updates_status_setting(): void
     {
-        $controller = new \App\Http\Controllers\Common\SettingsController();
-        $request = new \Illuminate\Http\Request();
+        $controller = new SettingsController;
+        $request = new Request;
         $request->merge(['status' => 0]);
 
         $result = $controller->updateEmailDetails($request);
@@ -178,8 +180,8 @@ class ApiKeySettingsTest extends DBTestCase
 
     public function test_update_domain_check_details_updates_domain_check(): void
     {
-        $controller = new \App\Http\Controllers\Common\SettingsController();
-        $request = new \Illuminate\Http\Request();
+        $controller = new SettingsController;
+        $request = new Request;
         $request->merge(['status' => 1]);
 
         $result = $controller->updatedomainCheckDetails($request);
@@ -191,8 +193,8 @@ class ApiKeySettingsTest extends DBTestCase
 
     public function test_update_twitter_details_updates_api_key(): void
     {
-        $controller = new \App\Http\Controllers\Common\SettingsController();
-        $request = new \Illuminate\Http\Request();
+        $controller = new SettingsController;
+        $request = new Request;
         $request->merge([
             'consumer_key' => 'test_consumer_key',
             'consumer_secret' => 'test_consumer_secret',
@@ -247,8 +249,8 @@ class ApiKeySettingsTest extends DBTestCase
 
     public function test_update_zoho_details_returns_array_with_message(): void
     {
-        $controller = new \App\Http\Controllers\Common\SettingsController();
-        $request = new \Illuminate\Http\Request();
+        $controller = new SettingsController;
+        $request = new Request;
         $request->merge([
             'status' => 0,
             'zoho_key' => 'test_zoho_key',
@@ -270,6 +272,7 @@ class ApiKeySettingsTest extends DBTestCase
         $response = $this->getJson('/pdf-settings');
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+
         $data = $response->json('data');
         $this->assertArrayHasKey('chrome_path', $data);
         $this->assertArrayHasKey('pdf_driver', $data);

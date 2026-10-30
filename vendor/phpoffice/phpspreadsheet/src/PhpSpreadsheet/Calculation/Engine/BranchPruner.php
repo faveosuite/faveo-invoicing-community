@@ -6,69 +6,50 @@ use PhpOffice\PhpSpreadsheet\Calculation\Exception;
 
 class BranchPruner
 {
-    /**
-     * @var bool
-     */
-    protected $branchPruningEnabled = true;
+    protected bool $branchPruningEnabled;
 
     /**
      * Used to generate unique store keys.
-     *
-     * @var int
      */
-    private $branchStoreKeyCounter = 0;
+    private int $branchStoreKeyCounter = 0;
 
     /**
      * currently pending storeKey (last item of the storeKeysStack.
-     *
-     * @var ?string
      */
-    protected $pendingStoreKey;
+    protected ?string $pendingStoreKey = null;
 
     /**
      * @var string[]
      */
-    protected $storeKeysStack = [];
+    protected array $storeKeysStack = [];
 
     /**
      * @var bool[]
      */
-    protected $conditionMap = [];
+    protected array $conditionMap = [];
 
     /**
      * @var bool[]
      */
-    protected $thenMap = [];
+    protected array $thenMap = [];
 
     /**
      * @var bool[]
      */
-    protected $elseMap = [];
+    protected array $elseMap = [];
 
     /**
      * @var int[]
      */
-    protected $braceDepthMap = [];
+    protected array $braceDepthMap = [];
 
-    /**
-     * @var null|string
-     */
-    protected $currentCondition;
+    protected ?string $currentCondition = null;
 
-    /**
-     * @var null|string
-     */
-    protected $currentOnlyIf;
+    protected ?string $currentOnlyIf = null;
 
-    /**
-     * @var null|string
-     */
-    protected $currentOnlyIfNot;
+    protected ?string $currentOnlyIfNot = null;
 
-    /**
-     * @var null|string
-     */
-    protected $previousStoreKey;
+    protected ?string $previousStoreKey = null;
 
     public function __construct(bool $branchPruningEnabled)
     {
@@ -97,7 +78,7 @@ class BranchPruner
 
     private function initialiseCondition(): void
     {
-        if (isset($this->conditionMap[$this->pendingStoreKey]) && $this->conditionMap[$this->pendingStoreKey]) {
+        if (isset($this->pendingStoreKey, $this->conditionMap[$this->pendingStoreKey]) && $this->conditionMap[$this->pendingStoreKey]) {
             $this->currentCondition = $this->pendingStoreKey;
             $stackDepth = count($this->storeKeysStack);
             if ($stackDepth > 1) {
@@ -109,7 +90,7 @@ class BranchPruner
 
     private function initialiseThen(): void
     {
-        if (isset($this->thenMap[$this->pendingStoreKey]) && $this->thenMap[$this->pendingStoreKey]) {
+        if (isset($this->pendingStoreKey, $this->thenMap[$this->pendingStoreKey]) && $this->thenMap[$this->pendingStoreKey]) {
             $this->currentOnlyIf = $this->pendingStoreKey;
         } elseif (
             isset($this->previousStoreKey, $this->thenMap[$this->previousStoreKey])
@@ -121,7 +102,7 @@ class BranchPruner
 
     private function initialiseElse(): void
     {
-        if (isset($this->elseMap[$this->pendingStoreKey]) && $this->elseMap[$this->pendingStoreKey]) {
+        if (isset($this->pendingStoreKey, $this->elseMap[$this->pendingStoreKey]) && $this->elseMap[$this->pendingStoreKey]) {
             $this->currentOnlyIfNot = $this->pendingStoreKey;
         } elseif (
             isset($this->previousStoreKey, $this->elseMap[$this->previousStoreKey])
@@ -175,10 +156,7 @@ class BranchPruner
         }
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function closingBrace($value): void
+    public function closingBrace(mixed $value): void
     {
         if (!empty($this->pendingStoreKey) && $this->braceDepthMap[$this->pendingStoreKey] === -1) {
             // we are closing an IF(

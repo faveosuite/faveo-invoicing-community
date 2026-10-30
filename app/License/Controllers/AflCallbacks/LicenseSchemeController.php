@@ -16,9 +16,7 @@ class LicenseSchemeController extends Controller
 {
     use AflCallbackHelpers;
 
-    public function __construct(protected LicenseValidator $validator, protected BannedHostService $bannedHostService)
-    {
-    }
+    public function __construct(protected LicenseValidator $validator, protected BannedHostService $bannedHostService) {}
 
     /**
      * Get license scheme query

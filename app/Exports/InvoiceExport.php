@@ -16,9 +16,7 @@ class InvoiceExport implements FromCollection, WithHeadings, WithTitle
     /**
      * @param  Enumerable<covariant int|string, covariant mixed>  $invoicesData
      */
-    public function __construct(protected mixed $selectedColumns, protected Enumerable $invoicesData, protected mixed $sheetIndex)
-    {
-    }
+    public function __construct(protected mixed $selectedColumns, protected Enumerable $invoicesData, protected mixed $sheetIndex) {}
 
     /**
      * @return Collection<int|string, mixed>

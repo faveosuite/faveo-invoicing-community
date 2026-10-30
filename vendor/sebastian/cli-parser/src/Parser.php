@@ -172,9 +172,10 @@ final readonly class Parser
         $optionArgument = null;
 
         if (count($list) > 1) {
-            /** @phpstan-ignore offsetAccess.notFound */
             $optionArgument = $list[1];
         }
+
+        $exactMatch = $this->exactMatch($option, $longOptions);
 
         foreach ($longOptions as $i => $longOption) {
             $similarOptions[] = [
@@ -188,9 +189,14 @@ final readonly class Parser
                 continue;
             }
 
+            if ($exactMatch !== null && $longOption !== $exactMatch) {
+                continue;
+            }
+
             $opt_rest = substr($longOption, $optionLength);
 
-            if ($opt_rest !== '' &&
+            if ($exactMatch === null &&
+                $opt_rest !== '' &&
                 $i + 1 < $count &&
                 $option[0] !== '=' &&
                 /** @phpstan-ignore offsetAccess.notFound */
@@ -225,6 +231,24 @@ final readonly class Parser
         }
 
         throw new UnknownOptionException('--' . $option, $this->formatSimilarOptions($similarOptions));
+    }
+
+    /**
+     * An option that is spelled out in full is never ambiguous, no matter how many
+     * other options begin with it: "--html" unambiguously means "html" even when
+     * "html-views" is also declared.
+     *
+     * @param list<string> $longOptions
+     */
+    private function exactMatch(string $option, array $longOptions): ?string
+    {
+        foreach ($longOptions as $longOption) {
+            if (rtrim($longOption, '=') === $option) {
+                return $longOption;
+            }
+        }
+
+        return null;
     }
 
     /**

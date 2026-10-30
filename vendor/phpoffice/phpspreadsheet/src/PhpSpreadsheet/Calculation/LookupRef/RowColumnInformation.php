@@ -3,9 +3,12 @@
 namespace PhpOffice\PhpSpreadsheet\Calculation\LookupRef;
 
 use PhpOffice\PhpSpreadsheet\Calculation\Calculation;
+use PhpOffice\PhpSpreadsheet\Calculation\Information\ErrorValue;
 use PhpOffice\PhpSpreadsheet\Calculation\Information\ExcelError;
+use PhpOffice\PhpSpreadsheet\Cell\AddressRange;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Exception as SpreadsheetException;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class RowColumnInformation
@@ -13,7 +16,7 @@ class RowColumnInformation
     /**
      * Test if cellAddress is null or whitespace string.
      *
-     * @param null|array|string $cellAddress A reference to a range of cells
+     * @param null|mixed[]|string $cellAddress A reference to a range of cells
      */
     private static function cellAddressNullOrWhitespace($cellAddress): bool
     {
@@ -22,7 +25,7 @@ class RowColumnInformation
 
     private static function cellColumn(?Cell $cell): int
     {
-        return ($cell !== null) ? (int) Coordinate::columnIndexFromString($cell->getColumn()) : 1;
+        return ($cell !== null) ? Coordinate::columnIndexFromString($cell->getColumn()) : 1;
     }
 
     /**
@@ -38,11 +41,11 @@ class RowColumnInformation
      * Excel Function:
      *        =COLUMN([cellAddress])
      *
-     * @param null|array|string $cellAddress A reference to a range of cells for which you want the column numbers
+     * @param null|mixed[]|string $cellAddress A reference to a range of cells for which you want the column numbers
      *
-     * @return int|int[]
+     * @return int|int[]|string
      */
-    public static function COLUMN($cellAddress = null, ?Cell $cell = null)
+    public static function COLUMN($cellAddress = null, ?Cell $cell = null): int|string|array
     {
         if (self::cellAddressNullOrWhitespace($cellAddress)) {
             return self::cellColumn($cell);
@@ -52,7 +55,7 @@ class RowColumnInformation
             foreach ($cellAddress as $columnKey => $value) {
                 $columnKey = (string) preg_replace('/[^a-z]/i', '', $columnKey);
 
-                return (int) Coordinate::columnIndexFromString($columnKey);
+                return Coordinate::columnIndexFromString($columnKey);
             }
 
             return self::cellColumn($cell);
@@ -64,20 +67,26 @@ class RowColumnInformation
             [,, $cellAddress] = Helpers::extractCellAddresses($cellAddress, true, $cell->getWorksheet(), $sheetName);
         }
         [, $cellAddress] = Worksheet::extractSheetTitle($cellAddress, true);
-        if (strpos($cellAddress, ':') !== false) {
+        $cellAddress ??= '';
+
+        if (str_contains($cellAddress, ':')) {
             [$startAddress, $endAddress] = explode(':', $cellAddress);
             $startAddress = (string) preg_replace('/[^a-z]/i', '', $startAddress);
             $endAddress = (string) preg_replace('/[^a-z]/i', '', $endAddress);
 
             return range(
-                (int) Coordinate::columnIndexFromString($startAddress),
-                (int) Coordinate::columnIndexFromString($endAddress)
+                Coordinate::columnIndexFromString($startAddress),
+                Coordinate::columnIndexFromString($endAddress)
             );
         }
 
         $cellAddress = (string) preg_replace('/[^a-z]/i', '', $cellAddress);
 
-        return (int) Coordinate::columnIndexFromString($cellAddress);
+        try {
+            return Coordinate::columnIndexFromString($cellAddress);
+        } catch (SpreadsheetException) {
+            return ExcelError::NAME();
+        }
     }
 
     /**
@@ -88,7 +97,7 @@ class RowColumnInformation
      * Excel Function:
      *        =COLUMNS(cellAddress)
      *
-     * @param null|array|string $cellAddress An array or array formula, or a reference to a range of cells
+     * @param null|mixed[]|string $cellAddress An array or array formula, or a reference to a range of cells
      *                                          for which you want the number of columns
      *
      * @return int|string The number of columns in cellAddress, or a string if arguments are invalid
@@ -97,6 +106,9 @@ class RowColumnInformation
     {
         if (self::cellAddressNullOrWhitespace($cellAddress)) {
             return 1;
+        }
+        if (is_string($cellAddress) && ErrorValue::isError($cellAddress, true)) {
+            return $cellAddress;
         }
         if (!is_array($cellAddress)) {
             return ExcelError::VALUE();
@@ -113,9 +125,18 @@ class RowColumnInformation
         return $columns;
     }
 
-    private static function cellRow(?Cell $cell): int
+    private static function cellRow(?Cell $cell): int|string
     {
-        return ($cell !== null) ? $cell->getRow() : 1;
+        return ($cell !== null) ? self::convert0ToName($cell->getRow()) : 1;
+    }
+
+    private static function convert0ToName(int|string $result): int|string
+    {
+        if (is_int($result) && ($result <= 0 || $result > AddressRange::MAX_ROW)) {
+            return ExcelError::NAME();
+        }
+
+        return $result;
     }
 
     /**
@@ -131,11 +152,11 @@ class RowColumnInformation
      * Excel Function:
      *        =ROW([cellAddress])
      *
-     * @param null|array|string $cellAddress A reference to a range of cells for which you want the row numbers
+     * @param null|mixed[][]|string $cellAddress A reference to a range of cells for which you want the row numbers
      *
      * @return int|mixed[]|string
      */
-    public static function ROW($cellAddress = null, ?Cell $cell = null)
+    public static function ROW($cellAddress = null, ?Cell $cell = null): int|string|array
     {
         if (self::cellAddressNullOrWhitespace($cellAddress)) {
             return self::cellRow($cell);
@@ -157,21 +178,20 @@ class RowColumnInformation
             [,, $cellAddress] = Helpers::extractCellAddresses($cellAddress, true, $cell->getWorksheet(), $sheetName);
         }
         [, $cellAddress] = Worksheet::extractSheetTitle($cellAddress, true);
-        if (strpos($cellAddress, ':') !== false) {
+        $cellAddress ??= '';
+        if (str_contains($cellAddress, ':')) {
             [$startAddress, $endAddress] = explode(':', $cellAddress);
-            $startAddress = (string) preg_replace('/\D/', '', $startAddress);
-            $endAddress = (string) preg_replace('/\D/', '', $endAddress);
+            $startAddress = (int) (string) preg_replace('/\D/', '', $startAddress);
+            $endAddress = (int) (string) preg_replace('/\D/', '', $endAddress);
 
             return array_map(
-                function ($value) {
-                    return [$value];
-                },
+                fn ($value): array => [$value],
                 range($startAddress, $endAddress)
             );
         }
         [$cellAddress] = explode(':', $cellAddress);
 
-        return (int) preg_replace('/\D/', '', $cellAddress);
+        return self::convert0ToName((int) preg_replace('/\D/', '', $cellAddress));
     }
 
     /**
@@ -182,7 +202,7 @@ class RowColumnInformation
      * Excel Function:
      *        =ROWS(cellAddress)
      *
-     * @param null|array|string $cellAddress An array or array formula, or a reference to a range of cells
+     * @param null|mixed[]|string $cellAddress An array or array formula, or a reference to a range of cells
      *                                          for which you want the number of rows
      *
      * @return int|string The number of rows in cellAddress, or a string if arguments are invalid
@@ -191,6 +211,9 @@ class RowColumnInformation
     {
         if (self::cellAddressNullOrWhitespace($cellAddress)) {
             return 1;
+        }
+        if (is_string($cellAddress) && ErrorValue::isError($cellAddress, true)) {
+            return $cellAddress;
         }
         if (!is_array($cellAddress)) {
             return ExcelError::VALUE();

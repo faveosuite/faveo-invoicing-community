@@ -13,22 +13,20 @@ class CacheManager extends Manager
     /**
      * @const string
      */
-    public const DRIVER_BATCH = 'batch';
+    public const string DRIVER_BATCH = 'batch';
 
     /**
      * @const string
      */
-    public const DRIVER_MEMORY = 'memory';
+    public const string DRIVER_MEMORY = 'memory';
 
     /**
      * @const string
      */
-    public const DRIVER_ILLUMINATE = 'illuminate';
+    public const string DRIVER_ILLUMINATE = 'illuminate';
 
     /**
      * Get the default driver name.
-     *
-     * @return string
      */
     public function getDefaultDriver(): string
     {
@@ -36,7 +34,7 @@ class CacheManager extends Manager
     }
 
     /**
-     * @return MemoryCache
+     * @return MemoryInterface
      */
     public function createMemoryDriver(): CacheInterface
     {
@@ -51,9 +49,6 @@ class CacheManager extends Manager
         );
     }
 
-    /**
-     * @return BatchCache
-     */
     public function createBatchDriver(): CacheInterface
     {
         if (!InstalledVersions::satisfies(new VersionParser, 'psr/simple-cache', '^3.0')) {
@@ -71,9 +66,6 @@ class CacheManager extends Manager
         );
     }
 
-    /**
-     * @return CacheInterface
-     */
     public function createIlluminateDriver(): CacheInterface
     {
         return Cache::driver(
@@ -81,7 +73,7 @@ class CacheManager extends Manager
         );
     }
 
-    public function flush()
+    public function flush(): void
     {
         $this->driver()->clear();
     }

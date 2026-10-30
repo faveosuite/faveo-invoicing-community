@@ -1,11 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Concerns;
 
 interface WithTitle
 {
-    /**
-     * @return string
-     */
     public function title(): string;
 }

@@ -12,6 +12,9 @@ use Illuminate\Contracts\Queue\Factory as Queue;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\Translation\HasLocalePreference;
+use Illuminate\Queue\Attributes\Connection;
+use Illuminate\Queue\Attributes\Delay;
+use Illuminate\Queue\Attributes\Queue as QueueAttribute;
 use Illuminate\Support\Collection;
 use Illuminate\Support\EncodedHtmlString;
 use Illuminate\Support\HtmlString;
@@ -20,6 +23,7 @@ use Illuminate\Support\Traits\Conditionable;
 use Illuminate\Support\Traits\ForwardsCalls;
 use Illuminate\Support\Traits\Localizable;
 use Illuminate\Support\Traits\Macroable;
+use Illuminate\Support\Traits\ReadsClassAttributes;
 use Illuminate\Support\Traits\Tappable;
 use Illuminate\Testing\Constraints\SeeInOrder;
 use PHPUnit\Framework\Assert as PHPUnit;
@@ -31,14 +35,14 @@ use Symfony\Component\Mime\Address;
 
 class Mailable implements MailableContract, Renderable
 {
-    use Conditionable, ForwardsCalls, Localizable, Tappable, Macroable {
+    use Conditionable, ForwardsCalls, Localizable, ReadsClassAttributes, Tappable, Macroable {
         __call as macroCall;
     }
 
     /**
      * The locale of the message.
      *
-     * @var string
+     * @var string|null
      */
     public $locale;
 
@@ -87,28 +91,28 @@ class Mailable implements MailableContract, Renderable
     /**
      * The Markdown template for the message (if applicable).
      *
-     * @var string
+     * @var string|null
      */
     public $markdown;
 
     /**
      * The HTML to use for the message.
      *
-     * @var string
+     * @var string|null
      */
     protected $html;
 
     /**
      * The view to use for the message.
      *
-     * @var string
+     * @var string|null
      */
     public $view;
 
     /**
      * The plain text view to use for the message.
      *
-     * @var string
+     * @var string|null
      */
     public $textView;
 
@@ -224,13 +228,23 @@ class Mailable implements MailableContract, Renderable
      */
     public function queue(Queue $queue)
     {
-        if (isset($this->delay)) {
-            return $this->later($this->delay, $queue);
+        $delay = $this->getAttributeValue($this, Delay::class, 'delay');
+
+        if (isset($delay)) {
+            return $this->later($delay, $queue);
         }
 
-        $connection = property_exists($this, 'connection') ? $this->connection : null;
+        $connection = $this->getAttributeValue($this, Connection::class, 'connection');
 
-        $queueName = property_exists($this, 'queue') ? $this->queue : null;
+        if (is_null($connection) && method_exists($queue, 'resolveConnectionFromQueueRoute')) {
+            $connection = $queue->resolveConnectionFromQueueRoute($this);
+        }
+
+        $queueName = $this->getAttributeValue($this, QueueAttribute::class, 'queue');
+
+        if (is_null($queueName) && method_exists($queue, 'resolveQueueFromQueueRoute')) {
+            $queueName = $queue->resolveQueueFromQueueRoute($this);
+        }
 
         return $queue->connection($connection)->pushOn(
             $queueName ?: null, $this->newQueuedJob()
@@ -246,9 +260,17 @@ class Mailable implements MailableContract, Renderable
      */
     public function later($delay, Queue $queue)
     {
-        $connection = property_exists($this, 'connection') ? $this->connection : null;
+        $connection = $this->getAttributeValue($this, Connection::class, 'connection');
 
-        $queueName = property_exists($this, 'queue') ? $this->queue : null;
+        $queueName = $this->getAttributeValue($this, QueueAttribute::class, 'queue');
+
+        if (is_null($connection) && method_exists($queue, 'resolveConnectionFromQueueRoute')) {
+            $connection = $queue->resolveConnectionFromQueueRoute($this);
+        }
+
+        if (is_null($queueName) && method_exists($queue, 'resolveQueueFromQueueRoute')) {
+            $queueName = $queue->resolveQueueFromQueueRoute($this);
+        }
 
         $job = $this->newQueuedJob();
 
@@ -574,7 +596,7 @@ class Mailable implements MailableContract, Renderable
     /**
      * Set the locale of the message.
      *
-     * @param  string  $locale
+     * @param  string|null  $locale
      * @return $this
      */
     public function locale($locale)
@@ -594,7 +616,7 @@ class Mailable implements MailableContract, Renderable
      */
     public function priority($level = 3)
     {
-        $this->callbacks[] = function ($message) use ($level) {
+        $this->callbacks[] = static function ($message) use ($level) {
             $message->priority($level);
         };
 
@@ -765,7 +787,7 @@ class Mailable implements MailableContract, Renderable
      *
      * @param  object|array|string  $address
      * @param  string|null  $name
-     * @return array
+     * @return array|\Illuminate\Support\Collection
      */
     protected function addressesToArray($address, $name)
     {
@@ -787,7 +809,7 @@ class Mailable implements MailableContract, Renderable
         if (is_array($recipient)) {
             if (array_values($recipient) === $recipient) {
                 return (object) array_map(function ($email) {
-                    return compact('email');
+                    return ['email' => $email];
                 }, $recipient);
             }
 
@@ -977,7 +999,7 @@ class Mailable implements MailableContract, Renderable
         }
 
         $this->attachments = (new Collection($this->attachments))
-            ->push(compact('file', 'options'))
+            ->push(['file' => $file, 'options' => $options])
             ->unique('file')
             ->all();
 
@@ -1079,7 +1101,7 @@ class Mailable implements MailableContract, Renderable
     /**
      * Attach a file to the message from storage.
      *
-     * @param  string  $disk
+     * @param  string|null  $disk
      * @param  string  $path
      * @param  string|null  $name
      * @param  array  $options
@@ -1115,7 +1137,7 @@ class Mailable implements MailableContract, Renderable
     /**
      * Determine if the mailable has the given attachment from a specific storage disk.
      *
-     * @param  string  $disk
+     * @param  string|null  $disk
      * @param  string  $path
      * @param  string|null  $name
      * @param  array  $options
@@ -1142,7 +1164,7 @@ class Mailable implements MailableContract, Renderable
     public function attachData($data, $name, array $options = [])
     {
         $this->rawAttachments = (new Collection($this->rawAttachments))
-            ->push(compact('data', 'name', 'options'))
+            ->push(['data' => $data, 'name' => $name, 'options' => $options])
             ->unique(fn ($file) => $file['name'].$file['data'])
             ->all();
 
@@ -1526,10 +1548,30 @@ class Mailable implements MailableContract, Renderable
     /**
      * Assert the mailable has the given attachment.
      *
-     * @param  string|\Illuminate\Contracts\Mail\Attachable|\Illuminate\Mail\Attachment  $file
-     * @param  array  $options
      * @return $this
      */
+    public function assertHasNoAttachments()
+    {
+        $this->renderForAssertions();
+
+        PHPUnit::assertEmpty(
+            $this->attachments,
+            'Expected no attachments, but found ['.count($this->attachments).'] file attachment(s).'
+        );
+
+        PHPUnit::assertEmpty(
+            $this->rawAttachments,
+            'Expected no attachments, but found ['.count($this->rawAttachments).'] raw data attachment(s).'
+        );
+
+        PHPUnit::assertEmpty(
+            $this->diskAttachments,
+            'Expected no attachments, but found ['.count($this->diskAttachments).'] storage attachment(s).'
+        );
+
+        return $this;
+    }
+
     public function assertHasAttachment($file, array $options = [])
     {
         $this->renderForAssertions();
@@ -1713,7 +1755,7 @@ class Mailable implements MailableContract, Renderable
 
         $headers = $this->headers();
 
-        $this->withSymfonyMessage(function ($message) use ($headers) {
+        $this->withSymfonyMessage(static function ($message) use ($headers) {
             if ($headers->messageId) {
                 $message->getHeaders()->addIdHeader('Message-Id', $headers->messageId);
             }

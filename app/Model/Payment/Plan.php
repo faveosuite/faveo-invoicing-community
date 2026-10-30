@@ -114,14 +114,14 @@ class Plan extends BaseModel
      * changes, priced to renew, and not a free plan. The client's plan list and the
      * plan-change endpoints both read this, so only listed plans can be bought.
      *
-     * @param  Builder<Plan>  $query
+     * @param  Builder<static>  $query
      */
     #[Scope]
     protected function cloudPlanChangeOptions(Builder $query, Product $product): void
     {
         $query->where('product', '!=', $product->id)
-            ->whereHas('productRelation', fn ($q) => $q->where('type', 4)->where('can_modify_agent', 1))
-            ->whereHas('planPrice', fn ($q) => $q->where('renew_price', '!=', 0))
+            ->whereHas('productRelation', fn (\Illuminate\Contracts\Database\Query\Builder $q) => $q->where('type', 4)->where('can_modify_agent', 1))
+            ->whereHas('planPrice', fn (\Illuminate\Contracts\Database\Query\Builder $q) => $q->where('renew_price', '!=', 0))
             ->where('name', 'not like', '%free%');
     }
 

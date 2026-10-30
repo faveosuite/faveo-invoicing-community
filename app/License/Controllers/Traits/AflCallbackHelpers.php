@@ -30,7 +30,7 @@ trait AflCallbackHelpers
         ?Product $product = null,
         ?License $license = null,
     ): JsonResponse {
-        if (! in_array($notificationCase, ['notification_license_ok', 'notification_host_banned'], true)) {
+        if (! in_array($notificationCase, ['notification_license_ok', 'notification_host_banned'], strict: true)) {
             $this->bannedHostService->recordFailedLicensing((string) request()->ip());
         }
 
@@ -175,7 +175,7 @@ trait AflCallbackHelpers
      */
     protected function createCallback(int $productId, ?int $userId, string $licenseCode, string $ip, string $domain, int $status): void
     {
-        $today = now()->startOfDay();
+        $today = today();
 
         // Prevent duplicate callbacks for the same license/IP/domain on the same day
         $exists = LicenseCallback::where('product_id', $productId)

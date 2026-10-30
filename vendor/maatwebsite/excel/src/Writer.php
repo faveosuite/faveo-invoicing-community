@@ -2,10 +2,12 @@
 
 namespace Maatwebsite\Excel;
 
+use Maatwebsite\Excel\Concerns\Export;
 use Maatwebsite\Excel\Concerns\WithBackgroundColor;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithDefaultStyles;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithExportTemplate;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithProperties;
 use Maatwebsite\Excel\Concerns\WithTitle;
@@ -16,6 +18,7 @@ use Maatwebsite\Excel\Files\RemoteTemporaryFile;
 use Maatwebsite\Excel\Files\TemporaryFile;
 use Maatwebsite\Excel\Files\TemporaryFileFactory;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;
@@ -26,39 +29,20 @@ class Writer
 {
     use DelegatedMacroable, HasEventBus;
 
-    /**
-     * @var Spreadsheet
-     */
-    protected $spreadsheet;
+    protected ?Spreadsheet $spreadsheet = null;
 
-    /**
-     * @var object
-     */
-    protected $exportable;
+    protected Export $exportable;
 
-    /**
-     * @var TemporaryFileFactory
-     */
-    protected $temporaryFileFactory;
-
-    /**
-     * @param  TemporaryFileFactory  $temporaryFileFactory
-     */
-    public function __construct(TemporaryFileFactory $temporaryFileFactory)
-    {
-        $this->temporaryFileFactory = $temporaryFileFactory;
-
+    public function __construct(
+        protected TemporaryFileFactory $temporaryFileFactory,
+    ) {
         $this->setDefaultValueBinder();
     }
 
     /**
-     * @param  object  $export
-     * @param  string  $writerType
-     * @return TemporaryFile
-     *
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws Exception
      */
-    public function export($export, string $writerType): TemporaryFile
+    public function export(Export $export, string $writerType): TemporaryFile
     {
         $this->open($export);
 
@@ -67,18 +51,18 @@ class Writer
             $sheetExports = $export->sheets();
         }
 
-        foreach ($sheetExports as $sheetExport) {
-            $this->addNewSheet()->export($sheetExport);
+        foreach (array_values($sheetExports) as $sheetIndex => $sheetExport) {
+            $sheet = $export instanceof WithExportTemplate
+                ? $this->getSheetForExport($sheetIndex)
+                : $this->addNewSheet();
+
+            $sheet->export($sheetExport);
         }
 
         return $this->write($export, $this->temporaryFileFactory->makeLocal(null, strtolower($writerType)), $writerType);
     }
 
-    /**
-     * @param  object  $export
-     * @return $this
-     */
-    public function open($export)
+    public function open(Export $export): static
     {
         $this->exportable = $export;
 
@@ -86,9 +70,14 @@ class Writer
             $this->registerListeners($export->registerEvents());
         }
 
-        $this->exportable  = $export;
-        $this->spreadsheet = new Spreadsheet;
-        $this->spreadsheet->disconnectWorksheets();
+        $this->exportable = $export;
+
+        if ($export instanceof WithExportTemplate) {
+            $this->spreadsheet = IOFactory::load($export->exportTemplate());
+        } else {
+            $this->spreadsheet = new Spreadsheet;
+            $this->spreadsheet->disconnectWorksheets();
+        }
 
         if ($export instanceof WithCustomValueBinder) {
             Cell::setValueBinder($export);
@@ -128,13 +117,9 @@ class Writer
     }
 
     /**
-     * @param  TemporaryFile  $tempFile
-     * @param  string  $writerType
-     * @return Writer
-     *
      * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
      */
-    public function reopen(TemporaryFile $tempFile, string $writerType)
+    public function reopen(TemporaryFile $tempFile, string $writerType): Writer
     {
         $reader            = IOFactory::createReader($writerType);
         $this->spreadsheet = $reader->load($tempFile->sync()->getLocalPath());
@@ -144,8 +129,6 @@ class Writer
 
     /**
      * Determine if the application is running in a serverless environment.
-     *
-     * @return bool
      */
     public function isRunningServerless(): bool
     {
@@ -153,15 +136,10 @@ class Writer
     }
 
     /**
-     * @param  object  $export
-     * @param  TemporaryFile  $temporaryFile
-     * @param  string  $writerType
-     * @return TemporaryFile
-     *
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws Exception
      */
-    public function write($export, TemporaryFile $temporaryFile, string $writerType): TemporaryFile
+    public function write(Export $export, TemporaryFile $temporaryFile, string $writerType): TemporaryFile
     {
         $this->exportable = $export;
 
@@ -193,34 +171,37 @@ class Writer
 
         $this->clearListeners();
         $this->spreadsheet->disconnectWorksheets();
-        unset($this->spreadsheet);
+        $this->spreadsheet = null;
 
         return $temporaryFile;
     }
 
     /**
-     * @param  int|null  $sheetIndex
-     * @return Sheet
-     *
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws Exception
      */
-    public function addNewSheet(?int $sheetIndex = null)
+    public function addNewSheet(?int $sheetIndex = null): Sheet
     {
         return new Sheet($this->spreadsheet->createSheet($sheetIndex));
     }
 
     /**
-     * @return Spreadsheet
+     * @throws Exception
      */
-    public function getDelegate()
+    public function getSheetForExport(int $sheetIndex): Sheet
+    {
+        if ($this->exportable instanceof WithExportTemplate && $sheetIndex < $this->spreadsheet->getSheetCount()) {
+            return $this->getSheetByIndex($sheetIndex);
+        }
+
+        return $this->addNewSheet($sheetIndex);
+    }
+
+    public function getDelegate(): Spreadsheet
     {
         return $this->spreadsheet;
     }
 
-    /**
-     * @return $this
-     */
-    public function setDefaultValueBinder()
+    public function setDefaultValueBinder(): static
     {
         Cell::setValueBinder(
             app(config('excel.value_binder.default', DefaultValueBinder::class))
@@ -230,29 +211,19 @@ class Writer
     }
 
     /**
-     * @param  int  $sheetIndex
-     * @return Sheet
-     *
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws Exception
      */
-    public function getSheetByIndex(int $sheetIndex)
+    public function getSheetByIndex(int $sheetIndex): Sheet
     {
         return new Sheet($this->getDelegate()->getSheet($sheetIndex));
     }
 
-    /**
-     * @param  string  $concern
-     * @return bool
-     */
-    public function hasConcern($concern): bool
+    public function hasConcern(string $concern): bool
     {
         return $this->exportable instanceof $concern;
     }
 
-    /**
-     * @param  object  $export
-     */
-    protected function handleDocumentProperties($export)
+    protected function handleDocumentProperties(Export $export): void
     {
         $properties = config('excel.exports.properties', []);
 

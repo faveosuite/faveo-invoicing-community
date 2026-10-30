@@ -36,7 +36,7 @@ class MergeGuestCartOnLoginTest extends TestCase
             ->with(Mockery::on(fn ($u): bool => $u->id === $user->id));
 
         $listener = new MergeGuestCartOnLogin($cartService);
-        $listener->handle(new Login('web', $user, false));
+        $listener->handle(new Login('web', $user, remember: false));
         $this->addToAssertionCount(1); // Mockery ->once() verified in tearDown
     }
 
@@ -51,7 +51,7 @@ class MergeGuestCartOnLoginTest extends TestCase
         $cartService = Mockery::mock(CartService::class);
         $cartService->shouldReceive('mergeGuestCart')->once();
 
-        (new MergeGuestCartOnLogin($cartService))->handle(new Login('web', $user, false));
+        new MergeGuestCartOnLogin($cartService)->handle(new Login('web', $user, remember: false));
         $this->addToAssertionCount(1);
     }
 
@@ -67,7 +67,7 @@ class MergeGuestCartOnLoginTest extends TestCase
         $cartService->shouldReceive('mergeGuestCart')->twice();
 
         $listener = new MergeGuestCartOnLogin($cartService);
-        $event = new Login('web', $user, false);
+        $event = new Login('web', $user, remember: false);
         $listener->handle($event);
         $listener->handle($event);
         $this->addToAssertionCount(1);
@@ -86,7 +86,7 @@ class MergeGuestCartOnLoginTest extends TestCase
             ->once()
             ->with(Mockery::on(fn ($u): bool => $u->id === $targetUser->id && $u->id !== $otherUser->id));
 
-        (new MergeGuestCartOnLogin($cartService))->handle(new Login('web', $targetUser, false));
+        new MergeGuestCartOnLogin($cartService)->handle(new Login('web', $targetUser, remember: false));
         $this->addToAssertionCount(1);
     }
 }

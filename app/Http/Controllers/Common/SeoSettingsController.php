@@ -56,13 +56,16 @@ class SeoSettingsController extends Controller
             foreach (self::TEXT_FIELDS as $field) {
                 $data[$field] = $settings->get($field, '');
             }
+
             foreach (self::IMAGE_FIELDS as $field) {
                 $filename = $settings->get($field);
                 $data[$field] = $filename ? Attach::getUrlPath('images/'.$filename) : null;
             }
+
             foreach (self::BOOLEAN_FIELDS as $field) {
                 $data[$field] = $settings->get($field) === '1';
             }
+
             $set = Setting::find(1);
             $data['favicon_title'] = $set->favicon_title ?? '';
             $data['favicon_title_client'] = $set->favicon_title_client ?? '';
@@ -105,6 +108,7 @@ class SeoSettingsController extends Controller
                     'status' => '',
                 ];
             }
+
             foreach (self::BOOLEAN_FIELDS as $field) {
                 $rows[] = [
                     'option_name' => 'seo',
@@ -113,6 +117,7 @@ class SeoSettingsController extends Controller
                     'status' => '',
                 ];
             }
+
             CommonSettings::upsert($rows, ['option_name', 'optional_field'], ['option_value']);
 
             foreach (self::IMAGE_FIELDS as $field) {
@@ -127,7 +132,7 @@ class SeoSettingsController extends Controller
             }
 
             try {
-                app(SeoFileGenerator::class)->generateAll();
+                resolve(SeoFileGenerator::class)->generateAll();
             } catch (Throwable $throwable) {
                 report($throwable);
             }

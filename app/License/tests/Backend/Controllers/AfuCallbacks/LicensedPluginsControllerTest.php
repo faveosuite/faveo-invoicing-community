@@ -40,7 +40,7 @@ class LicensedPluginsControllerTest extends LicenseTestCase
         $validator->shouldReceive('isBanned')->andReturn(false);
         $validator->shouldReceive('verifyAfuScriptSignature')->andReturn(true);
 
-        return new LicensedPluginsController($validator, app(LicenseService::class))->licensedPlugins($this->moduleRequest([
+        return new LicensedPluginsController($validator, resolve(LicenseService::class))->licensedPlugins($this->moduleRequest([
             'product_id' => $this->product->id,
             'product_key' => 'MAINKEY',
             'user_local_path' => '/var/www/html',

@@ -4,43 +4,28 @@ namespace Maatwebsite\Excel\Files;
 
 class LocalTemporaryFile extends TemporaryFile
 {
-    /**
-     * @var string
-     */
-    private $filePath;
+    private readonly string $filePath;
 
-    /**
-     * @param  string  $filePath
-     */
     public function __construct(string $filePath)
     {
         touch($filePath);
-        if (($rights = config('excel.temporary_files.local_permissions.file', null)) !== null) {
+        if (($rights = config('excel.temporary_files.local_permissions.file')) !== null) {
             chmod($filePath, $rights);
         }
 
         $this->filePath = realpath($filePath);
     }
 
-    /**
-     * @return string
-     */
     public function getLocalPath(): string
     {
         return $this->filePath;
     }
 
-    /**
-     * @return bool
-     */
     public function exists(): bool
     {
         return file_exists($this->filePath);
     }
 
-    /**
-     * @return bool
-     */
     public function delete(): bool
     {
         if (@unlink($this->filePath) || !$this->exists()) {
@@ -58,18 +43,15 @@ class LocalTemporaryFile extends TemporaryFile
         return fopen($this->getLocalPath(), 'rb+');
     }
 
-    /**
-     * @return string
-     */
     public function contents(): string
     {
         return file_get_contents($this->filePath);
     }
 
     /**
-     * @param @param string|resource $contents
+     * @param  string|resource  $contents
      */
-    public function put($contents)
+    public function put($contents): void
     {
         file_put_contents($this->filePath, $contents);
     }

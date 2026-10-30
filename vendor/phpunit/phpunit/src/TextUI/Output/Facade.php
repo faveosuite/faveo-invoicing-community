@@ -15,6 +15,7 @@ use PHPUnit\Event\Facade as EventFacade;
 use PHPUnit\Logging\TeamCity\TeamCityLogger;
 use PHPUnit\Logging\TestDox\TestResultCollection;
 use PHPUnit\Runner\DirectoryDoesNotExistException;
+use PHPUnit\Runner\Extension\ExtensionCapabilities;
 use PHPUnit\TestRunner\TestResult\TestResult;
 use PHPUnit\TextUI\CannotOpenSocketException;
 use PHPUnit\TextUI\Configuration\Configuration;
@@ -42,7 +43,7 @@ final class Facade
     private static ?SummaryPrinter $summaryPrinter             = null;
     private static bool $defaultProgressPrinter                = false;
 
-    public static function init(Configuration $configuration, bool $extensionReplacesProgressOutput, bool $extensionReplacesResultOutput): Printer
+    public static function init(Configuration $configuration, ExtensionCapabilities $extensionCapabilities): Printer
     {
         self::createPrinter($configuration);
 
@@ -54,8 +55,6 @@ final class Facade
             return $printer;
         }
 
-        self::createUnexpectedOutputPrinter();
-
         if ($configuration->outputIsCompact()) {
             self::$compactResultPrinter = new CompactResultPrinter(
                 $printer,
@@ -65,21 +64,26 @@ final class Facade
                 $configuration->displayDetailsOnTestsThatTriggerErrors() || $configuration->displayDetailsOnAllIssues(),
                 $configuration->displayDetailsOnTestsThatTriggerNotices() || $configuration->displayDetailsOnAllIssues(),
                 $configuration->displayDetailsOnTestsThatTriggerWarnings() || $configuration->displayDetailsOnAllIssues(),
+                $configuration->displayDetailsOnPhpunitDeprecations() || $configuration->displayDetailsOnAllIssues(),
+                $configuration->displayDetailsOnPhpunitNotices() || $configuration->displayDetailsOnAllIssues(),
             );
 
-            new CompactProgressPrinter(
-                $printer,
-                EventFacade::instance(),
-            );
+            if (!$extensionCapabilities->replacesProgressOutput()) {
+                new CompactProgressPrinter(
+                    $printer,
+                    EventFacade::instance(),
+                    !$configuration->disallowTestOutput(),
+                );
+            }
         } else {
-            if (!$extensionReplacesProgressOutput) {
+            self::createUnexpectedOutputPrinter();
+
+            if (!$extensionCapabilities->replacesProgressOutput()) {
                 self::createProgressPrinter($configuration);
             }
 
-            if (!$extensionReplacesResultOutput) {
-                self::createResultPrinter($configuration);
-                self::createSummaryPrinter($configuration);
-            }
+            self::createResultPrinter($configuration);
+            self::createSummaryPrinter($configuration);
 
             if ($configuration->outputIsTeamCity()) {
                 new TeamCityLogger(

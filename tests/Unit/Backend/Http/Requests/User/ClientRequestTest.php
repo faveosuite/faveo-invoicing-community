@@ -11,15 +11,16 @@ class ClientRequestTest extends TestCase
 {
     public function test_authorize_returns_true(): void
     {
-        $this->assertTrue((new ClientRequest())->authorize());
+        $this->assertTrue(new ClientRequest()->authorize());
     }
 
     public function test_post_rules_contain_required_keys(): void
     {
         // POST /users is the actual create route (routes/web.php) — rules() must
         // key off 'POST', not the no-longer-used 'PUT'.
-        $request = new ClientRequest();
+        $request = new ClientRequest;
         $request->setMethod('POST');
+
         $rules = $request->rules();
 
         $this->assertArrayHasKey('first_name', $rules);
@@ -31,7 +32,8 @@ class ClientRequestTest extends TestCase
     public function test_patch_rules_contain_required_keys(): void
     {
         $request = ClientRequest::create('/users/5/edit', 'PATCH');
-        $request = ClientRequest::createFrom($request, new ClientRequest());
+        $request = ClientRequest::createFrom($request, new ClientRequest);
+
         $rules = $request->rules();
 
         $this->assertArrayHasKey('first_name', $rules);
@@ -41,7 +43,7 @@ class ClientRequestTest extends TestCase
 
     public function test_default_method_returns_empty_rules(): void
     {
-        $request = new ClientRequest();
+        $request = new ClientRequest;
         $request->setMethod('GET');
 
         $this->assertSame([], $request->rules());
@@ -49,7 +51,7 @@ class ClientRequestTest extends TestCase
 
     public function test_messages_returns_expected_keys(): void
     {
-        $messages = (new ClientRequest())->messages();
+        $messages = new ClientRequest()->messages();
 
         $this->assertIsArray($messages);
         $this->assertArrayHasKey('first_name.required', $messages);

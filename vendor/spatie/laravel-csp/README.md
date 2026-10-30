@@ -26,13 +26,15 @@ This readme does not aim to fully explain all the possible usages of CSP and its
 
 ## Support us
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/laravel-csp.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/laravel-csp)
+[<img src="https://spatie.be/github-ad-image/laravel-csp.jpg" width="419px" />](https://spatie.be/github-ad-click/laravel-csp)
 
 We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
 
 We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
 
 ## Installation
+
+This package requires PHP 8.3 or higher and Laravel 12 or 13.
 
 You can install the package via composer:
 
@@ -193,8 +195,10 @@ This package ships with a few commonly used presets to get your started. *We're 
 | `Cloudflare Turnstile`     | [cloudflare.com](https://www.cloudflare.com/application-services/products/turnstile/)          |
 | `Cloudflare Web Analytics` | [cloudflare.com](https://developers.cloudflare.com/web-analytics/)                             |
 | `Fathom`                   | [usefathom.com](https://usefathom.com)                                                         |
+| `Firebase`                 | [firebase.google.com](https://firebase.google.com)                                             |
 | `Google TLD's`             | Allow all Google Top Level Domains for 'connect' and 'image'                                   |       
 | `Google`                   | Google Analytics & Tag Manager                                                                 |       
+| `GoogleAds`                | [ads.google.com](https://developers.google.com/tag-platform/security/guides/csp#google_ads)    |
 | `GoogleFonts`              | [fonts.google.com](https://fonts.google.com)                                                   | 
 | `GoogleLookerStudio`       | [lookerstudio.google.com](https://lookerstudio.google.com)                                     | 
 | `GoogleMaps`               | [maps.google.com](https://maps.google.com)                                                     | 
@@ -356,6 +360,21 @@ Don't forget to update the `presets` key in the `csp` config file to the class n
     App\Support\MyCspPreset::class,
 ],
 ```
+
+### Trusted Types
+
+Use `Directive::TRUSTED_TYPES` to allow specific Trusted Types policy names. Combine it with `Directive::REQUIRE_TRUSTED_TYPES_FOR` to require Trusted Types for script injection sinks:
+
+```php
+public function configure(Policy $policy): void
+{
+    $policy
+        ->add(Directive::TRUSTED_TYPES, ['default', 'my-policy'])
+        ->add(Directive::REQUIRE_TRUSTED_TYPES_FOR, Keyword::SCRIPT);
+}
+```
+
+Policy names are not quoted. Use `Keyword::ALLOW_DUPLICATES` alongside policy names to allow creating more than one policy with the same name. Use `Keyword::NONE` on its own to disallow policy creation, or `'*'` to allow any policy name.
 
 ### Using inline scripts and styles
 

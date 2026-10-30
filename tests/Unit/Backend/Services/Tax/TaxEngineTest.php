@@ -14,12 +14,7 @@ class TaxEngineTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->engine = new TaxEngine();
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
+        $this->engine = new TaxEngine;
     }
 
     // --- calcExclusive ---
@@ -28,7 +23,7 @@ class TaxEngineTest extends TestCase
     {
         $rates = [['id' => 1, 'rate' => 20.0, 'label' => 'VAT', 'compound' => false]];
 
-        $taxes = $this->engine->calc(100.0, $rates, false);
+        $taxes = $this->engine->calc(100.0, $rates, pricesIncludeTax: false);
 
         $this->assertEqualsWithDelta(20.0, $taxes[1], 0.001);
     }
@@ -37,7 +32,7 @@ class TaxEngineTest extends TestCase
     {
         $rates = [['id' => 1, 'rate' => 0.0, 'label' => 'Exempt', 'compound' => false]];
 
-        $taxes = $this->engine->calc(100.0, $rates, false);
+        $taxes = $this->engine->calc(100.0, $rates, pricesIncludeTax: false);
 
         $this->assertEqualsWithDelta(0.0, $taxes[1], 0.001);
     }
@@ -50,7 +45,7 @@ class TaxEngineTest extends TestCase
         ];
         // non-compound: 100 * 10% = 10
         // compound:    (100 + 10) * 5% = 5.5
-        $taxes = $this->engine->calc(100.0, $rates, false);
+        $taxes = $this->engine->calc(100.0, $rates, pricesIncludeTax: false);
 
         $this->assertEqualsWithDelta(10.0, $taxes[1], 0.001);
         $this->assertEqualsWithDelta(5.5, $taxes[2], 0.001);
@@ -63,7 +58,7 @@ class TaxEngineTest extends TestCase
             ['id' => 2, 'rate' => 5.0,  'label' => 'County',  'compound' => true],
             ['id' => 3, 'rate' => 2.0,  'label' => 'Special', 'compound' => true],
         ];
-        $taxes = $this->engine->calc(100.0, $rates, false);
+        $taxes = $this->engine->calc(100.0, $rates, pricesIncludeTax: false);
 
         $this->assertEqualsWithDelta(10.0, $taxes[1], 0.001);
         // compound 1: (100 + 10) * 5% = 5.5; running = 15.5
@@ -78,14 +73,14 @@ class TaxEngineTest extends TestCase
             ['id' => 1, 'rate' => 10.0, 'label' => 'Compound only', 'compound' => true],
         ];
         // preCompoundTotal = 0; price + 0 = 100; 100 * 10% = 10
-        $taxes = $this->engine->calc(100.0, $rates, false);
+        $taxes = $this->engine->calc(100.0, $rates, pricesIncludeTax: false);
 
         $this->assertEqualsWithDelta(10.0, $taxes[1], 0.001);
     }
 
     public function test_exclusive_empty_rates_returns_empty_array(): void
     {
-        $taxes = $this->engine->calc(100.0, [], false);
+        $taxes = $this->engine->calc(100.0, [], pricesIncludeTax: false);
 
         $this->assertSame([], $taxes);
     }
@@ -97,7 +92,7 @@ class TaxEngineTest extends TestCase
         // Price 120 includes 20% VAT → tax = 120 - (120 / 1.20) = 20
         $rates = [['id' => 1, 'rate' => 20.0, 'label' => 'VAT', 'compound' => false]];
 
-        $taxes = $this->engine->calc(120.0, $rates, true);
+        $taxes = $this->engine->calc(120.0, $rates, pricesIncludeTax: true);
 
         $this->assertEqualsWithDelta(20.0, $taxes[1], 0.01);
     }
@@ -106,14 +101,14 @@ class TaxEngineTest extends TestCase
     {
         $rates = [['id' => 1, 'rate' => 0.0, 'label' => 'Exempt', 'compound' => false]];
 
-        $taxes = $this->engine->calc(100.0, $rates, true);
+        $taxes = $this->engine->calc(100.0, $rates, pricesIncludeTax: true);
 
         $this->assertEqualsWithDelta(0.0, $taxes[1], 0.001);
     }
 
     public function test_inclusive_empty_rates_returns_empty_array(): void
     {
-        $taxes = $this->engine->calc(100.0, [], true);
+        $taxes = $this->engine->calc(100.0, [], pricesIncludeTax: true);
 
         $this->assertSame([], $taxes);
     }
@@ -126,7 +121,7 @@ class TaxEngineTest extends TestCase
 
         $this->assertSame(
             $this->engine->calcExclusive(200.0, $rates),
-            $this->engine->calc(200.0, $rates, false)
+            $this->engine->calc(200.0, $rates, pricesIncludeTax: false)
         );
     }
 
@@ -136,7 +131,7 @@ class TaxEngineTest extends TestCase
 
         $this->assertSame(
             $this->engine->calcInclusive(110.0, $rates),
-            $this->engine->calc(110.0, $rates, true)
+            $this->engine->calc(110.0, $rates, pricesIncludeTax: true)
         );
     }
 
@@ -144,7 +139,7 @@ class TaxEngineTest extends TestCase
     {
         $rates = [['id' => 1, 'rate' => 18.0, 'label' => 'GST', 'compound' => false]];
 
-        $taxes = $this->engine->calc(99999.99, $rates, false);
+        $taxes = $this->engine->calc(99999.99, $rates, pricesIncludeTax: false);
 
         $this->assertEqualsWithDelta(17999.9982, $taxes[1], 0.01);
     }
@@ -155,7 +150,7 @@ class TaxEngineTest extends TestCase
     {
         $rates = [['id' => 1, 'rate' => 20.0, 'label' => 'VAT', 'compound' => false]];
 
-        $taxes = $this->engine->calc(0.0, $rates, false);
+        $taxes = $this->engine->calc(0.0, $rates, pricesIncludeTax: false);
 
         $this->assertEqualsWithDelta(0.0, $taxes[1], 0.001);
     }
@@ -165,7 +160,7 @@ class TaxEngineTest extends TestCase
         // Edge case: credit notes / refunds may pass negative amounts
         $rates = [['id' => 1, 'rate' => 20.0, 'label' => 'VAT', 'compound' => false]];
 
-        $taxes = $this->engine->calc(-100.0, $rates, false);
+        $taxes = $this->engine->calc(-100.0, $rates, pricesIncludeTax: false);
 
         $this->assertEqualsWithDelta(-20.0, $taxes[1], 0.001);
     }
@@ -175,7 +170,7 @@ class TaxEngineTest extends TestCase
         // Some luxury tax jurisdictions exceed 100% — the engine must not break
         $rates = [['id' => 1, 'rate' => 150.0, 'label' => 'Luxury', 'compound' => false]];
 
-        $taxes = $this->engine->calc(100.0, $rates, false);
+        $taxes = $this->engine->calc(100.0, $rates, pricesIncludeTax: false);
 
         $this->assertEqualsWithDelta(150.0, $taxes[1], 0.001);
     }
@@ -185,7 +180,7 @@ class TaxEngineTest extends TestCase
         // 33.333...% of 99.99 should not produce NaN or INF
         $rates = [['id' => 1, 'rate' => 33.333, 'label' => 'Tax', 'compound' => false]];
 
-        $taxes = $this->engine->calc(99.99, $rates, false);
+        $taxes = $this->engine->calc(99.99, $rates, pricesIncludeTax: false);
 
         $this->assertIsFloat($taxes[1]);
         $this->assertFalse(is_nan($taxes[1]));
@@ -201,7 +196,7 @@ class TaxEngineTest extends TestCase
             $rates[] = ['id' => $i, 'rate' => 1.0, 'label' => "Rate $i", 'compound' => false];
         }
 
-        $taxes = $this->engine->calc(100.0, $rates, false);
+        $taxes = $this->engine->calc(100.0, $rates, pricesIncludeTax: false);
 
         $this->assertCount(100, $taxes);
         // Each rate: 100 * 1% = 1.0
@@ -218,7 +213,7 @@ class TaxEngineTest extends TestCase
             ['id' => 1, 'rate' => 20.0, 'label' => 'Second', 'compound' => false],
         ];
 
-        $taxes = $this->engine->calc(100.0, $rates, false);
+        $taxes = $this->engine->calc(100.0, $rates, pricesIncludeTax: false);
 
         // Result array keyed by id — only one entry for id=1 will exist
         $this->assertCount(1, $taxes);
@@ -232,7 +227,7 @@ class TaxEngineTest extends TestCase
             ['id' => 2, 'rate' => 10.0, 'label' => 'B', 'compound' => false],
         ];
         // Total tax rate = 20%; on price 120 → total tax = 20, split equally: 10 each
-        $taxes = $this->engine->calc(120.0, $rates, true);
+        $taxes = $this->engine->calc(120.0, $rates, pricesIncludeTax: true);
 
         $this->assertEqualsWithDelta($taxes[1], $taxes[2], 0.001);
         $this->assertEqualsWithDelta(20.0, array_sum($taxes), 0.01);

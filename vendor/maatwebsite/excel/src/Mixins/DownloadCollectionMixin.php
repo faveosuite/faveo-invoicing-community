@@ -8,49 +8,40 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Sheet;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class DownloadCollectionMixin
 {
-    /**
-     * @return callable
-     */
-    public function downloadExcel()
+    public function downloadExcel(): callable
     {
-        return function (string $fileName, ?string $writerType = null, $withHeadings = false, array $responseHeaders = []) {
-            $export = new class($this, $withHeadings) implements FromCollection, WithHeadings
+        return function (string $fileName, ?string $writerType = null, $withHeadings = false, array $responseHeaders = []): BinaryFileResponse {
+            $export = new class($this, $withHeadings) implements FromCollection, WithHeadings // @phpstan-ignore argument.type
             {
                 use Exportable;
 
                 /**
-                 * @var bool
+                 * @var Collection<array-key, mixed>
                  */
-                private $withHeadings;
+                private Collection $collection;
 
                 /**
-                 * @var Collection
+                 * @param  Collection<array-key, mixed>  $collection
                  */
-                private $collection;
-
-                /**
-                 * @param  Collection  $collection
-                 * @param  bool  $withHeading
-                 */
-                public function __construct(Collection $collection, bool $withHeading = false)
+                public function __construct(Collection $collection, private readonly bool $withHeadings = false)
                 {
-                    $this->collection   = $collection->toBase();
-                    $this->withHeadings = $withHeading;
+                    $this->collection = $collection->toBase();
                 }
 
                 /**
-                 * @return Collection
+                 * @return Collection<array-key, mixed>
                  */
-                public function collection()
+                public function collection(): Collection
                 {
                     return $this->collection;
                 }
 
                 /**
-                 * @return array
+                 * @return array<int, mixed>
                  */
                 public function headings(): array
                 {

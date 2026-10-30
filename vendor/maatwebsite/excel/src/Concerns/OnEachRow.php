@@ -1,13 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Concerns;
 
 use Maatwebsite\Excel\Row;
 
-interface OnEachRow
+interface OnEachRow extends Import
 {
-    /**
-     * @param  Row  $row
-     */
-    public function onRow(Row $row);
+    public function onRow(Row $row): void;
 }

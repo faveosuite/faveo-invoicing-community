@@ -17,6 +17,7 @@ use App\Services\Payment\PaymentService;
 use App\User;
 use Auth;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -26,8 +27,7 @@ class AutoRenewalController extends Controller
     public function __construct(
         private readonly PaymentService $payments,
         private readonly AutoRenewalActivationService $activation,
-    ) {
-    }
+    ) {}
 
     /**
      * Create a Stripe PaymentIntent for card verification.
@@ -84,7 +84,7 @@ class AutoRenewalController extends Controller
             // otherwise any succeeded PaymentIntent id (e.g. a real invoice payment the SPA
             // already knows) could be posted here and refunded while the invoice stays paid.
             if (! $this->isVerificationCharge($result, $order)) {
-                $this->logPayment($order, 'stripe', 'failed', 'Rejected refund of '.$paymentIntentId.': not this order\'s card-verification charge.');
+                $this->logPayment($order, 'stripe', 'failed', 'Rejected refund of '.$paymentIntentId.": not this order's card-verification charge.");
 
                 return errorResponse(__('message.unauthorized_action'), 403);
             }
@@ -190,7 +190,7 @@ class AutoRenewalController extends Controller
             $this->activation->deactivate($subscription, cancelAtGateway: true);
 
             return successResponse(__('message.auto_subscription_disabled'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);

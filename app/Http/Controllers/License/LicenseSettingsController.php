@@ -4,6 +4,7 @@ namespace App\Http\Controllers\License;
 
 use App\Model\License\LicenseType;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -131,7 +132,7 @@ class LicenseSettingsController extends LicensePermissionsController
             $type = $this->licenseType->select('id', 'name')->findOrFail($id);
 
             return successResponse('', $type);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);

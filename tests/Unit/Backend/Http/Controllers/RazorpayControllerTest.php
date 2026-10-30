@@ -37,7 +37,7 @@ class RazorpayControllerTest extends DBTestCase
         $serviceMock = Mockery::mock(SubscriptionService::class);
         $serviceMock->shouldReceive('createSubscription')
             ->once()
-            ->withArgs(function (string $gateway, SubscriptionRequest $request) {
+            ->withArgs(function (string $gateway, SubscriptionRequest $request): bool {
                 return $gateway === 'Razorpay'
                     && $request->includeUpfrontCharge === false
                     && $request->startAt === Date::parse('2027-07-29 00:00:00')->timestamp;
@@ -46,7 +46,7 @@ class RazorpayControllerTest extends DBTestCase
         $this->app->instance(SubscriptionService::class, $serviceMock);
 
         $controller = new RazorpayController;
-        $controller->handleRzpAutoPay(1000, 30, 'Test Plan', $invoice, 'INR', $subscription, $user, $order, null, $product, immediate: true);
+        $controller->handleRzpAutoPay(1000, 30, 'Test Plan', $invoice, 'INR', $subscription, $user, $order, endDate: null, productDetails: $product, immediate: true);
 
         $this->assertTrue(true);
     }
@@ -63,16 +63,16 @@ class RazorpayControllerTest extends DBTestCase
         $serviceMock = Mockery::mock(SubscriptionService::class);
         $serviceMock->shouldReceive('createSubscription')
             ->once()
-            ->withArgs(function (string $gateway, SubscriptionRequest $request) {
+            ->withArgs(function (string $gateway, SubscriptionRequest $request): bool {
                 return $gateway === 'Razorpay'
-                    && $request->includeUpfrontCharge === true
+                    && $request->includeUpfrontCharge
                     && $request->startAt === Date::parse('2027-07-29 00:00:00')->addDays(30)->timestamp;
             })
             ->andReturn(new SubscriptionResult('Razorpay', 'sub_test', 'created', []));
         $this->app->instance(SubscriptionService::class, $serviceMock);
 
         $controller = new RazorpayController;
-        $controller->handleRzpAutoPay(1000, 30, 'Test Plan', $invoice, 'INR', $subscription, $user, $order, null, $product);
+        $controller->handleRzpAutoPay(1000, 30, 'Test Plan', $invoice, 'INR', $subscription, $user, $order, endDate: null, productDetails: $product);
 
         $this->assertTrue(true);
     }

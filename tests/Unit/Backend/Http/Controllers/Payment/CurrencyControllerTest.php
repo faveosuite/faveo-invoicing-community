@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Payment;
 
+use App\Http\Controllers\Payment\CurrencyController;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -33,11 +34,11 @@ class CurrencyControllerTest extends DBTestCase
 
     public function test_show_method_exists(): void
     {
-        $this->assertTrue(method_exists(\App\Http\Controllers\Payment\CurrencyController::class, 'show'));
+        $this->assertTrue(method_exists(CurrencyController::class, 'show'));
     }
 
     public function test_edit_method_exists(): void
     {
-        $this->assertTrue(method_exists(\App\Http\Controllers\Payment\CurrencyController::class, 'edit'));
+        $this->assertTrue(method_exists(CurrencyController::class, 'edit'));
     }
 }

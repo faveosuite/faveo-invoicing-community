@@ -9,6 +9,7 @@ use App\Model\Common\SeoDefaultPage;
 use App\Model\Common\Setting;
 use App\Model\Front\FrontendPage;
 use App\Model\Product\ProductGroup;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 /**
  * Resolves server-rendered SEO meta for both SSR shells:
@@ -48,9 +49,7 @@ class SeoMetaService // NOSONAR - large existing class, kept as is: splitting it
     /** @var array<string, array{title:string,description:string,robots:string,canonical:string,image:?string,og_title:string,og_description:string}> */
     private array $resolved = [];
 
-    public function __construct(private readonly SeoTemplateFormatter $formatter)
-    {
-    }
+    public function __construct(private readonly SeoTemplateFormatter $formatter) {}
 
     /**
      * @return array{title:string,description:string,robots:string,canonical:string,image:?string,og_title:string,og_description:string}
@@ -177,7 +176,7 @@ class SeoMetaService // NOSONAR - large existing class, kept as is: splitting it
     private function fromProductGroup(?string $id, string $path): array
     {
         $group = $id !== null
-            ? ProductGroup::where(fn ($q) => $q->whereNull('hidden')->orWhere('hidden', '!=', 1))->find($id)
+            ? ProductGroup::where(fn (Builder $q) => $q->whereNull('hidden')->orWhere('hidden', '!=', 1))->find($id)
             : null;
 
         if ($id !== null && ! $group) {

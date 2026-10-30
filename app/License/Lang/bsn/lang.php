@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     '2fa_setup' => 'Postavljanje verifikacije u 2 koraka',
     'actions' => 'Radnje',
@@ -18,7 +20,7 @@ return [
     'dashboard' => 'Kontrolna ploča',
     'dashboard_show' => 'Kontrolna ploča',
     'callbacks_count' => 'Broj povratnih poziva',
-    'callbacks_description' => 'Pregledajte postojeće povratne pozive verifikacije licence. Ako je potrebno obrisati povratni poziv, provjerite klijentski ili licencni kod i kliknite dugme \'Pošalji\'.',
+    'callbacks_description' => "Pregledajte postojeće povratne pozive verifikacije licence. Ako je potrebno obrisati povratni poziv, provjerite klijentski ili licencni kod i kliknite dugme 'Pošalji'.",
     'adddd' => 'Licenca je uspješno dodana',
     'admin_privileges' => 'Administratorske privilegije',
     'Api_Acess_not_allowed' => 'Pristup API-ju nije dozvoljen',

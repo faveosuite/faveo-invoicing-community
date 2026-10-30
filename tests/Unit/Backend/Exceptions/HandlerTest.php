@@ -36,7 +36,7 @@ class HandlerTest extends TestCase
         $request = Request::create('/api/test', 'GET');
         $request->headers->set('Accept', 'application/json');
 
-        $response = $this->handler->render($request, new AuthenticationException());
+        $response = $this->handler->render($request, new AuthenticationException);
 
         $this->assertEquals(401, $response->getStatusCode());
     }
@@ -45,7 +45,7 @@ class HandlerTest extends TestCase
     {
         $request = Request::create('/test', 'GET');
 
-        $response = $this->handler->render($request, new AuthenticationException());
+        $response = $this->handler->render($request, new AuthenticationException);
 
         $this->assertEquals(302, $response->getStatusCode());
     }

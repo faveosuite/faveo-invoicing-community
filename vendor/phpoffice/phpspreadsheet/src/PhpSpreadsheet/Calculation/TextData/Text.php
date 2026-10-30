@@ -2,10 +2,13 @@
 
 namespace PhpOffice\PhpSpreadsheet\Calculation\TextData;
 
+use Composer\Pcre\Preg;
 use PhpOffice\PhpSpreadsheet\Calculation\ArrayEnabled;
 use PhpOffice\PhpSpreadsheet\Calculation\Calculation;
+use PhpOffice\PhpSpreadsheet\Calculation\Exception as CalcExp;
 use PhpOffice\PhpSpreadsheet\Calculation\Functions;
 use PhpOffice\PhpSpreadsheet\Calculation\Information\ErrorValue;
+use PhpOffice\PhpSpreadsheet\Shared\StringHelper;
 
 class Text
 {
@@ -17,17 +20,20 @@ class Text
      * @param mixed $value String Value
      *                         Or can be an array of values
      *
-     * @return array|int
-     *         If an array of values is passed for the argument, then the returned result
+     * @return array<mixed>|int|string If an array of values is passed for the argument, then the returned result
      *            will also be an array with matching dimensions
      */
-    public static function length($value = '')
+    public static function length(mixed $value = ''): array|int|string
     {
         if (is_array($value)) {
             return self::evaluateSingleArgumentArray([self::class, __FUNCTION__], $value);
         }
 
-        $value = Helpers::extractString($value);
+        try {
+            $value = Helpers::extractString($value, true);
+        } catch (CalcExp $e) {
+            return $e->getMessage();
+        }
 
         return mb_strlen($value, 'UTF-8');
     }
@@ -42,18 +48,21 @@ class Text
      * @param mixed $value2 String Value
      *                         Or can be an array of values
      *
-     * @return array|bool
-     *         If an array of values is passed for either of the arguments, then the returned result
+     * @return array<mixed>|bool|string If an array of values is passed for either of the arguments, then the returned result
      *            will also be an array with matching dimensions
      */
-    public static function exact($value1, $value2)
+    public static function exact(mixed $value1, mixed $value2): array|bool|string
     {
         if (is_array($value1) || is_array($value2)) {
             return self::evaluateArrayArguments([self::class, __FUNCTION__], $value1, $value2);
         }
 
-        $value1 = Helpers::extractString($value1);
-        $value2 = Helpers::extractString($value2);
+        try {
+            $value1 = Helpers::extractString($value1, true);
+            $value2 = Helpers::extractString($value2, true);
+        } catch (CalcExp $e) {
+            return $e->getMessage();
+        }
 
         return $value2 === $value1;
     }
@@ -64,11 +73,10 @@ class Text
      * @param mixed $testValue Value to check
      *                         Or can be an array of values
      *
-     * @return array|string
-     *         If an array of values is passed for the argument, then the returned result
+     * @return array<mixed>|string If an array of values is passed for the argument, then the returned result
      *            will also be an array with matching dimensions
      */
-    public static function test($testValue = '')
+    public static function test(mixed $testValue = ''): array|string
     {
         if (is_array($testValue)) {
             return self::evaluateSingleArgumentArray([self::class, __FUNCTION__], $testValue);
@@ -85,9 +93,9 @@ class Text
      * TEXTSPLIT.
      *
      * @param mixed $text the text that you're searching
-     * @param null|array|string $columnDelimiter The text that marks the point where to spill the text across columns.
+     * @param null|array<string>|string $columnDelimiter The text that marks the point where to spill the text across columns.
      *                          Multiple delimiters can be passed as an array of string values
-     * @param null|array|string $rowDelimiter The text that marks the point where to spill the text down rows.
+     * @param null|array<string>|string $rowDelimiter The text that marks the point where to spill the text down rows.
      *                          Multiple delimiters can be passed as an array of string values
      * @param bool $ignoreEmpty Specify FALSE to create an empty cell when two delimiters are consecutive.
      *                              true = create empty cells
@@ -100,11 +108,14 @@ class Text
      * @param mixed $padding The value with which to pad the result.
      *                              The default is #N/A.
      *
-     * @return array the array built from the text, split by the row and column delimiters
+     * @return array<mixed>|string the array built from the text, split by the row and column delimiters, or an error string
      */
-    public static function split($text, $columnDelimiter = null, $rowDelimiter = null, bool $ignoreEmpty = false, bool $matchMode = true, $padding = '#N/A')
+    public static function split(mixed $text, $columnDelimiter = null, $rowDelimiter = null, bool $ignoreEmpty = false, bool $matchMode = true, mixed $padding = '#N/A'): array|string
     {
         $text = Functions::flattenSingleValue($text);
+        if (ErrorValue::isError($text, true)) {
+            return StringHelper::convertToString($text);
+        }
 
         $flags = self::matchFlags($matchMode);
 
@@ -112,18 +123,15 @@ class Text
             $delimiter = self::buildDelimiter($rowDelimiter);
             $rows = ($delimiter === '()')
                 ? [$text]
-                : preg_split("/{$delimiter}/{$flags}", $text);
+                : Preg::split("/{$delimiter}/{$flags}", StringHelper::convertToString($text));
         } else {
             $rows = [$text];
         }
 
-        /** @var array $rows */
         if ($ignoreEmpty === true) {
             $rows = array_values(array_filter(
                 $rows,
-                function ($row) {
-                    return $row !== '';
-                }
+                fn ($row): bool => $row !== ''
             ));
         }
 
@@ -134,14 +142,11 @@ class Text
                 function (&$row) use ($delimiter, $flags, $ignoreEmpty): void {
                     $row = ($delimiter === '()')
                         ? [$row]
-                        : preg_split("/{$delimiter}/{$flags}", $row);
-                    /** @var array $row */
+                        : Preg::split("/{$delimiter}/{$flags}", StringHelper::convertToString($row));
                     if ($ignoreEmpty === true) {
                         $row = array_values(array_filter(
                             $row,
-                            function ($value) {
-                                return $value !== '';
-                            }
+                            fn ($value): bool => $value !== ''
                         ));
                     }
                 }
@@ -149,9 +154,7 @@ class Text
             if ($ignoreEmpty === true) {
                 $rows = array_values(array_filter(
                     $rows,
-                    function ($row) {
-                        return $row !== [] && $row !== [''];
-                    }
+                    fn ($row): bool => $row !== [] && $row !== ['']
                 ));
             }
         }
@@ -160,30 +163,28 @@ class Text
     }
 
     /**
-     * @param mixed $padding
+     * @param mixed[] $rows
+     *
+     * @return mixed[]
      */
-    private static function applyPadding(array $rows, $padding): array
+    private static function applyPadding(array $rows, mixed $padding): array
     {
         $columnCount = array_reduce(
             $rows,
-            function (int $counter, array $row): int {
-                return max($counter, count($row));
-            },
+            fn (int $counter, array $row): int => max($counter, count($row)), //* @phpstan-ignore argument.type (I don't know)
             0
         );
 
         return array_map(
-            function (array $row) use ($columnCount, $padding): array {
-                return (count($row) < $columnCount)
+            fn (array $row): array => (count($row) < $columnCount) //* @phpstan-ignore argument.type (I don't know)
                     ? array_merge($row, array_fill(0, $columnCount - count($row), $padding))
-                    : $row;
-            },
+                    : $row,
             $rows
         );
     }
 
     /**
-     * @param null|array|string $delimiter the text that marks the point before which you want to split
+     * @param null|array<string>|string $delimiter the text that marks the point before which you want to split
      *                                 Multiple delimiters can be passed as an array of string values
      */
     private static function buildDelimiter($delimiter): string
@@ -191,10 +192,9 @@ class Text
         $valueSet = Functions::flattenArray($delimiter);
 
         if (is_array($delimiter) && count($valueSet) > 1) {
+            /** @var array<?string> $valueSet */
             $quotedDelimiters = array_map(
-                function ($delimiter) {
-                    return preg_quote($delimiter ?? '', '/');
-                },
+                fn (?string $delimiter): string => preg_quote($delimiter ?? '', '/'),
                 $valueSet
             );
             $delimiters = implode('|', $quotedDelimiters);
@@ -202,7 +202,7 @@ class Text
             return '(' . $delimiters . ')';
         }
 
-        return '(' . preg_quote(/** @scrutinizer ignore-type */ Functions::flattenSingleValue($delimiter), '/') . ')';
+        return '(' . preg_quote(StringHelper::convertToString(Functions::flattenSingleValue($delimiter)), '/') . ')';
     }
 
     private static function matchFlags(bool $matchMode): string
@@ -210,6 +210,7 @@ class Text
         return ($matchMode === true) ? 'miu' : 'mu';
     }
 
+    /** @param mixed[][] $array */
     public static function fromArray(array $array, int $format = 0): string
     {
         $result = [];
@@ -227,22 +228,16 @@ class Text
         return ($format === 1) ? '{' . $result . '}' : $result;
     }
 
-    /**
-     * @param mixed $cellValue
-     */
-    private static function formatValueMode0($cellValue): string
+    private static function formatValueMode0(mixed $cellValue): string
     {
         if (is_bool($cellValue)) {
             return Calculation::getLocaleBoolean($cellValue ? 'TRUE' : 'FALSE');
         }
 
-        return (string) $cellValue;
+        return StringHelper::convertToString($cellValue);
     }
 
-    /**
-     * @param mixed $cellValue
-     */
-    private static function formatValueMode1($cellValue): string
+    private static function formatValueMode1(mixed $cellValue): string
     {
         if (is_string($cellValue) && ErrorValue::isError($cellValue) === false) {
             return Calculation::FORMULA_STRING_QUOTE . $cellValue . Calculation::FORMULA_STRING_QUOTE;
@@ -250,6 +245,6 @@ class Text
             return Calculation::getLocaleBoolean($cellValue ? 'TRUE' : 'FALSE');
         }
 
-        return (string) $cellValue;
+        return StringHelper::convertToString($cellValue);
     }
 }

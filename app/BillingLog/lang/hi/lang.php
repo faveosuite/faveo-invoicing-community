@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => 'डिफ़ॉल्ट',
     'cloud-instance-created' => 'क्लाउड इंस्टेंस बनाया गया',

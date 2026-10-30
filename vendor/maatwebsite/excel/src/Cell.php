@@ -14,46 +14,25 @@ class Cell
 {
     use DelegatedMacroable;
 
-    /**
-     * @var SpreadsheetCell
-     */
-    private $cell;
-
-    /**
-     * @param  SpreadsheetCell  $cell
-     */
-    public function __construct(SpreadsheetCell $cell)
-    {
-        $this->cell = $cell;
+    final public function __construct(
+        private readonly SpreadsheetCell $cell,
+    ) {
     }
 
     /**
-     * @param  Worksheet  $worksheet
-     * @param  string  $coordinate
-     * @return Cell
-     *
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
-    public static function make(Worksheet $worksheet, string $coordinate)
+    public static function make(Worksheet $worksheet, string $coordinate): Cell
     {
         return new static($worksheet->getCell($coordinate));
     }
 
-    /**
-     * @return SpreadsheetCell
-     */
     public function getDelegate(): SpreadsheetCell
     {
         return $this->cell;
     }
 
-    /**
-     * @param  null  $nullValue
-     * @param  bool  $calculateFormulas
-     * @param  bool  $formatData
-     * @return mixed
-     */
-    public function getValue($nullValue = null, $calculateFormulas = false, $formatData = true)
+    public function getValue(mixed $nullValue = null, bool $calculateFormulas = false, bool $formatData = true): mixed
     {
         $value = $nullValue;
         if ($this->cell->getValue() !== null) {
@@ -62,7 +41,7 @@ class Cell
             } elseif ($calculateFormulas) {
                 try {
                     $value = $this->cell->getCalculatedValue();
-                } catch (Exception $e) {
+                } catch (Exception) {
                     $value = $this->cell->getOldCalculatedValue();
                 }
             } else {
@@ -71,10 +50,7 @@ class Cell
 
             if ($formatData) {
                 $style = $this->cell->getWorksheet()->getParent()->getCellXfByIndex($this->cell->getXfIndex());
-                $value = NumberFormat::toFormattedString(
-                    $value,
-                    ($style && $style->getNumberFormat()) ? $style->getNumberFormat()->getFormatCode() : NumberFormat::FORMAT_GENERAL
-                );
+                $value = NumberFormat::toFormattedString($value, $style->getNumberFormat()->getFormatCode());
             }
         }
 

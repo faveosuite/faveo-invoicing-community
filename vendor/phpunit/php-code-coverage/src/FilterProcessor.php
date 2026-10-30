@@ -11,6 +11,7 @@ namespace SebastianBergmann\CodeCoverage;
 
 use function array_diff;
 use function array_diff_key;
+use function array_flip;
 use function array_keys;
 use function is_file;
 use SebastianBergmann\CodeCoverage\Data\ProcessedCodeCoverageData;
@@ -69,6 +70,8 @@ final readonly class FilterProcessor
         }
 
         foreach ($linesToBeCovered as $fileToBeCovered => $includedLines) {
+            $includedLines = array_flip($includedLines);
+
             $rawData->keepLineCoverageDataOnlyForLines($fileToBeCovered, $includedLines);
             $rawData->keepFunctionCoverageDataOnlyForLines($fileToBeCovered, $includedLines);
         }
@@ -94,23 +97,32 @@ final readonly class FilterProcessor
                 continue;
             }
 
-            $analysisResult      = $analyser->analyse($filename);
-            $linesToBranchMap    = $analysisResult->executableLines();
-            $branchOperatorLines = $analysisResult->branchOperatorLines();
+            $analysisResult = $analyser->analyse($filename);
+
+            if (!$analysisResult->wasParsed()) {
+                continue;
+            }
+
+            $linesToBranchMap = $analysisResult->executableLines();
 
             $data->keepLineCoverageDataOnlyForLines(
                 $filename,
-                array_keys($linesToBranchMap),
+                $linesToBranchMap,
             );
 
             $data->addMissingExecutableLines(
                 $filename,
-                array_keys($branchOperatorLines),
+                $analysisResult->branchOperatorLines(),
             );
 
             $data->markExecutableLineByBranch(
                 $filename,
                 $linesToBranchMap,
+            );
+
+            $data->markLinesAsNotExecutable(
+                $filename,
+                $analysisResult->deadLines(),
             );
         }
     }

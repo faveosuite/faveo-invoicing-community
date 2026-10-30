@@ -2,93 +2,92 @@
 
 namespace Maatwebsite\Excel\Concerns;
 
+use Illuminate\Bus\PendingBatch;
 use Illuminate\Foundation\Bus\PendingDispatch;
+use Illuminate\Http\Request;
 use Maatwebsite\Excel\Exceptions\NoFilenameGivenException;
 use Maatwebsite\Excel\Exceptions\NoFilePathGivenException;
 use Maatwebsite\Excel\Exporter;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 trait Exportable
 {
+    protected ?string $fileName = null;
+
+    protected ?string $writerType = null;
+
     /**
-     * @param  string  $fileName
-     * @param  string|null  $writerType
-     * @param  array  $headers
-     * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @var array<string, string>|null
+     */
+    protected ?array $headers = [];
+
+    protected ?string $filePath = null;
+
+    protected ?string $disk = null;
+
+    protected mixed $diskOptions = [];
+
+    /**
+     * @param  array<string, string>|null  $headers
      *
      * @throws NoFilenameGivenException
      */
-    public function download(?string $fileName = null, ?string $writerType = null, ?array $headers = null)
+    public function download(?string $fileName = null, ?string $writerType = null, ?array $headers = null): BinaryFileResponse
     {
-        $headers    = $headers ?? $this->headers ?? [];
-        $fileName   = $fileName ?? $this->fileName ?? null;
-        $writerType = $writerType ?? $this->writerType ?? null;
+        $headers ??= $this->headers;
+        $fileName ??= $this->fileName;
+        $writerType ??= $this->writerType;
 
-        if (null === $fileName) {
-            throw new NoFilenameGivenException();
+        if ($fileName === null) {
+            throw new NoFilenameGivenException;
         }
 
         return $this->getExporter()->download($this, $fileName, $writerType, $headers);
     }
 
     /**
-     * @param  string  $filePath
-     * @param  string|null  $disk
-     * @param  string|null  $writerType
-     * @param  mixed  $diskOptions
-     * @return bool|PendingDispatch
-     *
      * @throws NoFilePathGivenException
      */
-    public function store(?string $filePath = null, ?string $disk = null, ?string $writerType = null, $diskOptions = [])
+    public function store(?string $filePath = null, ?string $disk = null, ?string $writerType = null, mixed $diskOptions = []): bool|PendingDispatch|PendingBatch
     {
-        $filePath = $filePath ?? $this->filePath ?? null;
+        $filePath ??= $this->filePath;
 
-        if (null === $filePath) {
+        if ($filePath === null) {
             throw NoFilePathGivenException::export();
         }
 
         return $this->getExporter()->store(
             $this,
             $filePath,
-            $disk ?? $this->disk ?? null,
-            $writerType ?? $this->writerType ?? null,
-            $diskOptions ?: $this->diskOptions ?? []
+            $disk ?? $this->disk,
+            $writerType ?? $this->writerType,
+            $diskOptions ?: $this->diskOptions
         );
     }
 
     /**
-     * @param  string|null  $filePath
-     * @param  string|null  $disk
-     * @param  string|null  $writerType
-     * @param  mixed  $diskOptions
-     * @return PendingDispatch
-     *
      * @throws NoFilePathGivenException
      */
-    public function queue(?string $filePath = null, ?string $disk = null, ?string $writerType = null, $diskOptions = [])
+    public function queue(?string $filePath = null, ?string $disk = null, ?string $writerType = null, mixed $diskOptions = []): PendingDispatch|PendingBatch
     {
-        $filePath = $filePath ?? $this->filePath ?? null;
+        $filePath ??= $this->filePath;
 
-        if (null === $filePath) {
+        if ($filePath === null) {
             throw NoFilePathGivenException::export();
         }
 
         return $this->getExporter()->queue(
             $this,
             $filePath,
-            $disk ?? $this->disk ?? null,
-            $writerType ?? $this->writerType ?? null,
-            $diskOptions ?: $this->diskOptions ?? []
+            $disk ?? $this->disk,
+            $writerType ?? $this->writerType,
+            $diskOptions ?: $this->diskOptions
         );
     }
 
-    /**
-     * @param  string|null  $writerType
-     * @return string
-     */
-    public function raw($writerType = null)
+    public function raw(?string $writerType = null): string
     {
-        $writerType = $writerType ?? $this->writerType ?? null;
+        $writerType ??= $this->writerType;
 
         return $this->getExporter()->raw($this, $writerType);
     }
@@ -96,19 +95,15 @@ trait Exportable
     /**
      * Create an HTTP response that represents the object.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
      *
      * @throws NoFilenameGivenException
      */
-    public function toResponse($request)
+    public function toResponse($request): BinaryFileResponse
     {
         return $this->download();
     }
 
-    /**
-     * @return Exporter
-     */
     private function getExporter(): Exporter
     {
         return app(Exporter::class);

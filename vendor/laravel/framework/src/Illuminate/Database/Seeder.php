@@ -14,14 +14,14 @@ abstract class Seeder
     /**
      * The container instance.
      *
-     * @var \Illuminate\Contracts\Container\Container
+     * @var \Illuminate\Contracts\Container\Container|null
      */
     protected $container;
 
     /**
      * The console command instance.
      *
-     * @var \Illuminate\Console\Command
+     * @var \Illuminate\Console\Command|null
      */
     protected $command;
 
@@ -184,9 +184,7 @@ abstract class Seeder
             ? $this->container->call([$this, 'run'], $parameters)
             : $this->run(...$parameters);
 
-        $uses = array_flip(class_uses_recursive(static::class));
-
-        if (isset($uses[WithoutModelEvents::class])) {
+        if (isset(class_uses_recursive(static::class)[WithoutModelEvents::class])) {
             $callback = $this->withoutModelEvents($callback);
         }
 

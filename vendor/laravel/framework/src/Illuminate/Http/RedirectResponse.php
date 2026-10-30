@@ -3,6 +3,7 @@
 namespace Illuminate\Http;
 
 use Illuminate\Contracts\Support\MessageProvider;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Session\Store as SessionStore;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Str;
@@ -13,7 +14,7 @@ use Illuminate\Support\ViewErrorBag;
 use Symfony\Component\HttpFoundation\File\UploadedFile as SymfonyUploadedFile;
 use Symfony\Component\HttpFoundation\RedirectResponse as BaseRedirectResponse;
 
-class RedirectResponse extends BaseRedirectResponse
+class RedirectResponse extends BaseRedirectResponse implements Responsable
 {
     use ForwardsCalls, ResponseTrait, Macroable {
         Macroable::__call as macroCall;
@@ -46,21 +47,6 @@ class RedirectResponse extends BaseRedirectResponse
 
         foreach ($key as $k => $v) {
             $this->session->flash($k, $v);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add multiple cookies to the response.
-     *
-     * @param  array  $cookies
-     * @return $this
-     */
-    public function withCookies(array $cookies)
-    {
-        foreach ($cookies as $cookie) {
-            $this->headers->setCookie($cookie);
         }
 
         return $this;
@@ -256,6 +242,17 @@ class RedirectResponse extends BaseRedirectResponse
     {
         $this->session = $session;
 
+        return $this;
+    }
+
+    /**
+     * Create an HTTP response that represents the object.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return $this
+     */
+    public function toResponse(mixed $request): static
+    {
         return $this;
     }
 

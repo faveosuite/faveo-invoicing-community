@@ -2,124 +2,75 @@
 
 namespace Maatwebsite\Excel\Jobs;
 
+use DateTimeInterface;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Cache;
+use Maatwebsite\Excel\Concerns\Import;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithReadFilter;
 use Maatwebsite\Excel\Events\AfterChunk;
 use Maatwebsite\Excel\Events\ImportFailed;
+use Maatwebsite\Excel\Exceptions\SheetNotFoundException;
 use Maatwebsite\Excel\Files\RemoteTemporaryFile;
 use Maatwebsite\Excel\Files\TemporaryFile;
 use Maatwebsite\Excel\Filters\ChunkReadFilter;
 use Maatwebsite\Excel\HasEventBus;
+use Maatwebsite\Excel\Helpers\QueueResolver;
 use Maatwebsite\Excel\Imports\HeadingRowExtractor;
 use Maatwebsite\Excel\Sheet;
 use Maatwebsite\Excel\Transactions\TransactionHandler;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use PhpOffice\PhpSpreadsheet\Reader\IReader;
 use Throwable;
 
 class ReadChunk implements ShouldQueue
 {
-    use Queueable, HasEventBus, InteractsWithQueue;
+    use Batchable, HasEventBus, InteractsWithQueue, Queueable;
+
+    public ?int $timeout;
+
+    public ?int $tries;
+
+    public ?int $maxExceptions;
 
     /**
-     * @var int
+     * @var array<int, int|DateTimeInterface>|int|DateTimeInterface|null
      */
-    public $timeout;
+    public array|int|DateTimeInterface|null $backoff;
 
     /**
-     * @var int
-     */
-    public $tries;
-
-    /**
-     * @var int
-     */
-    public $maxExceptions;
-
-    /**
-     * @var int
-     */
-    public $backoff;
-
-    /**
-     * @var string
+     * @var ?string
      */
     public $queue;
 
     /**
-     * @var string
+     * @var ?string
      */
     public $connection;
 
-    /**
-     * @var WithChunkReading
-     */
-    private $import;
+    private string $uniqueId;
 
-    /**
-     * @var IReader
-     */
-    private $reader;
-
-    /**
-     * @var TemporaryFile
-     */
-    private $temporaryFile;
-
-    /**
-     * @var string
-     */
-    private $sheetName;
-
-    /**
-     * @var object
-     */
-    private $sheetImport;
-
-    /**
-     * @var int
-     */
-    private $startRow;
-
-    /**
-     * @var int
-     */
-    private $chunkSize;
-
-    /**
-     * @var string
-     */
-    private $uniqueId;
-
-    /**
-     * @param  WithChunkReading  $import
-     * @param  IReader  $reader
-     * @param  TemporaryFile  $temporaryFile
-     * @param  string  $sheetName
-     * @param  object  $sheetImport
-     * @param  int  $startRow
-     * @param  int  $chunkSize
-     */
-    public function __construct(WithChunkReading $import, IReader $reader, TemporaryFile $temporaryFile, string $sheetName, $sheetImport, int $startRow, int $chunkSize)
-    {
-        $this->import        = $import;
-        $this->reader        = $reader;
-        $this->temporaryFile = $temporaryFile;
-        $this->sheetName     = $sheetName;
-        $this->sheetImport   = $sheetImport;
-        $this->startRow      = $startRow;
-        $this->chunkSize     = $chunkSize;
-        $this->timeout       = $import->timeout ?? null;
-        $this->tries         = $import->tries ?? null;
-        $this->maxExceptions = $import->maxExceptions ?? null;
-        $this->backoff       = method_exists($import, 'backoff') ? $import->backoff() : ($import->backoff ?? null);
-        $this->connection    = property_exists($import, 'connection') ? $import->connection : null;
-        $this->queue         = property_exists($import, 'queue') ? $import->queue : null;
+    public function __construct(
+        private readonly WithChunkReading&Import $import,
+        private readonly IReader $reader,
+        private readonly TemporaryFile $temporaryFile,
+        private readonly string $sheetName,
+        private readonly Import $sheetImport,
+        private int $startRow,
+        private readonly int $chunkSize,
+    ) {
+        $this->timeout       = $this->import->timeout ?? null;
+        $this->tries         = $this->import->tries ?? null;
+        $this->maxExceptions = $this->import->maxExceptions ?? null;
+        $this->backoff       = method_exists($this->import, 'backoff') ? $this->import->backoff() : ($this->import->backoff ?? null);
+        $this->connection    = QueueResolver::connection($this->import);
+        $this->queue         = QueueResolver::queue($this->import);
     }
 
     public function getUniqueId(): string
@@ -140,31 +91,32 @@ class ReadChunk implements ShouldQueue
     /**
      * Get the middleware the job should be dispatched through.
      *
-     * @return array
+     * @return array<int, object>
      */
-    public function middleware()
+    public function middleware(): array
     {
         return (method_exists($this->import, 'middleware')) ? $this->import->middleware() : [];
     }
 
     /**
-     * Determine the time at which the job should timeout.
-     *
-     * @return \DateTime
+     * Determine the time at which the job should time out.
      */
-    public function retryUntil()
+    public function retryUntil(): DateTimeInterface|int|null
     {
         return (method_exists($this->import, 'retryUntil')) ? $this->import->retryUntil() : null;
     }
 
     /**
-     * @param  TransactionHandler  $transaction
-     *
-     * @throws \Maatwebsite\Excel\Exceptions\SheetNotFoundException
-     * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
+     * @throws SheetNotFoundException
+     * @throws Exception
      */
-    public function handle(TransactionHandler $transaction)
+    public function handle(TransactionHandler $transaction): void
     {
+        // Determine if the batch has been cancelled...
+        if ($this->batch()?->cancelled()) {
+            return;
+        }
+
         if (method_exists($this->import, 'setChunkOffset')) {
             $this->import->setChunkOffset($this->startRow);
         }
@@ -183,12 +135,14 @@ class ReadChunk implements ShouldQueue
             $headingRow,
             $this->startRow,
             $this->chunkSize,
-            $this->sheetName
+            $this->sheetName,
+            $this->import instanceof WithReadFilter ? $this->import->readFilter() : null
         );
 
+        // Only per-chunk state is set here. The reader carries the rest of its
+        // configuration from ReaderFactory; re-deriving it from config would lose
+        // any per-import decision once the job runs in another process.
         $this->reader->setReadFilter($filter);
-        $this->reader->setReadDataOnly(config('excel.imports.read_only', true));
-        $this->reader->setReadEmptyCells(!config('excel.imports.ignore_empty', false));
 
         $spreadsheet = $this->reader->load(
             $this->temporaryFile->sync()->getLocalPath()
@@ -207,7 +161,7 @@ class ReadChunk implements ShouldQueue
             return;
         }
 
-        $transaction(function () use ($sheet) {
+        $transaction(function () use ($sheet): void {
             $sheet->import(
                 $this->sheetImport,
                 $this->startRow
@@ -221,10 +175,7 @@ class ReadChunk implements ShouldQueue
         });
     }
 
-    /**
-     * @param  Throwable  $e
-     */
-    public function failed(Throwable $e)
+    public function failed(Throwable $e): void
     {
         $this->cleanUpTempFile(true);
 
@@ -240,7 +191,7 @@ class ReadChunk implements ShouldQueue
 
     private function cleanUpTempFile(bool $force = false): bool
     {
-        if (!empty($this->uniqueId)) {
+        if (isset($this->uniqueId) && ($this->uniqueId !== '' && $this->uniqueId !== '0')) {
             Cache::delete('laravel-excel/read-chunk/' . $this->uniqueId);
         }
 

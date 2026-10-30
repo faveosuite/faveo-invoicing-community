@@ -32,7 +32,7 @@ class AddUserToExternalServiceTest extends TestCase
         Event::fake();
         $user = User::factory()->create();
 
-        (new AddUserToExternalService($user, 'register'))->handle();
+        new AddUserToExternalService($user, 'register')->handle();
 
         Event::assertDispatched(UserRegisteredEvent::class, fn (UserRegisteredEvent $e): bool => $e->trigger === 'register'
         );
@@ -44,7 +44,7 @@ class AddUserToExternalServiceTest extends TestCase
         Event::fake();
         $user = User::factory()->create();
 
-        (new AddUserToExternalService($user, false))->handle();
+        new AddUserToExternalService($user, trigger: false)->handle();
 
         Event::assertDispatched(UserRegisteredEvent::class, fn (UserRegisteredEvent $e): bool => $e->trigger === 'admin_create'
         );
@@ -55,7 +55,7 @@ class AddUserToExternalServiceTest extends TestCase
         Event::fake();
         $user = User::factory()->create();
 
-        (new AddUserToExternalService($user))->handle();
+        new AddUserToExternalService($user)->handle();
 
         Event::assertDispatched(UserRegisteredEvent::class, fn (UserRegisteredEvent $e): bool => $e->trigger === 'register'
         );
@@ -81,7 +81,7 @@ class AddUserToExternalServiceTest extends TestCase
         Event::fake();
         $user = User::factory()->create();
 
-        (new AddUserToExternalService($user, false))->handle();
+        new AddUserToExternalService($user, trigger: false)->handle();
 
         Event::assertDispatched(UserRegisteredEvent::class, fn (UserRegisteredEvent $e): bool => $e->trigger === 'admin_create'
         );

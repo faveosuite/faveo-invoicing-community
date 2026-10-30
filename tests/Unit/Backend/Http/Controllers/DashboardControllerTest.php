@@ -180,6 +180,8 @@ class DashboardControllerTest extends DBTestCase
     #[Group('Dashboard')]
     public function test_get_expiring_subscriptions_when_last30_days_is_true_should_give_subscriptions_which_has_expired_in_last30_days(): void
     {
+        // subMonth() can land exactly on the 30-day edge; a second ticking before the query would drop it.
+        $this->freezeTime();
         $this->getLoggedInUser('admin');
         $product = Product::create(['name' => 'one']);
         $orderOne = $product->order()->create(['client' => $this->user->id, 'number' => 1, 'price_override' => 10]);

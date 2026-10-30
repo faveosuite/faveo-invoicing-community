@@ -90,7 +90,7 @@ class WebhookDispatcher
                     'payment_intent' => $paymentIntentId,
                     'session_id' => $sessionId,
                     'credit_applied' => $object['metadata']['credit_applied'] ?? 0,
-                ], static fn ($v) => $v !== null));
+                ], static fn ($v): bool => $v !== null));
             }
 
             return;

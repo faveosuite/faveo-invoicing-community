@@ -10,6 +10,7 @@ use App\License\Services\InstallationService;
 use App\License\Services\LicenseFileService;
 use App\License\Services\LicenseService;
 use App\Model\Order\Order;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -43,7 +44,7 @@ class LocalizedLicenseController extends Controller
 
         $orderNo = (string) $request->query('orderNo');
 
-        if ($denied = $this->licenseFileDenied($orderNo)) {
+        if (($denied = $this->licenseFileDenied($orderNo)) instanceof JsonResponse) {
             return $denied;
         }
 
@@ -66,7 +67,7 @@ class LocalizedLicenseController extends Controller
 
         $orderNo = (string) $request->input('orderNo');
 
-        if ($denied = $this->licenseFileDenied($orderNo)) {
+        if (($denied = $this->licenseFileDenied($orderNo)) instanceof JsonResponse) {
             return $denied;
         }
 
@@ -80,7 +81,7 @@ class LocalizedLicenseController extends Controller
         // and is accepted only when its licence code belongs to this order.
         $code = trim((string) $request->input('activation_code'));
         $payload = str_starts_with($code, 'FLC1.')
-            ? json_decode((string) base64_decode(strtr(substr($code, 5), '-_', '+/')), true)
+            ? json_decode(base64_decode(strtr(substr($code, 5), '-_', '+/')), associative: true)
             : null;
         $licenseCode = License::where('license_order_number', $orderNo)->value('license_code');
 
@@ -150,7 +151,7 @@ class LocalizedLicenseController extends Controller
      */
     public function downloadFileAdmin(string $orderNo, ?string $productId = null): StreamedResponse|JsonResponse
     {
-        if ($denied = $this->licenseFileDenied($orderNo)) {
+        if (($denied = $this->licenseFileDenied($orderNo)) instanceof JsonResponse) {
             return $denied;
         }
 
@@ -170,7 +171,7 @@ class LocalizedLicenseController extends Controller
             return errorResponse(__('message.access_denied'), 401);
         }
 
-        if ($denied = $this->licenseFileDenied($orderNo)) {
+        if (($denied = $this->licenseFileDenied($orderNo)) instanceof JsonResponse) {
             return $denied;
         }
 
@@ -190,7 +191,7 @@ class LocalizedLicenseController extends Controller
         }
 
         return response()->streamDownload(
-            fn () => print $file,
+            fn (): int => print $file,
             'license.json',
             ['Content-Type' => 'application/json']
         );
@@ -214,10 +215,10 @@ class LocalizedLicenseController extends Controller
         $orders = Order::with(['user:id,email', 'productRelation:id,name'])
             ->where('license_mode', 'File')
             ->when($searchQuery, function ($query) use ($searchQuery): void {
-                $query->where(function ($q) use ($searchQuery): void {
+                $query->where(function (Builder $q) use ($searchQuery): void {
                     $q->where('number', 'like', '%'.$searchQuery.'%')
-                        ->orWhereHas('user', fn ($u) => $u->where('email', 'like', '%'.$searchQuery.'%'))
-                        ->orWhereHas('productRelation', fn ($p) => $p->where('name', 'like', '%'.$searchQuery.'%'));
+                        ->orWhereHas('user', fn (Builder $u) => $u->where('email', 'like', '%'.$searchQuery.'%'))
+                        ->orWhereHas('productRelation', fn (Builder $p) => $p->where('name', 'like', '%'.$searchQuery.'%'));
                 });
             })
             ->orderBy($sortField, $sortOrder)
@@ -240,7 +241,7 @@ class LocalizedLicenseController extends Controller
                 'license_domain' => $license?->license_domain ?: $license?->license_ip,
                 'license_machine_id' => $license?->license_machine_id,
                 'license_expire_date' => $license?->license_expire_date,
-                'is_bound' => (bool) ($license && $license->license_machine_id && ($license->license_domain || $license->license_ip)),
+                'is_bound' => $license && $license->license_machine_id && ($license->license_domain || $license->license_ip),
             ];
         });
 
@@ -255,7 +256,7 @@ class LocalizedLicenseController extends Controller
     {
         $ids = (array) $request->input('select');
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return errorResponse(__('message.select-a-row'));
         }
 

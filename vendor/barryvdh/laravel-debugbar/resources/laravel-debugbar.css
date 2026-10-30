@@ -299,6 +299,7 @@ div.phpdebugbar-widgets-explain-scroll {
 div.phpdebugbar-widgets-sqlqueries table.phpdebugbar-widgets-explain {
     width: 100%;
     border-collapse: collapse;
+    font-size: 12px;
 }
 
 div.phpdebugbar-widgets-sqlqueries table.phpdebugbar-widgets-explain th {
@@ -430,6 +431,7 @@ table.phpdebugbar-widgets-explain.phpdebugbar-widgets-explain-full td {
 
 div.phpdebugbar-widgets-explain-popup-body table.phpdebugbar-widgets-explain {
     width: 100%;
+    font-size: 12px;
 }
 
 div.phpdebugbar-widgets-explain-popup-body table.phpdebugbar-widgets-explain th {

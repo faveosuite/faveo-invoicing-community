@@ -10,103 +10,21 @@
 PhpSpreadsheet is a library written in pure PHP and offers a set of classes that
 allow you to read and write various spreadsheet file formats such as Excel and LibreOffice Calc.
 
-This branch (1.30.x) is *not* the latest version of PhpSpreadsheet, and may therefore lack features and bug fixes found in the latest version.
-
-## End Of Support Notice
-
-Security patches will continue to be applied to this branch
-until 2027-02-28. At that date, no further changes,
-including security patches, will be applied.
-You are encouraged to upgrade to the master branch (release 5)
-before that date.
-
-## Security Changes Only
-
-Except for security changes, no further maintenance will be applied to this branch.
-You are encouraged to upgrade to a maintained branch as soon as possible.
-Maintained branches are master (preferred - version is 5.4.0 as of the date when this is being written), 3.10.x (current version is 3.10.3), and 2.4.x (2.4.3).
-
-Of particular note is that this branch should not run under Php 8.5, and will *not* be updated to avoid deprecation notices which will be introduced with Php 8.5.
+This is the master branch, and is maintained for security and bug fixes.
 
 ## PHP Version Support
 
 LTS: For maintained branches, support for PHP versions will only be maintained for a period of six months beyond the
 [end of life](https://www.php.net/supported-versions) of that PHP version.
+Dropping support for versions after that date will not be considered a breaking change.
 
-Currently the required PHP minimum version is PHP __7.4__, and we [will support that version](https://www.php.net/eol.php) until 28th June 2023.
-However, since this branch is no longer maintained, that policy is not enforced.
-The PHP maximum version supported by this release is PHP __8.4__.
+Currently the required PHP minimum version is PHP __8.2__, and we [will support that version](https://www.php.net/supported-versions.php) until 30th June 2027.
 
 See the `composer.json` for other requirements.
 
 ## Installation
 
-Use [composer](https://getcomposer.org) to install PhpSpreadsheet into your project:
-
-```sh
-composer require phpoffice/phpspreadsheet
-```
-
-If you are building your installation on a development machine that is on a different PHP version to the server where it will be deployed, or if your PHP CLI version is not the same as your run-time such as `php-fpm` or Apache's `mod_php`, then you might want to add the following to your `composer.json` before installing:
-```json
-{
-    "require": {
-        "phpoffice/phpspreadsheet": "^1.28"
-    },
-    "config": {
-        "platform": {
-            "php": "7.4"
-        }
-    }
-}
-```
-and then run
-```sh
-composer install
-```
-to ensure that the correct dependencies are retrieved to match your deployment environment.
-
-See [CLI vs Application run-time](https://php.watch/articles/composer-platform-check) for more details.
-
-### Additional Installation Options
-
-If you want to write to PDF, or to include Charts when you write to HTML or PDF, then you will need to install additional libraries:
-
-#### PDF
-
-For PDF Generation, you can install any of the following, and then configure PhpSpreadsheet to indicate which library you are going to use:
- - mpdf/mpdf
- - dompdf/dompdf
- - tecnickcom/tcpdf
-
-and configure PhpSpreadsheet using:
-
-```php
-// Dompdf, Mpdf or Tcpdf (as appropriate)
-$className = \PhpOffice\PhpSpreadsheet\Writer\Pdf\Dompdf::class;
-IOFactory::registerWriter('Pdf', $className);
-```
-or the appropriate PDF Writer wrapper for the library that you have chosen to install.
-
-#### Chart Export
-
-For Chart export, we support following packages, which you will also need to install yourself using `composer require`
- - [jpgraph/jpgraph](https://packagist.org/packages/jpgraph/jpgraph) (this package was abandoned at version 4.0. 
-   You can manually download the latest version that supports PHP 8 and above from [jpgraph.net](https://jpgraph.net/))
- - [mitoteam/jpgraph](https://packagist.org/packages/mitoteam/jpgraph) - up to date fork with modern PHP versions support and some bugs fixed.
-
-and then configure PhpSpreadsheet using:
-```php
-// to use jpgraph/jpgraph
-Settings::setChartRenderer(\PhpOffice\PhpSpreadsheet\Chart\Renderer\JpGraph::class);
-//or
-// to use mitoteam/jpgraph
-Settings::setChartRenderer(\PhpOffice\PhpSpreadsheet\Chart\Renderer\MtJpGraphRenderer::class);
-```
-
-One or the other of these libraries is necessary if you want to generate HTML or PDF files that include charts; or to render a Chart to an Image format from within your code.
-They are not necessary to define charts for writing to `Xlsx` files.
-Other file formats don't support writing Charts.
+See the [install instructions](https://phpspreadsheet.readthedocs.io/en/latest/#installation).
 
 ## Documentation
 

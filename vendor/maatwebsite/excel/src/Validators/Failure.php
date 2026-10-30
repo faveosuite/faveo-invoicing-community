@@ -5,60 +5,35 @@ namespace Maatwebsite\Excel\Validators;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
+/**
+ * @implements Arrayable<array-key, mixed>
+ */
 class Failure implements Arrayable, JsonSerializable
 {
     /**
-     * @var int
+     * @param  list<string>  $errors
+     * @param  array<array-key, mixed>  $values
      */
-    protected $row;
-
-    /**
-     * @var string
-     */
-    protected $attribute;
-
-    /**
-     * @var array
-     */
-    protected $errors;
-
-    /**
-     * @var array
-     */
-    private $values;
-
-    /**
-     * @param  int  $row
-     * @param  string  $attribute
-     * @param  array  $errors
-     * @param  array  $values
-     */
-    public function __construct(int $row, string $attribute, array $errors, array $values = [])
-    {
-        $this->row       = $row;
-        $this->attribute = $attribute;
-        $this->errors    = $errors;
-        $this->values    = $values;
+    public function __construct(
+        protected int $row,
+        protected string $attribute,
+        protected array $errors,
+        private readonly array $values = [],
+    ) {
     }
 
-    /**
-     * @return int
-     */
     public function row(): int
     {
         return $this->row;
     }
 
-    /**
-     * @return string
-     */
     public function attribute(): string
     {
         return $this->attribute;
     }
 
     /**
-     * @return array
+     * @return list<string>
      */
     public function errors(): array
     {
@@ -66,7 +41,7 @@ class Failure implements Arrayable, JsonSerializable
     }
 
     /**
-     * @return array
+     * @return array<array-key, mixed>
      */
     public function values(): array
     {
@@ -74,20 +49,17 @@ class Failure implements Arrayable, JsonSerializable
     }
 
     /**
-     * @return array
+     * @return list<string>
      */
-    public function toArray()
+    public function toArray(): array
     {
-        return collect($this->errors)->map(function ($message) {
-            return __('There was an error on row :row. :message', ['row' => $this->row, 'message' => $message]);
-        })->all();
+        return collect($this->errors)->map(fn ($message): array|string => __('There was an error on row :row. :message', ['row' => $this->row, 'message' => $message]))->all();
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
-    #[\ReturnTypeWillChange]
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'row'       => $this->row(),

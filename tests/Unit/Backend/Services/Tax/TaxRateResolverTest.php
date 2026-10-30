@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Services\Tax;
 
+use App\Model\Payment\TaxOption;
 use App\Model\Payment\TaxRate;
 use App\Model\Payment\TaxRateLocation;
 use App\Services\Tax\TaxRateResolver;
@@ -14,12 +15,13 @@ use Tests\DBTestCase;
 class TaxRateResolverTest extends DBTestCase
 {
     use DatabaseTransactions;
+
     private TaxRateResolver $resolver;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->resolver = new TaxRateResolver();
+        $this->resolver = new TaxRateResolver;
     }
 
     protected function tearDown(): void
@@ -164,7 +166,7 @@ class TaxRateResolverTest extends DBTestCase
     {
         // When user is null and tax_based_on is 'base', falls back to Setting::first().
         // Just assert the shape — the actual values depend on real DB setting rows.
-        $location = $this->resolver->customerLocation(null);
+        $location = $this->resolver->customerLocation(user: null);
 
         $this->assertIsArray($location);
         $this->assertCount(4, $location);
@@ -187,7 +189,7 @@ class TaxRateResolverTest extends DBTestCase
 
     public function test_customer_location_uses_base_store_when_no_user(): void
     {
-        $location = $this->resolver->customerLocation(null);
+        $location = $this->resolver->customerLocation(user: null);
 
         $this->assertIsArray($location);
         $this->assertCount(4, $location);
@@ -195,12 +197,12 @@ class TaxRateResolverTest extends DBTestCase
 
     public function test_customer_location_uses_base_store_when_tax_based_on_base(): void
     {
-        \App\Model\Payment\TaxOption::where('id', 1)->update(['tax_based_on' => 'base']);
+        TaxOption::where('id', 1)->update(['tax_based_on' => 'base']);
 
         $user = (object) ['country' => 'GB', 'state' => 'ENG', 'zip' => 'SW1A', 'city' => 'London'];
         $location = $this->resolver->customerLocation($user);
 
-        \App\Model\Payment\TaxOption::where('id', 1)->update(['tax_based_on' => 'billing']);
+        TaxOption::where('id', 1)->update(['tax_based_on' => 'billing']);
 
         $this->assertIsArray($location);
         $this->assertCount(4, $location);
@@ -290,7 +292,7 @@ class TaxRateResolverTest extends DBTestCase
     {
         // Line 160: non-numeric postcode with range code → return false
         $method = new \ReflectionMethod(TaxRateResolver::class, 'postcodeMatches');
-        $method->setAccessible(true);
+        $method->setAccessible(accessible: true);
 
         $result = $method->invoke($this->resolver, 'ABC', '100...200');
 

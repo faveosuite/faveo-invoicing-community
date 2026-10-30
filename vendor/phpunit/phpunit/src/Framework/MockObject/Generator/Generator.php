@@ -79,6 +79,8 @@ final class Generator
      * @param class-string            $type
      * @param ?list<non-empty-string> $methods
      * @param array<mixed>            $arguments
+     * @param list<non-empty-string>  $doubledProperties
+     * @param ?non-empty-string       $displayName
      *
      * @throws ClassIsAnonymousException
      * @throws ClassIsEnumerationException
@@ -91,7 +93,7 @@ final class Generator
      * @throws RuntimeException
      * @throws UnknownTypeException
      */
-    public function testDouble(string $type, bool $mockObject, ?array $methods = [], array $arguments = [], string $mockClassName = '', bool $callOriginalConstructor = true, bool $callOriginalClone = true, bool $returnValueGeneration = true): MockObject|Stub
+    public function testDouble(string $type, bool $mockObject, ?array $methods = [], array $arguments = [], string $mockClassName = '', bool $callOriginalConstructor = true, bool $callOriginalClone = true, bool $returnValueGeneration = true, array $doubledProperties = [], ?string $displayName = null): MockObject|Stub
     {
         if ($type === Traversable::class) {
             $type = Iterator::class;
@@ -108,6 +110,7 @@ final class Generator
             $methods,
             $mockClassName,
             $callOriginalClone,
+            $doubledProperties,
         );
 
         $object = $this->instantiate(
@@ -117,6 +120,7 @@ final class Generator
             $arguments,
             $returnValueGeneration,
             $mockObject,
+            $displayName,
         );
 
         assert($object instanceof $type);
@@ -160,46 +164,18 @@ final class Generator
             throw new RuntimeException('Interfaces must not declare the same method');
         }
 
-        $unqualifiedNames = [];
-
-        foreach ($interfaces as $interface) {
-            $parts              = explode('\\', $interface);
-            $unqualifiedNames[] = array_pop($parts);
-        }
-
-        sort($unqualifiedNames);
-
-        do {
-            $intersectionName = sprintf(
-                'Intersection_%s_%s',
-                implode('_', $unqualifiedNames),
-                substr(md5((string) mt_rand()), 0, 8),
-            );
-        } while (interface_exists($intersectionName, false));
-
-        $template = $this->loadTemplate('intersection.tpl');
-
-        $template->setVar(
-            [
-                'intersection' => $intersectionName,
-                'interfaces'   => implode(', ', $interfaces),
-            ],
-        );
-
-        eval($template->render());
-
-        assert(interface_exists($intersectionName));
-
         return $this->testDouble(
-            $intersectionName,
+            $this->declareIntersectionInterface($interfaces),
             $mockObject,
             returnValueGeneration: $returnValueGeneration,
+            displayName: implode('&', $interfaces),
         );
     }
 
     /**
      * @param class-string            $type
      * @param ?list<non-empty-string> $methods
+     * @param list<non-empty-string>  $doubledProperties
      *
      * @throws ClassIsAnonymousException
      * @throws ClassIsEnumerationException
@@ -211,7 +187,7 @@ final class Generator
      *
      * @see https://github.com/sebastianbergmann/phpunit/issues/5476
      */
-    public function generate(string $type, bool $mockObject, ?array $methods = null, string $mockClassName = '', bool $callOriginalClone = true): DoubledClass
+    public function generate(string $type, bool $mockObject, ?array $methods = null, string $mockClassName = '', bool $callOriginalClone = true, array $doubledProperties = []): DoubledClass
     {
         if ($mockClassName !== '') {
             return $this->generateCodeForTestDoubleClass(
@@ -220,6 +196,7 @@ final class Generator
                 $methods,
                 $mockClassName,
                 $callOriginalClone,
+                $doubledProperties,
             );
         }
 
@@ -227,7 +204,8 @@ final class Generator
             $type .
             ($mockObject ? 'MockObject' : 'TestStub') .
             serialize($methods) .
-            serialize($callOriginalClone),
+            serialize($callOriginalClone) .
+            serialize($doubledProperties),
         );
 
         if (!isset(self::$cache[$key])) {
@@ -237,6 +215,7 @@ final class Generator
                 $methods,
                 $mockClassName,
                 $callOriginalClone,
+                $doubledProperties,
             );
         }
 
@@ -288,12 +267,13 @@ final class Generator
     }
 
     /**
-     * @param array<mixed> $arguments
+     * @param array<mixed>      $arguments
+     * @param ?non-empty-string $displayName
      *
      * @throws ReflectionException
      * @throws RuntimeException
      */
-    private function instantiate(DoubledClass $mockClass, string $type, bool $callOriginalConstructor, array $arguments, bool $returnValueGeneration, bool $isMockObject): object
+    private function instantiate(DoubledClass $mockClass, string $type, bool $callOriginalConstructor, array $arguments, bool $returnValueGeneration, bool $isMockObject, ?string $displayName = null): object
     {
         $className = $mockClass->generate();
 
@@ -318,7 +298,7 @@ final class Generator
          */
         $reflector->getProperty('__phpunit_state')->setValue(
             $object,
-            new TestDoubleState($mockClass->configurableMethods(), $type, $returnValueGeneration, $isMockObject),
+            new TestDoubleState($mockClass->configurableMethods(), $type, $returnValueGeneration, $isMockObject, $displayName),
         );
 
         if ($callOriginalConstructor && $reflector->getConstructor() !== null) {
@@ -341,15 +321,17 @@ final class Generator
     /**
      * @param class-string            $type
      * @param ?list<non-empty-string> $explicitMethods
+     * @param list<non-empty-string>  $doubledProperties
      *
      * @throws ClassIsAnonymousException
      * @throws ClassIsEnumerationException
      * @throws ClassIsFinalException
      * @throws MethodNamedMethodException
+     * @throws MethodNamedRecordInvocationsInException
      * @throws ReflectionException
      * @throws RuntimeException
      */
-    private function generateCodeForTestDoubleClass(string $type, bool $mockObject, ?array $explicitMethods, string $mockClassName, bool $callOriginalClone): DoubledClass
+    private function generateCodeForTestDoubleClass(string $type, bool $mockObject, ?array $explicitMethods, string $mockClassName, bool $callOriginalClone, array $doubledProperties): DoubledClass
     {
         $classTemplate         = $this->loadTemplate('test_double_class.tpl');
         $additionalInterfaces  = [];
@@ -480,7 +462,7 @@ final class Generator
         }
 
         /** @var ReflectionClass<object> $class */
-        $propertiesWithHooks = $this->properties($class);
+        $propertiesWithHooks = $this->properties($class, $doubledProperties);
         $configurableMethods = $this->configurableMethods($mockMethods, $propertiesWithHooks);
 
         $mockedMethods = '';
@@ -498,6 +480,11 @@ final class Generator
 
         if ($mockMethods->hasMethod('method') || $class->hasMethod('method')) {
             throw new MethodNamedMethodException;
+        }
+
+        if ($mockObject &&
+            ($mockMethods->hasMethod('recordInvocationsIn') || $class->hasMethod('recordInvocationsIn'))) {
+            throw new MethodNamedRecordInvocationsInException;
         }
 
         $traits[] = Method::class;
@@ -797,6 +784,46 @@ final class Generator
     }
 
     /**
+     * @param list<class-string> $interfaces
+     *
+     * @return class-string
+     */
+    private function declareIntersectionInterface(array $interfaces): string
+    {
+        $unqualifiedNames = [];
+
+        foreach ($interfaces as $interface) {
+            $parts              = explode('\\', $interface);
+            $unqualifiedNames[] = array_pop($parts);
+        }
+
+        sort($unqualifiedNames);
+
+        do {
+            $intersectionName = sprintf(
+                'Intersection_%s_%s',
+                implode('_', $unqualifiedNames),
+                substr(md5((string) mt_rand()), 0, 8),
+            );
+        } while (interface_exists($intersectionName, false));
+
+        $template = $this->loadTemplate('intersection.tpl');
+
+        $template->setVar(
+            [
+                'intersection' => $intersectionName,
+                'interfaces'   => implode(', ', $interfaces),
+            ],
+        );
+
+        eval($template->render());
+
+        assert(interface_exists($intersectionName));
+
+        return $intersectionName;
+    }
+
+    /**
      * @param class-string $interfaceName
      *
      * @throws ReflectionException
@@ -864,10 +891,11 @@ final class Generator
 
     /**
      * @param ReflectionClass<object> $class
+     * @param list<non-empty-string>  $doubledProperties
      *
      * @return list<HookedProperty>
      */
-    private function properties(ReflectionClass $class): array
+    private function properties(ReflectionClass $class, array $doubledProperties): array
     {
         $mapper     = new ReflectionMapper;
         $properties = [];
@@ -882,27 +910,51 @@ final class Generator
             }
 
             if (!$property->hasHooks()) {
+                if (!in_array($property->getName(), $doubledProperties, true)) {
+                    continue;
+                }
+
+                $properties[] = new HookedProperty(
+                    $property->getName(),
+                    $mapper->fromPropertyType($property),
+                    true,
+                    true,
+                    false,
+                    false,
+                    null,
+                );
+
                 continue;
             }
 
             $hasGetHook                 = false;
             $hasSetHook                 = false;
+            $hasFinalGetHook            = false;
+            $hasFinalSetHook            = false;
             $setHookMethodParameterType = null;
 
             $getHook = $property->getHook(PropertyHookType::Get);
 
-            if ($getHook !== null && !$getHook->isFinal()) {
-                $hasGetHook = true;
+            if ($getHook !== null) {
+                if ($getHook->isFinal()) {
+                    $hasFinalGetHook = true;
+                } else {
+                    $hasGetHook = true;
+                }
             }
 
             $setHook = $property->getHook(PropertyHookType::Set);
 
-            if ($setHook !== null && !$setHook->isFinal()) {
-                $hasSetHook        = true;
-                $setHookParameters = $mapper->fromParameterTypes($setHook);
+            if ($setHook !== null) {
+                if ($setHook->isFinal()) {
+                    $hasFinalSetHook = true;
+                } else {
+                    $hasSetHook        = true;
+                    $setHookParameters = $mapper->fromParameterTypes($setHook);
 
-                if (isset($setHookParameters[0])) {
-                    $setHookMethodParameterType = $setHookParameters[0]->type();
+                    if (isset($setHookParameters[0])) {
+                        $setHookMethodParameterType = $setHookParameters[0]->type();
+                    }
                 }
             }
 
@@ -915,7 +967,8 @@ final class Generator
                 $mapper->fromPropertyType($property),
                 $hasGetHook,
                 $hasSetHook,
-                $property->isVirtual(),
+                $hasFinalGetHook,
+                $hasFinalSetHook,
                 $setHookMethodParameterType,
             );
         }

@@ -59,8 +59,7 @@ final readonly class StripeGateway implements CardPaymentGateway, PaymentGateway
         private string $secretKey,
         private string $publishableKey = '',
         private string $webhookSecret = '',
-    ) {
-    }
+    ) {}
 
     public function name(): string
     {
@@ -452,7 +451,7 @@ final readonly class StripeGateway implements CardPaymentGateway, PaymentGateway
      */
     private function shippingFrom(?Customer $customer): ?array
     {
-        if (! $customer || ! $customer->name || ! $customer->line1) {
+        if (! $customer instanceof Customer || ! $customer->name || ! $customer->line1) {
             return null;
         }
 
@@ -478,13 +477,14 @@ final readonly class StripeGateway implements CardPaymentGateway, PaymentGateway
             if ($years >= 1 && $years <= 3) {
                 return ['interval' => 'year', 'interval_count' => $years];
             }
+
             $months = min(36, max(1, (int) round($intervalDays / 30)));
 
             return ['interval' => 'month', 'interval_count' => $months];
         }
 
         if ($intervalDays >= 30 && $intervalDays % 30 === 0) {
-            return ['interval' => 'month', 'interval_count' => (int) ($intervalDays / 30)];
+            return ['interval' => 'month', 'interval_count' => $intervalDays / 30];
         }
 
         return ['interval' => 'day', 'interval_count' => min(365, max(1, $intervalDays))];

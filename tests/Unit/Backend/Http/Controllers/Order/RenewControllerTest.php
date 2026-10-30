@@ -3,10 +3,16 @@
 namespace Tests\Unit\Backend\Http\Controllers\Order;
 
 use App\Http\Controllers\Order\RenewController;
+use App\Model\Order\Invoice;
+use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
+use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -66,13 +72,14 @@ class RenewControllerTest extends DBTestCase
     public function test_create_order_invoice_relation_creates_record(): void
     {
         $order = Order::first();
-        $invoice = \App\Model\Order\Invoice::first();
+        $invoice = Invoice::first();
 
         if (! $order) {
-            $order = \App\Model\Order\Order::create(['client' => $this->user->id, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
+            $order = Order::create(['client' => $this->user->id, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
         }
+
         if (! $invoice) {
-            $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $this->user->id]);
+            $invoice = Invoice::factory()->create(['user_id' => $this->user->id]);
         }
 
         // Should not throw; wrapped in try-catch internally
@@ -168,7 +175,7 @@ class RenewControllerTest extends DBTestCase
     {
         $sub = Subscription::factory()->create(['user_id' => $this->user->id]); // their own
         Subscription::where('id', $sub->id)->update(['is_deleted' => 1]);
-        \App\Model\Order\Order::where('id', $sub->order_id)->update(['client' => $this->user->id, 'order_status' => 'executed']);
+        Order::where('id', $sub->order_id)->update(['client' => $this->user->id, 'order_status' => 'executed']);
 
         $this->postJson("/client/renew/{$sub->id}", ['plan' => $sub->plan_id])
             ->assertStatus(400)
@@ -177,10 +184,10 @@ class RenewControllerTest extends DBTestCase
         $this->assertDatabaseMissing('invoices', ['user_id' => $sub->user_id, 'is_renewed' => 1]);
     }
 
-    private function linkInvoice(Subscription $sub, string $status): \App\Model\Order\Invoice
+    private function linkInvoice(Subscription $sub, string $status): Invoice
     {
-        $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $sub->user_id, 'status' => $status]);
-        \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $sub->order_id, 'invoice_id' => $invoice->id]);
+        $invoice = Invoice::factory()->create(['user_id' => $sub->user_id, 'status' => $status]);
+        OrderInvoiceRelation::create(['order_id' => $sub->order_id, 'invoice_id' => $invoice->id]);
 
         return $invoice;
     }
@@ -278,11 +285,11 @@ class RenewControllerTest extends DBTestCase
 
     public function test_get_product_by_product_id_returns_product_when_found(): void
     {
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'Test Product '.uniqid()]);
+        $product = Product::first() ?? Product::create(['name' => 'Test Product '.uniqid()]);
 
         $result = $this->controller->getProductByProductId($product->id);
 
-        $this->assertInstanceOf(\App\Model\Product\Product::class, $result);
+        $this->assertInstanceOf(Product::class, $result);
     }
 
     // -------------------------------------------------------------------------
@@ -291,7 +298,7 @@ class RenewControllerTest extends DBTestCase
 
     public function test_success_renew_throws_when_subscription_not_found(): void
     {
-        $invoice = new \App\Model\Order\Invoice;
+        $invoice = new Invoice;
         $invoice->id = 999999;
         $invoice->status = 'unpaid';
         $invoice->grand_total = 0;
@@ -310,7 +317,7 @@ class RenewControllerTest extends DBTestCase
 
         $this->adminRenew($sub)->assertOk();
 
-        $renewal = \App\Model\Order\Invoice::whereHas('orders', fn ($q) => $q->whereKey($sub->order_id))
+        $renewal = Invoice::whereHas('orders', fn (Builder $q) => $q->whereKey($sub->order_id))
             ->where('is_renewed', 1)->latest('id')->firstOrFail();
         $this->assertSame('success', strtolower((string) $renewal->status)); // not left pending
         $this->assertSame(0.0, $renewal->outstanding());
@@ -332,9 +339,9 @@ class RenewControllerTest extends DBTestCase
         $client = User::factory()->create(['country' => 'US']);
         $sub = Subscription::factory()->create(['user_id' => $client->id]);
         Order::whereKey($sub->order_id)->update(['client' => $client->id]);
-        \App\Model\Payment\PlanPrice::where('plan_id', $sub->plan_id)->delete();
+        PlanPrice::where('plan_id', $sub->plan_id)->delete();
         foreach (['USD' => 50, 'INR' => 4000] as $currency => $price) {
-            \App\Model\Payment\PlanPrice::factory()->create(['plan_id' => $sub->plan_id, 'currency' => $currency, 'renew_price' => $price, 'no_of_agents' => 0]);
+            PlanPrice::factory()->create(['plan_id' => $sub->plan_id, 'currency' => $currency, 'renew_price' => $price, 'no_of_agents' => 0]);
         }
 
         return [$client, $sub];
@@ -364,22 +371,22 @@ class RenewControllerTest extends DBTestCase
     {
         $sub = Subscription::factory()->create();
         $original = $this->linkInvoice($sub, 'Success');
-        \App\Model\Order\InvoiceItem::factory()->create(['invoice_id' => $original->id, 'product_id' => $sub->product_id]);
+        InvoiceItem::factory()->create(['invoice_id' => $original->id, 'product_id' => $sub->product_id]);
         Order::whereKey($sub->order_id)->update(['invoice_item_id' => 0, 'order_status' => 'executed']); // like the 145 pre-pivot orders
 
         $this->postJson("/admin/renew/{$sub->order_id}", ['plan' => $sub->plan_id, 'payment_method' => 'cash', 'cost' => 10])
             ->assertOk()->assertJson(['success' => true]);
 
-        $this->assertSame(1, \App\Model\Order\Invoice::whereHas('orders', fn ($q) => $q->whereKey($sub->order_id))->where('is_renewed', 1)->count());
+        $this->assertSame(1, Invoice::whereHas('orders', fn (Builder $q) => $q->whereKey($sub->order_id))->where('is_renewed', 1)->count());
     }
 
     // ── Batch 3 #2/#3: one open renewal per order; agent-change invoices are not renewals ──
 
-    private function pendingOn(Subscription $sub, int $planId, ?array $metadata = null): \App\Model\Order\Invoice
+    private function pendingOn(Subscription $sub, int $planId, ?array $metadata = null): Invoice
     {
-        $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $sub->user_id, 'status' => 'pending', 'is_renewed' => 1, 'metadata' => $metadata]);
-        \App\Model\Order\InvoiceItem::factory()->create(['invoice_id' => $invoice->id, 'plan_id' => $planId, 'product_id' => $sub->product_id]);
-        \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $sub->order_id, 'invoice_id' => $invoice->id]);
+        $invoice = Invoice::factory()->create(['user_id' => $sub->user_id, 'status' => 'pending', 'is_renewed' => 1, 'metadata' => $metadata]);
+        InvoiceItem::factory()->create(['invoice_id' => $invoice->id, 'plan_id' => $planId, 'product_id' => $sub->product_id]);
+        OrderInvoiceRelation::create(['order_id' => $sub->order_id, 'invoice_id' => $invoice->id]);
 
         return $invoice;
     }
@@ -405,12 +412,12 @@ class RenewControllerTest extends DBTestCase
     {
         $sub = $this->ownSubscription();
         $open = $this->pendingOn($sub, $sub->plan_id);
-        $otherPlan = \App\Model\Payment\Plan::factory()->create(['product' => $sub->product_id]);
-        $before = \App\Model\Order\Invoice::count();
+        $otherPlan = Plan::factory()->create(['product' => $sub->product_id]);
+        $before = Invoice::count();
 
         $this->postJson("/client/renew/{$sub->id}", ['plan' => $otherPlan->id])
             ->assertStatus(400)->assertJson(['message' => __('message.renew_blocked_unpaid_invoice', ['number' => $open->number])]);
-        $this->assertSame($before, \App\Model\Order\Invoice::count()); // no second renewal invoice
+        $this->assertSame($before, Invoice::count()); // no second renewal invoice
     }
 
     public function test_an_unpaid_agent_change_invoice_is_not_handed_back_as_the_renewal(): void
@@ -439,9 +446,9 @@ class RenewControllerTest extends DBTestCase
         $sub = $this->ownSubscription();
         $this->user->update(['country' => 'US']);
         $original = $this->linkInvoice($sub, 'Success');
-        \App\Model\Order\InvoiceItem::factory()->create(['invoice_id' => $original->id, 'plan_id' => $sub->plan_id, 'agents' => 10]); // 10 agents, on plan P1
-        $p2 = \App\Model\Payment\Plan::factory()->create(['product' => $sub->product_id]);
-        \App\Model\Payment\PlanPrice::factory()->create(['plan_id' => $p2->id, 'currency' => 'USD', 'renew_price' => 50, 'no_of_agents' => 5]);
+        InvoiceItem::factory()->create(['invoice_id' => $original->id, 'plan_id' => $sub->plan_id, 'agents' => 10]); // 10 agents, on plan P1
+        $p2 = Plan::factory()->create(['product' => $sub->product_id]);
+        PlanPrice::factory()->create(['plan_id' => $p2->id, 'currency' => 'USD', 'renew_price' => 50, 'no_of_agents' => 5]);
 
         $data = $this->getJson("/get-renew-cost?plan={$p2->id}&order={$sub->order_id}")->assertOk()->json('data');
 

@@ -3,6 +3,7 @@
 namespace App\Plugins\Zoho\Tests\Integrations\Crm\Controllers;
 
 use App\Plugins\Zoho\Integrations\Crm\Controllers\Crm;
+use App\Plugins\Zoho\Integrations\Crm\Controllers\Exceptions\ZohoCrmApiException;
 use App\Plugins\Zoho\Models\ZohoIntegration;
 use App\Plugins\Zoho\Models\ZohoOAuthClient;
 use App\Plugins\Zoho\Models\ZohoOAuthToken;
@@ -110,9 +111,9 @@ class CrmTest extends DBTestCase
         try {
             $this->crm->upsert('Contacts', ['Owner' => 'Not A User Id']);
             $this->fail('Expected a ZohoCrmApiException to be thrown.');
-        } catch (\App\Plugins\Zoho\Integrations\Crm\Controllers\Exceptions\ZohoCrmApiException $exception) {
-            $this->assertSame('INVALID_DATA', $exception->getZohoCode());
-            $this->assertSame('Owner', $exception->getZohoDetails()['api_name'] ?? null);
+        } catch (ZohoCrmApiException $zohoCrmApiException) {
+            $this->assertSame('INVALID_DATA', $zohoCrmApiException->getZohoCode());
+            $this->assertSame('Owner', $zohoCrmApiException->getZohoDetails()['api_name'] ?? null);
         }
     }
 

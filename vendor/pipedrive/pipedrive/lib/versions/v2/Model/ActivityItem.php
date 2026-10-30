@@ -93,6 +93,7 @@ class ActivityItem implements ModelInterface, ArrayAccess, JsonSerializable
         'conference_meeting_id' => 'string',
         'public_description' => 'string',
         'priority' => 'int',
+        'outcome' => 'int',
         'note' => 'string'
     ];
 
@@ -131,6 +132,7 @@ class ActivityItem implements ModelInterface, ArrayAccess, JsonSerializable
         'conference_meeting_id' => null,
         'public_description' => null,
         'priority' => null,
+        'outcome' => null,
         'note' => null
     ];
 
@@ -192,6 +194,7 @@ class ActivityItem implements ModelInterface, ArrayAccess, JsonSerializable
         'conference_meeting_id' => 'conference_meeting_id',
         'public_description' => 'public_description',
         'priority' => 'priority',
+        'outcome' => 'outcome',
         'note' => 'note'
     ];
 
@@ -228,6 +231,7 @@ class ActivityItem implements ModelInterface, ArrayAccess, JsonSerializable
         'conference_meeting_id' => 'setConferenceMeetingId',
         'public_description' => 'setPublicDescription',
         'priority' => 'setPriority',
+        'outcome' => 'setOutcome',
         'note' => 'setNote'
     ];
 
@@ -264,6 +268,7 @@ class ActivityItem implements ModelInterface, ArrayAccess, JsonSerializable
         'conference_meeting_id' => 'getConferenceMeetingId',
         'public_description' => 'getPublicDescription',
         'priority' => 'getPriority',
+        'outcome' => 'getOutcome',
         'note' => 'getNote'
     ];
 
@@ -361,6 +366,7 @@ class ActivityItem implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['conference_meeting_id'] = $data['conference_meeting_id'] ?? null;
         $this->container['public_description'] = $data['public_description'] ?? null;
         $this->container['priority'] = $data['priority'] ?? null;
+        $this->container['outcome'] = $data['outcome'] ?? null;
         $this->container['note'] = $data['note'] ?? null;
     }
 
@@ -1034,6 +1040,30 @@ class ActivityItem implements ModelInterface, ArrayAccess, JsonSerializable
     public function setPriority($priority): self
     {
         $this->container['priority'] = $priority;
+
+        return $this;
+    }
+
+    /**
+     * Gets outcome
+     *
+     * @return int|null
+     */
+    public function getOutcome()
+    {
+        return $this->container['outcome'];
+    }
+
+    /**
+     * Sets outcome
+     *
+     * @param int|null $outcome The ID of the Outcome for the activity. The available Outcome values depend on the activity type and can be retrieved using the Activity Fields API.
+     *
+     * @return self
+     */
+    public function setOutcome($outcome): self
+    {
+        $this->container['outcome'] = $outcome;
 
         return $this;
     }

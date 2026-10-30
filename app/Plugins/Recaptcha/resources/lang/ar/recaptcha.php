@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'captcha_settings' => 'إعدادات reCAPTCHA',
     'captcha_configuration' => 'تكوين reCAPTCHA',

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Controllers\Product;
 
 use App\Facades\Attach;
+use App\Http\Middleware\Install;
+use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
 use App\Services\Seo\SeoFileGenerator;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -19,7 +21,7 @@ class GroupControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     // --- GET /groups ---
@@ -121,7 +123,7 @@ class GroupControllerTest extends DBTestCase
     public function test_get_existing_group_returns_200_with_group_data(): void
     {
         $this->getLoggedInUser('admin');
-        $group = \App\Model\Product\ProductGroup::create([
+        $group = ProductGroup::create([
             'name' => 'Test Group '.uniqid(),
             'hidden' => 0,
             'pricing_templates_id' => 1,
@@ -193,7 +195,7 @@ class GroupControllerTest extends DBTestCase
         // Covers lines 182-186: status == 1 with products but no plans
         $this->getLoggedInUser('admin');
         $group = ProductGroup::create(['name' => 'Status Group '.uniqid(), 'hidden' => 0, 'pricing_templates_id' => 1]);
-        \App\Model\Product\Product::factory()->create(['group' => $group->id, 'hidden' => 0]);
+        Product::factory()->create(['group' => $group->id, 'hidden' => 0]);
 
         $response = $this->patchJson('/group/'.$group->id, [
             'name' => $group->name,
@@ -226,6 +228,7 @@ class GroupControllerTest extends DBTestCase
         ]);
 
         $response->assertStatus(200);
+
         $group = ProductGroup::latest('id')->first();
         $this->assertSame('Meta Title', $group->meta_title);
         $this->assertSame('Meta Description', $group->meta_description);
@@ -248,6 +251,7 @@ class GroupControllerTest extends DBTestCase
         ]);
 
         $response->assertStatus(200);
+
         $group = ProductGroup::latest('id')->first();
         $this->assertSame('group-og-abc123.png', $group->og_image);
     }
@@ -268,6 +272,7 @@ class GroupControllerTest extends DBTestCase
         ]);
 
         $response->assertStatus(200);
+
         $group->refresh();
         $this->assertSame('Updated Meta Title', $group->meta_title);
         $this->assertSame('Updated OG Description', $group->og_description);
@@ -293,8 +298,8 @@ class GroupControllerTest extends DBTestCase
     public function test_group_with_products_cannot_be_deleted(): void
     {
         $this->getLoggedInUser('admin');
-        $group = \App\Model\Product\ProductGroup::create(['name' => 'Busy '.uniqid(), 'hidden' => 0, 'pricing_templates_id' => 1]);
-        \App\Model\Product\Product::factory()->create(['group' => $group->id]);
+        $group = ProductGroup::create(['name' => 'Busy '.uniqid(), 'hidden' => 0, 'pricing_templates_id' => 1]);
+        Product::factory()->create(['group' => $group->id]);
 
         $this->deleteJson('/group', ['select' => [$group->id]])->assertStatus(400);
 

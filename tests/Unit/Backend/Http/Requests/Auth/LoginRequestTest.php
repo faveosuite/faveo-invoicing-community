@@ -14,7 +14,7 @@ class LoginRequestTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->req = new LoginRequest();
+        $this->req = new LoginRequest;
     }
 
     public function test_authorize_returns_true(): void

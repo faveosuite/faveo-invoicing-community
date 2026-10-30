@@ -1,55 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Filters;
 
 use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 
 class ChunkReadFilter implements IReadFilter
 {
-    /**
-     * @var int
-     */
-    private $headingRow;
+    private readonly int $endRow;
 
-    /**
-     * @var int
-     */
-    private $startRow;
-
-    /**
-     * @var int
-     */
-    private $endRow;
-
-    /**
-     * @var string
-     */
-    private $worksheetName;
-
-    /**
-     * @param  int  $headingRow
-     * @param  int  $startRow
-     * @param  int  $chunkSize
-     * @param  string  $worksheetName
-     */
-    public function __construct(int $headingRow, int $startRow, int $chunkSize, string $worksheetName)
-    {
-        $this->headingRow    = $headingRow;
-        $this->startRow      = $startRow;
-        $this->endRow        = $startRow + $chunkSize;
-        $this->worksheetName = $worksheetName;
+    public function __construct(
+        private readonly int $headingRow,
+        private readonly int $startRow,
+        int $chunkSize,
+        private readonly string $worksheetName,
+        private readonly ?IReadFilter $readFilter = null,
+    ) {
+        $this->endRow = $this->startRow + $chunkSize;
     }
 
-    /**
-     * @param  string  $column
-     * @param  int  $row
-     * @param  string  $worksheetName
-     * @return bool
-     */
-    public function readCell($column, $row, $worksheetName = '')
+    public function readCell(string $columnAddress, int $row, string $worksheetName = ''): bool
     {
         //  Only read the heading row, and the rows that are configured in $this->_startRow and $this->_endRow
         return ($worksheetName === $this->worksheetName || $worksheetName === '')
-            && ($row === $this->headingRow || ($row >= $this->startRow && $row < $this->endRow));
+            && ($row === $this->headingRow || ($row >= $this->startRow && $row < $this->endRow))
+            && (!$this->readFilter instanceof IReadFilter || $this->readFilter->readCell($columnAddress, $row, $worksheetName));
     }
 }

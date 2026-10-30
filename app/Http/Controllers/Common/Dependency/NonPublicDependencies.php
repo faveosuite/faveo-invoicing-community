@@ -16,6 +16,7 @@ use App\Model\Payment\TaxClass;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
 use App\User;
+use Illuminate\Contracts\Database\Query\Builder;
 
 class NonPublicDependencies extends BaseDependencyController
 {
@@ -125,8 +126,8 @@ class NonPublicDependencies extends BaseDependencyController
             ->when(! $this->request->boolean('include_hidden'), fn ($q) => $q->where('invoice_hidden', 0))
             ->when($this->searchQuery, fn ($q, string $s) => $q->where('name', 'like', "%{$s}%"))
             ->when($this->request->input('permission'), function ($query, string $permission): void {
-                $label = array_search($permission, LicensePermissionsController::permissionMap(), true) ?: $permission;
-                $query->whereHas('licenseType.permissions', function ($q) use ($label): void {
+                $label = array_search($permission, LicensePermissionsController::permissionMap(), strict: true) ?: $permission;
+                $query->whereHas('licenseType.permissions', function (Builder $q) use ($label): void {
                     $q->where('permissions', $label);
                 });
             })

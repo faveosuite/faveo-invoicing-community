@@ -55,6 +55,7 @@ class GuestCart
                 if (! $quantityLocked) {
                     $cart['items'][$id]['quantity'] += (int) ($data['quantity'] ?? 1);
                 }
+
                 $this->write($cart);
 
                 return;
@@ -158,6 +159,7 @@ class GuestCart
         // Same rule as the DB cart: a line that would be charged 0 leaves the cart.
         $unavailable = $items->reject(fn (CartItem $item): bool => $item->isAvailable($currency));
         $unavailable->each(fn (CartItem $item) => $this->remove((int) $item->id));
+
         $cart->itemsRemoved = $unavailable->isNotEmpty();
 
         $cart->setRelation('items', $items->filter(fn (CartItem $item): bool => $item->isAvailable($currency))->values());

@@ -7,14 +7,14 @@ class Attribute
     /**
      * The attribute accessor.
      *
-     * @var callable
+     * @var callable|null
      */
     public $get;
 
     /**
      * The attribute mutator.
      *
-     * @var callable
+     * @var callable|null
      */
     public $set;
 
@@ -81,7 +81,7 @@ class Attribute
     /**
      * Disable object caching for the attribute.
      *
-     * @return static
+     * @return $this
      */
     public function withoutObjectCaching()
     {
@@ -93,7 +93,7 @@ class Attribute
     /**
      * Enable caching for the attribute.
      *
-     * @return static
+     * @return $this
      */
     public function shouldCache()
     {

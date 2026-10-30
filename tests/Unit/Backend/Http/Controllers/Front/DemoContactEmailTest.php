@@ -64,7 +64,7 @@ class DemoContactEmailTest extends DBTestCase
     #[DataProvider('forms')]
     public function test_message_keeps_line_breaks_and_html_is_shown_as_text(string $uri, array $fields): void
     {
-        $body = $this->send($uri, $fields, null);
+        $body = $this->send($uri, $fields, referer: null);
 
         $this->assertStringContainsString("line one<br />\nline two &lt;b&gt;x&lt;/b&gt;", $body);
         $this->assertStringNotContainsString('<b>x</b>', $body);

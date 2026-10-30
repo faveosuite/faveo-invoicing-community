@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Spatie\LaravelPdf\Caching\DefaultPdfCache;
 use Spatie\LaravelPdf\Encryption\DefaultPdfEncrypter;
 use Spatie\LaravelPdf\Jobs\GeneratePdfJob;
@@ -26,7 +28,7 @@ return [
          * to call `->cache()`. Call `->cache()` or `->dontCache()` on a PDF
          * to override this.
          */
-        'automatic' => env('LARAVEL_PDF_CACHE_AUTOMATIC', false),
+        'automatic' => env('LARAVEL_PDF_CACHE_AUTOMATIC', default: false),
 
         /*
          * The cache store to use. Leave null to use the default store.
@@ -66,8 +68,8 @@ return [
         /*
          * Other Browsershot configuration options.
          */
-        'write_options_to_file' => env('LARAVEL_PDF_WRITE_OPTIONS_TO_FILE', true),
-        'no_sandbox' => env('LARAVEL_PDF_NO_SANDBOX', false),
+        'write_options_to_file' => env('LARAVEL_PDF_WRITE_OPTIONS_TO_FILE', default: true),
+        'no_sandbox' => env('LARAVEL_PDF_NO_SANDBOX', default: false),
     ],
 
     /*
@@ -105,7 +107,7 @@ return [
          * Allow DOMPDF to fetch external resources (images, CSS).
          * Set to true if your HTML references remote URLs.
          */
-        'is_remote_enabled' => env('LARAVEL_PDF_DOMPDF_REMOTE_ENABLED', false),
+        'is_remote_enabled' => env('LARAVEL_PDF_DOMPDF_REMOTE_ENABLED', default: false),
 
         /*
          * The base path for local file access.
@@ -145,7 +147,7 @@ return [
     'chrome' => [
         'chrome_binary' => env('LARAVEL_PDF_CHROME_BINARY'),
 
-        'no_sandbox' => env('LARAVEL_PDF_CHROME_NO_SANDBOX', false),
+        'no_sandbox' => env('LARAVEL_PDF_CHROME_NO_SANDBOX', default: false),
 
         'startup_timeout' => env('LARAVEL_PDF_CHROME_STARTUP_TIMEOUT', 30),
 

@@ -20,6 +20,7 @@ use function explode;
 use function is_array;
 use function max;
 use function reset;
+use function spl_object_id;
 use function str_replace;
 use function strtolower;
 use function trim;
@@ -120,6 +121,13 @@ final class ExecutableLinesFindingVisitor extends NodeVisitorAbstract
      */
     private array $commentsToCheckForUnset = [];
     private int $spreadDepth               = 0;
+    private int $propertyHookDepth         = 0;
+
+    /**
+     * @var array<int, true> keyed by spl_object_id() of expressions that are
+     *                       the value of an array literal element
+     */
+    private array $arrayItemValues = [];
 
     public function __construct(string $source)
     {
@@ -128,8 +136,16 @@ final class ExecutableLinesFindingVisitor extends NodeVisitorAbstract
 
     public function enterNode(Node $node): null
     {
-        if ($node instanceof Node\ArrayItem && $node->unpack) {
-            $this->spreadDepth++;
+        if ($node instanceof Node\ArrayItem) {
+            if ($node->unpack) {
+                $this->spreadDepth++;
+            }
+
+            $this->rememberArrayItemValue($node->value);
+        }
+
+        if ($node instanceof Node\PropertyHook) {
+            $this->propertyHookDepth++;
         }
 
         $this->collectMatchingComments($node);
@@ -271,6 +287,10 @@ final class ExecutableLinesFindingVisitor extends NodeVisitorAbstract
             $this->spreadDepth--;
         }
 
+        if ($node instanceof Node\PropertyHook) {
+            $this->propertyHookDepth--;
+        }
+
         return null;
     }
 
@@ -374,7 +394,11 @@ final class ExecutableLinesFindingVisitor extends NodeVisitorAbstract
      */
     private function enterCallableOrClassLike(Node $node): void
     {
+        // An abstract method is never executed, not even the expressions of
+        // the default values of its parameters
         if ($node instanceof Node\Stmt\ClassMethod && $node->isAbstract()) {
+            $this->markRangeForUnset($node->getStartLine(), $node->getEndLine());
+
             return;
         }
 
@@ -472,6 +496,20 @@ final class ExecutableLinesFindingVisitor extends NodeVisitorAbstract
     private function enterPropertyHook(Node\PropertyHook $node): void
     {
         $this->markParameterLinesForUnset($node);
+
+        if (!is_array($node->body)) {
+            return;
+        }
+
+        // The enclosing property declaration was handled by enterDefault(),
+        // which assigned one branch to all of its lines, including the bodies
+        // of all of its hooks; the statements of a hook body need branches of
+        // their own, just like the statements of a method body
+        foreach ($node->body as $stmt) {
+            for ($line = $stmt->getStartLine(); $line <= $stmt->getEndLine(); $line++) {
+                unset($this->executableLinesGroupedByBranch[$line]);
+            }
+        }
     }
 
     private function enterArrowFunction(Node\Expr\ArrowFunction $node): void
@@ -493,6 +531,16 @@ final class ExecutableLinesFindingVisitor extends NodeVisitorAbstract
     private function enterTernary(Node\Expr\Ternary $node): void
     {
         if ($this->spreadDepth > 0) {
+            return;
+        }
+
+        if ($this->isArrayItemValue($node)) {
+            if ($node->if !== null) {
+                $this->rememberArrayItemValue($node->if);
+            }
+
+            $this->rememberArrayItemValue($node->else);
+
             return;
         }
 
@@ -520,6 +568,12 @@ final class ExecutableLinesFindingVisitor extends NodeVisitorAbstract
             return;
         }
 
+        if ($this->isArrayItemValue($node)) {
+            $this->rememberArrayItemValue($node->right);
+
+            return;
+        }
+
         $this->setLineBranch(
             $node->getEndLine(),
             $node->getEndLine(),
@@ -532,10 +586,6 @@ final class ExecutableLinesFindingVisitor extends NodeVisitorAbstract
      */
     private function enterConditional(Node $node): void
     {
-        if (null === $node->cond) {
-            return;
-        }
-
         $this->setLineBranch(
             $node->cond->getStartLine(),
             $node->cond->getStartLine(),
@@ -643,8 +693,25 @@ final class ExecutableLinesFindingVisitor extends NodeVisitorAbstract
     {
         for ($line = max(1, $start); $line <= $end; $line++) {
             $this->executableLinesGroupedByBranch[$line] = $branch;
-            $this->branchOperatorLines[$line]            = true;
+
+            // Drivers that cannot see the inside of property hooks (PCOV
+            // 1.0.12 and earlier, for instance) report no line of a hook
+            // body at all; forcing such lines to "not executed" would make
+            // them permanently red
+            if ($this->propertyHookDepth === 0) {
+                $this->branchOperatorLines[$line] = true;
+            }
         }
+    }
+
+    private function rememberArrayItemValue(Node\Expr $node): void
+    {
+        $this->arrayItemValues[spl_object_id($node)] = true;
+    }
+
+    private function isArrayItemValue(Node\Expr $node): bool
+    {
+        return isset($this->arrayItemValues[spl_object_id($node)]);
     }
 
     private function matchConditionHasNoOpcode(Node\Expr $cond): bool

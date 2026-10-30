@@ -9,15 +9,18 @@ use App\Model\Common\Setting;
 use App\Model\Order\Order;
 use App\Model\Product\ProductUpload;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage as Attach;
 use Illuminate\Validation\Rule;
-use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\Exception\NoKeyLoadedException;
-use phpseclib3\Net\SFTP;
-use phpseclib3\Net\SSH2;
+use phpseclib4\Crypt\PublicKeyLoader;
+use phpseclib4\Exception\BaseException;
+use phpseclib4\Exception\NoKeyLoadedException;
+use phpseclib4\Net\SFTP;
+use phpseclib4\Net\SSH2;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\IpUtils;
 
@@ -52,7 +55,7 @@ class DeployController extends Controller
                 ->get();
 
             return successResponse('', $versions->toArray());
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
+        } catch (ModelNotFoundException) {
             return errorResponse(__('message.record_not_found'));
         } catch (\Exception $e) {
             \Logger::exception($e);
@@ -66,16 +69,16 @@ class DeployController extends Controller
         $installing = fn (): bool => $request->step === 'install';
 
         $request->validate([
-            'step' => 'required|in:verify,install,status,upload,extract',
-            'offset' => 'nullable|integer|min:0',
-            'order_id' => 'required|integer',
-            'host' => 'required|string|max:255',
-            'port' => 'required|integer|min:1|max:65535',
-            'username' => 'required|string|max:255',
-            'auth_method' => 'required|in:private_key,password',
-            'private_key' => 'nullable|string|required_if:auth_method,private_key',
-            'password' => 'nullable|string|required_if:auth_method,password',
-            'deploy_mode' => 'required|in:fresh_install,extract_only',
+            'step' => ['required', 'in:verify,install,status,upload,extract'],
+            'offset' => ['nullable', 'integer', 'min:0'],
+            'order_id' => ['required', 'integer'],
+            'host' => ['required', 'string', 'max:255'],
+            'port' => ['required', 'integer', 'min:1', 'max:65535'],
+            'username' => ['required', 'string', 'max:255'],
+            'auth_method' => ['required', 'in:private_key,password'],
+            'private_key' => ['nullable', 'string', 'required_if:auth_method,private_key'],
+            'password' => ['nullable', 'string', 'required_if:auth_method,password'],
+            'deploy_mode' => ['required', 'in:fresh_install,extract_only'],
             // verify may run before the path is known (the wizard's connection-only check on "Next").
             'deploy_path' => ['nullable', 'string', 'max:1000', Rule::requiredIf(fn (): bool => $request->deploy_mode === 'extract_only' && $request->step !== 'verify')],
             'install_domain' => ['nullable', 'string', 'max:255', Rule::requiredIf($installing)],
@@ -86,8 +89,8 @@ class DeployController extends Controller
             'ssl_key_path' => ['nullable', 'string', 'max:500', Rule::requiredIf(fn (): bool => $installing() && $request->ssl_type === 'C')],
             'ssl_ca_path' => ['nullable', 'string', 'max:500', Rule::requiredIf(fn (): bool => $installing() && $request->ssl_type === 'C')],
             'web_user' => ['nullable', 'string', 'max:64', 'regex:/^[a-z_][a-z0-9_.-]*$/i'],
-            'sudo_password' => 'nullable|string',
-            'version_id' => 'nullable|integer',
+            'sudo_password' => ['nullable', 'string'],
+            'version_id' => ['nullable', 'integer'],
         ], [
             'host.required' => __('message.deploy_host_required'),
             'port.required' => __('message.deploy_port_invalid'),
@@ -121,6 +124,7 @@ class DeployController extends Controller
             if ($ip === null) {
                 return errorResponse(__('message.deploy_host_not_allowed'), 422);
             }
+
             $this->ip = $ip;
 
             try {
@@ -142,8 +146,8 @@ class DeployController extends Controller
                 'upload' => $this->stepUpload($request, $order),
                 'extract' => $this->stepExtract($request, $order, $deployPath),
             };
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (\Exception $exception) {
+            \Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -153,7 +157,7 @@ class DeployController extends Controller
     {
         $ssh = new SSH2($this->ip, (int) $request->port);
 
-        if ($error = $this->login($ssh, $request)) {
+        if (($error = $this->login($ssh, $request)) instanceof JsonResponse) {
             return $error;
         }
 
@@ -180,7 +184,7 @@ class DeployController extends Controller
         $ssh = new SSH2($this->ip, (int) $request->port);
         $ssh->setTimeout(120);
 
-        if ($error = $this->login($ssh, $request)) {
+        if (($error = $this->login($ssh, $request)) instanceof JsonResponse) {
             return $error;
         }
 
@@ -205,7 +209,8 @@ class DeployController extends Controller
         if ($request->ssl_type === 'C') {
             $args += ['--certfile' => $request->ssl_cert_path, '--keyfile' => $request->ssl_key_path, '--cacertfile' => $request->ssl_ca_path];
         }
-        $argv = implode(' ', array_map(fn ($flag, $value) => $flag.' '.escapeshellarg((string) $value), array_keys($args), $args));
+
+        $argv = implode(' ', array_map(fn ($flag, $value): string => $flag.' '.escapeshellarg((string) $value), array_keys($args), $args));
 
         [$dir, $log, $rc] = $this->installFiles($order);
         $main = basename((string) parse_url($installScript, PHP_URL_PATH));
@@ -221,7 +226,7 @@ class DeployController extends Controller
             'else curl -fsSL -o '.escapeshellarg($file).' '.escapeshellarg($url).' 2>&1; fi';
         [$output, $exitCode] = $this->run($ssh,
             'rm -rf '.escapeshellarg($dir).' && mkdir -m 700 '.escapeshellarg($dir).' && cd '.escapeshellarg($dir).' && '.
-            implode(' && ', array_map(fn ($file, $url) => '{ '.$fetch($file, $url).'; }', array_keys($downloads), $downloads))
+            implode(' && ', array_map(fn ($file, $url): string => '{ '.$fetch($file, $url).'; }', array_keys($downloads), $downloads))
         );
 
         if ($exitCode !== 0) {
@@ -251,7 +256,7 @@ class DeployController extends Controller
     {
         $ssh = new SSH2($this->ip, (int) $request->port);
 
-        if ($error = $this->login($ssh, $request)) {
+        if (($error = $this->login($ssh, $request)) instanceof JsonResponse) {
             return $error;
         }
 
@@ -323,15 +328,15 @@ class DeployController extends Controller
         try {
             $sftp = new SFTP($this->ip, (int) $request->port);
 
-            if ($error = $this->login($sftp, $request)) {
+            if (($error = $this->login($sftp, $request)) instanceof JsonResponse) {
                 return $error;
             }
 
-            if (! $sftp->put($this->remoteZipPath($order), $tmpFile, SFTP::SOURCE_LOCAL_FILE)) {
-                return errorResponse(__('message.deploy_upload_failed'));
-            }
+            $sftp->put($this->remoteZipPath($order), $tmpFile, SFTP::SOURCE_LOCAL_FILE);
+        } catch (BaseException) {
+            return errorResponse(__('message.deploy_upload_failed'));
         } finally {
-            @unlink($tmpFile);
+            File::delete($tmpFile);
         }
 
         return successResponse(__('message.deploy_file_uploaded'));
@@ -341,14 +346,14 @@ class DeployController extends Controller
     {
         $sudoPassword = $request->filled('sudo_password') ? $request->sudo_password : null;
 
-        $withSudo = fn (string $cmd) => $sudoPassword
+        $withSudo = fn (string $cmd): string => $sudoPassword
             ? 'echo '.escapeshellarg($sudoPassword).' | sudo -S '.$cmd
             : $cmd;
 
         $ssh = new SSH2($this->ip, (int) $request->port);
         $ssh->setTimeout(300);
 
-        if ($error = $this->login($ssh, $request)) {
+        if (($error = $this->login($ssh, $request)) instanceof JsonResponse) {
             return $error;
         }
 
@@ -453,7 +458,9 @@ class DeployController extends Controller
             return null;
         }
 
-        $errors = implode(' | ', $ssh->getErrors() ?: [__('message.deploy_auth_failed_fallback')]);
+        // Only the SFTP layer still records errors; plain SSH2 lost getErrors() in phpseclib 4.
+        $sftpErrors = $ssh instanceof SFTP ? $ssh->getErrors() : [];
+        $errors = implode(' | ', $sftpErrors ?: [__('message.deploy_auth_failed_fallback')]);
 
         return errorResponse(__('message.deploy_ssh_auth_failed', ['errors' => $errors]));
     }

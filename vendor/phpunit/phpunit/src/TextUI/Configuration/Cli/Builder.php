@@ -20,8 +20,10 @@ use function is_numeric;
 use function max;
 use function sprintf;
 use function strtolower;
-use PHPUnit\Event\Facade as EventFacade;
+use PHPUnit\Event\Emitter;
 use PHPUnit\Runner\TestSuiteSorter;
+use PHPUnit\TextUI\Configuration\ExecutionOrderParser;
+use PHPUnit\TextUI\Configuration\ExecutionOrderSource;
 use PHPUnit\Util\Filesystem;
 use SebastianBergmann\CliParser\Exception as CliParserException;
 use SebastianBergmann\CliParser\Parser as CliParser;
@@ -42,9 +44,15 @@ final class Builder
         'bootstrap=',
         'cache-result',
         'do-not-cache-result',
+        'record-test-run-history',
+        'do-not-record-test-run-history',
+        'cache-test-index',
+        'do-not-cache-test-index',
         'cache-directory=',
         'check-version',
         'check-php-configuration',
+        'warn-when-php-is-not-configured-for-development',
+        'do-not-warn-when-php-is-not-configured-for-development',
         'colors==',
         'columns=',
         'configuration=',
@@ -54,6 +62,9 @@ final class Builder
         'coverage-cobertura=',
         'coverage-crap4j=',
         'coverage-html=',
+        'without-class-view',
+        'without-file-view',
+        'coverage-jsonl=',
         'coverage-openclover=',
         'coverage-php=',
         'coverage-text==',
@@ -116,12 +127,18 @@ final class Builder
         'do-not-report-useless-tests',
         'random-order',
         'random-order-seed=',
+        'repeat=',
+        'retry=',
+        'timeout=',
         'reverse-order',
         'reverse-list',
         'static-backup',
         'stderr',
         'fail-on-all-issues',
         'fail-on-deprecation',
+        'fail-on-self-deprecation',
+        'fail-on-direct-deprecation',
+        'fail-on-indirect-deprecation',
         'fail-on-phpunit-deprecation',
         'fail-on-phpunit-notice',
         'fail-on-phpunit-warning',
@@ -132,6 +149,9 @@ final class Builder
         'fail-on-skipped',
         'fail-on-warning',
         'do-not-fail-on-deprecation',
+        'do-not-fail-on-self-deprecation',
+        'do-not-fail-on-direct-deprecation',
+        'do-not-fail-on-indirect-deprecation',
         'do-not-fail-on-phpunit-deprecation',
         'do-not-fail-on-phpunit-notice',
         'do-not-fail-on-phpunit-warning',
@@ -182,7 +202,15 @@ final class Builder
      */
     private const array CONFLICTING_OPTIONS = [
         ['--cache-result', '--do-not-cache-result'],
+        ['--record-test-run-history', '--do-not-record-test-run-history'],
+        ['--cache-result', '--do-not-record-test-run-history'],
+        ['--record-test-run-history', '--do-not-cache-result'],
+        ['--cache-test-index', '--do-not-cache-test-index'],
+        ['--warn-when-php-is-not-configured-for-development', '--do-not-warn-when-php-is-not-configured-for-development'],
         ['--fail-on-deprecation', '--do-not-fail-on-deprecation'],
+        ['--fail-on-self-deprecation', '--do-not-fail-on-self-deprecation'],
+        ['--fail-on-direct-deprecation', '--do-not-fail-on-direct-deprecation'],
+        ['--fail-on-indirect-deprecation', '--do-not-fail-on-indirect-deprecation'],
         ['--fail-on-phpunit-deprecation', '--do-not-fail-on-phpunit-deprecation'],
         ['--fail-on-phpunit-notice', '--do-not-fail-on-phpunit-notice'],
         ['--fail-on-phpunit-warning', '--do-not-fail-on-phpunit-warning'],
@@ -194,6 +222,7 @@ final class Builder
         ['--fail-on-warning', '--do-not-fail-on-warning'],
         ['--resolve-dependencies', '--ignore-dependencies'],
         ['--random-order', '--reverse-order'],
+        ['--repeat', '--retry'],
         ['--generate-baseline', '--ignore-baseline'],
         ['--generate-baseline', '--use-baseline'],
         ['--no-output', '--compact'],
@@ -232,6 +261,12 @@ final class Builder
      * @var array<string, non-negative-int>
      */
     private array $processed = [];
+    private readonly Emitter $emitter;
+
+    public function __construct(Emitter $emitter)
+    {
+        $this->emitter = $emitter;
+    }
 
     /**
      * @param list<string> $parameters
@@ -254,141 +289,155 @@ final class Builder
             );
         }
 
-        $all                               = null;
-        $atLeastVersion                    = null;
-        $backupGlobals                     = null;
-        $backupStaticProperties            = null;
-        $beStrictAboutChangesToGlobalState = null;
-        $bootstrap                         = null;
-        $cacheDirectory                    = null;
-        $cacheResult                       = null;
-        $checkPhpConfiguration             = false;
-        $checkVersion                      = false;
-        $colors                            = null;
-        $columns                           = null;
-        $configuration                     = null;
-        $warmCoverageCache                 = false;
-        $coverageFilter                    = null;
-        $coverageClover                    = null;
-        $coverageCobertura                 = null;
-        $coverageCrap4J                    = null;
-        $coverageHtml                      = null;
-        $coverageOpenClover                = null;
-        $coveragePhp                       = null;
-        $coverageText                      = null;
-        $coverageTextShowUncoveredFiles    = null;
-        $coverageTextShowOnlySummary       = null;
-        $coverageXml                       = null;
-        $excludeSourceFromXmlCoverage      = null;
-        $pathCoverage                      = null;
-        $branchCoverage                    = null;
-        $defaultTimeLimit                  = null;
-        $diffContext                       = null;
-        $disableCodeCoverageIgnore         = null;
-        $disableCoverageTargeting          = null;
-        $disallowTestOutput                = null;
-        $displayAllIssues                  = null;
-        $displayIncomplete                 = null;
-        $displaySkipped                    = null;
-        $displayDeprecations               = null;
-        $displayPhpunitDeprecations        = null;
-        $displayPhpunitNotices             = null;
-        $displayErrors                     = null;
-        $displayNotices                    = null;
-        $displayWarnings                   = null;
-        $enforceTimeLimit                  = null;
-        $excludeGroups                     = null;
-        $executionOrder                    = null;
-        $executionOrderDefects             = null;
-        $failOnAllIssues                   = null;
-        $failOnDeprecation                 = null;
-        $failOnPhpunitDeprecation          = null;
-        $failOnPhpunitNotice               = null;
-        $failOnPhpunitWarning              = null;
-        $failOnEmptyTestSuite              = null;
-        $failOnIncomplete                  = null;
-        $failOnNotice                      = null;
-        $failOnRisky                       = null;
-        $failOnSkipped                     = null;
-        $failOnWarning                     = null;
-        $doNotFailOnDeprecation            = null;
-        $doNotFailOnPhpunitDeprecation     = null;
-        $doNotFailOnPhpunitNotice          = null;
-        $doNotFailOnPhpunitWarning         = null;
-        $doNotFailOnEmptyTestSuite         = null;
-        $doNotFailOnIncomplete             = null;
-        $doNotFailOnNotice                 = null;
-        $doNotFailOnRisky                  = null;
-        $doNotFailOnSkipped                = null;
-        $doNotFailOnWarning                = null;
-        $stopOnDefect                      = null;
-        $stopOnDeprecation                 = null;
-        $specificDeprecationToStopOn       = null;
-        $stopOnError                       = null;
-        $stopOnFailure                     = null;
-        $stopOnIncomplete                  = null;
-        $stopOnNotice                      = null;
-        $stopOnRisky                       = null;
-        $stopOnSkipped                     = null;
-        $stopOnWarning                     = null;
-        $filter                            = null;
-        $excludeFilter                     = null;
-        $generateBaseline                  = null;
-        $useBaseline                       = null;
-        $ignoreBaseline                    = false;
-        $generateConfiguration             = false;
-        $migrateConfiguration              = false;
-        $validateConfiguration             = false;
-        $groups                            = null;
-        $testsCovering                     = null;
-        $testsUsing                        = null;
-        $testsRequiringPhpExtension        = null;
-        $help                              = false;
-        $includePath                       = null;
-        $iniSettings                       = [];
-        $junitLogfile                      = null;
-        $otrLogfile                        = null;
-        $includeGitInformation             = null;
-        $listGroups                        = false;
-        $listSuites                        = false;
-        $listTestFiles                     = false;
-        $listTestIds                       = false;
-        $listTests                         = false;
-        $listTestsXml                      = null;
-        $noCoverage                        = null;
-        $noExtensions                      = null;
-        $noOutput                          = null;
-        $noProgress                        = null;
-        $noResults                         = null;
-        $noLogging                         = null;
-        $processIsolation                  = null;
-        $randomOrderSeed                   = null;
-        $reportUselessTests                = null;
-        $resolveDependencies               = null;
-        $reverseList                       = null;
-        $stderr                            = null;
-        $strictCoverage                    = null;
-        $requireCoverageContribution       = null;
-        $teamcityLogfile                   = null;
-        $testdoxHtmlFile                   = null;
-        $testdoxTextFile                   = null;
-        $testSuffixes                      = null;
-        $testSuite                         = null;
-        $excludeTestSuite                  = null;
-        $testFilesFile                     = null;
-        $testIdFile                        = null;
-        $testIdFilter                      = null;
-        $useDefaultConfiguration           = true;
-        $version                           = false;
-        $logEventsText                     = null;
-        $logEventsVerboseText              = null;
-        $printerCompact                    = null;
-        $printerTeamCity                   = null;
-        $printerTestDox                    = null;
-        $printerTestDoxSummary             = null;
-        $debug                             = false;
-        $withTelemetry                     = false;
-        $extensions                        = [];
+        $all                                      = null;
+        $atLeastVersion                           = null;
+        $backupGlobals                            = null;
+        $backupStaticProperties                   = null;
+        $beStrictAboutChangesToGlobalState        = null;
+        $bootstrap                                = null;
+        $cacheDirectory                           = null;
+        $recordTestRunHistory                     = null;
+        $cacheTestIndex                           = null;
+        $checkPhpConfiguration                    = false;
+        $checkVersion                             = false;
+        $colors                                   = null;
+        $columns                                  = null;
+        $configuration                            = null;
+        $warmCoverageCache                        = false;
+        $coverageFilter                           = null;
+        $coverageClover                           = null;
+        $coverageCobertura                        = null;
+        $coverageCrap4J                           = null;
+        $coverageHtml                             = null;
+        $withoutClassView                         = null;
+        $withoutFileView                          = null;
+        $coverageJsonl                            = null;
+        $coverageOpenClover                       = null;
+        $coveragePhp                              = null;
+        $coverageText                             = null;
+        $coverageTextShowUncoveredFiles           = null;
+        $coverageTextShowOnlySummary              = null;
+        $coverageXml                              = null;
+        $excludeSourceFromXmlCoverage             = null;
+        $pathCoverage                             = null;
+        $branchCoverage                           = null;
+        $defaultTimeLimit                         = null;
+        $diffContext                              = null;
+        $disableCodeCoverageIgnore                = null;
+        $disableCoverageTargeting                 = null;
+        $disallowTestOutput                       = null;
+        $displayAllIssues                         = null;
+        $displayIncomplete                        = null;
+        $displaySkipped                           = null;
+        $displayDeprecations                      = null;
+        $displayPhpunitDeprecations               = null;
+        $displayPhpunitNotices                    = null;
+        $displayErrors                            = null;
+        $displayNotices                           = null;
+        $displayWarnings                          = null;
+        $enforceTimeLimit                         = null;
+        $excludeGroups                            = null;
+        $executionOrder                           = null;
+        $executionOrderDefects                    = null;
+        $failOnAllIssues                          = null;
+        $failOnDeprecation                        = null;
+        $failOnSelfDeprecation                    = null;
+        $failOnDirectDeprecation                  = null;
+        $failOnIndirectDeprecation                = null;
+        $failOnPhpunitDeprecation                 = null;
+        $failOnPhpunitNotice                      = null;
+        $failOnPhpunitWarning                     = null;
+        $failOnEmptyTestSuite                     = null;
+        $failOnIncomplete                         = null;
+        $failOnNotice                             = null;
+        $failOnRisky                              = null;
+        $failOnSkipped                            = null;
+        $failOnWarning                            = null;
+        $doNotFailOnDeprecation                   = null;
+        $doNotFailOnSelfDeprecation               = null;
+        $doNotFailOnDirectDeprecation             = null;
+        $doNotFailOnIndirectDeprecation           = null;
+        $doNotFailOnPhpunitDeprecation            = null;
+        $doNotFailOnPhpunitNotice                 = null;
+        $doNotFailOnPhpunitWarning                = null;
+        $doNotFailOnEmptyTestSuite                = null;
+        $doNotFailOnIncomplete                    = null;
+        $doNotFailOnNotice                        = null;
+        $doNotFailOnRisky                         = null;
+        $doNotFailOnSkipped                       = null;
+        $doNotFailOnWarning                       = null;
+        $stopOnDefect                             = null;
+        $stopOnDeprecation                        = null;
+        $specificDeprecationToStopOn              = null;
+        $stopOnError                              = null;
+        $stopOnFailure                            = null;
+        $stopOnIncomplete                         = null;
+        $stopOnNotice                             = null;
+        $stopOnRisky                              = null;
+        $stopOnSkipped                            = null;
+        $stopOnWarning                            = null;
+        $filter                                   = null;
+        $excludeFilter                            = null;
+        $generateBaseline                         = null;
+        $useBaseline                              = null;
+        $ignoreBaseline                           = false;
+        $generateConfiguration                    = false;
+        $migrateConfiguration                     = false;
+        $validateConfiguration                    = false;
+        $groups                                   = null;
+        $testsCovering                            = null;
+        $testsUsing                               = null;
+        $testsRequiringPhpExtension               = null;
+        $help                                     = false;
+        $includePath                              = null;
+        $iniSettings                              = [];
+        $junitLogfile                             = null;
+        $otrLogfile                               = null;
+        $includeGitInformation                    = null;
+        $listGroups                               = false;
+        $listSuites                               = false;
+        $listTestFiles                            = false;
+        $listTestIds                              = false;
+        $listTests                                = false;
+        $listTestsXml                             = null;
+        $noCoverage                               = null;
+        $noExtensions                             = null;
+        $noOutput                                 = null;
+        $noProgress                               = null;
+        $noResults                                = null;
+        $noLogging                                = null;
+        $processIsolation                         = null;
+        $randomOrderSeed                          = null;
+        $repeat                                   = null;
+        $retry                                    = null;
+        $timeout                                  = null;
+        $reportUselessTests                       = null;
+        $resolveDependencies                      = null;
+        $reverseList                              = null;
+        $stderr                                   = null;
+        $strictCoverage                           = null;
+        $requireCoverageContribution              = null;
+        $teamcityLogfile                          = null;
+        $testdoxHtmlFile                          = null;
+        $testdoxTextFile                          = null;
+        $testSuffixes                             = null;
+        $testSuite                                = null;
+        $excludeTestSuite                         = null;
+        $testFilesFile                            = null;
+        $testIdFile                               = null;
+        $testIdFilter                             = null;
+        $useDefaultConfiguration                  = true;
+        $version                                  = false;
+        $logEventsText                            = null;
+        $logEventsVerboseText                     = null;
+        $printerCompact                           = null;
+        $printerTeamCity                          = null;
+        $printerTestDox                           = null;
+        $printerTestDoxSummary                    = null;
+        $debug                                    = false;
+        $withTelemetry                            = false;
+        $extensions                               = [];
+        $warnWhenPhpIsNotConfiguredForDevelopment = null;
 
         foreach ($options[0] as $option) {
             $optionAllowedMultipleTimes = false;
@@ -419,12 +468,40 @@ final class Builder
                     break;
 
                 case '--cache-result':
-                    $cacheResult = true;
+                    $recordTestRunHistory = true;
+
+                    $this->emitter->testRunnerTriggeredPhpunitDeprecation(
+                        'The "--cache-result" CLI option is deprecated and will be removed in PHPUnit 14. Use "--record-test-run-history" instead.',
+                    );
+
+                    break;
+
+                case '--record-test-run-history':
+                    $recordTestRunHistory = true;
 
                     break;
 
                 case '--do-not-cache-result':
-                    $cacheResult = false;
+                    $recordTestRunHistory = false;
+
+                    $this->emitter->testRunnerTriggeredPhpunitDeprecation(
+                        'The "--do-not-cache-result" CLI option is deprecated and will be removed in PHPUnit 14. Use "--do-not-record-test-run-history" instead.',
+                    );
+
+                    break;
+
+                case '--do-not-record-test-run-history':
+                    $recordTestRunHistory = false;
+
+                    break;
+
+                case '--cache-test-index':
+                    $cacheTestIndex = true;
+
+                    break;
+
+                case '--do-not-cache-test-index':
+                    $cacheTestIndex = false;
 
                     break;
 
@@ -465,6 +542,21 @@ final class Builder
 
                 case '--coverage-html':
                     $coverageHtml = $option[1];
+
+                    break;
+
+                case '--without-class-view':
+                    $withoutClassView = true;
+
+                    break;
+
+                case '--without-file-view':
+                    $withoutFileView = true;
+
+                    break;
+
+                case '--coverage-jsonl':
+                    $coverageJsonl = $option[1];
 
                     break;
 
@@ -745,87 +837,28 @@ final class Builder
                 case '--order-by':
                     assert($option[1] !== null);
 
-                    foreach (explode(',', $option[1]) as $order) {
-                        switch ($order) {
-                            case 'default':
-                                $executionOrder        = TestSuiteSorter::ORDER_DEFAULT;
-                                $executionOrderDefects = TestSuiteSorter::ORDER_DEFAULT;
-                                $resolveDependencies   = true;
+                    $parsedExecutionOrder = new ExecutionOrderParser($this->emitter)->parse(
+                        $option[1],
+                        ExecutionOrderSource::CommandLineOption,
+                        $executionOrder,
+                        $executionOrderDefects,
+                        $resolveDependencies,
+                    );
 
-                                break;
+                    $unknownTokens = $parsedExecutionOrder->unknownTokens();
 
-                            case 'defects':
-                                $executionOrderDefects = TestSuiteSorter::ORDER_DEFECTS_FIRST;
-
-                                break;
-
-                            case 'depends':
-                                $resolveDependencies = true;
-
-                                break;
-
-                            case 'duration':
-                                $executionOrder = TestSuiteSorter::ORDER_DURATION_ASCENDING;
-
-                                EventFacade::emitter()->testRunnerTriggeredPhpunitDeprecation(
-                                    'Using "duration" for --order-by is deprecated and will be removed in PHPUnit 14. Use "duration-ascending" instead.',
-                                );
-
-                                break;
-
-                            case 'duration-ascending':
-                                $executionOrder = TestSuiteSorter::ORDER_DURATION_ASCENDING;
-
-                                break;
-
-                            case 'duration-descending':
-                                $executionOrder = TestSuiteSorter::ORDER_DURATION_DESCENDING;
-
-                                break;
-
-                            case 'no-depends':
-                                $resolveDependencies = false;
-
-                                break;
-
-                            case 'random':
-                                $executionOrder = TestSuiteSorter::ORDER_RANDOMIZED;
-
-                                break;
-
-                            case 'reverse':
-                                $executionOrder = TestSuiteSorter::ORDER_REVERSED;
-
-                                break;
-
-                            case 'size':
-                                $executionOrder = TestSuiteSorter::ORDER_SIZE_ASCENDING;
-
-                                EventFacade::emitter()->testRunnerTriggeredPhpunitDeprecation(
-                                    'Using "size" for --order-by is deprecated and will be removed in PHPUnit 14. Use "size-ascending" instead.',
-                                );
-
-                                break;
-
-                            case 'size-ascending':
-                                $executionOrder = TestSuiteSorter::ORDER_SIZE_ASCENDING;
-
-                                break;
-
-                            case 'size-descending':
-                                $executionOrder = TestSuiteSorter::ORDER_SIZE_DESCENDING;
-
-                                break;
-
-                            default:
-                                throw new Exception(
-                                    sprintf(
-                                        'unrecognized --order-by option: %s',
-                                        $order,
-                                    ),
-                                );
-                        }
+                    if ($unknownTokens !== []) {
+                        throw new Exception(
+                            sprintf(
+                                'unrecognized --order-by option: %s',
+                                $unknownTokens[0],
+                            ),
+                        );
                     }
+
+                    $executionOrder        = $parsedExecutionOrder->executionOrder();
+                    $executionOrderDefects = $parsedExecutionOrder->executionOrderDefects();
+                    $resolveDependencies   = $parsedExecutionOrder->resolveDependencies();
 
                     break;
 
@@ -846,6 +879,21 @@ final class Builder
 
                 case '--fail-on-deprecation':
                     $failOnDeprecation = true;
+
+                    break;
+
+                case '--fail-on-self-deprecation':
+                    $failOnSelfDeprecation = true;
+
+                    break;
+
+                case '--fail-on-direct-deprecation':
+                    $failOnDirectDeprecation = true;
+
+                    break;
+
+                case '--fail-on-indirect-deprecation':
+                    $failOnIndirectDeprecation = true;
 
                     break;
 
@@ -896,6 +944,21 @@ final class Builder
 
                 case '--do-not-fail-on-deprecation':
                     $doNotFailOnDeprecation = true;
+
+                    break;
+
+                case '--do-not-fail-on-self-deprecation':
+                    $doNotFailOnSelfDeprecation = true;
+
+                    break;
+
+                case '--do-not-fail-on-direct-deprecation':
+                    $doNotFailOnDirectDeprecation = true;
+
+                    break;
+
+                case '--do-not-fail-on-indirect-deprecation':
+                    $doNotFailOnIndirectDeprecation = true;
 
                     break;
 
@@ -1183,6 +1246,16 @@ final class Builder
 
                     break;
 
+                case '--warn-when-php-is-not-configured-for-development':
+                    $warnWhenPhpIsNotConfiguredForDevelopment = true;
+
+                    break;
+
+                case '--do-not-warn-when-php-is-not-configured-for-development':
+                    $warnWhenPhpIsNotConfiguredForDevelopment = false;
+
+                    break;
+
                 case '--check-version':
                     $checkVersion = true;
 
@@ -1206,6 +1279,63 @@ final class Builder
 
                 case '--random-order-seed':
                     $randomOrderSeed = (int) $option[1];
+
+                    break;
+
+                case '--repeat':
+                    if (!is_numeric($option[1]) ||
+                        (string) (int) $option[1] !== $option[1] ||
+                        (int) $option[1] < 1) {
+                        $this->emitter->testRunnerTriggeredPhpunitWarning(
+                            sprintf(
+                                'Option "--repeat %s" ignored because "%s" is not a positive integer',
+                                $option[1],
+                                $option[1],
+                            ),
+                        );
+
+                        break;
+                    }
+
+                    $repeat = (int) $option[1];
+
+                    break;
+
+                case '--retry':
+                    if (!is_numeric($option[1]) ||
+                        (string) (int) $option[1] !== $option[1] ||
+                        (int) $option[1] < 1) {
+                        $this->emitter->testRunnerTriggeredPhpunitWarning(
+                            sprintf(
+                                'Option "--retry %s" ignored because "%s" is not a positive integer',
+                                $option[1],
+                                $option[1],
+                            ),
+                        );
+
+                        break;
+                    }
+
+                    $retry = (int) $option[1];
+
+                    break;
+
+                case '--timeout':
+                    if (!is_numeric($option[1]) ||
+                        (string) (int) $option[1] !== $option[1] ||
+                        (int) $option[1] < 1) {
+                        $this->emitter->testRunnerTriggeredPhpunitWarning(
+                            sprintf(
+                                'Option "--timeout %s" ignored because "%s" is not a positive integer',
+                                $option[1],
+                                $option[1],
+                            ),
+                        );
+
+                        break;
+                    }
+
+                    $timeout = (int) $option[1];
 
                     break;
 
@@ -1290,7 +1420,7 @@ final class Builder
         $this->warnAboutConflictingOptions();
 
         if ($randomOrderSeed !== null && $executionOrder !== TestSuiteSorter::ORDER_RANDOMIZED) {
-            EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
+            $this->emitter->testRunnerTriggeredPhpunitWarning(
                 '--random-order-seed is only used when execution order is "random" (use --order-by random or --random-order)',
             );
         }
@@ -1298,9 +1428,11 @@ final class Builder
         $arguments = [];
 
         foreach ($options[1] as $argument) {
+            // @codeCoverageIgnoreStart
             if ($argument === '') {
                 continue;
             }
+            // @codeCoverageIgnoreEnd
 
             $arguments[] = $argument;
         }
@@ -1317,8 +1449,9 @@ final class Builder
             $beStrictAboutChangesToGlobalState,
             $bootstrap,
             $cacheDirectory,
-            $cacheResult,
+            $recordTestRunHistory,
             $checkPhpConfiguration,
+            $warnWhenPhpIsNotConfiguredForDevelopment,
             $checkVersion,
             $colors,
             $columns,
@@ -1327,6 +1460,9 @@ final class Builder
             $coverageCobertura,
             $coverageCrap4J,
             $coverageHtml,
+            $withoutClassView,
+            $withoutFileView,
+            $coverageJsonl,
             $coverageOpenClover,
             $coveragePhp,
             $coverageText,
@@ -1348,6 +1484,9 @@ final class Builder
             $executionOrderDefects,
             $failOnAllIssues,
             $failOnDeprecation,
+            $failOnSelfDeprecation,
+            $failOnDirectDeprecation,
+            $failOnIndirectDeprecation,
             $failOnPhpunitDeprecation,
             $failOnPhpunitNotice,
             $failOnPhpunitWarning,
@@ -1358,6 +1497,9 @@ final class Builder
             $failOnSkipped,
             $failOnWarning,
             $doNotFailOnDeprecation,
+            $doNotFailOnSelfDeprecation,
+            $doNotFailOnDirectDeprecation,
+            $doNotFailOnIndirectDeprecation,
             $doNotFailOnPhpunitDeprecation,
             $doNotFailOnPhpunitNotice,
             $doNotFailOnPhpunitWarning,
@@ -1409,6 +1551,9 @@ final class Builder
             $noLogging,
             $processIsolation,
             $randomOrderSeed,
+            $repeat,
+            $retry,
+            $timeout,
             $reportUselessTests,
             $resolveDependencies,
             $reverseList,
@@ -1442,6 +1587,7 @@ final class Builder
             $debug,
             $withTelemetry,
             $extensions,
+            $cacheTestIndex,
         );
     }
 
@@ -1456,7 +1602,7 @@ final class Builder
         $this->processed[$option]++;
 
         if ($this->processed[$option] === 2) {
-            EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
+            $this->emitter->testRunnerTriggeredPhpunitWarning(
                 sprintf(
                     'Option %s cannot be used more than once',
                     $option,
@@ -1469,7 +1615,7 @@ final class Builder
     {
         foreach (self::CONFLICTING_OPTIONS as $conflictingOptions) {
             if (isset($this->processed[$conflictingOptions[0]], $this->processed[$conflictingOptions[1]])) {
-                EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
+                $this->emitter->testRunnerTriggeredPhpunitWarning(
                     sprintf(
                         'Options %s and %s cannot be used together',
                         $conflictingOptions[0],

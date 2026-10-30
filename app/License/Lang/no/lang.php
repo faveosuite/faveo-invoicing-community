@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     '2fa_setup' => 'Konfigurer 2-trinns verifisering',
     'actions' => 'Handlinger',
@@ -18,7 +20,7 @@ return [
     'dashboard' => 'Kontrollpanel',
     'dashboard_show' => 'Kontrollpanel',
     'callbacks_count' => 'Antall tilbakeringinginger',
-    'callbacks_description' => 'Vis eksisterende tilbakeringinginger for lisensverifisering. Hvis en tilbakeringing må slettes, sjekk klient- eller lisensnummeret og klikk på \'Send\'-knappen.',
+    'callbacks_description' => "Vis eksisterende tilbakeringinginger for lisensverifisering. Hvis en tilbakeringing må slettes, sjekk klient- eller lisensnummeret og klikk på 'Send'-knappen.",
     'adddd' => 'Lisens ble lagt til',
     'admin_privileges' => 'Administratorrettigheter',
     'Api_Acess_not_allowed' => 'API-tilgang er ikke tillatt',

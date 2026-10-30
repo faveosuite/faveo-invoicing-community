@@ -82,7 +82,7 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
         'custom_fields' => 'array<string,object>',
         'billing_frequency' => '\Pipedrive\versions\v2\Model\BillingFrequency1',
         'billing_frequency_cycles' => 'int',
-        'prices' => '\Pipedrive\versions\v2\Model\ArrayPricesPrices[]'
+        'prices' => '\Pipedrive\versions\v2\Model\ProductPrice[]'
     ];
 
     /**
@@ -711,7 +711,7 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets prices
      *
-     * @return \Pipedrive\versions\v2\Model\ArrayPricesPrices[]|null
+     * @return \Pipedrive\versions\v2\Model\ProductPrice[]|null
      */
     public function getPrices()
     {
@@ -721,7 +721,7 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets prices
      *
-     * @param \Pipedrive\versions\v2\Model\ArrayPricesPrices[]|null $prices The prices of the product in different currencies
+     * @param \Pipedrive\versions\v2\Model\ProductPrice[]|null $prices The prices of the product in different currencies
      *
      * @return self
      */

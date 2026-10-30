@@ -6,6 +6,8 @@ namespace Sentry\Transport;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Sentry\ClientReport\ClientReportAggregator;
+use Sentry\ClientReport\Reason;
 use Sentry\Event;
 use Sentry\HttpClient\HttpClientInterface;
 use Sentry\HttpClient\Request;
@@ -98,6 +100,8 @@ class HttpTransport implements TransportInterface
                     ['event' => $event]
                 );
 
+                ClientReportAggregator::getInstance()->addEvent($event, Reason::ratelimitBackoff());
+
                 return new Result(ResultStatus::rateLimit());
             }
 
@@ -113,6 +117,16 @@ class HttpTransport implements TransportInterface
                         ['event' => $event]
                     );
                 }
+            }
+
+            // Attachments are rate limited independently of the event they belong to,
+            // so only the attachments are dropped and the event is still sent.
+            if ($event->getAttachments() !== [] && $this->rateLimiter->isRateLimited(RateLimiter::DATA_CATEGORY_ATTACHMENT)) {
+                $event->setAttachments([]);
+                $this->logger->warning(
+                    'Rate limit exceeded for sending requests of type "attachment". The attachments have been dropped.',
+                    ['event' => $event]
+                );
             }
         }
 
@@ -130,6 +144,10 @@ class HttpTransport implements TransportInterface
             return new Result(ResultStatus::failed());
         }
 
+        // Sentry replies to rate limited requests with an error body, so the rate limits
+        // must be recorded before bailing out on error responses.
+        $this->rateLimiter->handleResponse($response);
+
         if ($response->hasError()) {
             $this->logger->error(
                 \sprintf('Failed to send %s to %s. Reason: "%s".', $eventDescription, $targetDescription, $response->getError()),
@@ -138,8 +156,6 @@ class HttpTransport implements TransportInterface
 
             return new Result(ResultStatus::unknown());
         }
-
-        $this->rateLimiter->handleResponse($response);
 
         $resultStatus = ResultStatus::createFromHttpStatusCode($response->getStatusCode());
 

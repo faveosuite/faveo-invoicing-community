@@ -20,14 +20,14 @@ class DatabaseSeeder extends Seeder
         $this->call([Demo_pageTableSeeder::class]);
 
         $this->call([TemplateTypeTableSeeder::class]);
-        $this->command->info('Template Type table seeded!');
+        $this->command?->info('Template Type table seeded!');
 
         $this->call([TemplateTableSeeder::class]);
-        $this->command->info('Template table seeded!');
+        $this->command?->info('Template table seeded!');
         $this->SocialLoginSeeder();
 
         $this->call([PricingTemplateSeeder::class]);
-        $this->command->info('Pricing Template Table Seeded!');
+        $this->command?->info('Pricing Template Table Seeded!');
     }
 
     private function SocialLoginSeeder(): void

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Controllers\Auth;
 
 use App\Events\UserRegisteredEvent;
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
+use App\Http\Middleware\Install;
 use App\Model\Common\StatusSetting;
 use App\User;
 use Cache;
@@ -19,7 +21,7 @@ class AuthControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     private function honeypot(): array
@@ -447,7 +449,7 @@ class AuthControllerTest extends DBTestCase
 
     public function test_verify_config_with_user_in_session_covers_user_found_branch(): void
     {
-        $user = \App\User::factory()->create(['email' => 'verify-config-'.uniqid().'@test.local']);
+        $user = User::factory()->create(['email' => 'verify-config-'.uniqid().'@test.local']);
 
         // The verifyConfig method checks Session::get('verification_user_id')
         // This covers the $user found path (returns eid + config data)
@@ -488,9 +490,9 @@ class AuthControllerTest extends DBTestCase
     public function test_retry_otp_email_type_covers_send_email_branch(): void
     {
         $this->withoutMiddleware();
-        $user = \App\User::factory()->create(['email' => 'retry-otp-'.uniqid().'@test.local']);
+        $user = User::factory()->create(['email' => 'retry-otp-'.uniqid().'@test.local']);
 
-        $eid = \Crypt::encrypt($user->email);
+        $eid = Crypt::encrypt($user->email);
         $response = $this->postJson('/resend_otp', [
             'default_type' => 'email',
             'eid' => $eid,
@@ -537,7 +539,7 @@ class AuthControllerTest extends DBTestCase
     public function test_verify_email_returns_error_for_invalid_token(): void
     {
         $this->withoutMiddleware();
-        $user = \App\User::factory()->create();
+        $user = User::factory()->create();
         $eid = \Illuminate\Support\Facades\Crypt::encrypt($user->email);
 
         $response = $this->postJson('/email/verify', [
@@ -566,7 +568,7 @@ class AuthControllerTest extends DBTestCase
     public function test_verify_config_returns_config_when_user_in_session(): void
     {
         $this->withoutMiddleware();
-        $user = \App\User::factory()->create();
+        $user = User::factory()->create();
         session(['verification_user_id' => $user->id]);
 
         $response = $this->getJson('/auth/verify-config');
@@ -593,7 +595,7 @@ class AuthControllerTest extends DBTestCase
     public function test_verify_otp_with_invalid_encrypted_eid_returns_error(): void
     {
         $this->withoutMiddleware();
-        $user = \App\User::factory()->create();
+        $user = User::factory()->create();
         $eid = \Illuminate\Support\Facades\Crypt::encrypt($user->email);
 
         $response = $this->postJson('/otp/verify', [
@@ -611,14 +613,15 @@ class AuthControllerTest extends DBTestCase
     public function test_sales_manager_mail_throws_when_template_not_found(): void
     {
         $this->withoutMiddleware();
-        $user = \App\User::factory()->create(['email' => 'sales-mgr-'.uniqid().'@test.local']);
+        $user = User::factory()->create(['email' => 'sales-mgr-'.uniqid().'@test.local']);
 
-        $controller = new \App\Http\Controllers\Auth\AuthController;
+        $controller = new AuthController;
         try {
             $controller->salesManagerMail($user);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // Template not found → null->data throws Error
         }
+
         $this->assertTrue(true);
     }
 
@@ -629,14 +632,15 @@ class AuthControllerTest extends DBTestCase
     public function test_account_manager_mail_throws_when_template_not_found(): void
     {
         $this->withoutMiddleware();
-        $user = \App\User::factory()->create(['email' => 'acct-mgr-'.uniqid().'@test.local']);
+        $user = User::factory()->create(['email' => 'acct-mgr-'.uniqid().'@test.local']);
 
-        $controller = new \App\Http\Controllers\Auth\AuthController;
+        $controller = new AuthController;
         try {
             $controller->accountManagerMail($user);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // Template/manager not found → Error
         }
+
         $this->assertTrue(true);
     }
 
@@ -656,7 +660,7 @@ class AuthControllerTest extends DBTestCase
     public function test_verify_config_returns_config_when_session_has_user(): void
     {
         $this->withoutMiddleware();
-        $user = \App\User::factory()->create(['email' => 'verify-cfg-'.uniqid().'@test.local']);
+        $user = User::factory()->create(['email' => 'verify-cfg-'.uniqid().'@test.local']);
         session(['verification_user_id' => $user->id]);
 
         $response = $this->getJson('/auth/verify-config');

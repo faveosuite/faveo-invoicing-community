@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => 'ברירת מחדל',
     'cloud-instance-created' => 'מופע ענן נוצר',

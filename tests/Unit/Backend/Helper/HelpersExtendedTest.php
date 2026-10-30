@@ -36,7 +36,7 @@ class HelpersExtendedTest extends TestCase
 
     public function test_get_date_html_returns_dash_for_null(): void
     {
-        $result = getDateHtml(null);
+        $result = getDateHtml();
         $this->assertSame('--', $result);
     }
 
@@ -86,7 +86,7 @@ class HelpersExtendedTest extends TestCase
 
     public function test_get_version_and_label_returns_null_for_unknown_product(): void
     {
-        $result = getVersionAndLabel(null, '999999');
+        $result = getVersionAndLabel(productVersion: null, productId: '999999');
         $this->assertNull($result);
     }
 
@@ -180,7 +180,7 @@ class HelpersExtendedTest extends TestCase
 
     public function test_currency_format_without_symbol(): void
     {
-        $result = currencyFormat(10.00, 'USD', false);
+        $result = currencyFormat(10.00, 'USD', includeSymbol: false);
         $this->assertIsString($result);
         $this->assertStringNotContainsString('$', $result);
     }
@@ -264,7 +264,7 @@ class HelpersExtendedTest extends TestCase
         $exception = new \Exception('Test error message');
         $response = exceptionResponse($exception);
         $this->assertSame(500, $response->getStatusCode());
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
         $this->assertFalse($data['success']);
         $this->assertSame('Test error message', $data['message']);
     }

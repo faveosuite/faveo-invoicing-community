@@ -2,44 +2,40 @@
 
 namespace Maatwebsite\Excel\Mixins;
 
+use Illuminate\Bus\PendingBatch;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Bus\PendingDispatch;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Importer;
 
 class ImportAsMacro
 {
-    public function __invoke()
+    public function __invoke(): callable
     {
-        return function (string $filename, callable $mapping, ?string $disk = null, ?string $readerType = null) {
-            $import = new class(get_class($this->getModel()), $mapping) implements ToModel
+        return function (string $filename, callable $mapping, ?string $disk = null, ?string $readerType = null): Importer|PendingDispatch|PendingBatch {
+            /** @phpstan-ignore method.notFound */
+            $import = new class($this->getModel()::class, $mapping) implements ToModel
             {
                 use Importable;
-
-                /**
-                 * @var string
-                 */
-                private $model;
 
                 /**
                  * @var callable
                  */
                 private $mapping;
 
-                /**
-                 * @param  string  $model
-                 * @param  callable  $mapping
-                 */
-                public function __construct(string $model, callable $mapping)
-                {
-                    $this->model   = $model;
+                public function __construct(
+                    private readonly string $model,
+                    callable $mapping,
+                ) {
                     $this->mapping = $mapping;
                 }
 
                 /**
-                 * @param  array  $row
-                 * @return Model|Model[]|null
+                 * @param  array<array-key, mixed>  $row
+                 * @return Model|array<int, Model>|null
                  */
-                public function model(array $row)
+                public function model(array $row): Model|array|null
                 {
                     return (new $this->model)->fill(
                         ($this->mapping)($row)

@@ -2,11 +2,12 @@
 
 namespace Illuminate\Database\Eloquent\Relations\Concerns;
 
-use BackedEnum;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Collection as BaseCollection;
+
+use function Illuminate\Support\enum_value;
 
 trait InteractsWithPivotTable
 {
@@ -35,7 +36,7 @@ trait InteractsWithPivotTable
             array_keys($records)
         ));
 
-        if (count($detach) > 0) {
+        if ($detach !== []) {
             $this->detach($detach, false);
 
             $changes['detached'] = $this->castKeys($detach);
@@ -46,7 +47,7 @@ trait InteractsWithPivotTable
         // this change list and get ready to return these results to the callers.
         $attach = array_diff_key($records, array_flip($detach));
 
-        if (count($attach) > 0) {
+        if ($attach !== []) {
             $this->attach($attach, [], false);
 
             $changes['attached'] = array_keys($attach);
@@ -119,7 +120,7 @@ trait InteractsWithPivotTable
         if ($detaching) {
             $detach = array_diff($current, array_keys($records));
 
-            if (count($detach) > 0) {
+            if ($detach !== []) {
                 $this->detach($detach, false);
 
                 $changes['detached'] = $this->castKeys($detach);
@@ -215,9 +216,7 @@ trait InteractsWithPivotTable
                 [$id, $attributes] = [$attributes, []];
             }
 
-            if ($id instanceof BackedEnum) {
-                $id = $id->value;
-            }
+            $id = enum_value($id);
 
             return [$id => $attributes];
         })->all();
@@ -572,15 +571,8 @@ trait InteractsWithPivotTable
      */
     protected function detachUsingCustomClass($ids)
     {
-        $results = 0;
-
-        $records = $this->getCurrentlyAttachedPivotsForIds($ids);
-
-        foreach ($records as $record) {
-            $results += $record->delete();
-        }
-
-        return $results;
+        return $this->getCurrentlyAttachedPivotsForIds($ids)
+            ->reduce(fn ($carry, $record) => $carry + $record->delete(), 0);
     }
 
     /**
@@ -684,6 +676,10 @@ trait InteractsWithPivotTable
 
         foreach ($this->pivotWhereIns as $arguments) {
             $query->whereIn(...$arguments);
+        }
+
+        foreach ($this->pivotWhereBetweens as $arguments) {
+            $query->whereBetween(...$arguments);
         }
 
         foreach ($this->pivotWhereNulls as $arguments) {

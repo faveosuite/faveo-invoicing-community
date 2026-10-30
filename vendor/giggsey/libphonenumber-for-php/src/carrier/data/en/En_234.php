@@ -17,6 +17,7 @@ namespace libphonenumber\carrier\data\en;
 class En_234
 {
     public const DATA = [
+        23472 => 'Lebara',
         234701 => 'Airtel',
         234703 => 'MTN',
         234704 => 'MTN',
@@ -53,6 +54,7 @@ class En_234
         234907 => 'Airtel',
         234908 => '9mobile',
         234909 => '9mobile',
+        234910 => 'MTN',
         234911 => 'Airtel',
         234912 => 'Airtel',
         234913 => 'MTN',

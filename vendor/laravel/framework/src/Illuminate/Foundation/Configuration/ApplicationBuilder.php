@@ -9,15 +9,14 @@ use Illuminate\Contracts\Console\Kernel as ConsoleKernel;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Bootstrap\RegisterProviders;
-use Illuminate\Foundation\Events\DiagnosingHealth;
+use Illuminate\Foundation\Http\HealthCheck;
 use Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as AppEventServiceProvider;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as AppRouteServiceProvider;
+use Illuminate\Http\Middleware\PrefersJsonResponses;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Broadcast;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\View;
 use Laravel\Folio\Folio;
 
 class ApplicationBuilder
@@ -145,6 +144,7 @@ class ApplicationBuilder
      * @param  string|null  $commands
      * @param  string|null  $channels
      * @param  string|null  $pages
+     * @param  string|null  $health
      * @param  string  $apiPrefix
      * @param  callable|null  $then
      * @return $this
@@ -194,6 +194,8 @@ class ApplicationBuilder
      * @param  string  $apiPrefix
      * @param  callable|null  $then
      * @return \Closure
+     *
+     * @throws \Throwable
      */
     protected function buildRoutingCallback(array|string|null $web,
         array|string|null $api,
@@ -216,25 +218,7 @@ class ApplicationBuilder
             }
 
             if (is_string($health)) {
-                Route::get($health, function () {
-                    $exception = null;
-
-                    try {
-                        Event::dispatch(new DiagnosingHealth);
-                    } catch (\Throwable $e) {
-                        if (app()->hasDebugModeEnabled()) {
-                            throw $e;
-                        }
-
-                        report($e);
-
-                        $exception = $e->getMessage();
-                    }
-
-                    return response(View::file(__DIR__.'/../resources/health-up.blade.php', [
-                        'exception' => $exception,
-                    ]), status: $exception ? 500 : 200);
-                });
+                Route::get($health, HealthCheck::class);
             }
 
             if (is_string($web) || is_array($web)) {
@@ -361,7 +345,13 @@ class ApplicationBuilder
      */
     public function withSchedule(callable $callback)
     {
-        Artisan::starting(fn () => $callback($this->app->make(Schedule::class)));
+        Artisan::starting(function () use ($callback) {
+            $this->app->afterResolving(Schedule::class, fn ($schedule) => $callback($schedule));
+
+            if ($this->app->resolved(Schedule::class)) {
+                $callback($this->app->make(Schedule::class));
+            }
+        });
 
         return $this;
     }
@@ -369,7 +359,7 @@ class ApplicationBuilder
     /**
      * Register and configure the application's exception handler.
      *
-     * @param  callable(\Illuminate\Foundation\Configuration\Exceptions)|null  $using
+     * @param  (callable(\Illuminate\Foundation\Configuration\Exceptions): mixed)|null  $using
      * @return $this
      */
     public function withExceptions(?callable $using = null)
@@ -440,6 +430,25 @@ class ApplicationBuilder
                 }
             }
         });
+    }
+
+    /**
+     * Globally prefer JSON responses when the incoming "Accept" header is broad.
+     *
+     * @param  bool  $prefer
+     * @return $this
+     */
+    public function prefersJsonResponses(bool $prefer = true)
+    {
+        if (! $prefer) {
+            return $this;
+        }
+
+        $this->app->booted(function () {
+            $this->app->make(HttpKernel::class)->prependMiddleware(PrefersJsonResponses::class);
+        });
+
+        return $this;
     }
 
     /**

@@ -6,6 +6,7 @@ namespace Tests\Unit\Backend\Jobs;
 
 use App\FailedWhatsappMessage;
 use App\Jobs\SendWhatsappMessage;
+use App\User;
 use App\WhatsappIntegrationUser;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -16,7 +17,7 @@ class SendWhatsappMessageTest extends TestCase
 {
     use DatabaseTransactions;
 
-    private function validPayload(string $phoneNumberId = 'phone-123', string $callbackUrl = ''): string
+    private function validPayload(string $phoneNumberId = 'phone-123'): string
     {
         return json_encode([
             'entry' => [[
@@ -60,7 +61,7 @@ class SendWhatsappMessageTest extends TestCase
 
     public function test_handle_with_empty_string_message_does_not_throw(): void
     {
-        (new SendWhatsappMessage(''))->handle();
+        new SendWhatsappMessage('')->handle();
         $this->assertTrue(true);
     }
 
@@ -68,7 +69,7 @@ class SendWhatsappMessageTest extends TestCase
     {
         // When entry[0]['id'] === '' the message is skipped
         $payload = json_encode(['entry' => [['id' => '', 'changes' => []]]]);
-        (new SendWhatsappMessage($payload))->handle();
+        new SendWhatsappMessage($payload)->handle();
         $this->assertTrue(true);
     }
 
@@ -77,16 +78,16 @@ class SendWhatsappMessageTest extends TestCase
     public function test_handle_with_no_matching_integration_user_does_not_throw(): void
     {
         // phone_number_id=nonexistent → WhatsappIntegrationUser::value returns null → no HTTP call
-        (new SendWhatsappMessage($this->validPayload('nonexistent-phone-id')))->handle();
+        new SendWhatsappMessage($this->validPayload('nonexistent-phone-id'))->handle();
         $this->assertTrue(true);
     }
 
     public function test_handle_logs_error_when_http_call_fails(): void
     {
-        Log::shouldReceive('error')->once()->withArgs(fn ($msg) => str_contains($msg, 'Whatsapp Message Failure'));
+        Log::shouldReceive('error')->once()->withArgs(fn ($msg): bool => str_contains($msg, 'Whatsapp Message Failure'));
 
         // Create a user with an unreachable callback URL → Guzzle throws → catch block runs
-        $user = \App\User::factory()->create();
+        $user = User::factory()->create();
         WhatsappIntegrationUser::create([
             'phone_number_id' => 'phone-error-test',
             'user_callback_url' => 'http://127.0.0.1:1/callback',
@@ -95,7 +96,7 @@ class SendWhatsappMessageTest extends TestCase
         ]);
 
         $payload = $this->validPayload('phone-error-test');
-        (new SendWhatsappMessage($payload))->handle();
+        new SendWhatsappMessage($payload)->handle();
 
         $this->assertTrue(true);
     }

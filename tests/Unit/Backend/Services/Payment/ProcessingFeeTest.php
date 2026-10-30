@@ -28,7 +28,7 @@ class ProcessingFeeTest extends DBTestCase
 
     public function test_percent_returns_zero_for_null_gateway(): void
     {
-        $this->assertEqualsWithDelta(0.0, ProcessingFee::percent(null), 0.001);
+        $this->assertEqualsWithDelta(0.0, ProcessingFee::percent(gateway: null), 0.001);
     }
 
     public function test_percent_returns_zero_for_empty_string_gateway(): void
@@ -110,7 +110,7 @@ class ProcessingFeeTest extends DBTestCase
     public function test_add_to_returns_base_unchanged_when_no_gateway(): void
     {
         // percent(null) = 0; base * 1.0 = base; rounding keeps it as-is
-        $result = ProcessingFee::addTo(100.0, null);
+        $result = ProcessingFee::addTo(100.0, gateway: null);
 
         $this->assertEqualsWithDelta(100.0, $result, 0.01);
     }
@@ -118,7 +118,7 @@ class ProcessingFeeTest extends DBTestCase
     public function test_amount_returns_zero_when_no_gateway_fee(): void
     {
         // addTo(100.0, null) = 100.0; 100.0 - 100.0 = 0.0
-        $result = ProcessingFee::amount(100.0, null);
+        $result = ProcessingFee::amount(100.0, gateway: null);
 
         $this->assertEqualsWithDelta(0.0, $result, 0.001);
     }
@@ -127,7 +127,7 @@ class ProcessingFeeTest extends DBTestCase
     {
         // Even with a DB-configured fee, addTo must never return less than base
         // (fees are surcharges, never discounts).
-        $result = ProcessingFee::addTo(50.0, null); // known 0% for null
+        $result = ProcessingFee::addTo(50.0, gateway: null); // known 0% for null
 
         $this->assertGreaterThanOrEqual(50.0, $result);
     }

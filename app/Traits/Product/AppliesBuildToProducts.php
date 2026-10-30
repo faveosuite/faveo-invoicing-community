@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 trait AppliesBuildToProducts
 {
@@ -39,7 +40,7 @@ trait AppliesBuildToProducts
             // dependencies to run its pre-update checks.
             'dependencies' => ['required', 'array'],
             'description' => ['nullable', 'string'],
-            'release_type' => ['required', \Illuminate\Validation\Rule::in(ProductUpload::RELEASE_TYPES)],
+            'release_type' => ['required', Rule::in(ProductUpload::RELEASE_TYPES)],
             'products' => ['required', 'array', 'min:1'],
             'products.*.id' => ['required', 'integer', 'exists:products,id'],
             'products.*.version' => ['required', 'string', 'max:50'],
@@ -57,7 +58,7 @@ trait AppliesBuildToProducts
         // register a release that 404s. rescue() because Flysystem throws
         // rather than returning false on a path like '../../.env', and that
         // should read as "no such build", not a 500.
-        if (! rescue(fn (): bool => Attach::exists('products/'.$validated['filename']), false, false)) {
+        if (! rescue(fn (): bool => Attach::exists('products/'.$validated['filename']), rescue: false, report: false)) {
             return errorResponse(
                 ['filename' => __('validation.product_validate.filename_missing', ['file' => $validated['filename']])],
                 FaveoStatusCode::ValidationError->value

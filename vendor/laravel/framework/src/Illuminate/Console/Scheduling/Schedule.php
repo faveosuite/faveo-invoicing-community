@@ -15,10 +15,12 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\CallQueuedClosure;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\ProcessUtils;
 use Illuminate\Support\Traits\Macroable;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
+use Throwable;
 
 use function Illuminate\Support\enum_value;
 
@@ -69,7 +71,7 @@ class Schedule
     /**
      * The timezone the date should be evaluated on.
      *
-     * @var \DateTimeZone|string
+     * @var \DateTimeZone|string|null
      */
     protected $timezone;
 
@@ -100,6 +102,27 @@ class Schedule
      * @var array<int, PendingEventAttributes>
      */
     protected array $groupStack = [];
+
+    /**
+     * Indicates if the schedule should check for the paused signal in the cache.
+     *
+     * @var bool
+     */
+    public static $pausable = true;
+
+    /**
+     * Indicates if the schedule should check for the interrupt signal in the cache.
+     *
+     * @var bool
+     */
+    public static $interruptible = true;
+
+    /**
+     * Indicates if every event should only run on one server for each cron expression.
+     *
+     * @var bool
+     */
+    public static $alwaysOnOneServer = false;
 
     /**
      * Create a new schedule instance.
@@ -270,9 +293,15 @@ class Schedule
             return;
         }
 
-        $this->getDispatcher()->dispatch(
-            $job->onConnection($connection)->onQueue($queue)
-        );
+        try {
+            $this->getDispatcher()->dispatch(
+                $job->onConnection($connection)->onQueue($queue)
+            );
+        } catch (Throwable $e) {
+            (new UniqueLock(Container::getInstance()->make(Cache::class)))->release($job);
+
+            throw $e;
+        }
     }
 
     /**
@@ -295,7 +324,7 @@ class Schedule
      */
     public function exec($command, array $parameters = [])
     {
-        if (count($parameters)) {
+        if ($parameters !== []) {
             $command .= ' '.$this->compileParameters($parameters);
         }
 
@@ -336,16 +365,18 @@ class Schedule
      */
     protected function mergePendingAttributes(Event $event)
     {
-        if (! empty($this->groupStack)) {
-            $group = array_last($this->groupStack);
-
-            $group->mergeAttributes($event);
-        }
-
         if (isset($this->attributes)) {
             $this->attributes->mergeAttributes($event);
 
             $this->attributes = null;
+
+            return;
+        }
+
+        if (! empty($this->groupStack)) {
+            $group = array_last($this->groupStack);
+
+            $group->mergeAttributes($event);
         }
     }
 
@@ -416,7 +447,7 @@ class Schedule
      */
     public function dueEvents($app)
     {
-        return (new Collection($this->events))->filter->isDue($app);
+        return (new Collection($this->events()))->filter->isDue($app);
     }
 
     /**
@@ -426,7 +457,31 @@ class Schedule
      */
     public function events()
     {
+        if (static::$alwaysOnOneServer) {
+            foreach ($this->events as $event) {
+                if ($event instanceof CallbackEvent && is_null($event->description)) {
+                    continue;
+                }
+
+                $event->onOneServer();
+            }
+        }
+
         return $this->events;
+    }
+
+    /**
+     * Get all of the events on the schedule which run on any of the provided environments.
+     *
+     * @param  list<string>  $environments
+     * @return \Illuminate\Console\Scheduling\Event[]
+     */
+    public function eventsForEnvironments(array $environments): array
+    {
+        return array_values(array_filter(
+            $this->events(),
+            static fn (Event $event) => array_any($environments, $event->runsInEnvironment(...))
+        ));
     }
 
     /**
@@ -474,11 +529,54 @@ class Schedule
     }
 
     /**
+     * Indicate that the scheduler should not poll for pause or interrupt signals.
+     *
+     * This prevents the scheduler from hitting the application cache to determine if it needs to pause or interrupt.
+     *
+     * @return void
+     */
+    public static function withoutInterruptionPolling()
+    {
+        static::$pausable = false;
+        static::$interruptible = false;
+    }
+
+    /**
+     * Determine if the schedule has been interrupted since the given time.
+     *
+     * @param  \DateTimeInterface  $time
+     * @return bool
+     */
+    public function hasBeenInterruptedSince(DateTimeInterface $time)
+    {
+        if (! static::$interruptible) {
+            return false;
+        }
+
+        $interruptedAt = Container::getInstance()->make(Cache::class)->get('illuminate:schedule:interrupt');
+
+        return is_numeric($interruptedAt) && (int) $interruptedAt >= Date::instance($time)->getTimestampMs();
+    }
+
+    /**
+     * Indicate that every event on the schedule should only run on one server for each cron expression.
+     *
+     * @param  bool  $value
+     * @return void
+     */
+    public static function alwaysOnOneServer($value = true)
+    {
+        static::$alwaysOnOneServer = $value;
+    }
+
+    /**
      * Dynamically handle calls into the schedule instance.
      *
      * @param  string  $method
      * @param  array  $parameters
      * @return mixed
+     *
+     * @throws \BadMethodCallException
      */
     public function __call($method, $parameters)
     {
@@ -486,7 +584,9 @@ class Schedule
             return $this->macroCall($method, $parameters);
         }
 
-        if (method_exists(PendingEventAttributes::class, $method) || Event::hasMacro($method)) {
+        if (method_exists(PendingEventAttributes::class, $method)
+            || in_array($method, PendingEventAttributes::DEFERRED_EVENT_METHODS, true)
+            || Event::hasMacro($method)) {
             $this->attributes ??= $this->groupStack ? clone array_last($this->groupStack) : new PendingEventAttributes($this);
 
             return $this->attributes->$method(...$parameters);

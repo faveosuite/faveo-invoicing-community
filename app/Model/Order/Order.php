@@ -2,18 +2,23 @@
 
 namespace App\Model\Order;
 
+use App\Auto_renewal;
 use App\BaseModel;
 use App\License\Models\Installation;
 use App\License\Models\InstallationLog;
 use App\License\Models\License;
+use App\License\Models\LicenseCallback;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Policies\OrderPolicy;
+use App\Services\Payment\AutoRenewalActivationService;
 use App\Traits\SystemActivityLogsTrait;
 use App\User;
+use App\WhatsappIntegrationUser;
 use Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -153,14 +158,14 @@ class Order extends BaseModel
      * upgrade (Terminated), and with a cloud instance still behind them. The dashboard's
      * "Order Renewals" count and the list it links to must use this same rule.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<Order>  $query
+     * @param  Builder<static>  $query
      */
-    public function scopeNeedsRenewal(\Illuminate\Database\Eloquent\Builder $query): void
+    protected function scopeNeedsRenewal(Builder $query): void
     {
         // License expiry only: a license with no end date (One Time plans, products without
         // license expiry) never comes due here, even when its updates/support have lapsed.
         $query->where('order_status', '!=', 'Terminated')
-            ->whereHas('subscription', fn ($q) => $q->where('ends_at', '<', now())->where('is_deleted', '!=', 1));
+            ->whereHas('subscription', fn (\Illuminate\Contracts\Database\Query\Builder $q) => $q->where('ends_at', '<', now())->where('is_deleted', '!=', 1));
     }
 
     /**
@@ -228,7 +233,7 @@ class Order extends BaseModel
 
         $unpaid = $this->latestUnpaidInvoice();
 
-        return $unpaid ? (string) __('message.renew_blocked_unpaid_invoice', ['number' => $unpaid->number]) : null;
+        return $unpaid instanceof Invoice ? (string) __('message.renew_blocked_unpaid_invoice', ['number' => $unpaid->number]) : null;
     }
 
     /**
@@ -372,7 +377,7 @@ class Order extends BaseModel
         // Stop gateway auto-renewal first, or the client keeps being charged for a deleted order.
         foreach (Subscription::where('order_id', $this->id)->get() as $subscription) {
             try {
-                resolve(\App\Services\Payment\AutoRenewalActivationService::class)->deactivate($subscription, cancelAtGateway: true);
+                resolve(AutoRenewalActivationService::class)->deactivate($subscription, cancelAtGateway: true);
             } catch (\Throwable $throwable) {
                 \Logger::exception($throwable);
             }
@@ -380,15 +385,15 @@ class Order extends BaseModel
 
         $this->invoices()->detach();
         $this->subscription()->delete();
-        \App\Auto_renewal::where('order_id', $this->id)->delete();
-        \App\WhatsappIntegrationUser::where('order_id', $this->id)->delete();
+        Auto_renewal::where('order_id', $this->id)->delete();
+        WhatsappIntegrationUser::where('order_id', $this->id)->delete();
 
         // The license and everything tied to it go with the order, as the admin license delete does
         // (license_plugins cascade). license_reports stay as the audit trail.
         $codes = License::where('license_order_number', $this->number)->pluck('license_code');
         Installation::whereIn('license_code', $codes)->delete();
         InstallationLog::whereIn('license_code', $codes)->delete();
-        \App\License\Models\LicenseCallback::whereIn('license_code', $codes)->delete();
+        LicenseCallback::whereIn('license_code', $codes)->delete();
         License::where('license_order_number', $this->number)->delete();
 
         return (bool) parent::delete();
@@ -438,6 +443,7 @@ class Order extends BaseModel
     {
         $pieces = parse_url((string) $url);
         $pieces = is_array($pieces) ? $pieces : [];
+
         $domain = $pieces['host'] ?? '';
         if (preg_match('/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', $domain, $regs)) {
             return $regs['domain'];

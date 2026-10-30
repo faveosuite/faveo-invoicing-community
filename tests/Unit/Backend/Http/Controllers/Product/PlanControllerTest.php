@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Product;
 
+use App\Http\Middleware\Install;
+use App\Model\Payment\Period;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
+use App\Model\Product\Subscription;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -17,7 +20,7 @@ class PlanControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     // --- GET /plans ---
@@ -68,7 +71,7 @@ class PlanControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $plan = Plan::factory()->create(['name' => 'one-time-period-test', 'days' => 365]);
-        $plan->periods()->attach(\App\Model\Payment\Period::firstOrCreate(['name' => 'One Time'], ['days' => 190])->id);
+        $plan->periods()->attach(Period::firstOrCreate(['name' => 'One Time'], ['days' => 190])->id);
 
         $period = $this->getJson('/plans?search-query=one-time-period-test')->json('data.data.0.period');
 
@@ -102,6 +105,7 @@ class PlanControllerTest extends DBTestCase
         $response = $this->postJson('/plans', []);
 
         $response->assertStatus(412);
+
         $errors = $response->json('message');
 
         foreach (['name', 'currency', 'add_price', 'renew_price'] as $field) {
@@ -167,8 +171,8 @@ class PlanControllerTest extends DBTestCase
     public function test_get_existing_plan_returns_200(): void
     {
         $this->getLoggedInUser('admin');
-        $product = \App\Model\Product\Product::factory()->create();
-        $plan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id]);
+        $product = Product::factory()->create();
+        $plan = Plan::factory()->create(['product' => $product->id]);
         $response = $this->getJson("/plan/{$plan->id}");
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
@@ -246,9 +250,9 @@ class PlanControllerTest extends DBTestCase
     public function test_plan_used_by_a_subscription_cannot_be_deleted(): void
     {
         $this->getLoggedInUser('admin');
-        $product = \App\Model\Product\Product::factory()->create();
-        $plan = \App\Model\Payment\Plan::create(['name' => 'Used '.uniqid(), 'product' => $product->id, 'days' => 30]);
-        \App\Model\Product\Subscription::factory()->create(['plan_id' => $plan->id, 'product_id' => $product->id]);
+        $product = Product::factory()->create();
+        $plan = Plan::create(['name' => 'Used '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        Subscription::factory()->create(['plan_id' => $plan->id, 'product_id' => $product->id]);
 
         $this->deleteJson('/plans', ['select' => [$plan->id]])->assertStatus(400);
 

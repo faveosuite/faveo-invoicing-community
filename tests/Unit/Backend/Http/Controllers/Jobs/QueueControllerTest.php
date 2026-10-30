@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Jobs;
 
+use App\Http\Controllers\Jobs\QueueController;
+use App\Model\Mailjob\QueueService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -64,7 +66,7 @@ class QueueControllerTest extends DBTestCase
 
     public function test_get_short_name_by_nonexistent_id_returns_empty(): void
     {
-        $controller = new \App\Http\Controllers\Jobs\QueueController;
+        $controller = new QueueController;
 
         $result = $controller->getShortNameById(999999);
 
@@ -73,7 +75,7 @@ class QueueControllerTest extends DBTestCase
 
     public function test_get_id_by_unknown_short_name_returns_null(): void
     {
-        $controller = new \App\Http\Controllers\Jobs\QueueController;
+        $controller = new QueueController;
 
         $result = $controller->getIdByShortName('unknown_queue_xyz');
 
@@ -82,9 +84,9 @@ class QueueControllerTest extends DBTestCase
 
     public function test_edit_existing_queue_returns_response(): void
     {
-        $queue = \App\Model\Mailjob\QueueService::first();
+        $queue = QueueService::first();
         if (! $queue) {
-            $queue = \App\Model\Mailjob\QueueService::create(['name' => 'Test Queue', 'short_name' => 'sync', 'status' => 1]);
+            $queue = QueueService::create(['name' => 'Test Queue', 'short_name' => 'sync', 'status' => 1]);
         }
 
         $response = $this->getJson('/queue/'.($queue->id ?? 1));
@@ -94,9 +96,9 @@ class QueueControllerTest extends DBTestCase
 
     public function test_get_form_for_existing_queue(): void
     {
-        $queue = \App\Model\Mailjob\QueueService::first();
+        $queue = QueueService::first();
         if (! $queue) {
-            $queue = \App\Model\Mailjob\QueueService::create(['name' => 'Test Queue', 'short_name' => 'sync', 'status' => 1]);
+            $queue = QueueService::create(['name' => 'Test Queue', 'short_name' => 'sync', 'status' => 1]);
         }
 
         $response = $this->getJson('/queue/'.$queue->id.'/form');

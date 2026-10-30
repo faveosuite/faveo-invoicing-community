@@ -2,6 +2,7 @@
 
 namespace Illuminate\Concurrency;
 
+use Carbon\CarbonInterval;
 use Closure;
 use Exception;
 use Illuminate\Console\Application;
@@ -10,6 +11,7 @@ use Illuminate\Process\Factory as ProcessFactory;
 use Illuminate\Process\Pool;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Defer\DeferredCallback;
+use Illuminate\Support\Facades\Context;
 use Laravel\SerializableClosure\SerializableClosure;
 
 use function Illuminate\Support\defer;
@@ -26,18 +28,26 @@ class ProcessDriver implements Driver
 
     /**
      * Run the given tasks concurrently and return an array containing the results.
+     *
+     * @throws \Throwable
      */
-    public function run(Closure|array $tasks): array
+    public function run(Closure|array $tasks, CarbonInterval|int|null $timeout = null): array
     {
         $command = Application::formatCommandString('invoke-serialized-closure');
 
-        $results = $this->processFactory->pool(function (Pool $pool) use ($tasks, $command) {
+        $results = $this->processFactory->pool(function (Pool $pool) use ($tasks, $command, $timeout) {
             foreach (Arr::wrap($tasks) as $key => $task) {
-                $pool->as($key)->path(base_path())->env([
+                $process = $pool->as($key)->path(base_path())->env([
+                    /** @phpstan-ignore staticMethod.notFound */
+                    '__LARAVEL_CONTEXT' => json_encode(Context::dehydrate()),
                     'LARAVEL_INVOKABLE_CLOSURE' => base64_encode(
                         serialize(new SerializableClosure($task))
                     ),
                 ])->command($command);
+
+                if (! is_null($timeout)) {
+                    $process->timeout($timeout);
+                }
             }
         })->start()->wait();
 
@@ -56,7 +66,7 @@ class ProcessDriver implements Driver
 
             if (! $result['successful']) {
                 throw new $result['exception'](
-                    ...(! empty(array_filter($result['parameters']))
+                    ...(! empty(array_filter($result['parameters'], fn ($parameter) => ! is_null($parameter)))
                         ? $result['parameters']
                         : [$result['message']])
                 );
@@ -76,6 +86,8 @@ class ProcessDriver implements Driver
         return defer(function () use ($tasks, $command) {
             foreach (Arr::wrap($tasks) as $task) {
                 $this->processFactory->path(base_path())->env([
+                    /** @phpstan-ignore staticMethod.notFound */
+                    '__LARAVEL_CONTEXT' => json_encode(Context::dehydrate()),
                     'LARAVEL_INVOKABLE_CLOSURE' => base64_encode(
                         serialize(new SerializableClosure($task))
                     ),

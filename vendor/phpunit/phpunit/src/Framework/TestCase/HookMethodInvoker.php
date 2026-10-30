@@ -15,7 +15,8 @@ use PHPUnit\Framework\SkippedTest;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Metadata\Api\HookMethods;
 use PHPUnit\Runner\HookMethodCollection;
-use ReflectionObject;
+use PHPUnit\Util\Reflection;
+use ReflectionClass;
 use Throwable;
 
 /**
@@ -34,17 +35,9 @@ final readonly class HookMethodInvoker
      *
      * @codeCoverageIgnore
      */
-    public static function invokeBeforeClass(TestCase $test, array $hookMethods, Event\Emitter $emitter): void
+    public static function invokeBeforeClass(TestCase $test, array $hookMethods): void
     {
-        self::invokeClassLevel(
-            $test,
-            $hookMethods['beforeClass'],
-            $emitter,
-            'beforeFirstTestMethodCalled',
-            'beforeFirstTestMethodErrored',
-            'beforeFirstTestMethodFailed',
-            'beforeFirstTestMethodFinished',
-        );
+        self::invokeWithoutEmittingEvents($test, $hookMethods['beforeClass']);
     }
 
     /**
@@ -126,17 +119,9 @@ final readonly class HookMethodInvoker
      *
      * @codeCoverageIgnore
      */
-    public static function invokeAfterClass(TestCase $test, array $hookMethods, Event\Emitter $emitter): void
+    public static function invokeAfterClass(TestCase $test, array $hookMethods): void
     {
-        self::invokeClassLevel(
-            $test,
-            $hookMethods['afterClass'],
-            $emitter,
-            'afterLastTestMethodCalled',
-            'afterLastTestMethodErrored',
-            'afterLastTestMethodFailed',
-            'afterLastTestMethodFinished',
-        );
+        self::invokeWithoutEmittingEvents($test, $hookMethods['afterClass']);
     }
 
     /**
@@ -149,36 +134,12 @@ final readonly class HookMethodInvoker
      */
     private static function invokeMethodLevel(TestCase $test, HookMethodCollection $hookMethods, Event\Emitter $emitter, string $calledMethod, string $erroredMethod, string $failedMethod, string $finishedMethod): void
     {
-        self::doInvoke($test, $hookMethods, $emitter, $test->valueObjectForEvents(), $calledMethod, $erroredMethod, $failedMethod, $finishedMethod);
-    }
-
-    /**
-     * @param 'afterLastTestMethodCalled'|'beforeFirstTestMethodCalled'     $calledMethod
-     * @param 'afterLastTestMethodErrored'|'beforeFirstTestMethodErrored'   $erroredMethod
-     * @param 'afterLastTestMethodFailed'|'beforeFirstTestMethodFailed'     $failedMethod
-     * @param 'afterLastTestMethodFinished'|'beforeFirstTestMethodFinished' $finishedMethod
-     *
-     * @throws Throwable
-     *
-     * @codeCoverageIgnore
-     */
-    private static function invokeClassLevel(TestCase $test, HookMethodCollection $hookMethods, Event\Emitter $emitter, string $calledMethod, string $erroredMethod, string $failedMethod, string $finishedMethod): void
-    {
-        self::doInvoke($test, $hookMethods, $emitter, $test::class, $calledMethod, $erroredMethod, $failedMethod, $finishedMethod);
-    }
-
-    /**
-     * @param class-string<TestCase>|Event\Code\TestMethod $eventTest
-     *
-     * @throws Throwable
-     */
-    private static function doInvoke(TestCase $test, HookMethodCollection $hookMethods, Event\Emitter $emitter, Event\Code\TestMethod|string $eventTest, string $calledMethod, string $erroredMethod, string $failedMethod, string $finishedMethod): void
-    {
-        $reflector      = new ReflectionObject($test);
+        $eventTest      = $test->valueObjectForEvents();
+        $reflector      = new ReflectionClass($test::class);
         $methodsInvoked = [];
 
         foreach ($hookMethods->methodNamesSortedByPriority() as $methodName) {
-            if (self::methodDoesNotExistOrIsDeclaredInTestCase($reflector, $methodName)) {
+            if (Reflection::methodDoesNotExistOrIsDeclaredInTestCase($reflector, $methodName)) {
                 continue;
             }
 
@@ -187,8 +148,14 @@ final readonly class HookMethodInvoker
                 $methodName,
             );
 
+            $hookMethod = $reflector->getMethod($methodName);
+
             try {
-                $reflector->getMethod($methodName)->invoke($test);
+                if ($hookMethod->isStatic()) {
+                    $hookMethod->invoke(null);
+                } else {
+                    $hookMethod->invoke($test);
+                }
             } catch (Throwable $t) {
             }
 
@@ -200,19 +167,21 @@ final readonly class HookMethodInvoker
 
             $methodsInvoked[] = $methodInvoked;
 
-            if (isset($t) && !$t instanceof SkippedTest) {
-                if ($t instanceof AssertionFailedError) {
-                    $method = $failedMethod;
-                } else {
-                    $method = $erroredMethod;
-                }
+            if (isset($t)) {
+                if (!$t instanceof SkippedTest) {
+                    if ($t instanceof AssertionFailedError) {
+                        $method = $failedMethod;
+                    } else {
+                        $method = $erroredMethod;
+                    }
 
-                /** @phpstan-ignore method.dynamicName */
-                $emitter->{$method}(
-                    $eventTest,
-                    $methodInvoked,
-                    Event\Code\ThrowableBuilder::from($t),
-                );
+                    /** @phpstan-ignore method.dynamicName */
+                    $emitter->{$method}(
+                        $eventTest,
+                        $methodInvoked,
+                        Event\Code\ThrowableBuilder::from($t),
+                    );
+                }
 
                 break;
             }
@@ -232,11 +201,32 @@ final readonly class HookMethodInvoker
     }
 
     /**
-     * @param non-empty-string $methodName
+     * The before-first-test methods and after-last-test methods of a test that
+     * runs in process isolation are called again in the child process, as part
+     * of running that test. The test runner calls them for the test class in
+     * its own process and reports that it does. In the child process, they are
+     * part of the test, so their outcome is the outcome of the test.
+     *
+     * @throws Throwable
+     *
+     * @codeCoverageIgnore
      */
-    private static function methodDoesNotExistOrIsDeclaredInTestCase(ReflectionObject $reflector, string $methodName): bool
+    private static function invokeWithoutEmittingEvents(TestCase $test, HookMethodCollection $hookMethods): void
     {
-        return !$reflector->hasMethod($methodName) ||
-               $reflector->getMethod($methodName)->getDeclaringClass()->getName() === TestCase::class;
+        $reflector = new ReflectionClass($test::class);
+
+        foreach ($hookMethods->methodNamesSortedByPriority() as $methodName) {
+            if (Reflection::methodDoesNotExistOrIsDeclaredInTestCase($reflector, $methodName)) {
+                continue;
+            }
+
+            $hookMethod = $reflector->getMethod($methodName);
+
+            if ($hookMethod->isStatic()) {
+                $hookMethod->invoke(null);
+            } else {
+                $hookMethod->invoke($test);
+            }
+        }
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Backend\Events;
 
 use App\Events\UserOrderDelete;
@@ -25,7 +27,7 @@ class UserOrderDeleteTest extends TestCase
 
     public function test_event_accepts_null_values(): void
     {
-        $event = new UserOrderDelete(null, null);
+        $event = new UserOrderDelete(domain: null, order_id: null);
         $this->assertNull($event->domain);
         $this->assertNull($event->order_id);
     }

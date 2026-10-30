@@ -124,7 +124,7 @@ class LicenseDataMigration extends Command // NOSONAR - large existing class, ke
             ));
         }
 
-        if ($this->option('all-licenses') || in_array('*', $this->includedCodes, true)) {
+        if ($this->option('all-licenses') || in_array('*', $this->includedCodes, strict: true)) {
             $this->allLicenses = true;
         }
 
@@ -211,6 +211,7 @@ class LicenseDataMigration extends Command // NOSONAR - large existing class, ke
                 if (! $productKey) {
                     return true;
                 }
+
                 $pid = $row->{$productKey};
 
                 return $isAfu
@@ -618,9 +619,11 @@ class LicenseDataMigration extends Command // NOSONAR - large existing class, ke
                     if (empty($existing->file) && ! empty($file)) {
                         $update['file'] = $file;
                     }
+
                     if (($existing->version_install_count ?? 0) === 0 && $installCount > 0) {
                         $update['version_install_count'] = $installCount;
                     }
+
                     if ($update !== []) {
                         DB::table('product_uploads')->where('id', $existing->id)->update($update);
                     }

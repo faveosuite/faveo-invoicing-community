@@ -9,19 +9,15 @@
  */
 namespace SebastianBergmann\CodeCoverage\Data;
 
-use function array_merge;
-use function array_unique;
-use function array_values;
 use NoDiscard;
-use SebastianBergmann\CodeCoverage\Driver\XdebugDriver;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
- * @phpstan-import-type TestIdType from ProcessedCodeCoverageData
- * @phpstan-import-type XdebugBranchCoverageType from XdebugDriver
+ * @phpstan-import-type TestIndexType from ProcessedCodeCoverageData
+ * @phpstan-import-type BranchCoverageType from RawCodeCoverageData
  */
 final class ProcessedBranchCoverageData
 {
@@ -30,7 +26,7 @@ final class ProcessedBranchCoverageData
     public readonly int $line_start;
     public readonly int $line_end;
 
-    /** @var list<TestIdType> */
+    /** @var array<TestIndexType, positive-int> map of test index to the number of times the test traversed the branch */
     public array $hit;
 
     /** @var array<int, int> */
@@ -40,7 +36,7 @@ final class ProcessedBranchCoverageData
     public readonly array $out_hit;
 
     /**
-     * @param XdebugBranchCoverageType $xdebugCoverageData
+     * @param BranchCoverageType $xdebugCoverageData
      */
     public static function fromXdebugCoverage(array $xdebugCoverageData): self
     {
@@ -56,9 +52,9 @@ final class ProcessedBranchCoverageData
     }
 
     /**
-     * @param list<TestIdType> $hit
-     * @param array<int, int>  $out
-     * @param array<int, int>  $out_hit
+     * @param array<TestIndexType, positive-int> $hit
+     * @param array<int, int>                    $out
+     * @param array<int, int>                    $out_hit
      */
     public function __construct(
         int $op_start,
@@ -78,6 +74,12 @@ final class ProcessedBranchCoverageData
         $this->op_start   = $op_start;
     }
 
+    /**
+     * Hit counts for a test case that occurs in both operands are combined with max(), not summed,
+     * because the same test case id on both sides means the same test execution was observed twice.
+     *
+     * @see ProcessedCodeCoverageData::merge()
+     */
     #[NoDiscard]
     public function merge(self $data): self
     {
@@ -90,17 +92,39 @@ final class ProcessedBranchCoverageData
             $this->op_end,
             $this->line_start,
             $this->line_end,
-            array_values(array_unique(array_merge($this->hit, $data->hit))),
+            HitMap::merge($this->hit, $data->hit),
             $this->out,
             $this->out_hit,
         );
     }
 
     /**
-     * @param TestIdType $testCaseId
+     * @param array<TestIndexType, TestIndexType> $remap
      */
-    public function recordHit(string $testCaseId): void
+    #[NoDiscard]
+    public function withRemappedTestIndexes(array $remap): self
     {
-        $this->hit[] = $testCaseId;
+        if ($this->hit === []) {
+            return $this;
+        }
+
+        return new self(
+            $this->op_start,
+            $this->op_end,
+            $this->line_start,
+            $this->line_end,
+            HitMap::withRemappedTestIndexes($this->hit, $remap),
+            $this->out,
+            $this->out_hit,
+        );
+    }
+
+    /**
+     * @param TestIndexType $testIndex
+     * @param positive-int  $count
+     */
+    public function recordHit(int $testIndex, int $count): void
+    {
+        $this->hit[$testIndex] = ($this->hit[$testIndex] ?? 0) + $count;
     }
 }

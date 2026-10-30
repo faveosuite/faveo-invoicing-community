@@ -268,7 +268,7 @@ class Campaigns
      */
     protected function loadLists(): Collection
     {
-        return collect((array) $this->zohoApi->lists()) // @phpstan-ignore return.type
+        return collect($this->zohoApi->lists()) // @phpstan-ignore return.type
             ->mapWithKeys(fn (array $list): array => [
                 $list['listname'] => [
                     'listKey' => $list['listkey'],
@@ -278,8 +278,8 @@ class Campaigns
 
     public function syncTopics(): void
     {
-        $existingTopics = collect((array) $this->zohoApi->topics())
-            ->keyBy(fn ($topic) => strtolower(trim($topic['topicName'] ?? '')));
+        $existingTopics = collect($this->zohoApi->topics())
+            ->keyBy(fn ($topic): string => strtolower(trim($topic['topicName'] ?? '')));
 
         $configuredTopics = collect((array) config('zoho_campaigns.topics', []));
 

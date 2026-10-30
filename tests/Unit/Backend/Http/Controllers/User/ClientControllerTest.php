@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\User;
 
+use App\Comment;
+use App\Http\Middleware\Install;
+use App\Model\Order\CreditTransaction;
+use App\Model\Order\Invoice;
+use App\Services\Payment\CreditBalanceService;
 use App\User;
 use Tests\DBTestCase;
 
@@ -12,7 +17,7 @@ class ClientControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     // --- GET /users: role gates ---
@@ -216,15 +221,15 @@ class ClientControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user', 'email' => 'credits-tab-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $invoice = Invoice::factory()->create([
             'user_id' => $client->id,
             'grand_total' => 40.0,
             'currency' => 'USD',
             'status' => 'pending',
         ]);
 
-        $credits = new \App\Services\Payment\CreditBalanceService;
-        $credits->grant($client->id, 'USD', 100.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT, note: 'Received via cash on 2026-08-21');
+        $credits = new CreditBalanceService;
+        $credits->grant($client->id, 'USD', 100.0, CreditTransaction::TYPE_OVERPAYMENT, note: 'Received via cash on 2026-08-21');
         $credits->apply($client->id, 'USD', 40.0, (int) $invoice->id);
 
         $rows = $this->getJson("/user/{$client->id}/credits")->assertStatus(200)->json('data.data');
@@ -242,9 +247,9 @@ class ClientControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user', 'email' => 'credits-sum-'.uniqid().'@test.local']);
 
-        $credits = new \App\Services\Payment\CreditBalanceService;
-        $credits->grant($client->id, 'USD', 25.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT);
-        $credits->grant($client->id, 'INR', 500.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT);
+        $credits = new CreditBalanceService;
+        $credits->grant($client->id, 'USD', 25.0, CreditTransaction::TYPE_OVERPAYMENT);
+        $credits->grant($client->id, 'INR', 500.0, CreditTransaction::TYPE_OVERPAYMENT);
 
         $data = $this->getJson("/user/{$client->id}/summary")->assertStatus(200)->json('data');
 
@@ -341,9 +346,9 @@ class ClientControllerTest extends DBTestCase
     public function test_update_user_comment_returns_200_or_not_found(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['email' => 'comment-user-'.uniqid().'@test.local']);
+        $user = User::factory()->create(['email' => 'comment-user-'.uniqid().'@test.local']);
 
-        $comment = \App\Comment::create([
+        $comment = Comment::create([
             'user_id' => $user->id,
             'updated_by_user_id' => $user->id,
             'description' => 'Original comment',
@@ -358,9 +363,9 @@ class ClientControllerTest extends DBTestCase
     public function test_delete_user_comment_returns_200_or_not_found(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['email' => 'comment-del-user-'.uniqid().'@test.local']);
+        $user = User::factory()->create(['email' => 'comment-del-user-'.uniqid().'@test.local']);
 
-        $comment = \App\Comment::create([
+        $comment = Comment::create([
             'user_id' => $user->id,
             'updated_by_user_id' => $user->id,
             'description' => 'Comment to delete',
@@ -373,7 +378,7 @@ class ClientControllerTest extends DBTestCase
     public function test_user_update_validates_fields(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['email' => 'update-user-'.uniqid().'@test.local']);
+        $user = User::factory()->create(['email' => 'update-user-'.uniqid().'@test.local']);
 
         $response = $this->patchJson('/user/'.$user->id, [
             'first_name' => 'Updated',
@@ -398,7 +403,7 @@ class ClientControllerTest extends DBTestCase
     public function test_get_user_summary_returns_data_for_existing_user(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['email' => 'summary-'.uniqid().'@test.local']);
+        $user = User::factory()->create(['email' => 'summary-'.uniqid().'@test.local']);
 
         $response = $this->getJson('/user/'.$user->id.'/summary');
 
@@ -415,7 +420,7 @@ class ClientControllerTest extends DBTestCase
     public function test_get_user_invoices_with_sort_params(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['email' => 'inv-sort-'.uniqid().'@test.local']);
+        $user = User::factory()->create(['email' => 'inv-sort-'.uniqid().'@test.local']);
 
         $response = $this->getJson('/user/'.$user->id.'/invoices?sort-field=number&sort-order=asc');
 
@@ -425,7 +430,7 @@ class ClientControllerTest extends DBTestCase
     public function test_get_user_invoices_with_invalid_sort_field_falls_back(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['email' => 'inv-bad-sort-'.uniqid().'@test.local']);
+        $user = User::factory()->create(['email' => 'inv-bad-sort-'.uniqid().'@test.local']);
 
         // Invalid sort field → falls back to 'date'
         $response = $this->getJson('/user/'.$user->id.'/invoices?sort-field=invalid_column');
@@ -560,6 +565,7 @@ class ClientControllerTest extends DBTestCase
         $response = $this->getJson('/users?sort-field=first_name&sort-order=asc&limit=5');
 
         $response->assertStatus(200);
+
         $data = $response->json('data.data');
         $this->assertIsArray($data);
     }
@@ -571,7 +577,7 @@ class ClientControllerTest extends DBTestCase
     public function test_get_user_summary_returns_zero_counts_for_new_user(): void
     {
         $this->getLoggedInUser('admin');
-        $newUser = \App\User::factory()->create(['email' => 'summ-new-'.uniqid().'@test.local']);
+        $newUser = User::factory()->create(['email' => 'summ-new-'.uniqid().'@test.local']);
 
         $response = $this->getJson('/user/'.$newUser->id.'/summary');
 

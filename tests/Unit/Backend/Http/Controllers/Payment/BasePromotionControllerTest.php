@@ -15,7 +15,7 @@ class BasePromotionControllerTest extends TestCase
     {
         parent::setUp();
         $this->withoutMiddleware();
-        $this->controller = new BasePromotionController();
+        $this->controller = new BasePromotionController;
     }
 
     // =========================================================================
@@ -25,14 +25,14 @@ class BasePromotionControllerTest extends TestCase
     public function test_get_code_returns_success_response(): void
     {
         $response = $this->controller->getCode();
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
         $this->assertTrue($data['success']);
     }
 
     public function test_get_code_returns_six_char_uppercase_string(): void
     {
         $response = $this->controller->getCode();
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
         $code = $data['data'];
         $this->assertMatchesRegularExpression('/^[A-Z0-9]{6}$/', $code);
     }

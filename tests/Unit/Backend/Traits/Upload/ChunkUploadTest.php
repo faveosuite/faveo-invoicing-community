@@ -3,8 +3,10 @@
 namespace Tests\Unit\Backend\Traits\Upload;
 
 use App\Facades\Attach;
+use App\Http\Middleware\Install;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
 use Tests\DBTestCase;
 use ZipArchive;
 
@@ -15,7 +17,7 @@ class ChunkUploadTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
         $this->getLoggedInUser('admin');
     }
 
@@ -28,9 +30,10 @@ class ChunkUploadTest extends DBTestCase
         foreach ($entries as $name => $content) {
             $zip->addFromString($name, $content);
         }
+
         $zip->close();
 
-        return new UploadedFile($path, $filename, 'application/zip', null, true);
+        return new UploadedFile($path, $filename, 'application/zip', error: null, test: true);
     }
 
     public function test_upload_file_accepts_a_valid_core_build_zip(): void
@@ -45,25 +48,27 @@ class ChunkUploadTest extends DBTestCase
         $response = $this->post('/chunkupload', ['file' => $file]);
 
         $response->assertStatus(200);
-        $data = json_decode((string) $response->getContent(), true);
+
+        $data = json_decode((string) $response->getContent(), associative: true);
         $this->assertSame('products/build-stub.zip', $data['path']);
         // name is derived from the stored path, not a second createFilename() call.
         $this->assertSame('build-stub.zip', $data['name']);
 
         // Attach::put is mocked, so it never consumes the source temp file.
-        @unlink($sourcePath);
+        File::delete($sourcePath);
     }
 
     public function test_upload_file_rejects_a_file_that_is_not_a_zip_at_all(): void
     {
         $path = tempnam(sys_get_temp_dir(), 'not_a_zip_');
         file_put_contents($path, 'this is not a zip archive');
-        $file = new UploadedFile($path, 'build.zip', 'application/zip', null, true);
+        $file = new UploadedFile($path, 'build.zip', 'application/zip', error: null, test: true);
 
         $response = $this->post('/chunkupload', ['file' => $file]);
 
         $response->assertStatus(500);
-        $data = json_decode((string) $response->getContent(), true);
+
+        $data = json_decode((string) $response->getContent(), associative: true);
         $this->assertFalse($data['success']);
         $this->assertSame(trans('message.file_invalid'), $data['message']);
     }

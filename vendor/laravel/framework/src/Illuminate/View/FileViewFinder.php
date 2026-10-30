@@ -62,20 +62,20 @@ class FileViewFinder implements ViewFinderInterface
     /**
      * Get the fully-qualified location of the view.
      *
-     * @param  string  $name
+     * @param  string  $view
      * @return string
      */
-    public function find($name)
+    public function find($view)
     {
-        if (isset($this->views[$name])) {
-            return $this->views[$name];
+        if (isset($this->views[$view])) {
+            return $this->views[$view];
         }
 
-        if ($this->hasHintInformation($name = trim($name))) {
-            return $this->views[$name] = $this->findNamespacedView($name);
+        if ($this->hasHintInformation($view = trim($view))) {
+            return $this->views[$view] = $this->findNamespacedView($view);
         }
 
-        return $this->views[$name] = $this->findInPaths($name, $this->paths);
+        return $this->views[$view] = $this->findInPaths($view, $this->paths);
     }
 
     /**
@@ -191,7 +191,7 @@ class FileViewFinder implements ViewFinderInterface
      */
     public function addNamespace($namespace, $hints)
     {
-        $hints = (array) $hints;
+        $hints = array_map($this->resolvePath(...), (array) $hints);
 
         if (isset($this->hints[$namespace])) {
             $hints = array_merge($this->hints[$namespace], $hints);
@@ -209,7 +209,7 @@ class FileViewFinder implements ViewFinderInterface
      */
     public function prependNamespace($namespace, $hints)
     {
-        $hints = (array) $hints;
+        $hints = array_map($this->resolvePath(...), (array) $hints);
 
         if (isset($this->hints[$namespace])) {
             $hints = array_merge($hints, $this->hints[$namespace]);
@@ -227,7 +227,7 @@ class FileViewFinder implements ViewFinderInterface
      */
     public function replaceNamespace($namespace, $hints)
     {
-        $this->hints[$namespace] = (array) $hints;
+        $this->hints[$namespace] = array_map($this->resolvePath(...), (array) $hints);
     }
 
     /**

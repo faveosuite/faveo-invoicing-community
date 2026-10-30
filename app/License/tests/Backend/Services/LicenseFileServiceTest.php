@@ -52,8 +52,8 @@ class LicenseFileServiceTest extends LicenseTestCase
         $file = $this->service->buildForOrder($order, $product);
 
         $this->assertNotNull($file);
-        $decoded = json_decode($file, true);
-        $payload = json_decode($decoded['license'], true);
+        $decoded = json_decode($file, associative: true);
+        $payload = json_decode($decoded['license'], associative: true);
 
         $this->assertSame($license->license_code, $payload['license_code']);
         $this->assertSame($product->id, $payload['product_id']);
@@ -83,8 +83,8 @@ class LicenseFileServiceTest extends LicenseTestCase
         $file = $this->service->buildForOrder($order, $plugin);
 
         $this->assertNotNull($file);
-        $decoded = json_decode($file, true);
-        $payload = json_decode($decoded['license'], true);
+        $decoded = json_decode($file, associative: true);
+        $payload = json_decode($decoded['license'], associative: true);
 
         $this->assertSame($plugin->id, $payload['product_id']);
         $this->assertArrayHasKey('plugin_create_schema', $payload['scheme_query']);

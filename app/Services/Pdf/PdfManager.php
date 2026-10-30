@@ -81,7 +81,7 @@ class PdfManager
     {
         try {
             return Cache::remember(self::CHROME_PATH_CACHE_KEY, 60, fn () => FileSystemSettings::query()->first()->chrome_path ?? null);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             return null;
         }
     }
@@ -90,7 +90,7 @@ class PdfManager
     {
         try {
             return Cache::remember(self::DRIVER_CACHE_KEY, 60, fn () => FileSystemSettings::query()->first()->pdf_driver ?? null) ?: 'chrome';
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             return 'chrome';
         }
     }

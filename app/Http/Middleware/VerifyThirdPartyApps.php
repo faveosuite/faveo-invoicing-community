@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\ThirdPartyApp;
 use Closure;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class VerifyThirdPartyApps
@@ -43,7 +44,7 @@ class VerifyThirdPartyApps
         return $this->invalidSignature();
     }
 
-    private function invalidSignature(): \Illuminate\Http\JsonResponse
+    private function invalidSignature(): JsonResponse
     {
         $result = ['status' => 'fails', 'message' => 'Invalid signature'];
 

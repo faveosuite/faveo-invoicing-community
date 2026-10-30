@@ -1,38 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Events;
 
+use Maatwebsite\Excel\Concerns\Export;
+use Maatwebsite\Excel\Concerns\Import;
 use Maatwebsite\Excel\Sheet;
 
 class AfterSheet extends Event
 {
-    /**
-     * @var Sheet
-     */
-    public $sheet;
-
-    /**
-     * @param  Sheet  $sheet
-     * @param  object  $exportable
-     */
-    public function __construct(Sheet $sheet, $exportable)
-    {
-        $this->sheet      = $sheet;
-        parent::__construct($exportable);
+    public function __construct(
+        public Sheet $sheet,
+        Export|Import $concernable,
+    ) {
+        parent::__construct($concernable);
     }
 
-    /**
-     * @return Sheet
-     */
     public function getSheet(): Sheet
     {
         return $this->sheet;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDelegate()
+    public function getDelegate(): Sheet
     {
         return $this->sheet;
     }

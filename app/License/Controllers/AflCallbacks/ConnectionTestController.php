@@ -8,9 +8,7 @@ use Illuminate\Routing\Controller;
 
 class ConnectionTestController extends Controller
 {
-    public function __construct(protected LicenseValidator $validator)
-    {
-    }
+    public function __construct(protected LicenseValidator $validator) {}
 
     /**
      * Test connection between Faveo and License Manager

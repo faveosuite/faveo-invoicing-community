@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Events\NotificationFailed;
 use Illuminate\Notifications\Events\NotificationSending;
 use Illuminate\Notifications\Events\NotificationSent;
+use Illuminate\Notifications\Events\NotificationSkipped;
+use Illuminate\Queue\Attributes\Connection;
+use Illuminate\Queue\Attributes\Delay;
+use Illuminate\Queue\Attributes\Queue as QueueAttribute;
+use Illuminate\Queue\Attributes\ReadsQueueAttributes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Localizable;
@@ -18,7 +23,7 @@ use Throwable;
 
 class NotificationSender
 {
-    use Localizable;
+    use Localizable, ReadsQueueAttributes;
 
     /**
      * The notification manager instance.
@@ -154,8 +159,14 @@ class NotificationSender
         }
 
         if (! $this->shouldSendNotification($notifiable, $notification, $channel)) {
+            $this->events->dispatch(
+                new NotificationSkipped($notifiable, $notification, $channel)
+            );
+
             return;
         }
+
+        $this->failedEventWasDispatched = false;
 
         try {
             $response = $this->manager->driver($channel)->send($notifiable, $notification);
@@ -231,23 +242,25 @@ class NotificationSender
                     $notification->locale = $this->locale;
                 }
 
-                $connection = $notification->connection;
+                $connection = $this->getAttributeValue($notification, Connection::class, 'connection')
+                    ?? $this->manager->resolveConnectionFromQueueRoute($notification)
+                    ?? null;
 
                 if (method_exists($notification, 'viaConnections')) {
                     $connection = $notification->viaConnections()[$channel] ?? $connection;
                 }
 
-                $queue = $notification->queue;
+                $queue = $this->getAttributeValue($notification, QueueAttribute::class, 'queue')
+                    ?? $this->manager->resolveQueueFromQueueRoute($notification)
+                    ?? null;
 
                 if (method_exists($notification, 'viaQueues')) {
                     $queue = $notification->viaQueues()[$channel] ?? $queue;
                 }
 
-                $delay = $notification->delay;
-
-                if (method_exists($notification, 'withDelay')) {
-                    $delay = $notification->withDelay($notifiable, $channel) ?? null;
-                }
+                $delay = method_exists($notification, 'withDelay')
+                    ? ($notification->withDelay($notifiable, $channel) ?? null)
+                    : $this->getAttributeValue($notification, Delay::class, 'delay');
 
                 $messageGroup = $notification->messageGroup ?? (method_exists($notification, 'messageGroup') ? $notification->messageGroup() : null);
 
@@ -302,5 +315,18 @@ class NotificationSender
         }
 
         return $notifiables;
+    }
+
+    /**
+     * Set the locale to be used when sending notifications.
+     *
+     * @param  string|null  $locale
+     * @return $this
+     */
+    public function locale($locale)
+    {
+        $this->locale = $locale;
+
+        return $this;
     }
 }

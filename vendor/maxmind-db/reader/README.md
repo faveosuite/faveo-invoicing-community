@@ -40,7 +40,7 @@ You should now have the file `composer.phar` in your project directory.
 Run in your project root:
 
 ```
-php composer.phar require maxmind-db/reader:^1.13.1
+php composer.phar require maxmind-db/reader:^1.14.0
 ```
 
 You should now have the files `composer.json` and `composer.lock` as well as
@@ -75,7 +75,7 @@ $reader = new Reader('example.mmdb');
 
 ## Installation (RPM)
 
-RPMs are available in the [official Fedora repository](https://apps.fedoraproject.org/packages/php-maxminddb).
+RPMs are available in the [official Fedora repository](https://packages.fedoraproject.org/pkgs/php-maxminddb/php-maxminddb/).
 
 To install on Fedora, run:
 
@@ -83,7 +83,7 @@ To install on Fedora, run:
 dnf install php-maxminddb
 ```
 
-To install on CentOS or RHEL 7, first [enable the EPEL repository](https://fedoraproject.org/wiki/EPEL)
+To install on CentOS or RHEL 7, first [enable the EPEL repository](https://docs.fedoraproject.org/en-US/epel/)
 and then run:
 
 ```bash
@@ -139,7 +139,7 @@ for prerequisites including libmaxminddb installation instructions.
 
 First install [libmaxminddb](https://github.com/maxmind/libmaxminddb) as
 described in its [README.md
-file](https://github.com/maxmind/libmaxminddb/blob/main/README.md#installing-from-a-tarball).
+file](https://github.com/maxmind/libmaxminddb/blob/main/README.md#from-a-named-release-tarball).
 After successfully installing libmaxmindb, you may install the extension
 from [PECL](https://pecl.php.net/package/maxminddb):
 
@@ -149,17 +149,38 @@ pecl install maxminddb
 
 ### Installing Extension from Source ###
 
-Alternatively, you may install it from the source. To do so, run the following
-commands from the top-level directory of this distribution:
+Alternatively, you may install it from the source. This links against the
+libmaxminddb installed on your system, so install that first as described
+above. Run the following commands from the top-level directory of this
+distribution:
 
 ```
 cd ext
 phpize
-./configure
+./configure --with-maxminddb
 make
 make test
 sudo make install
 ```
+
+#### Building without a system libmaxminddb ####
+
+Passing `--with-maxminddb-bundled` compiles a bundled copy of libmaxminddb
+into the extension instead, so the result depends on nothing but the C
+runtime. This is what the precompiled builds use. The bundled sources are a
+git submodule, so they have to be checked out first:
+
+```
+git submodule update --init
+cd ext
+phpize
+./configure --with-maxminddb --with-maxminddb-bundled
+make
+make test
+sudo make install
+```
+
+The same flag works on Windows, passed to `configure.bat`.
 
 You then must load your extension. The recommended method is to add the
 following to your `php.ini` file:
@@ -189,7 +210,7 @@ breaking change.
 Please report all issues with this code using the [GitHub issue tracker](https://github.com/maxmind/MaxMind-DB-Reader-php/issues).
 
 If you are having an issue with a MaxMind service that is not specific to the
-client API, please see [our support page](https://www.maxmind.com/en/support).
+client API, please see [our support page](https://support.maxmind.com/knowledge-base).
 
 ## Requirements  ##
 
@@ -209,6 +230,6 @@ The MaxMind DB Reader PHP API uses [Semantic Versioning](https://semver.org/).
 
 ## Copyright and License ##
 
-This software is Copyright (c) 2014-2025 by MaxMind, Inc.
+This software is Copyright (c) 2014-2026 by MaxMind, Inc.
 
 This is free software, licensed under the Apache License, Version 2.0.

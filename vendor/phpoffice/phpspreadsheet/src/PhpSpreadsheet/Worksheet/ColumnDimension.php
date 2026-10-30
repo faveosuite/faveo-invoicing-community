@@ -7,35 +7,31 @@ use PhpOffice\PhpSpreadsheet\Helper\Dimension as CssDimension;
 
 class ColumnDimension extends Dimension
 {
+    public const EXCEL_MAX_WIDTH = 255.0;
+
     /**
      * Column index.
-     *
-     * @var ?string
      */
-    private $columnIndex;
+    private ?string $columnIndex;
 
     /**
      * Column width.
      *
      * When this is set to a negative value, the column width should be ignored by IWriter
-     *
-     * @var float
      */
-    private $width = -1;
+    private float $width = -1;
 
     /**
      * Auto size?
-     *
-     * @var bool
      */
-    private $autoSize = false;
+    private bool $autoSize = false;
 
     /**
      * Create a new ColumnDimension.
      *
      * @param ?string $index Character column index
      */
-    public function __construct($index = 'A')
+    public function __construct(?string $index = 'A')
     {
         // Initialise values
         $this->columnIndex = $index;
@@ -95,6 +91,11 @@ class ColumnDimension extends Dimension
             : (new CssDimension((string) $this->width))->toUnit($unitOfMeasure);
     }
 
+    public function getWidthForOutput(bool $restrictMax): float
+    {
+        return ($restrictMax && $this->width > self::EXCEL_MAX_WIDTH) ? self::EXCEL_MAX_WIDTH : $this->width;
+    }
+
     /**
      * Set Width.
      *
@@ -106,7 +107,7 @@ class ColumnDimension extends Dimension
      *
      * @return $this
      */
-    public function setWidth(float $width, ?string $unitOfMeasure = null)
+    public function setWidth(float $width, ?string $unitOfMeasure = null): static
     {
         $this->width = ($unitOfMeasure === null || $width < 0)
             ? $width
@@ -128,7 +129,7 @@ class ColumnDimension extends Dimension
      *
      * @return $this
      */
-    public function setAutoSize(bool $autosizeEnabled)
+    public function setAutoSize(bool $autosizeEnabled): static
     {
         $this->autoSize = $autosizeEnabled;
 

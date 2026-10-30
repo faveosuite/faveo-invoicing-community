@@ -14,7 +14,7 @@ class AddCartItemRequestTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->req = new AddCartItemRequest();
+        $this->req = new AddCartItemRequest;
     }
 
     public function test_authorize_returns_true(): void

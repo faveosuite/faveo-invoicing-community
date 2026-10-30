@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => 'இயல்பானது',
     'cloud-instance-created' => 'கிளவுட் இன்ஸ்டன்ஸ் உருவாக்கப்பட்டது',

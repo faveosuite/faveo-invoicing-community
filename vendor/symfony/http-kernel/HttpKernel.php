@@ -20,7 +20,9 @@ use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
 use Symfony\Component\HttpKernel\Event\ControllerArgumentsEvent;
+use Symfony\Component\HttpKernel\Event\ControllerArgumentsMetadata;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Event\ControllerMetadata;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -35,6 +37,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 // Help opcache.preload discover always-needed symbols
 class_exists(ControllerArgumentsEvent::class);
+class_exists(ControllerArgumentsMetadata::class);
 class_exists(ControllerEvent::class);
 class_exists(ExceptionEvent::class);
 class_exists(FinishRequestEvent::class);
@@ -54,6 +57,7 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
     protected RequestStack $requestStack;
     private ArgumentResolverInterface $argumentResolver;
     private bool $terminating = false;
+    private ?\WeakReference $terminateException = null;
 
     public function __construct(
         protected EventDispatcherInterface $dispatcher,
@@ -73,7 +77,7 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
         $this->requestStack->push($request);
         $response = null;
         try {
-            return $response = $this->handleRaw($request, $type);
+            return $response = $this->handleRaw($request, $type, $controllerMetadata);
         } catch (\Throwable $e) {
             if ($e instanceof \Error && !$this->handleAllThrowables) {
                 throw $e;
@@ -82,13 +86,13 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
             if ($e instanceof RequestExceptionInterface) {
                 $e = new BadRequestHttpException($e->getMessage(), $e);
             }
-            if (false === $catch) {
-                $this->finishRequest($request, $type);
+            if (!$catch) {
+                $this->finishRequest($request, $type, $controllerMetadata);
 
                 throw $e;
             }
 
-            return $response = $this->handleThrowable($e, $request, $type);
+            return $response = $this->handleThrowable($e, $request, $type, $controllerMetadata);
         } finally {
             $this->requestStack->pop();
 
@@ -112,6 +116,10 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
         try {
             $this->terminating = true;
             $this->dispatcher->dispatch(new TerminateEvent($this, $request, $response), KernelEvents::TERMINATE);
+        } catch (\Throwable $e) {
+            $this->terminateException = \WeakReference::create($e);
+
+            throw $e;
         } finally {
             $this->terminating = false;
         }
@@ -130,15 +138,22 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
             $this->requestStack->push($request);
         }
 
+        $terminating = $this->terminating;
+        $this->terminating = $terminating || $exception === $this->terminateException?->get();
+
         try {
             $response = $this->handleThrowable($exception, $request, self::MAIN_REQUEST);
         } finally {
+            $this->terminating = $terminating;
+
             if ($pop) {
                 $this->requestStack->pop();
             }
         }
 
-        $response->sendHeaders();
+        if (!headers_sent()) {
+            $response->sendHeaders();
+        }
         $response->sendContent();
 
         $this->terminate($request, $response);
@@ -152,7 +167,7 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
      * @throws \LogicException       If one of the listener does not behave as expected
      * @throws NotFoundHttpException When controller cannot be found
      */
-    private function handleRaw(Request $request, int $type = self::MAIN_REQUEST): Response
+    private function handleRaw(Request $request, int $type = self::MAIN_REQUEST, ?ControllerMetadata &$controllerMetadata = null): Response
     {
         // request
         $event = new RequestEvent($this, $request, $type);
@@ -167,7 +182,8 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
             throw new NotFoundHttpException(\sprintf('Unable to find the controller for path "%s". The route is wrongly configured.', $request->getPathInfo()));
         }
 
-        $event = new ControllerEvent($this, $controller, $request, $type);
+        $controllerEvent = $event = new ControllerEvent($this, $controller, $request, $type);
+        $controllerMetadata = new ControllerMetadata($event);
         $this->dispatcher->dispatch($event, KernelEvents::CONTROLLER);
         $controller = $event->getController();
 
@@ -175,6 +191,7 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
         $arguments = $this->argumentResolver->getArguments($request, $controller, $event->getControllerReflector());
 
         $event = new ControllerArgumentsEvent($this, $event, $arguments, $request, $type);
+        $controllerMetadata = new ControllerArgumentsMetadata($controllerEvent, $event);
         $this->dispatcher->dispatch($event, KernelEvents::CONTROLLER_ARGUMENTS);
         $controller = $event->getController();
         $arguments = $event->getArguments();
@@ -184,7 +201,7 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
 
         // view
         if (!$response instanceof Response) {
-            $event = new ViewEvent($this, $request, $type, $response, $event);
+            $event = new ViewEvent($this, $request, $type, $response, $controllerMetadata);
             $this->dispatcher->dispatch($event, KernelEvents::VIEW);
 
             if ($event->hasResponse()) {
@@ -201,7 +218,7 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
             }
         }
 
-        return $this->filterResponse($response, $request, $type);
+        return $this->filterResponse($response, $request, $type, $controllerMetadata);
     }
 
     /**
@@ -209,13 +226,13 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
      *
      * @throws \RuntimeException if the passed object is not a Response instance
      */
-    private function filterResponse(Response $response, Request $request, int $type): Response
+    private function filterResponse(Response $response, Request $request, int $type, ?ControllerMetadata $controllerMetadata = null): Response
     {
-        $event = new ResponseEvent($this, $request, $type, $response);
+        $event = new ResponseEvent($this, $request, $type, $response, $controllerMetadata instanceof ControllerArgumentsMetadata ? $controllerMetadata : null);
 
         $this->dispatcher->dispatch($event, KernelEvents::RESPONSE);
 
-        $this->finishRequest($request, $type);
+        $this->finishRequest($request, $type, $controllerMetadata);
 
         return $event->getResponse();
     }
@@ -227,24 +244,24 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
      * operations such as {@link RequestStack::getParentRequest()} can lead to
      * weird results.
      */
-    private function finishRequest(Request $request, int $type): void
+    private function finishRequest(Request $request, int $type, ?ControllerMetadata $controllerMetadata = null): void
     {
-        $this->dispatcher->dispatch(new FinishRequestEvent($this, $request, $type), KernelEvents::FINISH_REQUEST);
+        $this->dispatcher->dispatch(new FinishRequestEvent($this, $request, $type, $controllerMetadata), KernelEvents::FINISH_REQUEST);
     }
 
     /**
      * Handles a throwable by trying to convert it to a Response.
      */
-    private function handleThrowable(\Throwable $e, Request $request, int $type): Response
+    private function handleThrowable(\Throwable $e, Request $request, int $type, ?ControllerMetadata $controllerMetadata = null): Response
     {
-        $event = new ExceptionEvent($this, $request, $type, $e, isKernelTerminating: $this->terminating);
+        $event = new ExceptionEvent($this, $request, $type, $e, isKernelTerminating: $this->terminating, controllerMetadata: $controllerMetadata);
         $this->dispatcher->dispatch($event, KernelEvents::EXCEPTION);
 
         // a listener might have replaced the exception
         $e = $event->getThrowable();
 
         if (!$event->hasResponse()) {
-            $this->finishRequest($request, $type);
+            $this->finishRequest($request, $type, $controllerMetadata);
 
             throw $e;
         }
@@ -264,7 +281,7 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
         }
 
         try {
-            return $this->filterResponse($response, $request, $type);
+            return $this->filterResponse($response, $request, $type, $controllerMetadata);
         } catch (\Throwable $e) {
             if ($e instanceof \Error && !$this->handleAllThrowables) {
                 throw $e;

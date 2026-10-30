@@ -8,20 +8,17 @@ use Maatwebsite\Excel\Validators\Failure;
 trait SkipsFailures
 {
     /**
-     * @var Failure[]
+     * @var array<int, Failure>
      */
-    protected $failures = [];
+    protected array $failures = [];
 
-    /**
-     * @param  Failure  ...$failures
-     */
-    public function onFailure(Failure ...$failures)
+    public function onFailure(Failure ...$failures): void
     {
         $this->failures = array_merge($this->failures, $failures);
     }
 
     /**
-     * @return Failure[]|Collection
+     * @return Collection<int, Failure>
      */
     public function failures(): Collection
     {

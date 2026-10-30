@@ -3,24 +3,35 @@
 namespace Tests\Unit\Backend\Http\Controllers\Tenancy;
 
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
+use App\License\Models\Installation;
 use App\License\Models\License;
 use App\Model\Common\FaveoCloud;
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Mailjob\Condition;
+use App\Model\Order\CreditTransaction;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\Cloud\CloudApi;
+use App\Services\Payment\CreditBalanceService;
+use App\Services\Payment\InvoicePaymentService;
+use App\Services\Payment\PostPaymentService;
 use App\ThirdPartyApp;
 use App\User;
 use DB;
 use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\Date;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\DBTestCase;
@@ -59,7 +70,7 @@ class CloudActivitiesTest extends DBTestCase
         Subscription::factory()->create(['order_id' => $order->id, 'product_id' => $product->id, 'user_id' => $user->id, 'plan_id' => $plan->id, 'is_deleted' => 0]);
         $code = 'CLOUD'.uniqid();
         License::create(['product_id' => $product->id, 'license_code' => $code, 'license_order_number' => $order->number]);
-        \App\License\Models\Installation::create(['product_id' => $product->id, 'license_code' => $code, 'installation_domain' => $domain]);
+        Installation::create(['product_id' => $product->id, 'license_code' => $code, 'installation_domain' => $domain]);
 
         return $order;
     }
@@ -75,9 +86,9 @@ class CloudActivitiesTest extends DBTestCase
 
     private function bindMockClientWithResponses(array $responses): void
     {
-        $mock = new \GuzzleHttp\Handler\MockHandler($responses);
-        $client = new Client(['handler' => \GuzzleHttp\HandlerStack::create($mock)]);
-        $this->app->bind(Client::class, fn () => $client);
+        $mock = new MockHandler($responses);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+        $this->app->bind(Client::class, fn (): Client => $client);
     }
 
     protected function tearDown(): void
@@ -95,7 +106,7 @@ class CloudActivitiesTest extends DBTestCase
         FaveoCloud::create(['cloud_central_domain' => 'https://central.example.test']);
 
         $check = fn (string $body): bool => new CloudExtraActivities(
-            new Client(['handler' => \GuzzleHttp\HandlerStack::create(new \GuzzleHttp\Handler\MockHandler([new \GuzzleHttp\Psr7\Response(200, [], $body)]))]),
+            new Client(['handler' => HandlerStack::create(new MockHandler([new Response(200, [], $body)]))]),
             new FaveoCloud
         )->checkDomain('acme.example.test');
 
@@ -524,7 +535,7 @@ class CloudActivitiesTest extends DBTestCase
     #[Group('Cloud plan Change')]
     public function test_paying_plan_change_invoice_creates_new_order_not_reusing_old_one(): void
     {
-        \App\ThirdPartyApp::where('app_name', 'faveo_app_key')->delete();
+        ThirdPartyApp::where('app_name', 'faveo_app_key')->delete();
 
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -554,6 +565,7 @@ class CloudActivitiesTest extends DBTestCase
 
         $response = $this->postJson('/upgradeDowngradeCloud', ['id' => $plan2->id, 'orderId' => $oldOrder->id]);
         $response->assertStatus(200);
+
         $newInvoice = Invoice::find($response->json('data.invoice_id'));
 
         // Paying it off runs executeOrders() (creates the new order), then
@@ -562,12 +574,12 @@ class CloudActivitiesTest extends DBTestCase
         // existing doTheProductUpgradeDowngrade tests below. That's fine: the
         // part under test (order creation) runs before that call.
         try {
-            app(\App\Services\Payment\InvoicePaymentService::class)->applyCredit($newInvoice);
+            resolve(InvoicePaymentService::class)->applyCredit($newInvoice);
         } catch (\Throwable) {
             // expected — no faveo_app_key configured in tests
         }
 
-        $newOrderId = \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $newInvoice->id)
+        $newOrderId = OrderInvoiceRelation::where('invoice_id', $newInvoice->id)
             ->latest('id')->value('order_id');
 
         $this->assertNotNull($newOrderId, 'A new order should have been created for the new plan.');
@@ -685,7 +697,7 @@ class CloudActivitiesTest extends DBTestCase
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000]);
-        $planPrice2 = PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 5]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 5]);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
@@ -726,7 +738,7 @@ class CloudActivitiesTest extends DBTestCase
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 5]);
-        $planPrice2 = PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 5]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 5]);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
@@ -772,7 +784,7 @@ class CloudActivitiesTest extends DBTestCase
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 5]);
         CloudProducts::create(['id' => 1, 'cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => 'HelpDesk']);
 
-        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+        Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->subDays(8)]);
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(1)]);
@@ -894,7 +906,7 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 25, 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 15]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         PlanPrice::create(['plan_id' => $plan->id, 'add_price' => '1000', 'currency' => 'USD']);
-        $cloudProduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name, 'trial_status' => 1]);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name, 'trial_status' => 1]);
         CloudProducts::create(['cloud_product' => $product1->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product1->name, 'trial_status' => 1]);
         // Route changed from POST trial-cloud-products to GET store/cloud-products
         $response = $this->call('GET', 'store/cloud-products');
@@ -1009,11 +1021,11 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $order = $this->liveCloudOrder($user, 'old.example.com');
-        \App\ThirdPartyApp::firstOrCreate(['app_name' => 'faveo_app_key'], ['app_key' => 'test-key', 'app_secret' => 'test-secret']);
+        ThirdPartyApp::firstOrCreate(['app_name' => 'faveo_app_key'], ['app_key' => 'test-key', 'app_secret' => 'test-secret']);
         config(['custom.cloud_job_url' => 'https://jobs.example.test']);
         $this->bindMockClientWithResponses([
-            new \GuzzleHttp\Psr7\Response(200, [], json_encode(['status' => 'success'])), // cloud changeDomain
-            new \GuzzleHttp\Psr7\Response(200, [], ''),                                   // server job for the new domain
+            new Response(200, [], json_encode(['status' => 'success'])), // cloud changeDomain
+            new Response(200, [], ''),                                   // server job for the new domain
         ]);
 
         // Contains the cloud CNAME (faveocloud.test) without being a subdomain of it, so no live DNS lookup.
@@ -1027,8 +1039,8 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $order = $this->liveCloudOrder($user, 'old.example.com');
-        \App\ThirdPartyApp::firstOrCreate(['app_name' => 'faveo_app_key'], ['app_key' => 'test-key', 'app_secret' => 'test-secret']);
-        $this->bindMockClientWithResponses([new \GuzzleHttp\Psr7\Response(200, [], json_encode(['status' => 'fails', 'message' => 'x']))]);
+        ThirdPartyApp::firstOrCreate(['app_name' => 'faveo_app_key'], ['app_key' => 'test-key', 'app_secret' => 'test-secret']);
+        $this->bindMockClientWithResponses([new Response(200, [], json_encode(['status' => 'fails', 'message' => 'x']))]);
 
         $this->postJson('/change/domain', ['newDomain' => 'myfaveocloud.test', 'order_id' => $order->id])
             ->assertStatus(400)->assertJson(['message' => __('message.wrong_domain')]);
@@ -1090,6 +1102,7 @@ class CloudActivitiesTest extends DBTestCase
         $response = $this->getJson('/fetch-data?limit=5&page=1');
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+
         $data = $response->json('data');
         $this->assertArrayHasKey('data', $data);
         $this->assertArrayHasKey('total', $data);
@@ -1103,6 +1116,7 @@ class CloudActivitiesTest extends DBTestCase
         $this->withoutMiddleware();
         $response = $this->getJson('/fetch-data?search_query=nonexistent_domain_xyz');
         $response->assertStatus(200);
+
         $data = $response->json('data.data');
         $this->assertIsArray($data);
         $this->assertCount(0, $data);  // No matching results
@@ -1167,6 +1181,7 @@ class CloudActivitiesTest extends DBTestCase
         $response = $this->getJson('/api/domain');
 
         $response->assertStatus(200);
+
         $body = $response->json();
         $this->assertArrayHasKey('data', $body);
         // Company is lowercased, spaces removed, truncated to 28 chars
@@ -1186,7 +1201,7 @@ class CloudActivitiesTest extends DBTestCase
             ['name' => 'Trial Test Plan'],
             ['product' => $product->id, 'days' => 30]
         );
-        $cloudProduct = \App\Model\Product\CloudProducts::create([
+        $cloudProduct = CloudProducts::create([
             'cloud_product' => $product->id,
             'cloud_product_key' => 'TRIAL_TEST_'.uniqid(),
             'trial_status' => 0,
@@ -1255,7 +1270,7 @@ class CloudActivitiesTest extends DBTestCase
     public function test_agent_alteration_returns_400_when_installation_path_not_found(): void
     {
         $order = $this->liveCloudOrder($this->user, 'customer.example.com');
-        \App\License\Models\Installation::whereIn('license_code', License::where('license_order_number', $order->number)->pluck('license_code'))->delete();
+        Installation::whereIn('license_code', License::where('license_order_number', $order->number)->pluck('license_code'))->delete();
 
         $this->postJson('/changeAgents', ['desiredAgents' => 7, 'orderId' => $order->id])
             ->assertStatus(400)
@@ -1273,7 +1288,7 @@ class CloudActivitiesTest extends DBTestCase
         // The tenant reports more agents in use than requested → "agent_reduce"
         $this->bindMockClientWithResponses([
             // The tenant answers "true"/"false" ahead of any JSON — true = too many agents in use.
-            new \GuzzleHttp\Psr7\Response(200, [], 'true{"agents":10}'),
+            new Response(200, [], 'true{"agents":10}'),
         ]);
 
         $this->postJson('/changeAgents', ['desiredAgents' => 4, 'orderId' => $order->id])
@@ -1301,9 +1316,9 @@ class CloudActivitiesTest extends DBTestCase
 
     public function test_do_the_agent_altering_returns_error_when_no_app_key(): void
     {
-        \App\ThirdPartyApp::where('app_name', 'faveo_app_key')->delete();
+        ThirdPartyApp::where('app_name', 'faveo_app_key')->delete();
 
-        $cloud = \App\Model\Common\FaveoCloud::firstOrCreate([], [
+        $cloud = FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
             'cloud_cname' => 'test',
         ]);
@@ -1313,37 +1328,37 @@ class CloudActivitiesTest extends DBTestCase
 
         $response = $controller->doTheAgentAltering('0005', 'OLDLICENSE0005', 1, 'test.domain.com', 1);
 
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
         $this->assertFalse($data['success']);
         $this->assertEquals(400, $response->getStatusCode());
     }
 
     public function test_do_the_agent_altering_returns_success_when_api_succeeds(): void
     {
-        \App\ThirdPartyApp::firstOrCreate(
+        ThirdPartyApp::firstOrCreate(
             ['app_name' => 'faveo_app_key'],
             ['app_key' => 'test-key', 'app_secret' => 'test-secret']
         );
 
-        $cloud = \App\Model\Common\FaveoCloud::firstOrCreate([], [
+        $cloud = FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
             'cloud_cname' => 'test',
         ]);
 
         // Mock two requests: LicenseService.updateLicenseCode may call Guzzle, plus the cloud API call
         $this->bindMockClientWithResponses([
-            new \GuzzleHttp\Psr7\Response(200, [], json_encode(['status' => 'success'])),
+            new Response(200, [], json_encode(['status' => 'success'])),
         ]);
 
         $controller = new CloudExtraActivities(new Client, $cloud);
 
         try {
             $response = $controller->doTheAgentAltering('0005', 'OLDLICENS0005', 999, 'test.domain.com', 1);
-            $data = json_decode($response->getContent(), true);
+            $data = json_decode($response->getContent(), associative: true);
             // Either success (if LicenseService skips DB) or error (if it throws)
             $this->assertIsArray($data);
             $this->assertArrayHasKey('success', $data);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // LicenseService dependency may throw - method was entered
             $this->assertTrue(true);
         }
@@ -1351,15 +1366,16 @@ class CloudActivitiesTest extends DBTestCase
 
     public function test_cloud_api_reads_nested_json_after_notices_and_throws_on_garbage(): void
     {
-        \App\ThirdPartyApp::firstOrCreate(['app_name' => 'faveo_app_key'], ['app_key' => 'test-key', 'app_secret' => 'test-secret']);
-        $cloud = \App\Model\Common\FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
+        ThirdPartyApp::firstOrCreate(['app_name' => 'faveo_app_key'], ['app_key' => 'test-key', 'app_secret' => 'test-secret']);
+        $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
         $history = [];
-        $stack = \GuzzleHttp\HandlerStack::create(new \GuzzleHttp\Handler\MockHandler([
-            new \GuzzleHttp\Psr7\Response(200, [], 'Notice: x'.json_encode(['status' => 'fails', 'message' => ['a' => 1]])),
-            new \GuzzleHttp\Psr7\Response(200, [], '<html>oops</html>'),
+        $stack = HandlerStack::create(new MockHandler([
+            new Response(200, [], 'Notice: x'.json_encode(['status' => 'fails', 'message' => ['a' => 1]])),
+            new Response(200, [], '<html>oops</html>'),
         ]));
-        $stack->push(\GuzzleHttp\Middleware::history($history));
-        $api = new \App\Services\Cloud\CloudApi(new Client(['handler' => $stack]), $cloud);
+        $stack->push(Middleware::history($history));
+
+        $api = new CloudApi(new Client(['handler' => $stack]), $cloud);
 
         $this->assertSame('fails', $api->send('POST', '/x', [])['status']);
         $this->assertSame('application/json', $history[0]['request']->getHeaderLine('Accept'));
@@ -1371,29 +1387,29 @@ class CloudActivitiesTest extends DBTestCase
 
     public function test_do_the_agent_altering_returns_error_when_api_returns_fails(): void
     {
-        \App\ThirdPartyApp::firstOrCreate(
+        ThirdPartyApp::firstOrCreate(
             ['app_name' => 'faveo_app_key'],
             ['app_key' => 'test-key', 'app_secret' => 'test-secret']
         );
 
-        $cloud = \App\Model\Common\FaveoCloud::firstOrCreate([], [
+        $cloud = FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
             'cloud_cname' => 'test',
         ]);
 
         // API returns 'fails' status
         $this->bindMockClientWithResponses([
-            new \GuzzleHttp\Psr7\Response(200, [], json_encode(['status' => 'fails', 'message' => 'error'])),
+            new Response(200, [], json_encode(['status' => 'fails', 'message' => 'error'])),
         ]);
 
         $controller = new CloudExtraActivities(new Client, $cloud);
 
         try {
             $response = $controller->doTheAgentAltering('0005', 'OLDLICENS0005', 999, 'test.domain.com', 1);
-            $data = json_decode($response->getContent(), true);
+            $data = json_decode($response->getContent(), associative: true);
             // Returns 400 when status == 'fails'
             $this->assertFalse($data['success']);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             $this->assertTrue(true);
         }
     }
@@ -1414,7 +1430,7 @@ class CloudActivitiesTest extends DBTestCase
         $order = Order::factory()->create(['client' => $user->id, 'product' => $product->id, 'serial_key' => \Crypt::encrypt('TESTAGENTLIC0002')]);
         License::create(['product_id' => $product->id, 'license_code' => 'TESTAGENTLIC0002', 'license_order_number' => $order->number]);
 
-        $client = new Client(['handler' => \GuzzleHttp\HandlerStack::create(new \GuzzleHttp\Handler\MockHandler($cloudResponses))]);
+        $client = new Client(['handler' => HandlerStack::create(new MockHandler($cloudResponses))]);
 
         return [new CloudExtraActivities($client, $cloud), $order];
     }
@@ -1422,7 +1438,7 @@ class CloudActivitiesTest extends DBTestCase
     public function test_do_the_agent_altering_keeps_new_license_when_cloud_succeeds(): void
     {
         [$controller, $order] = $this->agentAlteringSetup([
-            new \GuzzleHttp\Psr7\Response(200, [], json_encode(['status' => 'success'])),
+            new Response(200, [], json_encode(['status' => 'success'])),
         ]);
 
         $response = $controller->doTheAgentAltering('4', 'TESTAGENTLIC0002', $order->id, 'tenant.example.test', $order->product);
@@ -1436,13 +1452,13 @@ class CloudActivitiesTest extends DBTestCase
     public function test_do_the_agent_altering_reverts_license_when_cloud_returns_500(): void
     {
         [$controller, $order] = $this->agentAlteringSetup([
-            new \GuzzleHttp\Psr7\Response(500, [], json_encode(['success' => false, 'message' => 'Internal server error'])),
+            new Response(500, [], json_encode(['success' => false, 'message' => 'Internal server error'])),
         ]);
 
         $response = $controller->doTheAgentAltering('4', 'TESTAGENTLIC0002', $order->id, 'tenant.example.test', $order->product);
 
         $this->assertSame(400, $response->getStatusCode());
-        $this->assertSame(trans('message.change_agents_failed'), json_decode($response->getContent(), true)['message']);
+        $this->assertSame(trans('message.change_agents_failed'), json_decode($response->getContent(), associative: true)['message']);
         $this->assertSame('TESTAGENTLIC0002', $order->fresh()->serial_key);
         $this->assertDatabaseHas('licenses', ['license_order_number' => $order->number, 'license_code' => 'TESTAGENTLIC0002']);
         $this->assertDatabaseMissing('licenses', ['license_code' => 'TESTAGENTLIC0004']);
@@ -1451,7 +1467,7 @@ class CloudActivitiesTest extends DBTestCase
     public function test_do_the_agent_altering_reverts_license_when_cloud_says_fails(): void
     {
         [$controller, $order] = $this->agentAlteringSetup([
-            new \GuzzleHttp\Psr7\Response(200, [], json_encode(['status' => 'fails', 'message' => 'domain_not_found'])),
+            new Response(200, [], json_encode(['status' => 'fails', 'message' => 'domain_not_found'])),
         ]);
 
         $response = $controller->doTheAgentAltering('4', 'TESTAGENTLIC0002', $order->id, 'tenant.example.test', $order->product);
@@ -1465,12 +1481,12 @@ class CloudActivitiesTest extends DBTestCase
     public function test_do_the_agent_altering_success_updates_the_orders_invoice_item_agents(): void
     {
         [$controller, $order] = $this->agentAlteringSetup([
-            new \GuzzleHttp\Psr7\Response(200, [], json_encode(['status' => 'success'])),
+            new Response(200, [], json_encode(['status' => 'success'])),
         ]);
         $invoice = Invoice::factory()->create(['user_id' => $order->client]);
         $item = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => 'Cloud', 'agents' => 2]);
         $order->update(['invoice_item_id' => $item->id]);
-        \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
+        OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
 
         $controller->doTheAgentAltering('4', 'TESTAGENTLIC0002', $order->id, 'tenant.example.test', $order->product);
 
@@ -1481,11 +1497,11 @@ class CloudActivitiesTest extends DBTestCase
     public function test_do_the_agent_altering_failure_restores_old_license_on_tenant_and_keeps_key_encrypted(): void
     {
         [$controller, $order] = $this->agentAlteringSetup([
-            new \GuzzleHttp\Psr7\Response(200, [], json_encode(['status' => 'fails', 'message' => 'notification_license_not_found'])),
-            new \GuzzleHttp\Psr7\Response(200, [], json_encode(['status' => 'success'])),
+            new Response(200, [], json_encode(['status' => 'fails', 'message' => 'notification_license_not_found'])),
+            new Response(200, [], json_encode(['status' => 'success'])),
         ]);
         $history = [];
-        (fn () => $this->client)->call($controller)->getConfig('handler')->push(\GuzzleHttp\Middleware::history($history));
+        (fn () => $this->client)->call($controller)->getConfig('handler')->push(Middleware::history($history));
 
         $controller->doTheAgentAltering('4', 'TESTAGENTLIC0002', $order->id, 'tenant.example.test', $order->product);
 
@@ -1501,7 +1517,7 @@ class CloudActivitiesTest extends DBTestCase
         // No queued response: any HTTP call would throw from the empty MockHandler.
         [$controller, $order] = $this->agentAlteringSetup([]);
 
-        $response = $controller->doTheAgentAltering('4', 'TESTAGENTLIC0002', $order->id, null, $order->product);
+        $response = $controller->doTheAgentAltering('4', 'TESTAGENTLIC0002', $order->id, installation_path: null, product_id: $order->product);
 
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('TESTAGENTLIC0004', $order->fresh()->serial_key);
@@ -1514,7 +1530,7 @@ class CloudActivitiesTest extends DBTestCase
 
     public function test_do_the_activity_returns_early_when_discount_is_null(): void
     {
-        $cloud = \App\Model\Common\FaveoCloud::firstOrCreate([], [
+        $cloud = FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
             'cloud_cname' => 'test',
         ]);
@@ -1522,7 +1538,7 @@ class CloudActivitiesTest extends DBTestCase
         $controller = new CloudExtraActivities(new Client, $cloud);
 
         // discount = null → early return, no DB operations
-        $controller->doTheActivity(1, 2, null);
+        $controller->doTheActivity(1, 2);
         $this->assertTrue(true); // Reached without exception
     }
 
@@ -1542,7 +1558,7 @@ class CloudActivitiesTest extends DBTestCase
             'number' => mt_rand(100000, 999999),
         ]);
 
-        $cloud = \App\Model\Common\FaveoCloud::firstOrCreate([], [
+        $cloud = FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
             'cloud_cname' => 'test',
         ]);
@@ -1551,12 +1567,12 @@ class CloudActivitiesTest extends DBTestCase
 
         $controller->doTheActivity($order1->id, $order2->id, 100.0, 'USD');
 
-        $this->assertSame(100.0, (new \App\Services\Payment\CreditBalanceService)->balance($user->id, 'USD'));
+        $this->assertSame(100.0, (new CreditBalanceService)->balance($user->id, 'USD'));
         $this->assertDatabaseHas('credit_transactions', [
             'user_id' => $user->id,
             'currency' => 'USD',
             'amount' => '100',
-            'type' => \App\Model\Order\CreditTransaction::TYPE_DOWNGRADE_PRORATION,
+            'type' => CreditTransaction::TYPE_DOWNGRADE_PRORATION,
             // The client reads this note, so it names order numbers, not ids.
             'note' => sprintf('Plan downgrade: terminated order #%s, new order #%s', $order1->number, $order2->number),
         ]);
@@ -1567,7 +1583,7 @@ class CloudActivitiesTest extends DBTestCase
         $user = User::factory()->create(['email' => 'dta-cc-'.uniqid().'@test.local', 'country' => 'IN']);
         $this->actingAs($user);
 
-        $cloud = \App\Model\Common\FaveoCloud::firstOrCreate([], [
+        $cloud = FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
             'cloud_cname' => 'test',
         ]);
@@ -1578,7 +1594,7 @@ class CloudActivitiesTest extends DBTestCase
 
         $controller->doTheActivity($order->id, $order->id + 1, 50.0);
 
-        $this->assertSame(50.0, (new \App\Services\Payment\CreditBalanceService)->balance($user->id, getCurrencyForClient('IN')));
+        $this->assertSame(50.0, (new CreditBalanceService)->balance($user->id, getCurrencyForClient('IN')));
     }
 
     // =========================================================================
@@ -1689,9 +1705,9 @@ class CloudActivitiesTest extends DBTestCase
 
     public function test_do_the_product_upgrade_downgrade_with_no_app_key_throws_or_errors(): void
     {
-        \App\ThirdPartyApp::where('app_name', 'faveo_app_key')->delete();
+        ThirdPartyApp::where('app_name', 'faveo_app_key')->delete();
 
-        $cloud = \App\Model\Common\FaveoCloud::firstOrCreate([], [
+        $cloud = FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
             'cloud_cname' => 'test',
         ]);
@@ -1707,11 +1723,10 @@ class CloudActivitiesTest extends DBTestCase
                 1,
                 'OLDLICENSE001',
                 0,
-                0,
-                null
+                0
             );
             $this->assertTrue(true); // Or it may silently fail
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             $this->assertTrue(true); // Expected — no app key → exception from cloudApiPost
         }
     }
@@ -1723,9 +1738,9 @@ class CloudActivitiesTest extends DBTestCase
         $product = Product::factory()->create();
         License::create(['product_id' => $product->id, 'license_code' => 'PLANOLDOK0000005', 'license_status' => 1]);
         License::create(['product_id' => $product->id, 'license_code' => 'PLANOLDKO0000005', 'license_status' => 1]);
-        $controller = new CloudExtraActivities(new Client(['handler' => \GuzzleHttp\HandlerStack::create(new \GuzzleHttp\Handler\MockHandler([
-            new \GuzzleHttp\Psr7\Response(200, [], json_encode(['status' => 'success'])),
-            new \GuzzleHttp\Psr7\Response(200, [], json_encode(['status' => 'fails'])),
+        $controller = new CloudExtraActivities(new Client(['handler' => HandlerStack::create(new MockHandler([
+            new Response(200, [], json_encode(['status' => 'success'])),
+            new Response(200, [], json_encode(['status' => 'fails'])),
         ]))]), $cloud);
 
         $controller->doTheProductUpgradeDowngrade('PLANNEW000000005', 'tenant.example.test', $product->id, 'PLANOLDOK0000005');
@@ -1754,6 +1769,7 @@ class CloudActivitiesTest extends DBTestCase
             PlanPrice::factory()->create(['plan_id' => $oldPlan->id, 'currency' => $currency, 'add_price' => $oldPrice, 'offer_price' => 0]);
             PlanPrice::factory()->create(['plan_id' => $newPlan->id, 'currency' => $currency, 'add_price' => $newPrice, 'offer_price' => 0]);
         }
+
         Subscription::create(['plan_id' => $oldPlan->id, 'order_id' => $oldOrder->id, 'product_id' => $product->id, 'user_id' => $user->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays($daysLeft)->addHour()]);
 
@@ -1824,9 +1840,9 @@ class CloudActivitiesTest extends DBTestCase
             'type' => 'upgrade_downgrade', 'old_order_id' => $oldOrder->id, 'old_license' => 'x', 'installation_path' => 'x.test', 'discount' => 500,
         ]]);
 
-        app(\App\Services\Payment\PostPaymentService::class)->handle($invoice, 'Credit Balance');
+        resolve(PostPaymentService::class)->handle($invoice, 'Credit Balance');
 
-        $this->assertSame(0, \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice->id)->count()); // no new order
+        $this->assertSame(0, OrderInvoiceRelation::where('invoice_id', $invoice->id)->count()); // no new order
     }
 
     // ── H1: moving to a shorter plan never yields a negative term or phantom credit ──
@@ -1867,9 +1883,9 @@ class CloudActivitiesTest extends DBTestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin); // e.g. the admin recorded the payment
 
-        (new CloudExtraActivities(new Client, new FaveoCloud))->doTheActivity($order->id, $order->id + 1, 40.0, 'USD');
+        new CloudExtraActivities(new Client, new FaveoCloud)->doTheActivity($order->id, $order->id + 1, 40.0, 'USD');
 
-        $credit = app(\App\Services\Payment\CreditBalanceService::class);
+        $credit = resolve(CreditBalanceService::class);
         $this->assertSame(40.0, $credit->balance($client->id, 'USD'));
         $this->assertSame(0.0, $credit->balance($admin->id, 'USD'));
     }
@@ -1884,19 +1900,20 @@ class CloudActivitiesTest extends DBTestCase
         foreach (['INR', 'USD'] as $currency) {
             PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => 100, 'renew_price' => 100, 'no_of_agents' => 1, 'offer_price' => 0]);
         }
+
         $order = Order::create(['client' => $this->user->id, 'order_status' => 'executed', 'product' => $product->id,
             'number' => mt_rand(100000, 999999), 'serial_key' => '1234567890120005']);
         $own = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id, 'user_id' => $this->user->id,
             'version' => 'v6.0.0', 'update_ends_at' => Date::now()->addDays(20), 'ends_at' => Date::now()->addDays(20)]);
         License::create(['product_id' => $product->id, 'user_id' => $this->user->id, 'license_code' => $order->serial_key, 'license_order_number' => $order->number, 'license_status' => 1]);
-        \App\License\Models\Installation::create(['license_code' => $order->serial_key, 'installation_domain' => 'mine.test.faveo.com', 'installation_path' => 'mine.test.faveo.com',
+        Installation::create(['license_code' => $order->serial_key, 'installation_domain' => 'mine.test.faveo.com', 'installation_path' => 'mine.test.faveo.com',
             'installation_ip' => '127.0.0.1', 'version_number' => '1.0.0', 'product_id' => $product->id]);
         $original = Invoice::factory()->create(['user_id' => $this->user->id, 'status' => 'success']); // every real order has one
         $item = InvoiceItem::create(['invoice_id' => $original->id, 'product_name' => $product->name, 'product_id' => $product->id, 'plan_id' => $plan->id, 'agents' => 5]);
-        \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $original->id]);
+        OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $original->id]);
         $order->update(['invoice_item_id' => $item->id]);
-        $someoneElses = \App\Model\Product\Subscription::factory()->create(); // another user's
-        $this->bindMockClientWithResponses([new \GuzzleHttp\Psr7\Response(200, [], '')]); // cloud: agents may change
+        $someoneElses = Subscription::factory()->create(); // another user's
+        $this->bindMockClientWithResponses([new Response(200, [], '')]); // cloud: agents may change
 
         $response = $this->postJson('/changeAgents', ['desiredAgents' => 7, 'orderId' => $order->id, 'subId' => $someoneElses->id]);
 

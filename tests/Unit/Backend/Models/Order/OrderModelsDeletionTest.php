@@ -7,6 +7,7 @@ namespace Tests\Unit\Backend\Models\Order;
 use App\Comment;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
+use App\User;
 use Tests\DBTestCase;
 
 /**
@@ -38,7 +39,7 @@ class OrderModelsDeletionTest extends DBTestCase
         try {
             $invoice->delete();
             $this->assertDatabaseMissing('invoices', ['id' => $id]);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // Some FK constraints might prevent deletion — body still executed
             $this->assertTrue(true);
         }
@@ -60,7 +61,7 @@ class OrderModelsDeletionTest extends DBTestCase
 
     public function test_order_delete_removes_record(): void
     {
-        $user = \App\User::factory()->create(['email' => 'order-del-test-'.uniqid().'@test.local']);
+        $user = User::factory()->create(['email' => 'order-del-test-'.uniqid().'@test.local']);
         /** @var Order $order */
         $order = Order::factory()->create(['client' => $user->id]);
         $id = $order->id;
@@ -68,7 +69,7 @@ class OrderModelsDeletionTest extends DBTestCase
         try {
             $order->delete();
             $this->assertDatabaseMissing('orders', ['id' => $id]);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // FK constraints may prevent deletion — body still executed
             $this->assertTrue(true);
         }
@@ -80,7 +81,7 @@ class OrderModelsDeletionTest extends DBTestCase
 
     public function test_order_status_attribute_is_ucfirst(): void
     {
-        $user = \App\User::factory()->create(['email' => 'order-status-test-'.uniqid().'@test.local']);
+        $user = User::factory()->create(['email' => 'order-status-test-'.uniqid().'@test.local']);
         $order = Order::factory()->create(['client' => $user->id, 'order_status' => 'pending']);
         $this->assertSame('Pending', $order->order_status);
     }
@@ -91,7 +92,7 @@ class OrderModelsDeletionTest extends DBTestCase
 
     public function test_comment_delete_removes_record(): void
     {
-        $user = \App\User::factory()->create(['email' => 'comment-del-'.uniqid().'@test.local']);
+        $user = User::factory()->create(['email' => 'comment-del-'.uniqid().'@test.local']);
 
         $comment = Comment::create([
             'user_id' => $user->id,

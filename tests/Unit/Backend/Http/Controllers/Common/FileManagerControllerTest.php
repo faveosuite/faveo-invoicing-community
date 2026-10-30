@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Controllers\Common;
 
 use App\Facades\Attach;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class FileManagerControllerTest extends TestCase
@@ -33,7 +34,7 @@ class FileManagerControllerTest extends TestCase
     {
         // Create a real temp file in storage
         $filename = 'test_preview_'.uniqid().'.txt';
-        \Illuminate\Support\Facades\Storage::put($filename, 'test content');
+        Storage::put($filename, 'test content');
         $path = $filename;
 
         Attach::shouldReceive('exists')->with($path)->andReturn(true);
@@ -44,6 +45,6 @@ class FileManagerControllerTest extends TestCase
 
         $this->assertContains($response->status(), [200, 404, 500]);
 
-        \Illuminate\Support\Facades\Storage::delete($filename);
+        Storage::delete($filename);
     }
 }

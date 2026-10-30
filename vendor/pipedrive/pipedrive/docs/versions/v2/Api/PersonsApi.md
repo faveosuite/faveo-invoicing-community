@@ -20,12 +20,12 @@ Method | HTTP request | Description
 ## `addPerson()`
 
 ```php
-addPerson($person_request_body): \Pipedrive\versions\v2\Model\PostPatchGetPerson
+addPerson($post_person_request_body): \Pipedrive\versions\v2\Model\PostPatchGetPerson
 ```
 
 Add a new person
 
-Adds a new person. If the company uses the [Campaigns product](https://pipedrive.readme.io/docs/campaigns-in-pipedrive-api), then this endpoint will also accept and return the `marketing_status` field.
+Adds a new person. <br>If the company uses the [Campaigns product](https://pipedrive.readme.io/docs/campaigns-in-pipedrive-api), then this endpoint will also accept and return the `marketing_status` field. <br>The `im`, `postal_address`, `notes`, `birthday` and `job_title` fields don't exist by default in Pipedrive and are only created when you set up your contact sync — attempting to set any of them without contact sync enabled returns a 403.
 
 ### Example
 
@@ -49,10 +49,10 @@ $apiInstance = new Pipedrive\versions\v2\Api\PersonsApi(
     new GuzzleHttp\Client(),
     $config
 );
-$person_request_body = new \Pipedrive\versions\v2\Model\PersonRequestBody(); // \Pipedrive\versions\v2\Model\PersonRequestBody
+$post_person_request_body = new \Pipedrive\versions\v2\Model\PostPersonRequestBody(); // \Pipedrive\versions\v2\Model\PostPersonRequestBody
 
 try {
-    $result = $apiInstance->addPerson($person_request_body);
+    $result = $apiInstance->addPerson($post_person_request_body);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling PersonsApi->addPerson: ', $e->getMessage(), PHP_EOL;
@@ -63,7 +63,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **person_request_body** | [**\Pipedrive\versions\v2\Model\PersonRequestBody**](../Model/PersonRequestBody.md)|  | [optional]
+ **post_person_request_body** | [**\Pipedrive\versions\v2\Model\PostPersonRequestBody**](../Model/PostPersonRequestBody.md)|  | [optional]
 
 ### Return type
 
@@ -314,8 +314,8 @@ $apiInstance = new Pipedrive\versions\v2\Api\PersonsApi(
     $config
 );
 $id = 56; // int | The ID of the person
-$include_fields = 'include_fields_example'; // string | Optional comma separated string array of additional fields to include. `marketing_status` and `doi_status` can only be included if the company has marketing app enabled.
-$custom_fields = 'custom_fields_example'; // string | Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.<br/>A maximum of 15 keys is allowed.
+$include_fields = array('include_fields_example'); // string[] | Optional comma separated string array of additional fields to include. `marketing_status` and `doi_status` can only be included if the company has marketing app enabled.
+$custom_fields = array('custom_fields_example'); // string[] | Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.<br/>A maximum of 15 keys is allowed.
 $include_option_labels = True; // bool | When provided with a 'true' value, single option and multiple option custom fields values contain objects in the form of '{ id: number, label: string }' instead of plain id
 $include_labels = True; // bool | When provided with 'true' value, response will include an array of label objects in the form of '{ id: number, label: string }'
 
@@ -332,8 +332,8 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **int**| The ID of the person |
- **include_fields** | **string**| Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. | [optional]
- **custom_fields** | **string**| Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. | [optional]
+ **include_fields** | [**string[]**](../Model/string.md)| Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. | [optional]
+ **custom_fields** | [**string[]**](../Model/string.md)| Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. | [optional]
  **include_option_labels** | **bool**| When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id | [optional]
  **include_labels** | **bool**| When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; | [optional]
 
@@ -590,7 +590,7 @@ $apiInstance = new Pipedrive\versions\v2\Api\PersonsApi(
     $config
 );
 $filter_id = 56; // int | If supplied, only persons matching the specified filter are returned
-$ids = 'ids_example'; // string | Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response.
+$ids = array(56); // int[] | Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response.
 $owner_id = 56; // int | If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored.
 $org_id = 56; // int | If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored.
 $deal_id = 56; // int | If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored.
@@ -598,8 +598,8 @@ $updated_since = 'updated_since_example'; // string | If set, only persons with 
 $updated_until = 'updated_until_example'; // string | If set, only persons with an `update_time` earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z.
 $sort_by = 'id'; // string | The field to sort by. Supported fields: `id`, `update_time`, `add_time`.
 $sort_direction = 'asc'; // string | The sorting direction. Supported values: `asc`, `desc`.
-$include_fields = 'include_fields_example'; // string | Optional comma separated string array of additional fields to include. `marketing_status` and `doi_status` can only be included if the company has marketing app enabled.
-$custom_fields = 'custom_fields_example'; // string | Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.<br/>A maximum of 15 keys is allowed.
+$include_fields = array('include_fields_example'); // string[] | Optional comma separated string array of additional fields to include. `marketing_status` and `doi_status` can only be included if the company has marketing app enabled.
+$custom_fields = array('custom_fields_example'); // string[] | Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.<br/>A maximum of 15 keys is allowed.
 $include_option_labels = True; // bool | When provided with a 'true' value, single option and multiple option custom fields values contain objects in the form of '{ id: number, label: string }' instead of plain id
 $include_labels = True; // bool | When provided with 'true' value, response will include an array of label objects in the form of '{ id: number, label: string }'
 $limit = 100; // int | For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed.
@@ -618,7 +618,7 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **filter_id** | **int**| If supplied, only persons matching the specified filter are returned | [optional]
- **ids** | **string**| Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. | [optional]
+ **ids** | [**int[]**](../Model/int.md)| Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. | [optional]
  **owner_id** | **int**| If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. | [optional]
  **org_id** | **int**| If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. | [optional]
  **deal_id** | **int**| If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. | [optional]
@@ -626,8 +626,8 @@ Name | Type | Description  | Notes
  **updated_until** | **string**| If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. | [optional]
  **sort_by** | **string**| The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. | [optional] [default to &#39;id&#39;]
  **sort_direction** | **string**| The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. | [optional] [default to &#39;asc&#39;]
- **include_fields** | **string**| Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. | [optional]
- **custom_fields** | **string**| Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. | [optional]
+ **include_fields** | [**string[]**](../Model/string.md)| Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. | [optional]
+ **custom_fields** | [**string[]**](../Model/string.md)| Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. | [optional]
  **include_option_labels** | **bool**| When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id | [optional]
  **include_labels** | **bool**| When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; | [optional]
  **limit** | **int**| For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. | [optional]
@@ -683,11 +683,11 @@ $apiInstance = new Pipedrive\versions\v2\Api\PersonsApi(
     $config
 );
 $term = 'term_example'; // string | The search term to look for. Minimum 2 characters (or 1 if using `exact_match`). Please note that the search term has to be URL encoded.
-$fields = 'fields_example'; // string | A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: `address`, `varchar`, `text`, `varchar_auto`, `double`, `monetary` and `phone`. Read more about searching by custom fields <a href=\"https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\" target=\"_blank\" rel=\"noopener noreferrer\">here</a>.
+$fields = array('fields_example'); // string[] | A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: `address`, `varchar`, `text`, `varchar_auto`, `double`, `monetary` and `phone`. Read more about searching by custom fields <a href=\"https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\" target=\"_blank\" rel=\"noopener noreferrer\">here</a>.
 $exact_match = True; // bool | When enabled, only full exact matches against the given term are returned. It is <b>not</b> case sensitive.
 $organization_id = 56; // int | Will filter persons by the provided organization ID. The upper limit of found persons associated with the organization is 2000.
-$include_fields = 'include_fields_example'; // string | Supports including optional fields in the results which are not provided by default
-$limit = 100; // int | For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed.
+$include_fields = array('include_fields_example'); // string[] | Supports including optional fields in the results which are not provided by default
+$limit = 100; // int | For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed.
 $cursor = 'cursor_example'; // string | For pagination, the marker (an opaque string value) representing the first item on the next page
 
 try {
@@ -703,11 +703,11 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **term** | **string**| The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. |
- **fields** | **string**| A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. | [optional]
+ **fields** | [**string[]**](../Model/string.md)| A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. | [optional]
  **exact_match** | **bool**| When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. | [optional]
  **organization_id** | **int**| Will filter persons by the provided organization ID. The upper limit of found persons associated with the organization is 2000. | [optional]
- **include_fields** | **string**| Supports including optional fields in the results which are not provided by default | [optional]
- **limit** | **int**| For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. | [optional]
+ **include_fields** | [**string[]**](../Model/string.md)| Supports including optional fields in the results which are not provided by default | [optional]
+ **limit** | **int**| For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed. | [optional]
  **cursor** | **string**| For pagination, the marker (an opaque string value) representing the first item on the next page | [optional]
 
 ### Return type
@@ -730,12 +730,12 @@ Name | Type | Description  | Notes
 ## `updatePerson()`
 
 ```php
-updatePerson($id, $person_request_body): \Pipedrive\versions\v2\Model\PostPatchGetPerson
+updatePerson($id, $update_person_request_body): \Pipedrive\versions\v2\Model\PostPatchGetPerson
 ```
 
 Update a person
 
-Updates the properties of a person. <br>If the company uses the [Campaigns product](https://pipedrive.readme.io/docs/campaigns-in-pipedrive-api), then this endpoint will also accept and return the `marketing_status` field.
+Updates the properties of a person. <br>If the company uses the [Campaigns product](https://pipedrive.readme.io/docs/campaigns-in-pipedrive-api), then this endpoint will also accept and return the `marketing_status` field. <br>The `im`, `postal_address`, `notes`, `birthday` and `job_title` fields don't exist by default in Pipedrive and are only created when you set up your contact sync — attempting to set any of them without contact sync enabled returns a 403.
 
 ### Example
 
@@ -760,10 +760,10 @@ $apiInstance = new Pipedrive\versions\v2\Api\PersonsApi(
     $config
 );
 $id = 56; // int | The ID of the person
-$person_request_body = new \Pipedrive\versions\v2\Model\PersonRequestBody(); // \Pipedrive\versions\v2\Model\PersonRequestBody
+$update_person_request_body = new \Pipedrive\versions\v2\Model\UpdatePersonRequestBody(); // \Pipedrive\versions\v2\Model\UpdatePersonRequestBody
 
 try {
-    $result = $apiInstance->updatePerson($id, $person_request_body);
+    $result = $apiInstance->updatePerson($id, $update_person_request_body);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling PersonsApi->updatePerson: ', $e->getMessage(), PHP_EOL;
@@ -775,7 +775,7 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **int**| The ID of the person |
- **person_request_body** | [**\Pipedrive\versions\v2\Model\PersonRequestBody**](../Model/PersonRequestBody.md)|  | [optional]
+ **update_person_request_body** | [**\Pipedrive\versions\v2\Model\UpdatePersonRequestBody**](../Model/UpdatePersonRequestBody.md)|  | [optional]
 
 ### Return type
 

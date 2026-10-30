@@ -3,13 +3,16 @@
 namespace Tests\Unit\Backend\Services\Payment;
 
 use App\Auto_renewal;
+use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\Subscription\SubscriptionController;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Product\Subscription;
+use App\Plugins\Payment\Dto\SubscriptionResult;
 use App\Services\Payment\AutoRenewalActivationService;
 use App\User;
 use DB;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery;
 use Tests\DBTestCase;
@@ -23,7 +26,7 @@ class AutoRenewalActivationServiceTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new AutoRenewalActivationService();
+        $this->service = new AutoRenewalActivationService;
     }
 
     protected function tearDown(): void
@@ -155,6 +158,7 @@ class AutoRenewalActivationServiceTest extends DBTestCase
 
         $mockController = Mockery::mock(SubscriptionController::class);
         $mockController->shouldNotReceive('handleRazorpaySubscription');
+
         $this->app->instance(SubscriptionController::class, $mockController);
 
         $this->service->activate($order, $user, 'stripe', 'pi_test_123');
@@ -185,7 +189,7 @@ class AutoRenewalActivationServiceTest extends DBTestCase
             'order_id' => $order->id, 'payment_intent_id' => 'pi_first',
         ]);
 
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         Auto_renewal::create([
             'user_id' => $user->id, 'customer_id' => 'pi_second', 'payment_method' => 'stripe',
@@ -213,10 +217,10 @@ class AutoRenewalActivationServiceTest extends DBTestCase
         $order = Order::factory()->withRelations()->create();
         $user = User::factory()->create();
 
-        $mockController = Mockery::mock(\App\Http\Controllers\RazorpayController::class);
+        $mockController = Mockery::mock(RazorpayController::class);
         $mockController->shouldReceive('handleRzpAutoPay')->once()
-            ->andReturn(new \App\Plugins\Payment\Dto\SubscriptionResult('Razorpay', 'sub_new_123', 'created'));
-        $this->app->instance(\App\Http\Controllers\RazorpayController::class, $mockController);
+            ->andReturn(new SubscriptionResult('Razorpay', 'sub_new_123', 'created'));
+        $this->app->instance(RazorpayController::class, $mockController);
 
         $config = $this->service->prepareRazorpaySubscriptionForAuthorization($order, $user);
 
@@ -246,10 +250,10 @@ class AutoRenewalActivationServiceTest extends DBTestCase
         $user = User::factory()->create();
         Subscription::where('order_id', $order->id)->update(['subscribe_id' => 'sub_old_stale_123', 'rzp_subscription' => '2']);
 
-        $mockController = Mockery::mock(\App\Http\Controllers\RazorpayController::class);
+        $mockController = Mockery::mock(RazorpayController::class);
         $mockController->shouldReceive('handleRzpAutoPay')->once()
-            ->andReturn(new \App\Plugins\Payment\Dto\SubscriptionResult('Razorpay', 'sub_fresh_456', 'created'));
-        $this->app->instance(\App\Http\Controllers\RazorpayController::class, $mockController);
+            ->andReturn(new SubscriptionResult('Razorpay', 'sub_fresh_456', 'created'));
+        $this->app->instance(RazorpayController::class, $mockController);
 
         $config = $this->service->prepareRazorpaySubscriptionForAuthorization($order, $user);
 
@@ -288,16 +292,16 @@ class AutoRenewalActivationServiceTest extends DBTestCase
         $expectedUnitCost = calculateUnitCost($planDetails['currency'], 110.0);
 
         $capturedCost = null;
-        $mockRazorpayController = Mockery::mock(\App\Http\Controllers\RazorpayController::class);
+        $mockRazorpayController = Mockery::mock(RazorpayController::class);
         $mockRazorpayController->shouldReceive('handleRzpAutoPay')
             ->once()
-            ->withArgs(function ($cost) use (&$capturedCost) {
+            ->withArgs(function ($cost) use (&$capturedCost): true {
                 $capturedCost = $cost;
 
                 return true;
             })
-            ->andReturn(new \App\Plugins\Payment\Dto\SubscriptionResult('Razorpay', 'sub_fee_test', 'created'));
-        $this->app->instance(\App\Http\Controllers\RazorpayController::class, $mockRazorpayController);
+            ->andReturn(new SubscriptionResult('Razorpay', 'sub_fee_test', 'created'));
+        $this->app->instance(RazorpayController::class, $mockRazorpayController);
 
         $this->service->prepareRazorpaySubscriptionForAuthorization($order, $user);
 

@@ -23,7 +23,7 @@ class PaymentsAndInvoicesTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->subject = new ConcretePaymentsAndInvoices();
+        $this->subject = new ConcretePaymentsAndInvoices;
     }
 
     // =========================================================================
@@ -42,7 +42,7 @@ class PaymentsAndInvoicesTest extends TestCase
         try {
             $result = $this->subject->getAgents(0, 999999, 1);
             $this->assertIsInt($result);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // DB failure is acceptable; the method body was entered
             $this->assertTrue(true);
         }
@@ -63,7 +63,7 @@ class PaymentsAndInvoicesTest extends TestCase
         try {
             $result = $this->subject->getQuantity(0, 999999, 1);
             $this->assertIsInt($result);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             $this->assertTrue(true);
         }
     }
@@ -87,7 +87,7 @@ class PaymentsAndInvoicesTest extends TestCase
 
     public function test_get_total_invoice_returns_zero_for_empty_collection(): void
     {
-        $result = $this->subject->getTotalInvoice(new Collection());
+        $result = $this->subject->getTotalInvoice(new Collection);
         $this->assertSame(0, $result);
     }
 

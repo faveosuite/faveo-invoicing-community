@@ -138,7 +138,7 @@ class SocialAuthController extends BaseAuthController
     {
         $provider = strtolower($provider);
 
-        $details = in_array($provider, self::PROVIDERS, true)
+        $details = in_array($provider, self::PROVIDERS, strict: true)
             ? SocialLogin::where('type', $provider)->where('status', 1)->first()
             : null;
 
@@ -205,6 +205,7 @@ class SocialAuthController extends BaseAuthController
         if ($email && User::onlyTrashed()->where('email', $email)->exists()) {
             return $this->errorUrl('inactive');
         }
+
         if ($email && (User::where('user_name', $email)->exists()
             || DB::table('settings')->where('email', $email)->orWhere('company_email', $email)->exists())) {
             return $this->errorUrl('email_taken');

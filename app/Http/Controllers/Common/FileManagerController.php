@@ -42,7 +42,7 @@ class FileManagerController extends Controller
 
         $fileMetadata = Attach::getMetadata($path);
 
-        $fileName = basename((string) $path);
+        $fileName = basename($path);
 
         return response()->stream(function () use ($fileStream): void {
             fpassthru($fileStream);

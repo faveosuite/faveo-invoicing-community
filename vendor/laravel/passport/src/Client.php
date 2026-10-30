@@ -67,7 +67,7 @@ class Client extends Model
     /**
      * Initialize the trait.
      */
-    public function initializeHasUniqueStringIds(): void
+    public function initializeHasUniqueStringIds()
     {
         $this->usesUniqueIds = Passport::$clientUuids;
     }
@@ -227,7 +227,7 @@ class Client extends Model
      */
     public function getConnectionName(): ?string
     {
-        return $this->connection ?? config('passport.connection');
+        return parent::getConnectionName() ?? config('passport.connection');
     }
 
     /**

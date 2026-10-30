@@ -6,6 +6,7 @@ namespace App\Model\Order;
 
 use App\BaseModel;
 use App\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,10 +34,10 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $amt_to_credit
- * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentInvoice> $allocations
+ * @property-read Collection<int, PaymentInvoice> $allocations
  * @property-read int|null $allocations_count
  * @property-read PaymentInvoice|null $pivot
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
+ * @property-read Collection<int, Invoice> $invoices
  * @property-read int|null $invoices_count
  * @property-read User|null $user
  *
@@ -77,7 +78,7 @@ class Payment extends BaseModel
      */
     public function invoices(): BelongsToMany
     {
-        return $this->belongsToMany(Invoice::class, 'payment_invoice', 'payment_id', 'invoice_id')
+        return $this->belongsToMany(Invoice::class, PaymentInvoice::class, 'payment_id', 'invoice_id')
             ->using(PaymentInvoice::class)
             ->withPivot('amount');
     }

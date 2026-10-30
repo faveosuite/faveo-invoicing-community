@@ -176,7 +176,7 @@ class LogViewControllerTest extends DBTestCase
     public function test_mail_logs_without_filters(): void
     {
         $log = $this->logMailByCategory();
-        assert($log !== null);
+        assert($log instanceof Model);
 
         $payload = $this->defaultMailPayload(['category' => $log->log_category_id]);
 
@@ -190,7 +190,7 @@ class LogViewControllerTest extends DBTestCase
     public function test_mail_logs_with_search_query(): void
     {
         $log = $this->logMailByCategory('', '', [], [], 'First Subject');
-        assert($log !== null);
+        assert($log instanceof Model);
         /** @var LogCategory $logCat */
         $logCat = LogCategory::findOrFail($log->log_category_id);
         $categoryName = $logCat->name;
@@ -213,7 +213,7 @@ class LogViewControllerTest extends DBTestCase
     public function test_mail_logs_with_limit(): void
     {
         $log = $this->logMailByCategory('', '', [], [], 'First Subject');
-        assert($log !== null);
+        assert($log instanceof Model);
         /** @var LogCategory $logCat */
         $logCat = LogCategory::findOrFail($log->log_category_id);
         $categoryName = $logCat->name;

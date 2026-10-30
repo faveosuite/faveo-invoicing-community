@@ -7,8 +7,8 @@ namespace Larastan\Larastan\Properties;
 use Larastan\Larastan\Properties\Schema\MySqlDataTypeToPhpTypeConverter;
 use Larastan\Larastan\SQL\SqlParser;
 use Larastan\Larastan\SQL\SqlParserFailure;
+use Larastan\Larastan\Support\RecursiveDirectoryIterator;
 use PHPStan\File\FileHelper;
-use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
 use SplFileInfo;
@@ -75,6 +75,7 @@ final class SquashedMigrationHelper
                 }
 
                 $table = new SchemaTable($definition->name);
+
                 foreach ($definition->columns as $column) {
                     $table->setColumn(new SchemaColumn(
                         $column->name,

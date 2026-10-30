@@ -10,6 +10,7 @@ use Illuminate\Broadcasting\Broadcasters\LogBroadcaster;
 use Illuminate\Broadcasting\Broadcasters\NullBroadcaster;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
 use Illuminate\Broadcasting\Broadcasters\RedisBroadcaster;
+use Illuminate\Broadcasting\Mercure\CreatesMercureDrivers;
 use Illuminate\Bus\UniqueLock;
 use Illuminate\Contracts\Broadcasting\Factory as FactoryContract;
 use Illuminate\Contracts\Broadcasting\ShouldBeUnique;
@@ -18,17 +19,28 @@ use Illuminate\Contracts\Broadcasting\ShouldRescue;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcherContract;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Foundation\CachesRoutes;
+use Illuminate\Queue\Attributes\Connection as ConnectionAttribute;
+use Illuminate\Queue\Attributes\Queue as QueueAttribute;
+use Illuminate\Queue\Attributes\ReadsQueueAttributes;
+use Illuminate\Queue\Events\UniqueJobSkipped;
+use Illuminate\Support\Queue\Concerns\ResolvesQueueRoutes;
+use Illuminate\Support\RebindsCallbacksToSelf;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Pusher\Pusher;
+use ReflectionException;
 use RuntimeException;
 use Throwable;
+
+use function Illuminate\Support\enum_value;
 
 /**
  * @mixin \Illuminate\Contracts\Broadcasting\Broadcaster
  */
 class BroadcastManager implements FactoryContract
 {
+    use CreatesMercureDrivers, ReadsQueueAttributes, RebindsCallbacksToSelf, ResolvesQueueRoutes;
+
     /**
      * The application instance.
      *
@@ -78,7 +90,7 @@ class BroadcastManager implements FactoryContract
             $router->match(
                 ['get', 'post'], '/broadcasting/auth',
                 '\\'.BroadcastController::class.'@authenticate'
-            )->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+            )->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class]);
         });
     }
 
@@ -100,7 +112,7 @@ class BroadcastManager implements FactoryContract
             $router->match(
                 ['get', 'post'], '/broadcasting/user-auth',
                 '\\'.BroadcastController::class.'@authenticateUser'
-            )->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+            )->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class]);
         });
     }
 
@@ -180,7 +192,8 @@ class BroadcastManager implements FactoryContract
         if ($event instanceof ShouldBroadcastNow ||
             (is_object($event) &&
              method_exists($event, 'shouldBroadcastNow') &&
-             $event->shouldBroadcastNow())) {
+             $event->shouldBroadcastNow()) ||
+            $this->broadcastsToSynchronousMercureConnections($event)) {
             $dispatch = fn () => $this->app->make(BusDispatcherContract::class)
                 ->dispatchNow(new BroadcastEvent(clone $event));
 
@@ -196,18 +209,31 @@ class BroadcastManager implements FactoryContract
             default => null,
         };
 
+        if (is_null($queue)) {
+            $queue = $this->getAttributeValue($event, QueueAttribute::class, 'queue')
+                ?? $this->resolveQueueFromQueueRoute($event)
+                ?? null;
+        }
+
         $broadcastEvent = new BroadcastEvent(clone $event);
 
         if ($event instanceof ShouldBeUnique) {
             $broadcastEvent = new UniqueBroadcastEvent(clone $event);
 
             if ($this->mustBeUniqueAndCannotAcquireLock($broadcastEvent)) {
+                $this->app->make('events')->dispatch(new UniqueJobSkipped($broadcastEvent));
+
                 return;
             }
         }
 
         $push = fn () => $this->app->make('queue')
-            ->connection($event->connection ?? null)
+            ->connection(
+                $event->connection
+                    ?? $this->getAttributeValue($event, ConnectionAttribute::class, 'connection')
+                    ?? $this->resolveConnectionFromQueueRoute($event)
+                    ?? null
+            )
             ->pushOn($queue, $broadcastEvent);
 
         $event instanceof ShouldRescue
@@ -231,25 +257,25 @@ class BroadcastManager implements FactoryContract
     }
 
     /**
-     * Get a driver instance.
+     * Get a broadcaster instance by name.
      *
-     * @param  string|null  $driver
+     * @param  \UnitEnum|string|null  $name
      * @return mixed
      */
-    public function connection($driver = null)
+    public function connection($name = null)
     {
-        return $this->driver($driver);
+        return $this->driver($name);
     }
 
     /**
      * Get a driver instance.
      *
-     * @param  string|null  $name
+     * @param  \UnitEnum|string|null  $name
      * @return mixed
      */
     public function driver($name = null)
     {
-        $name = $name ?: $this->getDefaultDriver();
+        $name = enum_value($name) ?: $this->getDefaultDriver();
 
         return $this->drivers[$name] = $this->get($name);
     }
@@ -272,6 +298,7 @@ class BroadcastManager implements FactoryContract
      * @return \Illuminate\Contracts\Broadcasting\Broadcaster
      *
      * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      */
     protected function resolve($name)
     {
@@ -429,7 +456,7 @@ class BroadcastManager implements FactoryContract
      * Get the connection configuration.
      *
      * @param  string  $name
-     * @return array
+     * @return array|null
      */
     protected function getConfig($name)
     {
@@ -447,29 +474,29 @@ class BroadcastManager implements FactoryContract
      */
     public function getDefaultDriver()
     {
-        return $this->app['config']['broadcasting.default'];
+        return $this->app['config']['broadcasting.default'] ?? 'null';
     }
 
     /**
      * Set the default driver name.
      *
-     * @param  string  $name
+     * @param  \UnitEnum|string  $name
      * @return void
      */
     public function setDefaultDriver($name)
     {
-        $this->app['config']['broadcasting.default'] = $name;
+        $this->app['config']['broadcasting.default'] = enum_value($name);
     }
 
     /**
      * Disconnect the given driver / connection and remove it from local cache.
      *
-     * @param  string|null  $name
+     * @param  \UnitEnum|string|null  $name
      * @return void
      */
     public function purge($name = null)
     {
-        $name ??= $this->getDefaultDriver();
+        $name = enum_value($name) ?? $this->getDefaultDriver();
 
         unset($this->drivers[$name]);
     }
@@ -479,10 +506,19 @@ class BroadcastManager implements FactoryContract
      *
      * @param  string  $driver
      * @param  \Closure  $callback
+     *
+     * @param-closure-this  $this  $callback
+     *
      * @return $this
      */
     public function extend($driver, Closure $callback)
     {
+        try {
+            $callback = $this->bindCallbackToSelf($callback) ?? throw new RuntimeException('Unable to bind custom driver callback');
+        } catch (ReflectionException $e) {
+            throw new RuntimeException('Unable to bind custom driver callback', previous: $e);
+        }
+
         $this->customCreators[$driver] = $callback;
 
         return $this;

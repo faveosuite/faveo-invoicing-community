@@ -18,6 +18,7 @@ use Tests\DBTestCase;
 class TaxServiceTest extends DBTestCase
 {
     use DatabaseTransactions;
+
     /** @var TaxRateResolver&MockInterface */
     private TaxRateResolver $resolver;
 
@@ -32,7 +33,7 @@ class TaxServiceTest extends DBTestCase
         /** @var TaxRateResolver&MockInterface $resolver */
         $resolver = Mockery::mock(TaxRateResolver::class);
         $this->resolver = $resolver;
-        $this->engine = new TaxEngine();
+        $this->engine = new TaxEngine;
         $this->service = new TaxService($this->resolver, $this->engine);
     }
 
@@ -158,7 +159,7 @@ class TaxServiceTest extends DBTestCase
     {
         $this->resolver->shouldReceive('ratesForCustomer')->andReturn([])->byDefault();
 
-        $result = $this->service->legacyCondition(0, null);
+        $result = $this->service->legacyCondition(0, user: null);
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('name', $result);
@@ -183,7 +184,7 @@ class TaxServiceTest extends DBTestCase
 
         // Create a tax class and product relation
         $taxClass = TaxClass::create(['name' => 'Test Standard', 'slug' => 'test-standard-'.uniqid()]);
-        $productRelation = TaxProductRelation::create(['product_id' => 9999, 'tax_class_id' => $taxClass->id]);
+        TaxProductRelation::create(['product_id' => 9999, 'tax_class_id' => $taxClass->id]);
 
         $rates = [
             ['id' => 99, 'rate' => 10.0, 'label' => 'VAT', 'compound' => false, 'priority' => 1],

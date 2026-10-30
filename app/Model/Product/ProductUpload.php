@@ -182,10 +182,10 @@ class ProductUpload extends Model
      */
     public static function decodeDependencies(?string $raw): array
     {
-        $decoded = json_decode((string) $raw, true);
+        $decoded = json_decode((string) $raw, associative: true);
 
         if (is_string($decoded)) {
-            $decoded = json_decode($decoded, true);
+            $decoded = json_decode($decoded, associative: true);
         }
 
         return is_array($decoded) ? $decoded : [];
@@ -233,12 +233,12 @@ class ProductUpload extends Model
     }
 
     /**
-     * @param  Builder<Model>  $query
+     * @param  Builder<static>  $query
      */
     #[Scope]
     protected function active(Builder $query): mixed
     {
-        return $query->where(function ($q): void {
+        return $query->where(function (\Illuminate\Contracts\Database\Query\Builder $q): void {
             $q->where('status', 1);
         });
     }

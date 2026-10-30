@@ -55,17 +55,25 @@ trait BrowserKitAssertionsTrait
 
     public static function assertResponseRedirects(?string $expectedLocation = null, ?int $expectedCode = null, string $message = '', ?bool $verbose = null): void
     {
-        $constraint = new ResponseConstraint\ResponseIsRedirected($verbose ?? self::$defaultVerboseMode);
-        if ($expectedLocation) {
-            $locationConstraint = new ResponseConstraint\ResponseHeaderLocationSame(self::getRequest(), $expectedLocation);
+        $verbose ??= self::$defaultVerboseMode;
 
-            $constraint = LogicalAnd::fromConstraints($constraint, $locationConstraint);
+        $constraints = [new ResponseConstraint\ResponseIsRedirected($verbose)];
+        if ($expectedLocation) {
+            $constraints[] = new ResponseConstraint\ResponseHeaderLocationSame(self::getRequest(), $expectedLocation);
         }
         if ($expectedCode) {
-            $constraint = LogicalAnd::fromConstraints($constraint, new ResponseConstraint\ResponseStatusCodeSame($expectedCode));
+            $constraints[] = new ResponseConstraint\ResponseStatusCodeSame($expectedCode, $verbose);
         }
 
-        self::assertThatForResponse($constraint, $message);
+        // LogicalAnd describes its failure by exporting the whole response, body included, so it
+        // cannot be used when $verbose asked for the body to be omitted; assert one by one instead
+        if ($verbose && 1 < \count($constraints)) {
+            $constraints = [LogicalAnd::fromConstraints(...$constraints)];
+        }
+
+        foreach ($constraints as $constraint) {
+            self::assertThatForResponse($constraint, $message);
+        }
     }
 
     public static function assertResponseHasHeader(string $headerName, string $message = ''): void
@@ -178,6 +186,11 @@ trait BrowserKitAssertionsTrait
         }
 
         self::assertThat(self::getRequest(), $constraint, $message);
+    }
+
+    public static function assertSessionHasFlashMessage(string $messageType, string|array $messages = ''): void
+    {
+        static::assertThat(self::getRequest(), new ResponseConstraint\SessionHasFlashMessage($messageType, $messages));
     }
 
     public static function assertThatForResponse(Constraint $constraint, string $message = ''): void

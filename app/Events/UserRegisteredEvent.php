@@ -13,8 +13,7 @@ class UserRegisteredEvent
     public function __construct(
         public readonly User $user,
         public readonly string $trigger = 'register'
-    ) {
-    }
+    ) {}
 
     /**
      * Dispatch the event without letting an external-sync failure escape.
@@ -28,8 +27,8 @@ class UserRegisteredEvent
     {
         try {
             event(new self($user, $trigger));
-        } catch (Throwable $exception) {
-            Logger::exception($exception);
+        } catch (Throwable $throwable) {
+            Logger::exception($throwable);
         }
     }
 }

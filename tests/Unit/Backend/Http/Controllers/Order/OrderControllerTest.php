@@ -4,9 +4,24 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Order;
 
+use App\Auto_renewal;
+use App\Events\UserOrderDelete;
+use App\Http\Controllers\Order\OrderController;
+use App\Http\Middleware\Install;
+use App\License\Models\Installation;
+use App\License\Models\InstallationLog;
 use App\License\Models\License;
+use App\Model\License\LicensePermission;
+use App\Model\License\LicenseType;
 use App\Model\Order\Order;
+use App\Model\Order\Payment;
+use App\Model\Payment\Plan;
+use App\Model\Product\CloudProducts;
+use App\Model\Product\Product;
+use App\Model\Product\Subscription;
+use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Event;
 use Tests\DBTestCase;
 
 class OrderControllerTest extends DBTestCase
@@ -16,7 +31,7 @@ class OrderControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     // =========================================================================
@@ -56,6 +71,7 @@ class OrderControllerTest extends DBTestCase
         $response = $this->getJson('/orders');
 
         $response->assertStatus(200);
+
         $json = $response->json();
 
         $this->assertTrue($json['success']);
@@ -78,6 +94,7 @@ class OrderControllerTest extends DBTestCase
         $response = $this->getJson('/order/999999999');
 
         $response->assertStatus(404);
+
         $json = $response->json();
         // Handler::notFoundResponse() catches ModelNotFoundException app-wide and
         // returns a generic message — it doesn't echo the missing id back.
@@ -132,6 +149,7 @@ class OrderControllerTest extends DBTestCase
         $response = $this->getJson('/getOrderPayments/999999999');
 
         $response->assertStatus(400);
+
         $json = $response->json();
         $this->assertFalse($json['success']);
         $this->assertSame(__('message.record_not_found'), $json['message']);
@@ -193,8 +211,8 @@ class OrderControllerTest extends DBTestCase
     public function test_get_order_existing_returns_200_with_order_data(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['role' => 'user']);
-        $order = \App\Model\Order\Order::factory()->create(['client' => $user->id]);
+        $user = User::factory()->create(['role' => 'user']);
+        $order = Order::factory()->create(['client' => $user->id]);
 
         $response = $this->getJson("/order/{$order->id}");
         $response->assertStatus(200);
@@ -209,8 +227,8 @@ class OrderControllerTest extends DBTestCase
     public function test_get_payments_for_existing_order_returns_200(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['role' => 'user']);
-        $order = \App\Model\Order\Order::factory()->create(['client' => $user->id]);
+        $user = User::factory()->create(['role' => 'user']);
+        $order = Order::factory()->create(['client' => $user->id]);
 
         $response = $this->getJson("/getOrderPayments/{$order->id}");
         $response->assertStatus(200);
@@ -224,8 +242,8 @@ class OrderControllerTest extends DBTestCase
     public function test_get_invoices_for_existing_order_returns_200(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['role' => 'user']);
-        $order = \App\Model\Order\Order::factory()->create(['client' => $user->id]);
+        $user = User::factory()->create(['role' => 'user']);
+        $order = Order::factory()->create(['client' => $user->id]);
 
         $response = $this->getJson("/getOrderInvoices/{$order->id}");
         $response->assertStatus(200);
@@ -264,6 +282,7 @@ class OrderControllerTest extends DBTestCase
 
         $response = $this->getJson('/orders');
         $response->assertStatus(200);
+
         $data = $response->json('data.data');
         $this->assertNotEmpty($data);
         $this->assertArrayHasKey('number', $data[0]);
@@ -273,7 +292,7 @@ class OrderControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $order = Order::factory()->withRelations()->create(['order_status' => 'Terminated']);
-        \App\Model\Product\Subscription::factory()->create(['order_id' => $order->id]);
+        Subscription::factory()->create(['order_id' => $order->id]);
 
         $row = collect($this->getJson('/orders?order_no='.$order->number)->json('data.data'))->firstWhere('id', $order->id);
 
@@ -298,10 +317,10 @@ class OrderControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $order = Order::factory()->create();
         $code = 'DEL'.uniqid();
-        \App\License\Models\License::create(['product_id' => $order->product, 'license_code' => $code, 'license_order_number' => $order->number]);
-        \App\License\Models\Installation::create(['product_id' => $order->product, 'license_code' => $code, 'installation_domain' => 'gone.example.com']);
-        \App\License\Models\InstallationLog::create(['license_code' => $code, 'installation_domain' => 'gone.example.com']);
-        \App\Auto_renewal::create(['order_id' => $order->id, 'user_id' => $order->client, 'payment_method' => 'stripe', 'customer_id' => 'cus_x', 'payment_intent_id' => 'pm_x']);
+        License::create(['product_id' => $order->product, 'license_code' => $code, 'license_order_number' => $order->number]);
+        Installation::create(['product_id' => $order->product, 'license_code' => $code, 'installation_domain' => 'gone.example.com']);
+        InstallationLog::create(['license_code' => $code, 'installation_domain' => 'gone.example.com']);
+        Auto_renewal::create(['order_id' => $order->id, 'user_id' => $order->client, 'payment_method' => 'stripe', 'customer_id' => 'cus_x', 'payment_intent_id' => 'pm_x']);
 
         $this->deleteJson('/orders', ['order_ids' => [$order->id]])->assertOk();
 
@@ -330,14 +349,15 @@ class OrderControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $order = Order::factory()->withRelations()->create();
 
-        $type = \App\Model\License\LicenseType::factory()->create();
-        $permission = \App\Model\License\LicensePermission::firstOrCreate(['permissions' => 'Generate Updates Expiry Date']);
+        $type = LicenseType::factory()->create();
+        $permission = LicensePermission::firstOrCreate(['permissions' => 'Generate Updates Expiry Date']);
         $type->permissions()->attach($permission->id);
-        \App\Model\Product\Product::where('id', $order->product)->update(['type' => $type->id]);
+        Product::where('id', $order->product)->update(['type' => $type->id]);
 
         $response = $this->getJson('/order/'.$order->id);
 
         $response->assertStatus(200);
+
         $permissions = $response->json('data.permissions');
         $this->assertIsArray($permissions);
         $this->assertArrayHasKey('generateUpdatesxpiryDate', $permissions);
@@ -375,7 +395,7 @@ class OrderControllerTest extends DBTestCase
     public function test_plan_returns_zero_for_unknown_invoice_item(): void
     {
         $this->getLoggedInUser('admin');
-        $controller = new \App\Http\Controllers\Order\OrderController;
+        $controller = new OrderController;
 
         $result = $controller->plan(999999);
 
@@ -385,7 +405,7 @@ class OrderControllerTest extends DBTestCase
     public function test_check_invoice_status_by_order_id_returns_string(): void
     {
         $this->getLoggedInUser('admin');
-        $controller = new \App\Http\Controllers\Order\OrderController;
+        $controller = new OrderController;
 
         $result = $controller->checkInvoiceStatusByOrderId(999999);
 
@@ -395,7 +415,7 @@ class OrderControllerTest extends DBTestCase
     public function test_subscription_returns_null_for_unknown_order(): void
     {
         $this->getLoggedInUser('admin');
-        $controller = new \App\Http\Controllers\Order\OrderController;
+        $controller = new OrderController;
 
         $result = $controller->subscription(999999);
 
@@ -405,7 +425,7 @@ class OrderControllerTest extends DBTestCase
     public function test_expiry_returns_null_or_empty_for_unknown_order(): void
     {
         $this->getLoggedInUser('admin');
-        $controller = new \App\Http\Controllers\Order\OrderController;
+        $controller = new OrderController;
 
         $result = $controller->expiry(999999);
 
@@ -467,7 +487,7 @@ class OrderControllerTest extends DBTestCase
     public function test_get_payment_by_order_id_with_search_query_returns_200(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['role' => 'user']);
+        $user = User::factory()->create(['role' => 'user']);
         $order = Order::factory()->create(['client' => $user->id]);
 
         $response = $this->getJson("/getOrderPayments/{$order->id}?search-query=stripe");
@@ -479,7 +499,7 @@ class OrderControllerTest extends DBTestCase
     public function test_get_payment_by_order_id_with_sort_params_returns_200(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['role' => 'user']);
+        $user = User::factory()->create(['role' => 'user']);
         $order = Order::factory()->create(['client' => $user->id]);
 
         $response = $this->getJson("/getOrderPayments/{$order->id}?sort-field=amount&sort-order=desc&limit=5");
@@ -496,7 +516,7 @@ class OrderControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $controller = new \App\Http\Controllers\Order\OrderController;
+        $controller = new OrderController;
         $result = $controller->renew(999999);
 
         $this->assertStringContainsString('my-orders', (string) $result);
@@ -518,7 +538,7 @@ class OrderControllerTest extends DBTestCase
             $invoice->save();
         }
 
-        $controller = new \App\Http\Controllers\Order\OrderController;
+        $controller = new OrderController;
         $result = $controller->checkInvoiceStatusByOrderId($order->id);
 
         $this->assertIsString($result);
@@ -562,7 +582,7 @@ class OrderControllerTest extends DBTestCase
         // Create a payment for the invoice linked to this order
         $invoice = $order->getRelation('invoice');
         if ($invoice) {
-            \App\Model\Order\Payment::create([
+            Payment::create([
                 'invoice_id' => $invoice->id,
                 'user_id' => $order->client,
                 'amount' => 100.0,
@@ -584,16 +604,18 @@ class OrderControllerTest extends DBTestCase
 
     private function cloudOrderWithDomain(bool $instanceDeleted): Order
     {
-        $product = \App\Model\Product\Product::factory()->create();
-        $freePlan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id]);
-        \App\Model\Product\CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $freePlan->id, 'cloud_product_key' => 'k'.uniqid()]);
+        $product = Product::factory()->create();
+        $freePlan = Plan::factory()->create(['product' => $product->id]);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $freePlan->id, 'cloud_product_key' => 'k'.uniqid()]);
         // 9 digits: longer than the factory's 8-digit numbers, so the list's substring search
         // (it also matches mobiles, emails…) finds only this order in a full-suite database.
         $order = Order::factory()->withRelations()->create(['product' => $product->id, 'order_status' => 'executed', 'number' => random_int(900000000, 999999999)]);
-        \App\Model\Product\Subscription::where('order_id', $order->id)->update(['is_deleted' => (int) $instanceDeleted]);
-        $code = 'LIC'.uniqid();
+        Subscription::where('order_id', $order->id)->update(['is_deleted' => (int) $instanceDeleted]);
+        // Random, not uniqid(): installedDomains() matches on the code minus its last 4 chars,
+        // and two uniqid() codes made milliseconds apart share that prefix.
+        $code = 'LIC'.bin2hex(random_bytes(8));
         License::create(['product_id' => $order->product, 'user_id' => $order->client, 'license_code' => $code, 'license_order_number' => $order->number, 'license_status' => 1]);
-        \App\License\Models\InstallationLog::create(['license_code' => $code, 'installation_domain' => 'tenant-'.uniqid().'.example.test', 'installation_last_active_date' => now()]);
+        InstallationLog::create(['license_code' => $code, 'installation_domain' => 'tenant-'.uniqid().'.example.test', 'installation_last_active_date' => now()]);
 
         return $order;
     }
@@ -614,14 +636,14 @@ class OrderControllerTest extends DBTestCase
     public function test_bulk_delete_skips_teardown_for_an_already_deleted_instance(): void
     {
         $this->getLoggedInUser('admin');
-        \Illuminate\Support\Facades\Event::fake([\App\Events\UserOrderDelete::class]);
+        Event::fake([UserOrderDelete::class]);
         $gone = $this->cloudOrderWithDomain(instanceDeleted: true);
         $live = $this->cloudOrderWithDomain(instanceDeleted: false);
 
         $this->deleteJson('/orders', ['order_ids' => [$gone->id, $live->id]])->assertOk();
 
-        \Illuminate\Support\Facades\Event::assertDispatchedTimes(\App\Events\UserOrderDelete::class, 1);
-        \Illuminate\Support\Facades\Event::assertDispatched(\App\Events\UserOrderDelete::class, fn ($e) => $e->order_id === $live->id);
+        Event::assertDispatchedTimes(UserOrderDelete::class, 1);
+        Event::assertDispatched(UserOrderDelete::class, fn ($e): bool => $e->order_id === $live->id);
         $this->assertSame(0, Order::whereIn('id', [$gone->id, $live->id])->count());
     }
 }

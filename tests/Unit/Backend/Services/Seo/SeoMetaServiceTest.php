@@ -32,7 +32,7 @@ class SeoMetaServiceTest extends DBTestCase
         CommonSettings::where('option_name', 'seo')->delete();
         SeoDefaultPage::query()->delete();
 
-        $this->service = app(SeoMetaService::class);
+        $this->service = resolve(SeoMetaService::class);
     }
 
     // --- Default pages: login / forgot_password / reset_password ---
@@ -141,7 +141,7 @@ class SeoMetaServiceTest extends DBTestCase
         // caches Setting at construction — forget it so the update above is
         // actually picked up on re-resolve.
         $this->app->forgetInstance(SeoTemplateFormatter::class);
-        $this->service = app(SeoMetaService::class);
+        $this->service = resolve(SeoMetaService::class);
         FrontendPage::factory()->create([
             'slug' => 'faq',
             'name' => 'FAQ',
@@ -200,7 +200,7 @@ class SeoMetaServiceTest extends DBTestCase
     {
         Setting::find(1)->update(['favicon_title_client' => '']);
         $this->app->forgetInstance(SeoTemplateFormatter::class);
-        $this->service = app(SeoMetaService::class);
+        $this->service = resolve(SeoMetaService::class);
 
         $result = $this->service->resolve('contact-us');
 
@@ -214,7 +214,7 @@ class SeoMetaServiceTest extends DBTestCase
     {
         Setting::find(1)->update(['favicon_title_client' => '']);
         $this->app->forgetInstance(SeoTemplateFormatter::class);
-        $this->service = app(SeoMetaService::class);
+        $this->service = resolve(SeoMetaService::class);
 
         $result = $this->service->resolve('store');
 
@@ -317,7 +317,7 @@ class SeoMetaServiceTest extends DBTestCase
         // caches CommonSettings at construction — forget it so the new value
         // set above is actually picked up on re-resolve.
         $this->app->forgetInstance(SeoTemplateFormatter::class);
-        $this->service = app(SeoMetaService::class);
+        $this->service = resolve(SeoMetaService::class);
 
         $result = $this->service->resolve('checkout');
 
@@ -351,7 +351,7 @@ class SeoMetaServiceTest extends DBTestCase
 
     private function matchRoute(array $routes, string $path): ?array
     {
-        return (new \ReflectionMethod(SeoMetaService::class, 'matchRoute'))->invoke($this->service, $routes, $path);
+        return new \ReflectionMethod(SeoMetaService::class, 'matchRoute')->invoke($this->service, $routes, $path);
     }
 
     public function test_match_route_prefers_the_most_specific_pattern(): void

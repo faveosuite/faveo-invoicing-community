@@ -261,9 +261,6 @@ class DeleteDealFieldData implements ModelInterface, ArrayAccess, JsonSerializab
         if ($this->container['field_code'] === null) {
             $invalidProperties[] = "'field_code' can't be null";
         }
-        if ($this->container['description'] === null) {
-            $invalidProperties[] = "'description' can't be null";
-        }
         if ($this->container['field_type'] === null) {
             $invalidProperties[] = "'field_type' can't be null";
         }
@@ -339,7 +336,7 @@ class DeleteDealFieldData implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Gets description
      *
-     * @return string
+     * @return string|null
      */
     public function getDescription()
     {
@@ -349,7 +346,7 @@ class DeleteDealFieldData implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets description
      *
-     * @param string $description The description of the field
+     * @param string|null $description The description of the field
      *
      * @return self
      */

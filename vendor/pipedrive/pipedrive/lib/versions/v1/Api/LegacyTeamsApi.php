@@ -132,7 +132,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\Team|\Pipedrive\versions\v1\Model\FailResponse
-     * @deprecated
      */
     public function addTeam($create_team = null)
     {
@@ -150,7 +149,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\Team|\Pipedrive\versions\v1\Model\FailResponse, HTTP status code, HTTP response headers (array of strings)
-     * @deprecated
      */
     public function addTeamWithHttpInfo($create_team = null)
     {
@@ -272,7 +270,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function addTeamAsync($create_team = null): PromiseInterface
     {
@@ -293,7 +290,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function addTeamAsyncWithHttpInfo($create_team = null): PromiseInterface
     {
@@ -341,7 +337,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
-     * @deprecated
      */
     public function addTeamRequest($create_team = null): Request
     {
@@ -407,11 +402,11 @@ class LegacyTeamsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -446,7 +441,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\UserIDs|\Pipedrive\versions\v1\Model\FailResponse|\Pipedrive\versions\v1\Model\FailResponse
-     * @deprecated
      */
     public function addTeamUser($id, $add_team_user_request = null)
     {
@@ -465,7 +459,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\UserIDs|\Pipedrive\versions\v1\Model\FailResponse|\Pipedrive\versions\v1\Model\FailResponse, HTTP status code, HTTP response headers (array of strings)
-     * @deprecated
      */
     public function addTeamUserWithHttpInfo($id, $add_team_user_request = null)
     {
@@ -609,7 +602,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function addTeamUserAsync($id, $add_team_user_request = null): PromiseInterface
     {
@@ -631,7 +623,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function addTeamUserAsyncWithHttpInfo($id, $add_team_user_request = null): PromiseInterface
     {
@@ -680,7 +671,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
-     * @deprecated
      */
     public function addTeamUserRequest($id, $add_team_user_request = null): Request
     {
@@ -761,11 +751,11 @@ class LegacyTeamsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -800,7 +790,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\UserIDs|\Pipedrive\versions\v1\Model\FailResponse|\Pipedrive\versions\v1\Model\FailResponse
-     * @deprecated
      */
     public function deleteTeamUser($id, $delete_team_user_request = null)
     {
@@ -819,7 +808,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\UserIDs|\Pipedrive\versions\v1\Model\FailResponse|\Pipedrive\versions\v1\Model\FailResponse, HTTP status code, HTTP response headers (array of strings)
-     * @deprecated
      */
     public function deleteTeamUserWithHttpInfo($id, $delete_team_user_request = null)
     {
@@ -963,7 +951,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function deleteTeamUserAsync($id, $delete_team_user_request = null): PromiseInterface
     {
@@ -985,7 +972,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function deleteTeamUserAsyncWithHttpInfo($id, $delete_team_user_request = null): PromiseInterface
     {
@@ -1034,7 +1020,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
-     * @deprecated
      */
     public function deleteTeamUserRequest($id, $delete_team_user_request = null): Request
     {
@@ -1115,11 +1100,11 @@ class LegacyTeamsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1154,7 +1139,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\Team|\Pipedrive\versions\v1\Model\FailResponse
-     * @deprecated
      */
     public function getTeam($id, $skip_users = null)
     {
@@ -1173,7 +1157,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\Team|\Pipedrive\versions\v1\Model\FailResponse, HTTP status code, HTTP response headers (array of strings)
-     * @deprecated
      */
     public function getTeamWithHttpInfo($id, $skip_users = null)
     {
@@ -1296,7 +1279,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function getTeamAsync($id, $skip_users = null): PromiseInterface
     {
@@ -1318,7 +1300,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function getTeamAsyncWithHttpInfo($id, $skip_users = null): PromiseInterface
     {
@@ -1367,7 +1348,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
-     * @deprecated
      */
     public function getTeamRequest($id, $skip_users = null): Request
     {
@@ -1450,11 +1430,11 @@ class LegacyTeamsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1488,7 +1468,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\UserIDs|\Pipedrive\versions\v1\Model\FailResponse
-     * @deprecated
      */
     public function getTeamUsers($id)
     {
@@ -1506,7 +1485,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\UserIDs|\Pipedrive\versions\v1\Model\FailResponse, HTTP status code, HTTP response headers (array of strings)
-     * @deprecated
      */
     public function getTeamUsersWithHttpInfo($id)
     {
@@ -1628,7 +1606,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function getTeamUsersAsync($id): PromiseInterface
     {
@@ -1649,7 +1626,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function getTeamUsersAsyncWithHttpInfo($id): PromiseInterface
     {
@@ -1697,7 +1673,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
-     * @deprecated
      */
     public function getTeamUsersRequest($id): Request
     {
@@ -1772,11 +1747,11 @@ class LegacyTeamsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1811,7 +1786,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\Teams
-     * @deprecated
      */
     public function getTeams($order_by = 'id', $skip_users = null)
     {
@@ -1830,7 +1804,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\Teams, HTTP status code, HTTP response headers (array of strings)
-     * @deprecated
      */
     public function getTeamsWithHttpInfo($order_by = 'id', $skip_users = null)
     {
@@ -1932,7 +1905,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function getTeamsAsync($order_by = 'id', $skip_users = null): PromiseInterface
     {
@@ -1954,7 +1926,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function getTeamsAsyncWithHttpInfo($order_by = 'id', $skip_users = null): PromiseInterface
     {
@@ -2003,7 +1974,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
-     * @deprecated
      */
     public function getTeamsRequest($order_by = 'id', $skip_users = null): Request
     {
@@ -2079,11 +2049,11 @@ class LegacyTeamsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -2119,7 +2089,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\Teams
-     * @deprecated
      */
     public function getUserTeams($id, $order_by = 'id', $skip_users = null)
     {
@@ -2139,7 +2108,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\Teams, HTTP status code, HTTP response headers (array of strings)
-     * @deprecated
      */
     public function getUserTeamsWithHttpInfo($id, $order_by = 'id', $skip_users = null)
     {
@@ -2242,7 +2210,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function getUserTeamsAsync($id, $order_by = 'id', $skip_users = null): PromiseInterface
     {
@@ -2265,7 +2232,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function getUserTeamsAsyncWithHttpInfo($id, $order_by = 'id', $skip_users = null): PromiseInterface
     {
@@ -2315,7 +2281,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
-     * @deprecated
      */
     public function getUserTeamsRequest($id, $order_by = 'id', $skip_users = null): Request
     {
@@ -2406,11 +2371,11 @@ class LegacyTeamsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -2445,7 +2410,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\Team|\Pipedrive\versions\v1\Model\FailResponse|\Pipedrive\versions\v1\Model\FailResponse
-     * @deprecated
      */
     public function updateTeam($id, $update_team = null)
     {
@@ -2464,7 +2428,6 @@ class LegacyTeamsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\Team|\Pipedrive\versions\v1\Model\FailResponse|\Pipedrive\versions\v1\Model\FailResponse, HTTP status code, HTTP response headers (array of strings)
-     * @deprecated
      */
     public function updateTeamWithHttpInfo($id, $update_team = null)
     {
@@ -2608,7 +2571,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function updateTeamAsync($id, $update_team = null): PromiseInterface
     {
@@ -2630,7 +2592,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
-     * @deprecated
      */
     public function updateTeamAsyncWithHttpInfo($id, $update_team = null): PromiseInterface
     {
@@ -2679,7 +2640,6 @@ class LegacyTeamsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
-     * @deprecated
      */
     public function updateTeamRequest($id, $update_team = null): Request
     {
@@ -2760,11 +2720,11 @@ class LegacyTeamsApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 

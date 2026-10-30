@@ -25,19 +25,19 @@ composer require --dev sebastian/exporter
 Exporting:
 
 ```php
-<?php
+<?php declare(strict_types=1);
 use SebastianBergmann\Exporter\Exporter;
 
 $exporter = new Exporter;
 
 /*
-Exception Object &0000000078de0f0d000000002003a261 (
-    'message' => ''
-    'string' => ''
-    'code' => 0
-    'file' => '/home/sebastianbergmann/test.php'
-    'line' => 34
-    'previous' => null
+Exception Object #4 (
+    'message' => '',
+    'string' => '',
+    'code' => 0,
+    'file' => '/home/sebastianbergmann/test.php',
+    'line' => 34,
+    'previous' => null,
 )
 */
 
@@ -49,7 +49,7 @@ print $exporter->export(new Exception);
 Exporting simple types:
 
 ```php
-<?php
+<?php declare(strict_types=1);
 use SebastianBergmann\Exporter\Exporter;
 
 $exporter = new Exporter;
@@ -85,64 +85,66 @@ print $exporter->export(chr(0) . chr(1) . chr(2) . chr(3) . chr(4) . chr(5));
 Exporting complex types:
 
 ```php
-<?php
+<?php declare(strict_types=1);
 use SebastianBergmann\Exporter\Exporter;
 
 $exporter = new Exporter;
 
 /*
-Array &0 (
-    0 => Array &1 (
-        0 => 1
-        1 => 2
-        2 => 3
-    )
-    1 => Array &2 (
-        0 => ''
-        1 => 0
-        2 => false
-    )
-)
+Array &0 [
+    0 => Array &1 [
+        0 => 1,
+        1 => 2,
+        2 => 3,
+    ],
+    1 => Array &2 [
+        0 => '',
+        1 => 0,
+        2 => false,
+    ],
+]
 */
 
-print $exporter->export(array(array(1,2,3), array("",0,FALSE)));
+print $exporter->export([[1, 2, 3], ['', 0, false]]);
 
 /*
-Array &0 (
-    'self' => Array &1 (
-        'self' => Array &1
-    )
-)
+Array &0 [
+    'self' => Array &1 [
+        'self' => Array &1,
+    ],
+]
 */
 
-$array = array();
+$array         = [];
 $array['self'] = &$array;
+
 print $exporter->export($array);
 
 /*
-stdClass Object &0000000003a66dcc0000000025e723e2 (
-    'self' => stdClass Object &0000000003a66dcc0000000025e723e2
+stdClass Object #4 (
+    'self' => stdClass Object #4,
 )
 */
 
-$obj = new stdClass();
+$obj       = new stdClass;
 $obj->self = $obj;
+
 print $exporter->export($obj);
 ```
 
 Compact exports:
 
 ```php
-<?php
+<?php declare(strict_types=1);
 use SebastianBergmann\Exporter\Exporter;
 
 $exporter = new Exporter;
 
-// Array ()
-print $exporter->shortenedExport(array());
+// []
+print $exporter->shortenedExport([]);
 
-// Array (...)
-print $exporter->shortenedExport(array(1,2,3,4,5));
+// [...]
+print $exporter->shortenedExport([1, 2, 3, 4, 5]);
 
 // stdClass Object ()
 print $exporter->shortenedExport(new stdClass);
@@ -150,7 +152,7 @@ print $exporter->shortenedExport(new stdClass);
 // Exception Object (...)
 print $exporter->shortenedExport(new Exception);
 
-// this\nis\na\nsuper\nlong\nstring\nt...\nspace
+// 'this\nis\na\nsuper\nlong\nstr...nspace'
 print $exporter->shortenedExport(
 <<<LONG_STRING
 this
@@ -173,3 +175,181 @@ space
 LONG_STRING
 );
 ```
+
+## Customizing How Objects Are Exported
+
+By default, an object is exported property by property. Implement the `ObjectExporter` interface to control how objects of a type are represented:
+
+```php
+<?php declare(strict_types=1);
+use SebastianBergmann\Exporter\ExportContext;
+use SebastianBergmann\Exporter\Exporter;
+use SebastianBergmann\Exporter\ObjectExporter;
+
+final class MoneyExporter implements ObjectExporter
+{
+    public function handles(object $object): bool
+    {
+        return $object instanceof Money;
+    }
+
+    public function export(object $object, Exporter $exporter, int $indentation, ExportContext $context): string
+    {
+        assert($object instanceof Money);
+
+        return sprintf('Money (%d %s)', $object->amount(), $object->currency());
+    }
+}
+```
+
+An object exporter is registered by passing it to `Exporter`'s constructor. It is consulted before the default representation of an object is used:
+
+```php
+<?php declare(strict_types=1);
+use SebastianBergmann\Exporter\Exporter;
+
+$exporter = new Exporter(objectExporter: new MoneyExporter);
+
+// Money (1999 EUR)
+print $exporter->export(new Money(1999, 'EUR'));
+
+/*
+stdClass Object #6 (
+    'net' => Money (1999 EUR),
+    'gross' => Money (2379 EUR),
+)
+*/
+
+$price        = new stdClass;
+$price->net   = new Money(1999, 'EUR');
+$price->gross = new Money(2379, 'EUR');
+
+print $exporter->export($price);
+```
+
+`ObjectExporterChain` composes multiple object exporters into a single one. They are consulted in the order in which they are composed into the chain and the first one whose `handles()` method returns `true` is asked for the representation:
+
+```php
+<?php declare(strict_types=1);
+use SebastianBergmann\Exporter\Exporter;
+use SebastianBergmann\Exporter\ObjectExporterChain;
+
+$exporter = new Exporter(
+    objectExporter: new ObjectExporterChain(
+        [
+            new BasketExporter,
+            new MoneyExporter,
+        ],
+    ),
+);
+```
+
+Enums are objects and are therefore passed to the object exporters as well. When no object exporter handles an object, the default representation is used for it.
+
+### Repeated Occurrences
+
+When the same object occurs more than once, the default representation is only used for the first occurrence; subsequent occurrences are replaced with a reference to the object:
+
+```php
+/*
+Array &0 [
+    0 => Money Object #8 (
+        'amount' => 1999,
+        'currency' => 'EUR',
+    ),
+    1 => Money Object #8,
+]
+*/
+
+$money = new Money(1999, 'EUR');
+
+print (new Exporter)->export([$money, $money]);
+```
+
+An object exporter is responsible for the entire representation of the object it handles. Every occurrence of such an object is therefore exported by it:
+
+```php
+/*
+Array &0 [
+    0 => Money (1999 EUR),
+    1 => Money (1999 EUR),
+]
+*/
+
+print $exporter->export([$money, $money]);
+```
+
+The exception is an object that is (indirectly) nested in itself: it cannot be exported this way without recursing infinitely and is replaced with a reference to the object.
+
+### Exporting Nested Values
+
+An object exporter may use the `Exporter` it is given to export values that are nested in the object it handles. The `ExportContext` it is given must be passed on when it does. Otherwise, the export of these nested values starts over with an empty context and, for instance, assigns references to arrays that are already in use elsewhere in the same export:
+
+```php
+<?php declare(strict_types=1);
+use SebastianBergmann\Exporter\ExportContext;
+use SebastianBergmann\Exporter\Exporter;
+use SebastianBergmann\Exporter\ObjectExporter;
+
+final class BasketExporter implements ObjectExporter
+{
+    public function handles(object $object): bool
+    {
+        return $object instanceof Basket;
+    }
+
+    public function export(object $object, Exporter $exporter, int $indentation, ExportContext $context): string
+    {
+        assert($object instanceof Basket);
+
+        return 'Basket ' . $exporter->export($object->items(), $indentation, $context);
+    }
+}
+```
+
+```php
+/*
+Array &0 [
+    'basket' => Basket Array &1 [
+        0 => Money (1999 EUR),
+    ],
+]
+*/
+
+print $exporter->export(['basket' => new Basket([new Money(1999, 'EUR')])]);
+```
+
+### Compact Exports
+
+`Exporter::shortenedExport()` and `Exporter::shortenedRecursiveExport()` consult object exporters as well. The representation an object exporter provides is collapsed to a single line and shortened when it is longer than the configured maximum length:
+
+```php
+<?php declare(strict_types=1);
+use SebastianBergmann\Exporter\Exporter;
+
+$exporter = new Exporter(objectExporter: new MoneyExporter);
+
+// Money (1999 EUR)
+print $exporter->shortenedExport(new Money(1999, 'EUR'));
+```
+
+Bear in mind that these representations are used where a short, single-line, and stable string is required. The representation of a data set is built using `Exporter::shortenedRecursiveExport()`, for instance, and is part of the name of a test that uses a data provider. An object exporter should therefore provide a representation that is compact and that does not change from one export to the next.
+
+### Custom Representations
+
+`Exporter::hasCustomRepresentationFor()` tells whether an object exporter provides the representation for an object. This is meant for code that renders objects itself and wants to use the representation an object exporter provides when there is one:
+
+```php
+<?php declare(strict_types=1);
+use SebastianBergmann\Exporter\Exporter;
+
+$exporter = new Exporter(objectExporter: new MoneyExporter);
+
+// true
+var_dump($exporter->hasCustomRepresentationFor(new Money(1999, 'EUR')));
+
+// false
+var_dump($exporter->hasCustomRepresentationFor(new stdClass));
+```
+
+Bear in mind that an object that is (indirectly) nested in itself is replaced with a reference to the object instead of being exported by an object exporter again.

@@ -90,7 +90,7 @@ class SeoDefaultPageController extends Controller
             $row->fill($data)->save();
 
             try {
-                app(SeoFileGenerator::class)->generateAll();
+                resolve(SeoFileGenerator::class)->generateAll();
             } catch (Throwable $throwable) {
                 report($throwable);
             }

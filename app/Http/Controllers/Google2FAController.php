@@ -43,9 +43,9 @@ class Google2FAController extends Controller
     {
         if (Session::has(self::TWO_FA_USER_KEY)) {
             return successResponse('Redirect to 2fa');
-        } else {
-            return successResponse('Login page', ['redirect' => url('login')]);
         }
+
+        return successResponse('Login page', ['redirect' => url('login')]);
     }
 
     public function enableTwoFactor(Request $request): JsonResponse

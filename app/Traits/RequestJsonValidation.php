@@ -41,7 +41,7 @@ trait RequestJsonValidation
      *
      * @throw HttpResponseException
      */
-    final protected function failedAuthorization()
+    final protected function failedAuthorization(): never
     {
         throw new HttpResponseException(errorResponse(Lang::get('message.unauthorized_action'), FaveoStatusCode::Error->value));
     }
@@ -51,7 +51,7 @@ trait RequestJsonValidation
      *
      * @return array<string, string>
      */
-    public function messages()
+    public function messages(): array
     {
         $required = 'This field is required';
 

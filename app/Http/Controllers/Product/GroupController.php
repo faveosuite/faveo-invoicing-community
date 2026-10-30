@@ -14,6 +14,7 @@ use App\Model\Product\ProductGroup;
 use App\Services\Seo\SeoFileGenerator;
 use DB;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -85,7 +86,7 @@ class GroupController extends Controller
             $data['og_image'] = $group->og_image ? Attach::getUrlPath('images/'.$group->og_image) : null;
 
             return successResponse('', $data);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
@@ -125,6 +126,7 @@ class GroupController extends Controller
             if ($request->hasFile('og_image')) {
                 $data['og_image'] = basename((string) Attach::put('images', $request->file('og_image'), null, true));
             }
+
             $group->update($data);
 
             // Update product statuses
@@ -134,7 +136,7 @@ class GroupController extends Controller
             $this->regenerateSeoFiles();
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
@@ -151,6 +153,7 @@ class GroupController extends Controller
             if ($request->hasFile('og_image')) {
                 $data['og_image'] = basename((string) Attach::put('images', $request->file('og_image'), null, true));
             }
+
             // No template picker in the UI anymore (see GroupRequest) but the column is
             // NOT NULL + FK. TODO: once real per-template rendering exists, replace this
             // with whatever selection UI/logic that feature needs.
@@ -202,7 +205,7 @@ class GroupController extends Controller
     private function regenerateSeoFiles(): void
     {
         try {
-            app(SeoFileGenerator::class)->generateAll();
+            resolve(SeoFileGenerator::class)->generateAll();
         } catch (Throwable $throwable) {
             report($throwable);
         }

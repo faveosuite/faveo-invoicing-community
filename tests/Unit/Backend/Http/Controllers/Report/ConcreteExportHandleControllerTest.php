@@ -3,9 +3,12 @@
 namespace Tests\Unit\Backend\Http\Controllers\Report;
 
 use App\Http\Controllers\Report\ConcreteExportHandleController;
+use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
+use App\Model\Order\Order;
 use App\ReportSetting;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Tests\DBTestCase;
 
@@ -70,7 +73,7 @@ class ConcreteExportHandleControllerTest extends DBTestCase
         // 200 = full success; 500 = mail dispatch failed (caught by outer try-catch)
         // Both mean the export code ran to completion
         $this->assertContains($response->getStatusCode(), [200, 500]);
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
         $this->assertArrayHasKey('message', $body);
     }
 
@@ -170,7 +173,7 @@ class ConcreteExportHandleControllerTest extends DBTestCase
     public function test_order_exports_returns_404_when_email_owner_not_found(): void
     {
         // If orders exist but email doesn't match any user
-        $order = \App\Model\Order\Order::first() ?? \App\Model\Order\Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
+        Order::first() ?? Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
 
         $response = $this->controller->orderExports(
             ['order_id', 'status'],
@@ -183,7 +186,7 @@ class ConcreteExportHandleControllerTest extends DBTestCase
 
     public function test_order_exports_happy_path_when_orders_exist(): void
     {
-        $order = \App\Model\Order\Order::first() ?? \App\Model\Order\Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
+        Order::first() ?? Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
 
         $response = $this->controller->orderExports(
             ['order_id', 'client', 'email', 'mobile', 'country', 'status',
@@ -225,19 +228,21 @@ class ConcreteExportHandleControllerTest extends DBTestCase
 
     public function test_get_agents_returns_unlimited_when_license_is_zeros(): void
     {
-        $order = \Mockery::mock(\App\Model\Order\Order::class)->makePartial();
+        $order = \Mockery::mock(Order::class)->makePartial();
         // substr(key, 12, 16) returns '0000' when key is exactly 16 chars
         // and the last 4 characters are '0000'
         $order->serial_key = '1234567890120000';
+
         $result = $this->controller->getAgents($order);
         $this->assertEquals('Unlimited', $result);
     }
 
     public function test_get_agents_returns_agent_count(): void
     {
-        $order = \Mockery::mock(\App\Model\Order\Order::class)->makePartial();
+        $order = \Mockery::mock(Order::class)->makePartial();
         // 12 prefix chars + '0005' + more chars to make substr return 16 chars
         $order->serial_key = '1234567890120005123456789012345';
+
         $result = $this->controller->getAgents($order);
         $this->assertIsInt($result);
     }
@@ -248,49 +253,49 @@ class ConcreteExportHandleControllerTest extends DBTestCase
 
     public function test_all_installations_returns_null_when_no_filter(): void
     {
-        $builder = \App\Model\Order\Order::query();
-        $result = $this->controller->allInstallations(null, $builder);
+        $builder = Order::query();
+        $result = $this->controller->allInstallations(allInstallation: null, orders: $builder);
         $this->assertNull($result);
     }
 
     public function test_all_installations_returns_null_for_empty_string(): void
     {
-        $builder = \App\Model\Order\Order::query();
+        $builder = Order::query();
         $result = $this->controller->allInstallations('', $builder);
         $this->assertNull($result);
     }
 
     public function test_all_installations_installed_branch(): void
     {
-        $builder = \App\Model\Order\Order::query();
+        $builder = Order::query();
         $result = $this->controller->allInstallations('installed', $builder);
         $this->assertNotNull($result);
     }
 
     public function test_all_installations_not_installed_branch(): void
     {
-        $builder = \App\Model\Order\Order::query();
+        $builder = Order::query();
         $result = $this->controller->allInstallations('not_installed', $builder);
         $this->assertNotNull($result);
     }
 
     public function test_all_installations_paid_inactive_branch(): void
     {
-        $builder = \App\Model\Order\Order::query();
+        $builder = Order::query();
         $result = $this->controller->allInstallations('paid_inactive_ins', $builder);
         $this->assertNotNull($result);
     }
 
     public function test_all_installations_paid_ins_branch(): void
     {
-        $builder = \App\Model\Order\Order::query();
+        $builder = Order::query();
         $result = $this->controller->allInstallations('paid_ins', $builder);
         $this->assertNotNull($result);
     }
 
     public function test_all_installations_default_branch_returns_orders(): void
     {
-        $builder = \App\Model\Order\Order::query();
+        $builder = Order::query();
         $result = $this->controller->allInstallations('unknown_value', $builder);
         $this->assertNotNull($result);
     }
@@ -301,25 +306,25 @@ class ConcreteExportHandleControllerTest extends DBTestCase
 
     public function test_get_selected_version_orders_no_version_returns_base_query(): void
     {
-        $builder = \App\Model\Order\Order::query();
-        $request = new \Illuminate\Http\Request;
-        $result = $this->controller->getSelectedVersionOrders($builder, null, 1, $request);
+        $builder = Order::query();
+        new Request;
+        $result = $this->controller->getSelectedVersionOrders($builder, version: null, productId: 1);
         $this->assertNotNull($result);
     }
 
     public function test_get_selected_version_orders_specific_version(): void
     {
-        $builder = \App\Model\Order\Order::query();
-        $request = new \Illuminate\Http\Request;
-        $result = $this->controller->getSelectedVersionOrders($builder, '1.0.0', 1, $request);
+        $builder = Order::query();
+        new Request;
+        $result = $this->controller->getSelectedVersionOrders($builder, '1.0.0', 1);
         $this->assertNotNull($result);
     }
 
     public function test_get_selected_version_orders_paid_product_latest(): void
     {
-        $builder = \App\Model\Order\Order::query();
-        $request = new \Illuminate\Http\Request;
-        $result = $this->controller->getSelectedVersionOrders($builder, 'Latest', 'paid', $request);
+        $builder = Order::query();
+        new Request;
+        $result = $this->controller->getSelectedVersionOrders($builder, 'Latest', 'paid');
         $this->assertNotNull($result);
     }
 
@@ -327,18 +332,18 @@ class ConcreteExportHandleControllerTest extends DBTestCase
     {
         // Pre-existing bug: where('version', '!=', null) is illegal in Laravel
         $this->expectException(\InvalidArgumentException::class);
-        $builder = \App\Model\Order\Order::query();
-        $request = new \Illuminate\Http\Request;
-        $this->controller->getSelectedVersionOrders($builder, 'Outdated', 'paid', $request);
+        $builder = Order::query();
+        new Request;
+        $this->controller->getSelectedVersionOrders($builder, 'Outdated', 'paid');
     }
 
     public function test_get_selected_version_orders_outdated_specific_product(): void
     {
         // Pre-existing bug: where('version', '!=', null) is illegal in Laravel
         $this->expectException(\InvalidArgumentException::class);
-        $builder = \App\Model\Order\Order::query();
-        $request = new \Illuminate\Http\Request;
-        $this->controller->getSelectedVersionOrders($builder, 'Outdated', 1, $request);
+        $builder = Order::query();
+        new Request;
+        $this->controller->getSelectedVersionOrders($builder, 'Outdated', 1);
     }
 
     // -------------------------------------------------------------------------
@@ -348,7 +353,7 @@ class ConcreteExportHandleControllerTest extends DBTestCase
     public function test_tenant_exports_throws_when_faveo_cloud_not_configured(): void
     {
         // If FaveoCloud table is empty, the method throws
-        \App\Model\Common\FaveoCloud::query()->delete(); // remove all so we can test missing-config branch
+        FaveoCloud::query()->delete(); // remove all so we can test missing-config branch
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessageIsOrContains('FaveoCloud configuration not found.');

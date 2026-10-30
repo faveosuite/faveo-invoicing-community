@@ -18,11 +18,11 @@ class Tangent
      *
      * @param mixed $angle Should be numeric, or can be an array of numbers
      *
-     * @return array|float|string tangent
+     * @return array<mixed>|float|string tangent
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */
-    public static function tan($angle)
+    public static function tan(mixed $angle)
     {
         if (is_array($angle)) {
             return self::evaluateSingleArgumentArray([self::class, __FUNCTION__], $angle);
@@ -44,11 +44,11 @@ class Tangent
      *
      * @param mixed $angle Should be numeric, or can be an array of numbers
      *
-     * @return array|float|string hyperbolic tangent
+     * @return array<mixed>|float|string hyperbolic tangent
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */
-    public static function tanh($angle)
+    public static function tanh(mixed $angle): array|string|float
     {
         if (is_array($angle)) {
             return self::evaluateSingleArgumentArray([self::class, __FUNCTION__], $angle);
@@ -68,9 +68,9 @@ class Tangent
      *
      * Returns the arctangent of a number.
      *
-     * @param array|float $number Number, or can be an array of numbers
+     * @param array<mixed>|float $number Number, or can be an array of numbers
      *
-     * @return array|float|string The arctangent of the number
+     * @return array<mixed>|float|string The arctangent of the number
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */
@@ -94,9 +94,9 @@ class Tangent
      *
      * Returns the inverse hyperbolic tangent of a number.
      *
-     * @param array|float $number Number, or can be an array of numbers
+     * @param array<mixed>|float $number Number, or can be an array of numbers
      *
-     * @return array|float|string The inverse hyperbolic tangent of the number
+     * @return array<mixed>|float|string The inverse hyperbolic tangent of the number
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */
@@ -134,12 +134,11 @@ class Tangent
      * @param mixed $xCoordinate should be float, the x-coordinate of the point, or can be an array of numbers
      * @param mixed $yCoordinate should be float, the y-coordinate of the point, or can be an array of numbers
      *
-     * @return array|float|string
-     *         The inverse tangent of the specified x- and y-coordinates, or a string containing an error
+     * @return array<mixed>|float|string The inverse tangent of the specified x- and y-coordinates, or a string containing an error
      *         If an array of numbers is passed as one of the arguments, then the returned result will also be an array
      *            with the same dimensions
      */
-    public static function atan2($xCoordinate, $yCoordinate)
+    public static function atan2(mixed $xCoordinate, mixed $yCoordinate): array|string|float
     {
         if (is_array($xCoordinate) || is_array($yCoordinate)) {
             return self::evaluateArrayArguments([self::class, __FUNCTION__], $xCoordinate, $yCoordinate);
