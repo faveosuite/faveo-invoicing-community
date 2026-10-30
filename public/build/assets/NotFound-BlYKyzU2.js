@@ -1,0 +1,1 @@
+import{U as e,t,y as n}from"./vue.esm-bundler-BlAC_QyS.js";import{t as r}from"./AdminErrorPage-Cre0uxXJ.js";t();var i={__name:`NotFound`,setup(t){return(t,i)=>(e(),n(r,{code:`404`,color:`warning`,title:t.__(`message.page_not_found`),description:t.__(`message.page_not_found_desc`)},null,8,[`title`,`description`]))}};export{i as default};

@@ -87,10 +87,10 @@
               <h3 class="card-title mb-0 fw-semibold">{{ __('message.recently_register_users') }}</h3>
               <div class="card-tools">
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-download"></i>
+                  <i class="fas fa-download"></i>
                 </a>
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-list"></i>
+                  <i class="fas fa-bars"></i>
                 </a>
               </div>
             </div>
@@ -118,10 +118,10 @@
               <h3 class="card-title mb-0 fw-semibold">{{ __('message.recent_invoice') }}</h3>
               <div class="card-tools">
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-download"></i>
+                  <i class="fas fa-download"></i>
                 </a>
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-list"></i>
+                  <i class="fas fa-bars"></i>
                 </a>
               </div>
             </div>
@@ -171,10 +171,10 @@
               <h3 class="card-title mb-0 fw-semibold">{{ __('message.paid_orders_expired') }}</h3>
               <div class="card-tools">
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-download"></i>
+                  <i class="fas fa-download"></i>
                 </a>
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-list"></i>
+                  <i class="fas fa-bars"></i>
                 </a>
               </div>
             </div>
@@ -222,10 +222,10 @@
               <h3 class="card-title mb-0 fw-semibold">{{ __('message.paid_next_orders_expired') }}</h3>
               <div class="card-tools">
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-download"></i>
+                  <i class="fas fa-download"></i>
                 </a>
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-list"></i>
+                  <i class="fas fa-bars"></i>
                 </a>
               </div>
             </div>
@@ -275,10 +275,10 @@
               <h3 class="card-title mb-0 fw-semibold">{{ __('message.clients_outdated_version') }}</h3>
               <div class="card-tools">
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-download"></i>
+                  <i class="fas fa-download"></i>
                 </a>
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-list"></i>
+                  <i class="fas fa-bars"></i>
                 </a>
               </div>
             </div>
@@ -322,10 +322,10 @@
               <h3 class="card-title mb-0 fw-semibold">{{ __('message.recent_paid_orders') }}</h3>
               <div class="card-tools">
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-download"></i>
+                  <i class="fas fa-download"></i>
                 </a>
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-list"></i>
+                  <i class="fas fa-bars"></i>
                 </a>
               </div>
             </div>
@@ -369,10 +369,10 @@
               <h3 class="card-title mb-0 fw-semibold">{{ __('message.product_sold') }}</h3>
               <div class="card-tools">
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-download"></i>
+                  <i class="fas fa-download"></i>
                 </a>
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-list"></i>
+                  <i class="fas fa-bars"></i>
                 </a>
               </div>
             </div>
@@ -413,10 +413,10 @@
               <h3 class="card-title mb-0 fw-semibold">{{ __('message.total_sold_products') }}</h3>
               <div class="card-tools">
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-download"></i>
+                  <i class="fas fa-download"></i>
                 </a>
                 <a href="javascript:void(0)" class="btn btn-tool btn-sm">
-                  <i class="bi bi-list"></i>
+                  <i class="fas fa-bars"></i>
                 </a>
               </div>
             </div>
