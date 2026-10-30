@@ -19,8 +19,6 @@ return [
         'AdminLTE' => 'themes/default/admin/adminlte/css/adminlte.css',
         'AdminLTE-rtl' => 'themes/default/admin/adminlte/css/adminlte.rtl.min.css',
         'overlayscrollbars' => 'themes/default/common/overlayscrollbars/css/overlayscrollbars.min.css',
-        'apexcharts' => 'themes/default/common/apexcharts/css/apexcharts.css',
-        'jsvectormap' => 'themes/default/common/jsvectormap/css/jsvectormap.min.css',
 
         // Porto client theme — Porto-specific vendor libs
         'porto-animate' => 'themes/default/client/porto/vendor/animate/animate.compat.css',
@@ -44,10 +42,6 @@ return [
         'bootstrap' => 'themes/default/common/bootstrap/js/bootstrap.bundle.min.js',
         'overlayscrollbars' => 'themes/default/common/overlayscrollbars/js/overlayscrollbars.browser.es6.min.js',
         'AdminLTE' => 'themes/default/admin/adminlte/js/adminlte.min.js',
-        'apexcharts' => 'themes/default/common/apexcharts/js/apexcharts.min.js',
-        'jsvectormap' => 'themes/default/common/jsvectormap/js/jsvectormap.min.js',
-        'jsvectormap-world' => 'themes/default/common/jsvectormap/js/world.js',
-        'sortablejs' => 'themes/default/common/sortablejs/js/Sortable.min.js',
 
         // Porto client theme — paths match original Porto folder structure
         'porto-modernizr' => 'themes/default/client/porto/vendor/animated-headline/js/modernizr.js',

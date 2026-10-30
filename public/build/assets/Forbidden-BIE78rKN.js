@@ -1,0 +1,1 @@
+import{U as e,t,y as n}from"./vue.esm-bundler-BlAC_QyS.js";import{t as r}from"./AdminErrorPage-Cre0uxXJ.js";t();var i={__name:`Forbidden`,setup(t){return(t,i)=>(e(),n(r,{code:`403`,color:`danger`,title:t.__(`message.access_denied`),description:t.__(`message.access_denied_desc`)},null,8,[`title`,`description`]))}};export{i as default};
