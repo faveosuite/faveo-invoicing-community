@@ -32,7 +32,7 @@ class OrderFactory extends Factory
             'serial_key' => strtoupper(fake()->bothify('????????????????????????')),
             'product' => Product::factory(),
             'qty' => fake()->numberBetween(1, 10),
-            'number' => fake()->unique()->numerify('########'),
+            'number' => fake()->unique()->numberBetween(10000000, 99999999),
             'license_mode' => fake()->randomElement(['Database']),
         ];
     }

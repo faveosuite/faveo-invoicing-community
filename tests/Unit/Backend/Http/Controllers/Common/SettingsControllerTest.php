@@ -4,13 +4,18 @@ namespace Tests\Unit\Backend\Http\Controllers\Common;
 
 use App\ApiKey;
 use App\Http\Controllers\Common\SettingsController;
+use App\Model\Common\CommonSettings;
+use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
+use App\Model\Mailjob\Condition;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
+use App\Payment_log;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Mockery;
 use Spatie\Html\Html;
 use Tests\DBTestCase;
@@ -108,8 +113,8 @@ class SettingsControllerTest extends DBTestCase
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        \Illuminate\Support\Facades\Http::fake([
-            'emailverifier.reoon.com/*' => \Illuminate\Support\Facades\Http::response(['status' => 'error'], 200),
+        Http::fake([
+            'emailverifier.reoon.com/*' => Http::response(['status' => 'error'], 200),
         ]);
         $response = $this->postJson('email-settings-save', ['apikey' => 'dummy_api_key']);
         $response->assertJson(['success' => false]);
@@ -216,7 +221,7 @@ class SettingsControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
-        \App\Model\Common\Setting::create(['company' => 'Test', 'website' => 'http://test.com']);
+        Setting::create(['company' => 'Test', 'website' => 'http://test.com']);
         $response = $this->getJson('/settings/error');
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
@@ -226,7 +231,7 @@ class SettingsControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
-        \App\Model\Common\Setting::create(['company' => 'Test', 'website' => 'http://test.com']);
+        Setting::create(['company' => 'Test', 'website' => 'http://test.com']);
         $response = $this->getJson('/settings/system-data');
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
@@ -351,6 +356,7 @@ class SettingsControllerTest extends DBTestCase
         $response = $this->getJson('/module-settings');
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+
         $data = $response->json('data');
         $this->assertArrayHasKey('data', $data);
         $this->assertArrayHasKey('total', $data);
@@ -367,6 +373,7 @@ class SettingsControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $response = $this->getJson('/module-settings?search-query=github');
         $response->assertStatus(200);
+
         $data = $response->json('data.data');
         foreach ($data as $item) {
             $this->assertStringContainsStringIgnoringCase('github', $item['name'].$item['description']);
@@ -380,6 +387,7 @@ class SettingsControllerTest extends DBTestCase
         $response = $this->getJson('/get-activity-api?limit=5');
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+
         $data = $response->json('data');
         $this->assertArrayHasKey('data', $data);
         $this->assertArrayHasKey('next_page_url', $data);
@@ -437,6 +445,7 @@ class SettingsControllerTest extends DBTestCase
         $response = $this->getJson('/get-payment-log-api?limit=5');
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+
         $data = $response->json('data');
         $this->assertArrayHasKey('data', $data);
     }
@@ -484,8 +493,8 @@ class SettingsControllerTest extends DBTestCase
         // A stray leading space in a name must not move it to the top of A→Z.
         $tag = 'srt'.uniqid();
         foreach ([' Zed', 'Abe'] as $first) {
-            $user = \App\User::factory()->create(['first_name' => $first, 'last_name' => $tag]);
-            \App\Payment_log::insert(['date' => now(), 'from' => $user->email, 'status' => 'success', 'payment_method' => '[]', 'order' => '', 'amount' => '₹1']);
+            $user = User::factory()->create(['first_name' => $first, 'last_name' => $tag]);
+            Payment_log::insert(['date' => now(), 'from' => $user->email, 'status' => 'success', 'payment_method' => '[]', 'order' => '', 'amount' => '₹1']);
         }
 
         $rows = $this->getJson('/get-payment-log-api?sort-field=user&sort-order=asc&search-query='.$tag)->assertOk()->json('data.data');
@@ -542,8 +551,8 @@ class SettingsControllerTest extends DBTestCase
         ]);
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
-        $this->assertSame(30, \App\Model\Mailjob\Condition::dayCount('invoice'));
-        $this->assertSame([7, 14], \App\Model\Mailjob\Condition::dayList('expiryMail'));
+        $this->assertSame(30, Condition::dayCount('invoice'));
+        $this->assertSame([7, 14], Condition::dayList('expiryMail'));
     }
 
     public function test_update_pipedrive_settings_with_invalid_token(): void
@@ -579,6 +588,7 @@ class SettingsControllerTest extends DBTestCase
         $response = $this->getJson('/debugg');
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+
         $data = $response->json('data');
         $this->assertArrayHasKey('debug', $data);
         $this->assertArrayHasKey('pulse_enabled', $data);
@@ -600,7 +610,7 @@ class SettingsControllerTest extends DBTestCase
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
         // Verify actual DB update
-        $debugSetting = \App\Model\Common\CommonSettings::where('option_name', 'debugging')
+        $debugSetting = CommonSettings::where('option_name', 'debugging')
             ->where('optional_field', 'app_debug')->value('option_value');
         $this->assertSame('0', $debugSetting);
     }
@@ -619,7 +629,7 @@ class SettingsControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
         // Create a payment log to delete
-        $log = \App\Payment_log::create([
+        $log = Payment_log::create([
             'date' => now()->toDateString(),
             'subject' => 'Test delete',
             'body' => 'test body',
@@ -638,6 +648,7 @@ class SettingsControllerTest extends DBTestCase
         $response = $this->getJson('/settings/email-validation-logs?limit=5');
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+
         $data = $response->json('data');
         $this->assertArrayHasKey('data', $data);
         $this->assertArrayHasKey('total', $data);
@@ -765,6 +776,7 @@ class SettingsControllerTest extends DBTestCase
         $response = $this->getJson('/settings/cron-data');
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+
         $data = $response->json('data');
         // Assert actual fields in response
         $this->assertArrayHasKey('tasks', $data);
@@ -781,6 +793,7 @@ class SettingsControllerTest extends DBTestCase
         $response = $this->getJson('/settings/system-data');
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+
         $data = $response->json('data');
         $this->assertArrayHasKey('settings', $data);
         $this->assertArrayHasKey('countries', $data);
@@ -862,6 +875,7 @@ class SettingsControllerTest extends DBTestCase
         $response = $this->getJson('/settings/index-data');
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+
         $data = $response->json('data');
         $this->assertArrayHasKey('is_debug_mode', $data);
         $this->assertArrayHasKey('is_pulse_enabled', $data);
@@ -879,8 +893,8 @@ class SettingsControllerTest extends DBTestCase
         $this->withoutMiddleware();
 
         // Fake the reoon API to return success
-        \Illuminate\Support\Facades\Http::fake([
-            'emailverifier.reoon.com/*' => \Illuminate\Support\Facades\Http::response(
+        Http::fake([
+            'emailverifier.reoon.com/*' => Http::response(
                 ['status' => 'success', 'credits_available' => 100],
                 200
             ),
@@ -903,8 +917,8 @@ class SettingsControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
 
-        \Illuminate\Support\Facades\Http::fake([
-            'emailverifier.reoon.com/*' => \Illuminate\Support\Facades\Http::response(
+        Http::fake([
+            'emailverifier.reoon.com/*' => Http::response(
                 ['status' => 'success'],
                 200
             ),
@@ -930,8 +944,8 @@ class SettingsControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
 
-        \Illuminate\Support\Facades\Http::fake([
-            'rest.nexmo.com/*' => \Illuminate\Support\Facades\Http::response(['message' => 'Unauthorized'], 401),
+        Http::fake([
+            'rest.nexmo.com/*' => Http::response(['message' => 'Unauthorized'], 401),
         ]);
 
         $response = $this->postJson('/mobile-settings-save', [
@@ -949,8 +963,8 @@ class SettingsControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
 
-        \Illuminate\Support\Facades\Http::fake([
-            'rest.nexmo.com/*' => \Illuminate\Support\Facades\Http::response(
+        Http::fake([
+            'rest.nexmo.com/*' => Http::response(
                 ['value' => 10.5, 'autoReload' => false],
                 200
             ),
@@ -972,8 +986,8 @@ class SettingsControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
 
-        \Illuminate\Support\Facades\Http::fake([
-            'phonevalidation.abstractapi.com/*' => \Illuminate\Support\Facades\Http::response(
+        Http::fake([
+            'phonevalidation.abstractapi.com/*' => Http::response(
                 ['error' => ['message' => 'Invalid key']],
                 401
             ),
@@ -993,8 +1007,8 @@ class SettingsControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
 
-        \Illuminate\Support\Facades\Http::fake([
-            'phonevalidation.abstractapi.com/*' => \Illuminate\Support\Facades\Http::response(
+        Http::fake([
+            'phonevalidation.abstractapi.com/*' => Http::response(
                 ['valid' => true, 'phone' => '+14155552671'],
                 200
             ),
@@ -1034,6 +1048,7 @@ class SettingsControllerTest extends DBTestCase
         // but calling with date_from and date_till directly covers all branches
         $response = $this->getJson('/get-payment-log-api?date_from=2024-01-01&date_till=2025-12-31');
         $response->assertStatus(200);
+
         $data = $response->json('data.data');
         $this->assertIsArray($data);
     }
@@ -1047,8 +1062,8 @@ class SettingsControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
 
-        \Illuminate\Support\Facades\Http::fake([
-            'emailverifier.reoon.com/*' => \Illuminate\Support\Facades\Http::response(
+        Http::fake([
+            'emailverifier.reoon.com/*' => Http::response(
                 ['status' => 'success'],
                 200
             ),
@@ -1096,6 +1111,7 @@ class SettingsControllerTest extends DBTestCase
         $response = $this->getJson('/settings/pipedrive');
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+
         $data = $response->json('data');
         $this->assertIsArray($data);
     }
@@ -1111,6 +1127,7 @@ class SettingsControllerTest extends DBTestCase
         $response = $this->getJson('/settings/cloud-details');
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+
         $data = $response->json('data');
         $this->assertArrayHasKey('products', $data);
         $this->assertArrayHasKey('countries', $data);

@@ -178,7 +178,7 @@ trait SystemActivityLogsTrait
      */
     private function getLogName(): string
     {
-        return $this->logName ?? ''; // @phpstan-ignore nullCoalesce.property
+        return $this->logName;
     }
 
     private function getLogNameColumn(): string

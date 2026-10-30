@@ -1,38 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Events;
 
+use Maatwebsite\Excel\Concerns\Import;
 use Maatwebsite\Excel\Reader;
 
 class AfterImport extends Event
 {
-    /**
-     * @var Reader
-     */
-    public $reader;
-
-    /**
-     * @param  Reader  $reader
-     * @param  object  $importable
-     */
-    public function __construct(Reader $reader, $importable)
-    {
-        $this->reader     = $reader;
+    public function __construct(
+        public Reader $reader,
+        ?Import $importable,
+    ) {
         parent::__construct($importable);
     }
 
-    /**
-     * @return Reader
-     */
     public function getReader(): Reader
     {
         return $this->reader;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDelegate()
+    public function getDelegate(): Reader
     {
         return $this->reader;
     }

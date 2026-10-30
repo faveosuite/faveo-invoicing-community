@@ -8,62 +8,44 @@ use InvalidArgumentException;
 
 class HeadingRowFormatter
 {
-    /**
-     * @const string
-     */
-    const FORMATTER_NONE = 'none';
+    public const string FORMATTER_NONE = 'none';
 
-    /**
-     * @const string
-     */
-    const FORMATTER_SLUG = 'slug';
+    public const string FORMATTER_SLUG = 'slug';
 
-    /**
-     * @var string
-     */
-    protected static $formatter;
+    protected static ?string $formatter;
 
     /**
      * @var callable[]
      */
-    protected static $customFormatters = [];
+    protected static array $customFormatters = [];
 
     /**
-     * @var array
+     * @var list<string>
      */
-    protected static $defaultFormatters = [
+    protected static array $defaultFormatters = [
         self::FORMATTER_NONE,
         self::FORMATTER_SLUG,
     ];
 
     /**
-     * @param  array  $headings
-     * @return array
+     * @param  array<array-key, mixed>  $headings
+     * @return array<array-key, mixed>
      */
     public static function format(array $headings): array
     {
-        return (new Collection($headings))->map(function ($value, $key) {
-            return static::callFormatter($value, $key);
-        })->toArray();
+        return (new Collection($headings))->map(fn ($value, int|string|null $key): mixed => static::callFormatter($value, $key))->toArray();
     }
 
-    /**
-     * @param  string  $name
-     */
-    public static function default(?string $name = null)
+    public static function default(?string $name = null): void
     {
-        if (null !== $name && !isset(static::$customFormatters[$name]) && !in_array($name, static::$defaultFormatters, true)) {
+        if ($name !== null && !isset(static::$customFormatters[$name]) && !in_array($name, static::$defaultFormatters, true)) {
             throw new InvalidArgumentException(sprintf('Formatter "%s" does not exist', $name));
         }
 
         static::$formatter = $name;
     }
 
-    /**
-     * @param  string  $name
-     * @param  callable  $formatter
-     */
-    public static function extend(string $name, callable $formatter)
+    public static function extend(string $name, callable $formatter): void
     {
         static::$customFormatters[$name] = $formatter;
     }
@@ -71,18 +53,14 @@ class HeadingRowFormatter
     /**
      * Reset the formatter.
      */
-    public static function reset()
+    public static function reset(): void
     {
         static::default();
     }
 
-    /**
-     * @param  mixed  $value
-     * @return mixed
-     */
-    protected static function callFormatter($value, $key=null)
+    protected static function callFormatter(mixed $value, int|string|null $key = null): mixed
     {
-        static::$formatter = static::$formatter ?? config('excel.imports.heading_row.formatter', self::FORMATTER_SLUG);
+        static::$formatter ??= config('excel.imports.heading_row.formatter', self::FORMATTER_SLUG);
 
         // Call custom formatter
         if (isset(static::$customFormatters[static::$formatter])) {

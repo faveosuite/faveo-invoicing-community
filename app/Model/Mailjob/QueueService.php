@@ -36,13 +36,13 @@ class QueueService extends Model
     protected $fillable = ['name', 'short_name', 'status'];
 
     /**
-     * @return HasMany<Model, Model>
+     * @return HasMany<FaveoQueue, $this>
      */
     public function extraFieldRelation(): HasMany
     {
         $related = FaveoQueue::class;
 
-        return $this->hasMany($related, 'service_id'); // @phpstan-ignore return.type
+        return $this->hasMany($related, 'service_id');
     }
 
     public function getExtraField(mixed $key): mixed

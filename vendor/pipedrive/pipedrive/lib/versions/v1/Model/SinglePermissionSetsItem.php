@@ -214,6 +214,8 @@ class SinglePermissionSetsItem implements ModelInterface, ArrayAccess, JsonSeria
     const APP_CAMPAIGNS = 'campaigns';
     const APP__GLOBAL = 'global';
     const APP_ACCOUNT_SETTINGS = 'account_settings';
+    const APP_PARTNERSHIP = 'partnership';
+    const APP_NOVA = 'nova';
     const TYPE_ADMIN = 'admin';
     const TYPE_MANAGER = 'manager';
     const TYPE_REGULAR = 'regular';
@@ -234,6 +236,8 @@ class SinglePermissionSetsItem implements ModelInterface, ArrayAccess, JsonSeria
             self::APP_CAMPAIGNS,
             self::APP__GLOBAL,
             self::APP_ACCOUNT_SETTINGS,
+            self::APP_PARTNERSHIP,
+            self::APP_NOVA,
         ];
     }
 

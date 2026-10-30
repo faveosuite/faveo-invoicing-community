@@ -90,6 +90,7 @@ class StripeGatewayTest extends TestCase
                         $key = trim(substr($header, 16));
                     }
                 }
+
                 $sent = json_encode($params);
                 if ($key !== '' && isset($this->seen[$key])) {
                     if ($this->seen[$key]['params'] !== $sent) {
@@ -99,13 +100,15 @@ class StripeGatewayTest extends TestCase
 
                     return [$this->seen[$key]['body'], 200, []];
                 }
+
                 $this->next++;
                 $body = str_contains($absUrl, '/customers')
                     ? json_encode(['id' => 'cus_'.$this->next, 'object' => 'customer'])
                     : json_encode(['id' => 'pi_'.$this->next, 'object' => 'payment_intent', 'client_secret' => 'secret_'.$this->next, 'status' => 'requires_payment_method', 'customer' => $params['customer'] ?? null]);
                 if (str_contains($absUrl, '/customers')) {
-                    $this->customers[] = json_decode($body, true)['id'];
+                    $this->customers[] = json_decode($body, associative: true)['id'];
                 }
+
                 if ($key !== '') {
                     $this->seen[$key] = ['params' => $sent, 'body' => $body];
                 }

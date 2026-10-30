@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Controllers\License;
 
 use App\Model\License\LicenseType;
+use App\Model\Product\Product;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -98,7 +99,7 @@ class LicenseSettingsControllerTest extends DBTestCase
     public function test_delete_license_type_in_use_is_refused_and_keeps_its_products(): void
     {
         $type = LicenseType::factory()->create();
-        $product = \App\Model\Product\Product::factory()->create(['type' => $type->id]);
+        $product = Product::factory()->create(['type' => $type->id]);
 
         $this->deleteJson('/delete-license-type', ['select' => [$type->id]])->assertStatus(400);
 

@@ -20,7 +20,7 @@ return new class extends Migration
                 $table->text('og_title')->nullable();
                 $table->text('og_description')->nullable();
                 $table->string('og_image')->nullable();
-                $table->boolean('og_same_as_meta')->default(false);
+                $table->boolean('og_same_as_meta')->default(value: false);
                 $table->timestamps();
             });
         }

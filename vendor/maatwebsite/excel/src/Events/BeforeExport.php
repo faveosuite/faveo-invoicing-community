@@ -1,38 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Events;
 
+use Maatwebsite\Excel\Concerns\Export;
 use Maatwebsite\Excel\Writer;
 
 class BeforeExport extends Event
 {
-    /**
-     * @var Writer
-     */
-    public $writer;
-
-    /**
-     * @param  Writer  $writer
-     * @param  object  $exportable
-     */
-    public function __construct(Writer $writer, $exportable)
-    {
-        $this->writer     = $writer;
+    public function __construct(
+        public Writer $writer,
+        Export $exportable,
+    ) {
         parent::__construct($exportable);
     }
 
-    /**
-     * @return Writer
-     */
     public function getWriter(): Writer
     {
         return $this->writer;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDelegate()
+    public function getDelegate(): Writer
     {
         return $this->writer;
     }

@@ -6,6 +6,7 @@ use App\ApiKey;
 use App\FileSystemSettings;
 use App\Http\Requests\UpdatePdfSettingsRequest;
 use App\Http\Requests\UpdateStoragePathRequest;
+use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Services\Pdf\PdfManager;
 use Aws\Exception\AwsException;
@@ -13,6 +14,7 @@ use Aws\S3\S3Client;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Lang;
 
@@ -384,7 +386,7 @@ trait ApiKeySettings
             ]);
             $settings->save();
 
-            app(PdfManager::class)->clearCache();
+            resolve(PdfManager::class)->clearCache();
 
             return successResponse(trans('message.setting_updated'));
         } catch (Exception $exception) {
@@ -396,7 +398,7 @@ trait ApiKeySettings
 
     public function getDeploymentSettings(): JsonResponse
     {
-        $settings = \App\Model\Common\Setting::where('id', 1)
+        $settings = Setting::where('id', 1)
             ->first(['deployment_enabled', 'help_support_url', 'help_docs_url']);
 
         return successResponse('', [
@@ -409,21 +411,21 @@ trait ApiKeySettings
     public function saveDeploymentSettings(Request $request): JsonResponse
     {
         $request->validate([
-            'deployment_enabled' => 'required|boolean',
-            'install_script_url' => 'required_if:deployment_enabled,1|nullable|url|max:500',
-            'manual_install_guide_url' => 'required_if:deployment_enabled,1|nullable|url|max:500',
+            'deployment_enabled' => ['required', 'boolean'],
+            'install_script_url' => ['required_if:deployment_enabled,1', 'nullable', 'url', 'max:500'],
+            'manual_install_guide_url' => ['required_if:deployment_enabled,1', 'nullable', 'url', 'max:500'],
         ]);
 
         try {
-            \Illuminate\Support\Facades\DB::table('settings')->where('id', 1)->update([
+            DB::table('settings')->where('id', 1)->update([
                 'deployment_enabled' => $request->boolean('deployment_enabled'),
                 'help_support_url' => $request->input('install_script_url'),
                 'help_docs_url' => $request->input('manual_install_guide_url'),
             ]);
 
             return successResponse(__('message.updated_successfully'));
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $exception) {
+            \Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }

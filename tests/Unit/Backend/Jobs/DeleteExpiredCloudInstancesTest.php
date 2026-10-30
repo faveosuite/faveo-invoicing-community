@@ -22,13 +22,13 @@ class DeleteExpiredCloudInstancesTest extends TestCase
 
     public function test_implements_should_queue(): void
     {
-        $this->assertInstanceOf(ShouldQueue::class, new DeleteExpiredCloudInstances());
+        $this->assertInstanceOf(ShouldQueue::class, new DeleteExpiredCloudInstances);
     }
 
     public function test_is_unique_so_runs_cannot_overlap(): void
     {
         // Overlapping runs would email the same customers twice.
-        $job = new DeleteExpiredCloudInstances();
+        $job = new DeleteExpiredCloudInstances;
 
         $this->assertInstanceOf(ShouldBeUnique::class, $job);
         $this->assertSame(3600, $job->uniqueFor);
@@ -40,7 +40,7 @@ class DeleteExpiredCloudInstancesTest extends TestCase
         $cleaner = Mockery::mock(ExpiredCloudInstanceCleaner::class);
         $cleaner->shouldReceive('__invoke')->once();
 
-        (new DeleteExpiredCloudInstances())->handle($cleaner);
+        new DeleteExpiredCloudInstances()->handle($cleaner);
         $this->addToAssertionCount(1);
     }
 
@@ -51,7 +51,7 @@ class DeleteExpiredCloudInstancesTest extends TestCase
         $cleaner->shouldReceive('__invoke')->once();
 
         // Should not throw — constructor-less job, dependency injected via handle()
-        (new DeleteExpiredCloudInstances())->handle($cleaner);
+        new DeleteExpiredCloudInstances()->handle($cleaner);
         $this->addToAssertionCount(1);
     }
 }

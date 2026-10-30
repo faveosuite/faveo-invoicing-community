@@ -64,9 +64,9 @@ class StoreController extends Controller
             // even once a paid plan is added to it; ties (cloud products all carry a free
             // trial) are broken by the cheapest PAID plan. Contact-sales products go last.
             ->sortBy([
-                fn ($a, $b): int => ($a->add_to_contact == 1) <=> ($b->add_to_contact == 1),
-                fn ($a, $b): int => $this->storePrices($a)->min() <=> $this->storePrices($b)->min(),
-                fn ($a, $b): int => ($this->storePrices($a)->filter()->min() ?? 0) <=> ($this->storePrices($b)->filter()->min() ?? 0),
+                fn (Product $a, Product $b): int => ($a->add_to_contact == 1) <=> ($b->add_to_contact == 1),
+                fn (Product $a, Product $b): int => $this->storePrices($a)->min() <=> $this->storePrices($b)->min(),
+                fn (Product $a, Product $b): int => ($this->storePrices($a)->filter()->min() ?? 0) <=> ($this->storePrices($b)->filter()->min() ?? 0),
             ])
             ->values();
 
@@ -119,7 +119,7 @@ class StoreController extends Controller
         $ip = request()->ip();
         $iso = cache()->remember('user_location_'.$ip, 60, fn (): mixed => getLocation($ip)['iso_code'] ?? null);
 
-        return getCurrencyForClient($iso ? (string) findCountryByGeoip($iso) : '');
+        return getCurrencyForClient($iso ? findCountryByGeoip($iso) : '');
     }
 
     private function getCurrencySymbol(string $currency): string

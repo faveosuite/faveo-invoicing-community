@@ -39,9 +39,11 @@ class LicenseController extends Controller
         if (! LicenseHelper::validateIntegerValue($productId)) {
             return errorResponse(__('license::lang.invalid_product'), 400);
         }
+
         if (! LicenseHelper::validateIntegerValue($request->input('license_require_domain'), 0, 1)) {
             return errorResponse(__('license::lang.invalid_license_require_domain'), 400);
         }
+
         if (! LicenseHelper::validateIntegerValue($request->input('license_status'), 0, 2)) {
             return errorResponse(__('license::lang.invalid_license_status'), 400);
         }

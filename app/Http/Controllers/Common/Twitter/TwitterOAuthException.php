@@ -9,6 +9,4 @@ use Exception;
 /**
  * @author Abraham Williams <abraham@abrah.am>
  */
-class TwitterOAuthException extends Exception
-{
-}
+class TwitterOAuthException extends Exception {}

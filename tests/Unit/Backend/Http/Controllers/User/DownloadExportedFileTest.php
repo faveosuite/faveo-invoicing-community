@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Controllers\User;
 
 use App\ExportDetail;
+use App\Http\Middleware\Install;
 use Illuminate\Support\Facades\File;
+use Illuminate\Testing\TestResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Tests\DBTestCase;
 use ZipArchive;
@@ -21,7 +23,7 @@ class DownloadExportedFileTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
         $this->getLoggedInUser('admin');
 
         $this->tmp = sys_get_temp_dir().'/export_dl_'.uniqid();
@@ -50,15 +52,17 @@ class DownloadExportedFileTest extends DBTestCase
     }
 
     /** @return list<string> */
-    private function zipEntries(\Illuminate\Testing\TestResponse $response): array
+    private function zipEntries(TestResponse $response): array
     {
         $this->assertInstanceOf(BinaryFileResponse::class, $response->baseResponse);
         $zip = new ZipArchive;
         $zip->open($response->baseResponse->getFile()->getPathname());
+
         $names = [];
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $names[] = $zip->getNameIndex($i);
         }
+
         $zip->close();
         sort($names);
 

@@ -162,7 +162,7 @@ class OpenPaymentOrder extends Model
      * Scope for completed payments.
      */
     /**
-     * @param  Builder<Model>  $query
+     * @param  Builder<static>  $query
      */
     #[Scope]
     protected function completed(Builder $query): mixed
@@ -174,7 +174,7 @@ class OpenPaymentOrder extends Model
      * Scope for pending payments.
      */
     /**
-     * @param  Builder<Model>  $query
+     * @param  Builder<static>  $query
      */
     #[Scope]
     protected function pending(Builder $query): mixed
@@ -186,7 +186,7 @@ class OpenPaymentOrder extends Model
      * Scope for failed payments.
      */
     /**
-     * @param  Builder<Model>  $query
+     * @param  Builder<static>  $query
      */
     #[Scope]
     protected function failed(Builder $query): mixed

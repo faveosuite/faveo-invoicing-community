@@ -4,11 +4,13 @@ namespace App\Services\Payment;
 
 use App\ApiKey;
 use App\Auto_renewal;
+use App\Console\Commands\RenewalCron;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Common\SettingsController;
 use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\Subscription\SubscriptionController;
 use App\Model\Common\StatusSetting;
+use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
@@ -27,7 +29,7 @@ use Throwable;
  * flag on. For Razorpay, also creates the real gateway subscription right
  * away (it can't save a card for later off-session use the way Stripe can,
  * so the mandate has to be set up — and the customer asked to authorize it —
- * immediately rather than waiting for {@see \App\Console\Commands\RenewalCron}
+ * immediately rather than waiting for {@see RenewalCron}
  * to notice the subscription nearing expiry, which can otherwise be months
  * away). For Stripe, the card is already saved from this charge, so
  * RenewalCron creating the gateway subscription near expiry is enough.
@@ -52,11 +54,11 @@ class AutoRenewalActivationService
     public static function gatewaysFor(string $country): array
     {
         $active = SettingsController::checkPaymentGateway(getCurrencyForClient($country));
-        $active = array_map(strtolower(...), is_array($active) ? $active : []);
+        $active = array_map(strtolower(...), $active);
 
         return array_values(array_filter(
             ['Stripe', 'Razorpay'],
-            fn (string $gateway): bool => StatusSetting::autoRenewalEnabledFor(strtolower($gateway)) && in_array(strtolower($gateway), $active, true)
+            fn (string $gateway): bool => StatusSetting::autoRenewalEnabledFor(strtolower($gateway)) && in_array(strtolower($gateway), $active, strict: true)
         ));
     }
 
@@ -110,7 +112,7 @@ class AutoRenewalActivationService
         }
 
         new PhpMailController()->payment_log(
-            $user->email, $gateway, 'success', $order->number, null, 0, self::PAYMENT_LOG_NOTE
+            $user->email, $gateway, 'success', $order->number, exception: null, amount: 0, payment_type: self::PAYMENT_LOG_NOTE
         );
     }
 
@@ -173,6 +175,7 @@ class AutoRenewalActivationService
         if (! $context) {
             return;
         }
+
         ['subscription' => $subscription, 'plan' => $plan, 'product' => $product, 'invoice' => $invoice] = $context;
 
         ['unitCost' => $unitCost, 'currency' => $currency] = $this->razorpayRecurringUnitCost($subscription, $plan, $order, $user);
@@ -213,6 +216,7 @@ class AutoRenewalActivationService
         if (! $context) {
             throw new Exception(__('message.something_went_wrong'));
         }
+
         ['subscription' => $subscription, 'plan' => $plan, 'product' => $product, 'invoice' => $invoice] = $context;
 
         ['unitCost' => $unitCost, 'currency' => $currency] = $this->razorpayRecurringUnitCost($subscription, $plan, $order, $user);
@@ -244,7 +248,7 @@ class AutoRenewalActivationService
     {
         if ($this->claimActivation($order, 'razorpay', $user, $paymentReference)) {
             new PhpMailController()->payment_log(
-                $user->email, 'razorpay', 'success', $order->number, null, 0, self::PAYMENT_LOG_NOTE
+                $user->email, 'razorpay', 'success', $order->number, exception: null, amount: 0, payment_type: self::PAYMENT_LOG_NOTE
             );
         }
 
@@ -273,7 +277,7 @@ class AutoRenewalActivationService
                 ['order_id' => $order->id, 'payment_method' => $gateway],
                 ['user_id' => $user->id, 'customer_id' => $paymentReference, 'payment_intent_id' => $paymentReference]
             );
-        } catch (QueryException $exception) {
+        } catch (QueryException $queryException) {
             return false;
         }
 
@@ -283,9 +287,9 @@ class AutoRenewalActivationService
     /**
      * The Razorpay Plan resource created here fixes the amount charged on
      * every future automatic renewal — it must match, in full, what
-     * {@see \App\Console\Commands\RenewalCron} would actually charge: base
+     * {@see RenewalCron} would actually charge: base
      * renewal price, PLUS the gateway's processing fee, PLUS tax — exactly
-     * the same three steps {@see \App\Http\Controllers\Subscription\SubscriptionController::processSubscriptionRenewal()}
+     * the same three steps {@see SubscriptionController::processSubscriptionRenewal()}
      * applies before generating a renewal invoice. Skipping either the fee
      * or the tax here would under-charge every future auto-renewal forever
      * (and mismatch what a manually-renewed invoice for the same order would
@@ -311,7 +315,7 @@ class AutoRenewalActivationService
     }
 
     /**
-     * @return array{subscription: Subscription, plan: Plan, product: Product, invoice: \App\Model\Order\Invoice}|null
+     * @return array{subscription: Subscription, plan: Plan, product: Product, invoice: Invoice}|null
      */
     private function resolveSubscriptionContext(Order $order): ?array
     {

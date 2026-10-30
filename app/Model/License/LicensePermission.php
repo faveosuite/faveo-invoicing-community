@@ -39,7 +39,7 @@ class LicensePermission extends Model
      */
     public function licenseTypes(): BelongsToMany
     {
-        return $this->belongsToMany(LicenseType::class, 'license_license_permissions')
+        return $this->belongsToMany(LicenseType::class, LicensePermissionPivot::class)
             ->using(LicensePermissionPivot::class)
             ->withTimestamps();
     }

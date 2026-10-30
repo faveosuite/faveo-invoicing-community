@@ -11,12 +11,12 @@ class SettingRequestTest extends TestCase
 {
     public function test_authorize_returns_true(): void
     {
-        $this->assertTrue((new SettingRequest())->authorize());
+        $this->assertTrue(new SettingRequest()->authorize());
     }
 
     public function test_rules_contains_required_keys(): void
     {
-        $rules = (new SettingRequest())->rules();
+        $rules = new SettingRequest()->rules();
 
         $this->assertArrayHasKey('company', $rules);
         $this->assertArrayHasKey('email', $rules);
@@ -26,7 +26,7 @@ class SettingRequestTest extends TestCase
 
     public function test_messages_returns_expected_keys(): void
     {
-        $messages = (new SettingRequest())->messages();
+        $messages = new SettingRequest()->messages();
 
         $this->assertIsArray($messages);
         $this->assertArrayHasKey('company.required', $messages);

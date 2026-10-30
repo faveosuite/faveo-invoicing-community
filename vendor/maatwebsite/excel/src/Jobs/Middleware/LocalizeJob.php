@@ -11,28 +11,17 @@ class LocalizeJob
     use Localizable;
 
     /**
-     * @var object
-     */
-    private $localizable;
-
-    /**
      * LocalizeJob constructor.
-     *
-     * @param  object  $localizable
      */
-    public function __construct($localizable)
-    {
-        $this->localizable = $localizable;
+    public function __construct(
+        private readonly object $localizable,
+    ) {
     }
 
     /**
      * Handles the job.
-     *
-     * @param  mixed  $job
-     * @param  Closure  $next
-     * @return mixed
      */
-    public function handle($job, Closure $next)
+    public function handle(mixed $job, Closure $next): mixed
     {
         $locale = value(function () {
             if ($this->localizable instanceof HasLocalePreference) {
@@ -42,8 +31,6 @@ class LocalizeJob
             return null;
         });
 
-        return $this->withLocale($locale, function () use ($next, $job) {
-            return $next($job);
-        });
+        return $this->withLocale($locale, fn () => $next($job));
     }
 }

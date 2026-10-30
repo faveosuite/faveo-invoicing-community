@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Controllers\Order;
 
 use App\Http\Controllers\Order\Orders;
+use Illuminate\Support\Facades\Date;
 use Tests\TestCase;
 
 class OrdersControllerTest extends TestCase
@@ -94,10 +95,11 @@ class OrdersControllerTest extends TestCase
         $orders = new Orders(999);
         try {
             $orders->getOrder();
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // Expected: Call to undefined method (self::find doesn't exist on Controller)
-            $this->assertNotNull($e);
+            $this->assertNotNull($throwable);
         }
+
         $this->assertTrue(true);
     }
 
@@ -107,8 +109,8 @@ class OrdersControllerTest extends TestCase
 
     public function test_get_subscription_returns_subscription_from_order(): void
     {
-        $subMock = new \stdClass();
-        $orderMock = new \stdClass();
+        $subMock = new \stdClass;
+        $orderMock = new \stdClass;
         $orderMock->subscription = $subMock;
 
         $orders = \Mockery::mock(Orders::class, [1])->makePartial();
@@ -119,8 +121,8 @@ class OrdersControllerTest extends TestCase
 
     public function test_get_product_returns_product_from_order(): void
     {
-        $productMock = new \stdClass();
-        $orderMock = new \stdClass();
+        $productMock = new \stdClass;
+        $orderMock = new \stdClass;
         $orderMock->product = $productMock;
 
         $orders = \Mockery::mock(Orders::class, [1])->makePartial();
@@ -131,8 +133,8 @@ class OrdersControllerTest extends TestCase
 
     public function test_get_plan_returns_plan_from_subscription(): void
     {
-        $planMock = new \stdClass();
-        $subMock = new \stdClass();
+        $planMock = new \stdClass;
+        $subMock = new \stdClass;
         $subMock->plan = $planMock;
 
         $orders = \Mockery::mock(Orders::class, [1])->makePartial();
@@ -143,7 +145,7 @@ class OrdersControllerTest extends TestCase
 
     public function test_subscription_period_returns_days_from_plan(): void
     {
-        $planMock = new \stdClass();
+        $planMock = new \stdClass;
         $planMock->days = 30;
 
         $orders = \Mockery::mock(Orders::class, [1])->makePartial();
@@ -154,7 +156,7 @@ class OrdersControllerTest extends TestCase
 
     public function test_version_returns_version_from_subscription(): void
     {
-        $subMock = new \stdClass();
+        $subMock = new \stdClass;
         $subMock->vesion = '1.0.0';
 
         $orders = \Mockery::mock(Orders::class, [1])->makePartial();
@@ -165,8 +167,8 @@ class OrdersControllerTest extends TestCase
 
     public function test_is_expired_returns_true_when_subscription_expired(): void
     {
-        $subMock = new \stdClass();
-        $subMock->ends_at = \Illuminate\Support\Facades\Date::now()->subDays(5);
+        $subMock = new \stdClass;
+        $subMock->ends_at = Date::now()->subDays(5);
 
         $orders = \Mockery::mock(Orders::class, [1])->makePartial();
         $orders->shouldReceive('getSubscription')->andReturn($subMock);
@@ -176,8 +178,8 @@ class OrdersControllerTest extends TestCase
 
     public function test_is_expired_returns_false_when_subscription_not_expired(): void
     {
-        $subMock = new \stdClass();
-        $subMock->ends_at = \Illuminate\Support\Facades\Date::now()->addDays(5);
+        $subMock = new \stdClass;
+        $subMock->ends_at = Date::now()->addDays(5);
 
         $orders = \Mockery::mock(Orders::class, [1])->makePartial();
         $orders->shouldReceive('getSubscription')->andReturn($subMock);
@@ -187,7 +189,7 @@ class OrdersControllerTest extends TestCase
 
     public function test_product_name_returns_product_name(): void
     {
-        $productMock = new \stdClass();
+        $productMock = new \stdClass;
         $productMock->name = 'Test Product';
 
         $orders = \Mockery::mock(Orders::class, [1])->makePartial();
@@ -198,10 +200,10 @@ class OrdersControllerTest extends TestCase
 
     public function test_is_downloadable_returns_true_for_download_type(): void
     {
-        $typeMock = new \stdClass();
+        $typeMock = new \stdClass;
         $typeMock->name = 'download';
 
-        $productMock = new \stdClass();
+        $productMock = new \stdClass;
         $productMock->type = $typeMock;
 
         $orders = \Mockery::mock(Orders::class, [1])->makePartial();
@@ -212,10 +214,10 @@ class OrdersControllerTest extends TestCase
 
     public function test_is_downloadable_returns_false_for_non_download_type(): void
     {
-        $typeMock = new \stdClass();
+        $typeMock = new \stdClass;
         $typeMock->name = 'hosted';
 
-        $productMock = new \stdClass();
+        $productMock = new \stdClass;
         $productMock->type = $typeMock;
 
         $orders = \Mockery::mock(Orders::class, [1])->makePartial();
@@ -226,7 +228,7 @@ class OrdersControllerTest extends TestCase
 
     public function test_is_downloadable_returns_false_when_product_has_no_type(): void
     {
-        $productMock = new \stdClass();
+        $productMock = new \stdClass;
         $productMock->type = null;
 
         $orders = \Mockery::mock(Orders::class, [1])->makePartial();

@@ -35,10 +35,13 @@ use PHPUnit\Event\Test\Skipped;
 use PHPUnit\Event\TestSuite\Finished as TestSuiteFinished;
 use PHPUnit\Event\TestSuite\Skipped as TestSuiteSkipped;
 use PHPUnit\Event\TestSuite\Started as TestSuiteStarted;
+use PHPUnit\Event\TestSuite\TestSuiteForRepeatedTestMethod;
+use PHPUnit\Event\TestSuite\TestSuiteForRetriedTestMethod;
 use PHPUnit\Event\TestSuite\TestSuiteForTestClass;
 use PHPUnit\Event\TestSuite\TestSuiteForTestMethodWithDataProvider;
 use PHPUnit\Framework\Exception as FrameworkException;
 use PHPUnit\TextUI\Output\Printer;
+use PHPUnit\Util\Sanitizer;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -96,6 +99,24 @@ final class TeamCityLogger
             );
 
             $parameters['name'] = $testSuite->methodName();
+        } elseif ($testSuite->isForRepeatedTestMethod()) {
+            assert($testSuite instanceof TestSuiteForRepeatedTestMethod);
+
+            $parameters['locationHint'] = sprintf(
+                'php_qn://%s::\\%s::%s',
+                $testSuite->file(),
+                $testSuite->className(),
+                $testSuite->methodName(),
+            );
+        } elseif ($testSuite->isForRetriedTestMethod()) {
+            assert($testSuite instanceof TestSuiteForRetriedTestMethod);
+
+            $parameters['locationHint'] = sprintf(
+                'php_qn://%s::\\%s::%s',
+                $testSuite->file(),
+                $testSuite->className(),
+                $testSuite->methodName(),
+            );
         }
 
         $this->writeMessage('testSuiteStarted', $parameters);
@@ -403,13 +424,6 @@ final class TeamCityLogger
             ],
         );
 
-        $this->writeMessage(
-            'testSuiteFinished',
-            [
-                'name' => $name,
-            ],
-        );
-
         $this->time = null;
     }
 
@@ -474,7 +488,7 @@ final class TeamCityLogger
                 sprintf(
                     " %s='%s'",
                     $key,
-                    $this->escape((string) $value),
+                    $this->escape(Sanitizer::sanitizeControlCharacters((string) $value)),
                 ),
             );
         }

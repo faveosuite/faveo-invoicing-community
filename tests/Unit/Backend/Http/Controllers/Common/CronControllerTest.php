@@ -106,7 +106,7 @@ class CronControllerTest extends DBTestCase
 
     public function test_each_subscription_does_nothing_when_expiry_mail_off(): void
     {
-        $this->switchTask('expiryMail', false);
+        $this->switchTask('expiryMail', on: false);
 
         $this->cron->eachSubscription();
 
@@ -119,7 +119,7 @@ class CronControllerTest extends DBTestCase
 
     public function test_auto_renewal_expiry_notify_does_nothing_when_off(): void
     {
-        $this->switchTask('subsExpirymail', false);
+        $this->switchTask('subsExpirymail', on: false);
 
         $this->cron->autoRenewalExpiryNotify();
 
@@ -132,7 +132,7 @@ class CronControllerTest extends DBTestCase
 
     public function test_post_renewal_notify_does_nothing_when_off(): void
     {
-        $this->switchTask('postExpirymail', false);
+        $this->switchTask('postExpirymail', on: false);
 
         $this->cron->postRenewalNotify();
 
@@ -145,7 +145,7 @@ class CronControllerTest extends DBTestCase
 
     public function test_invoices_deletion_does_nothing_when_status_off(): void
     {
-        $this->switchTask('invoice', false);
+        $this->switchTask('invoice', on: false);
 
         $this->cron->invoicesDeletion();
 
@@ -158,7 +158,7 @@ class CronControllerTest extends DBTestCase
 
     public function test_reoon_logs_deletion_does_nothing_when_off(): void
     {
-        $this->switchTask('reoon', false);
+        $this->switchTask('reoon', on: false);
 
         $this->cron->reoonLogsDeletion();
 
@@ -182,7 +182,7 @@ class CronControllerTest extends DBTestCase
 
     public function test_msg_deletions_does_nothing_when_status_off(): void
     {
-        $this->switchTask('msg91Reports', false);
+        $this->switchTask('msg91Reports', on: false);
 
         $this->cron->msgDeletions();
 
@@ -195,7 +195,7 @@ class CronControllerTest extends DBTestCase
 
     public function test_each_subscription_runs_when_enabled_but_no_matching_subscriptions(): void
     {
-        $this->switchTask('expiryMail', true);
+        $this->switchTask('expiryMail', on: true);
         // Use a far-future day so no subscription matches
         $this->setTaskDays('expiryMail', [999999]);
 
@@ -210,7 +210,7 @@ class CronControllerTest extends DBTestCase
 
     public function test_auto_renewal_expiry_notify_runs_when_enabled_but_no_matching(): void
     {
-        $this->switchTask('subsExpirymail', true);
+        $this->switchTask('subsExpirymail', on: true);
         $this->setTaskDays('subsExpirymail', [999999]);
 
         $this->cron->autoRenewalExpiryNotify();
@@ -224,7 +224,7 @@ class CronControllerTest extends DBTestCase
 
     public function test_post_renewal_notify_runs_when_enabled_but_no_matching(): void
     {
-        $this->switchTask('postExpirymail', true);
+        $this->switchTask('postExpirymail', on: true);
         $this->setTaskDays('postExpirymail', [999999]);
 
         $this->cron->postRenewalNotify();
@@ -238,7 +238,7 @@ class CronControllerTest extends DBTestCase
 
     public function test_invoices_deletion_runs_when_enabled_but_no_deletable_invoices(): void
     {
-        $this->switchTask('invoice', true);
+        $this->switchTask('invoice', on: true);
         // Set a very recent cutoff so no invoices qualify
         $this->setTaskDays('invoice', 99999);
 
@@ -253,7 +253,7 @@ class CronControllerTest extends DBTestCase
 
     public function test_reoon_logs_deletion_runs_when_enabled_but_no_logs(): void
     {
-        $this->switchTask('reoon', true);
+        $this->switchTask('reoon', on: true);
         $this->setTaskDays('reoon', 99999);
 
         $this->cron->reoonLogsDeletion();
@@ -267,7 +267,7 @@ class CronControllerTest extends DBTestCase
 
     public function test_msg_deletions_runs_when_enabled(): void
     {
-        $this->switchTask('msg91Reports', true);
+        $this->switchTask('msg91Reports', on: true);
         $this->setTaskDays('msg91Reports', 99999);
 
         $this->cron->msgDeletions();
@@ -326,10 +326,10 @@ class CronControllerTest extends DBTestCase
     public function test_each_subscription_reads_its_task_switch(): void
     {
         // Flip status and verify no exception raised either way
-        $this->switchTask('expiryMail', false);
+        $this->switchTask('expiryMail', on: false);
         $this->cron->eachSubscription();
 
-        $this->switchTask('expiryMail', true);
+        $this->switchTask('expiryMail', on: true);
         $this->setTaskDays('expiryMail', [0]);
         $this->cron->eachSubscription();
 

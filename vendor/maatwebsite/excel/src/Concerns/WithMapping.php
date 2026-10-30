@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Concerns;
 
 /**
- * @template RowType of mixed
+ * @template-contravariant RowType = mixed
  */
 interface WithMapping
 {
     /**
      * @param  RowType  $row
-     * @return array
+     * @return array<array-key, mixed>
      */
-    public function map($row): array;
+    public function map(mixed $row): array;
 }

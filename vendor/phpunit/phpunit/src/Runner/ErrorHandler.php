@@ -97,6 +97,7 @@ final class ErrorHandler
      */
     private array $testCaseContextIssues = [];
     private ?string $testCaseContext     = null;
+    private readonly Event\Emitter $emitter;
 
     /**
      * @var ?list<callable>
@@ -113,6 +114,11 @@ final class ErrorHandler
      */
     private array $issueTriggerResolvers;
 
+    /**
+     * @var list<DeprecationFilter>
+     */
+    private array $deprecationFilters = [];
+
     public static function instance(): self
     {
         $source = ConfigurationRegistry::get()->source();
@@ -127,13 +133,18 @@ final class ErrorHandler
             $identifyIssueTrigger = false;
         }
 
-        return self::$instance ?? self::$instance = new self($identifyIssueTrigger);
+        if (self::$instance === null) {
+            self::$instance = new self($identifyIssueTrigger, Event\Facade::emitter());
+        }
+
+        return self::$instance;
     }
 
-    private function __construct(bool $identifyIssueTrigger)
+    public function __construct(bool $identifyIssueTrigger, Event\Emitter $emitter)
     {
         $this->excludeList           = new ExcludeList;
         $this->identifyIssueTrigger  = $identifyIssueTrigger;
+        $this->emitter               = $emitter;
         $this->issueTriggerResolvers = [new DefaultIssueTriggerResolver];
     }
 
@@ -151,7 +162,22 @@ final class ErrorHandler
             return false;
         }
 
-        $suppressed = (error_reporting() & ~self::INSUPPRESSIBLE_LEVELS) === 0;
+        /**
+         * An issue that was triggered in a test case context before the test case
+         * was run is replayed when the test case is prepared: whether it was
+         * suppressed using the @ operator must be determined from the error
+         * reporting level that was in effect when the error was triggered,
+         * not from the error reporting level that is in effect on replay.
+         *
+         * @see https://github.com/sebastianbergmann/phpunit/issues/6855
+         */
+        if ($this->deferredIssueErrorReportingLevel !== null) {
+            $errorReportingLevel = $this->deferredIssueErrorReportingLevel;
+        } else {
+            $errorReportingLevel = error_reporting();
+        }
+
+        $suppressed = ($errorReportingLevel & ~self::INSUPPRESSIBLE_LEVELS) === 0;
 
         if ($suppressed && $this->excludeList->isExcluded($errorFile)) {
             // @codeCoverageIgnoreStart
@@ -196,7 +222,7 @@ final class ErrorHandler
 
         switch ($errorNumber) {
             case E_NOTICE:
-                Event\Facade::emitter()->testTriggeredPhpNotice(
+                $this->emitter->testTriggeredPhpNotice(
                     $test,
                     $errorString,
                     $errorFile,
@@ -208,7 +234,7 @@ final class ErrorHandler
                 break;
 
             case E_USER_NOTICE:
-                Event\Facade::emitter()->testTriggeredNotice(
+                $this->emitter->testTriggeredNotice(
                     $test,
                     $errorString,
                     $errorFile,
@@ -220,7 +246,7 @@ final class ErrorHandler
                 break;
 
             case E_WARNING:
-                Event\Facade::emitter()->testTriggeredPhpWarning(
+                $this->emitter->testTriggeredPhpWarning(
                     $test,
                     $errorString,
                     $errorFile,
@@ -232,7 +258,7 @@ final class ErrorHandler
                 break;
 
             case E_USER_WARNING:
-                Event\Facade::emitter()->testTriggeredWarning(
+                $this->emitter->testTriggeredWarning(
                     $test,
                     $errorString,
                     $errorFile,
@@ -244,7 +270,9 @@ final class ErrorHandler
                 break;
 
             case E_DEPRECATED:
-                Event\Facade::emitter()->testTriggeredPhpDeprecation(
+                $trigger = $this->trigger($test, false, $errorString, $errorFile);
+
+                $this->emitter->testTriggeredPhpDeprecation(
                     $test,
                     $errorString,
                     $errorFile,
@@ -252,13 +280,16 @@ final class ErrorHandler
                     $suppressed,
                     $ignoredByBaseline,
                     $ignoredByTest,
-                    $this->trigger($test, false, $errorString, $errorFile),
+                    $this->deprecationIgnoredByFilter($errorString, $errorFile, $errorLine, $trigger),
+                    $trigger,
                 );
 
                 break;
 
             case E_USER_DEPRECATED:
-                Event\Facade::emitter()->testTriggeredDeprecation(
+                $trigger = $this->trigger($test, true, $errorString);
+
+                $this->emitter->testTriggeredDeprecation(
                     $test,
                     $errorString,
                     $errorFile,
@@ -266,14 +297,15 @@ final class ErrorHandler
                     $suppressed,
                     $ignoredByBaseline,
                     $ignoredByTest,
-                    $this->trigger($test, true, $errorString),
+                    $this->deprecationIgnoredByFilter($errorString, $errorFile, $errorLine, $trigger),
+                    $trigger,
                     $this->stackTrace($errorFile, $errorLine),
                 );
 
                 break;
 
             case E_USER_ERROR:
-                Event\Facade::emitter()->testTriggeredError(
+                $this->emitter->testTriggeredError(
                     $test,
                     $errorString,
                     $errorFile,
@@ -283,8 +315,14 @@ final class ErrorHandler
 
                 throw new ErrorException('E_USER_ERROR was triggered');
 
+                /**
+                 * No other error type that can be handled by a user-defined
+                 * error handler is raised by PHP 8.
+                 */
+                // @codeCoverageIgnoreStart
             default:
                 return $handledByPreviousErrorHandler;
+                // @codeCoverageIgnoreEnd
         }
 
         return $handledByPreviousErrorHandler;
@@ -349,7 +387,7 @@ final class ErrorHandler
 
         switch ($errorNumber) {
             case E_NOTICE:
-                Event\Facade::emitter()->testRunnerTriggeredPhpNotice(
+                $this->emitter->testRunnerTriggeredPhpNotice(
                     $errorString,
                     $errorFile,
                     $errorLine,
@@ -360,7 +398,7 @@ final class ErrorHandler
                 break;
 
             case E_USER_NOTICE:
-                Event\Facade::emitter()->testRunnerTriggeredNotice(
+                $this->emitter->testRunnerTriggeredNotice(
                     $errorString,
                     $errorFile,
                     $errorLine,
@@ -371,7 +409,7 @@ final class ErrorHandler
                 break;
 
             case E_WARNING:
-                Event\Facade::emitter()->testRunnerTriggeredPhpWarning(
+                $this->emitter->testRunnerTriggeredPhpWarning(
                     $errorString,
                     $errorFile,
                     $errorLine,
@@ -382,7 +420,7 @@ final class ErrorHandler
                 break;
 
             case E_USER_WARNING:
-                Event\Facade::emitter()->testRunnerTriggeredWarning(
+                $this->emitter->testRunnerTriggeredWarning(
                     $errorString,
                     $errorFile,
                     $errorLine,
@@ -393,32 +431,45 @@ final class ErrorHandler
                 break;
 
             case E_DEPRECATED:
-                Event\Facade::emitter()->testRunnerTriggeredPhpDeprecation(
+                $trigger = $this->triggerWithoutTest(false, $errorString, $errorFile);
+
+                $this->emitter->testRunnerTriggeredPhpDeprecation(
                     $errorString,
                     $errorFile,
                     $errorLine,
                     $suppressed,
                     $ignoredByBaseline,
-                    $this->triggerWithoutTest(false, $errorString, $errorFile),
+                    $this->deprecationIgnoredByFilter($errorString, $errorFile, $errorLine, $trigger),
+                    $trigger,
                 );
 
                 break;
 
             case E_USER_DEPRECATED:
-                Event\Facade::emitter()->testRunnerTriggeredDeprecation(
+                $trigger = $this->triggerWithoutTest(true, $errorString);
+
+                $this->emitter->testRunnerTriggeredDeprecation(
                     $errorString,
                     $errorFile,
                     $errorLine,
                     $suppressed,
                     $ignoredByBaseline,
-                    $this->triggerWithoutTest(true, $errorString),
+                    $this->deprecationIgnoredByFilter($errorString, $errorFile, $errorLine, $trigger),
+                    $trigger,
                     $this->stackTrace($errorFile, $errorLine),
                 );
 
                 break;
 
+                /**
+                 * E_USER_ERROR is not part of the error types this error handler
+                 * is registered for; PHP terminates the script when it is raised.
+                 * This case only applies when a previously registered error
+                 * handler delegates such an error here.
+                 */
+                // @codeCoverageIgnoreStart
             case E_USER_ERROR:
-                Event\Facade::emitter()->testRunnerTriggeredError(
+                $this->emitter->testRunnerTriggeredError(
                     $errorString,
                     $errorFile,
                     $errorLine,
@@ -426,6 +477,7 @@ final class ErrorHandler
                 );
 
                 break;
+                // @codeCoverageIgnoreEnd
         }
 
         return true;
@@ -525,7 +577,9 @@ final class ErrorHandler
         }
 
         if ($activeErrorHandlers !== $backupErrorHandlers) {
-            foreach ($activeErrorHandlers as $handler) {
+            $numberOfActiveErrorHandlers = count($activeErrorHandlers);
+
+            for ($i = 0; $i < $numberOfActiveErrorHandlers; $i++) {
                 restore_error_handler();
             }
 
@@ -555,6 +609,11 @@ final class ErrorHandler
     public function addIssueTriggerResolver(IssueTriggerResolver $resolver): void
     {
         array_unshift($this->issueTriggerResolvers, $resolver);
+    }
+
+    public function addDeprecationFilter(DeprecationFilter $filter): void
+    {
+        $this->deprecationFilters[] = $filter;
     }
 
     public function enterTestCaseContext(string $className, string $methodName): void
@@ -1059,6 +1118,17 @@ final class ErrorHandler
 
             if ($ignoreDeprecationMessagePattern === null ||
                 (bool) preg_match('{' . $ignoreDeprecationMessagePattern . '}', $message)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function deprecationIgnoredByFilter(string $message, string $file, int $line, IssueTrigger $trigger): bool
+    {
+        foreach ($this->deprecationFilters as $filter) {
+            if ($filter->ignores($message, $file, $line, $trigger)) {
                 return true;
             }
         }

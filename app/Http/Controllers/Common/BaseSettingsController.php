@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Common\PHPController as PaymentSettingsController;
 use App\Traits\ApiKeySettings;
-use Spatie\Activitylog\Models\Activity;
 
 class BaseSettingsController extends PaymentSettingsController
 {

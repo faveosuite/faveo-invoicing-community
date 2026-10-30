@@ -4,27 +4,23 @@ namespace PhpOffice\PhpSpreadsheet\Calculation\Token;
 
 use PhpOffice\PhpSpreadsheet\Calculation\Calculation;
 use PhpOffice\PhpSpreadsheet\Calculation\Engine\BranchPruner;
+use PhpOffice\PhpSpreadsheet\Shared\StringHelper;
 
 class Stack
 {
-    /**
-     * @var BranchPruner
-     */
-    private $branchPruner;
+    private BranchPruner $branchPruner;
 
     /**
      * The parser stack for formulae.
      *
-     * @var mixed[]
+     * @var array<int, array<mixed>>
      */
-    private $stack = [];
+    private array $stack = [];
 
     /**
      * Count of entries in the parser stack.
-     *
-     * @var int
      */
-    private $count = 0;
+    private int $count = 0;
 
     public function __construct(BranchPruner $branchPruner)
     {
@@ -41,31 +37,28 @@ class Stack
 
     /**
      * Push a new entry onto the stack.
-     *
-     * @param mixed $value
      */
-    public function push(string $type, $value, ?string $reference = null): void
+    public function push(string $type, mixed $value, ?string $reference = null): void
     {
         $stackItem = $this->getStackItem($type, $value, $reference);
         $this->stack[$this->count++] = $stackItem;
 
         if ($type === 'Function') {
-            $localeFunction = Calculation::localeFunc($value);
+            $localeFunction = Calculation::localeFunc(StringHelper::convertToString($value));
             if ($localeFunction != $value) {
                 $this->stack[($this->count - 1)]['localeValue'] = $localeFunction;
             }
         }
     }
 
+    /** @param array<mixed> $stackItem */
     public function pushStackItem(array $stackItem): void
     {
         $this->stack[$this->count++] = $stackItem;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function getStackItem(string $type, $value, ?string $reference = null): array
+    /** @return array<mixed> */
+    public function getStackItem(string $type, mixed $value, ?string $reference = null): array
     {
         $stackItem = [
             'type' => $type,
@@ -96,6 +89,8 @@ class Stack
 
     /**
      * Pop the last entry from the stack.
+     *
+     * @return null|array<mixed>
      */
     public function pop(): ?array
     {
@@ -108,6 +103,8 @@ class Stack
 
     /**
      * Return an entry from the stack without removing it.
+     *
+     * @return null|array<mixed>
      */
     public function last(int $n = 1): ?array
     {

@@ -18,7 +18,6 @@ use function is_object;
 use function is_string;
 use function preg_match;
 use function preg_replace;
-use function str_contains;
 use function strlen;
 use function strpos;
 use function strtolower;
@@ -210,9 +209,7 @@ EOT;
 
         $argumentsCount = 0;
 
-        if (str_contains($this->argumentsForCall, '...')) {
-            $argumentsCount = null;
-        } elseif ($this->argumentsForCall !== '') {
+        if ($this->argumentsForCall !== '') {
             $argumentsCount = substr_count($this->argumentsForCall, ',') + 1;
         }
 
@@ -374,9 +371,12 @@ EOT;
 
             $pos = strpos($parameterAsString, '<optional> ');
 
+            // a parameter that has a default value is always rendered as optional
+            // @codeCoverageIgnoreStart
             if ($pos === false) {
                 return 'null';
             }
+            // @codeCoverageIgnoreEnd
 
             $parts = explode(
                 ' = ',
@@ -394,8 +394,11 @@ EOT;
                 return $parts[1];
             }
 
-            return 'null';
+            // neither the fallback below nor the exception handling can be
+            // reached: a parameter that has a default value is always rendered
+            // together with that default value
             // @codeCoverageIgnoreStart
+            return 'null';
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),

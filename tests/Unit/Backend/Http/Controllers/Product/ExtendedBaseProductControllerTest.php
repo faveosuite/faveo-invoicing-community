@@ -3,6 +3,7 @@
 namespace Tests\Unit\Backend\Http\Controllers\Product;
 
 use App\Facades\Attach;
+use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\Product\ExtendedBaseProductController;
 use App\License\Services\ProductBundleStampingService;
 use App\Model\License\LicensePermission;
@@ -36,7 +37,7 @@ class ExtendedBaseProductControllerTest extends DBTestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessageIsOrContains(trans('message.file_not_exist'));
 
-        $this->controller()->download($product, null, null);
+        $this->controller()->download($product);
     }
 
     public function test_github_download_is_fetched_server_side_and_stamped_with_the_order(): void
@@ -44,15 +45,15 @@ class ExtendedBaseProductControllerTest extends DBTestCase
         $product = Product::factory()->create(['github_owner' => 'faveo', 'github_repository' => 'helpdesk']);
         $order = Order::factory()->create(['product' => $product->id]);
 
-        $github = Mockery::mock(\App\Http\Controllers\Github\GithubApiController::class);
+        $github = Mockery::mock(GithubApiController::class);
         $github->shouldReceive('downloadZipball')->once()->with('faveo', 'helpdesk', 'v2.0.0')->andReturn('/tmp/zipball');
-        $this->app->instance(\App\Http\Controllers\Github\GithubApiController::class, $github);
+        $this->app->instance(GithubApiController::class, $github);
 
         $stampedResponse = new Response('stamped-bytes');
         $stampingService = Mockery::mock(ProductBundleStampingService::class);
         $stampingService->shouldReceive('githubDownloadResponse')
             ->once()
-            ->withArgs(fn ($path, $p, $tag, $passedOrder) => $path === '/tmp/zipball' && $p->is($product) && $tag === 'v2.0.0' && $passedOrder->is($order))
+            ->withArgs(fn ($path, $p, $tag, $passedOrder): bool => $path === '/tmp/zipball' && $p->is($product) && $tag === 'v2.0.0' && $passedOrder->is($order))
             ->andReturn($stampedResponse);
 
         $this->assertSame($stampedResponse, $this->controller($stampingService)->download($product, tag: 'v2.0.0', order: $order));
@@ -93,7 +94,7 @@ class ExtendedBaseProductControllerTest extends DBTestCase
         $stampingService = Mockery::mock(ProductBundleStampingService::class);
         $stampingService->shouldReceive('downloadResponseFor')
             ->once()
-            ->withArgs(fn ($v, $p, $path, $order) => $v->is($version) && $p->is($product) && $path === 'products/release.zip' && $order === null)
+            ->withArgs(fn ($v, $p, $path, $order): bool => $v->is($version) && $p->is($product) && $path === 'products/release.zip' && $order === null)
             ->andReturn($stampedResponse);
 
         $response = $this->controller($stampingService)->download($product, $version);
@@ -112,7 +113,7 @@ class ExtendedBaseProductControllerTest extends DBTestCase
         $stampingService = Mockery::mock(ProductBundleStampingService::class);
         $stampingService->shouldReceive('downloadResponseFor')
             ->once()
-            ->withArgs(fn ($v, $p, $path, $passedOrder) => $passedOrder !== null && $passedOrder->is($order))
+            ->withArgs(fn ($v, $p, $path, $passedOrder): bool => $passedOrder !== null && $passedOrder->is($order))
             ->andReturn(new Response('stamped-bytes'));
 
         $this->controller($stampingService)->download($product, $version, order: $order);
@@ -125,7 +126,7 @@ class ExtendedBaseProductControllerTest extends DBTestCase
 
         $response = $this->controller()->adminDownload($product->id);
 
-        $data = json_decode((string) $response->getContent(), true);
+        $data = json_decode((string) $response->getContent(), associative: true);
         $this->assertFalse($data['success']);
     }
 
@@ -136,7 +137,7 @@ class ExtendedBaseProductControllerTest extends DBTestCase
         $type->permissions()->attach($permission->id);
 
         $product = Product::factory()->create(['type' => $type->id]);
-        $version = ProductUpload::factory()->create(['product_id' => $product->id, 'file' => 'release.zip', 'release_type' => 'official', 'is_private' => 0]);
+        ProductUpload::factory()->create(['product_id' => $product->id, 'file' => 'release.zip', 'release_type' => 'official', 'is_private' => 0]);
 
         Attach::shouldReceive('exists')->once()->with('products/release.zip')->andReturn(true);
 
@@ -168,7 +169,7 @@ class ExtendedBaseProductControllerTest extends DBTestCase
         $served = null;
         $stampingService = Mockery::mock(ProductBundleStampingService::class);
         $stampingService->shouldReceive('downloadResponseFor')->once()
-            ->andReturnUsing(function ($version) use (&$served) {
+            ->andReturnUsing(function ($version) use (&$served): Response {
                 $served = $version->file;
 
                 return new Response('stamped');
@@ -205,7 +206,7 @@ class ExtendedBaseProductControllerTest extends DBTestCase
         $product = Product::factory()->create(['type' => $type->id, 'github_owner' => 'faveo', 'github_repository' => 'helpdesk']);
 
         $served = null;
-        $github = Mockery::mock(\App\Http\Controllers\Github\GithubApiController::class);
+        $github = Mockery::mock(GithubApiController::class);
         $github->shouldReceive('releases')->with('faveo', 'helpdesk')->andReturn([
             ['tag_name' => 'v9.4.4.0', 'prerelease' => false, 'draft' => true, 'created_at' => '2026-10-26T00:00:00Z'],
             ['tag_name' => 'v9.4.3.8.RC.3', 'prerelease' => true, 'draft' => false, 'created_at' => '2026-10-20T00:00:00Z'],
@@ -213,12 +214,12 @@ class ExtendedBaseProductControllerTest extends DBTestCase
             ['tag_name' => 'v9.4.3.9.RC.1', 'prerelease' => true, 'draft' => false, 'created_at' => '2026-10-25T00:00:00Z'],
             ['tag_name' => 'v9.4.3.7', 'prerelease' => false, 'draft' => false, 'created_at' => '2026-10-01T00:00:00Z'],
         ]);
-        $github->shouldReceive('downloadZipball')->andReturnUsing(function ($owner, $repo, $tag) use (&$served) {
+        $github->shouldReceive('downloadZipball')->andReturnUsing(function ($owner, $repo, $tag) use (&$served): string {
             $served = $tag;
 
             return '/tmp/zipball';
         });
-        $this->app->instance(\App\Http\Controllers\Github\GithubApiController::class, $github);
+        $this->app->instance(GithubApiController::class, $github);
 
         $stampingService = Mockery::mock(ProductBundleStampingService::class);
         $stampingService->shouldReceive('githubDownloadResponse')->once()->andReturn(new Response('stamped'));

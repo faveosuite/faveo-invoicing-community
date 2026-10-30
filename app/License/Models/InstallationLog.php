@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\License\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -57,7 +59,7 @@ class InstallationLog extends Model
      * Scope: filter by license code.
      */
     /**
-     * @param  Builder<Model>  $query
+     * @param  Builder<static>  $query
      */
     #[Scope]
     protected function forLicense(Builder $query, string $licenseCode): mixed
@@ -69,12 +71,12 @@ class InstallationLog extends Model
      * Scope: order by most recent activity.
      */
     /**
-     * @param  Builder<Model>  $query
+     * @param  Builder<static>  $query
      */
     #[Scope]
     protected function recent(Builder $query): mixed
     {
-        return $query->orderBy('installation_last_active_date', 'desc');
+        return $query->latest('installation_last_active_date');
     }
 
     #[Override]

@@ -6,10 +6,12 @@ use App\Http\Controllers\Common\BaseCronController;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Queue;
 use Tests\DBTestCase;
@@ -66,6 +68,7 @@ class ConcreteCronStub extends BaseCronController
 class ConcreteCronStubWithUsers extends BaseCronController
 {
     private array $fakeSubscription = [['subscription' => ['id' => 1, 'plan' => 'Pro']]];
+
     private array $fakeUsers = [['users' => [['id' => 1, 'name' => 'Test']]]];
 
     public function getAllDaysExpiryUsers(int $day): array
@@ -174,7 +177,7 @@ class BaseCronControllerTest extends DBTestCase
     public function test_get_invoice_by_order_id_returns_invoice_when_found(): void
     {
         // Link $this->invoice to $this->order via order_invoice_relations
-        \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $this->order->id, 'invoice_id' => $this->invoice->id]);
+        OrderInvoiceRelation::create(['order_id' => $this->order->id, 'invoice_id' => $this->invoice->id]);
 
         $result = $this->cron->getInvoiceByOrderId($this->order->id);
         $this->assertInstanceOf(Invoice::class, $result);
@@ -281,31 +284,31 @@ class BaseCronControllerTest extends DBTestCase
     public function test_get_expired_info_returns_builder(): void
     {
         $builder = $this->cron->getExpiredInfo();
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $builder);
+        $this->assertInstanceOf(Builder::class, $builder);
     }
 
     public function test_get_on_day_expiry_info_returns_builder(): void
     {
         $builder = $this->cron->getOnDayExpiryInfo();
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $builder);
+        $this->assertInstanceOf(Builder::class, $builder);
     }
 
     public function test_get_one_day_expiry_info_returns_builder(): void
     {
         $builder = $this->cron->getOneDayExpiryInfo();
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $builder);
+        $this->assertInstanceOf(Builder::class, $builder);
     }
 
     public function test_get_15_days_expiry_info_returns_builder(): void
     {
         $builder = $this->cron->get15DaysExpiryInfo();
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $builder);
+        $this->assertInstanceOf(Builder::class, $builder);
     }
 
     public function test_get_all_days_expiry_info_returns_builder(): void
     {
         $builder = $this->cron->getAllDaysExpiryInfo(7);
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $builder);
+        $this->assertInstanceOf(Builder::class, $builder);
     }
 
     // -------------------------------------------------------------------------
@@ -456,7 +459,7 @@ class BaseCronControllerTest extends DBTestCase
     public function test_expired_sub_mail_returns_early_when_product_not_found(): void
     {
         $order = $this->order;
-        $this->cron->Expiredsub_Mail($this->user, date('Y-m-d'), 999999, $order, null);
+        $this->cron->Expiredsub_Mail($this->user, date('Y-m-d'), 999999, $order, sub: null);
         $this->assertTrue(true);
     }
 
@@ -465,7 +468,7 @@ class BaseCronControllerTest extends DBTestCase
         $product = $this->product;
 
         $order = $this->order;
-        $this->cron->Expiredsub_Mail($this->user, date('Y-m-d'), $product->id, $order, null);
+        $this->cron->Expiredsub_Mail($this->user, date('Y-m-d'), $product->id, $order, sub: null);
         $this->assertTrue(true);
     }
 
@@ -483,7 +486,7 @@ class BaseCronControllerTest extends DBTestCase
         // Attempt to send mail — will exit early if Setting/template not configured
         try {
             $this->cron->mail($this->user, date('Y-m-d'), $product->id, $order, $sub);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // PhpMailController may throw in test env — still covered the mail() path
         }
 
@@ -499,7 +502,7 @@ class BaseCronControllerTest extends DBTestCase
 
         try {
             $this->cron->mail($this->user, date('Y-m-d H:i:s'), $product->id, $order, $sub);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // Expected: PhpMailController may fail in test env
         }
 
@@ -515,7 +518,7 @@ class BaseCronControllerTest extends DBTestCase
         $product = $this->product;
         $plan = $this->plan;
 
-        $user = \App\User::factory()->create(['role' => 'user', 'country' => 'IN']);
+        $user = User::factory()->create(['role' => 'user', 'country' => 'IN']);
         $order = Order::create([
             'client' => $user->id,
             'order_status' => 'executed',
@@ -523,7 +526,7 @@ class BaseCronControllerTest extends DBTestCase
             'number' => mt_rand(10000000, 99999999),
         ]);
 
-        $sub = \App\Model\Product\Subscription::create([
+        $sub = Subscription::create([
             'order_id' => $order->id,
             'product_id' => $product->id,
             'plan_id' => $plan->id,
@@ -533,7 +536,7 @@ class BaseCronControllerTest extends DBTestCase
 
         try {
             $this->cron->Auto_renewalMail($user, date('Y-m-d'), $product->id, $order, $sub->id);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // May throw if PhpMailController fails — coverage was hit
         }
 
@@ -551,8 +554,8 @@ class BaseCronControllerTest extends DBTestCase
         $order = $this->order;
 
         try {
-            $this->cron->Expiredsub_Mail($this->user, date('Y-m-d'), $product->id, $order, null);
-        } catch (\Throwable $e) {
+            $this->cron->Expiredsub_Mail($this->user, date('Y-m-d'), $product->id, $order, sub: null);
+        } catch (\Throwable $throwable) {
             // PhpMailController may throw in test env
         }
 
@@ -583,12 +586,12 @@ class BaseCronControllerTest extends DBTestCase
     public function test_get_expired_info_returns_eloquent_builder(): void
     {
         $result = $this->cron->getExpiredInfo();
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $result);
+        $this->assertInstanceOf(Builder::class, $result);
     }
 
     public function test_get_on_day_expiry_info_returns_eloquent_builder(): void
     {
         $result = $this->cron->getOnDayExpiryInfo();
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $result);
+        $this->assertInstanceOf(Builder::class, $result);
     }
 }

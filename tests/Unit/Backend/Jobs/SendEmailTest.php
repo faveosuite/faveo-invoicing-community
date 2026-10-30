@@ -148,13 +148,13 @@ class SendEmailTest extends TestCase
             })
             ->andReturn('');
 
-        (new SendEmail(
+        new SendEmail(
             from: 'sender@example.com',
             to: 'recipient@example.com',
             template_data: 'body',
             template_name: 'template',
             logIdentifier: 0,
-        ))->handle($mailer);
+        )->handle($mailer);
         $this->addToAssertionCount(1); // Mockery verifies ->once() + withArgs in tearDown
     }
 }

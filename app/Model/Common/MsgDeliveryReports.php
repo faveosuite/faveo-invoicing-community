@@ -85,7 +85,7 @@ class MsgDeliveryReports extends Model
      */
     protected function formattedSenderId(): Attribute
     {
-        return Attribute::make(get: function () {
+        return Attribute::make(get: function (): string {
             return strtoupper((string) $this->sender_id);
         });
     }

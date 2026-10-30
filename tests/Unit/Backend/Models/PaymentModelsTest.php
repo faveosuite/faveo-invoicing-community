@@ -10,6 +10,7 @@ use App\Model\Payment\PromoProductRelation;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\Tax;
 use App\Model\Payment\TaxClass;
+use App\Model\Product\Product;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Tests\DBTestCase;
@@ -195,7 +196,7 @@ class PaymentModelsTest extends DBTestCase
         ]);
 
         // Create a product for FK validity, then create the relation
-        $product = \App\Model\Product\Product::factory()->create();
+        $product = Product::factory()->create();
         $relation = PromoProductRelation::create([
             'promotion_id' => $promotion->id,
             'product_id' => $product->id,
@@ -230,7 +231,7 @@ class PaymentModelsTest extends DBTestCase
         try {
             $plan->delete();
             $this->assertDatabaseMissing('plans', ['id' => $id]);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // FK constraint with product → accept
             $this->assertTrue(true);
         }

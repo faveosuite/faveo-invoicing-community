@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Backend\Plugins\Zoho;
 
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\ZohoCampaignsController;

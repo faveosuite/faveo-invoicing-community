@@ -5,6 +5,7 @@ namespace PhpOffice\PhpSpreadsheet\Calculation\Web;
 use PhpOffice\PhpSpreadsheet\Calculation\Functions;
 use PhpOffice\PhpSpreadsheet\Calculation\Information\ExcelError;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Shared\StringHelper;
 
 class Service
 {
@@ -16,19 +17,14 @@ class Service
      * Excel Function:
      *        Webservice(url)
      *
-     * @param mixed $url
-     *
-     * @return ?string the output resulting from a call to the webservice
+     * @return string the output resulting from a call to the webservice
      */
-    public static function webService($url, ?Cell $cell = null)
+    public static function webService(mixed $url, ?Cell $cell = null): ?string
     {
         if (is_array($url)) {
             $url = Functions::flattenSingleValue($url);
         }
-        if (!is_string($url)) {
-            return ExcelError::VALUE(); // Invalid URL length
-        }
-        $url = trim($url);
+        $url = trim(StringHelper::convertToString($url, false));
         if (mb_strlen($url) > 2048) {
             return ExcelError::VALUE(); // Invalid URL length
         }
@@ -37,13 +33,7 @@ class Service
         if ($scheme !== 'http' && $scheme !== 'https') {
             return ExcelError::VALUE(); // Invalid protocol
         }
-        $domainWhiteList = [];
-        if ($cell !== null) {
-            $parent = $cell->getWorksheet()->getParent();
-            if ($parent !== null) {
-                $domainWhiteList = $parent->getDomainWhiteList();
-            }
-        }
+        $domainWhiteList = $cell?->getWorksheet()->getParent()?->getDomainWhiteList() ?? [];
         $host = $parsed['host'] ?? '';
         if (!in_array($host, $domainWhiteList, true)) {
             return ($cell === null) ? null : Functions::NOT_YET_IMPLEMENTED; // will be converted to oldCalculatedValue or null
@@ -76,11 +66,9 @@ class Service
      * Excel Function:
      *        urlEncode(text)
      *
-     * @param mixed $text
-     *
      * @return string the url encoded output
      */
-    public static function urlEncode($text)
+    public static function urlEncode(mixed $text): string
     {
         if (!is_string($text)) {
             return ExcelError::VALUE();

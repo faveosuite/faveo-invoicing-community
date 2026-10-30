@@ -26,6 +26,7 @@ foreach (explode("\n", $diff ?? '') as $line) {
     if (preg_match('#^\+\+\+ b/(.+)$#', $line, $m)) {
         $currentFile = $m[1];
         $result[$currentFile] ??= [];
+
         continue;
     }
 
@@ -42,6 +43,7 @@ foreach (explode("\n", $diff ?? '') as $line) {
     // Hunk header: @@ -old +new[,count] @@
     if (preg_match('/^@@ -\S+ \+(\d+)/', $line, $m)) {
         $newLineNum = (int) $m[1];
+
         continue;
     }
 

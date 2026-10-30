@@ -6,6 +6,121 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [19.0.1](https://github.com/pipedrive/client-php/compare/19.0.0...19.0.1) (2026-10-09)
+### Fixed
+- Fixed `nullable: true` handling for `BaseNote.deal` (`BaseNoteDealTitle`, returned by `GET /v1/notes`, `POST /v1/notes`, `GET /v1/notes/{id}`, `PUT /v1/notes/{id}`, and `GET /v1/recents`) and for the `person_id` and `org_id` fields (`DealPersonDataWithId`, `DealOrganizationDataWithId`, returned by `GET /v1/deals/archived` and `GET /v1/products/{id}/deals`)
+- Fixed v2 product `prices` item schemas (`POST /api/v2/products`, `PATCH /api/v2/products/{id}`, and other v2 product endpoints) — replaced `ProductPriceBase` by explicit named schemas `ProductPrice` (responses) and `ProductPriceRequest` (add/update product request bodies) and removed `ProductPriceBase`; fields, nullability, and required properties (`price`, `currency`) are unchanged
+
+## [19.0.0](https://github.com/pipedrive/client-php/compare/18.1.2...19.0.0) (2026-10-09)
+### Fixed
+- Fixed the `sort` query parameter on `GET /v1/leads` — removed the restrictive `enum` since custom fields and sort direction are accepted
+- Fixed the shared `ids` query parameter used by v2 collection endpoints — array items are now typed as `integer` instead of `string`
+
+## [18.1.2](https://github.com/pipedrive/client-php/compare/18.1.1...18.1.2) (2026-10-06)
+### Fixed
+- Fixed the `limit` query parameter on `GET /api/v2/deals/search`, `GET /api/v2/itemSearch`, `GET /api/v2/leads/search`, `GET /api/v2/organizations/search`, `GET /api/v2/persons/search`, `GET /api/v2/products/search`, and `GET /api/v2/projects/search` — the maximum value is now documented as 100 (previously 500 on most of them) and added `minimum: 1` and `maximum: 100`
+- Add `minimum` and `maximum` to the shared `limit` query parameter used by the other v2 cursor-paginated endpoints
+
+## [18.1.1](https://github.com/pipedrive/client-php/compare/18.1.0...18.1.1) (2026-10-06)
+### Fixed
+- Fixed type for `status` parameter on `GET /api/v2/deals/search` endpoint
+
+## [18.1.0](https://github.com/pipedrive/client-php/compare/18.0.0...18.1.0) (2026-10-06)
+### Added
+- Added `archive_reason` field to the Lead schema, returned by `GET /v1/leads`, `GET /v1/leads/{id}`, and `GET /v1/leads/archived` — captures the reason a lead was archived
+- Added `archive_reason` to the request body of `PATCH /v1/leads/{id}` — can only be set while archiving a lead in the same request, or on a lead that's already archived; it's automatically cleared when the lead is unarchived, and archiving without it returns a 400 error if a reason is required for the company
+
+## [18.0.0](https://github.com/pipedrive/client-php/compare/17.8.3...18.0.0) (2026-10-06)
+### Fixed
+- Fixed several comma-separated query parameters that were still typed as `type: string` — changed to `type: array` with `uniqueItems: true`, `style: form`, `explode: false` (integer items unless noted):
+  - `ids` on the v1 delete-many endpoints (`DELETE /v1/dealFields`, `DELETE /v1/organizationFields`, `DELETE /v1/personFields`, `DELETE /v1/filters`, `DELETE /v1/productFields`)
+  - `exclude` on `GET /v1/activities` (`ActivityExclude`); `ActivityTypeIdsParameter`
+  - `items` on v1 activity/flow endpoints (`Items`, string items)
+  - `fields`/`include_fields` on `GET /v1/leads/search` (enumerated string items)
+  - `status` on `GET /api/v2/deals` (`DealStatus`, enumerated string items)
+  - `ids` on `DELETE /api/v2/deals/{id}/products`
+  - `fields`/`status`/`include_fields`/`item_types` parameters on `GET /api/v2/deals/search`, `GET /api/v2/itemSearch`, `GET /api/v2/leads/search`, `GET /api/v2/organizations/search`, `GET /api/v2/persons/search`, `GET /api/v2/products/search`, and `GET /api/v2/projects/search`
+
+## [17.8.3](https://github.com/pipedrive/client-php/compare/17.8.2...17.8.3) (2026-09-23)
+### Fixed
+- Added missing v2 `field_type` enum values `participants` and `attendees` for activity fields (`ActivityFieldItem`, used by `GET /api/v2/activityFields` and `GET /api/v2/activityFields/{field_code}`) and `orgs` for project fields (`ProjectFieldItem`, used by `GET /api/v2/projectFields` and `GET /api/v2/projectFields/{field_code}`) — deserializing a field with one of these types previously threw `InvalidArgumentException`
+- Fixed a crash deserializing the option `id` field on v2 field-item options (`ActivityFieldItemOptions`) — typed as `mixed` instead of the unsupported synthetic `OneOfIntegerString` type that OpenAPI Generator 5.3.0 referenced but never generated a class for
+
+## [17.8.2](https://github.com/pipedrive/client-php/compare/17.8.1...17.8.2) (2026-09-18)
+### Fixed
+- Fixed the SDK sending an empty `Authorization` header alongside API key auth
+- Refresh the OAuth access token before the auth check in generated API methods, instead of only when one was already present
+
+## [17.8.1](https://github.com/pipedrive/client-php/compare/17.8.0...17.8.1) (2026-09-17)
+### Fixed
+- Fixed the comma-separated `include_fields` query parameter across v2 collection/detail endpoints (`GET /api/v2/activities`, `GET /api/v2/activities/{id}`, `GET /api/v2/activityFields`, `GET /api/v2/activityFields/{field_code}`, `GET /api/v2/deals`, `GET /api/v2/deals/{id}`, `GET /api/v2/dealFields`, `GET /api/v2/dealFields/{field_code}`, `GET /api/v2/organizations`, `GET /api/v2/organizations/{id}`, `GET /api/v2/organizationFields`, `GET /api/v2/organizationFields/{field_code}`, `GET /api/v2/persons`, `GET /api/v2/persons/{id}`, `GET /api/v2/personFields`, `GET /api/v2/personFields/{field_code}`, `GET /api/v2/productFields`, and `GET /api/v2/productFields/{field_code}`) that was typed as `type: string` with an enum of comma-joined value combinations despite accepting comma-separated lists — changed to `type: array` of enumerated strings with `uniqueItems: true`, `style: form`, `explode: false`
+- Fixed the comma-separated `custom_fields` query parameter on v2 collection/detail endpoints (`GET /api/v2/deals`, `GET /api/v2/deals/archived`, `GET /api/v2/deals/{id}`, `GET /api/v2/organizations`, `GET /api/v2/organizations/{id}`, `GET /api/v2/persons`, `GET /api/v2/persons/{id}`, and `GET /api/v2/products`) and the `ids` query parameter on v2 collection endpoints (`GET /api/v2/activities`, `GET /api/v2/deals`, `GET /api/v2/deals/archived`, `GET /api/v2/organizations`, `GET /api/v2/persons`, and `GET /api/v2/products`) that were typed as `type: string` despite accepting comma-separated lists — changed to `type: array` of strings (`custom_fields` capped at 15 items, `ids` at 100) with `uniqueItems: true`, `style: form`, `explode: false`
+
+## [17.8.0](https://github.com/pipedrive/client-php/compare/17.7.0...17.8.0) (2026-09-17)
+### Fixed
+- Fixed `has_pic` field type in v1 deal creator schema (`DealNonStrictModeFields`, used by `GET`/`POST /v1/deals` and related endpoints) — changed from `boolean` to `integer` since the API returns `0`/`1`, not `true`/`false`
+- Fixed `code` field type in v2 product search results (`GET /api/v2/products/search`) — changed from `integer` to `string` and made nullable to match actual API responses
+- Fixed `value` field type in v2 deal search results (`DealSearchItem`, used by `GET /api/v2/deals/search`) — changed from `integer` to `number` and made nullable to match actual API responses
+- Marked `data` nullable in `ListProductFilesResponse` (`GET /v1/products/{id}/files`)
+- Marked `update_time` nullable in v2 deal, organization, person, and stage schemas (`DealItem`, `OrganizationItem`, `PersonItem`, `StageItem`)
+- Marked `next_cursor` nullable in v2 cursor pagination schema, used across all v2 cursor-paginated list endpoints
+- Marked several v2 activity fields nullable (`ActivityItem`): `deal_id`, `lead_id`, `person_id`, `org_id`, `project_id`, `due_time`, `duration`, `marked_as_done_time`, `location`, and all `location` address subfields (`country`, `admin_area_level_1`, `admin_area_level_2`, `locality`, `sublocality`, `route`, `street_number`, `subpremise`, `postal_code`)
+- Marked v2 `OrganizationItemAddress` and `PersonItemAddress` objects and all their subfields nullable, and marked `PersonItem.picture_id` nullable
+- Marked `person` nullable in v2 lead search results (`LeadSearchItem`) and `address` nullable in v2 organization search results (`OrganizationSearchItem`)
+
+## [17.7.0](https://github.com/pipedrive/client-php/compare/17.6.3...17.7.0) (2026-09-17)
+### Fixed
+- Removed `person_id` from the v2 activity request body (`POST /api/v2/activities`, `PATCH /api/v2/activities/{id}`) — the API has always rejected it as read-only, and the schema advertised it as writable; use `participants: [{ "person_id": 123, "primary": true }]` instead. `org_id` is unaffected.
+- Added `required: [name]` to the v2 person create request body (`POST /api/v2/persons`) — a bare call previously reached the API instead of failing client-side.
+- Reworded the `im`, `notes`, `birthday`, and `job_title` field descriptions and the `addPerson`/`updatePerson` operation descriptions (which also cover `postal_address`) to disclose that these fields 403 when contact sync isn't enabled, rather than only describing when they're present on read.
+
+## [17.6.3](https://github.com/pipedrive/client-php/compare/17.6.2...17.6.3) (2026-09-17)
+
+## [17.6.2](https://github.com/pipedrive/client-php/compare/17.6.1...17.6.2) (2026-09-17)
+### Changed
+- Removed `deprecated: true` from LegacyTeams endpoints (`GET`/`POST /v1/legacyTeams`, `GET`/`PUT /v1/legacyTeams/{id}`, `GET`/`POST`/`DELETE /v1/legacyTeams/{id}/users`, `GET /v1/legacyTeams/user/{id}`) and updated the tag description to remove outdated deprecation notice
+
+## [17.6.1](https://github.com/pipedrive/client-php/compare/17.6.0...17.6.1) (2026-09-17)
+### Fixed
+- Fixed OAuth scopes on six v2 deal sub-resource write operations (`POST /api/v2/deals/{id}/discounts`, `PATCH`/`DELETE /api/v2/deals/{id}/discounts/{discount_id}`, `POST /api/v2/deals/{id}/installments`, `PATCH`/`DELETE /api/v2/deals/{id}/installments/{installment_id}`) that incorrectly listed `deals:read` alongside `deals:full`, copied from their sibling GET operations - these are now `deals:full` only, matching their read-write nature
+
+## [17.6.0](https://github.com/pipedrive/client-php/compare17.5.2...17.6.0) (2026-09-08)
+### Added
+- Added `outcome` field to v1 activity schema (`ActivityObjectFragment`) and v2 activity schemas (`ActivityItem`, `ActivityRequestBody`) — documents the Activity Outcome value, enabling partner integrations to read and write Outcomes on Activities via the public API
+
+## [17.5.2](https://github.com/pipedrive/client-php/compare17.5.1...17.5.2) (2026-09-08)
+
+### Changed
+- Updated Deals, Notes and Stages endpoints to document nullable fields.
+
+## [17.5.1](https://github.com/pipedrive/client-php/compare17.5.0...17.5.1) (2026-08-13)
+
+### Fixed
+- Added missing `nova` value to the `UserAccess.app` enum (`GET /v1/users`) — accounts with Nova enabled were returning `"app": "nova"` in `user_access` entries, causing generated SDKs to throw an error during response deserialization
+- Added missing `partnership` and `nova` values to the `PermissionSetsItem.app` enum and the `app` query parameter enum (`GET /permissionSets`) — same class of error for accounts with a permission set for those apps
+
+## [17.5.0](https://github.com/pipedrive/client-php/compare17.4.0...17.5.0) (2026-08-13)
+
+### Added
+- Added `website`, `linkedin`, `industry`, `annual_revenue`, and `employee_count` as writable fields to v2 organization request body (`POST /api/v2/organizations`, `PATCH /api/v2/organizations/{id}`)
+- Added `postal_address`, `notes`, `im`, `birthday`, and `job_title` as writable fields to v2 person request body (`POST /api/v2/persons`, `PATCH /api/v2/persons/{id}`) — these fields don't exist by default and are only created when contact sync is set up for the company
+- Updated `POST /api/v2/persons` and `PATCH /api/v2/persons/{id}` descriptions to clarify that the `im`, `postal_address`, `notes`, `birthday`, and `job_title` fields require contact sync to be set up
+### Fixed
+- Removed `update_time` from `POST /api/v2/organizations` and `POST /api/v2/persons` request body schemas, and removed `add_time`/`update_time` from `PATCH /api/v2/organizations/{id}` and `PATCH /api/v2/persons/{id}` request body schemas — these are server-generated fields that were never meant to be accepted as input
+- Added missing example values for `website`, `linkedin`, `industry`, `annual_revenue`, and `employee_count` to the v2 organization response example
+
+## [17.4.0](https://github.com/pipedrive/client-php/compare17.3.1...17.4.0) (2026-08-13)
+
+### Added
+- Added `include_body` query parameter to `GET /v1/deals/{id}/mailMessages`, `GET /v1/persons/{id}/mailMessages`, and `GET /v1/organizations/{id}/mailMessages` — pass `1` to include the mail message body content in the response
+- Added `body` field to `MailMessageData` schema to expose the mail message body content when `include_body=1` is used
+
+## [17.3.1](https://github.com/pipedrive/client-php/compare17.3.0...17.3.1) (2026-08-13)
+
+### Fixed
+- Fixed `option_id` field type in v2 field schemas (`ActivityField`, `DealField`, `OrganizationField`, `PersonField`, `ProductField`, `ProjectField`) — changed from `integer` to `integer | string` to reflect that built-in fields use string IDs
+- Removed `description` from the required fields list in `DealField` and `DealFieldItem` schemas, aligning with the rest of the v2 field schemas
+
 ## [17.3.0](https://github.com/pipedrive/client-php/compare17.2.1...17.3.0) (2026-04-06)
 
 ### Changed

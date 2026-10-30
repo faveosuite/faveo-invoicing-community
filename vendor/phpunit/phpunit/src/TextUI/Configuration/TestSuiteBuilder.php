@@ -20,9 +20,11 @@ use function is_file;
 use function realpath;
 use function str_ends_with;
 use function trim;
-use PHPUnit\Event\Facade as EventFacade;
+use PHPUnit\Event\Emitter;
 use PHPUnit\Exception;
 use PHPUnit\Framework\TestSuite;
+use PHPUnit\Runner\TestIndex\NullTestFileSkipper;
+use PHPUnit\Runner\TestIndex\TestFileSkipper;
 use PHPUnit\Runner\TestSuiteLoader;
 use PHPUnit\TextUI\RuntimeException;
 use PHPUnit\TextUI\TestDirectoryNotFoundException;
@@ -37,6 +39,19 @@ use SebastianBergmann\FileIterator\Facade as FileIteratorFacade;
  */
 final readonly class TestSuiteBuilder
 {
+    private Emitter $emitter;
+    private TestFileSkipper $skipper;
+
+    public function __construct(Emitter $emitter, ?TestFileSkipper $skipper = null)
+    {
+        if ($skipper === null) {
+            $skipper = new NullTestFileSkipper;
+        }
+
+        $this->emitter = $emitter;
+        $this->skipper = $skipper;
+    }
+
     /**
      * @throws \PHPUnit\Framework\Exception
      * @throws RuntimeException
@@ -45,6 +60,14 @@ final readonly class TestSuiteBuilder
      */
     public function build(Configuration $configuration): TestSuite
     {
+        $numberOfRuns = $configuration->repeat();
+        $maxAttempts  = $configuration->retry();
+
+        if ($numberOfRuns > 1) {
+            // the --repeat CLI option takes precedence over the --retry CLI option
+            $maxAttempts = 1;
+        }
+
         if ($configuration->hasCliArguments() || $configuration->hasTestFilesFile()) {
             $arguments = [];
 
@@ -95,11 +118,15 @@ final readonly class TestSuiteBuilder
                 $testSuite = $this->testSuiteFromPath(
                     $arguments[0],
                     $configuration->testSuffixes(),
+                    $numberOfRuns,
+                    $maxAttempts,
                 );
             } else {
                 $testSuite = $this->testSuiteFromPathList(
                     $arguments,
                     $configuration->testSuffixes(),
+                    $numberOfRuns,
+                    $maxAttempts,
                 );
             }
         }
@@ -109,15 +136,23 @@ final readonly class TestSuiteBuilder
 
             assert($xmlConfigurationFile !== '');
 
-            $testSuite = (new TestSuiteMapper)->map(
+            $testSuite = new TestSuiteMapper($this->emitter, $this->skipper)->map(
                 $xmlConfigurationFile,
                 $configuration->testSuite(),
                 $configuration->ignoreTestSelectionInXmlConfiguration() ? [] : $configuration->includeTestSuites(),
                 $configuration->ignoreTestSelectionInXmlConfiguration() ? [] : $configuration->excludeTestSuites(),
+                $numberOfRuns,
+                $maxAttempts,
             );
         }
 
-        EventFacade::emitter()->testSuiteLoaded(\PHPUnit\Event\TestSuite\TestSuiteBuilder::from($testSuite));
+        /*
+         * The index is written once, after the test suite has been built, and
+         * not while it is being built.
+         */
+        $this->skipper->persist();
+
+        $this->emitter->testSuiteLoaded(\PHPUnit\Event\TestSuite\TestSuiteBuilder::from($testSuite));
 
         return $testSuite;
     }
@@ -125,17 +160,19 @@ final readonly class TestSuiteBuilder
     /**
      * @param non-empty-string       $path
      * @param list<non-empty-string> $suffixes
+     * @param positive-int           $numberOfRuns
+     * @param positive-int           $maxAttempts
      *
      * @throws \PHPUnit\Framework\Exception
      */
-    private function testSuiteFromPath(string $path, array $suffixes, ?TestSuite $suite = null): TestSuite
+    private function testSuiteFromPath(string $path, array $suffixes, int $numberOfRuns, int $maxAttempts, ?TestSuite $suite = null): TestSuite
     {
         if (str_ends_with($path, '.phpt') && is_file($path)) {
             if ($suite === null) {
-                $suite = TestSuite::empty($path);
+                $suite = TestSuite::empty($path, $this->emitter);
             }
 
-            $suite->addTestFile($path);
+            $suite->addTestFile($path, [], $numberOfRuns, $maxAttempts);
 
             return $suite;
         }
@@ -144,43 +181,75 @@ final readonly class TestSuiteBuilder
             $files = (new FileIteratorFacade)->getFilesAsArray($path, $suffixes);
 
             if ($suite === null) {
-                $suite = TestSuite::empty('CLI Arguments');
+                $suite = TestSuite::empty('CLI Arguments', $this->emitter);
             }
 
-            $suite->addTestFiles($files);
+            foreach ($files as $file) {
+                if ($this->skipper->canSkipLoading($file, [])) {
+                    continue;
+                }
+
+                $this->skipper->record(
+                    $file,
+                    static function () use ($suite, $file, $numberOfRuns, $maxAttempts): void
+                    {
+                        $suite->addTestFile($file, [], $numberOfRuns, $maxAttempts);
+                    },
+                );
+            }
 
             return $suite;
         }
 
-        try {
-            $testClass = (new TestSuiteLoader)->load($path);
-        } catch (Exception $e) {
-            print $e->getMessage() . PHP_EOL;
-
-            exit(1);
+        /*
+         * A file that was named on its own is loaded even when it cannot
+         * contribute a test to the run: not loading it would save nothing, and
+         * the test suite that is built for it is named after the test class in
+         * it, which is not known while the file is not loaded.
+         */
+        if ($suite !== null && $this->skipper->canSkipLoading($path, [])) {
+            return $suite;
         }
 
-        if ($suite === null) {
-            return TestSuite::fromClassReflector($testClass);
-        }
+        $emitter = $this->emitter;
 
-        $suite->addTestSuite($testClass);
+        return $this->skipper->record(
+            $path,
+            static function () use ($path, $suite, $numberOfRuns, $maxAttempts, $emitter): TestSuite
+            {
+                try {
+                    $testClass = (new TestSuiteLoader)->load($path);
+                } catch (Exception $e) {
+                    print $e->getMessage() . PHP_EOL;
 
-        return $suite;
+                    exit(1);
+                }
+
+                if ($suite === null) {
+                    return TestSuite::fromClassReflector($testClass, $emitter, [], $numberOfRuns, $maxAttempts);
+                }
+
+                $suite->addTestSuite($testClass, [], $numberOfRuns, $maxAttempts);
+
+                return $suite;
+            },
+        );
     }
 
     /**
      * @param list<non-empty-string> $paths
      * @param list<non-empty-string> $suffixes
+     * @param positive-int           $numberOfRuns
+     * @param positive-int           $maxAttempts
      *
      * @throws \PHPUnit\Framework\Exception
      */
-    private function testSuiteFromPathList(array $paths, array $suffixes): TestSuite
+    private function testSuiteFromPathList(array $paths, array $suffixes, int $numberOfRuns, int $maxAttempts): TestSuite
     {
-        $suite = TestSuite::empty('CLI Arguments');
+        $suite = TestSuite::empty('CLI Arguments', $this->emitter);
 
         foreach ($paths as $path) {
-            $this->testSuiteFromPath($path, $suffixes, $suite);
+            $this->testSuiteFromPath($path, $suffixes, $numberOfRuns, $maxAttempts, $suite);
         }
 
         return $suite;

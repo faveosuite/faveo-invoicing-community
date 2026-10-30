@@ -76,6 +76,7 @@ class ActivityResponseObject implements ModelInterface, ArrayAccess, JsonSeriali
         'org_id' => 'int',
         'location' => 'string',
         'public_description' => 'string',
+        'outcome' => 'int',
         'id' => 'int',
         'note' => 'string',
         'done' => 'bool',
@@ -147,6 +148,7 @@ class ActivityResponseObject implements ModelInterface, ArrayAccess, JsonSeriali
         'org_id' => null,
         'location' => null,
         'public_description' => null,
+        'outcome' => null,
         'id' => null,
         'note' => null,
         'done' => null,
@@ -241,6 +243,7 @@ class ActivityResponseObject implements ModelInterface, ArrayAccess, JsonSeriali
         'org_id' => 'org_id',
         'location' => 'location',
         'public_description' => 'public_description',
+        'outcome' => 'outcome',
         'id' => 'id',
         'note' => 'note',
         'done' => 'done',
@@ -310,6 +313,7 @@ class ActivityResponseObject implements ModelInterface, ArrayAccess, JsonSeriali
         'org_id' => 'setOrgId',
         'location' => 'setLocation',
         'public_description' => 'setPublicDescription',
+        'outcome' => 'setOutcome',
         'id' => 'setId',
         'note' => 'setNote',
         'done' => 'setDone',
@@ -379,6 +383,7 @@ class ActivityResponseObject implements ModelInterface, ArrayAccess, JsonSeriali
         'org_id' => 'getOrgId',
         'location' => 'getLocation',
         'public_description' => 'getPublicDescription',
+        'outcome' => 'getOutcome',
         'id' => 'getId',
         'note' => 'getNote',
         'done' => 'getDone',
@@ -509,6 +514,7 @@ class ActivityResponseObject implements ModelInterface, ArrayAccess, JsonSeriali
         $this->container['org_id'] = $data['org_id'] ?? null;
         $this->container['location'] = $data['location'] ?? null;
         $this->container['public_description'] = $data['public_description'] ?? null;
+        $this->container['outcome'] = $data['outcome'] ?? null;
         $this->container['id'] = $data['id'] ?? null;
         $this->container['note'] = $data['note'] ?? null;
         $this->container['done'] = $data['done'] ?? null;
@@ -824,6 +830,30 @@ class ActivityResponseObject implements ModelInterface, ArrayAccess, JsonSeriali
     public function setPublicDescription($public_description): self
     {
         $this->container['public_description'] = $public_description;
+
+        return $this;
+    }
+
+    /**
+     * Gets outcome
+     *
+     * @return int|null
+     */
+    public function getOutcome()
+    {
+        return $this->container['outcome'];
+    }
+
+    /**
+     * Sets outcome
+     *
+     * @param int|null $outcome The ID of the Outcome for the activity. The available Outcome values depend on the activity type and can be retrieved using the Activity Fields API. Set to `null` to clear the Outcome.
+     *
+     * @return self
+     */
+    public function setOutcome($outcome): self
+    {
+        $this->container['outcome'] = $outcome;
 
         return $this;
     }

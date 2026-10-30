@@ -136,7 +136,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
 
             $mail = new PhpMailController;
             $mail->SendEmail((string) $setting->email, (string) $setting->company_email, $paymentSuccessdata, 'Payment Successful', $template->type()->value('name'));
-            $paymentMethod = $payment instanceof Payment ? ($payment->payment_method ?? 'Unknown') : (string) $payment;
+            $paymentMethod = $payment instanceof Payment ? ($payment->payment_method ?? 'Unknown') : $payment;
             $mail->payment_log($user->email, $paymentMethod, 'success', $order->number, amount: $amount, payment_type: 'Product renew');
         } catch (Throwable $throwable) {
             Logger::exception($throwable);
@@ -161,6 +161,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             if (! $setting instanceof Setting) {
                 return;
             }
+
             $currency = getCurrencyForClient($user->country);
             $paymentFailData = 'Payment for of '.$currency.' '.$total.' '.'failed by'.' '.$user->first_name.' '.$user->last_name.' '.'. User Email:'.' '.$user->email.'<br>'.'Reason:'.$exceptionMessage;
             $mail = new PhpMailController;
@@ -168,6 +169,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             if (! $dbTemplate instanceof Template) {
                 return;
             }
+
             $mail->SendEmail((string) $setting->email, (string) $setting->company_email, $paymentFailData, 'Payment failed', $dbTemplate->type()->value('name'));
             $paymentMethod = $payment->payment_method ?? 'Unknown';
             $mail->payment_log($user->email, $paymentMethod, 'failed', $order->number, $exceptionMessage, $amount, 'Product renew');
@@ -182,6 +184,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         if (! $future_expiry instanceof Subscription) {
             return;
         }
+
         $contact = getContactData();
         // check in the settings
         $setting = Setting::find(1);
@@ -195,10 +198,12 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         if (! $template instanceof Template) {
             return;
         }
+
         $date = date_create((string) $future_expiry->update_ends_at);
         if ($date === false) {
             return;
         }
+
         $end = date_format($date, 'l, F j, Y ');
 
         $replace = [
@@ -221,6 +226,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         if (! $order instanceof Order || ! $product_details instanceof Product || ! $user instanceof User) {
             return;
         }
+
         $contact = getContactData();
         // check in the settings
         $setting = Setting::find(1);
@@ -237,6 +243,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         if (! $template instanceof Template) {
             return;
         }
+
         $url = url('my-invoices');
         $expiryTime = strtotime($end);
         $replace = ['name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),

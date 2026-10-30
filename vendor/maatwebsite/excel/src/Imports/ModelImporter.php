@@ -2,11 +2,13 @@
 
 namespace Maatwebsite\Excel\Imports;
 
+use Maatwebsite\Excel\Columns\ColumnCollection;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithCalculatedFormulas;
 use Maatwebsite\Excel\Concerns\WithColumnLimit;
+use Maatwebsite\Excel\Concerns\WithColumns;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithFormatData;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -15,34 +17,22 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Events\AfterBatch;
 use Maatwebsite\Excel\HasEventBus;
 use Maatwebsite\Excel\Row;
+use Maatwebsite\Excel\Validators\ValidationException;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class ModelImporter
 {
     use HasEventBus;
 
-    /**
-     * @var ModelManager
-     */
-    private $manager;
-
-    /**
-     * @param  ModelManager  $manager
-     */
-    public function __construct(ModelManager $manager)
-    {
-        $this->manager = $manager;
+    public function __construct(
+        private readonly ModelManager $manager,
+    ) {
     }
 
     /**
-     * @param  Worksheet  $worksheet
-     * @param  ToModel  $import
-     * @param  int|null  $startRow
-     * @param  string|null  $endColumn
-     *
-     * @throws \Maatwebsite\Excel\Validators\ValidationException
+     * @throws ValidationException
      */
-    public function import(Worksheet $worksheet, ToModel $import, int $startRow = 1)
+    public function import(Worksheet $worksheet, ToModel $import, int $startRow = 1): void
     {
         if ($startRow > $worksheet->getHighestRow()) {
             return;
@@ -54,22 +44,26 @@ class ModelImporter
         $headingRow       = HeadingRowExtractor::extract($worksheet, $import);
         $headerIsGrouped  = HeadingRowExtractor::extractGrouping($headingRow, $import);
         $batchSize        = $import instanceof WithBatchInserts ? $import->batchSize() : 1;
-        $endRow           = EndRowFinder::find($import, $startRow, $worksheet->getHighestRow());
-        $progessBar       = $import instanceof WithProgressBar;
+        $endRow           = EndRowFinder::find($import, HeadingRowExtractor::determineStartRow($import), $worksheet->getHighestRow());
+        $progressBar      = $import instanceof WithProgressBar;
         $withMapping      = $import instanceof WithMapping;
         $withCalcFormulas = $import instanceof WithCalculatedFormulas;
         $formatData       = $import instanceof WithFormatData;
         $withValidation   = $import instanceof WithValidation && method_exists($import, 'prepareForValidation');
         $endColumn        = $import instanceof WithColumnLimit ? $import->endColumn() : null;
+        $columns          = $import instanceof WithColumns ? ColumnCollection::makeFrom($import, $headingRow) : null;
 
         $this->manager->setRemembersRowNumber(method_exists($import, 'rememberRowNumber'));
 
         $i             = 0;
+        $batchRows     = 0;
+        $progressRows  = 0;
         $batchStartRow = $startRow;
         foreach ($worksheet->getRowIterator($startRow, $endRow) as $spreadSheetRow) {
             $i++;
+            $progressRows++;
 
-            $row = new Row($spreadSheetRow, $headingRow, $headerIsGrouped);
+            $row = new Row($spreadSheetRow, $headingRow, $headerIsGrouped, $columns);
             if (!$import instanceof SkipsEmptyRows || !$row->isEmpty($withCalcFormulas)) {
                 $rowArray = $row->toArray(null, $withCalcFormulas, $formatData, $endColumn);
 
@@ -89,14 +83,21 @@ class ModelImporter
                     $row->getIndex(),
                     $rowArray
                 );
+                $batchRows++;
 
-                // Flush each batch.
-                if (($i % $batchSize) === 0) {
+                // Flush each batch. Skipped rows do not count towards the batch size.
+                if (($batchRows % $batchSize) === 0) {
                     $this->flush($import, $batchSize, $batchStartRow);
                     $batchStartRow += $i;
-                    $i = 0;
+                    $i         = 0;
+                    $batchRows = 0;
+                }
 
-                    if ($progessBar) {
+                // Progress counts the rows read, including skipped rows, in steps of the batch size.
+                if (($progressRows % $batchSize) === 0) {
+                    $progressRows = 0;
+
+                    if ($progressBar) {
                         $import->getConsoleOutput()->progressAdvance($batchSize);
                     }
                 }
@@ -109,7 +110,7 @@ class ModelImporter
         }
     }
 
-    private function flush(ToModel $import, int $batchSize, int $startRow)
+    private function flush(ToModel $import, int $batchSize, int $startRow): void
     {
         $this->manager->flush($import, $batchSize > 1);
         $this->raise(new AfterBatch($this->manager, $import, $batchSize, $startRow));

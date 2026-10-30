@@ -19,7 +19,7 @@ Method | HTTP request | Description
 ## `addOrganization()`
 
 ```php
-addOrganization($organization_request_body): \Pipedrive\versions\v2\Model\PostPatchGetOrganization
+addOrganization($post_organization_request_body): \Pipedrive\versions\v2\Model\PostPatchGetOrganization
 ```
 
 Add a new organization
@@ -48,10 +48,10 @@ $apiInstance = new Pipedrive\versions\v2\Api\OrganizationsApi(
     new GuzzleHttp\Client(),
     $config
 );
-$organization_request_body = new \Pipedrive\versions\v2\Model\OrganizationRequestBody(); // \Pipedrive\versions\v2\Model\OrganizationRequestBody
+$post_organization_request_body = new \Pipedrive\versions\v2\Model\PostOrganizationRequestBody(); // \Pipedrive\versions\v2\Model\PostOrganizationRequestBody
 
 try {
-    $result = $apiInstance->addOrganization($organization_request_body);
+    $result = $apiInstance->addOrganization($post_organization_request_body);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling OrganizationsApi->addOrganization: ', $e->getMessage(), PHP_EOL;
@@ -62,7 +62,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **organization_request_body** | [**\Pipedrive\versions\v2\Model\OrganizationRequestBody**](../Model/OrganizationRequestBody.md)|  | [optional]
+ **post_organization_request_body** | [**\Pipedrive\versions\v2\Model\PostOrganizationRequestBody**](../Model/PostOrganizationRequestBody.md)|  | [optional]
 
 ### Return type
 
@@ -313,8 +313,8 @@ $apiInstance = new Pipedrive\versions\v2\Api\OrganizationsApi(
     $config
 );
 $id = 56; // int | The ID of the organization
-$include_fields = 'include_fields_example'; // string | Optional comma separated string array of additional fields to include
-$custom_fields = 'custom_fields_example'; // string | Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.<br/>A maximum of 15 keys is allowed.
+$include_fields = array('include_fields_example'); // string[] | Optional comma separated string array of additional fields to include
+$custom_fields = array('custom_fields_example'); // string[] | Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.<br/>A maximum of 15 keys is allowed.
 $include_option_labels = True; // bool | When provided with a 'true' value, single option and multiple option custom fields values contain objects in the form of '{ id: number, label: string }' instead of plain id
 $include_labels = True; // bool | When provided with 'true' value, response will include an array of label objects in the form of '{ id: number, label: string }'
 
@@ -331,8 +331,8 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **int**| The ID of the organization |
- **include_fields** | **string**| Optional comma separated string array of additional fields to include | [optional]
- **custom_fields** | **string**| Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. | [optional]
+ **include_fields** | [**string[]**](../Model/string.md)| Optional comma separated string array of additional fields to include | [optional]
+ **custom_fields** | [**string[]**](../Model/string.md)| Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. | [optional]
  **include_option_labels** | **bool**| When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id | [optional]
  **include_labels** | **bool**| When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; | [optional]
 
@@ -524,14 +524,14 @@ $apiInstance = new Pipedrive\versions\v2\Api\OrganizationsApi(
     $config
 );
 $filter_id = 56; // int | If supplied, only organizations matching the specified filter are returned
-$ids = 'ids_example'; // string | Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response.
+$ids = array(56); // int[] | Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response.
 $owner_id = 56; // int | If supplied, only organizations owned by the specified user are returned. If filter_id is provided, this is ignored.
 $updated_since = 'updated_since_example'; // string | If set, only organizations with an `update_time` later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z.
 $updated_until = 'updated_until_example'; // string | If set, only organizations with an `update_time` earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z.
 $sort_by = 'id'; // string | The field to sort by. Supported fields: `id`, `update_time`, `add_time`.
 $sort_direction = 'asc'; // string | The sorting direction. Supported values: `asc`, `desc`.
-$include_fields = 'include_fields_example'; // string | Optional comma separated string array of additional fields to include
-$custom_fields = 'custom_fields_example'; // string | Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.<br/>A maximum of 15 keys is allowed.
+$include_fields = array('include_fields_example'); // string[] | Optional comma separated string array of additional fields to include
+$custom_fields = array('custom_fields_example'); // string[] | Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.<br/>A maximum of 15 keys is allowed.
 $include_option_labels = True; // bool | When provided with a 'true' value, single option and multiple option custom fields values contain objects in the form of '{ id: number, label: string }' instead of plain id
 $include_labels = True; // bool | When provided with 'true' value, response will include an array of label objects in the form of '{ id: number, label: string }'
 $limit = 100; // int | For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed.
@@ -550,14 +550,14 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **filter_id** | **int**| If supplied, only organizations matching the specified filter are returned | [optional]
- **ids** | **string**| Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. | [optional]
+ **ids** | [**int[]**](../Model/int.md)| Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. | [optional]
  **owner_id** | **int**| If supplied, only organizations owned by the specified user are returned. If filter_id is provided, this is ignored. | [optional]
  **updated_since** | **string**| If set, only organizations with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. | [optional]
  **updated_until** | **string**| If set, only organizations with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. | [optional]
  **sort_by** | **string**| The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. | [optional] [default to &#39;id&#39;]
  **sort_direction** | **string**| The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. | [optional] [default to &#39;asc&#39;]
- **include_fields** | **string**| Optional comma separated string array of additional fields to include | [optional]
- **custom_fields** | **string**| Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. | [optional]
+ **include_fields** | [**string[]**](../Model/string.md)| Optional comma separated string array of additional fields to include | [optional]
+ **custom_fields** | [**string[]**](../Model/string.md)| Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. | [optional]
  **include_option_labels** | **bool**| When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id | [optional]
  **include_labels** | **bool**| When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; | [optional]
  **limit** | **int**| For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. | [optional]
@@ -613,9 +613,9 @@ $apiInstance = new Pipedrive\versions\v2\Api\OrganizationsApi(
     $config
 );
 $term = 'term_example'; // string | The search term to look for. Minimum 2 characters (or 1 if using `exact_match`). Please note that the search term has to be URL encoded.
-$fields = 'fields_example'; // string | A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: `address`, `varchar`, `text`, `varchar_auto`, `double`, `monetary` and `phone`. Read more about searching by custom fields <a href=\"https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\" target=\"_blank\" rel=\"noopener noreferrer\">here</a>.
+$fields = array('fields_example'); // string[] | A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: `address`, `varchar`, `text`, `varchar_auto`, `double`, `monetary` and `phone`. Read more about searching by custom fields <a href=\"https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\" target=\"_blank\" rel=\"noopener noreferrer\">here</a>.
 $exact_match = True; // bool | When enabled, only full exact matches against the given term are returned. It is <b>not</b> case sensitive.
-$limit = 100; // int | For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed.
+$limit = 100; // int | For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed.
 $cursor = 'cursor_example'; // string | For pagination, the marker (an opaque string value) representing the first item on the next page
 
 try {
@@ -631,9 +631,9 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **term** | **string**| The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. |
- **fields** | **string**| A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. | [optional]
+ **fields** | [**string[]**](../Model/string.md)| A comma-separated string array. The fields to perform the search from. Defaults to all of them. Only the following custom field types are searchable: &#x60;address&#x60;, &#x60;varchar&#x60;, &#x60;text&#x60;, &#x60;varchar_auto&#x60;, &#x60;double&#x60;, &#x60;monetary&#x60; and &#x60;phone&#x60;. Read more about searching by custom fields &lt;a href&#x3D;\&quot;https://support.pipedrive.com/en/article/search-finding-what-you-need#searching-by-custom-fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;here&lt;/a&gt;. | [optional]
  **exact_match** | **bool**| When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. | [optional]
- **limit** | **int**| For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. | [optional]
+ **limit** | **int**| For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed. | [optional]
  **cursor** | **string**| For pagination, the marker (an opaque string value) representing the first item on the next page | [optional]
 
 ### Return type
@@ -656,7 +656,7 @@ Name | Type | Description  | Notes
 ## `updateOrganization()`
 
 ```php
-updateOrganization($id, $organization_request_body): \Pipedrive\versions\v2\Model\PostPatchGetOrganization
+updateOrganization($id, $update_organization_request_body): \Pipedrive\versions\v2\Model\PostPatchGetOrganization
 ```
 
 Update a organization
@@ -686,10 +686,10 @@ $apiInstance = new Pipedrive\versions\v2\Api\OrganizationsApi(
     $config
 );
 $id = 56; // int | The ID of the organization
-$organization_request_body = new \Pipedrive\versions\v2\Model\OrganizationRequestBody(); // \Pipedrive\versions\v2\Model\OrganizationRequestBody
+$update_organization_request_body = new \Pipedrive\versions\v2\Model\UpdateOrganizationRequestBody(); // \Pipedrive\versions\v2\Model\UpdateOrganizationRequestBody
 
 try {
-    $result = $apiInstance->updateOrganization($id, $organization_request_body);
+    $result = $apiInstance->updateOrganization($id, $update_organization_request_body);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling OrganizationsApi->updateOrganization: ', $e->getMessage(), PHP_EOL;
@@ -701,7 +701,7 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **int**| The ID of the organization |
- **organization_request_body** | [**\Pipedrive\versions\v2\Model\OrganizationRequestBody**](../Model/OrganizationRequestBody.md)|  | [optional]
+ **update_organization_request_body** | [**\Pipedrive\versions\v2\Model\UpdateOrganizationRequestBody**](../Model/UpdateOrganizationRequestBody.md)|  | [optional]
 
 ### Return type
 

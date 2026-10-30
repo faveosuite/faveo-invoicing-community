@@ -24,7 +24,9 @@ use App\Policies\OrderPolicy;
 use App\User;
 use Auth;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -176,9 +178,9 @@ class OrderController extends BaseOrderController
                 // the installation filters do — so they show as "—" rather than vanishing.
                 $versions = $order->installationLogs
                     ->sortByDesc('installation_last_active_date')
-                    ->unique(fn ($log) => (string) $log->version_number)
+                    ->unique(fn ($log): string => (string) $log->version_number)
                     ->values()
-                    ->map(fn ($log) => [
+                    ->map(fn ($log): array => [
                         'version' => $log->version_number ?: '—',
                         'active' => $log->installation_last_active_date && $log->installation_last_active_date >= $threshold,
                     ])
@@ -213,7 +215,7 @@ class OrderController extends BaseOrderController
 
             return successResponse('', $paginated);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -313,7 +315,7 @@ class OrderController extends BaseOrderController
 
             return successResponse('', $installationDetails);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -332,8 +334,8 @@ class OrderController extends BaseOrderController
 
             // Only cloud orders have a tenant to tear down — and not ones already torn down.
             $tenants = $orders->whereIn('product', cloudPopupProducts())
-                ->reject(fn (Order $order) => (bool) $order->subscription?->is_deleted)
-                ->flatMap(fn (Order $order) => $order->installedDomains()->map(fn ($domain) => [$domain, $order->id]))
+                ->reject(fn (Order $order): bool => (bool) $order->subscription?->is_deleted)
+                ->flatMap(fn (Order $order) => $order->installedDomains()->map(fn ($domain): array => [$domain, $order->id]))
                 ->all();
 
             foreach ($tenants as [$domain, $orderId]) {
@@ -345,7 +347,7 @@ class OrderController extends BaseOrderController
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -434,7 +436,7 @@ class OrderController extends BaseOrderController
                 ->onQueue('reports');
 
             return successResponse(__('message.system_generating_report'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             Logger::exception($exception);
@@ -458,7 +460,7 @@ class OrderController extends BaseOrderController
 
             $invoiceIds = $order->invoices->pluck('id')->toArray();
 
-            $payments = Payment::whereHas('invoices', fn ($q) => $q->whereIn('invoices.id', $invoiceIds))
+            $payments = Payment::whereHas('invoices', fn (Builder $q) => $q->whereIn('invoices.id', $invoiceIds))
                 ->with('invoices:id,number,currency')
                 ->select(['id', 'currency', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at'])
                 ->when($searchQuery, function ($query) use ($searchQuery): void {
@@ -491,10 +493,10 @@ class OrderController extends BaseOrderController
             ]);
 
             return successResponse('', $payments);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }

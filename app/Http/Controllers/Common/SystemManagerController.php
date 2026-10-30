@@ -141,7 +141,7 @@ class SystemManagerController extends Controller
         User::where($managerColumn, $oldManagerId)->update([$managerColumn => $newManagerId]);
 
         if ($affectedUserIds) {
-            NotifyManagerChange::dispatch($affectedUserIds, $managerColumn, (int) $newManagerId);
+            dispatch(new NotifyManagerChange($affectedUserIds, $managerColumn, $newManagerId));
         }
     }
 }

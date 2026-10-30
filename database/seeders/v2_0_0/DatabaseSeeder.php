@@ -32,70 +32,70 @@ class DatabaseSeeder extends Seeder
         // Model::unguard();
 
         $this->call([TemplateTypeTableSeeder::class]);
-        $this->command->info('Template Type table seeded!');
+        $this->command?->info('Template Type table seeded!');
 
         $this->call([PeriodTypeTableSeeder::class]);
-        $this->command->info('Period table seeded!');
+        $this->command?->info('Period table seeded!');
 
         $this->call([TemplateTableSeeder::class]);
-        $this->command->info('Template table seeded!');
+        $this->command?->info('Template table seeded!');
 
         $this->call([LicensePermissionTableSeeder::class]);
-        $this->command->info('License Permission table seeded');
+        $this->command?->info('License Permission table seeded');
 
         // $this->call('GroupTableSeeder');
-        // $this->command->info('Product Group table seeded!');
+        // $this->command?->info('Product Group table seeded!');
 
         // $this->call('ProductTypesTableSeeder');
-        // $this->command->info('Product Types table seeded!');
+        // $this->command?->info('Product Types table seeded!');
 
         $this->call([PromotionTypeTableSeeder::class]);
-        $this->command->info('Promotion Types table seeded!');
+        $this->command?->info('Promotion Types table seeded!');
 
         $this->call([mailchimpFieldAgoraSeeder::class]);
-        $this->command->info('Mailchimp Field Agora Relation table seeded!');
+        $this->command?->info('Mailchimp Field Agora Relation table seeded!');
 
         $this->call([mailchimpSettingSeeder::class]);
-        $this->command->info('Mailchimp Settings table seeded!');
+        $this->command?->info('Mailchimp Settings table seeded!');
 
         $this->call([PromotionTableSeeder::class]);
-        $this->command->info('Promotion table seeded!');
+        $this->command?->info('Promotion table seeded!');
 
         $this->call([ApiKeyTableSeeder::class]);
-        $this->command->info('ApiKey table seeded!');
+        $this->command?->info('ApiKey table seeded!');
 
         $this->call([TaxOptionTableSeeder::class]);
-        $this->command->info('Tax Option Table seeded');
+        $this->command?->info('Tax Option Table seeded');
 
         // $this->call('ProductTableSeeder');
-        // $this->command->info('Product table seeded!');
+        // $this->command?->info('Product table seeded!');
 
         $this->call([GitHubTableSeeder::class]);
-        $this->command->info('Github table seeded!');
+        $this->command?->info('Github table seeded!');
 
         $this->call([StatusSettingSeeder::class]);
-        $this->command->info('Status Setting table seeded!');
+        $this->command?->info('Status Setting table seeded!');
 
         $this->call([PricingTemplateSeeder::class]);
-        $this->command->info('Pricing Template Table Seeded!');
+        $this->command?->info('Pricing Template Table Seeded!');
 
         $this->call([UserTableSeeder::class]);
-        $this->command->info('User table seeded!');
+        $this->command?->info('User table seeded!');
 
         $this->call([ConditionSeeder::class]);
-        $this->command->info('Condition table seeded!');
+        $this->command?->info('Condition table seeded!');
 
         $this->call([ActivityLogDelSeeder::class]);
-        $this->command->info('Activity Log Days table seeded!');
+        $this->command?->info('Activity Log Days table seeded!');
 
         //        $this->call([FormatCurrenciesSeeder::class]);
-        //        $this->command->info('Format Currencies table seeded!');
+        //        $this->command?->info('Format Currencies table seeded!');
 
         // $this->call([FaveoCloudSeeder::class]);
-        // $this->command->info('Format faveocloud table seeded!');
+        // $this->command?->info('Format faveocloud table seeded!');
 
         $this->call([PluginSeeder::class]);
-        $this->command->info('Format plugin table seeded!');
+        $this->command?->info('Format plugin table seeded!');
 
         $this->call(CompanySize::class);
         $this->call(CompanyType::class);
@@ -114,10 +114,10 @@ class DatabaseSeeder extends Seeder
         $this->call(PlanPriceSeeder::class);
 
         $this->call(StripeSupportedCurrencySeeder::class);
-        $this->command->info('Stripe supported currency table seeded!');
+        $this->command?->info('Stripe supported currency table seeded!');
 
         $this->call(RazorpaySupportedCurrencySeeder::class);
-        $this->command->info('Razorpay supported currency table seeded!');
+        $this->command?->info('Razorpay supported currency table seeded!');
 
         // DB::unprepared(file_get_contents(storage_path('agora.sql')));
         // DB::unprepared(file_get_contents(storage_path('states.sql')));

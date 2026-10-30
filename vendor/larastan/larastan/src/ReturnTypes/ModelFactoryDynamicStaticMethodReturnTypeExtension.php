@@ -91,10 +91,14 @@ final class ModelFactoryDynamicStaticMethodReturnTypeExtension implements Dynami
         ClassReflection $modelReflection,
         Scope $scope,
     ): ClassReflection|null {
-        $factoryReflection = $this->getFactoryFromNewFactoryMethod($modelReflection, $scope);
+        // An override of newFactory() is the most specific declaration. When the model does not
+        // override it, factory() returns the HasFactory TFactory generic.
+        foreach (['newFactory', 'factory'] as $methodName) {
+            $factoryReflection = $this->getFactoryFromMethodReturnType($modelReflection, $methodName, $scope);
 
-        if ($factoryReflection !== null) {
-            return $factoryReflection;
+            if ($factoryReflection !== null) {
+                return $factoryReflection;
+            }
         }
 
         /** @phpstan-ignore argument.type (guaranteed to be model class-string) */
@@ -107,15 +111,16 @@ final class ModelFactoryDynamicStaticMethodReturnTypeExtension implements Dynami
         return null;
     }
 
-    private function getFactoryFromNewFactoryMethod(
+    private function getFactoryFromMethodReturnType(
         ClassReflection $modelReflection,
+        string $methodName,
         Scope $scope,
     ): ClassReflection|null {
-        if (! $modelReflection->hasMethod('newFactory')) {
+        if (! $modelReflection->hasMethod($methodName)) {
             return null;
         }
 
-        $factoryReflections = $modelReflection->getMethod('newFactory', $scope)
+        $factoryReflections = $modelReflection->getMethod($methodName, $scope)
             ->getVariants()[0]
             ->getReturnType()
             ->getObjectClassReflections();

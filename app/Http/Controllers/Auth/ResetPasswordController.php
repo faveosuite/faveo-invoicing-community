@@ -10,9 +10,9 @@ use App\User;
 use DB;
 use Exception;
 use Hash;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Session;
@@ -51,6 +51,18 @@ class ResetPasswordController extends Controller
         $this->middleware(['recaptcha:reset'])->only('reset');
     }
 
+    /**
+     * SPA shell for the reset link. The 2FA session keys are written here, in the page
+     * request itself: the SPA's reset-validate XHR runs in parallel with other app-shell
+     * XHRs, and sessions aren't locked, so a slower one would save its stale copy over them.
+     */
+    public function showResetPage(Request $request, mixed $token = null): View
+    {
+        $this->showResetForm($request, $token);
+
+        return view('client');
+    }
+
     public function showResetForm(Request $request, mixed $token = null): JsonResponse
     {
         try {
@@ -83,10 +95,8 @@ class ResetPasswordController extends Controller
 
     /**
      * Reset the given user's password.
-     *
-     * @return RedirectResponse|JsonResponse
      */
-    public function reset(Request $request)
+    public function reset(Request $request): JsonResponse
     {
         // Validate request
         $request->validate([

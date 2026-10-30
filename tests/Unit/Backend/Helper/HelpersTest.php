@@ -23,7 +23,7 @@ class HelpersTest extends DBTestCase
     public function test_error_response_contains_success_false(): void
     {
         $response = errorResponse('Oops');
-        $json = $response->getData(true);
+        $json = $response->getData(assoc: true);
 
         $this->assertFalse($json['success']);
     }
@@ -31,7 +31,7 @@ class HelpersTest extends DBTestCase
     public function test_error_response_contains_message_key(): void
     {
         $response = errorResponse('Something went wrong');
-        $json = $response->getData(true);
+        $json = $response->getData(assoc: true);
 
         $this->assertArrayHasKey('message', $json);
         $this->assertSame('Something went wrong', $json['message']);
@@ -47,7 +47,7 @@ class HelpersTest extends DBTestCase
     public function test_error_response_accepts_array_message(): void
     {
         $response = errorResponse(['field' => 'The field is required', 'other' => 'Error']);
-        $json = $response->getData(true);
+        $json = $response->getData(assoc: true);
 
         $this->assertIsArray($json['message']);
         $this->assertArrayHasKey('field', $json['message']);
@@ -57,7 +57,7 @@ class HelpersTest extends DBTestCase
     {
         $errors = ['email' => ['Email is required', 'Email must be valid'], 'name' => ['Name is required']];
         $response = errorResponse($errors, 422);
-        $json = $response->getData(true);
+        $json = $response->getData(assoc: true);
 
         $this->assertSame(422, $response->getStatusCode());
         $this->assertIsArray($json['message']);
@@ -79,7 +79,7 @@ class HelpersTest extends DBTestCase
     public function test_success_response_contains_success_true(): void
     {
         $response = successResponse();
-        $json = $response->getData(true);
+        $json = $response->getData(assoc: true);
 
         $this->assertTrue($json['success']);
     }
@@ -87,7 +87,7 @@ class HelpersTest extends DBTestCase
     public function test_success_response_includes_message_when_provided(): void
     {
         $response = successResponse('Created successfully');
-        $json = $response->getData(true);
+        $json = $response->getData(assoc: true);
 
         $this->assertArrayHasKey('message', $json);
         $this->assertSame('Created successfully', $json['message']);
@@ -96,7 +96,7 @@ class HelpersTest extends DBTestCase
     public function test_success_response_omits_message_key_when_empty(): void
     {
         $response = successResponse();
-        $json = $response->getData(true);
+        $json = $response->getData(assoc: true);
 
         $this->assertArrayNotHasKey('message', $json);
     }
@@ -104,7 +104,7 @@ class HelpersTest extends DBTestCase
     public function test_success_response_includes_data_key_when_array_provided(): void
     {
         $response = successResponse('', ['id' => 1, 'name' => 'Test']);
-        $json = $response->getData(true);
+        $json = $response->getData(assoc: true);
 
         $this->assertArrayHasKey('data', $json);
         $this->assertSame(1, $json['data']['id']);
@@ -113,7 +113,7 @@ class HelpersTest extends DBTestCase
     public function test_success_response_omits_data_key_when_empty_string(): void
     {
         $response = successResponse('ok', '');
-        $json = $response->getData(true);
+        $json = $response->getData(assoc: true);
 
         $this->assertArrayNotHasKey('data', $json);
     }
@@ -121,8 +121,8 @@ class HelpersTest extends DBTestCase
     public function test_success_response_omits_data_key_when_null(): void
     {
         // empty(null) === true in PHP, so null data is not added
-        $response = successResponse('ok', null);
-        $json = $response->getData(true);
+        $response = successResponse('ok', data: null);
+        $json = $response->getData(assoc: true);
 
         $this->assertArrayNotHasKey('data', $json);
     }
@@ -131,7 +131,7 @@ class HelpersTest extends DBTestCase
     {
         $data = ['items' => [['id' => 1], ['id' => 2]], 'total' => 2];
         $response = successResponse('', $data);
-        $json = $response->getData(true);
+        $json = $response->getData(assoc: true);
 
         $this->assertSame(2, $json['data']['total']);
         $this->assertCount(2, $json['data']['items']);
@@ -147,7 +147,7 @@ class HelpersTest extends DBTestCase
     public function test_success_response_with_unicode_message(): void
     {
         $response = successResponse('Créé avec succès');
-        $json = $response->getData(true);
+        $json = $response->getData(assoc: true);
 
         $this->assertSame('Créé avec succès', $json['message']);
     }
@@ -167,7 +167,7 @@ class HelpersTest extends DBTestCase
     public function test_exception_response_has_required_keys(): void
     {
         $e = new Exception('Test error');
-        $json = exceptionResponse($e)->getData(true);
+        $json = exceptionResponse($e)->getData(assoc: true);
 
         $this->assertFalse($json['success']);
         $this->assertSame('Test error', $json['message']);

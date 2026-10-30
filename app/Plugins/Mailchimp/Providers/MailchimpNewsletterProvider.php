@@ -8,9 +8,7 @@ use App\Plugins\Mailchimp\Services\MailchimpService;
 
 class MailchimpNewsletterProvider implements NewsletterProvider
 {
-    public function __construct(private readonly MailchimpService $service)
-    {
-    }
+    public function __construct(private readonly MailchimpService $service) {}
 
     public function name(): string
     {

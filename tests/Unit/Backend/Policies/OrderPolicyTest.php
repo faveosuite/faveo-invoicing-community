@@ -4,10 +4,14 @@ namespace Tests\Unit\Backend\Policies;
 
 use App\Enums\OrderAbility;
 use App\Model\Common\Setting;
+use App\Model\Common\StatusSetting;
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
+use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
+use App\Model\Plugin;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
@@ -38,6 +42,7 @@ class OrderPolicyTest extends DBTestCase
         foreach ($permissions as $name) {
             $type->permissions()->attach(LicensePermission::firstOrCreate(['permissions' => $name])->id);
         }
+
         $product = Product::factory()->create(['type' => $type->id]);
 
         $model = Order::factory()->create($order + ['product' => $product->id, 'client' => $this->owner->id, 'order_status' => 'executed']);
@@ -150,7 +155,7 @@ class OrderPolicyTest extends DBTestCase
 
         $this->assertTrue($this->policy->downloadVersion($this->owner, $order, now()->subDays(20)->toDateTimeString())->allowed());
         $this->assertTrue($this->policy->downloadVersion($this->owner, $order, now()->subDays(5)->toDateTimeString())->denied());
-        $this->assertTrue($this->policy->downloadVersion($this->owner, $order, null)->denied());
+        $this->assertTrue($this->policy->downloadVersion($this->owner, $order, releasedAt: null)->denied());
     }
 
     public function test_every_release_can_be_downloaded_when_updates_never_end(): void
@@ -229,7 +234,7 @@ class OrderPolicyTest extends DBTestCase
         $order = $this->cloudOrder();
         $this->assertTrue($this->policy->changeCloudAgents($this->owner, $order)->allowed());
 
-        $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $this->owner->id, 'status' => 'pending',
+        $invoice = Invoice::factory()->create(['user_id' => $this->owner->id, 'status' => 'pending',
             'metadata' => ['type' => 'agent_alteration', 'order_id' => $order->id]]);
 
         $this->assertSame(
@@ -243,7 +248,7 @@ class OrderPolicyTest extends DBTestCase
         $order = $this->cloudOrder();
         $samePlanProduct = Plan::factory()->create(['product' => $order->getRawOriginal('product'), 'name' => 'Yearly']);
         $offered = Plan::factory()->create(['product' => Product::factory()->create(['type' => 4, 'can_modify_agent' => 1])->id, 'name' => 'Cloud Pro']);
-        \App\Model\Payment\PlanPrice::factory()->create(['plan_id' => $offered->id, 'renew_price' => 100]);
+        PlanPrice::factory()->create(['plan_id' => $offered->id, 'renew_price' => 100]);
 
         $this->assertTrue($this->policy->changeCloudPlan($this->owner, $order, $offered->id)->allowed());
         $this->assertTrue($this->policy->changeCloudPlan($this->owner, $order, $samePlanProduct->id)->denied());
@@ -280,8 +285,8 @@ class OrderPolicyTest extends DBTestCase
     {
         $order = $this->order(subscription: ['ends_at' => now()->addMonth()]);
         Setting::where('id', 1)->update(['autorenewal_status' => 1]);
-        \App\Model\Common\StatusSetting::query()->update(['stripe_auto_renewal' => 1, 'razorpay_auto_renewal' => 0]);
-        \App\Model\Plugin::whereIn('name', ['Stripe', 'Razorpay'])->update(['status' => 1]);
+        StatusSetting::query()->update(['stripe_auto_renewal' => 1, 'razorpay_auto_renewal' => 0]);
+        Plugin::whereIn('name', ['Stripe', 'Razorpay'])->update(['status' => 1]);
         $this->owner->update(['country' => 'IN']);
 
         $this->assertTrue($this->policy->enableAutoRenew($this->owner, $order, 'Stripe')->allowed());

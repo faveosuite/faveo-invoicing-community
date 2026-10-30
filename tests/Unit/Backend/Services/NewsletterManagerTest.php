@@ -19,7 +19,7 @@ class NewsletterManagerTest extends TestCase
 
     private function manager(): NewsletterManager
     {
-        return new NewsletterManager();
+        return new NewsletterManager;
     }
 
     public function test_has_enabled_providers_returns_false_when_empty(): void

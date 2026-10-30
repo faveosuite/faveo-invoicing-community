@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
 use Pion\Laravel\ChunkUpload\Handler\AbstractHandler;
 use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
@@ -45,7 +46,7 @@ trait ChunkUpload
                 if ($res !== true || $zip->numFiles === 0) {
                     // $filePath is the reassembled upload's own temp path (from the chunk
                     // receiver), not a raw user-supplied path.
-                    unlink($filePath); // nosemgrep: php.lang.security.unlink-use.unlink-use
+                    File::delete($filePath); // nosemgrep: php.lang.security.unlink-use.unlink-use
 
                     return errorResponse(__('message.file_invalid'), 500);
                 }

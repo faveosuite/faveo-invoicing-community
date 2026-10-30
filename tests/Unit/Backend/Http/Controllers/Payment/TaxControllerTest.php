@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Payment;
 
+use App\Http\Middleware\Install;
+use App\Model\Payment\TaxClass;
 use App\Model\Payment\TaxRate;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
@@ -15,7 +17,7 @@ class TaxControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     // --- GET /tax-tables ---
@@ -198,7 +200,7 @@ class TaxControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
 
         // Create a TaxClass that will NOT be in the desired list → gets deleted (lines 244-248)
-        \App\Model\Payment\TaxClass::create(['name' => 'Will Be Removed', 'slug' => 'will-be-removed-'.uniqid()]);
+        TaxClass::create(['name' => 'Will Be Removed', 'slug' => 'will-be-removed-'.uniqid()]);
 
         $response = $this->postJson('/taxes/option', [
             'tax_enable' => 1,

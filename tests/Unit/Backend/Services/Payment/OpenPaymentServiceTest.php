@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Services\Payment;
 
 use App\Model\Payment\OpenPaymentOrder;
+use App\Plugins\Payment\Dto\PaymentResult;
+use App\Plugins\Payment\Dto\PaymentSession;
 use App\Services\Payment\OpenPaymentService;
 use App\Services\Payment\PaymentService;
 use Mockery;
@@ -63,7 +65,7 @@ class OpenPaymentServiceTest extends TestCase
         $orderMock->gateway = 'stripe';
         $orderMock->shouldReceive('update')->andReturn(true);
 
-        $captureResult = new \stdClass();
+        $captureResult = new \stdClass;
         $captureResult->paid = false;
         $captureResult->reference = null;
 
@@ -80,7 +82,7 @@ class OpenPaymentServiceTest extends TestCase
         try {
             $result = $this->service->confirm($orderMock, []);
             $this->assertFalse($result);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // May fail on email sending or DB — cover the method path
             $this->assertTrue(true);
         }
@@ -114,7 +116,7 @@ class OpenPaymentServiceTest extends TestCase
         try {
             $result = $this->service->handleWebhook('stripe', $payload, 'valid-sig');
             $this->assertTrue($result);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // WebhookDispatcher may throw — method body was entered
             $this->assertTrue(true);
         }
@@ -132,7 +134,7 @@ class OpenPaymentServiceTest extends TestCase
         try {
             $result = $this->service->handleWebhook('razorpay', $payload, 'valid-sig');
             $this->assertTrue($result);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             $this->assertTrue(true);
         }
     }
@@ -149,7 +151,7 @@ class OpenPaymentServiceTest extends TestCase
 
         try {
             $this->service->notifyFailure($order);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // DB/email may fail — method was entered
         }
 
@@ -162,7 +164,7 @@ class OpenPaymentServiceTest extends TestCase
 
     public function test_start_calls_payments_service(): void
     {
-        $session = new \App\Plugins\Payment\Dto\PaymentSession(
+        $session = new PaymentSession(
             gateway: 'stripe',
             id: 'sess_test123',
             clientConfig: ['publishableKey' => 'pk_test'],
@@ -179,8 +181,8 @@ class OpenPaymentServiceTest extends TestCase
 
         try {
             $result = $this->service->start($order);
-            $this->assertInstanceOf(\App\Plugins\Payment\Dto\PaymentSession::class, $result);
-        } catch (\Throwable $e) {
+            $this->assertInstanceOf(PaymentSession::class, $result);
+        } catch (\Throwable $throwable) {
             $this->assertTrue(true);
         }
     }
@@ -216,7 +218,7 @@ class OpenPaymentServiceTest extends TestCase
         // back the database and a real Logger call leaves rows in exception_logs.
         \Logger::spy();
         $this->paymentsMock->shouldReceive('capture')->once()
-            ->andReturn(new \App\Plugins\Payment\Dto\PaymentResult(paid: $paid, gateway: 'Stripe', reference: 'pi_x', raw: $raw));
+            ->andReturn(new PaymentResult(paid: $paid, gateway: 'Stripe', reference: 'pi_x', raw: $raw));
 
         $settled = $this->service->confirm($order, ['payment_intent' => 'pi_x']);
         \Logger::shouldHaveReceived('exception');
@@ -261,7 +263,7 @@ class OpenPaymentServiceTest extends TestCase
             ['metadata' => ['order_id' => '12'], 'currency' => 'inr', 'amount_received' => 500000], // Stripe
             ['notes' => ['order_id' => '12'], 'currency' => 'INR', 'amount_paid' => 500000],         // Razorpay
         ] as $raw) {
-            $result = new \App\Plugins\Payment\Dto\PaymentResult(paid: true, gateway: 'Stripe', raw: $raw);
+            $result = new PaymentResult(paid: true, gateway: 'Stripe', raw: $raw);
             $this->assertTrue($belongs->invoke($this->service, $result, $order));
             $this->assertTrue($covers->invoke($this->service, $result, $order));
         }

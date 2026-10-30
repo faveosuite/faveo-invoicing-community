@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Sentry\Metrics;
 
 use Sentry\Client;
+use Sentry\ClientReport\ClientReportAggregator;
+use Sentry\ClientReport\Reason;
 use Sentry\Event;
 use Sentry\EventId;
 use Sentry\Metrics\Types\CounterMetric;
@@ -16,6 +18,7 @@ use Sentry\State\HubInterface;
 use Sentry\State\Scope;
 use Sentry\Tracing\SpanId;
 use Sentry\Tracing\TraceId;
+use Sentry\Transport\DataCategory;
 use Sentry\Unit;
 use Sentry\Util\TelemetryStorage;
 
@@ -41,8 +44,8 @@ final class MetricsAggregator
     private $metrics;
 
     /**
-     * @param int|float                            $value
-     * @param array<string, int|float|string|bool> $attributes
+     * @param int|float                                 $value
+     * @param array<string, int|float|string|bool|null> $attributes
      */
     public function add(
         string $type,
@@ -66,10 +69,6 @@ final class MetricsAggregator
         if ($client !== null) {
             $options = $client->getOptions();
             $metricFlushThreshold = $options->getMetricFlushThreshold();
-
-            if ($options->getEnableMetrics() === false) {
-                return;
-            }
 
             $defaultAttributes = [
                 'sentry.environment' => $options->getEnvironment() ?? Event::DEFAULT_ENVIRONMENT,
@@ -113,9 +112,17 @@ final class MetricsAggregator
         $metric = new $metricTypeClass($name, $value, $traceId, $spanId, $attributes, microtime(true), $unit);
 
         if ($client !== null) {
-            $beforeSendMetric = $client->getOptions()->getBeforeSendMetricCallback();
-            $metric = $beforeSendMetric($metric);
-            if ($metric === null) {
+            try {
+                $beforeSendMetric = $client->getOptions()->getBeforeSendMetricCallback();
+                $metric = $beforeSendMetric($metric);
+                if ($metric === null) {
+                    ClientReportAggregator::getInstance()->add(DataCategory::metric(), Reason::beforeSend(), 1);
+
+                    return;
+                }
+            } catch (\Throwable $exception) {
+                $client->getOptions()->getLoggerOrNullLogger()->error(\sprintf('The "before_send_metric" callback failed with exception: "%s".', $exception->getMessage()));
+
                 return;
             }
         }

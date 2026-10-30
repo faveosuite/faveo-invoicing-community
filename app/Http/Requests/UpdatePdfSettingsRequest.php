@@ -6,7 +6,6 @@ namespace App\Http\Requests;
 
 use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Validator;
 use Override;
 
 class UpdatePdfSettingsRequest extends FormRequest
@@ -29,9 +28,9 @@ class UpdatePdfSettingsRequest extends FormRequest
         ];
     }
 
-    public function withValidator(Validator $validator): void
+    public function withValidator(\Illuminate\Contracts\Validation\Validator $validator): void
     {
-        $validator->after(function (Validator $validator): void {
+        $validator->after(function (\Illuminate\Contracts\Validation\Validator $validator): void {
             $path = (string) $this->input('chrome_path');
 
             if ($this->input('pdf_driver') === 'chrome' && ! is_file($path)) {

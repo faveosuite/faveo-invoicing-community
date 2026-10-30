@@ -53,30 +53,50 @@ class PdfMetadataWriter
 
     protected static function parseTrailer(string $pdfContent, int $startxrefOffset): array
     {
-        // Read a chunk around and after the xref area to find /Size and /Root
-        $chunkStart = max(0, $startxrefOffset - 512);
-        $chunk = substr($pdfContent, $chunkStart, 2048);
+        $dictionary = self::extractTrailerDictionary($pdfContent, $startxrefOffset);
 
-        if (preg_match('/\/Size\s+(\d+)/', $chunk, $sizeMatch)
-            && preg_match('/\/Root\s+(\d+\s+\d+\s+R)/', $chunk, $rootMatch)) {
-            return [
-                'size' => (int) $sizeMatch[1],
-                'root' => $rootMatch[1],
-            ];
+        if ($dictionary === null
+            || ! preg_match('/\/Size\s+(\d+)/', $dictionary, $sizeMatch)
+            || ! preg_match('/\/Root\s+(\d+\s+\d+\s+R)/', $dictionary, $rootMatch)) {
+            throw new RuntimeException('Could not parse PDF trailer to find /Size and /Root.');
         }
 
-        // For xref streams, the object at startxrefOffset contains /Size and /Root
-        $streamChunk = substr($pdfContent, $startxrefOffset, 2048);
+        return [
+            'size' => (int) $sizeMatch[1],
+            'root' => $rootMatch[1],
+        ];
+    }
 
-        if (preg_match('/\/Size\s+(\d+)/', $streamChunk, $sizeMatch)
-            && preg_match('/\/Root\s+(\d+\s+\d+\s+R)/', $streamChunk, $rootMatch)) {
-            return [
-                'size' => (int) $sizeMatch[1],
-                'root' => $rootMatch[1],
-            ];
+    /**
+     * `startxref` points at either a classic cross-reference table or at the object
+     * header of a cross-reference stream (PDF 1.5+). Table entries only ever contain
+     * digits, spaces and the letters `n` and `f`, so in both layouts the first `<<`
+     * that follows opens the dictionary holding /Size and /Root. Nesting is tracked so
+     * that dictionary ends at its matching `>>` instead of at a fixed byte count.
+     */
+    protected static function extractTrailerDictionary(string $pdfContent, int $startxrefOffset): ?string
+    {
+        $start = strpos($pdfContent, '<<', $startxrefOffset);
+
+        if ($start === false) {
+            return null;
         }
 
-        throw new RuntimeException('Could not parse PDF trailer to find /Size and /Root.');
+        $depth = 0;
+        $offset = $start;
+
+        while (preg_match('/<<|>>/', $pdfContent, $matches, PREG_OFFSET_CAPTURE, $offset)) {
+            [$token, $position] = $matches[0];
+
+            $depth += $token === '<<' ? 1 : -1;
+            $offset = $position + 2;
+
+            if ($depth === 0) {
+                return substr($pdfContent, $start, $offset - $start);
+            }
+        }
+
+        return null;
     }
 
     protected static function buildInfoObject(int $objectNumber, PdfMetadata $metadata): string

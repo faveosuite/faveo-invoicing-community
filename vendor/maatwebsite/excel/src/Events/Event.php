@@ -1,42 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Events;
+
+use Maatwebsite\Excel\Concerns\Export;
+use Maatwebsite\Excel\Concerns\Import;
 
 /**
  * @internal
  */
 abstract class Event
 {
-    /**
-     * @var object
-     */
-    protected $concernable;
-
-    /**
-     * @param  object  $concernable
-     */
-    public function __construct($concernable)
-    {
-        $this->concernable = $concernable;
+    public function __construct(
+        protected Export|Import|null $concernable,
+    ) {
     }
 
-    /**
-     * @return object
-     */
-    public function getConcernable()
+    public function getConcernable(): Export|Import|null
     {
         return $this->concernable;
     }
 
-    /**
-     * @return mixed
-     */
-    abstract public function getDelegate();
+    abstract public function getDelegate(): mixed;
 
-    /**
-     * @param  string  $concern
-     * @return bool
-     */
     public function appliesToConcern(string $concern): bool
     {
         return $this->getConcernable() instanceof $concern;

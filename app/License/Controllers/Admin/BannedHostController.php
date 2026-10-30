@@ -54,7 +54,6 @@ class BannedHostController extends Controller
     /**
      *To Edit Banned hosts of License manager.
      *
-     * @param  BannedHostRequest  $request
      * @param  $api_key_secret
      * @param  $banned_host_ip
      * @param  $comments

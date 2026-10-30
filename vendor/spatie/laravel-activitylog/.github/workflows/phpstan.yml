@@ -1,19 +1,22 @@
 name: PHPStan
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
     phpstan:
+        if: "github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository"
+
         runs-on: ubuntu-latest
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v4
+              uses: actions/checkout@v7
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: 8.4
+                  php-version: 8.5
+                  coverage: none
 
             - name: Install dependencies
               run: composer install --no-interaction --no-progress

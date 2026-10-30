@@ -3,11 +3,16 @@
 namespace Tests\Unit\Backend\Http\Controllers\BillingInstaller;
 
 use App\Http\Controllers\BillingInstaller\InstallerController;
+use App\Http\Requests\StoreLanguageRequest;
 use App\User;
 use Artisan;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 use Illuminate\Testing\TestResponse;
 use Tests\DBTestCase;
 
@@ -142,7 +147,7 @@ class InstallerControllerTest extends DBTestCase
 
         $this->assertIsArray($result);
         // May be empty if timezone table is empty, otherwise has id/name entries
-        if (! empty($result)) {
+        if ($result !== []) {
             $this->assertArrayHasKey('id', $result[0]);
             $this->assertArrayHasKey('name', $result[0]);
         }
@@ -172,7 +177,7 @@ class InstallerControllerTest extends DBTestCase
         $response = $controller->getLang();
 
         $this->assertEquals(200, $response->status());
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
         $this->assertTrue($body['success']);
         $this->assertArrayHasKey('lang', $body['data']);
         $this->assertArrayHasKey('currentLang', $body['data']);
@@ -186,13 +191,13 @@ class InstallerControllerTest extends DBTestCase
     {
         // Cache 'databasename' is empty/null but config db name is set
         // → databasename mismatch → throws exception → 500
-        \Illuminate\Support\Facades\Cache::put('databasename', '__nonexistent_db__xyzzy__');
+        Cache::put('databasename', '__nonexistent_db__xyzzy__');
 
         $controller = new InstallerController;
         $response = $controller->migrate();
 
         $this->assertEquals(500, $response->status());
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
         $this->assertArrayHasKey('result', $body);
         $this->assertArrayHasKey('error', $body['result']);
     }
@@ -240,19 +245,19 @@ class InstallerControllerTest extends DBTestCase
     public function test_account_check_returns_400_when_fields_missing(): void
     {
         $controller = new InstallerController;
-        $request = new \Illuminate\Http\Request;
+        $request = new Request;
         $request->merge([]); // no fields → validation fails
 
         $response = $controller->accountcheck($request);
         $this->assertEquals(400, $response->getStatusCode());
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
         $this->assertFalse($body['success']);
     }
 
     public function test_account_check_returns_400_for_weak_password(): void
     {
         $controller = new InstallerController;
-        $request = new \Illuminate\Http\Request;
+        $request = new Request;
         $request->merge([
             'first_name' => 'Test',
             'last_name' => 'User',
@@ -265,7 +270,7 @@ class InstallerControllerTest extends DBTestCase
 
         $response = $controller->accountcheck($request);
         $this->assertEquals(400, $response->getStatusCode());
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
         $this->assertFalse($body['success']);
     }
 
@@ -279,7 +284,7 @@ class InstallerControllerTest extends DBTestCase
         $result = $controller->getTimeZoneDropDown();
 
         $this->assertIsArray($result);
-        if (! empty($result)) {
+        if ($result !== []) {
             $this->assertArrayHasKey('id', $result[0]);
             $this->assertArrayHasKey('name', $result[0]);
             // name format is "(GMT+X:XX) City"
@@ -297,7 +302,7 @@ class InstallerControllerTest extends DBTestCase
         $response = $controller->getLang();
 
         $this->assertEquals(200, $response->getStatusCode());
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
         $this->assertTrue($body['success']);
         $this->assertIsArray($body['data']['lang']);
         $this->assertIsString($body['data']['currentLang']);
@@ -310,7 +315,7 @@ class InstallerControllerTest extends DBTestCase
     public function test_account_check_with_valid_fields_and_file_driver(): void
     {
         $controller = new InstallerController;
-        $request = new \Illuminate\Http\Request;
+        $request = new Request;
         $request->merge([
             'first_name' => 'Admin',
             'last_name' => 'Install',
@@ -324,10 +329,10 @@ class InstallerControllerTest extends DBTestCase
         // changeLanguage(null) may fail → 400 error
         try {
             $response = $controller->accountcheck($request);
-            $body = json_decode($response->getContent(), true);
+            $body = json_decode($response->getContent(), associative: true);
             // Either success (200) or error (400 for language/env issue)
             $this->assertIsArray($body);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             $this->assertTrue(true);
         }
     }
@@ -342,7 +347,7 @@ class InstallerControllerTest extends DBTestCase
         $response = $controller->languageList();
 
         $this->assertEquals(200, $response->getStatusCode());
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
         $this->assertTrue($body['success']);
         $this->assertIsArray($body['data']);
     }
@@ -359,10 +364,10 @@ class InstallerControllerTest extends DBTestCase
         $controller = new InstallerController;
         $result = $controller->updateInstallEnv('production', 'file', [], $envPath);
         // Null = success (env file updated), or JsonResponse on error
-        $this->assertTrue($result === null || $result instanceof \Illuminate\Http\JsonResponse);
+        $this->assertTrue(! $result instanceof JsonResponse || $result instanceof JsonResponse);
         $this->assertStringContainsString('APP_ENV=production', (string) file_get_contents($envPath));
 
-        unlink($envPath);
+        File::delete($envPath);
     }
 
     public function test_update_install_env_with_env_as_testing(): void
@@ -371,11 +376,11 @@ class InstallerControllerTest extends DBTestCase
         file_put_contents($envPath, "APP_ENV=development\nDB_INSTALL=0\nCACHE_DRIVER=file\n");
 
         $controller = new InstallerController;
-        $result = $controller->updateInstallEnv('testing', null, [], $envPath);
-        $this->assertTrue($result === null || $result instanceof \Illuminate\Http\JsonResponse);
+        $result = $controller->updateInstallEnv('testing', driver: null, redisConfig: [], envPath: $envPath);
+        $this->assertTrue(! $result instanceof JsonResponse || $result instanceof JsonResponse);
         $this->assertStringContainsString('APP_ENV=testing', (string) file_get_contents($envPath));
 
-        unlink($envPath);
+        File::delete($envPath);
     }
 
     // =========================================================================
@@ -394,11 +399,11 @@ class InstallerControllerTest extends DBTestCase
 
     public function test_get_lang_with_cached_language(): void
     {
-        \Illuminate\Support\Facades\Cache::put('language', 'en');
+        Cache::put('language', 'en');
         $controller = new InstallerController;
         $response = $controller->getLang();
 
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
         $this->assertTrue($body['success']);
         $this->assertEquals('en', $body['data']['currentLang']);
     }
@@ -414,7 +419,7 @@ class InstallerControllerTest extends DBTestCase
         $request->merge(['count' => '0']);
 
         $response = $controller->dbsetup($request);
-        $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
+        $this->assertInstanceOf(RedirectResponse::class, $response);
     }
 
     public function test_db_setup_with_nonzero_count_redirects_back(): void
@@ -424,7 +429,7 @@ class InstallerControllerTest extends DBTestCase
         $request->merge(['count' => '5']);
 
         $response = $controller->dbsetup($request);
-        $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
+        $this->assertInstanceOf(RedirectResponse::class, $response);
     }
 
     // =========================================================================
@@ -433,25 +438,25 @@ class InstallerControllerTest extends DBTestCase
 
     public function test_database_redirects_when_config_check_not_in_cache(): void
     {
-        \Illuminate\Support\Facades\Cache::forget('config-check');
+        Cache::forget('config-check');
         $controller = new InstallerController;
         $request = new Request;
 
         $response = $controller->database($request);
-        $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
+        $this->assertInstanceOf(RedirectResponse::class, $response);
     }
 
     public function test_database_returns_view_when_config_check_in_cache(): void
     {
-        \Illuminate\Support\Facades\Cache::forever('config-check', 'config-check');
+        Cache::forever('config-check', 'config-check');
         $controller = new InstallerController;
         $request = new Request;
 
         $response = $controller->database($request);
         // May return View or redirect depending on cache
         $this->assertTrue(
-            $response instanceof \Illuminate\Http\RedirectResponse ||
-            $response instanceof \Illuminate\Contracts\View\View
+            $response instanceof RedirectResponse ||
+            $response instanceof View
         );
     }
 
@@ -462,12 +467,12 @@ class InstallerControllerTest extends DBTestCase
     public function test_store_language_for_users_unauthenticated_returns_success(): void
     {
         $controller = new InstallerController;
-        $request = \Illuminate\Http\Request::create('/store-language', 'POST', ['language' => 'en']);
+        Request::create('/store-language', 'POST', ['language' => 'en']);
 
         try {
-            $response = $controller->storeLanguageForUsers(new \App\Http\Requests\StoreLanguageRequest(['language' => 'en']));
+            $response = $controller->storeLanguageForUsers(new StoreLanguageRequest(['language' => 'en']));
             $this->assertEquals(200, $response->getStatusCode());
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // storeLanguageForUsers may fail if Auth::user() not set
             $this->assertTrue(true);
         }
@@ -508,7 +513,8 @@ class InstallerControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $response = $this->call('POST', url('update/language'), ['language' => 'en']);
         $response->assertStatus(200);
-        $body = json_decode($response->getContent(), true);
+
+        $body = json_decode($response->getContent(), associative: true);
         $this->assertTrue($body['success']);
     }
 
@@ -521,7 +527,7 @@ class InstallerControllerTest extends DBTestCase
         $controller = new InstallerController;
         $response = $controller->languageList();
 
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
         $this->assertTrue($body['success']);
         $languages = $body['data'];
 
@@ -550,7 +556,7 @@ class InstallerControllerTest extends DBTestCase
         $response = $controller->checkPreInstall();
 
         $this->assertEquals(200, $response->getStatusCode());
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
         $this->assertArrayHasKey('result', $body);
         $this->assertArrayHasKey('success', $body['result']);
         $this->assertArrayHasKey('api', $body['result']);

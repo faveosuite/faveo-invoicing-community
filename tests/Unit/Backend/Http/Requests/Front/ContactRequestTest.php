@@ -11,13 +11,14 @@ class ContactRequestTest extends TestCase
 {
     public function test_authorize_returns_true(): void
     {
-        $this->assertTrue((new ContactRequest())->authorize());
+        $this->assertTrue(new ContactRequest()->authorize());
     }
 
     public function test_contact_us_rules_contain_expected_keys(): void
     {
         $request = ContactRequest::create('/contact-us', 'POST');
-        $request = ContactRequest::createFrom($request, new ContactRequest());
+        $request = ContactRequest::createFrom($request, new ContactRequest);
+
         $rules = $request->rules();
 
         $this->assertArrayHasKey('conName', $rules);
@@ -28,7 +29,8 @@ class ContactRequestTest extends TestCase
     public function test_demo_request_rules_contain_expected_keys(): void
     {
         $request = ContactRequest::create('/demo-request', 'POST');
-        $request = ContactRequest::createFrom($request, new ContactRequest());
+        $request = ContactRequest::createFrom($request, new ContactRequest);
+
         $rules = $request->rules();
 
         $this->assertArrayHasKey('demoname', $rules);
@@ -39,14 +41,14 @@ class ContactRequestTest extends TestCase
     public function test_other_path_returns_empty_rules(): void
     {
         $request = ContactRequest::create('/other-path', 'POST');
-        $request = ContactRequest::createFrom($request, new ContactRequest());
+        $request = ContactRequest::createFrom($request, new ContactRequest);
 
         $this->assertSame([], $request->rules());
     }
 
     public function test_messages_returns_expected_keys(): void
     {
-        $messages = (new ContactRequest())->messages();
+        $messages = new ContactRequest()->messages();
 
         $this->assertIsArray($messages);
         $this->assertArrayHasKey('conName.required', $messages);

@@ -71,16 +71,16 @@ class TaxOption extends BaseModel
      */
     protected function getMappings(): array
     {
-        $yesNo = self::label('Yes', 'No');
+        $yesNo = $this->label('Yes', 'No');
         $orNa = fn ($value) => $value ?: 'N/A';
 
         return [
-            'tax_enable' => ['Tax Enable', self::label(__('message.active'), __('message.inactive'))],
+            'tax_enable' => ['Tax Enable', $this->label(__('message.active'), __('message.inactive'))],
             'inclusive' => ['Prices Entered With Tax', $yesNo],
-            'tax_based_on' => ['Calculate Tax Based On', self::label('Company address', 'Billing address', 'base')],
+            'tax_based_on' => ['Calculate Tax Based On', $this->label('Company address', 'Billing address', 'base')],
             'shop_inclusive' => ['Shop Prices Entered With Tax', $yesNo],
             'cart_inclusive' => ['Cart Prices Entered With Tax', $yesNo],
-            'rounding' => ['Round Tax To Whole Number', self::label(__('message.enable'), __('message.disable'))],
+            'rounding' => ['Round Tax To Whole Number', $this->label(__('message.enable'), __('message.disable'))],
             'Gst_no' => ['GST Number', $orNa],
             'cif_no' => ['CIF Number', $orNa],
         ];
@@ -92,7 +92,7 @@ class TaxOption extends BaseModel
      * @param  array<mixed>|string  $on
      * @param  array<mixed>|string  $off
      */
-    private static function label(array|string $on, array|string $off, mixed $match = 1): \Closure
+    private function label(array|string $on, array|string $off, mixed $match = 1): \Closure
     {
         return fn ($value): array|string => $value === $match ? $on : $off;
     }

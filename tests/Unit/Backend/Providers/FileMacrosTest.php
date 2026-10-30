@@ -3,6 +3,7 @@
 namespace Tests\Unit\Backend\Providers;
 
 use Illuminate\Support\Facades\File;
+use Symfony\Component\Finder\SplFileInfo;
 use Tests\TestCase;
 
 /**
@@ -35,7 +36,7 @@ class FileMacrosTest extends TestCase
         // Exclusions are matched by basename, so full paths work too.
         File::cleanDirectoryFiles($this->dir, ['/somewhere/keep.txt'], [$this->dir.'/keep_dir']);
 
-        $this->assertSame(['keep.txt'], array_map(fn ($f) => $f->getFilename(), File::files($this->dir)));
+        $this->assertSame(['keep.txt'], array_map(fn (SplFileInfo $f): string => $f->getFilename(), File::files($this->dir)));
         $this->assertSame([$this->dir.'/keep_dir'], File::directories($this->dir));
     }
 

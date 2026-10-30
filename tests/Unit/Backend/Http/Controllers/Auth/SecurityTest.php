@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Auth;
 
+use App\Http\Middleware\Install;
 use Tests\DBTestCase;
 
 class SecurityTest extends DBTestCase
@@ -9,7 +10,7 @@ class SecurityTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     // SPA catch-all routes — served as 200 regardless of auth (Vue handles auth client-side)
@@ -34,7 +35,7 @@ class SecurityTest extends DBTestCase
     {
         foreach ($this->spaUrls as $url) {
             $response = $this->get($url);
-            $response->assertStatus(200, "SPA fallback should serve 200 for {$url}");
+            $response->assertStatus(200);
         }
     }
 

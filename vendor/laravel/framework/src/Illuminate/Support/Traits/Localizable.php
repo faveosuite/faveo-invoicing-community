@@ -9,9 +9,11 @@ trait Localizable
     /**
      * Run the callback with the given locale.
      *
-     * @param  string  $locale
-     * @param  \Closure  $callback
-     * @return mixed
+     * @template TReturn
+     *
+     * @param  string|null  $locale
+     * @param  \Closure(): TReturn  $callback
+     * @return TReturn
      */
     public function withLocale($locale, $callback)
     {

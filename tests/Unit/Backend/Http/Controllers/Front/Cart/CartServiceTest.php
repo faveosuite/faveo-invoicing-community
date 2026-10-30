@@ -20,6 +20,7 @@ class CartServiceTest extends DBTestCase
     use DatabaseTransactions;
 
     private CartService $service;
+
     private GuestCart $guestMock;
 
     protected function setUp(): void
@@ -193,7 +194,7 @@ class CartServiceTest extends DBTestCase
         // but it should not throw — any DB errors are silent in addToDbCart
         try {
             $this->service->mergeGuestCart($this->user);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // Some DBs may reject invalid foreign keys — acceptable
         }
 

@@ -108,7 +108,7 @@ class UpdateSettingsRequestTest extends TestCase
 
             return array_values(array_filter(
                 ['v3_site_key', 'v3_secret_key', 'score_threshold', 'v2_site_key', 'v2_secret_key'],
-                fn ($field) => str_starts_with($rules[$field], 'required'),
+                fn (string $field): bool => str_starts_with($rules[$field], 'required'),
             ));
         };
 

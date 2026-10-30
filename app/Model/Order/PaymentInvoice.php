@@ -6,6 +6,7 @@ namespace App\Model\Order;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 
 /**
  * One allocation: how much of a payment settles a particular invoice.
@@ -18,8 +19,8 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int $payment_id
  * @property int $invoice_id
  * @property numeric $amount
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Invoice|null $invoice
  * @property-read Payment|null $payment
  *

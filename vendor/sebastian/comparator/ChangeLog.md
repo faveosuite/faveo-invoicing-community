@@ -2,6 +2,17 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [8.4.0] - 2026-08-07
+
+### Added
+
+* `Factory::setExporter()` and `Factory::exporter()` for configuring the `SebastianBergmann\Exporter\Exporter` instance that is used by comparators registered with the factory
+
+### Changed
+
+* Comparators now use the `Exporter` instance configured for their `Factory` instead of creating their own instances (this allows customizing how values are represented in comparison failure messages)
+* When an object exporter provides the representation for the objects that are compared then that representation is used in the comparison failure message instead of the property-by-property representation; this does not apply to objects for which a comparator of their own exists (`DateTimeComparator`, for instance), as the representation such a comparator provides always has precedence
+
 ## [8.3.0] - 2026-06-05
 
 ### Added
@@ -400,6 +411,7 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 * Added `SebastianBergmann\Comparator\Factory::reset()` to unregister all non-default comparators
 * Added support for `phpunit/phpunit-mock-objects` version `^5.0`
 
+[8.4.0]: https://github.com/sebastianbergmann/comparator/compare/8.3.0...8.4.0
 [8.3.0]: https://github.com/sebastianbergmann/comparator/compare/8.2.1...8.3.0
 [8.2.1]: https://github.com/sebastianbergmann/comparator/compare/8.2.0...8.2.1
 [8.2.0]: https://github.com/sebastianbergmann/comparator/compare/8.1.4...8.2.0

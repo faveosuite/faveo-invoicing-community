@@ -8,10 +8,12 @@ This functionality is currently [soft-deprecated](https://phpunit.de/backward-co
 
 #### Assertions, Constraints, and Expectations
 
-| Issue                                                             | Description                                       | Since  | Replacement                            |
-|-------------------------------------------------------------------|---------------------------------------------------|--------|----------------------------------------|
-| [#6537](https://github.com/sebastianbergmann/phpunit/issues/6537) | `id()` and `after()` for mock object expectations | 13.1.0 |                                        |
-| [#6560](https://github.com/sebastianbergmann/phpunit/issues/6560) | `expectExceptionMessage()`                        | 13.2.0 | `expectExceptionMessageIsOrContains()` |
+| Issue                                                             | Description                                       | Since  | Replacement                                                             |
+|-------------------------------------------------------------------|---------------------------------------------------|--------|-------------------------------------------------------------------------|
+| [#6537](https://github.com/sebastianbergmann/phpunit/issues/6537) | `id()` and `after()` for mock object expectations | 13.1.0 |                                                                         |
+| [#6560](https://github.com/sebastianbergmann/phpunit/issues/6560) | `expectExceptionMessage()`                        | 13.2.0 | `expectExceptionMessageIsOrContains()`                                  |
+| [#6686](https://github.com/sebastianbergmann/phpunit/issues/6686) | `Constraint::failureDescriptionInContext()`       | 13.4.0 | Override `Constraint::negatedFailureDescription()` in your constraint   |
+| [#6686](https://github.com/sebastianbergmann/phpunit/issues/6686) | `LogicalNot::negate()`                            | 13.4.0 | Override `Constraint::negatedToString()` in your constraint             |
 
 ## Hard Deprecations
 
@@ -36,3 +38,18 @@ This functionality is currently [hard-deprecated](https://phpunit.de/backward-co
 | [#6075](https://github.com/sebastianbergmann/phpunit/issues/6075) | `executionOrder="duration"` XML configuration attribute value | 13.2.0 | Use `executionOrder="duration-ascending"` instead               |
 | [#6075](https://github.com/sebastianbergmann/phpunit/issues/6075) | `executionOrder="size"` XML configuration attribute value     | 13.2.0 | Use `executionOrder="size-ascending"` instead                   |
 | [#6515](https://github.com/sebastianbergmann/phpunit/issues/6515) | `--log-events-verbose-text <file>` CLI option                 | 13.1.0 | Use `--log-events-verbose-text <file> --with-telemetry` instead |
+| [#6585](https://github.com/sebastianbergmann/phpunit/issues/6585) | `depends` for `--order-by` or `executionOrder`                 | 13.4.0 | Use `--resolve-dependencies` or `resolveDependencies="true"` instead |
+| [#6585](https://github.com/sebastianbergmann/phpunit/issues/6585) | `no-depends` for `--order-by` or `executionOrder`              | 13.4.0 | Use `--ignore-dependencies` or `resolveDependencies="false"` instead |
+| [#6585](https://github.com/sebastianbergmann/phpunit/issues/6585) | `defects` written before the order                            | 13.4.0 | Write the order first, for example `duration-ascending,defects` |
+| [#6585](https://github.com/sebastianbergmann/phpunit/issues/6585) | More than one order for `--order-by` or `executionOrder`       | 13.4.0 | Configure exactly one order                                     |
+| [#6585](https://github.com/sebastianbergmann/phpunit/issues/6585) | Unknown value for the `executionOrder` XML attribute           | 13.4.0 | Use a value the schema allows                                   |
+|                                                                   | `--cache-result` CLI option                                   | 13.3.0 | Use `--record-test-run-history` instead                         |
+|                                                                   | `--do-not-cache-result` CLI option                            | 13.3.0 | Use `--do-not-record-test-run-history` instead                  |
+|                                                                   | `cacheResult` XML configuration attribute                     | 13.3.0 | Use `recordTestRunHistory` instead                              |
+
+### Extending PHPUnit
+
+| Issue                                                             | Description                                                   | Since  | Replacement                                                     |
+|-------------------------------------------------------------------|---------------------------------------------------------------|--------|-----------------------------------------------------------------|
+|                                                                   | `TextUI\Configuration\Configuration::cacheResult()`           | 13.3.0 | Use `recordTestRunHistory()` instead                            |
+|                                                                   | `TextUI\Configuration\Configuration::testResultCacheFile()`   | 13.3.0 | Use `testRunHistoryFile()` instead                              |

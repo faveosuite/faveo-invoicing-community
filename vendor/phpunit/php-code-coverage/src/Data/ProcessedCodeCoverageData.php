@@ -9,52 +9,104 @@
  */
 namespace SebastianBergmann\CodeCoverage\Data;
 
+use function array_flip;
 use function array_key_exists;
 use function array_keys;
-use function array_merge;
-use function array_unique;
-use function array_values;
 use function count;
 use function is_array;
 use function ksort;
+use function max;
 use SebastianBergmann\CodeCoverage\Driver\Driver;
-use SebastianBergmann\CodeCoverage\Driver\XdebugDriver;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
- * @phpstan-import-type XdebugFunctionCoverageType from XdebugDriver
+ * @phpstan-import-type FunctionCoverageType from RawCodeCoverageData as RawFunctionCoverageType
  *
  * @phpstan-type TestIdType non-empty-string
+ * @phpstan-type TestIndexType non-negative-int
  * @phpstan-type FunctionCoverageType array<non-empty-string, array<non-empty-string, ProcessedFunctionCoverageData>>
- * @phpstan-type LineCoverageType array<non-empty-string, array<positive-int, null|list<TestIdType>>>
+ * @phpstan-type LineCoverageType array<non-empty-string, array<positive-int, null|array<TestIndexType, positive-int>>>
  */
 final class ProcessedCodeCoverageData
 {
     /**
      * Line coverage data.
-     * An array of filenames, each having an array of linenumbers, each executable line having an array of testcase ids.
+     * An array of filenames, each having an array of linenumbers, each executable line having a map of
+     * test index to the number of times the testcase executed the line (1 for drivers that do not
+     * collect hit counts).
      *
      * @var LineCoverageType
      */
     private array $lineCoverage = [];
 
     /**
+     * Test case ids are interned: the first time a test case records coverage it is assigned the
+     * next free index, and all per-line, per-branch, and per-path hit maps are keyed by that index
+     * instead of the id string. This keeps the hit maps small and makes inserting and merging
+     * cheap. Use testIds() to resolve an index back to the test case id.
+     *
+     * @var array<TestIdType, TestIndexType>
+     */
+    private array $testIdToIndex = [];
+
+    /**
+     * The next index that testIndex() will assign. Tracked separately instead of derived
+     * from count($this->testIdToIndex) so that a sparse or non-zero-based index table
+     * installed through setTestIds() cannot cause two test case ids to share an index.
+     *
+     * @var TestIndexType
+     */
+    private int $nextTestIndex = 0;
+
+    /**
      * Function coverage data.
-     * Maintains base format of raw data (@see https://xdebug.org/docs/code_coverage), but each 'hit' entry is an array
-     * of testcase ids.
+     * Maintains base format of raw data (@see RawCodeCoverageData), but each 'hit' entry is a map
+     * of test index to the number of times the testcase traversed the branch or path (1 for drivers that do not
+     * collect hit counts).
      *
      * @var FunctionCoverageType
      */
     private array $functionCoverage = [];
+
+    /**
+     * Files whose data was not collected by a driver but seeded from static analysis because no
+     * test executed them. Which lines are executable for such a file is decided by static
+     * analysis alone, whereas for an executed file it also depends on which lines the driver
+     * reports. Merging both kinds of data for the same file would therefore count lines as not
+     * executed that no driver ever reports, so merge() lets data collected by a driver replace
+     * seeded data instead of merging it.
+     *
+     * @var array<non-empty-string, true>
+     */
+    private array $filesSeededFromStaticAnalysis = [];
+
+    /**
+     * Whether the hit counts in this object are exact execution counts (the driver that collected
+     * the data counts how often a line was executed) or only mean "executed at least once".
+     */
+    private bool $collectsHitCounts;
+    private bool $lineCoverageSorted     = true;
+    private bool $functionCoverageSorted = true;
+
+    public function __construct(bool $collectsHitCounts = false)
+    {
+        $this->collectsHitCounts = $collectsHitCounts;
+    }
+
+    public function collectsHitCounts(): bool
+    {
+        return $this->collectsHitCounts;
+    }
 
     public function initializeUnseenData(RawCodeCoverageData $rawData): void
     {
         foreach ($rawData->lineCoverage() as $file => $lines) {
             if (!isset($this->lineCoverage[$file])) {
                 $this->lineCoverage[$file] = [];
+                $this->lineCoverageSorted  = false;
 
                 foreach ($lines as $k => $v) {
                     $this->lineCoverage[$file][$k] = $v === Driver::LINE_NOT_EXECUTABLE ? null : [];
@@ -74,16 +126,44 @@ final class ProcessedCodeCoverageData
     }
 
     /**
+     * Initializes the data for files that were not executed by any test from data that was seeded
+     * from static analysis, see RawCodeCoverageData::fromUncoveredFile().
+     */
+    public function initializeUncoveredFiles(RawCodeCoverageData $rawData): void
+    {
+        foreach (array_keys($rawData->lineCoverage()) as $file) {
+            if (!isset($this->lineCoverage[$file])) {
+                $this->filesSeededFromStaticAnalysis[$file] = true;
+            }
+        }
+
+        $this->initializeUnseenData($rawData);
+    }
+
+    /**
      * @param non-empty-string $testCaseId
      */
     public function markCodeAsExecutedByTestCase(string $testCaseId, RawCodeCoverageData $executedCode): void
     {
+        $testIndex = $this->testIndex($testCaseId);
+
         foreach ($executedCode->lineCoverage() as $file => $lines) {
+            if (!isset($this->lineCoverage[$file])) {
+                $this->lineCoverage[$file] = [];
+                $this->lineCoverageSorted  = false;
+            }
+
+            unset($this->filesSeededFromStaticAnalysis[$file]);
+
+            $fileCoverage = &$this->lineCoverage[$file];
+
             foreach ($lines as $k => $v) {
-                if ($v === Driver::LINE_EXECUTED) {
-                    $this->lineCoverage[$file][$k][] = $testCaseId;
+                if ($v >= Driver::LINE_EXECUTED) {
+                    $fileCoverage[$k][$testIndex] = ($fileCoverage[$k][$testIndex] ?? 0) + $v;
                 }
             }
+
+            unset($fileCoverage);
         }
 
         foreach ($executedCode->functionCoverage() as $file => $functions) {
@@ -95,14 +175,14 @@ final class ProcessedCodeCoverageData
                 $functionCoverage = $this->functionCoverage[$file][$functionName];
 
                 foreach ($functionData['branches'] as $branchId => $branchData) {
-                    if ($branchData['hit'] === Driver::BRANCH_HIT) {
-                        $functionCoverage->recordBranchHit($branchId, $testCaseId);
+                    if ($branchData['hit'] >= Driver::BRANCH_HIT) {
+                        $functionCoverage->recordBranchHit($branchId, $testIndex, $branchData['hit']);
                     }
                 }
 
                 foreach ($functionData['paths'] as $pathId => $pathData) {
-                    if ($pathData['hit'] === Driver::BRANCH_HIT) {
-                        $functionCoverage->recordPathHit($pathId, $testCaseId);
+                    if ($pathData['hit'] >= Driver::BRANCH_HIT) {
+                        $functionCoverage->recordPathHit($pathId, $testIndex, $pathData['hit']);
                     }
                 }
             }
@@ -114,7 +194,8 @@ final class ProcessedCodeCoverageData
      */
     public function setLineCoverage(array $lineCoverage): void
     {
-        $this->lineCoverage = $lineCoverage;
+        $this->lineCoverage       = $lineCoverage;
+        $this->lineCoverageSorted = false;
     }
 
     /**
@@ -122,7 +203,7 @@ final class ProcessedCodeCoverageData
      */
     public function lineCoverage(): array
     {
-        ksort($this->lineCoverage);
+        $this->sortLineCoverage();
 
         return $this->lineCoverage;
     }
@@ -132,7 +213,8 @@ final class ProcessedCodeCoverageData
      */
     public function setFunctionCoverage(array $functionCoverage): void
     {
-        $this->functionCoverage = $functionCoverage;
+        $this->functionCoverage       = $functionCoverage;
+        $this->functionCoverageSorted = false;
     }
 
     /**
@@ -140,7 +222,11 @@ final class ProcessedCodeCoverageData
      */
     public function functionCoverage(): array
     {
-        ksort($this->functionCoverage);
+        if (!$this->functionCoverageSorted) {
+            ksort($this->functionCoverage);
+
+            $this->functionCoverageSorted = true;
+        }
 
         return $this->functionCoverage;
     }
@@ -150,9 +236,30 @@ final class ProcessedCodeCoverageData
      */
     public function coveredFiles(): array
     {
-        ksort($this->lineCoverage);
+        $this->sortLineCoverage();
 
         return array_keys($this->lineCoverage);
+    }
+
+    /**
+     * @param array<TestIndexType, TestIdType> $testIds
+     */
+    public function setTestIds(array $testIds): void
+    {
+        $this->testIdToIndex = array_flip($testIds);
+        $this->nextTestIndex = 0;
+
+        if ($testIds !== []) {
+            $this->nextTestIndex = max(array_keys($testIds)) + 1;
+        }
+    }
+
+    /**
+     * @return array<TestIndexType, TestIdType>
+     */
+    public function testIds(): array
+    {
+        return array_flip($this->testIdToIndex);
     }
 
     /**
@@ -161,58 +268,106 @@ final class ProcessedCodeCoverageData
      */
     public function renameFile(string $oldFile, string $newFile): void
     {
+        if ($oldFile === $newFile) {
+            return;
+        }
+
         if (isset($this->lineCoverage[$oldFile])) {
             $this->lineCoverage[$newFile] = $this->lineCoverage[$oldFile];
+            $this->lineCoverageSorted     = false;
         }
 
         if (isset($this->functionCoverage[$oldFile])) {
             $this->functionCoverage[$newFile] = $this->functionCoverage[$oldFile];
+            $this->functionCoverageSorted     = false;
         }
 
-        unset($this->lineCoverage[$oldFile], $this->functionCoverage[$oldFile]);
+        if (isset($this->filesSeededFromStaticAnalysis[$oldFile])) {
+            $this->filesSeededFromStaticAnalysis[$newFile] = true;
+        }
+
+        unset($this->lineCoverage[$oldFile], $this->functionCoverage[$oldFile], $this->filesSeededFromStaticAnalysis[$oldFile]);
     }
 
+    /**
+     * Hit counts for a test case that occurs in both operands are combined with max(), not summed:
+     * the same test case id on both sides means the same test execution was observed twice (for
+     * example when coverage data collected in parallel is merged), not that the test ran twice.
+     * This preserves the deduplication semantics of the list-based representation that was used
+     * before hit counts were recorded. Accumulation of hit counts within a single test run
+     * happens in markCodeAsExecutedByTestCase() and recordHit() instead.
+     *
+     * The merged data only contains exact hit counts if both operands do.
+     *
+     * Data for a file that was seeded from static analysis is replaced by data for that file
+     * that was collected by a driver, it is not merged with it.
+     */
     public function merge(self $newData): void
     {
-        foreach ($newData->lineCoverage as $file => $lines) {
+        $this->collectsHitCounts = $this->collectsHitCounts && $newData->collectsHitCounts;
+
+        [$newLineCoverage, $newFunctionCoverage] = $this->withTestIndexesRemappedToThisObject($newData);
+
+        $filesToSkip = [];
+
+        foreach ($newLineCoverage as $file => $lines) {
             if (!isset($this->lineCoverage[$file])) {
                 $this->lineCoverage[$file] = $lines;
+                $this->lineCoverageSorted  = false;
+
+                if (isset($newData->filesSeededFromStaticAnalysis[$file])) {
+                    $this->filesSeededFromStaticAnalysis[$file] = true;
+                }
 
                 continue;
             }
 
-            // we should compare the lines if any of two contains data
-            $compareLineNumbers = array_unique(
-                array_merge(
-                    array_keys($this->lineCoverage[$file]),
-                    array_keys($newData->lineCoverage[$file]),
-                ),
-            );
+            if (isset($newData->filesSeededFromStaticAnalysis[$file])) {
+                $filesToSkip[$file] = true;
 
-            foreach ($compareLineNumbers as $line) {
-                if (!array_key_exists($line, $newData->lineCoverage[$file])) {
-                    continue;
-                }
+                continue;
+            }
 
-                $thatPriority = $this->priorityForLine($newData->lineCoverage[$file], $line);
-                $thisPriority = $this->priorityForLine($this->lineCoverage[$file], $line);
+            if (isset($this->filesSeededFromStaticAnalysis[$file])) {
+                $this->lineCoverage[$file] = $lines;
+                $this->lineCoverageSorted  = false;
+
+                unset($this->functionCoverage[$file], $this->filesSeededFromStaticAnalysis[$file]);
+
+                continue;
+            }
+
+            $fileCoverage = &$this->lineCoverage[$file];
+
+            foreach ($lines as $line => $data) {
+                $thatPriority = $this->priorityForValue($data);
+                $thisPriority = $this->priorityForLine($fileCoverage, $line);
 
                 if ($thatPriority > $thisPriority) {
-                    $this->lineCoverage[$file][$line] = $newData->lineCoverage[$file][$line];
+                    $fileCoverage[$line] = $data;
                 } elseif ($thatPriority === $thisPriority &&
-                    array_key_exists($line, $this->lineCoverage[$file]) &&
-                    is_array($this->lineCoverage[$file][$line]) &&
-                    is_array($newData->lineCoverage[$file][$line])) {
-                    $this->lineCoverage[$file][$line] = array_values(array_unique(
-                        array_merge($this->lineCoverage[$file][$line], $newData->lineCoverage[$file][$line]),
-                    ));
+                    is_array($data) &&
+                    array_key_exists($line, $fileCoverage) &&
+                    is_array($fileCoverage[$line])) {
+                    // The hits are merged into the line's hit map in place:
+                    // merging them into a copy would copy the hits of every
+                    // test merged so far, which made merging the coverage of
+                    // many tests that execute the same line quadratic.
+                    HitMap::mergeInto($fileCoverage[$line], $data);
                 }
             }
+
+            unset($fileCoverage);
         }
 
-        foreach ($newData->functionCoverage as $file => $functions) {
+        foreach ($newFunctionCoverage as $file => $functions) {
+            if (isset($filesToSkip[$file])) {
+                continue;
+            }
+
             if (!isset($this->functionCoverage[$file])) {
                 $this->functionCoverage[$file] = $functions;
+                $this->functionCoverageSorted  = false;
 
                 continue;
             }
@@ -227,6 +382,79 @@ final class ProcessedCodeCoverageData
         }
     }
 
+    private function sortLineCoverage(): void
+    {
+        if (!$this->lineCoverageSorted) {
+            ksort($this->lineCoverage);
+
+            $this->lineCoverageSorted = true;
+        }
+    }
+
+    /**
+     * @param TestIdType $testCaseId
+     *
+     * @return TestIndexType
+     */
+    private function testIndex(string $testCaseId): int
+    {
+        if (!isset($this->testIdToIndex[$testCaseId])) {
+            $this->testIdToIndex[$testCaseId] = $this->nextTestIndex;
+            $this->nextTestIndex++;
+        }
+
+        return $this->testIdToIndex[$testCaseId];
+    }
+
+    /**
+     * The test indexes of another ProcessedCodeCoverageData object are meaningless in the context
+     * of this object: the same index may refer to a different test case id. This method interns
+     * the other object's test case ids into this object's index table and returns the other
+     * object's line and function coverage with all test indexes translated accordingly. When both
+     * objects agree on the numbering the data is returned as-is.
+     *
+     * @return array{0: LineCoverageType, 1: FunctionCoverageType}
+     */
+    private function withTestIndexesRemappedToThisObject(self $newData): array
+    {
+        $remap           = [];
+        $remapIsIdentity = true;
+
+        foreach ($newData->testIdToIndex as $testId => $index) {
+            $remap[$index] = $this->testIndex($testId);
+
+            if ($remap[$index] !== $index) {
+                $remapIsIdentity = false;
+            }
+        }
+
+        if ($remapIsIdentity) {
+            return [$newData->lineCoverage, $newData->functionCoverage];
+        }
+
+        $lineCoverage = $newData->lineCoverage;
+
+        foreach ($lineCoverage as $file => $lines) {
+            foreach ($lines as $line => $data) {
+                if ($data === null || $data === []) {
+                    continue;
+                }
+
+                $lineCoverage[$file][$line] = HitMap::withRemappedTestIndexes($data, $remap);
+            }
+        }
+
+        $functionCoverage = $newData->functionCoverage;
+
+        foreach ($functionCoverage as $file => $functions) {
+            foreach ($functions as $functionName => $functionData) {
+                $functionCoverage[$file][$functionName] = $functionData->withRemappedTestIndexes($remap);
+            }
+        }
+
+        return [$lineCoverage, $functionCoverage];
+    }
+
     /**
      * Determine the priority for a line.
      *
@@ -237,8 +465,8 @@ final class ProcessedCodeCoverageData
      *
      * During a merge, a higher number is better.
      *
-     * @param array<positive-int, null|list<TestIdType>> $data
-     * @param positive-int                               $line
+     * @param array<positive-int, null|array<TestIndexType, positive-int>> $data
+     * @param positive-int                                                 $line
      *
      * @return 1|2|3|4
      */
@@ -248,12 +476,22 @@ final class ProcessedCodeCoverageData
             return 1;
         }
 
-        if (is_array($data[$line]) && count($data[$line]) === 0) {
-            return 2;
+        return $this->priorityForValue($data[$line]);
+    }
+
+    /**
+     * @param null|array<TestIndexType, positive-int> $data
+     *
+     * @return 2|3|4
+     */
+    private function priorityForValue(null|array $data): int
+    {
+        if ($data === null) {
+            return 3;
         }
 
-        if ($data[$line] === null) {
-            return 3;
+        if (count($data) === 0) {
+            return 2;
         }
 
         return 4;
@@ -262,14 +500,18 @@ final class ProcessedCodeCoverageData
     /**
      * For a function we have never seen before, copy all data over and simply init the 'hit' array.
      *
-     * @param non-empty-string                                         $file
-     * @param non-empty-string                                         $functionName
-     * @param ProcessedFunctionCoverageData|XdebugFunctionCoverageType $functionData
+     * @param non-empty-string                                      $file
+     * @param non-empty-string                                      $functionName
+     * @param ProcessedFunctionCoverageData|RawFunctionCoverageType $functionData
      */
     private function initPreviouslyUnseenFunction(string $file, string $functionName, array|ProcessedFunctionCoverageData $functionData): void
     {
         if (is_array($functionData)) {
             $functionData = ProcessedFunctionCoverageData::fromXdebugCoverage($functionData);
+        }
+
+        if (!isset($this->functionCoverage[$file])) {
+            $this->functionCoverageSorted = false;
         }
 
         $this->functionCoverage[$file][$functionName] = $functionData;
@@ -280,9 +522,9 @@ final class ProcessedCodeCoverageData
      * Techniques such as mocking and where the contents of a file are different vary during tests (e.g. compiling
      * containers) mean that the functions inside a file cannot be relied upon to be static.
      *
-     * @param non-empty-string                                         $file
-     * @param non-empty-string                                         $functionName
-     * @param ProcessedFunctionCoverageData|XdebugFunctionCoverageType $functionData
+     * @param non-empty-string                                      $file
+     * @param non-empty-string                                      $functionName
+     * @param ProcessedFunctionCoverageData|RawFunctionCoverageType $functionData
      */
     private function initPreviouslySeenFunction(string $file, string $functionName, array|ProcessedFunctionCoverageData $functionData): void
     {

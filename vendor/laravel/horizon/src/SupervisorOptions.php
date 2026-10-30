@@ -40,7 +40,7 @@ class SupervisorOptions
     public $balance = 'off';
 
     /**
-     * Indicates whether auto-scaling strategy should use "time" (time-to-complete) or "size" (total count of jobs) strategies.
+     * Indicates whether auto-scaling strategy should use "time" (time-to-complete), "size" (total count of jobs), or "log" (logarithmic job count) strategies.
      *
      * @var string|null
      */
@@ -173,6 +173,13 @@ class SupervisorOptions
     public $retryAfter;
 
     /**
+     * Indicates if the workers should output their information as JSON.
+     *
+     * @var bool
+     */
+    public $json = false;
+
+    /**
      * Create a new worker options instance.
      *
      * @param  string  $name
@@ -196,6 +203,7 @@ class SupervisorOptions
      * @param  int  $parentId
      * @param  int  $rest
      * @param  string|null  $autoScalingStrategy
+     * @param  bool  $json
      */
     public function __construct(
         $name,
@@ -219,6 +227,7 @@ class SupervisorOptions
         $parentId = 0,
         $rest = 0,
         $autoScalingStrategy = 'time',
+        $json = false,
     ) {
         $this->name = $name;
         $this->connection = $connection;
@@ -241,6 +250,7 @@ class SupervisorOptions
         $this->parentId = $parentId;
         $this->rest = $rest;
         $this->autoScalingStrategy = $autoScalingStrategy;
+        $this->json = $json;
     }
 
     /**
@@ -284,6 +294,16 @@ class SupervisorOptions
     public function autoScaleByNumberOfJobs()
     {
         return $this->autoScalingStrategy === 'size';
+    }
+
+    /**
+     * Determine if auto-scaling should use logarithmic queue sizes.
+     *
+     * @return bool
+     */
+    public function autoScaleLogarithmically()
+    {
+        return $this->autoScalingStrategy === 'log';
     }
 
     /**
@@ -345,6 +365,7 @@ class SupervisorOptions
             'parentId' => $this->parentId,
             'rest' => $this->rest,
             'autoScalingStrategy' => $this->autoScalingStrategy,
+            'json' => $this->json,
         ];
     }
 

@@ -12,6 +12,7 @@ use App\ThirdPartyApp;
 use App\User;
 use App\UserBackupCodes;
 use App\VerificationAttempt;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Tests\DBTestCase;
@@ -152,12 +153,12 @@ class AppModelsTest extends DBTestCase
 
     public function test_cart_invoice_is_belongs_to(): void
     {
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, (new Cart())->invoice());
+        $this->assertInstanceOf(BelongsTo::class, new Cart()->invoice());
     }
 
     public function test_cart_casts_contains_coupon_discount(): void
     {
-        $casts = (new Cart())->getCasts();
+        $casts = new Cart()->getCasts();
         $this->assertArrayHasKey('coupon_discount', $casts);
     }
 

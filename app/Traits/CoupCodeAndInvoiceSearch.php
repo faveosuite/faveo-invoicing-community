@@ -98,7 +98,7 @@ trait CoupCodeAndInvoiceSearch
                 // so undoing it has to put the credit back — otherwise deleting
                 // the row un-pays the invoice and destroys the credit with it.
                 if ($payment->payment_method === 'Credit Balance' && (float) $payment->amount > 0) {
-                    app(CreditBalanceService::class)->grant(
+                    resolve(CreditBalanceService::class)->grant(
                         (int) $payment->user_id,
                         $payment->currency ?: (string) $invoices->first()?->currency,
                         (float) $payment->amount,

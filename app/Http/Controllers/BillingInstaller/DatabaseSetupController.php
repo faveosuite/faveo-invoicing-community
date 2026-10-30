@@ -147,6 +147,7 @@ class DatabaseSetupController extends Controller
             if ($connection === false) {
                 return false;
             }
+
             mysqli_ssl_set($connection, DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, ca_path: null, cipher_algos: null);
             if (DB_PORT != '' && is_numeric(DB_PORT)) {
                 $this->setupConfig(DB_HOST, DB_USER, DB_PASS, DB_PORT, [DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, DB_SSL_VERIFY_PEER_CERT]);
@@ -210,10 +211,10 @@ class DatabaseSetupController extends Controller
 class TestResult
 {
     const STATUS_OK = 'Ok';
+
     const STATUS_WARNING = 'Warning';
+
     const STATUS_ERROR = 'Error';
 
-    public function __construct(public mixed $message, public mixed $status = self::STATUS_OK)
-    {
-    }
+    public function __construct(public mixed $message, public mixed $status = self::STATUS_OK) {}
 }

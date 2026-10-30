@@ -9,19 +9,24 @@
  */
 namespace PHPUnit\Framework\TestRunner;
 
+use const DIRECTORY_SEPARATOR;
 use const PHP_EOL;
 use function array_diff_assoc;
 use function array_intersect;
 use function array_unique;
-use function assert;
 use function extension_loaded;
+use function realpath;
+use function rtrim;
 use function sprintf;
+use function str_starts_with;
 use function xdebug_is_debugger_active;
 use AssertionError;
-use PHPUnit\Event\Facade;
+use PHPUnit\Event\Emitter;
+use PHPUnit\Event\NoPreviousThrowableException;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\IncompleteTestError;
+use PHPUnit\Framework\ProcessIsolationException;
 use PHPUnit\Framework\SkippedTest;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Metadata\Api\CodeCoverage as CodeCoverageMetadataApi;
@@ -29,10 +34,14 @@ use PHPUnit\Metadata\Parser\Registry as MetadataRegistry;
 use PHPUnit\Runner\CodeCoverage;
 use PHPUnit\Runner\ErrorHandler;
 use PHPUnit\Runner\Exception;
+use PHPUnit\Runner\ShutdownHandler;
+use PHPUnit\Runner\TimeLimit\TimeLimitHandler;
 use PHPUnit\TextUI\Configuration\Configuration;
 use PHPUnit\TextUI\Configuration\Registry as ConfigurationRegistry;
+use PHPUnit\TextUI\Configuration\SourceFilter;
 use SebastianBergmann\CodeCoverage\Exception as CodeCoverageException;
 use SebastianBergmann\CodeCoverage\InvalidArgumentException;
+use SebastianBergmann\CodeCoverage\Test\Target\Target;
 use SebastianBergmann\CodeCoverage\Test\Target\TargetCollection;
 use SebastianBergmann\CodeCoverage\UnintentionallyCoveredCodeException;
 use SebastianBergmann\Invoker\Invoker;
@@ -46,12 +55,40 @@ use Throwable;
  */
 final class TestRunner
 {
-    private ?bool $timeLimitCanBeEnforced = null;
     private readonly Configuration $configuration;
+    private readonly Emitter $emitter;
 
-    public function __construct()
+    public function __construct(Emitter $emitter)
     {
         $this->configuration = ConfigurationRegistry::get();
+        $this->emitter       = $emitter;
+    }
+
+    /**
+     * @throws \PHPUnit\Framework\Exception
+     * @throws \PHPUnit\Util\Exception
+     * @throws \SebastianBergmann\Template\InvalidArgumentException
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws NoPreviousThrowableException
+     * @throws ProcessIsolationException
+     * @throws UnintentionallyCoveredCodeException
+     */
+    public function run(TestCase $test): void
+    {
+        if (new ProcessIsolation($this->emitter)->shouldBeUsedFor($test)) {
+            new SeparateProcessTestRunner($this->emitter)->run($test);
+
+            return;
+        }
+
+        try {
+            ShutdownHandler::setMessage(sprintf('Fatal error: Premature end of PHP process when running %s.', $test->toString()));
+
+            $this->runInProcess($test);
+        } finally {
+            ShutdownHandler::resetMessage();
+        }
     }
 
     /**
@@ -59,13 +96,14 @@ final class TestRunner
      * @throws InvalidArgumentException
      * @throws UnintentionallyCoveredCodeException
      */
-    public function run(TestCase $test): void
+    private function runInProcess(TestCase $test): void
     {
         Assert::resetCount();
 
-        $codeCoverageMetadataApi = new CodeCoverageMetadataApi;
-        $coversTargets           = TargetCollection::fromArray([]);
-        $usesTargets             = TargetCollection::fromArray([]);
+        $codeCoverageMetadataApi    = new CodeCoverageMetadataApi;
+        $coversTargets              = TargetCollection::fromArray([]);
+        $usesTargets                = TargetCollection::fromArray([]);
+        $coversNothingContradiction = false;
 
         if ($this->configuration->disableCoverageTargeting()) {
             $shouldCodeCoverageBeCollected = true;
@@ -80,10 +118,17 @@ final class TestRunner
                 $test->name(),
             );
 
+            $coversTargets = $this->removeFilesystemTargetsThatAreNotFirstPartyCode($test, $coversTargets);
+            $usesTargets   = $this->removeFilesystemTargetsThatAreNotFirstPartyCode($test, $usesTargets);
+
             $shouldCodeCoverageBeCollected = $codeCoverageMetadataApi->shouldCodeCoverageBeCollectedFor($test);
+
+            $coversNothingContradiction = $codeCoverageMetadataApi->coversNothingContradictsCoversOrUses(
+                $test::class,
+            );
         }
 
-        $this->performSanityChecks($test, $coversTargets, $usesTargets, $shouldCodeCoverageBeCollected);
+        $this->performSanityChecks($test, $coversTargets, $usesTargets, $coversNothingContradiction);
 
         $error      = false;
         $failure    = false;
@@ -107,11 +152,13 @@ final class TestRunner
         }
 
         try {
+            TimeLimitHandler::armAlarm();
+
             if ($this->canTimeLimitBeEnforced() &&
                 $this->shouldTimeLimitBeEnforced($test)) {
                 $risky = $this->runTestWithTimeout($test);
             } else {
-                $test->runBare();
+                $test->runLifecycle();
             }
         } catch (AssertionFailedError $e) {
             $failure = true;
@@ -121,29 +168,14 @@ final class TestRunner
             } elseif ($e instanceof SkippedTest) {
                 $skipped = true;
             }
-        } catch (AssertionError $e) {
+        } catch (AssertionError) {
             $test->addToAssertionCount(1);
 
             $failure = true;
-            $trace   = $e->getTrace();
-
-            assert(isset($trace[0]));
-
-            $frame = $trace[0];
-
-            assert(isset($frame['file']));
-            assert(isset($frame['line']));
-
-            $e = new AssertionFailedError(
-                sprintf(
-                    '%s in %s:%s',
-                    $e->getMessage(),
-                    $frame['file'],
-                    $frame['line'],
-                ),
-            );
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             $error = true;
+        } finally {
+            TimeLimitHandler::disarmAlarm();
         }
 
         $test->addToAssertionCount(Assert::getCount());
@@ -155,9 +187,9 @@ final class TestRunner
         }
 
         if (!$error && !$failure && !$incomplete && !$skipped && !$risky &&
-            $this->configuration->requireCoverageMetadata() &&
+            $this->requiresCoverageMetadata($test) &&
             !$this->hasCoverageMetadata($test::class, $test->name())) {
-            Facade::emitter()->testConsideredRisky(
+            $this->emitter->testConsideredRisky(
                 $test->valueObjectForEvents(),
                 'This test does not define a code coverage target but is expected to do so',
             );
@@ -183,27 +215,23 @@ final class TestRunner
             } catch (UnintentionallyCoveredCodeException $cce) {
                 $coveredUnintentionally = true;
 
-                Facade::emitter()->testConsideredRisky(
+                $this->emitter->testConsideredRisky(
                     $test->valueObjectForEvents(),
                     'This test executed code that is not listed as code to be covered or used:' .
                     PHP_EOL .
                     $cce->getMessage(),
                 );
-            } catch (CodeCoverageException $cce) {
+            } catch (CodeCoverageException) {
                 $error = true;
-
-                $e = $e ?? $cce;
             }
 
             if ($append && !$error && !$failure && !$coveredUnintentionally &&
                 $this->configuration->requireCoverageContribution() &&
                 !CodeCoverage::instance()->lastTestContributedToCoverage()) {
-                Facade::emitter()->testConsideredRisky(
+                $this->emitter->testConsideredRisky(
                     $test->valueObjectForEvents(),
                     'This test does not contribute to code coverage',
                 );
-
-                $risky = true;
             }
         }
 
@@ -215,7 +243,7 @@ final class TestRunner
             $this->configuration->reportUselessTests() &&
             !$test->doesNotPerformAssertions() &&
             $test->numberOfAssertionsPerformed() === 0) {
-            Facade::emitter()->testConsideredRisky(
+            $this->emitter->testConsideredRisky(
                 $test->valueObjectForEvents(),
                 'This test did not perform any assertions',
             );
@@ -223,7 +251,7 @@ final class TestRunner
 
         if ($test->doesNotPerformAssertions() &&
             $test->numberOfAssertionsPerformed() > 0) {
-            Facade::emitter()->testConsideredRisky(
+            $this->emitter->testConsideredRisky(
                 $test->valueObjectForEvents(),
                 sprintf(
                     'This test is not expected to perform assertions but performed %d assertion%s',
@@ -234,25 +262,44 @@ final class TestRunner
         }
 
         if ($test->hasUnexpectedOutput()) {
-            Facade::emitter()->testPrintedUnexpectedOutput($test->output());
+            $this->emitter->testPrintedUnexpectedOutput($test->output());
         }
 
         if ($this->configuration->disallowTestOutput() && $test->hasUnexpectedOutput()) {
-            Facade::emitter()->testConsideredRisky(
+            $this->emitter->testConsideredRisky(
                 $test->valueObjectForEvents(),
                 sprintf(
                     'Test code or tested code printed unexpected output: %s',
-                    $test->output(),
+                    rtrim($test->output(), "\r\n"),
                 ),
             );
         }
 
         if ($test->wasPrepared()) {
-            Facade::emitter()->testFinished(
+            $this->emitter->testFinished(
                 $test->valueObjectForEvents(),
                 $test->numberOfAssertionsPerformed(),
             );
         }
+    }
+
+    private function requiresCoverageMetadata(TestCase $test): bool
+    {
+        $size = $test->size();
+
+        if ($size->isSmall()) {
+            return $this->configuration->requireCoverageMetadataOnSmallTests();
+        }
+
+        if ($size->isMedium()) {
+            return $this->configuration->requireCoverageMetadataOnMediumTests();
+        }
+
+        if ($size->isLarge()) {
+            return $this->configuration->requireCoverageMetadataOnLargeTests();
+        }
+
+        return $this->configuration->requireCoverageMetadata();
     }
 
     /**
@@ -261,52 +308,16 @@ final class TestRunner
      */
     private function hasCoverageMetadata(string $className, string $methodName): bool
     {
-        foreach (MetadataRegistry::parser()->forClassAndMethod($className, $methodName) as $metadata) {
-            if ($metadata->isCoversNamespace()) {
-                return true;
-            }
-
-            if ($metadata->isCoversTrait()) {
-                return true;
-            }
-
-            if ($metadata->isCoversClass()) {
-                return true;
-            }
-
-            if ($metadata->isCoversClassesThatExtendClass()) {
-                return true;
-            }
-
-            if ($metadata->isCoversClassesThatImplementInterface()) {
-                return true;
-            }
-
-            if ($metadata->isCoversMethod()) {
-                return true;
-            }
-
-            if ($metadata->isCoversFunction()) {
-                return true;
-            }
-
-            if ($metadata->isCoversNothing()) {
-                return true;
-            }
+        if (MetadataRegistry::parser()->forClassAndMethod($className, $methodName)->isCoversNothing()->isNotEmpty()) {
+            return true;
         }
 
-        return false;
+        return (new CodeCoverageMetadataApi)->coversTargets($className, $methodName)->isNotEmpty();
     }
 
     private function canTimeLimitBeEnforced(): bool
     {
-        if ($this->timeLimitCanBeEnforced !== null) {
-            return $this->timeLimitCanBeEnforced;
-        }
-
-        $this->timeLimitCanBeEnforced = (new Invoker)->canInvokeWithTimeout();
-
-        return $this->timeLimitCanBeEnforced;
+        return (new Invoker)->canInvokeWithTimeout();
     }
 
     private function shouldTimeLimitBeEnforced(TestCase $test): bool
@@ -320,7 +331,11 @@ final class TestRunner
         }
 
         if (extension_loaded('xdebug') && xdebug_is_debugger_active()) {
+            // a debugging session cannot be active while the tests for PHPUnit
+            // itself are run
+            // @codeCoverageIgnoreStart
             return false;
+            // @codeCoverageIgnoreEnd
         }
 
         return true;
@@ -343,9 +358,9 @@ final class TestRunner
         }
 
         try {
-            (new Invoker)->invoke($test->runBare(...), [], $_timeout);
+            (new Invoker)->invoke($test->runLifecycle(...), [], $_timeout);
         } catch (TimeoutException) {
-            Facade::emitter()->testConsideredRisky(
+            $this->emitter->testConsideredRisky(
                 $test->valueObjectForEvents(),
                 sprintf(
                     'This test was aborted after %d second%s',
@@ -369,15 +384,13 @@ final class TestRunner
         return true;
     }
 
-    private function performSanityChecks(TestCase $test, TargetCollection $coversTargets, TargetCollection $usesTargets, bool $shouldCodeCoverageBeCollected): void
+    private function performSanityChecks(TestCase $test, TargetCollection $coversTargets, TargetCollection $usesTargets, bool $coversNothingContradiction): void
     {
-        if (!$shouldCodeCoverageBeCollected) {
-            if ($coversTargets->isNotEmpty() || $usesTargets->isNotEmpty()) {
-                Facade::emitter()->testTriggeredPhpunitWarning(
-                    $test->valueObjectForEvents(),
-                    '#[Covers*] and #[Uses*] attributes do not have an effect when the #[CoversNothing] attribute is used',
-                );
-            }
+        if ($coversNothingContradiction) {
+            $this->emitter->testTriggeredPhpunitWarning(
+                $test->valueObjectForEvents(),
+                '#[Covers*] and #[Uses*] attributes do not have an effect when the #[CoversNothing] attribute is used',
+            );
         }
 
         $coversAsString = [];
@@ -396,7 +409,7 @@ final class TestRunner
         $coversAndUses    = array_intersect($coversAsString, $usesAsString);
 
         foreach ($coversDuplicates as $target) {
-            Facade::emitter()->testTriggeredPhpunitWarning(
+            $this->emitter->testTriggeredPhpunitWarning(
                 $test->valueObjectForEvents(),
                 sprintf(
                     '%s is targeted multiple times by the same "Covers" attribute',
@@ -406,7 +419,7 @@ final class TestRunner
         }
 
         foreach ($usesDuplicates as $target) {
-            Facade::emitter()->testTriggeredPhpunitWarning(
+            $this->emitter->testTriggeredPhpunitWarning(
                 $test->valueObjectForEvents(),
                 sprintf(
                     '%s is targeted multiple times by the same "Uses" attribute',
@@ -416,7 +429,7 @@ final class TestRunner
         }
 
         foreach ($coversAndUses as $target) {
-            Facade::emitter()->testTriggeredPhpunitWarning(
+            $this->emitter->testTriggeredPhpunitWarning(
                 $test->valueObjectForEvents(),
                 sprintf(
                     '%s is targeted by both "Covers" and "Uses" attributes',
@@ -424,5 +437,78 @@ final class TestRunner
                 ),
             );
         }
+    }
+
+    private function removeFilesystemTargetsThatAreNotFirstPartyCode(TestCase $test, TargetCollection $targets): TargetCollection
+    {
+        if (!$this->configuration->source()->notEmpty()) {
+            return $targets;
+        }
+
+        $filteredTargets = [];
+        $warnings        = [];
+
+        foreach ($targets as $target) {
+            if ($this->isFilesystemTargetThatIsNotFirstPartyCode($target)) {
+                $warnings[] = sprintf(
+                    '%s is outside of the code that is configured to be first-party code using <source>, the attribute is ignored',
+                    $target->description(),
+                );
+
+                continue;
+            }
+
+            $filteredTargets[] = $target;
+        }
+
+        foreach (array_unique($warnings) as $warning) {
+            $this->emitter->testTriggeredPhpunitWarning(
+                $test->valueObjectForEvents(),
+                $warning,
+            );
+        }
+
+        return TargetCollection::fromArray($filteredTargets);
+    }
+
+    private function isFilesystemTargetThatIsNotFirstPartyCode(Target $target): bool
+    {
+        if (!$target->isFile() && !$target->isDirectory() && !$target->isDirectoryRecursively()) {
+            return false;
+        }
+
+        $path = realpath($target->target());
+
+        if ($path === false) {
+            // paths that cannot be resolved are reported by phpunit/php-code-coverage's target validation
+            return false;
+        }
+
+        if ($target->isFile()) {
+            return !SourceFilter::instance()->includes($path);
+        }
+
+        return !$this->isDirectoryConfiguredAsFirstPartyCode($path);
+    }
+
+    private function isDirectoryConfiguredAsFirstPartyCode(string $directory): bool
+    {
+        foreach ($this->configuration->source()->includeDirectories() as $includeDirectory) {
+            $includeDirectoryPath = realpath($includeDirectory->path());
+
+            if ($includeDirectoryPath === false) {
+                continue;
+            }
+
+            if ($directory === $includeDirectoryPath) {
+                return true;
+            }
+
+            if (str_starts_with($directory, $includeDirectoryPath . DIRECTORY_SEPARATOR)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

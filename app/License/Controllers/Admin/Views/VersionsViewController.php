@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\VersionCallback;
 use App\Model\Product\ProductUpload;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -49,7 +50,7 @@ class VersionsViewController extends Controller
             ->callbacks()
             ->select('id', 'version_id', 'callback_ip', 'callback_date_time', 'callback_status', 'callback_type')
             ->when($searchQuery, function ($query) use ($searchQuery): void {
-                $query->where(function ($query) use ($searchQuery): void {
+                $query->where(function (Builder $query) use ($searchQuery): void {
                     $query->where('callback_ip', 'like', '%'.$searchQuery.'%')
                         ->orWhere('callback_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
                         ->orWhere('callback_date_time', 'like', '%'.$searchQuery.'%');

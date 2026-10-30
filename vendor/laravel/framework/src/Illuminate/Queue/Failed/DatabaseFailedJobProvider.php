@@ -50,7 +50,7 @@ class DatabaseFailedJobProvider implements CountableFailedJobProvider, FailedJob
      * @param  string  $queue
      * @param  string  $payload
      * @param  \Throwable  $exception
-     * @return int|null
+     * @return string|int|null
      */
     public function log($connection, $queue, $payload, $exception)
     {
@@ -58,16 +58,16 @@ class DatabaseFailedJobProvider implements CountableFailedJobProvider, FailedJob
 
         $exception = (string) mb_convert_encoding($exception, 'UTF-8');
 
-        return $this->getTable()->insertGetId(compact(
-            'connection', 'queue', 'payload', 'exception', 'failed_at'
-        ));
+        return $this->getTable()->insertGetId([
+            'connection' => $connection, 'queue' => $queue, 'payload' => $payload, 'exception' => $exception, 'failed_at' => $failed_at,
+        ]);
     }
 
     /**
      * Get the IDs of all of the failed jobs.
      *
      * @param  string|null  $queue
-     * @return array
+     * @return list<string|int>
      */
     public function ids($queue = null)
     {
@@ -75,13 +75,14 @@ class DatabaseFailedJobProvider implements CountableFailedJobProvider, FailedJob
             ->when(! is_null($queue), fn ($query) => $query->where('queue', $queue))
             ->orderBy('id', 'desc')
             ->pluck('id')
+            ->map(fn ($id) => is_int($id) ? $id : (string) $id)
             ->all();
     }
 
     /**
      * Get a list of all of the failed jobs.
      *
-     * @return array
+     * @return list<object>
      */
     public function all()
     {
@@ -111,15 +112,18 @@ class DatabaseFailedJobProvider implements CountableFailedJobProvider, FailedJob
     }
 
     /**
-     * Flush all of the failed jobs from storage.
+     * Flush the failed jobs from storage.
      *
      * @param  int|null  $hours
+     * @param  string|null  $queue
      * @return void
      */
-    public function flush($hours = null)
+    public function flush($hours = null, $queue = null)
     {
         $this->getTable()->when($hours, function ($query, $hours) {
             $query->where('failed_at', '<=', Date::now()->subHours($hours));
+        })->when(! is_null($queue), function ($query) use ($queue) {
+            $query->where('queue', $queue);
         })->delete();
     }
 

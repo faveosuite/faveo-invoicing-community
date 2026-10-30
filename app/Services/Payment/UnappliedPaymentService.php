@@ -7,6 +7,7 @@ namespace App\Services\Payment;
 use App\Model\Order\Payment;
 use DB;
 use Exception;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 
@@ -61,7 +62,7 @@ class UnappliedPaymentService
     public function balances(int $userId): array
     {
         return DB::query()
-            ->fromSub($this->unappliedQuery($userId, null), 'payments')
+            ->fromSub($this->unappliedQuery($userId, currency: null), 'payments')
             ->groupBy('currency')
             ->orderBy('currency')
             ->select('currency', DB::raw('SUM(unapplied) as balance'))
@@ -74,7 +75,7 @@ class UnappliedPaymentService
     public function unappliedOn(int $userId, int $paymentId): float
     {
         return (float) DB::query()
-            ->fromSub($this->unappliedQuery($userId, null, $paymentId), 'payment')
+            ->fromSub($this->unappliedQuery($userId, currency: null, paymentId: $paymentId), 'payment')
             ->sum('unapplied');
     }
 
@@ -140,7 +141,7 @@ class UnappliedPaymentService
      * locked read and the "how much is left" answer are the same query —
      * computing it in PHP afterwards would reopen the race the lock closes.
      */
-    private function unappliedQuery(int $userId, ?string $currency, ?int $paymentId = null): \Illuminate\Database\Query\Builder
+    private function unappliedQuery(int $userId, ?string $currency, ?int $paymentId = null): Builder
     {
         $query = DB::table('payments as p')
             ->leftJoin('payment_invoice as a', 'a.payment_id', '=', 'p.id')

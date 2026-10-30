@@ -277,7 +277,7 @@ class Product extends BaseModel
             'product_sku' => ['Product SKU', fn ($value) => $value],
             'perpetual_license' => ['Perpetual License', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
             'invoice_hidden' => ['Hide on Invoice', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
-            'product_type' => ['Product Category', fn ($value) => $value === 'addon' ? 'Addon' : 'Independent'],
+            'product_type' => ['Product Category', fn ($value): string => $value === 'addon' ? 'Addon' : 'Independent'],
             'config_file_path' => ['Config File Path', fn ($value) => $value],
             'license_file_path' => ['License File Path', fn ($value) => $value],
             'product_path' => ['Plugin Folder', fn ($value) => $value],
@@ -359,7 +359,7 @@ class Product extends BaseModel
         $this->tax()->delete();
         $this->price()->delete();
         $this->PromoRelation()->delete();
-        \App\Model\Product\CloudProducts::where('cloud_product', $this->id)->delete(); // first: it points at a plan
+        CloudProducts::where('cloud_product', $this->id)->delete(); // first: it points at a plan
         // Plan::delete() takes prices and periods. Cart lines are left: the cart drops them itself and tells the client.
         $this->planRelation()->get()->each->delete();
         $this->productUpload()->delete(); // records only; the release files stay in storage

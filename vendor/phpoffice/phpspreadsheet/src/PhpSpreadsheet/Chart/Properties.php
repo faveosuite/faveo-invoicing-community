@@ -10,31 +10,20 @@ namespace PhpOffice\PhpSpreadsheet\Chart;
  */
 abstract class Properties
 {
-    /** @deprecated 1.24 use constant from ChartColor instead */
-    const EXCEL_COLOR_TYPE_STANDARD = ChartColor::EXCEL_COLOR_TYPE_STANDARD;
-    /** @deprecated 1.24 use constant from ChartColor instead */
-    const EXCEL_COLOR_TYPE_SCHEME = ChartColor::EXCEL_COLOR_TYPE_SCHEME;
-    /** @deprecated 1.24 use constant from ChartColor instead */
-    const EXCEL_COLOR_TYPE_ARGB = ChartColor::EXCEL_COLOR_TYPE_ARGB;
-
-    const
-        AXIS_LABELS_LOW = 'low';
+    const AXIS_LABELS_LOW = 'low';
     const AXIS_LABELS_HIGH = 'high';
     const AXIS_LABELS_NEXT_TO = 'nextTo';
     const AXIS_LABELS_NONE = 'none';
 
-    const
-        TICK_MARK_NONE = 'none';
+    const TICK_MARK_NONE = 'none';
     const TICK_MARK_INSIDE = 'in';
     const TICK_MARK_OUTSIDE = 'out';
     const TICK_MARK_CROSS = 'cross';
 
-    const
-        HORIZONTAL_CROSSES_AUTOZERO = 'autoZero';
+    const HORIZONTAL_CROSSES_AUTOZERO = 'autoZero';
     const HORIZONTAL_CROSSES_MAXIMUM = 'max';
 
-    const
-        FORMAT_CODE_GENERAL = 'General';
+    const FORMAT_CODE_GENERAL = 'General';
     const FORMAT_CODE_NUMBER = '#,##0.00';
     const FORMAT_CODE_CURRENCY = '$#,##0.00';
     const FORMAT_CODE_ACCOUNTING = '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)';
@@ -47,12 +36,10 @@ abstract class Properties
     const FORMAT_CODE_TEXT = '@';
     const FORMAT_CODE_SPECIAL = '00000';
 
-    const
-        ORIENTATION_NORMAL = 'minMax';
+    const ORIENTATION_NORMAL = 'minMax';
     const ORIENTATION_REVERSED = 'maxMin';
 
-    const
-        LINE_STYLE_COMPOUND_SIMPLE = 'sng';
+    const LINE_STYLE_COMPOUND_SIMPLE = 'sng';
     const LINE_STYLE_COMPOUND_DOUBLE = 'dbl';
     const LINE_STYLE_COMPOUND_THICKTHIN = 'thickThin';
     const LINE_STYLE_COMPOUND_THINTHICK = 'thinThick';
@@ -60,8 +47,6 @@ abstract class Properties
     const LINE_STYLE_DASH_SOLID = 'solid';
     const LINE_STYLE_DASH_ROUND_DOT = 'sysDot';
     const LINE_STYLE_DASH_SQUARE_DOT = 'sysDash';
-    /** @deprecated 1.24 use LINE_STYLE_DASH_SQUARE_DOT instead */
-    const LINE_STYLE_DASH_SQUERE_DOT = 'sysDash';
     const LINE_STYPE_DASH_DASH = 'dash';
     const LINE_STYLE_DASH_DASH_DOT = 'dashDot';
     const LINE_STYLE_DASH_LONG_DASH = 'lgDash';
@@ -89,8 +74,7 @@ abstract class Properties
     const LINE_STYLE_ARROW_SIZE_8 = 8;
     const LINE_STYLE_ARROW_SIZE_9 = 9;
 
-    const
-        SHADOW_PRESETS_NOSHADOW = null;
+    const SHADOW_PRESETS_NOSHADOW = null;
     const SHADOW_PRESETS_OUTER_BOTTTOM_RIGHT = 1;
     const SHADOW_PRESETS_OUTER_BOTTOM = 2;
     const SHADOW_PRESETS_OUTER_BOTTOM_LEFT = 3;
@@ -115,29 +99,27 @@ abstract class Properties
     const SHADOW_PRESETS_PERSPECTIVE_LOWER_RIGHT = 22;
     const SHADOW_PRESETS_PERSPECTIVE_LOWER_LEFT = 23;
 
-    const POINTS_WIDTH_MULTIPLIER = 12700;
-    const ANGLE_MULTIPLIER = 60000; // direction and size-kx size-ky
-    const PERCENTAGE_MULTIPLIER = 100000; // size sx and sy
+    const POINTS_WIDTH_MULTIPLIER = 12_700;
+    const ANGLE_MULTIPLIER = 60_000; // direction and size-kx size-ky
+    const PERCENTAGE_MULTIPLIER = 100_000; // size sx and sy, and gradient pos
+    const MAX_SKEW_ANGLE_XML = 90 * self::ANGLE_MULTIPLIER - 1;
+    const MAX_SKEW_ANGLE_DEGREES = self::MAX_SKEW_ANGLE_XML / self::ANGLE_MULTIPLIER; // max for size-kx size-ky
 
-    /** @var bool */
-    protected $objectState = false; // used only for minor gridlines
+    protected bool $objectState = false; // used only for minor gridlines
 
-    /** @var ?float */
-    protected $glowSize;
+    protected ?float $glowSize = null;
 
-    /** @var ChartColor */
-    protected $glowColor;
+    protected ChartColor $glowColor;
 
-    /** @var array */
-    protected $softEdges = [
+    /** @var array{size: ?float} */
+    protected array $softEdges = [
         'size' => null,
     ];
 
-    /** @var array */
-    protected $shadowProperties = self::PRESETS_OPTIONS[0];
+    /** @var mixed[] */
+    protected array $shadowProperties = self::PRESETS_OPTIONS[0];
 
-    /** @var ChartColor */
-    protected $shadowColor;
+    protected ChartColor $shadowColor;
 
     public function __construct()
     {
@@ -151,10 +133,8 @@ abstract class Properties
 
     /**
      * Get Object State.
-     *
-     * @return bool
      */
-    public function getObjectState()
+    public function getObjectState(): bool
     {
         return $this->objectState;
     }
@@ -201,10 +181,8 @@ abstract class Properties
         return ((float) $value) / self::PERCENTAGE_MULTIPLIER;
     }
 
-    /**
-     * @param null|float|int|string $alpha
-     */
-    protected function setColorProperties(?string $color, $alpha, ?string $colorType): array
+    /** @return array{type: ?string, value: ?string, alpha: ?int} */
+    protected function setColorProperties(?string $color, null|float|int|string $alpha, ?string $colorType): array
     {
         return [
             'type' => $colorType,
@@ -421,6 +399,7 @@ abstract class Properties
         ],
     ];
 
+    /** @return mixed[] */
     protected function getShadowPresetsMap(int $presetsOption): array
     {
         return self::PRESETS_OPTIONS[$presetsOption] ?? self::PRESETS_OPTIONS[0];
@@ -429,12 +408,10 @@ abstract class Properties
     /**
      * Get value of array element.
      *
-     * @param mixed $properties
-     * @param mixed $elements
-     *
-     * @return mixed
+     * @param mixed[] $properties
+     * @param array<mixed>|int|string $elements
      */
-    protected function getArrayElementsValue($properties, $elements)
+    protected function getArrayElementsValue(array $properties, array|int|string $elements): mixed
     {
         $reference = &$properties;
         if (!is_array($elements)) {
@@ -442,7 +419,7 @@ abstract class Properties
         }
 
         foreach ($elements as $keys) {
-            $reference = &$reference[$keys];
+            $reference = &$reference[$keys]; //* @phpstan-ignore offsetAccess.nonOffsetAccessible (I'm not sure what this is doing)
         }
 
         return $reference;
@@ -450,13 +427,8 @@ abstract class Properties
 
     /**
      * Set Glow Properties.
-     *
-     * @param float $size
-     * @param ?string $colorValue
-     * @param ?int $colorAlpha
-     * @param ?string $colorType
      */
-    public function setGlowProperties($size, $colorValue = null, $colorAlpha = null, $colorType = null): void
+    public function setGlowProperties(float $size, ?string $colorValue = null, ?int $colorAlpha = null, ?string $colorType = null): void
     {
         $this
             ->activateObject()
@@ -473,11 +445,11 @@ abstract class Properties
     /**
      * Get Glow Property.
      *
-     * @param array|string $property
+     * @param mixed[]|string $property
      *
-     * @return null|array|float|int|string
+     * @return null|array<mixed>|float|int|string
      */
-    public function getGlowProperty($property)
+    public function getGlowProperty(array|string $property): null|array|float|int|string
     {
         $retVal = null;
         if ($property === 'size') {
@@ -489,7 +461,9 @@ abstract class Properties
                 'alpha' => $this->glowColor->getColorProperty('alpha'),
             ];
         } elseif (is_array($property) && count($property) >= 2 && $property[0] === 'color') {
-            $retVal = $this->glowColor->getColorProperty($property[1]);
+            /** @var string */
+            $temp = $property[1];
+            $retVal = $this->glowColor->getColorProperty($temp);
         }
 
         return $retVal;
@@ -497,12 +471,8 @@ abstract class Properties
 
     /**
      * Get Glow Color Property.
-     *
-     * @param string $propertyName
-     *
-     * @return null|int|string
      */
-    public function getGlowColor($propertyName)
+    public function getGlowColor(string $propertyName): null|int|string
     {
         return $this->glowColor->getColorProperty($propertyName);
     }
@@ -514,10 +484,8 @@ abstract class Properties
 
     /**
      * Get Glow Size.
-     *
-     * @return ?float
      */
-    public function getGlowSize()
+    public function getGlowSize(): ?float
     {
         return $this->glowSize;
     }
@@ -525,11 +493,9 @@ abstract class Properties
     /**
      * Set Glow Size.
      *
-     * @param ?float $size
-     *
      * @return $this
      */
-    protected function setGlowSize($size)
+    protected function setGlowSize(?float $size)
     {
         $this->glowSize = $size;
 
@@ -538,10 +504,8 @@ abstract class Properties
 
     /**
      * Set Soft Edges Size.
-     *
-     * @param ?float $size
      */
-    public function setSoftEdges($size): void
+    public function setSoftEdges(?float $size): void
     {
         if ($size !== null) {
             $this->activateObject();
@@ -551,22 +515,20 @@ abstract class Properties
 
     /**
      * Get Soft Edges Size.
-     *
-     * @return string
      */
-    public function getSoftEdgesSize()
+    public function getSoftEdgesSize(): ?float
     {
         return $this->softEdges['size'];
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function setShadowProperty(string $propertyName, $value): self
+    /** @param null|array{value?: ?string, alpha?: null|int|string, brightness?: null|int|string, type?: ?string, sx?: ?float, sy?: ?float, ky?: ?float, kx?: ?float}|float|string  $value */
+    public function setShadowProperty(string $propertyName, mixed $value): self
     {
         $this->activateObject();
         if ($propertyName === 'color' && is_array($value)) {
-            $this->shadowColor->setColorPropertiesArray($value);
+            /** @var array{value: ?string, alpha: null|int|string, brightness?: null|int|string, type: ?string} */
+            $valuex = $value;
+            $this->shadowColor->setColorPropertiesArray($valuex);
         } else {
             $this->shadowProperties[$propertyName] = $value;
         }
@@ -576,16 +538,8 @@ abstract class Properties
 
     /**
      * Set Shadow Properties.
-     *
-     * @param int $presets
-     * @param string $colorValue
-     * @param string $colorType
-     * @param null|float|int|string $colorAlpha
-     * @param null|float $blur
-     * @param null|int $angle
-     * @param null|float $distance
      */
-    public function setShadowProperties($presets, $colorValue = null, $colorType = null, $colorAlpha = null, $blur = null, $angle = null, $distance = null): void
+    public function setShadowProperties(int $presets, ?string $colorValue = null, ?string $colorType = null, null|float|int|string $colorAlpha = null, ?float $blur = null, ?int $angle = null, ?float $distance = null): void
     {
         $this->activateObject()->setShadowPresetsProperties((int) $presets);
         if ($presets === 0) {
@@ -611,11 +565,9 @@ abstract class Properties
     /**
      * Set Shadow Presets Properties.
      *
-     * @param int $presets
-     *
      * @return $this
      */
-    protected function setShadowPresetsProperties($presets)
+    protected function setShadowPresetsProperties(int $presets)
     {
         $this->shadowProperties['presets'] = $presets;
         $this->setShadowPropertiesMapValues($this->getShadowPresetsMap($presets));
@@ -628,18 +580,24 @@ abstract class Properties
     /**
      * Set Shadow Properties Values.
      *
-     * @param mixed $reference
+     * @param mixed[] $propertiesMap
+     * @param null|mixed[] $reference
      *
      * @return $this
      */
-    protected function setShadowPropertiesMapValues(array $propertiesMap, &$reference = null)
+    protected function setShadowPropertiesMapValues(array $propertiesMap, ?array &$reference = null)
     {
         $base_reference = $reference;
         foreach ($propertiesMap as $property_key => $property_val) {
             if (is_array($property_val)) {
                 if (in_array($property_key, self::SHADOW_ARRAY_KEYS, true)) {
-                    $reference = &$this->shadowProperties[$property_key];
-                    $this->setShadowPropertiesMapValues($property_val, $reference);
+                    /** @var null|array<mixed> */
+                    $temp = &$this->shadowProperties[$property_key];
+                    $reference = &$temp;
+                    $this->setShadowPropertiesMapValues(
+                        $property_val,
+                        $reference
+                    );
                 }
             } else {
                 if ($base_reference === null) {
@@ -656,11 +614,9 @@ abstract class Properties
     /**
      * Set Shadow Blur.
      *
-     * @param ?float $blur
-     *
      * @return $this
      */
-    protected function setShadowBlur($blur)
+    protected function setShadowBlur(?float $blur)
     {
         if ($blur !== null) {
             $this->shadowProperties['blur'] = $blur;
@@ -672,11 +628,9 @@ abstract class Properties
     /**
      * Set Shadow Angle.
      *
-     * @param null|float|int|string $angle
-     *
      * @return $this
      */
-    protected function setShadowAngle($angle)
+    protected function setShadowAngle(null|float|int|string $angle)
     {
         if (is_numeric($angle)) {
             $this->shadowProperties['direction'] = $angle;
@@ -688,11 +642,9 @@ abstract class Properties
     /**
      * Set Shadow Distance.
      *
-     * @param ?float $distance
-     *
      * @return $this
      */
-    protected function setShadowDistance($distance)
+    protected function setShadowDistance(?float $distance)
     {
         if ($distance !== null) {
             $this->shadowProperties['distance'] = $distance;
@@ -711,9 +663,9 @@ abstract class Properties
      *
      * @param string|string[] $elements
      *
-     * @return array|string
+     * @return null|mixed[]|string
      */
-    public function getShadowProperty($elements)
+    public function getShadowProperty($elements): array|string|null
     {
         if ($elements === 'color') {
             return [
@@ -722,10 +674,19 @@ abstract class Properties
                 'alpha' => $this->shadowColor->getAlpha(),
             ];
         }
+        $retVal = $this->getArrayElementsValue($this->shadowProperties, $elements);
+        if (is_scalar($retVal)) {
+            $retVal = (string) $retVal;
+        } elseif ($retVal !== null && !is_array($retVal)) {
+            // @codeCoverageIgnoreStart
+            throw new Exception('Unexpected value for shadowProperty');
+            // @codeCoverageIgnoreEnd
+        }
 
-        return $this->getArrayElementsValue($this->shadowProperties, $elements);
+        return $retVal;
     }
 
+    /** @return mixed[] */
     public function getShadowArray(): array
     {
         $array = $this->shadowProperties;
@@ -736,11 +697,10 @@ abstract class Properties
         return $array;
     }
 
-    /** @var ChartColor */
-    protected $lineColor;
+    protected ChartColor $lineColor;
 
-    /** @var array */
-    protected $lineStyleProperties = [
+    /** @var array{width: null|float|int|string, compound: ?string, dash: ?string, cap: ?string, join: ?string, arrow: array{head: array{type: ?string, size: null|int|string, w: ?string, len: ?string}, end: array{type: ?string, size: null|int|string, w: ?string, len: ?string}}} */
+    protected array $lineStyleProperties = [
         'width' => null, //'9525',
         'compound' => '', //self::LINE_STYLE_COMPOUND_SIMPLE,
         'dash' => '', //self::LINE_STYLE_DASH_SOLID,
@@ -779,12 +739,8 @@ abstract class Properties
 
     /**
      * Set Line Color Properties.
-     *
-     * @param string $value
-     * @param ?int $alpha
-     * @param ?string $colorType
      */
-    public function setLineColorProperties($value, $alpha = null, $colorType = null): void
+    public function setLineColorProperties(?string $value, ?int $alpha = null, ?string $colorType = null): void
     {
         $this->activateObject();
         $this->lineColor->setColorPropertiesArray(
@@ -798,35 +754,30 @@ abstract class Properties
 
     /**
      * Get Line Color Property.
-     *
-     * @param string $propertyName
-     *
-     * @return null|int|string
      */
-    public function getLineColorProperty($propertyName)
+    public function getLineColorProperty(string $propertyName): null|int|string
     {
         return $this->lineColor->getColorProperty($propertyName);
     }
 
     /**
      * Set Line Style Properties.
-     *
-     * @param null|float|int|string $lineWidth
-     * @param string $compoundType
-     * @param string $dashType
-     * @param string $capType
-     * @param string $joinType
-     * @param string $headArrowType
-     * @param string $headArrowSize
-     * @param string $endArrowType
-     * @param string $endArrowSize
-     * @param string $headArrowWidth
-     * @param string $headArrowLength
-     * @param string $endArrowWidth
-     * @param string $endArrowLength
      */
-    public function setLineStyleProperties($lineWidth = null, $compoundType = '', $dashType = '', $capType = '', $joinType = '', $headArrowType = '', $headArrowSize = '', $endArrowType = '', $endArrowSize = '', $headArrowWidth = '', $headArrowLength = '', $endArrowWidth = '', $endArrowLength = ''): void
-    {
+    public function setLineStyleProperties(
+        null|float|int|string $lineWidth = null,
+        ?string $compoundType = '',
+        ?string $dashType = '',
+        ?string $capType = '',
+        ?string $joinType = '',
+        ?string $headArrowType = '',
+        int $headArrowSize = 0,
+        ?string $endArrowType = '',
+        int $endArrowSize = 0,
+        ?string $headArrowWidth = '',
+        ?string $headArrowLength = '',
+        ?string $endArrowWidth = '',
+        ?string $endArrowLength = ''
+    ): void {
         $this->activateObject();
         if (is_numeric($lineWidth)) {
             $this->lineStyleProperties['width'] = $lineWidth;
@@ -846,7 +797,7 @@ abstract class Properties
         if ($headArrowType !== '') {
             $this->lineStyleProperties['arrow']['head']['type'] = $headArrowType;
         }
-        if (array_key_exists($headArrowSize, self::ARROW_SIZES)) {
+        if (isset(self::ARROW_SIZES[$headArrowSize])) {
             $this->lineStyleProperties['arrow']['head']['size'] = $headArrowSize;
             $this->lineStyleProperties['arrow']['head']['w'] = self::ARROW_SIZES[$headArrowSize]['w'];
             $this->lineStyleProperties['arrow']['head']['len'] = self::ARROW_SIZES[$headArrowSize]['len'];
@@ -854,7 +805,7 @@ abstract class Properties
         if ($endArrowType !== '') {
             $this->lineStyleProperties['arrow']['end']['type'] = $endArrowType;
         }
-        if (array_key_exists($endArrowSize, self::ARROW_SIZES)) {
+        if (isset(self::ARROW_SIZES[$endArrowSize])) {
             $this->lineStyleProperties['arrow']['end']['size'] = $endArrowSize;
             $this->lineStyleProperties['arrow']['end']['w'] = self::ARROW_SIZES[$endArrowSize]['w'];
             $this->lineStyleProperties['arrow']['end']['len'] = self::ARROW_SIZES[$endArrowSize]['len'];
@@ -873,13 +824,16 @@ abstract class Properties
         }
     }
 
+    /** @return mixed[] */
     public function getLineStyleArray(): array
     {
         return $this->lineStyleProperties;
     }
 
+    /** @param mixed[] $lineStyleProperties */
     public function setLineStyleArray(array $lineStyleProperties = []): self
     {
+        /** @var array{width?: ?string, compound?: string, dash?: string, cap?: string, join?: string, arrow?: array{head?: array{type?: string, size?: int, w?: string, len?: string}, end?: array{type?: string, size?: int, w?: string, len?: string}}} $lineStyleProperties */
         $this->activateObject();
         $this->lineStyleProperties['width'] = $lineStyleProperties['width'] ?? null;
         $this->lineStyleProperties['compound'] = $lineStyleProperties['compound'] ?? '';
@@ -898,13 +852,10 @@ abstract class Properties
         return $this;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function setLineStyleProperty(string $propertyName, $value): self
+    public function setLineStyleProperty(string $propertyName, mixed $value): self
     {
         $this->activateObject();
-        $this->lineStyleProperties[$propertyName] = $value;
+        $this->lineStyleProperties[$propertyName] = $value; //* @phpstan-ignore assign.propertyType (Too complicated)
 
         return $this;
     }
@@ -912,13 +863,20 @@ abstract class Properties
     /**
      * Get Line Style Property.
      *
-     * @param array|string $elements
-     *
-     * @return string
+     * @param array<mixed>|string $elements
      */
-    public function getLineStyleProperty($elements)
+    public function getLineStyleProperty(array|string $elements): ?string
     {
-        return $this->getArrayElementsValue($this->lineStyleProperties, $elements);
+        $retVal = $this->getArrayElementsValue($this->lineStyleProperties, $elements);
+        if (is_scalar($retVal)) {
+            $retVal = (string) $retVal;
+        } elseif ($retVal !== null) {
+            // @codeCoverageIgnoreStart
+            throw new Exception('Unexpected value for lineStyleProperty');
+            // @codeCoverageIgnoreEnd
+        }
+
+        return $retVal;
     }
 
     protected const ARROW_SIZES = [
@@ -935,51 +893,43 @@ abstract class Properties
 
     /**
      * Get Line Style Arrow Size.
-     *
-     * @param int $arraySelector
-     * @param string $arrayKaySelector
-     *
-     * @return string
      */
-    protected function getLineStyleArrowSize($arraySelector, $arrayKaySelector)
+    protected function getLineStyleArrowSize(int $arraySelector, string $arrayKaySelector): string
     {
         return self::ARROW_SIZES[$arraySelector][$arrayKaySelector] ?? '';
     }
 
     /**
      * Get Line Style Arrow Parameters.
-     *
-     * @param string $arrowSelector
-     * @param string $propertySelector
-     *
-     * @return string
      */
-    public function getLineStyleArrowParameters($arrowSelector, $propertySelector)
+    public function getLineStyleArrowParameters(string $arrowSelector, string $propertySelector): string
     {
-        return $this->getLineStyleArrowSize($this->lineStyleProperties['arrow'][$arrowSelector]['size'], $propertySelector);
+        return $this->getLineStyleArrowSize((int) $this->lineStyleProperties['arrow'][$arrowSelector]['size'], $propertySelector);
     }
 
     /**
      * Get Line Style Arrow Width.
-     *
-     * @param string $arrow
-     *
-     * @return string
      */
-    public function getLineStyleArrowWidth($arrow)
+    public function getLineStyleArrowWidth(string $arrow): ?string
     {
         return $this->getLineStyleProperty(['arrow', $arrow, 'w']);
     }
 
     /**
      * Get Line Style Arrow Excel Length.
-     *
-     * @param string $arrow
-     *
-     * @return string
      */
-    public function getLineStyleArrowLength($arrow)
+    public function getLineStyleArrowLength(string $arrow): ?string
     {
         return $this->getLineStyleProperty(['arrow', $arrow, 'len']);
+    }
+
+    /**
+     * Implement PHP __clone to create a deep clone, not just a shallow copy.
+     */
+    public function __clone()
+    {
+        $this->lineColor = clone $this->lineColor;
+        $this->glowColor = clone $this->glowColor;
+        $this->shadowColor = clone $this->shadowColor;
     }
 }

@@ -201,13 +201,14 @@ use Spatie\Activitylog\Models\Activity;
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract // @phpstan-ignore class.missingImplements (NOSONAR - large existing class, kept as is: splitting it is a big change for little gain)
 {
     use Authenticatable;
-
     use CanResetPassword;
     use HasApiTokens;
+
     /**
      * @use HasFactory<Factory>
      */
     use HasFactory;
+
     use Notifiable;
     use SoftDeletes;
     use SystemActivityLogsTrait;
@@ -342,7 +343,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             $email = (string) ($this->attributes['email'] ?? '');
 
             // Same rule Gravatar::get() validates with, so it can never throw here.
-            $valid = Validator::make(['email' => $email], ['email' => 'required|email'])->passes();
+            $valid = Validator::make(['email' => $email], ['email' => ['required', 'email']])->passes();
 
             return Gravatar::get($valid ? $email : 'unknown@example.com');
         });
@@ -439,10 +440,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         $role = $this->role;
         if ($changed && $role == 'user' && emailSendingStatus()) {
             if (checkArray('manager', $changed) && $this->manager) {
-                NotifyManagerChange::dispatch([$this->id], 'manager', (int) $this->getRawOriginal('manager'));
+                dispatch(new NotifyManagerChange([$this->id], 'manager', (int) $this->getRawOriginal('manager')));
             }
+
             if (checkArray('account_manager', $changed) && $this->account_manager) {
-                NotifyManagerChange::dispatch([$this->id], 'account_manager', (int) $this->getRawOriginal('account_manager'));
+                dispatch(new NotifyManagerChange([$this->id], 'account_manager', (int) $this->getRawOriginal('account_manager')));
             }
         }
 

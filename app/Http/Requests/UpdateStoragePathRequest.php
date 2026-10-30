@@ -6,7 +6,6 @@ namespace App\Http\Requests;
 
 use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Validator;
 use Override;
 
 class UpdateStoragePathRequest extends FormRequest
@@ -29,9 +28,9 @@ class UpdateStoragePathRequest extends FormRequest
         ];
     }
 
-    public function withValidator(Validator $validator): void
+    public function withValidator(\Illuminate\Contracts\Validation\Validator $validator): void
     {
-        $validator->after(function (Validator $validator): void {
+        $validator->after(function (\Illuminate\Contracts\Validation\Validator $validator): void {
             $path = $this->input('path');
 
             if ($this->input('disk') === 'system' && (! is_dir((string) $path) || ! is_writable((string) $path))) {

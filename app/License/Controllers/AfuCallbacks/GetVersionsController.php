@@ -13,9 +13,7 @@ class GetVersionsController extends Controller
 {
     use AfuCallbackHelpers;
 
-    public function __construct(protected LicenseValidator $validator)
-    {
-    }
+    public function __construct(protected LicenseValidator $validator) {}
 
     /**
      * Get latest version for product

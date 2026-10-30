@@ -54,6 +54,7 @@ class Finder implements \IteratorAggregate, \Countable
     private array $depths = [];
     private array $sizes = [];
     private bool $followLinks = false;
+    private bool $unixPaths = false;
     private bool $reverseSorting = false;
     private \Closure|int|false $sort = false;
     private int $ignore = 0;
@@ -200,11 +201,13 @@ class Finder implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Adds tests that file contents must match.
+     * Adds tests that file contents must match. If multiple patterns are given,
+     * files only need to match at least one of them.
      *
      * Strings or PCRE patterns can be used:
      *
      *     $finder->contains('Lorem ipsum')
+     *     $finder->contains(['Lorem', 'ipsum']) // matches files containing "Lorem", or "ipsum", or both
      *     $finder->contains('/Lorem ipsum/i')
      *     $finder->contains(['dolor', '/ipsum/i'])
      *
@@ -222,11 +225,13 @@ class Finder implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Adds tests that file contents must not match.
+     * Adds tests that file contents must not match. If multiple patterns are given,
+     * files are excluded as soon as they match any of them.
      *
      * Strings or PCRE patterns can be used:
      *
      *     $finder->notContains('Lorem ipsum')
+     *     $finder->notContains(['Lorem', 'ipsum']) // excludes files containing "Lorem", or "ipsum", or both
      *     $finder->notContains('/Lorem ipsum/i')
      *     $finder->notContains(['lorem', '/dolor/i'])
      *
@@ -612,6 +617,20 @@ class Finder implements \IteratorAggregate, \Countable
     }
 
     /**
+     * Forces forward slashes as the directory separator in returned paths.
+     *
+     * This is intended for Windows, where the native separator is "\".
+     *
+     * @return $this
+     */
+    public function useUnixPaths(): static
+    {
+        $this->unixPaths = true;
+
+        return $this;
+    }
+
+    /**
      * Tells finder to ignore unreadable directories.
      *
      * By default, scanning unreadable directories content throws an AccessDeniedException.
@@ -780,6 +799,10 @@ class Finder implements \IteratorAggregate, \Countable
 
         if ($this->followLinks) {
             $flags |= \RecursiveDirectoryIterator::FOLLOW_SYMLINKS;
+        }
+
+        if ($this->unixPaths) {
+            $flags |= \RecursiveDirectoryIterator::UNIX_PATHS;
         }
 
         $iterator = new Iterator\RecursiveDirectoryIterator($dir, $flags, $this->ignoreUnreadableDirs);

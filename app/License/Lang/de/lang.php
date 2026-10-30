@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     '2fa_setup' => '2-Schritt-Verifizierung einrichten',
     'actions' => 'Aktionen',
@@ -18,7 +20,7 @@ return [
     'dashboard' => 'Dashboard',
     'dashboard_show' => 'Dashboard',
     'callbacks_count' => 'Anzahl der Callbacks',
-    'callbacks_description' => 'Vorhandene Lizenzverifizierungs-Callbacks anzeigen. Wenn ein Callback gelöscht werden muss, überprüfen Sie den Kunden oder Lizenzcode und klicken Sie auf die Schaltfläche \'Absenden\'.',
+    'callbacks_description' => "Vorhandene Lizenzverifizierungs-Callbacks anzeigen. Wenn ein Callback gelöscht werden muss, überprüfen Sie den Kunden oder Lizenzcode und klicken Sie auf die Schaltfläche 'Absenden'.",
     'adddd' => 'Lizenz erfolgreich hinzugefügt',
     'admin_privileges' => 'Administratorrechte',
     'Api_Acess_not_allowed' => 'API-Zugriff nicht erlaubt',

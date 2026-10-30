@@ -97,9 +97,9 @@ class TwitterOAuth extends Config
     }
 
     /**
-     * @return array<mixed>|object|string|null
+     * @return array<mixed>|object
      */
-    public function getLastBody()
+    public function getLastBody(): object|array
     {
         return $this->response->getBody();
     }
@@ -287,6 +287,7 @@ class TwitterOAuth extends Config
 
             fclose($media);
         }
+
         // Finalize
         $finalize = $this->http('POST', self::UPLOAD_HOST, 'media/upload', [
             'command' => 'FINALIZE',
@@ -420,10 +421,9 @@ class TwitterOAuth extends Config
     /**
      * Get the header info to store.
      *
-     * @param  string  $header
      * @return array<mixed>
      */
-    private function parseHeaders($header): array
+    private function parseHeaders(string $header): array
     {
         $headers = [];
         foreach (explode("\r\n", $header) as $line) {

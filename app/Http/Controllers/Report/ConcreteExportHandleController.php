@@ -41,9 +41,7 @@ abstract class ExportHandleController
      * @param  array<mixed>  $searchParams
      * @param  array<mixed>  $selectedColumns
      */
-    public function __construct(protected string $reportType, protected array $selectedColumns, protected array $searchParams, protected string $email)
-    {
-    }
+    public function __construct(protected string $reportType, protected array $selectedColumns, protected array $searchParams, protected string $email) {}
 
     /**
      * @param  array<mixed>  $selectedColumns
@@ -180,6 +178,7 @@ class ConcreteExportHandleController extends ExportHandleController
             if (! $user instanceof User) {
                 return response()->json(['message' => __('message.user_not_found')], 404);
             }
+
             $id = $user->id;
             $timestamp = now()->format('Ymd_His');
             $folderName = 'users_export_'.$id.'_'.$timestamp.'_XLSX';
@@ -211,6 +210,7 @@ class ConcreteExportHandleController extends ExportHandleController
             if (! $settings instanceof Setting) {
                 return response()->json(['message' => __('message.setting_not_found')], 404);
             }
+
             $from = $settings->email;
             $mail = new PhpMailController;
             $downloadLink = route('download.exported.file', ['id' => $exportDetail->id]);
@@ -306,6 +306,7 @@ class ConcreteExportHandleController extends ExportHandleController
             if (! $user instanceof User) {
                 return response()->json(['message' => __('message.user_not_found')], 404);
             }
+
             $id = $user->id;
             $timestamp = now()->format('Ymd_His');
             $folderName = 'invoices_export_'.$id.'_'.$timestamp.'_XLSX';
@@ -342,6 +343,7 @@ class ConcreteExportHandleController extends ExportHandleController
             if (! $settings instanceof Setting) {
                 return response()->json(['message' => __('message.setting_not_found')], 404);
             }
+
             $from = $settings->email;
             $mail = new PhpMailController;
             $downloadLink = route('download.exported.file', ['id' => $exportDetail->id]);
@@ -450,6 +452,7 @@ class ConcreteExportHandleController extends ExportHandleController
             if (! $user instanceof User) {
                 return response()->json(['message' => __('message.user_not_found')], 404);
             }
+
             $id = $user->id;
             $timestamp = now()->format('Ymd_His');
             $folderName = 'orders_export_'.$id.'_'.$timestamp.'_XLSX';
@@ -486,6 +489,7 @@ class ConcreteExportHandleController extends ExportHandleController
             if (! $settings instanceof Setting) {
                 return response()->json(['message' => __('message.setting_not_found')], 404);
             }
+
             $from = $settings->email;
             $mail = new PhpMailController;
             $downloadLink = route('download.exported.file', ['id' => $exportDetail->id]);
@@ -515,10 +519,11 @@ class ConcreteExportHandleController extends ExportHandleController
         if (! $this->cloud) {
             throw new Exception('FaveoCloud configuration not found.');
         }
+
         // Similar logic to export users but for orders
         $this->selectedColumns = array_filter($this->selectedColumns, fn ($column): bool => ! in_array($column, ['checkbox', 'action']));
 
-        $responseData = (new CloudApi(new Client, $this->cloud))->get('/tenants');
+        $responseData = new CloudApi(new Client, $this->cloud)->get('/tenants');
 
         $tenats = collect((array) ($responseData['message'] ?? []))->reject(fn ($item): bool => $item === null)->map(fn ($item): object => (object) $item);
         $filteredTenants = $tenats->map(function ($tenats): array {
@@ -663,6 +668,7 @@ class ConcreteExportHandleController extends ExportHandleController
         if (! $user instanceof User) {
             throw new Exception('User not found.');
         }
+
         $id = $user->id;
         $timestamp = now()->format('Ymd_His');
         $folderName = 'tenants_export_'.$id.'_'.$timestamp.'_XLSX';
@@ -696,6 +702,7 @@ class ConcreteExportHandleController extends ExportHandleController
         if (! $setting instanceof Setting) {
             throw new Exception('Setting not found.');
         }
+
         $from = $setting->email;
         $mail = new PhpMailController;
         $downloadLink = route('download.exported.file', ['id' => $exportDetail->id]);

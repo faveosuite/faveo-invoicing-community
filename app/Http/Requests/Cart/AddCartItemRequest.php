@@ -9,7 +9,6 @@ use App\Model\Common\FaveoCloud;
 use App\Traits\RequestJsonValidation;
 use GuzzleHttp\Client;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Validator;
 
 class AddCartItemRequest extends FormRequest
 {
@@ -58,7 +57,7 @@ class AddCartItemRequest extends FormRequest
      */
     public function after(): array
     {
-        return [function (Validator $validator): void {
+        return [function (\Illuminate\Contracts\Validation\Validator $validator): void {
             $domain = (string) $this->input('domain');
 
             if ($domain === '' || $validator->errors()->isNotEmpty() || ! in_array($this->integer('product_id'), cloudPopupProducts())) {
@@ -69,8 +68,8 @@ class AddCartItemRequest extends FormRequest
                 if (! new CloudExtraActivities(new Client, new FaveoCloud)->checkDomain(strtolower($domain).'.'.cloudSubDomain())) {
                     $validator->errors()->add('domain', __('message.domain_taken'));
                 }
-            } catch (\RuntimeException $e) { // cloud unreachable or not configured; checkDomain's messages are client-safe
-                $validator->errors()->add('domain', $e->getMessage());
+            } catch (\RuntimeException $runtimeException) { // cloud unreachable or not configured; checkDomain's messages are client-safe
+                $validator->errors()->add('domain', $runtimeException->getMessage());
             }
         }];
     }

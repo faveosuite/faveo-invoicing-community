@@ -6,6 +6,7 @@ use App\Enums\OrderAbility;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\User\AdvanceSearchController;
 use App\License\Models\License;
+use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Order\CreditTransaction;
 use App\Model\Order\Invoice;
@@ -23,6 +24,7 @@ use App\WhatsappIntegration;
 use Auth;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -94,7 +96,7 @@ class ClientController extends BaseClientController
 
         // Dashboard "Pending invoices" tile links here with ?status=pending.
         $status = strtolower((string) $request->input('status', ''));
-        if (in_array($status, ['pending', 'success', 'partially paid'], true)) {
+        if (in_array($status, ['pending', 'success', 'partially paid'], strict: true)) {
             $query->where('status', $status);
         }
 
@@ -172,7 +174,7 @@ class ClientController extends BaseClientController
                 ->pluck('number', 'id');
 
             return successResponse('', [
-                'balance' => currencyFormat($balance, getCurrencyForClient($user->country), true),
+                'balance' => currencyFormat($balance, getCurrencyForClient($user->country), includeSymbol: true),
                 'activity' => $transactions->map(fn ($transaction): array => [
                     'text' => $this->creditActivityText($transaction, $invoiceNumbers[$transaction->invoice_id] ?? null),
                     'created_at' => $transaction->created_at,
@@ -192,7 +194,7 @@ class ClientController extends BaseClientController
      */
     private function creditActivityText(CreditTransaction $transaction, ?string $invoiceNumber): string
     {
-        $amount = currencyFormat(abs((float) $transaction->amount), $transaction->currency, true);
+        $amount = currencyFormat(abs((float) $transaction->amount), $transaction->currency, includeSymbol: true);
 
         $text = $transaction->type === CreditTransaction::TYPE_APPLIED_TO_INVOICE
             ? __('message.credit_history_applied', ['amount' => $amount, 'number' => $invoiceNumber ?? '—'])
@@ -227,8 +229,8 @@ class ClientController extends BaseClientController
         // creating themselves.
         $replacementOrderId = \DB::table('terminated_order_upgrade')->where('terminated_order_id', $order->id)->value('upgraded_order_id');
         $predecessorOrderId = \DB::table('terminated_order_upgrade')->where('upgraded_order_id', $order->id)->value('terminated_order_id');
-        $replacementOrder = $replacementOrderId ? \App\Model\Order\Order::where('client', $order->client)->find((int) $replacementOrderId) : null;
-        $predecessorOrder = $predecessorOrderId ? \App\Model\Order\Order::where('client', $order->client)->find((int) $predecessorOrderId) : null;
+        $replacementOrder = $replacementOrderId ? Order::where('client', $order->client)->find((int) $replacementOrderId) : null;
+        $predecessorOrder = $predecessorOrderId ? Order::where('client', $order->client)->find((int) $predecessorOrderId) : null;
 
         return successResponse('', [
             'id' => $order->id,
@@ -289,7 +291,7 @@ class ClientController extends BaseClientController
                 ->whereNotNull('file')
                 ->where('file', '!=', '')
                 ->exists(),
-            'manual_install_guide_url' => \App\Model\Common\Setting::where('id', 1)->value('help_docs_url'),
+            'manual_install_guide_url' => Setting::where('id', 1)->value('help_docs_url'),
             'replacement_order' => $replacementOrder ? ['id' => $replacementOrder->id, 'number' => $replacementOrder->number] : null,
             'predecessor_order' => $predecessorOrder ? ['id' => $predecessorOrder->id, 'number' => $predecessorOrder->number] : null,
         ]);
@@ -379,6 +381,7 @@ class ClientController extends BaseClientController
             if (! $user instanceof User) {
                 return errorResponse(__('message.unauthorized_action'), 401);
             }
+
             $order = $this->getClientPanelOrdersData()->where('id', $orderId)->first();
             $product = $order?->productRelation;
 
@@ -440,6 +443,7 @@ class ClientController extends BaseClientController
             if (! $user instanceof User) {
                 return errorResponse(__('message.unauthorized_action'), 401);
             }
+
             $currency = getCurrencyForClient($user->country);
 
             // A recurring order can't renew onto a one-time (lifetime) plan; a one-time
@@ -476,7 +480,7 @@ class ClientController extends BaseClientController
                 'user_id' => $user->id,
             ]);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -494,7 +498,7 @@ class ClientController extends BaseClientController
             $invoiceIds = $order->invoices()->pluck('invoices.id');
 
             $allowed = ['number', 'date'];
-            $sortCol = in_array($request->input('sort-field'), $allowed, true) ? $request->input('sort-field') : 'date';
+            $sortCol = in_array($request->input('sort-field'), $allowed, strict: true) ? $request->input('sort-field') : 'date';
             $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
 
             $paginated = Invoice::whereIn('id', $invoiceIds)
@@ -512,10 +516,10 @@ class ClientController extends BaseClientController
             ]);
 
             return successResponse('', $paginated);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -541,6 +545,7 @@ class ClientController extends BaseClientController
             if (! $product instanceof Product) {
                 return errorResponse(__('message.product_relation_not_found'), 404);
             }
+
             $access = Gate::inspect(OrderAbility::Download, $order);
             if ($access->denied()) {
                 return deniedResponse($access);
@@ -552,7 +557,7 @@ class ClientController extends BaseClientController
 
             return $this->uploadVersions($request, $order, $product);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'), 500);
         }
@@ -588,7 +593,7 @@ class ClientController extends BaseClientController
         $latest = $newestFirst->first();
         $latestOfficial = ($latest['release_type'] ?? null) !== 'official' ? $newestFirst->firstWhere('release_type', 'official') : null;
         $featuredVersions = array_column(array_filter([$latest, $latestOfficial]), 'version');
-        $items = $items->reject(fn (array $item): bool => in_array($item['version'], $featuredVersions, true));
+        $items = $items->reject(fn (array $item): bool => in_array($item['version'], $featuredVersions, strict: true));
         $hasPrevious = $items->isNotEmpty();
 
         $search = trim((string) $request->input('search-query', ''));
@@ -598,7 +603,8 @@ class ClientController extends BaseClientController
 
         $allowed = ['version', 'name', 'created_at'];
         $sortField = $request->input('sort-field', 'created_at');
-        $sortField = in_array($sortField, $allowed, true) ? $sortField : 'created_at';
+        $sortField = in_array($sortField, $allowed, strict: true) ? $sortField : 'created_at';
+
         $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
         $items = $sortDir === 'asc' ? $items->sortBy($sortField) : $items->sortByDesc($sortField);
 
@@ -745,7 +751,7 @@ class ClientController extends BaseClientController
 
             return successResponse('', ['user' => $user]);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -816,12 +822,12 @@ class ClientController extends BaseClientController
             $invoiceIds = $order->invoices()->pluck('invoices.id')->toArray();
 
             $allowed = ['payment_status', 'created_at'];
-            $sortCol = in_array($request->input('sort-field'), $allowed, true) ? $request->input('sort-field') : 'created_at';
+            $sortCol = in_array($request->input('sort-field'), $allowed, strict: true) ? $request->input('sort-field') : 'created_at';
             $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
 
             $paginated = $this->payment::query()
                 ->with(['invoices:id,number,currency'])
-                ->whereHas('invoices', fn ($q) => $q->whereIn('invoices.id', $invoiceIds))
+                ->whereHas('invoices', fn (Builder $q) => $q->whereIn('invoices.id', $invoiceIds))
                 ->orderBy($sortCol, $sortDir)
                 ->paginate(10);
 
@@ -841,10 +847,10 @@ class ClientController extends BaseClientController
             });
 
             return successResponse('', $paginated);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -881,10 +887,10 @@ class ClientController extends BaseClientController
             ]);
 
             return successResponse('', $paginated);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -907,10 +913,10 @@ class ClientController extends BaseClientController
             $invoice->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }

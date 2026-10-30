@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Controllers;
 
 use App\Http\Controllers\BaseHomeController;
+use App\Model\Order\Order;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Tests\TestCase;
 
 class BaseHomeControllerTest extends TestCase
@@ -14,7 +17,7 @@ class BaseHomeControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->controller = new BaseHomeController();
+        $this->controller = new BaseHomeController;
     }
 
     // =========================================================================
@@ -155,7 +158,7 @@ class BaseHomeControllerTest extends TestCase
 
     public function test_update_latest_version_returns_fails_for_unknown_license(): void
     {
-        $request = new \Illuminate\Http\Request;
+        $request = new Request;
         $request->merge(['licenseCode' => 'INVALID_LICENSE_CODE_XYZ', 'version' => '1.0.0']);
 
         $result = $this->controller->updateLatestVersion($request);
@@ -170,26 +173,26 @@ class BaseHomeControllerTest extends TestCase
 
     public function test_get_updates_expiry_date_returns_empty_when_no_subscription(): void
     {
-        $order = \App\Model\Order\Order::first() ?? \App\Model\Order\Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
+        $order = Order::first() ?? Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
 
         $result = $this->controller->getUpdatesExpiryDate($order);
-        $this->assertTrue($result === '' || $result instanceof \Carbon\Carbon);
+        $this->assertTrue($result === '' || $result instanceof Carbon);
     }
 
     public function test_get_license_expiry_date_returns_empty_when_no_subscription(): void
     {
-        $order = \App\Model\Order\Order::first() ?? \App\Model\Order\Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
+        $order = Order::first() ?? Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
 
         $result = $this->controller->getLicenseExpiryDate($order);
-        $this->assertTrue($result === '' || $result instanceof \Carbon\Carbon);
+        $this->assertTrue($result === '' || $result instanceof Carbon);
     }
 
     public function test_get_support_expiry_date_returns_empty_when_no_subscription(): void
     {
-        $order = \App\Model\Order\Order::first() ?? \App\Model\Order\Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
+        $order = Order::first() ?? Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
 
         $result = $this->controller->getSupportExpiryDate($order);
-        $this->assertTrue($result === '' || $result instanceof \Carbon\Carbon);
+        $this->assertTrue($result === '' || $result instanceof Carbon);
     }
 
     // =========================================================================
@@ -198,10 +201,10 @@ class BaseHomeControllerTest extends TestCase
 
     public function test_check_serial_key_returns_key_when_matches(): void
     {
-        $order = \App\Model\Order\Order::whereNotNull('serial_key')->whereNotNull('number')->first();
+        $order = Order::whereNotNull('serial_key')->whereNotNull('number')->first();
         if (! $order) {
             // Create an order with a known serial_key
-            $order = \App\Model\Order\Order::create([
+            $order = Order::create([
                 'client' => 1, 'order_status' => 'executed',
                 'number' => mt_rand(10000000, 99999999),
                 'serial_key' => 'TESTSERIAL1234',
@@ -214,7 +217,7 @@ class BaseHomeControllerTest extends TestCase
 
     public function test_check_serial_key_returns_null_when_key_mismatch(): void
     {
-        $order = \App\Model\Order\Order::whereNotNull('number')->first() ?? \App\Model\Order\Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
+        $order = Order::whereNotNull('number')->first() ?? Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
 
         $result = $this->controller->checkSerialKey('WRONG_KEY_XYZ', (string) $order->number);
         $this->assertNull($result);
@@ -226,10 +229,10 @@ class BaseHomeControllerTest extends TestCase
 
     public function test_verify_order_returns_order_when_found(): void
     {
-        $order = \App\Model\Order\Order::first() ?? \App\Model\Order\Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
+        $order = Order::first() ?? Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
 
         $result = $this->controller->verifyOrder((string) $order->number, 'any_serial');
-        $this->assertInstanceOf(\App\Model\Order\Order::class, $result);
+        $this->assertInstanceOf(Order::class, $result);
         $this->assertEquals($order->id, $result->id);
     }
 
@@ -239,7 +242,7 @@ class BaseHomeControllerTest extends TestCase
 
     public function test_verification_result_returns_success_when_order_found(): void
     {
-        $order = \App\Model\Order\Order::first() ?? \App\Model\Order\Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
+        $order = Order::first() ?? Order::create(['client' => 1, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
 
         $result = $this->controller->verificationResult((string) $order->number, 'any_serial');
 

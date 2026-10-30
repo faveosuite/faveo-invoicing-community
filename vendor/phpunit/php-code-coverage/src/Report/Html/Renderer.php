@@ -9,18 +9,32 @@
  */
 namespace SebastianBergmann\CodeCoverage\Report\Html;
 
+use const ENT_COMPAT;
+use const ENT_HTML401;
 use const ENT_HTML5;
 use const ENT_QUOTES;
 use const ENT_SUBSTITUTE;
+use function assert;
 use function count;
+use function file_get_contents;
 use function htmlspecialchars;
+use function round;
+use function rtrim;
 use function sprintf;
 use function str_repeat;
+use function str_replace;
+use function strtolower;
 use function substr_count;
+use RoundingMode;
+use SebastianBergmann\CodeCoverage\Data\ProcessedFunctionType;
+use SebastianBergmann\CodeCoverage\Data\ProcessedMethodType;
 use SebastianBergmann\CodeCoverage\Node\AbstractNode;
 use SebastianBergmann\CodeCoverage\Node\Directory as DirectoryNode;
 use SebastianBergmann\CodeCoverage\Node\File as FileNode;
+use SebastianBergmann\CodeCoverage\Report\Html\ClassView\Node\ClassNode;
 use SebastianBergmann\CodeCoverage\Report\Thresholds;
+use SebastianBergmann\CodeCoverage\Test\TestSizes;
+use SebastianBergmann\CodeCoverage\Util\Json;
 use SebastianBergmann\CodeCoverage\Version;
 use SebastianBergmann\Environment\Runtime;
 use SebastianBergmann\Template\Template;
@@ -55,19 +69,81 @@ use SebastianBergmann\Template\Template;
  *     numFilesWithoutBranchCoverageData?: int,
  *     icon?: string,
  *     crap?: int|string,
+ *     coverageDataJson?: string,
  * }
+ * @phpstan-type CoverageMetric array{level: string, percent: string, number: string, bar: string}
+ *
+ * @phpstan-import-type TestDataType from \SebastianBergmann\CodeCoverage\Node\Builder
+ * @phpstan-import-type TestIndexType from \SebastianBergmann\CodeCoverage\Data\ProcessedCodeCoverageData
  */
 abstract class Renderer
 {
+    protected const int HTML_SPECIAL_CHARS_FLAGS = ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE;
+
+    /**
+     * Maps each combination of test sizes to the key suffix used in the
+     * coverage data JSON that drives the test size filter.
+     *
+     * @var array<int, non-empty-string>
+     */
+    protected const array TEST_SIZE_JSON_KEY_SUFFIXES = [
+        TestSizes::SMALL                                        => 'Small',
+        TestSizes::MEDIUM                                       => 'Medium',
+        TestSizes::LARGE                                        => 'Large',
+        TestSizes::SMALL | TestSizes::MEDIUM                    => 'SM',
+        TestSizes::SMALL | TestSizes::LARGE                     => 'SL',
+        TestSizes::MEDIUM | TestSizes::LARGE                    => 'ML',
+        TestSizes::SMALL | TestSizes::MEDIUM | TestSizes::LARGE => 'SML',
+    ];
+
+    /**
+     * The individual test sizes the test size filter can offer, in the order
+     * in which they are offered.
+     *
+     * @var array<int, non-empty-string>
+     */
+    private const array TEST_SIZE_LABELS = [
+        TestSizes::SMALL  => 'Small',
+        TestSizes::MEDIUM => 'Medium',
+        TestSizes::LARGE  => 'Large',
+    ];
+    protected readonly SyntaxHighlighter $syntaxHighlighter;
     protected string $templatePath;
     protected string $generator;
     protected string $date;
     protected Thresholds $thresholds;
     protected bool $hasBranchCoverage;
     protected bool $hasPathCoverage;
+
+    /**
+     * The test sizes for which the report has coverage data.
+     *
+     * @var int<0, 7>
+     */
+    protected int $testSizes;
+    protected Views $views;
     protected string $version;
 
-    public function __construct(string $templatePath, string $generator, string $date, Thresholds $thresholds, bool $hasBranchCoverage, bool $hasPathCoverage)
+    /**
+     * @var array<string, string>
+     */
+    private array $fileToClassMap = [];
+
+    /**
+     * @var array<non-empty-string, Template>
+     */
+    private array $templates = [];
+
+    /**
+     * @var array<TestIndexType, string>
+     */
+    private array $popoverContentForTest = [];
+    private ?string $lineFormat          = null;
+
+    /**
+     * @param int<0, 7> $testSizes
+     */
+    public function __construct(string $templatePath, string $generator, string $date, Thresholds $thresholds, bool $hasBranchCoverage, bool $hasPathCoverage, int $testSizes = TestSizes::ALL, Views $views = Views::FileViewAndClassView)
     {
         $this->templatePath      = $templatePath;
         $this->generator         = $generator;
@@ -76,6 +152,33 @@ abstract class Renderer
         $this->version           = Version::id();
         $this->hasBranchCoverage = $hasBranchCoverage;
         $this->hasPathCoverage   = $hasPathCoverage;
+        $this->testSizes         = $testSizes;
+        $this->views             = $views;
+        $this->syntaxHighlighter = new SyntaxHighlighter;
+    }
+
+    /**
+     * @param array<string, string> $map
+     */
+    public function setFileToClassMap(array $map): void
+    {
+        $this->fileToClassMap = $map;
+    }
+
+    /**
+     * The text of a template does not change while a report is rendered, so the
+     * same instance is used again instead of reading and parsing the same
+     * template file for every node, source line, and coverage bar.
+     *
+     * An instance returned by this method still carries the values of its
+     * previous use: only use it for templates that have all of their
+     * placeholders set on every use.
+     *
+     * @param non-empty-string $name
+     */
+    protected function template(string $name): Template
+    {
+        return $this->templates[$name] ??= new Template($name, '{{', '}}');
     }
 
     /**
@@ -99,150 +202,208 @@ abstract class Renderer
      */
     protected function renderItemTemplate(Template $template, array $data): string
     {
-        $numSeparator = '&nbsp;/&nbsp;';
-
-        if (isset($data['numClasses']) && $data['numClasses'] > 0) {
-            $classesLevel = $this->colorLevel($data['testedClassesPercent'] ?? 0.0);
-
-            $classesNumber = ($data['numTestedClasses'] ?? 0) . $numSeparator .
-                $data['numClasses'];
-
-            $classesBar = $this->coverageBar(
-                $data['testedClassesPercent'] ?? 0.0,
-            );
-        } else {
-            $classesLevel                         = '';
-            $classesNumber                        = '0' . $numSeparator . '0';
-            $classesBar                           = '';
-            $data['testedClassesPercentAsString'] = 'n/a';
-        }
-
-        if ($data['numMethods'] > 0) {
-            $methodsLevel = $this->colorLevel($data['testedMethodsPercent']);
-
-            $methodsNumber = $data['numTestedMethods'] . $numSeparator .
-                $data['numMethods'];
-
-            $methodsBar = $this->coverageBar(
-                $data['testedMethodsPercent'],
-            );
-        } else {
-            $methodsLevel                         = '';
-            $methodsNumber                        = '0' . $numSeparator . '0';
-            $methodsBar                           = '';
-            $data['testedMethodsPercentAsString'] = 'n/a';
-        }
-
-        if ($data['numExecutableLines'] > 0) {
-            $linesLevel = $this->colorLevel($data['linesExecutedPercent']);
-
-            $linesNumber = $data['numExecutedLines'] . $numSeparator .
-                $data['numExecutableLines'];
-
-            $linesBar = $this->coverageBar(
-                $data['linesExecutedPercent'],
-            );
-        } else {
-            $linesLevel                           = '';
-            $linesNumber                          = '0' . $numSeparator . '0';
-            $linesBar                             = '';
-            $data['linesExecutedPercentAsString'] = 'n/a';
-        }
-
-        $numFilesWithoutBranchCoverageData = $data['numFilesWithoutBranchCoverageData'] ?? 0;
-
-        if ($data['numExecutablePaths'] > 0) {
-            $pathsLevel = $this->colorLevel($data['pathsExecutedPercent']);
-
-            $pathsNumber = $data['numExecutedPaths'] . $numSeparator .
-                $data['numExecutablePaths'];
-
-            $pathsBar = $this->coverageBar(
-                $data['pathsExecutedPercent'],
-            );
-
-            if ($numFilesWithoutBranchCoverageData > 0) {
-                $data['pathsExecutedPercentAsString'] .= ' <abbr title="Not all files have branch and path coverage data">*</abbr>';
-            }
-        } else {
-            $pathsLevel                           = '';
-            $pathsNumber                          = '0' . $numSeparator . '0';
-            $pathsBar                             = '';
-            $data['pathsExecutedPercentAsString'] = 'n/a';
-        }
-
-        if ($data['numExecutableBranches'] > 0) {
-            $branchesLevel = $this->colorLevel($data['branchesExecutedPercent']);
-
-            $branchesNumber = $data['numExecutedBranches'] . $numSeparator .
-                $data['numExecutableBranches'];
-
-            $branchesBar = $this->coverageBar(
-                $data['branchesExecutedPercent'],
-            );
-
-            if ($numFilesWithoutBranchCoverageData > 0) {
-                $data['branchesExecutedPercentAsString'] .= ' <abbr title="Not all files have branch and path coverage data">*</abbr>';
-            }
-        } else {
-            $branchesLevel                           = '';
-            $branchesNumber                          = '0' . $numSeparator . '0';
-            $branchesBar                             = '';
-            $data['branchesExecutedPercentAsString'] = 'n/a';
-        }
+        $metrics = $this->metrics($data);
 
         $template->setVar(
             [
                 'icon'                      => $data['icon'] ?? '',
                 'crap'                      => (string) ($data['crap'] ?? ''),
                 'name'                      => $data['name'],
-                'lines_bar'                 => $linesBar,
-                'lines_executed_percent'    => $data['linesExecutedPercentAsString'],
-                'lines_level'               => $linesLevel,
-                'lines_number'              => $linesNumber,
-                'paths_bar'                 => $pathsBar,
-                'paths_executed_percent'    => $data['pathsExecutedPercentAsString'],
-                'paths_level'               => $pathsLevel,
-                'paths_number'              => $pathsNumber,
-                'branches_bar'              => $branchesBar,
-                'branches_executed_percent' => $data['branchesExecutedPercentAsString'],
-                'branches_level'            => $branchesLevel,
-                'branches_number'           => $branchesNumber,
-                'methods_bar'               => $methodsBar,
-                'methods_tested_percent'    => $data['testedMethodsPercentAsString'],
-                'methods_level'             => $methodsLevel,
-                'methods_number'            => $methodsNumber,
-                'classes_bar'               => $classesBar,
-                'classes_tested_percent'    => $data['testedClassesPercentAsString'] ?? '',
-                'classes_level'             => $classesLevel,
-                'classes_number'            => $classesNumber,
+                'coverage_data'             => htmlspecialchars($data['coverageDataJson'] ?? '{}', ENT_COMPAT),
+                'lines_bar'                 => $metrics['lines']['bar'],
+                'lines_executed_percent'    => $metrics['lines']['percent'],
+                'lines_level'               => $metrics['lines']['level'],
+                'lines_number'              => $metrics['lines']['number'],
+                'paths_bar'                 => $metrics['paths']['bar'],
+                'paths_executed_percent'    => $metrics['paths']['percent'],
+                'paths_level'               => $metrics['paths']['level'],
+                'paths_number'              => $metrics['paths']['number'],
+                'branches_bar'              => $metrics['branches']['bar'],
+                'branches_executed_percent' => $metrics['branches']['percent'],
+                'branches_level'            => $metrics['branches']['level'],
+                'branches_number'           => $metrics['branches']['number'],
+                'methods_bar'               => $metrics['methods']['bar'],
+                'methods_tested_percent'    => $metrics['methods']['percent'],
+                'methods_level'             => $metrics['methods']['level'],
+                'methods_number'            => $metrics['methods']['number'],
+                'classes_bar'               => $metrics['classes']['bar'],
+                'classes_tested_percent'    => $metrics['classes']['percent'],
+                'classes_level'             => $metrics['classes']['level'],
+                'classes_number'            => $metrics['classes']['number'],
             ],
         );
 
         return $template->render();
     }
 
+    /**
+     * Renders the headline figures shown above a coverage table.
+     *
+     * @param CoverageItemData $data
+     */
+    protected function renderSummary(array $data, string $methodsLabel, string $classesLabel): string
+    {
+        $labels = ['lines' => 'Lines'];
+
+        if ($this->hasBranchCoverage) {
+            $labels['branches'] = 'Branches';
+        }
+
+        if ($this->hasPathCoverage) {
+            $labels['paths'] = 'Paths';
+        }
+
+        $labels['methods'] = $methodsLabel;
+        $labels['classes'] = $classesLabel;
+
+        $metrics  = $this->metrics($data);
+        $template = $this->template($this->templatePath . 'summary_metric.html');
+        $rendered = '';
+
+        foreach ($labels as $group => $label) {
+            $template->setVar(
+                [
+                    'group'   => $group,
+                    'label'   => $label,
+                    'level'   => $metrics[$group]['level'],
+                    'percent' => $metrics[$group]['percent'],
+                    'number'  => $metrics[$group]['number'],
+                    'bar'     => $metrics[$group]['bar'],
+                ],
+            );
+
+            $rendered .= $template->render();
+        }
+
+        $summary = $this->template($this->templatePath . 'summary.html');
+
+        $summary->setVar(
+            [
+                'coverage_data' => htmlspecialchars($data['coverageDataJson'] ?? '{}', ENT_COMPAT),
+                'metrics'       => $rendered,
+            ],
+        );
+
+        return $summary->render();
+    }
+
     protected function setCommonTemplateVariables(Template $template, AbstractNode $node): void
     {
+        $pathToRoot = $this->pathToRoot($node);
+
         $template->setVar(
             [
                 'id'               => $node->id(),
                 'full_path'        => $this->escapeHtml($node->pathAsString()),
-                'path_to_root'     => $this->pathToRoot($node),
+                'path_to_root'     => $pathToRoot,
                 'breadcrumbs'      => $this->breadcrumbs($node),
                 'date'             => $this->date,
                 'version'          => $this->version,
                 'runtime'          => $this->runtimeString(),
                 'generator'        => $this->generator,
-                'low_upper_bound'  => (string) $this->thresholds->lowUpperBound(),
-                'high_lower_bound' => (string) $this->thresholds->highLowerBound(),
+                'test_size_filter' => $this->testSizeFilter(),
+                'view_switcher'    => $this->views->classView() ? $this->viewSwitcher($pathToRoot, 'files', 'index.html', $this->classViewTarget($node)) : '',
             ],
         );
+    }
+
+    /**
+     * The toolbar that filters the coverage metrics by test size.
+     *
+     * A test size for which the report has no coverage data is offered, but
+     * disabled: filtering by it could only ever result in 0%, and showing it
+     * as unavailable tells the difference between "no test of this size
+     * covers any code" and "tests of this size cover nothing", which an
+     * enabled checkbox that results in 0% does not. When no test size at all
+     * has coverage data, the toolbar is not rendered because there is nothing
+     * it could filter by.
+     */
+    protected function testSizeFilter(): string
+    {
+        if ($this->testSizes === 0) {
+            return '';
+        }
+
+        $checkboxes = '';
+
+        foreach (self::TEST_SIZE_LABELS as $testSize => $label) {
+            $id = strtolower($label);
+
+            // the checkbox itself is visually hidden, so the explanation has
+            // to be on the label that is styled to look like a button
+            $disabled = '';
+            $title    = '';
+
+            if (($this->testSizes & $testSize) !== $testSize) {
+                $disabled = ' disabled';
+                $title    = sprintf(' title="No code in this report is covered by tests of size %s"', $id);
+            }
+
+            $checkboxes .= sprintf(
+                '     <input type="checkbox" id="filter-size-%s" data-test-size-filter="%s" autocomplete="off"%s><label for="filter-size-%s"%s>%s</label>' . "\n",
+                $id,
+                $id,
+                $disabled,
+                $id,
+                $title,
+                $label,
+            );
+        }
+
+        return sprintf(
+            '   <div class="toolbar">' . "\n" .
+            '    <div class="test-size-filter" role="group" aria-label="Show coverage by test size" data-low-upper-bound="%s" data-high-lower-bound="%s">' . "\n" .
+            '     <span class="control-label">Covered by tests of size</span>' . "\n" .
+            '%s' .
+            '     <button type="button" data-test-size-filter-all aria-pressed="true">Any</button>' . "\n" .
+            '    </div>' . "\n" .
+            '   </div>' . "\n",
+            $this->thresholds->lowUpperBound(),
+            $this->thresholds->highLowerBound(),
+            $checkboxes,
+        );
+    }
+
+    /**
+     * Target of the "Classes" tab, relative to the root of the report.
+     */
+    protected function classViewTarget(AbstractNode $node): string
+    {
+        if ($node instanceof FileNode && isset($this->fileToClassMap[$node->id()])) {
+            return $this->fileToClassMap[$node->id()];
+        }
+
+        return '_classes/index.html';
     }
 
     protected function escapeHtml(string $value): string
     {
         return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+    }
+
+    protected function viewSwitcher(string $pathToRoot, string $activeView, string $filesTarget = 'index.html', string $classesTarget = '_classes/index.html'): string
+    {
+        if ($activeView === 'files') {
+            return sprintf(
+                '   <ul class="tabs">' . "\n" .
+                '    <li><a href="%sindex.html" aria-current="page">Files</a></li>' . "\n" .
+                '    <li><a href="%s%s">Classes</a></li>' . "\n" .
+                '   </ul>' . "\n",
+                $pathToRoot,
+                $pathToRoot,
+                $classesTarget,
+            );
+        }
+
+        return sprintf(
+            '   <ul class="tabs">' . "\n" .
+            '    <li><a href="%s%s">Files</a></li>' . "\n" .
+            '    <li><a href="%s_classes/index.html" aria-current="page">Classes</a></li>' . "\n" .
+            '   </ul>' . "\n",
+            $pathToRoot,
+            $filesTarget,
+            $pathToRoot,
+        );
     }
 
     protected function breadcrumbs(AbstractNode $node): string
@@ -274,12 +435,12 @@ abstract class Renderer
     protected function activeBreadcrumb(AbstractNode $node): string
     {
         $buffer = sprintf(
-            '         <li class="breadcrumb-item active">%s</li>' . "\n",
+            '     <li class="current">%s</li>' . "\n",
             $this->escapeHtml($node->name()),
         );
 
         if ($node instanceof DirectoryNode) {
-            $buffer .= '         <li class="breadcrumb-item">(<a href="dashboard.html">Dashboard</a>)</li>' . "\n";
+            $buffer .= '     <li class="secondary"><a href="dashboard.html">Dashboard</a></li>' . "\n";
         }
 
         return $buffer;
@@ -288,7 +449,7 @@ abstract class Renderer
     protected function inactiveBreadcrumb(AbstractNode $node, string $pathToRoot): string
     {
         return sprintf(
-            '         <li class="breadcrumb-item"><a href="%sindex.html">%s</a></li>' . "\n",
+            '     <li><a href="%sindex.html">%s</a></li>' . "\n",
             $pathToRoot,
             $this->escapeHtml($node->name()),
         );
@@ -309,17 +470,44 @@ abstract class Renderer
 
     protected function coverageBar(float $percent): string
     {
-        $level = $this->colorLevel($percent);
+        $template = $this->template($this->templatePath . 'coverage_bar.html');
 
-        $template = new Template(
-            $this->templatePath . 'coverage_bar.html',
-            '{{',
-            '}}',
+        $template->setVar(['percent' => sprintf('%.2F', round($percent, 2, RoundingMode::TowardsZero))]);
+
+        return rtrim($template->render());
+    }
+
+    protected function thresholdsLegend(): string
+    {
+        return sprintf(
+            '   <ul class="legend">' . "\n" .
+            '    <li class="danger"><strong>Low</strong>: 0%% to %1$d%%</li>' . "\n" .
+            '    <li class="warning"><strong>Medium</strong>: %1$d%% to %2$d%%</li>' . "\n" .
+            '    <li class="success"><strong>High</strong>: %2$d%% to 100%%</li>' . "\n" .
+            '   </ul>' . "\n",
+            $this->thresholds->lowUpperBound(),
+            $this->thresholds->highLowerBound(),
         );
+    }
 
-        $template->setVar(['level' => $level, 'percent' => sprintf('%.2F', $percent)]);
+    protected function lineCoverageLegend(): string
+    {
+        return '   <ul class="legend">' . "\n" .
+            '    <li class="covered-by-small-tests">Covered by small (and larger) tests</li>' . "\n" .
+            '    <li class="covered-by-medium-tests">Covered by medium (and large) tests</li>' . "\n" .
+            '    <li class="covered-by-large-tests">Covered by large tests (and tests of unknown size)</li>' . "\n" .
+            '    <li class="not-covered">Not covered</li>' . "\n" .
+            '    <li class="not-coverable">Not coverable</li>' . "\n" .
+            '   </ul>' . "\n";
+    }
 
-        return $template->render();
+    protected function branchCoverageLegend(): string
+    {
+        return '   <ul class="legend">' . "\n" .
+            '    <li class="success">Fully covered</li>' . "\n" .
+            '    <li class="warning">Partially covered</li>' . "\n" .
+            '    <li class="danger">Not covered</li>' . "\n" .
+            '   </ul>' . "\n";
     }
 
     protected function colorLevel(float $percent): string
@@ -336,7 +524,162 @@ abstract class Renderer
         return 'success';
     }
 
-    private function runtimeString(): string
+    /**
+     * @param array<string, float|int> $data
+     */
+    protected function buildCoverageDataJson(array $data): string
+    {
+        return Json::encode($data);
+    }
+
+    protected function coverageDataJsonFor(AbstractNode $node): string
+    {
+        $data = [
+            'linesTotal'   => $node->numberOfExecutableLines(),
+            'linesAll'     => $node->numberOfExecutedLines(),
+            'methodsTotal' => $node->numberOfFunctionsAndMethods(),
+            'methodsAll'   => $node->numberOfTestedFunctionsAndMethods(),
+            'classesTotal' => $node->numberOfClassesAndTraits(),
+            'classesAll'   => $node->numberOfTestedClassesAndTraits(),
+        ];
+
+        foreach (self::TEST_SIZE_JSON_KEY_SUFFIXES as $combination => $suffix) {
+            $data['lines' . $suffix]   = $node->numberOfExecutedLinesByTestSize($combination);
+            $data['methods' . $suffix] = $node->numberOfTestedFunctionsAndMethodsByTestSize($combination);
+            $data['classes' . $suffix] = $node->numberOfTestedClassesAndTraitsByTestSize($combination);
+        }
+
+        return $this->buildCoverageDataJson($data);
+    }
+
+    protected function coverageDataJsonForClassNode(ClassNode $node): string
+    {
+        $numMethods = $node->numberOfMethods();
+        $numClasses = $numMethods > 0 ? 1 : 0;
+
+        $data = [
+            'linesTotal'   => $node->numberOfExecutableLines(),
+            'linesAll'     => $node->numberOfExecutedLines(),
+            'methodsTotal' => $numMethods,
+            'methodsAll'   => $node->numberOfTestedMethods(),
+            'classesTotal' => $numClasses,
+            'classesAll'   => ($numClasses === 1 && $node->numberOfTestedMethods() === $numMethods) ? 1 : 0,
+        ];
+
+        foreach (self::TEST_SIZE_JSON_KEY_SUFFIXES as $combination => $suffix) {
+            $numTestedMethodsByTestSize = $node->numberOfTestedMethodsByTestSize($combination);
+
+            $data['lines' . $suffix]   = $node->numberOfExecutedLinesByTestSize($combination);
+            $data['methods' . $suffix] = $numTestedMethodsByTestSize;
+            $data['classes' . $suffix] = ($numClasses === 1 && $numTestedMethodsByTestSize === $numMethods) ? 1 : 0;
+        }
+
+        return $this->buildCoverageDataJson($data);
+    }
+
+    protected function coverageDataJsonForFunctionOrMethod(ProcessedFunctionType|ProcessedMethodType $item): string
+    {
+        $numMethods       = 0;
+        $numTestedMethods = 0;
+
+        if ($item->executableLines > 0) {
+            $numMethods = 1;
+
+            if ($item->executedLines === $item->executableLines) {
+                $numTestedMethods = 1;
+            }
+        }
+
+        $data = [
+            'linesTotal'   => $item->executableLines,
+            'linesAll'     => $item->executedLines,
+            'methodsTotal' => $numMethods,
+            'methodsAll'   => $numTestedMethods,
+        ];
+
+        foreach (self::TEST_SIZE_JSON_KEY_SUFFIXES as $combination => $suffix) {
+            $numTestedMethodsByTestSize = 0;
+
+            if ($numMethods === 1 && $item->executedLinesByTestSize[$combination] === $item->executableLines) {
+                $numTestedMethodsByTestSize = 1;
+            }
+
+            $data['lines' . $suffix]   = $item->executedLinesByTestSize[$combination];
+            $data['methods' . $suffix] = $numTestedMethodsByTestSize;
+        }
+
+        return $this->buildCoverageDataJson($data);
+    }
+
+    protected function renderLine(Template $template, int $lineNumber, string $lineContent, string $class, string $popover, string $anchorPrefix = '', string $coverageCount = ''): string
+    {
+        return sprintf(
+            $this->lineFormat(),
+            $anchorPrefix . $lineNumber,
+            $lineNumber,
+            $lineContent,
+            $class === '' ? '' : ' class="' . $class . '"',
+            $popover,
+            $coverageCount,
+        );
+    }
+
+    /**
+     * The attributes that turn a source line or a table cell into the trigger
+     * of a popover that lists the tests which cover it.
+     */
+    protected function popoverAttributes(string $title, string $content): string
+    {
+        return sprintf(
+            ' data-popover-title="%s" data-popover-content="%s"',
+            htmlspecialchars($title, self::HTML_SPECIAL_CHARS_FLAGS),
+            $content,
+        );
+    }
+
+    /**
+     * The list item for a test is the same everywhere that test covers a line,
+     * and a test usually covers many lines, so it is only built once.
+     *
+     * @param TestIndexType $testIndex
+     * @param TestDataType  $testData
+     */
+    protected function createPopoverContentForTest(int $testIndex, array $testData): string
+    {
+        if (isset($this->popoverContentForTest[$testIndex])) {
+            return $this->popoverContentForTest[$testIndex];
+        }
+
+        $testCSS = '';
+
+        switch ($testData['status']) {
+            case 'success':
+                $testCSS = match ($testData['size']) {
+                    'small'  => ' class="covered-by-small-tests"',
+                    'medium' => ' class="covered-by-medium-tests"',
+                    // no break
+                    default => ' class="covered-by-large-tests"',
+                };
+
+                break;
+
+            case 'failure':
+                $testCSS = ' class="danger"';
+
+                break;
+        }
+
+        return $this->popoverContentForTest[$testIndex] = htmlspecialchars(
+            sprintf(
+                '<li%s>%s</li>',
+                $testCSS,
+                htmlspecialchars($testData['name'], self::HTML_SPECIAL_CHARS_FLAGS),
+            ),
+            self::HTML_SPECIAL_CHARS_FLAGS,
+        );
+    }
+
+    protected function runtimeString(): string
     {
         $runtime = new Runtime;
 
@@ -346,5 +689,93 @@ abstract class Renderer
             $runtime->getName(),
             $runtime->getVersion(),
         );
+    }
+
+    /**
+     * The line template is rendered once per source line, so it is compiled
+     * into a sprintf() format once instead of being searched for its
+     * placeholders on every line.
+     */
+    private function lineFormat(): string
+    {
+        if ($this->lineFormat !== null) {
+            return $this->lineFormat;
+        }
+
+        $template = file_get_contents($this->templatePath . 'line.html.dist');
+
+        assert($template !== false);
+
+        return $this->lineFormat = str_replace(
+            ['%', '{{anchor}}', '{{lineNumber}}', '{{lineContent}}', '{{class}}', '{{popover}}', '{{coverageCount}}'],
+            ['%%', '%1$s', '%2$d', '%3$s', '%4$s', '%5$s', '%6$s'],
+            $template,
+        );
+    }
+
+    /**
+     * @param CoverageItemData $data
+     *
+     * @return array{lines: CoverageMetric, branches: CoverageMetric, paths: CoverageMetric, methods: CoverageMetric, classes: CoverageMetric}
+     */
+    private function metrics(array $data): array
+    {
+        $incompleteBranchCoverageData = ($data['numFilesWithoutBranchCoverageData'] ?? 0) > 0;
+
+        return [
+            'lines' => $this->metric(
+                $data['numExecutedLines'],
+                $data['numExecutableLines'],
+                $data['linesExecutedPercent'],
+                $data['linesExecutedPercentAsString'],
+            ),
+            'branches' => $this->metric(
+                $data['numExecutedBranches'],
+                $data['numExecutableBranches'],
+                $data['branchesExecutedPercent'],
+                $data['branchesExecutedPercentAsString'],
+                $incompleteBranchCoverageData,
+            ),
+            'paths' => $this->metric(
+                $data['numExecutedPaths'],
+                $data['numExecutablePaths'],
+                $data['pathsExecutedPercent'],
+                $data['pathsExecutedPercentAsString'],
+                $incompleteBranchCoverageData,
+            ),
+            'methods' => $this->metric(
+                $data['numTestedMethods'],
+                $data['numMethods'],
+                $data['testedMethodsPercent'],
+                $data['testedMethodsPercentAsString'],
+            ),
+            'classes' => $this->metric(
+                $data['numTestedClasses'] ?? 0,
+                $data['numClasses'] ?? 0,
+                $data['testedClassesPercent'] ?? 0.0,
+                $data['testedClassesPercentAsString'] ?? 'n/a',
+            ),
+        ];
+    }
+
+    /**
+     * @return CoverageMetric
+     */
+    private function metric(int $tested, int $total, float $percent, string $percentAsString, bool $incomplete = false): array
+    {
+        if ($total === 0) {
+            return ['level' => '', 'percent' => 'n/a', 'number' => '0 / 0', 'bar' => ''];
+        }
+
+        if ($incomplete) {
+            $percentAsString .= ' <abbr title="Not all files have branch and path coverage data">*</abbr>';
+        }
+
+        return [
+            'level'   => $this->colorLevel($percent),
+            'percent' => $percentAsString,
+            'number'  => $tested . ' / ' . $total,
+            'bar'     => $this->coverageBar($percent),
+        ];
     }
 }

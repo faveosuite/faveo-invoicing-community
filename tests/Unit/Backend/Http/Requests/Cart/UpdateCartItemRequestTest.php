@@ -14,7 +14,7 @@ class UpdateCartItemRequestTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->req = new UpdateCartItemRequest();
+        $this->req = new UpdateCartItemRequest;
     }
 
     public function test_authorize_returns_true(): void

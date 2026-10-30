@@ -58,9 +58,11 @@ class DatabaseSeeder extends Seeder
             foreach (File::directories($old) as $dir) {
                 File::moveDirectory($dir, $new.'/'.basename($dir), overwrite: true);
             }
+
             foreach (File::files($old) as $file) {
                 File::move($file->getPathname(), $new.'/'.$file->getFilename());
             }
+
             File::deleteDirectory($old);
         }
 
@@ -135,6 +137,7 @@ class DatabaseSeeder extends Seeder
         foreach ($renames as $old => $new) {
             DB::table('timezone')->where('name', $old)->update(['name' => $new]);
         }
+
         DB::table('timezone')->where('name', 'Asia/Shanghai')->update(['location' => '(GMT+08:00) Chongqing/Urumqi']);
 
         foreach (['Asia/Urumqi' => 'Asia/Shanghai', 'Australia/Canberra' => 'Australia/Sydney'] as $old => $new) {
@@ -143,9 +146,11 @@ class DatabaseSeeder extends Seeder
             if (! $from || ! $to) {
                 continue;
             }
+
             foreach (['users', 'settings', 'email_validation_results'] as $table) {
                 DB::table($table)->where('timezone_id', $from)->update(['timezone_id' => $to]);
             }
+
             DB::table('timezone')->where('id', $from)->delete();
         }
     }
@@ -635,7 +640,7 @@ Dear {{name}},<br/><br/>
     private function licenseModuleSeeder(): void
     {
         $this->call([LicenseModuleSeeder::class]);
-        $this->command->info('Seeded License Module!');
+        $this->command?->info('Seeded License Module!');
     }
 
     /**
@@ -677,6 +682,7 @@ Dear {{name}},<br/><br/>
             if (array_key_exists($switch, $oldRows['status_settings'])) {
                 $values['active'] = ! empty($oldRows['status_settings'][$switch]);
             }
+
             if (array_key_exists($dayColumn, $oldRows[$dayTable])) {
                 $values['days'] = $this->normaliseCronDays($oldRows[$dayTable][$dayColumn]);
             }
@@ -696,6 +702,7 @@ Dear {{name}},<br/><br/>
         if ($oldSwitches !== []) {
             Schema::table('status_settings', fn ($table) => $table->dropColumn($oldSwitches));
         }
+
         Schema::dropIfExists('expiry_mail_days');
         Schema::dropIfExists('activity_log_days');
     }

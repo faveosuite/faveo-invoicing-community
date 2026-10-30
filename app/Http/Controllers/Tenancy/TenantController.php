@@ -29,6 +29,7 @@ use Auth;
 use DB;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -45,8 +46,11 @@ use Throwable;
 class TenantController extends Controller
 {
     private const AUTO_DELETION = 'Auto deletion';
+
     private const USERS_PAGE = 'admin/users/';
+
     private const REASON_SEPARATOR = '. Reason: ';
+
     public const TENANTS_CACHE_KEY = 'cloud_tenants';
 
     /** Tenants table column => where getTenants() keeps its value. */
@@ -65,7 +69,7 @@ class TenantController extends Controller
         'db_username' => 'database.username',
     ];
 
-    private mixed $cloud = null;
+    private mixed $cloud;
 
     public function __construct(Client $client, FaveoCloud $cloud)
     {
@@ -98,8 +102,8 @@ class TenantController extends Controller
     {
         try {
             $this->cloudApi()->keys();
-        } catch (\RuntimeException $e) {
-            return errorResponse($e->getMessage()); // "Invalid App key provided. Please contact admin."
+        } catch (\RuntimeException $runtimeException) {
+            return errorResponse($runtimeException->getMessage()); // "Invalid App key provided. Please contact admin."
         }
 
         try {
@@ -198,8 +202,8 @@ class TenantController extends Controller
             ]);
 
             return successResponse(__('message.tenants_fetched_successfully'), $paginator);
-        } catch (Throwable $e) {
-            Logger::exception($e);
+        } catch (Throwable $throwable) {
+            Logger::exception($throwable);
 
             return errorResponse(__('message.something_went_wrong'), 500);
         }
@@ -216,6 +220,7 @@ class TenantController extends Controller
         if (! $order) {
             return errorResponse(__('message.something_went_wrong'));
         }
+
         $product = CloudProducts::where('cloud_product', $order->productRelation()->value('id'))->value('cloud_product_key');
 
         $this->validate($request,
@@ -235,6 +240,7 @@ class TenantController extends Controller
         if (! $settings) {
             return errorResponse(trans('message.something_bad'));
         }
+
         $userInformation = $request->has('userInfo') ? User::find($request->input('userInfo')) : $this->authUser();
         if (! $userInformation instanceof User) {
             $userInformation = $this->authUser();
@@ -270,7 +276,8 @@ class TenantController extends Controller
             $token = Str::random(32);
             DB::table('third_party_tokens')->insert(['user_id' => $userId, 'token' => $token]);
             $result = $api->send('POST', '/tenants', ['domain' => $faveoCloud, 'token' => $token, 'lic_code' => $licCode, 'username' => $userEmail, 'userId' => $userId, 'product' => $product, 'product_id' => $order->product]);
-            if (($result['status'] ?? null) == 'fails') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
+            if (($result['status'] ?? null) == 'fails') {
+                // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                 if (($result['message'] ?? null) == 'Domain already taken. Please select a different domain') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                     $toDisplay = preg_replace('/\s+/', '', (string) $product);
                     $newRandomDomain = substr($toDisplay.str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 28);
@@ -279,75 +286,70 @@ class TenantController extends Controller
                 }
 
                 $this->prepareMessages($faveoCloud, $userEmail);
-
                 Logger::exception(new Exception(sprintf('Cloud tenant create failed for %s: %s', $faveoCloud, json_encode($result))));
                 $this->googleChat($result['message'] ?? '');
 
                 return errorResponse(trans('message.something_bad'));
-            } elseif (($result['status'] ?? null) == 'validationFailure') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
-                $this->prepareMessages($faveoCloud, $userEmail);
+            }
 
+            if (($result['status'] ?? null) == 'validationFailure') {
+                // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
+                $this->prepareMessages($faveoCloud, $userEmail);
                 $this->googleChat($result['message'] ?? '');
 
                 return errorResponse($result['message'] ?? '');
-            } else {
-                $this->client->request('GET', config('custom.cloud_job_url_normal'), [ // @phpstan-ignore property.notFound
-                    'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
-                    'query' => [
-                        'token' => config('custom.cloud_oauth_token'),
-                        'domain' => $faveoCloud,
-                    ],
-                ]);
+            }
 
-                // template
-                $template = TemplateType::getSelectedTemplate('cloud_created');
-                $contact = getContactData();
+            $this->client->request('GET', config('custom.cloud_job_url_normal'), [ // @phpstan-ignore property.notFound
+                'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
+                'query' => [
+                    'token' => config('custom.cloud_oauth_token'),
+                    'domain' => $faveoCloud,
+                ],
+            ]);
+            // template
+            $template = TemplateType::getSelectedTemplate('cloud_created');
+            $contact = getContactData();
+            $productName = Product::find($order->product)->name ?? '';
+            $type = $template?->type()->value('name') ?? '';
+            $resultMessage = $result['message'] ?? '';
+            $resultInstallationUrl = $result['installationUrl'] ?? '';
+            $resultReason = $result['reason'] ?? '';
+            $message = ($resultReason != '') ? __('message.'.$resultMessage, ['installationUrl' => $resultInstallationUrl, 'reason' => $resultReason]) : // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
+                                    __('message.'.$resultMessage, ['installationUrl' => $resultInstallationUrl]);
+            $message = str_replace('website', strtolower((string) $product), (string) $message);
+            $message = str_replace('. You will receive password on your registered email', '', $message);
+            $userData = $message.'<br><br> Email:'.' '.$userEmail.'<br>'.'Password:'.' '.($result['password'] ?? '');
+            $replace = [
+                'message' => $userData,
+                'product' => $productName,
+                'name' => $userFirstName.' '.$userLastName,
+                'contact' => $contact['contact'],
+                'logo' => $contact['logo'],
+                'title' => $settings->title,
+                'company_email' => $settings->company_email,
+                'reply_email' => $settings->company_email,
 
-                $productName = Product::find($order->product)->name ?? '';
-                $type = $template?->type()->value('name') ?? '';
-                $resultMessage = $result['message'] ?? '';
-                $resultInstallationUrl = $result['installationUrl'] ?? '';
-                $resultReason = $result['reason'] ?? '';
-                $message = ($resultReason != '') ? __('message.'.$resultMessage, ['installationUrl' => $resultInstallationUrl, 'reason' => $resultReason]) : // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
-                                        __('message.'.$resultMessage, ['installationUrl' => $resultInstallationUrl]);
+            ];
+            logActivity(
+                sprintf("Cloud instance <b><a href='http://%s' target='_blank'>%s</a></b> created successfully for user <b><a href='", $faveoCloud, $faveoCloud).url(self::USERS_PAGE.$userId).sprintf("'><strong>%s %s</strong></a></b>", $userFirstName, $userLastName),
+                'created',
+                'Cloud'
+            );
+            $this->prepareMessages($faveoCloud, $userEmail, success: true);
+            if ($template instanceof Template) {
+                $mail->SendEmail($settings->email, $userEmail, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
+            }
 
-                $message = str_replace('website', strtolower((string) $product), (string) $message);
-                $message = str_replace('. You will receive password on your registered email', '', $message);
-                $userData = $message.'<br><br> Email:'.' '.$userEmail.'<br>'.'Password:'.' '.($result['password'] ?? '');
-
-                $replace = [
-                    'message' => $userData,
-                    'product' => $productName,
-                    'name' => $userFirstName.' '.$userLastName,
-                    'contact' => $contact['contact'],
-                    'logo' => $contact['logo'],
-                    'title' => $settings->title,
-                    'company_email' => $settings->company_email,
-                    'reply_email' => $settings->company_email,
-
-                ];
-
-                logActivity(
-                    sprintf("Cloud instance <b><a href='http://%s' target='_blank'>%s</a></b> created successfully for user <b><a href='", $faveoCloud, $faveoCloud).url(self::USERS_PAGE.$userId).sprintf("'><strong>%s %s</strong></a></b>", $userFirstName, $userLastName),
-                    'created',
-                    'Cloud'
-                );
-
-                $this->prepareMessages($faveoCloud, $userEmail, success: true);
-                if ($template instanceof Template) {
-                    $mail->SendEmail($settings->email, $userEmail, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
-                }
-
-                if ($resultReason != '') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
-                    $data = ['status' => $result['status'] ?? '', 'message' => ($result['message'] ?? '').trans('message.cloud_created_successfully'), 'installationUrl' => $result['installationUrl'] ?? '', 'reason' => $result['reason'] ?? '', 'Free_trial_domain' => $faveoCloud];
-
-                    return successResponse('', $data);
-                }
-
-                $data = ['status' => $result['status'] ?? '', 'message' => ($result['message'] ?? '').trans('message.cloud_created_successfully'), 'installationUrl' => $result['installationUrl'] ?? '', 'Free_trial_domain' => $faveoCloud];
+            if ($resultReason != '') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
+                $data = ['status' => $result['status'] ?? '', 'message' => ($result['message'] ?? '').trans('message.cloud_created_successfully'), 'installationUrl' => $result['installationUrl'] ?? '', 'reason' => $result['reason'] ?? '', 'Free_trial_domain' => $faveoCloud];
 
                 return successResponse('', $data);
             }
+
+            $data = ['status' => $result['status'] ?? '', 'message' => ($result['message'] ?? '').trans('message.cloud_created_successfully'), 'installationUrl' => $result['installationUrl'] ?? '', 'Free_trial_domain' => $faveoCloud];
+
+            return successResponse('', $data);
         } catch (Exception $exception) {
             Logger::exception($exception);
             $message = $exception->getMessage().' Domain: '.$faveoCloud.' Email: '.$userEmail;
@@ -375,7 +377,7 @@ class TenantController extends Controller
 
             return ['status' => 'fails', 'message' => 'Invalid token'];
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return ['status' => 'fails', 'message' => __('message.sorry_something_wrong')];
         }
@@ -538,6 +540,7 @@ class TenantController extends Controller
             if ($access->denied()) {
                 return deniedResponse($access);
             }
+
             $order_id = $order->id;
             $installation_path = $order->installedDomains()->first();
             try {
@@ -547,6 +550,7 @@ class TenantController extends Controller
                 if (! $tenant) {
                     return errorResponse(__('message.something_wrong_cloud_instance'));
                 }
+
                 $response = $api->send('DELETE', '/tenants', ['id' => $tenant['id'], 'deleteTenant' => true]);
             } catch (Exception $exception) {
                 Logger::exception($exception);
@@ -644,6 +648,7 @@ class TenantController extends Controller
         if (empty($url)) { // ponytail: webhook is optional; skip instead of letting Guzzle blow up and mask the real error
             return;
         }
+
         $message = [
             'text' => $text,
         ];
@@ -737,7 +742,7 @@ class TenantController extends Controller
             dispatch(new ReportExport('tenats', $selectedColumns, $searchParams, $email))->onQueue('reports');
 
             return successResponse(__('message.system_generating_report'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             Logger::exception($exception);

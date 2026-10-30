@@ -69,7 +69,7 @@ class DealSearchItemItem implements ModelInterface, ArrayAccess, JsonSerializabl
         'id' => 'int',
         'type' => 'string',
         'title' => 'string',
-        'value' => 'int',
+        'value' => 'float',
         'currency' => 'string',
         'status' => 'string',
         'visible_to' => 'int',
@@ -381,7 +381,7 @@ class DealSearchItemItem implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Gets value
      *
-     * @return int|null
+     * @return float|null
      */
     public function getValue()
     {
@@ -391,7 +391,7 @@ class DealSearchItemItem implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Sets value
      *
-     * @param int|null $value The value of the deal
+     * @param float|null $value The value of the deal
      *
      * @return self
      */

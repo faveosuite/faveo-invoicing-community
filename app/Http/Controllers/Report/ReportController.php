@@ -31,9 +31,10 @@ class ReportController extends Controller
         // sort by their source column instead.
         $columnMap = ['format' => 'file', 'type' => 'name'];
         $allowed = ['file', 'format', 'type', 'created_at'];
-        if (! in_array($sortField, $allowed, true)) {
+        if (! in_array($sortField, $allowed, strict: true)) {
             $sortField = 'created_at';
         }
+
         $sortField = $columnMap[$sortField] ?? $sortField;
 
         $reports = ExportDetail::with(['user:id,first_name,last_name'])

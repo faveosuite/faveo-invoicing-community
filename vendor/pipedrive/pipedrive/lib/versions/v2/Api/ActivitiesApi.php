@@ -381,11 +381,11 @@ class ActivitiesApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -677,11 +677,11 @@ class ActivitiesApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -711,7 +711,7 @@ class ActivitiesApi
      * Get all activities
      *
      * @param  int|null $filter_id If supplied, only activities matching the specified filter are returned (optional)
-     * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
+     * @param  int[]|null $ids Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only activities owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $deal_id If supplied, only activities linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $lead_id If supplied, only activities linked to the specified lead are returned. If filter_id is provided, this is ignored. (optional)
@@ -722,7 +722,7 @@ class ActivitiesApi
      * @param  string|null $updated_until If set, only activities with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;, &#x60;due_date&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
@@ -742,7 +742,7 @@ class ActivitiesApi
      * Get all activities
      *
      * @param  int|null $filter_id If supplied, only activities matching the specified filter are returned (optional)
-     * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
+     * @param  int[]|null $ids Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only activities owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $deal_id If supplied, only activities linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $lead_id If supplied, only activities linked to the specified lead are returned. If filter_id is provided, this is ignored. (optional)
@@ -753,7 +753,7 @@ class ActivitiesApi
      * @param  string|null $updated_until If set, only activities with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;, &#x60;due_date&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
@@ -857,7 +857,7 @@ class ActivitiesApi
      * Get all activities
      *
      * @param  int|null $filter_id If supplied, only activities matching the specified filter are returned (optional)
-     * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
+     * @param  int[]|null $ids Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only activities owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $deal_id If supplied, only activities linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $lead_id If supplied, only activities linked to the specified lead are returned. If filter_id is provided, this is ignored. (optional)
@@ -868,7 +868,7 @@ class ActivitiesApi
      * @param  string|null $updated_until If set, only activities with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;, &#x60;due_date&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
@@ -891,7 +891,7 @@ class ActivitiesApi
      * Get all activities
      *
      * @param  int|null $filter_id If supplied, only activities matching the specified filter are returned (optional)
-     * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
+     * @param  int[]|null $ids Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only activities owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $deal_id If supplied, only activities linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $lead_id If supplied, only activities linked to the specified lead are returned. If filter_id is provided, this is ignored. (optional)
@@ -902,7 +902,7 @@ class ActivitiesApi
      * @param  string|null $updated_until If set, only activities with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;, &#x60;due_date&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
@@ -952,7 +952,7 @@ class ActivitiesApi
      * Create request for operation 'getActivities'
      *
      * @param  int|null $filter_id If supplied, only activities matching the specified filter are returned (optional)
-     * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
+     * @param  int[]|null $ids Optional comma separated array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only activities owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $deal_id If supplied, only activities linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $lead_id If supplied, only activities linked to the specified lead are returned. If filter_id is provided, this is ignored. (optional)
@@ -963,7 +963,7 @@ class ActivitiesApi
      * @param  string|null $updated_until If set, only activities with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;, &#x60;due_date&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
@@ -972,6 +972,18 @@ class ActivitiesApi
      */
     public function getActivitiesRequest($filter_id = null, $ids = null, $owner_id = null, $deal_id = null, $lead_id = null, $person_id = null, $org_id = null, $done = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $limit = null, $cursor = null): Request
     {
+        if ($ids !== null && count($ids) > 100) {
+            throw new \InvalidArgumentException('invalid value for "$ids" when calling ActivitiesApi.getActivities, number of items must be less than or equal to 100.');
+        }
+
+
+        if ($limit !== null && $limit > 500) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling ActivitiesApi.getActivities, must be smaller than or equal to 500.');
+        }
+        if ($limit !== null && $limit < 1) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling ActivitiesApi.getActivities, must be bigger than or equal to 1.');
+        }
+
 
         $resourcePath = '/activities';
         $formParams = [];
@@ -991,7 +1003,7 @@ class ActivitiesApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($ids)) {
-            $ids = ObjectSerializer::serializeCollection($ids, '', true);
+            $ids = ObjectSerializer::serializeCollection($ids, 'form', true);
         }
         if ($ids !== null) {
             $queryParams['ids'] = $ids;
@@ -1079,7 +1091,7 @@ class ActivitiesApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($include_fields)) {
-            $include_fields = ObjectSerializer::serializeCollection($include_fields, '', true);
+            $include_fields = ObjectSerializer::serializeCollection($include_fields, 'form', true);
         }
         if ($include_fields !== null) {
             $queryParams['include_fields'] = $include_fields;
@@ -1148,11 +1160,11 @@ class ActivitiesApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1182,7 +1194,7 @@ class ActivitiesApi
      * Get details of an activity
      *
      * @param  int $id The ID of the activity (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
@@ -1200,7 +1212,7 @@ class ActivitiesApi
      * Get details of an activity
      *
      * @param  int $id The ID of the activity (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
@@ -1302,7 +1314,7 @@ class ActivitiesApi
      * Get details of an activity
      *
      * @param  int $id The ID of the activity (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
@@ -1323,7 +1335,7 @@ class ActivitiesApi
      * Get details of an activity
      *
      * @param  int $id The ID of the activity (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
@@ -1371,7 +1383,7 @@ class ActivitiesApi
      * Create request for operation 'getActivity'
      *
      * @param  int $id The ID of the activity (required)
-     * @param  string|null $include_fields Optional comma separated string array of additional fields to include (optional)
+     * @param  string[]|null $include_fields Optional comma separated string array of additional fields to include (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
@@ -1386,6 +1398,7 @@ class ActivitiesApi
             );
         }
 
+
         $resourcePath = '/activities/{id}';
         $formParams = [];
         $queryParams = [];
@@ -1396,7 +1409,7 @@ class ActivitiesApi
         // query params
         /* @phpstan-ignore-next-line */
         if (is_array($include_fields)) {
-            $include_fields = ObjectSerializer::serializeCollection($include_fields, '', true);
+            $include_fields = ObjectSerializer::serializeCollection($include_fields, 'form', true);
         }
         if ($include_fields !== null) {
             $queryParams['include_fields'] = $include_fields;
@@ -1457,11 +1470,11 @@ class ActivitiesApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
@@ -1764,11 +1777,11 @@ class ActivitiesApi
             $headers['x-api-token'] = $apiKey;
         }
         // this endpoint requires OAuth (access token)
-        if ($this->config->getAccessToken() !== null) {
-            // If access token is expired
-            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
-                $this->config->refreshToken();
-            }
+        // If access token is expired
+        if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+            $this->config->refreshToken();
+        }
+        if ($this->config->getAccessToken() !== '') {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 

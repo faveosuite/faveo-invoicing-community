@@ -8,6 +8,7 @@ use App\Model\Common\SeoDefaultPage;
 use App\Model\Common\Setting;
 use App\Model\Front\FrontendPage;
 use App\Model\Product\ProductGroup;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\File;
 use SimpleXMLElement;
@@ -21,6 +22,7 @@ use SimpleXMLElement;
 class SeoFileGenerator
 {
     private const CONTACT_US_PATH = '/contact-us';
+
     private const FORGOT_PASSWORD_TITLE = 'Forgot Password';
 
     /**
@@ -85,7 +87,7 @@ class SeoFileGenerator
     {
         $set = Setting::find(1);
         $company = $set?->company ?: ($set?->favicon_title_client ?: 'Faveo Invoicing');
-        $formatter = app(SeoTemplateFormatter::class);
+        $formatter = resolve(SeoTemplateFormatter::class);
 
         $lines = [
             '# '.$company,
@@ -187,7 +189,7 @@ class SeoFileGenerator
         foreach (FrontendPage::where('publish', 1)->get(['slug', 'url', 'type', 'updated_at']) as $page) {
             $loc = $page->url ?: url('/pages/'.$page->slug);
             $hasContactUsPage = $hasContactUsPage || $page->type === 'contactus' || $page->slug === $contactUsSlug;
-            $urls[] = ['loc' => $loc, 'lastmod' => optional($page->updated_at)->toAtomString()];
+            $urls[] = ['loc' => $loc, 'lastmod' => $page->updated_at?->toAtomString()];
         }
 
         // /contact-us is always a real, public page (see
@@ -200,7 +202,7 @@ class SeoFileGenerator
         $urls[] = ['loc' => url('/store'), 'lastmod' => null];
 
         foreach ($this->visibleGroups(['id', 'updated_at']) as $group) {
-            $urls[] = ['loc' => url('/store/'.$group->id), 'lastmod' => optional($group->updated_at)->toAtomString()];
+            $urls[] = ['loc' => url('/store/'.$group->id), 'lastmod' => $group->updated_at?->toAtomString()];
         }
 
         return $urls;
@@ -217,6 +219,6 @@ class SeoFileGenerator
      */
     private function visibleGroups(array $columns): Collection
     {
-        return ProductGroup::where(fn ($q) => $q->whereNull('hidden')->orWhere('hidden', '!=', 1))->get($columns);
+        return ProductGroup::where(fn (Builder $q) => $q->whereNull('hidden')->orWhere('hidden', '!=', 1))->get($columns);
     }
 }

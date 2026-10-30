@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     '2fa_setup' => 'Siapkan Verifikasi 2 Langkah',
     'actions' => 'Tindakan',
@@ -18,7 +20,7 @@ return [
     'dashboard' => 'Dasbor',
     'dashboard_show' => 'Dasbor',
     'callbacks_count' => 'Jumlah Callback',
-    'callbacks_description' => 'Lihat callback verifikasi lisensi yang ada. Jika ada callback yang perlu dihapus, periksa kode klien atau lisensi dan klik tombol \'Kirim\'.',
+    'callbacks_description' => "Lihat callback verifikasi lisensi yang ada. Jika ada callback yang perlu dihapus, periksa kode klien atau lisensi dan klik tombol 'Kirim'.",
     'adddd' => 'Lisensi berhasil ditambahkan',
     'admin_privileges' => 'Hak Istimewa Admin',
     'Api_Acess_not_allowed' => 'Akses API tidak diizinkan',

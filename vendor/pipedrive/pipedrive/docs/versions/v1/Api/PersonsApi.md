@@ -500,7 +500,7 @@ Name | Type | Description  | Notes
 ## `getPersonMailMessages()`
 
 ```php
-getPersonMailMessages($id, $start, $limit): \Pipedrive\versions\v1\Model\ListMailMessagesResponse
+getPersonMailMessages($id, $start, $limit, $include_body): \Pipedrive\versions\v1\Model\ListMailMessagesResponse
 ```
 
 List mail messages associated with a person
@@ -532,9 +532,10 @@ $apiInstance = new Pipedrive\versions\v1\Api\PersonsApi(
 $id = 56; // int | The ID of the person
 $start = 0; // int | Pagination start
 $limit = 56; // int | Items shown per page
+$include_body = new \Pipedrive\versions\v1\Model\\Pipedrive\versions\v1\Model\NumberBooleanDefault0(); // \Pipedrive\versions\v1\Model\NumberBooleanDefault0 | Whether to include the mail message body content in the response. `0` = Don't include, `1` = Include.
 
 try {
-    $result = $apiInstance->getPersonMailMessages($id, $start, $limit);
+    $result = $apiInstance->getPersonMailMessages($id, $start, $limit, $include_body);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling PersonsApi->getPersonMailMessages: ', $e->getMessage(), PHP_EOL;
@@ -548,6 +549,7 @@ Name | Type | Description  | Notes
  **id** | **int**| The ID of the person |
  **start** | **int**| Pagination start | [optional] [default to 0]
  **limit** | **int**| Items shown per page | [optional]
+ **include_body** | [**\Pipedrive\versions\v1\Model\NumberBooleanDefault0**](../Model/.md)| Whether to include the mail message body content in the response. &#x60;0&#x60; &#x3D; Don&#39;t include, &#x60;1&#x60; &#x3D; Include. | [optional]
 
 ### Return type
 
@@ -671,7 +673,7 @@ $id = 56; // int | The ID of the person
 $start = 0; // int | Pagination start
 $limit = 56; // int | Items shown per page
 $all_changes = 'all_changes_example'; // string | Whether to show custom field updates or not. 1 = Include custom field changes. If omitted returns changes without custom field updates.
-$items = 'items_example'; // string | A comma-separated string for filtering out item specific updates. (Possible values - call, activity, plannedActivity, change, note, deal, file, dealChange, personChange, organizationChange, follower, dealFollower, personFollower, organizationFollower, participant, comment, mailMessage, mailMessageWithAttachment, invoice, document, marketing_campaign_stat, marketing_status_change).
+$items = array('items_example'); // string[] | A comma-separated string for filtering out item specific updates. (Possible values - call, activity, plannedActivity, change, note, deal, file, dealChange, personChange, organizationChange, follower, dealFollower, personFollower, organizationFollower, participant, comment, mailMessage, mailMessageWithAttachment, invoice, document, marketing_campaign_stat, marketing_status_change).
 
 try {
     $result = $apiInstance->getPersonUpdates($id, $start, $limit, $all_changes, $items);
@@ -689,7 +691,7 @@ Name | Type | Description  | Notes
  **start** | **int**| Pagination start | [optional] [default to 0]
  **limit** | **int**| Items shown per page | [optional]
  **all_changes** | **string**| Whether to show custom field updates or not. 1 &#x3D; Include custom field changes. If omitted returns changes without custom field updates. | [optional]
- **items** | **string**| A comma-separated string for filtering out item specific updates. (Possible values - call, activity, plannedActivity, change, note, deal, file, dealChange, personChange, organizationChange, follower, dealFollower, personFollower, organizationFollower, participant, comment, mailMessage, mailMessageWithAttachment, invoice, document, marketing_campaign_stat, marketing_status_change). | [optional]
+ **items** | [**string[]**](../Model/string.md)| A comma-separated string for filtering out item specific updates. (Possible values - call, activity, plannedActivity, change, note, deal, file, dealChange, personChange, organizationChange, follower, dealFollower, personFollower, organizationFollower, participant, comment, mailMessage, mailMessageWithAttachment, invoice, document, marketing_campaign_stat, marketing_status_change). | [optional]
 
 ### Return type
 

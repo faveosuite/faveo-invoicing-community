@@ -105,7 +105,7 @@ class DeployControllerTest extends DBTestCase
 
         $this->be($owner);
 
-        $data = json_decode((string) $this->controller()->getVersions($order->id)->getContent(), true);
+        $data = json_decode((string) $this->controller()->getVersions($order->id)->getContent(), associative: true);
 
         $this->assertTrue($data['success']);
         $this->assertSame([$visible->id], array_column($data['data'], 'id'));
@@ -122,7 +122,7 @@ class DeployControllerTest extends DBTestCase
 
         $this->be($owner);
 
-        $data = json_decode((string) $this->controller()->getVersions($order->id)->getContent(), true);
+        $data = json_decode((string) $this->controller()->getVersions($order->id)->getContent(), associative: true);
 
         $this->assertSame([$before->id], array_column($data['data'], 'id'));
     }
@@ -137,7 +137,7 @@ class DeployControllerTest extends DBTestCase
         $response = $this->controller()->getVersions($order->id);
 
         $this->assertSame(403, $response->getStatusCode());
-        $this->assertSame(trans('message.renew_subscription_download'), json_decode((string) $response->getContent(), true)['message']);
+        $this->assertSame(trans('message.renew_subscription_download'), json_decode((string) $response->getContent(), associative: true)['message']);
     }
 
     public function test_get_versions_blocks_when_deployment_is_disabled(): void
@@ -221,7 +221,7 @@ class DeployControllerTest extends DBTestCase
         $controller = $this->controller();
         $response = $this->getPrivateMethod($controller, 'stepUpload', [$request, $order]);
 
-        $data = json_decode((string) $response->getContent(), true);
+        $data = json_decode((string) $response->getContent(), associative: true);
         $this->assertFalse($data['success']);
         $this->assertSame(trans('message.deploy_file_not_found'), $data['message']);
     }
@@ -238,7 +238,7 @@ class DeployControllerTest extends DBTestCase
         $stampingService = Mockery::mock(ProductBundleStampingService::class);
         $stampingService->shouldReceive('stampToLocalFile')
             ->once()
-            ->withArgs(fn ($path, $p, $version, $passedOrder) => $path === 'products/release.zip' && $p->is($product) && $version === $upload->version && $passedOrder->is($order))
+            ->withArgs(fn ($path, $p, $version, $passedOrder): bool => $path === 'products/release.zip' && $p->is($product) && $version === $upload->version && $passedOrder->is($order))
             ->andThrow(new RuntimeException('stamping failed'));
 
         $this->be($owner);
@@ -247,7 +247,7 @@ class DeployControllerTest extends DBTestCase
         $controller = $this->controller($stampingService);
         $response = $this->getPrivateMethod($controller, 'stepUpload', [$request, $order]);
 
-        $data = json_decode((string) $response->getContent(), true);
+        $data = json_decode((string) $response->getContent(), associative: true);
         $this->assertFalse($data['success']);
         $this->assertSame(trans('message.deploy_upload_failed'), $data['message']);
     }

@@ -1,13 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Concerns;
 
 use Illuminate\Contracts\View\View;
 
-interface FromView
+interface FromView extends Export
 {
-    /**
-     * @return View
-     */
     public function view(): View;
 }

@@ -82,7 +82,7 @@ class LicenseReport extends Model
     }
 
     /**
-     * @param  Builder<Model>  $query
+     * @param  Builder<static>  $query
      */
     #[Scope]
     protected function pending(Builder $query): mixed

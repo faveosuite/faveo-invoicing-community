@@ -33,8 +33,7 @@ class SubscriptionWebhookService
 {
     public function __construct(
         private readonly ConcretePostSubscriptionHandleController $handler
-    ) {
-    }
+    ) {}
 
     // ── Stripe ────────────────────────────────────────────────────────────
 
@@ -329,15 +328,15 @@ class SubscriptionWebhookService
         try {
             $taxInfo = new BaseRenewController()->calculateTax($product->id, $user->state ?? '', $user->country ?? '');
             $taxRate = (float) $taxInfo['value'];
-        } catch (\Throwable $e) {
-            \Logger::exception($e);
+        } catch (Throwable $throwable) {
+            Logger::exception($throwable);
         }
 
         // $cost from gateway is gross (tax and processing fee included). generateInvoice() adds
         // tax on top of the cost passed in, so pass the plan price with both taken out — leaving
         // the fee in showed it as part of the price, with tax charged on it.
         $feePercent = ProcessingFee::percent($gateway);
-        $netCost = (float) rounding($cost / (1 + ($taxRate / 100)) / (1 + ($feePercent / 100)));
+        $netCost = rounding($cost / (1 + ($taxRate / 100)) / (1 + ($feePercent / 100)));
 
         $latestInvoiceId = DB::table('order_invoice_relations')
             ->where('order_id', $order->id)

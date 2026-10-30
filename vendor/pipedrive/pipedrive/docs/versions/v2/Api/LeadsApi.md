@@ -175,12 +175,12 @@ $apiInstance = new Pipedrive\versions\v2\Api\LeadsApi(
     $config
 );
 $term = 'term_example'; // string | The search term to look for. Minimum 2 characters (or 1 if using `exact_match`). Please note that the search term has to be URL encoded.
-$fields = 'fields_example'; // string | A comma-separated string array. The fields to perform the search from. Defaults to all of them.
+$fields = array('fields_example'); // string[] | A comma-separated string array. The fields to perform the search from. Defaults to all of them.
 $exact_match = True; // bool | When enabled, only full exact matches against the given term are returned. It is <b>not</b> case sensitive.
 $person_id = 56; // int | Will filter leads by the provided person ID. The upper limit of found leads associated with the person is 2000.
 $organization_id = 56; // int | Will filter leads by the provided organization ID. The upper limit of found leads associated with the organization is 2000.
-$include_fields = 'include_fields_example'; // string | Supports including optional fields in the results which are not provided by default
-$limit = 100; // int | For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed.
+$include_fields = array('include_fields_example'); // string[] | Supports including optional fields in the results which are not provided by default
+$limit = 100; // int | For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed.
 $cursor = 'cursor_example'; // string | For pagination, the marker (an opaque string value) representing the first item on the next page
 
 try {
@@ -196,12 +196,12 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **term** | **string**| The search term to look for. Minimum 2 characters (or 1 if using &#x60;exact_match&#x60;). Please note that the search term has to be URL encoded. |
- **fields** | **string**| A comma-separated string array. The fields to perform the search from. Defaults to all of them. | [optional]
+ **fields** | [**string[]**](../Model/string.md)| A comma-separated string array. The fields to perform the search from. Defaults to all of them. | [optional]
  **exact_match** | **bool**| When enabled, only full exact matches against the given term are returned. It is &lt;b&gt;not&lt;/b&gt; case sensitive. | [optional]
  **person_id** | **int**| Will filter leads by the provided person ID. The upper limit of found leads associated with the person is 2000. | [optional]
  **organization_id** | **int**| Will filter leads by the provided organization ID. The upper limit of found leads associated with the organization is 2000. | [optional]
- **include_fields** | **string**| Supports including optional fields in the results which are not provided by default | [optional]
- **limit** | **int**| For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. | [optional]
+ **include_fields** | [**string[]**](../Model/string.md)| Supports including optional fields in the results which are not provided by default | [optional]
+ **limit** | **int**| For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 100 is allowed. | [optional]
  **cursor** | **string**| For pagination, the marker (an opaque string value) representing the first item on the next page | [optional]
 
 ### Return type

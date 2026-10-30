@@ -7,6 +7,7 @@ namespace Tests\Unit\Backend\Http\Requests;
 use App\Http\Requests\verifyOtp;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
@@ -17,15 +18,15 @@ class verifyOtpTest extends TestCase
 
     public function test_authorize_returns_true(): void
     {
-        $this->assertTrue((new verifyOtp())->authorize());
+        $this->assertTrue(new verifyOtp()->authorize());
     }
 
     private function makeRequest(string $email): verifyOtp
     {
         // Must be POST so $this->request->get() reads from the POST bag
-        $base = \Illuminate\Http\Request::create('/verify-otp', 'POST', ['newemail' => $email]);
+        $base = Request::create('/verify-otp', 'POST', ['newemail' => $email]);
 
-        return verifyOtp::createFrom($base, new verifyOtp());
+        return verifyOtp::createFrom($base, new verifyOtp);
     }
 
     public function test_rules_contains_expected_keys(): void
@@ -57,7 +58,7 @@ class verifyOtpTest extends TestCase
 
     public function test_messages_returns_expected_keys(): void
     {
-        $messages = (new verifyOtp())->messages();
+        $messages = new verifyOtp()->messages();
 
         $this->assertIsArray($messages);
         $this->assertArrayHasKey('verify_email.required', $messages);

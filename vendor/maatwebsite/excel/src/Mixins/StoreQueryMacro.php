@@ -3,6 +3,8 @@
 namespace Maatwebsite\Excel\Mixins;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Bus\PendingDispatch;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -10,43 +12,32 @@ use Maatwebsite\Excel\Sheet;
 
 class StoreQueryMacro
 {
-    public function __invoke()
+    public function __invoke(): callable
     {
-        return function (string $filePath, ?string $disk = null, ?string $writerType = null, $withHeadings = false) {
-            $export = new class($this, $withHeadings) implements FromQuery, WithHeadings
+        return function (string $filePath, ?string $disk = null, ?string $writerType = null, $withHeadings = false): bool|PendingDispatch {
+            $export = new class($this, $withHeadings) implements FromQuery, WithHeadings // @phpstan-ignore argument.type
             {
                 use Exportable;
 
                 /**
-                 * @var bool
+                 * @param  Builder<Model>  $query
                  */
-                private $withHeadings;
-
-                /**
-                 * @var Builder
-                 */
-                private $query;
-
-                /**
-                 * @param  $query
-                 * @param  bool  $withHeadings
-                 */
-                public function __construct($query, bool $withHeadings = false)
-                {
-                    $this->query        = $query;
-                    $this->withHeadings = $withHeadings;
+                public function __construct(
+                    private readonly Builder $query,
+                    private readonly bool $withHeadings = false,
+                ) {
                 }
 
                 /**
-                 * @return Builder
+                 * @return Builder<Model>
                  */
-                public function query()
+                public function query(): Builder
                 {
                     return $this->query;
                 }
 
                 /**
-                 * @return array
+                 * @return array<int, mixed>
                  */
                 public function headings(): array
                 {

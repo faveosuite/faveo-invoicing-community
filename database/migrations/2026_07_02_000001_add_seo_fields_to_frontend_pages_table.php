@@ -18,7 +18,7 @@ return new class extends Migration
                 $table->text('og_title')->nullable()->after('meta_description');
                 $table->text('og_description')->nullable()->after('og_title');
                 $table->string('og_image')->nullable()->after('og_description');
-                $table->boolean('og_same_as_meta')->default(false)->after('og_image');
+                $table->boolean('og_same_as_meta')->default(value: false)->after('og_image');
             });
         }
     }

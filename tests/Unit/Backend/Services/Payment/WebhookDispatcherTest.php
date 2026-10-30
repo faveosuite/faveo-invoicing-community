@@ -18,7 +18,7 @@ class WebhookDispatcherTest extends TestCase
 
     public function test_on_registers_single_event_handler(): void
     {
-        $dispatcher = new WebhookDispatcher();
+        $dispatcher = new WebhookDispatcher;
         $called = false;
 
         $dispatcher->on('payment.success', function () use (&$called): void {
@@ -32,7 +32,7 @@ class WebhookDispatcherTest extends TestCase
 
     public function test_on_registers_multiple_events(): void
     {
-        $dispatcher = new WebhookDispatcher();
+        $dispatcher = new WebhookDispatcher;
         $calls = [];
 
         $dispatcher->on(['event.a', 'event.b'], function (array $e) use (&$calls): void {
@@ -47,15 +47,15 @@ class WebhookDispatcherTest extends TestCase
 
     public function test_dispatch_does_nothing_for_unregistered_event(): void
     {
-        $dispatcher = new WebhookDispatcher();
+        $dispatcher = new WebhookDispatcher;
         $dispatcher->dispatch('unknown.event', []);
         $this->assertTrue(true); // no exception
     }
 
     public function test_on_returns_fluent_self(): void
     {
-        $dispatcher = new WebhookDispatcher();
-        $result = $dispatcher->on('event', fn () => null);
+        $dispatcher = new WebhookDispatcher;
+        $result = $dispatcher->on('event', fn (): null => null);
         $this->assertSame($dispatcher, $result);
     }
 
@@ -136,6 +136,7 @@ class WebhookDispatcherTest extends TestCase
     {
         $mockService = Mockery::mock(InvoicePaymentService::class);
         $mockService->shouldNotReceive('confirm');
+
         $this->app->instance(InvoicePaymentService::class, $mockService);
 
         $dispatcher = WebhookDispatcher::stripe();

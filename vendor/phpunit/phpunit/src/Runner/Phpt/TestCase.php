@@ -14,36 +14,43 @@ use const DIRECTORY_SEPARATOR;
 use function array_filter;
 use function array_values;
 use function assert;
-use function basename;
+use function bin2hex;
 use function debug_backtrace;
 use function dirname;
 use function explode;
 use function extension_loaded;
-use function file_exists;
 use function file_get_contents;
+use function getenv;
 use function in_array;
 use function is_array;
 use function is_file;
 use function is_string;
 use function ltrim;
+use function mkdir;
 use function ob_get_clean;
 use function ob_start;
 use function preg_match;
 use function preg_replace;
+use function preg_replace_callback;
+use function random_bytes;
 use function realpath;
+use function rmdir;
 use function sprintf;
 use function str_contains;
 use function str_replace;
 use function str_starts_with;
 use function strncasecmp;
 use function substr;
+use function sys_get_temp_dir;
 use function trim;
 use function unlink;
 use function unserialize;
 use PHPUnit\Event\Code\Phpt;
 use PHPUnit\Event\Code\ThrowableBuilder;
+use PHPUnit\Event\Emitter;
 use PHPUnit\Event\Facade as EventFacade;
 use PHPUnit\Event\NoPreviousThrowableException;
+use PHPUnit\Event\TestRunner\ChildProcessReason;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\ExecutionOrderDependency;
@@ -54,7 +61,6 @@ use PHPUnit\Framework\Reorderable;
 use PHPUnit\Framework\SelfDescribing;
 use PHPUnit\Framework\Test;
 use PHPUnit\Runner\CodeCoverage;
-use PHPUnit\Runner\CodeCoverageFileExistsException;
 use PHPUnit\Runner\Exception;
 use PHPUnit\TestRunner\TestResult\Facade as TestResultFacade;
 use PHPUnit\TextUI\Configuration\Registry as ConfigurationRegistry;
@@ -87,13 +93,90 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
     private string $filename;
 
     /**
-     * @param non-empty-string $filename
+     * @var positive-int
      */
-    public function __construct(string $filename)
-    {
-        $this->filename = $filename;
+    private int $repetition;
 
-        $this->ensureCoverageFileDoesNotExist();
+    /**
+     * @var positive-int
+     */
+    private int $totalRepetitions;
+
+    /**
+     * @var positive-int
+     */
+    private int $attempt;
+
+    /**
+     * @var positive-int
+     */
+    private int $maxAttempts;
+
+    /**
+     * The directory the temporary files that are used to collect code coverage
+     * for this test are created in.
+     *
+     * @var non-empty-string
+     */
+    private string $coverageFilesDirectory;
+
+    /**
+     * @var CoverageFiles
+     */
+    private array $coverageFiles;
+
+    /**
+     * @param non-empty-string $filename
+     * @param positive-int     $repetition
+     * @param positive-int     $totalRepetitions
+     * @param positive-int     $attempt
+     * @param positive-int     $maxAttempts
+     */
+    public function __construct(string $filename, int $repetition = 1, int $totalRepetitions = 1, int $attempt = 1, int $maxAttempts = 1)
+    {
+        $this->filename         = $filename;
+        $this->repetition       = $repetition;
+        $this->totalRepetitions = $totalRepetitions;
+        $this->attempt          = $attempt;
+        $this->maxAttempts      = $maxAttempts;
+
+        // The temporary files that are used to collect code coverage for a
+        // PHPT test are created below the system's temporary directory so that
+        // running a PHPT test does not modify the directory the PHPT file is
+        // located in.
+        //
+        // They are created in a directory of their own, and not in the
+        // system's temporary directory itself, so that a PHPT test that
+        // restricts open_basedir can allow access to them without also
+        // allowing access to the system's temporary directory.
+        //
+        // The system's temporary directory can be shared with other users,
+        // for instance /tmp on Linux. The name of the directory therefore
+        // cannot be predicted, and the directory is only used when it is
+        // created when the test is run, with permissions that only allow the
+        // current user to access it. Otherwise, another user could create the
+        // directory beforehand and replace the code that is executed.
+        //
+        // The path of the system's temporary directory is resolved because PHP
+        // reports the resolved path of a file in stack traces and in the list of
+        // included files. Otherwise, the file with the code of a PHPT test would
+        // not be found in $GLOBALS['__PHPUNIT_ISOLATION_EXCLUDE_LIST'] when the
+        // path of the system's temporary directory contains a symbolic link, for
+        // instance on macOS, where /var is a symbolic link to /private/var.
+        $temporaryDirectory = realpath(sys_get_temp_dir());
+
+        if ($temporaryDirectory === false) {
+            // @codeCoverageIgnoreStart
+            $temporaryDirectory = sys_get_temp_dir();
+            // @codeCoverageIgnoreEnd
+        }
+
+        $this->coverageFilesDirectory = $temporaryDirectory . DIRECTORY_SEPARATOR . 'phpunit-phpt-' . bin2hex(random_bytes(16));
+
+        $this->coverageFiles = [
+            'coverage' => $this->coverageFilesDirectory . DIRECTORY_SEPARATOR . 'job.coverage',
+            'job'      => $this->coverageFilesDirectory . DIRECTORY_SEPARATOR . 'job.php',
+        ];
     }
 
     public function count(): int
@@ -130,9 +213,7 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
             return;
         }
 
-        if (!isset($sections['FILE']) || $sections['FILE'] === '') {
-            throw new InvalidPhptFileException;
-        }
+        assert(isset($sections['FILE']) && $sections['FILE'] !== '');
 
         $fileExternalPath = $this->filename;
 
@@ -150,14 +231,59 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
         $emitter->testPrepared($this->valueObjectForEvents());
 
         if (isset($sections['INI'])) {
-            $phpSettings = $parser->parseIniSection($sections['INI'], $phpSettings);
+            $ini = str_replace(
+                ['{PWD}', '{TMP}'],
+                [dirname($this->filename), sys_get_temp_dir()],
+                $sections['INI'],
+            );
+
+            $unsetEnvironmentVariable = null;
+
+            $ini = preg_replace_callback(
+                '/{ENV:(\S+)}/',
+                static function (array $matches) use (&$unsetEnvironmentVariable): string
+                {
+                    $value = getenv($matches[1]);
+
+                    if ($value === false) {
+                        if ($unsetEnvironmentVariable === null) {
+                            $unsetEnvironmentVariable = $matches[1];
+                        }
+
+                        return '';
+                    }
+
+                    return $value;
+                },
+                $ini,
+            );
+
+            assert($ini !== null);
+
+            if ($unsetEnvironmentVariable !== null) {
+                $emitter->testSkipped(
+                    $this->valueObjectForEvents(),
+                    sprintf(
+                        'Environment variable %s is not set',
+                        $unsetEnvironmentVariable,
+                    ),
+                );
+
+                $emitter->testFinished($this->valueObjectForEvents(), 0);
+
+                return;
+            }
+
+            $phpSettings = $parser->parseIniSection($ini, $phpSettings);
         }
 
         if (isset($sections['ENV'])) {
-            $environmentVariables = $parser->parseEnvSection($sections['ENV']);
+            $environmentVariables = $parser->parseEnvSection(
+                str_replace('{PWD}', dirname($this->filename), $sections['ENV']),
+            );
         }
 
-        if ($this->shouldTestBeSkipped($sections, $phpSettings)) {
+        if ($this->shouldTestBeSkipped($sections, $phpSettings, $emitter)) {
             return;
         }
 
@@ -195,13 +321,26 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
                 $bootstrap = ConfigurationRegistry::get()->bootstrap();
             }
 
+            if (!@mkdir($this->coverageFilesDirectory, 0o700)) {
+                $emitter->testErrored(
+                    $this->valueObjectForEvents(),
+                    ThrowableBuilder::from(
+                        new CoverageFilesDirectoryCannotBeCreatedException($this->coverageFilesDirectory),
+                    ),
+                );
+
+                $emitter->testFinished($this->valueObjectForEvents(), 0);
+
+                return;
+            }
+
             (new Renderer)->renderForCoverage(
                 $code,
                 CodeCoverage::instance()->collectsBranchCoverage(),
                 CodeCoverage::instance()->collectsPathCoverage(),
                 $codeCoverageCacheDirectory,
                 $bootstrap,
-                $this->coverageFiles(),
+                $this->coverageFiles,
             );
             // @codeCoverageIgnoreEnd
         }
@@ -209,6 +348,7 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
         $jobResult = JobRunnerRegistry::run(
             new Job(
                 $code,
+                ChildProcessReason::PhptTest,
                 $this->stringifyIni($phpSettings),
                 $environmentVariables,
                 $arguments,
@@ -217,10 +357,10 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
             ),
         );
 
-        EventFacade::emitter()->childProcessFinished($jobResult->stdout(), $jobResult->stderr());
+        $emitter->childProcessFinished(ChildProcessReason::PhptTest, $jobResult->stdout(), $jobResult->stderr());
 
         if (TestResultFacade::wasInterrupted()) {
-            $this->runClean($sections, CodeCoverage::instance()->isActive());
+            $this->runClean($sections, CodeCoverage::instance()->isActive(), $emitter);
 
             $emitter->testFinished($this->valueObjectForEvents(), 0);
 
@@ -231,7 +371,7 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
 
         if (CodeCoverage::instance()->isActive()) {
             // @codeCoverageIgnoreStart
-            $coverage = $this->cleanupForCoverage();
+            $coverage = $this->cleanupForCoverage($emitter);
 
             CodeCoverage::instance()->codeCoverage()->start($this->filename, TestSize::Large);
 
@@ -325,10 +465,17 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
         }
 
         if ($passed) {
+            if ($xfail !== false) {
+                $emitter->testConsideredRisky(
+                    $this->valueObjectForEvents(),
+                    'Test is expected to fail (XFAIL section) but passed',
+                );
+            }
+
             $emitter->testPassed($this->valueObjectForEvents());
         }
 
-        $this->runClean($sections, CodeCoverage::instance()->isActive());
+        $this->runClean($sections, CodeCoverage::instance()->isActive(), $emitter);
 
         $emitter->testFinished($this->valueObjectForEvents(), 1);
     }
@@ -345,6 +492,16 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
      * Returns a string representation of the test case.
      */
     public function toString(): string
+    {
+        return $this->filename;
+    }
+
+    /**
+     * The file that declares this test.
+     *
+     * @return non-empty-string
+     */
+    public function file(): string
     {
         return $this->filename;
     }
@@ -375,7 +532,23 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
      */
     public function valueObjectForEvents(): Phpt
     {
-        return new Phpt($this->filename);
+        return new Phpt(
+            $this->filename,
+            $this->repetition,
+            $this->totalRepetitions,
+            $this->attempt,
+            $this->maxAttempts,
+        );
+    }
+
+    /**
+     * @return positive-int
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function repetition(): int
+    {
+        return $this->repetition;
     }
 
     /**
@@ -404,7 +577,7 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
                 $expected = $sectionContent;
 
                 if ($sectionName === 'EXPECTREGEX') {
-                    $expected = "/{$sectionContent}/";
+                    $expected = '/^' . $sectionContent . '$/s';
                 }
 
                 /** @phpstan-ignore staticMethod.dynamicName */
@@ -416,10 +589,14 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
     }
 
     /**
+     * A SKIPIF section that prints "xfail <reason>" declares an expected
+     * failure at runtime; it is treated as if the PHPT file contained an
+     * XFAIL section with that reason.
+     *
      * @param array<non-empty-string, string>               $sections
      * @param array<non-empty-string, array<string>|string> $settings
      */
-    private function shouldTestBeSkipped(array $sections, array $settings): bool
+    private function shouldTestBeSkipped(array &$sections, array $settings, Emitter $emitter): bool
     {
         if (!isset($sections['SKIPIF']) || $sections['SKIPIF'] === '') {
             return false;
@@ -431,47 +608,75 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
             $jobResult = JobRunnerRegistry::run(
                 new Job(
                     $skipIfCode,
+                    ChildProcessReason::PhptSkipIfSection,
                     $this->stringifyIni($settings),
                 ),
             );
 
             $output = $jobResult->stdout();
 
-            EventFacade::emitter()->childProcessFinished($output, $jobResult->stderr());
+            $emitter->childProcessFinished(ChildProcessReason::PhptSkipIfSection, $output, $jobResult->stderr());
         } else {
             $output = $this->runCodeInLocalSandbox($skipIfCode);
         }
 
-        $this->triggerRunnerWarningOnPhpErrors('SKIPIF', $output);
+        $this->triggerRunnerWarningOnPhpErrors('SKIPIF', $output, $emitter);
 
         if (strncasecmp('skip', ltrim($output), 4) === 0) {
             $message = '';
 
-            if (preg_match('/^\s*skip\s*(.+)\s*/i', $output, $skipMatch) === 1) {
-                $message = substr($skipMatch[1], 2);
+            if (preg_match('/^\s*skip\s*(?:[-:]\s*)?(.+)/i', $output, $skipMatch) === 1) {
+                $message = trim($skipMatch[1]);
             }
 
             if ($message === '') {
                 $message = 'Skipped';
             }
 
-            EventFacade::emitter()->testSkipped(
+            $emitter->testSkipped(
                 $this->valueObjectForEvents(),
                 $message,
             );
 
-            EventFacade::emitter()->testFinished($this->valueObjectForEvents(), 0);
+            $emitter->testFinished($this->valueObjectForEvents(), 0);
 
             return true;
         }
 
+        if (strncasecmp('xfail', ltrim($output), 5) === 0) {
+            $sections['XFAIL'] = trim(substr(ltrim($output), 5));
+
+            return false;
+        }
+
+        // Keywords understood by PHP's run-tests.php that have no PHPUnit
+        // counterpart: no leak checking (xleak), no dynamic per-test retry
+        // (flaky), no skip cache (nocache), no per-test annotations (info,
+        // warn)
+        if (preg_match('/^\s*(?:info|warn|xleak|flaky|nocache)\b/i', $output) === 1) {
+            return false;
+        }
+
+        if (trim($output) !== '') {
+            if (!str_contains($output, 'Parse error:') &&
+                !str_contains($output, 'Fatal error:')) {
+                $emitter->testConsideredRisky(
+                    $this->valueObjectForEvents(),
+                    sprintf(
+                        'SKIPIF section produced unrecognized output: %s',
+                        trim($output),
+                    ),
+                );
+            }
+
+            return false;
+        }
+
         $sideEffects = (new SideEffectsDetector)->getSideEffects($skipIfCode);
 
-        if (!str_contains($output, 'Parse error:') &&
-            !str_contains($output, 'Fatal error:') &&
-            !in_array(SideEffect::STANDARD_OUTPUT, $sideEffects, true) &&
+        if (!in_array(SideEffect::STANDARD_OUTPUT, $sideEffects, true) &&
             !in_array(SideEffect::SCOPE_POLLUTION, $sideEffects, true)) {
-            EventFacade::emitter()->testConsideredRisky(
+            $emitter->testConsideredRisky(
                 $this->valueObjectForEvents(),
                 'SKIPIF section does not produce output that could result in the test being skipped',
             );
@@ -536,7 +741,7 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
     /**
      * @param array<non-empty-string, string> $sections
      */
-    private function runClean(array $sections, bool $collectCoverage): void
+    private function runClean(array $sections, bool $collectCoverage, Emitter $emitter): void
     {
         if (!isset($sections['CLEAN']) || $sections['CLEAN'] === '') {
             return;
@@ -548,18 +753,19 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
             $jobResult = JobRunnerRegistry::run(
                 new Job(
                     $cleanCode,
+                    ChildProcessReason::PhptCleanSection,
                     $this->settings($collectCoverage),
                 ),
             );
 
             $output = $jobResult->stdout();
 
-            EventFacade::emitter()->childProcessFinished($jobResult->stdout(), $jobResult->stderr());
+            $emitter->childProcessFinished(ChildProcessReason::PhptCleanSection, $jobResult->stdout(), $jobResult->stderr());
         } else {
             $output = $this->runCodeInLocalSandbox($cleanCode);
         }
 
-        $this->triggerRunnerWarningOnPhpErrors('CLEAN', $output);
+        $this->triggerRunnerWarningOnPhpErrors('CLEAN', $output, $emitter);
     }
 
     /**
@@ -567,13 +773,13 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
      *
      * @phpstan-ignore return.internalClass
      */
-    private function cleanupForCoverage(): RawCodeCoverageData
+    private function cleanupForCoverage(Emitter $emitter): RawCodeCoverageData
     {
         /**
          * @phpstan-ignore staticMethod.internalClass
          */
-        $coverage = RawCodeCoverageData::fromXdebugWithoutPathCoverage([]);
-        $files    = $this->coverageFiles();
+        $coverage = RawCodeCoverageData::fromLineCoverage([]);
+        $files    = $this->coverageFiles;
 
         $buffer = false;
 
@@ -595,6 +801,13 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
             /** @phpstan-ignore instanceof.internalClass */
             if ($unserialized instanceof RawCodeCoverageData) {
                 $coverage = $unserialized;
+            } else {
+                $emitter->testRunnerTriggeredPhpunitWarning(
+                    sprintf(
+                        'Code coverage could not be collected for %s',
+                        $this->filename,
+                    ),
+                );
             }
         }
 
@@ -602,27 +815,9 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
             @unlink($file);
         }
 
+        @rmdir($this->coverageFilesDirectory);
+
         return $coverage;
-    }
-
-    /**
-     * @return CoverageFiles
-     */
-    private function coverageFiles(): array
-    {
-        $realPath = realpath($this->filename);
-
-        if ($realPath === false) {
-            $realPath = $this->filename;
-        }
-
-        $baseDir  = dirname($realPath) . DIRECTORY_SEPARATOR;
-        $basename = basename($this->filename, 'phpt');
-
-        return [
-            'coverage' => $baseDir . $basename . 'coverage',
-            'job'      => $baseDir . $basename . 'php',
-        ];
     }
 
     /**
@@ -786,19 +981,25 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
             'allow_url_fopen=1',
             'auto_append_file=',
             'auto_prepend_file=',
+            'date.timezone=UTC',
             'disable_functions=',
             'display_errors=1',
+            'display_startup_errors=1',
             'docref_ext=.html',
             'docref_root=',
             'error_append_string=',
             'error_prepend_string=',
             'error_reporting=-1',
+            'fatal_error_backtraces=Off',
             'html_errors=0',
+            'ignore_repeated_errors=0',
             'log_errors=0',
             'open_basedir=',
             'output_buffering=Off',
             'output_handler=',
+            'precision=14',
             'report_zend_debug=0',
+            'serialize_precision=-1',
         ];
 
         // @codeCoverageIgnoreStart
@@ -820,10 +1021,10 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
         return $settings;
     }
 
-    private function triggerRunnerWarningOnPhpErrors(string $section, string $output): void
+    private function triggerRunnerWarningOnPhpErrors(string $section, string $output, Emitter $emitter): void
     {
         if (str_contains($output, 'Parse error:')) {
-            EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
+            $emitter->testRunnerTriggeredPhpunitWarning(
                 sprintf(
                     '%s section triggered a parse error: %s',
                     $section,
@@ -833,7 +1034,7 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
         }
 
         if (str_contains($output, 'Fatal error:')) {
-            EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
+            $emitter->testRunnerTriggeredPhpunitWarning(
                 sprintf(
                     '%s section triggered a fatal error: %s',
                     $section,
@@ -852,23 +1053,5 @@ final readonly class TestCase implements Reorderable, SelfDescribing, Test
         assert(isset($sections[$key]));
 
         return (int) $sections[$key];
-    }
-
-    /**
-     * @throws CodeCoverageFileExistsException
-     */
-    private function ensureCoverageFileDoesNotExist(): void
-    {
-        $files = $this->coverageFiles();
-
-        if (file_exists($files['coverage'])) {
-            throw new CodeCoverageFileExistsException(
-                sprintf(
-                    'File %s exists, PHPT test %s will not be executed',
-                    $files['coverage'],
-                    $this->filename,
-                ),
-            );
-        }
     }
 }

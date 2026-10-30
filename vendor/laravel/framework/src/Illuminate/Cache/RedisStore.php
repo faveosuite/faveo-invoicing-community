@@ -2,6 +2,7 @@
 
 namespace Illuminate\Cache;
 
+use Illuminate\Contracts\Cache\CanFlushLocks;
 use Illuminate\Contracts\Cache\LockProvider;
 use Illuminate\Contracts\Redis\Factory as Redis;
 use Illuminate\Redis\Connections\PhpRedisClusterConnection;
@@ -10,8 +11,9 @@ use Illuminate\Redis\Connections\PredisClusterConnection;
 use Illuminate\Redis\Connections\PredisConnection;
 use Illuminate\Support\LazyCollection;
 use Illuminate\Support\Str;
+use RuntimeException;
 
-class RedisStore extends TaggableStore implements LockProvider
+class RedisStore extends TaggableStore implements CanFlushLocks, LockProvider
 {
     use RetrievesMultipleKeys {
         many as private manyAlias;
@@ -42,7 +44,7 @@ class RedisStore extends TaggableStore implements LockProvider
     /**
      * The name of the connection that should be used for locks.
      *
-     * @var string
+     * @var string|null
      */
     protected $lockConnection;
 
@@ -94,7 +96,7 @@ class RedisStore extends TaggableStore implements LockProvider
      */
     public function many(array $keys)
     {
-        if (count($keys) === 0) {
+        if ($keys === []) {
             return [];
         }
 
@@ -264,6 +266,18 @@ class RedisStore extends TaggableStore implements LockProvider
     }
 
     /**
+     * Adjust the expiration time of a cached item.
+     *
+     * @param  string  $key
+     * @param  int  $seconds
+     * @return bool
+     */
+    public function touch($key, $seconds)
+    {
+        return (bool) $this->connection()->expire($this->getPrefix().$key, (int) max(1, $seconds));
+    }
+
+    /**
      * Remove an item from the cache.
      *
      * @param  string  $key
@@ -282,6 +296,24 @@ class RedisStore extends TaggableStore implements LockProvider
     public function flush()
     {
         $this->connection()->flushdb();
+
+        return true;
+    }
+
+    /**
+     * Remove all locks from the store.
+     *
+     * @return bool
+     *
+     * @throws \RuntimeException
+     */
+    public function flushLocks(): bool
+    {
+        if (! $this->hasSeparateLockStore()) {
+            throw new RuntimeException('Flushing locks is only supported when the lock store is separate from the cache store.');
+        }
+
+        $this->lockConnection()->flushdb();
 
         return true;
     }
@@ -335,13 +367,20 @@ class RedisStore extends TaggableStore implements LockProvider
 
         $prefix = $connectionPrefix.$this->getPrefix();
 
-        return (new LazyCollection(function () use ($connection, $chunkSize, $prefix, $defaultCursorValue) {
+        // PhpRedis adds the connection prefix to the pattern itself when "SCAN_PREFIX" is enabled...
+        $match = $connection instanceof PhpRedisConnection &&
+            defined('Redis::SCAN_PREFIX') &&
+            $connection->client()->getOption(\Redis::OPT_SCAN) === \Redis::SCAN_PREFIX
+                ? $this->getPrefix().'tag:*:entries'
+                : $prefix.'tag:*:entries';
+
+        return (new LazyCollection(function () use ($connection, $chunkSize, $match, $defaultCursorValue) {
             $cursor = $defaultCursorValue;
 
             do {
                 $scanResult = $connection->scan(
                     $cursor,
-                    ['match' => $prefix.'tag:*:entries', 'count' => $chunkSize]
+                    ['match' => $match, 'count' => $chunkSize]
                 );
 
                 if (! is_array($scanResult)) {
@@ -363,7 +402,7 @@ class RedisStore extends TaggableStore implements LockProvider
                 foreach ($tagsChunk as $tag) {
                     yield $tag;
                 }
-            } while (((string) $cursor) !== $defaultCursorValue);
+            } while (((string) $cursor) !== ((string) $defaultCursorValue));
         }))->map(fn (string $tagKey) => Str::match('/^'.preg_quote($prefix, '/').'tag:(.*):entries$/', $tagKey));
     }
 
@@ -535,5 +574,15 @@ class RedisStore extends TaggableStore implements LockProvider
         }
 
         return $this->unserialize($value);
+    }
+
+    /**
+     * Determine if the lock store is separate from the cache store.
+     *
+     * @return bool
+     */
+    public function hasSeparateLockStore(): bool
+    {
+        return $this->lockConnection !== $this->connection;
     }
 }

@@ -7,6 +7,7 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Logger;
 
@@ -86,7 +87,7 @@ trait PaymentsAndInvoices
     public function getAmountPaid(int $userId): float
     {
         try {
-            return (float) PaymentInvoice::whereHas('payment', function ($query) use ($userId): void {
+            return (float) PaymentInvoice::whereHas('payment', function (Builder $query) use ($userId): void {
                 $query->where('user_id', $userId)->where('payment_status', 'success');
             })->sum('amount');
         } catch (Exception $exception) {

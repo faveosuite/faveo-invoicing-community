@@ -40,7 +40,7 @@ class LogWriteController
         try {
             $cronLog = CronLog::select('id', 'created_at', 'command')->find($logId);
 
-            $exceptionLog = $exception ? $this->exception($exception, 'cron') : null;
+            $exceptionLog = $exception instanceof Exception ? $this->exception($exception, 'cron') : null;
 
             if ($cronLog) {
                 $cronLog->update([

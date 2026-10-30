@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\User;
 
+use App\Http\Middleware\Install;
 use Tests\DBTestCase;
 
 class ProfileControllerTest extends DBTestCase
@@ -11,7 +12,7 @@ class ProfileControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     // --- GET /profile: role gates ---
@@ -55,6 +56,7 @@ class ProfileControllerTest extends DBTestCase
         $response = $this->getJson('/profile');
 
         $response->assertStatus(200);
+
         $user = $response->json('data.user');
 
         // Verify the returned user matches the logged-in admin

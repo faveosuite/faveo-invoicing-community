@@ -8,13 +8,21 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Queue\Attributes\Backoff;
+use Illuminate\Queue\Attributes\CountCrashesAsExceptions;
+use Illuminate\Queue\Attributes\DeleteWhenMissingModels;
+use Illuminate\Queue\Attributes\FailOnTimeout;
+use Illuminate\Queue\Attributes\MaxExceptions;
+use Illuminate\Queue\Attributes\ReadsQueueAttributes;
+use Illuminate\Queue\Attributes\Timeout;
+use Illuminate\Queue\Attributes\Tries;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 
 class SendQueuedNotifications implements ShouldQueue
 {
-    use InteractsWithQueue, Queueable, SerializesModels;
+    use InteractsWithQueue, Queueable, ReadsQueueAttributes, SerializesModels;
 
     /**
      * The notifiable entities that should receive the notification.
@@ -33,7 +41,7 @@ class SendQueuedNotifications implements ShouldQueue
     /**
      * All of the channels to send the notification to.
      *
-     * @var array
+     * @var array|null
      */
     public $channels;
 
@@ -66,6 +74,25 @@ class SendQueuedNotifications implements ShouldQueue
     public $shouldBeEncrypted = false;
 
     /**
+     * Indicates if the job should be deleted when models are missing.
+     */
+    public bool $deleteWhenMissingModels = false;
+
+    /**
+     * Indicates if the job should be marked as failed on timeout.
+     *
+     * @var bool
+     */
+    public $failOnTimeout = false;
+
+    /**
+     * Indicates if worker crashes should count towards the maximum exceptions.
+     *
+     * @var bool
+     */
+    public $countCrashesAsExceptions = false;
+
+    /**
      * Create a new job instance.
      *
      * @param  \Illuminate\Notifications\Notifiable|\Illuminate\Support\Collection  $notifiables
@@ -77,9 +104,12 @@ class SendQueuedNotifications implements ShouldQueue
         $this->channels = $channels;
         $this->notification = $notification;
         $this->notifiables = $this->wrapNotifiables($notifiables);
-        $this->tries = property_exists($notification, 'tries') ? $notification->tries : null;
-        $this->timeout = property_exists($notification, 'timeout') ? $notification->timeout : null;
-        $this->maxExceptions = property_exists($notification, 'maxExceptions') ? $notification->maxExceptions : null;
+        $this->tries = $this->getAttributeValue($notification, Tries::class, 'tries');
+        $this->timeout = $this->getAttributeValue($notification, Timeout::class, 'timeout');
+        $this->maxExceptions = $this->getAttributeValue($notification, MaxExceptions::class, 'maxExceptions');
+        $this->deleteWhenMissingModels = $this->getAttributeValue($notification, DeleteWhenMissingModels::class, 'deleteWhenMissingModels') ?? false;
+        $this->failOnTimeout = $this->getAttributeValue($notification, FailOnTimeout::class, 'failOnTimeout') ?? false;
+        $this->countCrashesAsExceptions = $this->getAttributeValue($notification, CountCrashesAsExceptions::class, 'countCrashesAsExceptions') ?? false;
 
         if ($notification instanceof ShouldQueueAfterCommit) {
             $this->afterCommit = true;
@@ -148,11 +178,13 @@ class SendQueuedNotifications implements ShouldQueue
      */
     public function backoff()
     {
-        if (! method_exists($this->notification, 'backoff') && ! isset($this->notification->backoff)) {
-            return;
+        $backoff = $this->getAttributeValue($this->notification, Backoff::class, 'backoff');
+
+        if (method_exists($this->notification, 'backoff')) {
+            $backoff = $this->notification->backoff();
         }
 
-        return $this->notification->backoff ?? $this->notification->backoff();
+        return $backoff;
     }
 
     /**

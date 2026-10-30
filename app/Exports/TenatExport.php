@@ -16,9 +16,7 @@ class TenatExport implements FromCollection, WithHeadings, WithTitle
     /**
      * @param  Enumerable<covariant int|string, covariant mixed>  $tenantsData
      */
-    public function __construct(protected mixed $selectedColumns, protected Enumerable $tenantsData, protected mixed $sheetIndex)
-    {
-    }
+    public function __construct(protected mixed $selectedColumns, protected Enumerable $tenantsData, protected mixed $sheetIndex) {}
 
     /**
      * @return Collection<int|string, mixed>

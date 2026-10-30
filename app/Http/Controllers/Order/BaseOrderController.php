@@ -338,7 +338,7 @@ class BaseOrderController extends ExtendedOrderController
         }
 
         // Format the configuration options
-        // @phpstan-ignore return.type
+        // @phpstan-ignore return.type, argument.type
         return $products->flatMap(fn ($product) => $product->configOptions->flatMap(fn ($configOption) => $configOption->configOptionValues->map(fn ($configOptionValue): array => [
             'product_id' => $product->id,
             'option_group' => $configOption->configGroup->config_group_name,

@@ -72,6 +72,7 @@ class MailMessageData implements ModelInterface, ArrayAccess, JsonSerializable
         'cc' => '\Pipedrive\versions\v1\Model\MailParticipant[]',
         'bcc' => '\Pipedrive\versions\v1\Model\MailParticipant[]',
         'body_url' => 'string',
+        'body' => 'string',
         'account_id' => 'string',
         'user_id' => 'int',
         'mail_thread_id' => 'int',
@@ -110,6 +111,7 @@ class MailMessageData implements ModelInterface, ArrayAccess, JsonSerializable
         'cc' => null,
         'bcc' => null,
         'body_url' => null,
+        'body' => null,
         'account_id' => null,
         'user_id' => null,
         'mail_thread_id' => null,
@@ -171,6 +173,7 @@ class MailMessageData implements ModelInterface, ArrayAccess, JsonSerializable
         'cc' => 'cc',
         'bcc' => 'bcc',
         'body_url' => 'body_url',
+        'body' => 'body',
         'account_id' => 'account_id',
         'user_id' => 'user_id',
         'mail_thread_id' => 'mail_thread_id',
@@ -207,6 +210,7 @@ class MailMessageData implements ModelInterface, ArrayAccess, JsonSerializable
         'cc' => 'setCc',
         'bcc' => 'setBcc',
         'body_url' => 'setBodyUrl',
+        'body' => 'setBody',
         'account_id' => 'setAccountId',
         'user_id' => 'setUserId',
         'mail_thread_id' => 'setMailThreadId',
@@ -243,6 +247,7 @@ class MailMessageData implements ModelInterface, ArrayAccess, JsonSerializable
         'cc' => 'getCc',
         'bcc' => 'getBcc',
         'body_url' => 'getBodyUrl',
+        'body' => 'getBody',
         'account_id' => 'getAccountId',
         'user_id' => 'getUserId',
         'mail_thread_id' => 'getMailThreadId',
@@ -357,6 +362,7 @@ class MailMessageData implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['cc'] = $data['cc'] ?? null;
         $this->container['bcc'] = $data['bcc'] ?? null;
         $this->container['body_url'] = $data['body_url'] ?? null;
+        $this->container['body'] = $data['body'] ?? null;
         $this->container['account_id'] = $data['account_id'] ?? null;
         $this->container['user_id'] = $data['user_id'] ?? null;
         $this->container['mail_thread_id'] = $data['mail_thread_id'] ?? null;
@@ -556,6 +562,30 @@ class MailMessageData implements ModelInterface, ArrayAccess, JsonSerializable
     public function setBodyUrl($body_url): self
     {
         $this->container['body_url'] = $body_url;
+
+        return $this;
+    }
+
+    /**
+     * Gets body
+     *
+     * @return string|null
+     */
+    public function getBody()
+    {
+        return $this->container['body'];
+    }
+
+    /**
+     * Sets body
+     *
+     * @param string|null $body The mail message body content. Only present when `include_body=1` is passed.
+     *
+     * @return self
+     */
+    public function setBody($body): self
+    {
+        $this->container['body'] = $body;
 
         return $this;
     }

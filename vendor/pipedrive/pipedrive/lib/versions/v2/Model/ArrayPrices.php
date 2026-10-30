@@ -66,7 +66,7 @@ class ArrayPrices implements ModelInterface, ArrayAccess, JsonSerializable
       * @phpsalm-var array<string, string>
       */
     protected static array $openAPITypes = [
-        'prices' => '\Pipedrive\versions\v2\Model\ArrayPricesPrices[]'
+        'prices' => '\Pipedrive\versions\v2\Model\ProductPrice[]'
     ];
 
     /**
@@ -231,7 +231,7 @@ class ArrayPrices implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets prices
      *
-     * @return \Pipedrive\versions\v2\Model\ArrayPricesPrices[]|null
+     * @return \Pipedrive\versions\v2\Model\ProductPrice[]|null
      */
     public function getPrices()
     {
@@ -241,7 +241,7 @@ class ArrayPrices implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets prices
      *
-     * @param \Pipedrive\versions\v2\Model\ArrayPricesPrices[]|null $prices The prices of the product in different currencies
+     * @param \Pipedrive\versions\v2\Model\ProductPrice[]|null $prices The prices of the product in different currencies
      *
      * @return self
      */

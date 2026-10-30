@@ -2,9 +2,11 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Auth;
 
+use App\Http\Controllers\Auth\RegisterController;
 use App\Model\Common\StatusSetting;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\Request;
 use phpmock\MockBuilder;
 use Tests\DBTestCase;
 
@@ -255,7 +257,7 @@ class RegistrationTest extends DBTestCase
 
     public function test_email_verification_returns_true_when_provider_not_configured(): void
     {
-        $controller = new \App\Http\Controllers\Auth\RegisterController;
+        $controller = new RegisterController;
 
         // No EmailMobileValidationProviders row for 'reoon' → firstOrFail throws
         // The exception is caught → returns ['status' => true, 'id' => null]
@@ -272,9 +274,9 @@ class RegistrationTest extends DBTestCase
 
     public function test_get_user_details_returns_array_with_required_keys(): void
     {
-        $controller = new \App\Http\Controllers\Auth\RegisterController;
+        $controller = new RegisterController;
 
-        $request = new \Illuminate\Http\Request;
+        $request = new Request;
         $request->merge([
             'email' => 'test@example.com',
             'first_name' => 'Test',
@@ -302,7 +304,7 @@ class RegistrationTest extends DBTestCase
 
     public function test_log_activity_register_does_not_throw_for_valid_user(): void
     {
-        $controller = new \App\Http\Controllers\Auth\RegisterController;
+        $controller = new RegisterController;
         $user = User::factory()->create();
 
         $controller->logActivityRegister($user);
@@ -312,9 +314,9 @@ class RegistrationTest extends DBTestCase
 
     public function test_log_activity_register_returns_early_for_null_user(): void
     {
-        $controller = new \App\Http\Controllers\Auth\RegisterController;
+        $controller = new RegisterController;
 
-        $controller->logActivityRegister(null);
+        $controller->logActivityRegister(user: null);
 
         $this->assertTrue(true);
     }

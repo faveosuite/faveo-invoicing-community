@@ -247,7 +247,7 @@ $apiInstance = new Pipedrive\versions\v2\Api\DealProductsApi(
     $config
 );
 $id = 56; // int | The ID of the deal
-$ids = 1,2,3; // string | Comma-separated list of deal product IDs to delete. If not provided, all deal products will be deleted up to 100 items. Maximum 100 IDs allowed.
+$ids = [1, 2, 3]; // int[] | Comma-separated list of deal product IDs to delete. If not provided, all deal products will be deleted up to 100 items. Maximum 100 IDs allowed.
 
 try {
     $result = $apiInstance->deleteManyDealProducts($id, $ids);
@@ -262,7 +262,7 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **int**| The ID of the deal |
- **ids** | **string**| Comma-separated list of deal product IDs to delete. If not provided, all deal products will be deleted up to 100 items. Maximum 100 IDs allowed. | [optional]
+ **ids** | [**int[]**](../Model/int.md)| Comma-separated list of deal product IDs to delete. If not provided, all deal products will be deleted up to 100 items. Maximum 100 IDs allowed. | [optional]
 
 ### Return type
 

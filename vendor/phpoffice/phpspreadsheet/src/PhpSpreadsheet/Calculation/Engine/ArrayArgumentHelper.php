@@ -6,31 +6,20 @@ use PhpOffice\PhpSpreadsheet\Calculation\Exception;
 
 class ArrayArgumentHelper
 {
-    /**
-     * @var int
-     */
-    protected $indexStart = 0;
+    protected int $indexStart = 0;
 
-    /**
-     * @var array
-     */
-    protected $arguments;
+    /** @var mixed[] */
+    protected array $arguments;
 
-    /**
-     * @var int
-     */
-    protected $argumentCount;
+    protected int $argumentCount;
 
-    /**
-     * @var array
-     */
-    protected $rows;
+    /** @var int[] */
+    protected array $rows;
 
-    /**
-     * @var array
-     */
-    protected $columns;
+    /** @var int[] */
+    protected array $columns;
 
+    /** @param mixed[] $arguments */
     public function initialise(array $arguments): void
     {
         $keys = array_keys($arguments);
@@ -49,6 +38,7 @@ class ArrayArgumentHelper
         }
     }
 
+    /** @return mixed[] */
     public function arguments(): array
     {
         return $this->arguments;
@@ -80,6 +70,7 @@ class ArrayArgumentHelper
         return count($rowVectors) === 1 ? array_pop($rowVectors) : null;
     }
 
+    /** @return int[] */
     private function getRowVectors(): array
     {
         $rowVectors = [];
@@ -99,6 +90,7 @@ class ArrayArgumentHelper
         return count($columnVectors) === 1 ? array_pop($columnVectors) : null;
     }
 
+    /** @return int[] */
     private function getColumnVectors(): array
     {
         $columnVectors = [];
@@ -111,6 +103,7 @@ class ArrayArgumentHelper
         return $columnVectors;
     }
 
+    /** @return int[] */
     public function getMatrixPair(): array
     {
         for ($i = $this->indexStart; $i < ($this->indexStart + $this->argumentCount - 1); ++$i) {
@@ -149,24 +142,30 @@ class ArrayArgumentHelper
         return $this->columns[$argument];
     }
 
+    /**
+     * @param mixed[] $arguments
+     *
+     * @return int[]
+     */
     private function rows(array $arguments): array
     {
         return array_map(
-            function ($argument) {
-                return is_countable($argument) ? count($argument) : 1;
-            },
+            fn ($argument): int => is_countable($argument) ? count($argument) : 1,
             $arguments
         );
     }
 
+    /**
+     * @param mixed[] $arguments
+     *
+     * @return int[]
+     */
     private function columns(array $arguments): array
     {
         return array_map(
-            function ($argument) {
-                return is_array($argument) && is_array($argument[array_keys($argument)[0]])
+            fn (mixed $argument): int => is_array($argument) && is_array($argument[array_keys($argument)[0]])
                     ? count($argument[array_keys($argument)[0]])
-                    : 1;
-            },
+                    : 1,
             $arguments
         );
     }
@@ -183,6 +182,13 @@ class ArrayArgumentHelper
         return $count;
     }
 
+    /**
+     * @param mixed[] $arguments
+     * @param int[] $rows
+     * @param int[] $columns
+     *
+     * @return mixed[]
+     */
     private function flattenSingleCellArrays(array $arguments, array $rows, array $columns): array
     {
         foreach ($arguments as $index => $argument) {
@@ -197,13 +203,16 @@ class ArrayArgumentHelper
         return $arguments;
     }
 
+    /**
+     * @param mixed[] $array
+     *
+     * @return mixed[]
+     */
     private function filterArray(array $array): array
     {
         return array_filter(
             $array,
-            function ($value) {
-                return $value > 1;
-            }
+            fn ($value): bool => $value > 1
         );
     }
 }

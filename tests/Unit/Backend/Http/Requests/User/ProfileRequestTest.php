@@ -15,7 +15,7 @@ class ProfileRequestTest extends TestCase
 
     public function test_authorize_returns_true(): void
     {
-        $this->assertTrue((new ProfileRequest())->authorize());
+        $this->assertTrue(new ProfileRequest()->authorize());
     }
 
     public function test_profile_segment_rules_require_first_name(): void
@@ -24,7 +24,8 @@ class ProfileRequestTest extends TestCase
         $this->actingAs($user);
 
         $request = ProfileRequest::create('/profile', 'POST');
-        $request = ProfileRequest::createFrom($request, new ProfileRequest());
+        $request = ProfileRequest::createFrom($request, new ProfileRequest);
+
         $rules = $request->rules();
 
         $this->assertArrayHasKey('first_name', $rules);
@@ -38,7 +39,8 @@ class ProfileRequestTest extends TestCase
         $this->actingAs($user);
 
         $request = ProfileRequest::create('/my-profile', 'POST');
-        $request = ProfileRequest::createFrom($request, new ProfileRequest());
+        $request = ProfileRequest::createFrom($request, new ProfileRequest);
+
         $rules = $request->rules();
 
         $this->assertArrayHasKey('first_name', $rules);
@@ -50,7 +52,8 @@ class ProfileRequestTest extends TestCase
     public function test_password_segment_rules(): void
     {
         $request = ProfileRequest::create('/password', 'POST');
-        $request = ProfileRequest::createFrom($request, new ProfileRequest());
+        $request = ProfileRequest::createFrom($request, new ProfileRequest);
+
         $rules = $request->rules();
 
         $this->assertArrayHasKey('old_password', $rules);
@@ -61,7 +64,8 @@ class ProfileRequestTest extends TestCase
     public function test_my_password_segment_rules(): void
     {
         $request = ProfileRequest::create('/my-password', 'POST');
-        $request = ProfileRequest::createFrom($request, new ProfileRequest());
+        $request = ProfileRequest::createFrom($request, new ProfileRequest);
+
         $rules = $request->rules();
 
         $this->assertArrayHasKey('old_password', $rules);
@@ -71,7 +75,8 @@ class ProfileRequestTest extends TestCase
     public function test_auth_segment_rules(): void
     {
         $request = ProfileRequest::create('/auth', 'POST');
-        $request = ProfileRequest::createFrom($request, new ProfileRequest());
+        $request = ProfileRequest::createFrom($request, new ProfileRequest);
+
         $rules = $request->rules();
 
         $this->assertArrayHasKey('email', $rules);
@@ -82,14 +87,14 @@ class ProfileRequestTest extends TestCase
     public function test_other_segment_returns_empty_rules(): void
     {
         $request = ProfileRequest::create('/unknown', 'POST');
-        $request = ProfileRequest::createFrom($request, new ProfileRequest());
+        $request = ProfileRequest::createFrom($request, new ProfileRequest);
 
         $this->assertSame([], $request->rules());
     }
 
     public function test_messages_returns_expected_keys(): void
     {
-        $messages = (new ProfileRequest())->messages();
+        $messages = new ProfileRequest()->messages();
 
         $this->assertIsArray($messages);
         $this->assertArrayHasKey('first_name.required', $messages);

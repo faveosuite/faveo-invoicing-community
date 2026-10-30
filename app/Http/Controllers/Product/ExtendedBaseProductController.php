@@ -18,14 +18,13 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Logger;
 use Symfony\Component\HttpFoundation\Response;
 
 class ExtendedBaseProductController extends Controller
 {
-    public function __construct(protected ProductBundleStampingService $stampingService)
-    {
-    }
+    public function __construct(protected ProductBundleStampingService $stampingService) {}
 
     // Update the File Info
     public function uploadUpdate(mixed $id, Request $request): mixed
@@ -34,7 +33,7 @@ class ExtendedBaseProductController extends Controller
             'title' => 'required',
             'version' => 'required',
             'dependencies' => 'required',
-            'release_type' => ['required', \Illuminate\Validation\Rule::in(ProductUpload::RELEASE_TYPES)],
+            'release_type' => ['required', Rule::in(ProductUpload::RELEASE_TYPES)],
         ],
             [
                 'title.required' => __('validation.extend_product.title_required'),
@@ -118,7 +117,7 @@ class ExtendedBaseProductController extends Controller
         $wantPrerelease = $this->downloadReleaseTypes($channel) !== ['official'];
 
         return collect(resolve(GithubApiController::class)->releases($product->github_owner, $product->github_repository))
-            ->reject(fn (array $r) => ! empty($r['draft']) || empty($r['prerelease']) === $wantPrerelease)
+            ->reject(fn (array $r): bool => ! empty($r['draft']) || empty($r['prerelease']) === $wantPrerelease)
             ->sortByDesc('created_at')
             ->value('tag_name');
     }

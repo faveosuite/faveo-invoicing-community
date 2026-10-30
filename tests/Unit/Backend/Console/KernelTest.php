@@ -2,7 +2,9 @@
 
 namespace Tests\Unit\Backend\Console;
 
+use App\Console\Commands\GenerateSeoFiles;
 use App\Console\Kernel;
+use App\Jobs\DeleteExpiredCloudInstances;
 use App\Model\Mailjob\Condition;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -14,6 +16,7 @@ class KernelTest extends DBTestCase
     use DatabaseTransactions;
 
     private Kernel $kernel;
+
     private mixed $schedule;
 
     protected function setUp(): void
@@ -22,7 +25,7 @@ class KernelTest extends DBTestCase
         $this->withoutMiddleware();
         $this->getLoggedInUser('admin');
 
-        $this->kernel = app(Kernel::class);
+        $this->kernel = resolve(Kernel::class);
 
         // Mock the Schedule so command() / event() calls don't actually register tasks
         $this->schedule = Mockery::mock(Schedule::class);
@@ -151,7 +154,7 @@ class KernelTest extends DBTestCase
         $events = $this->scheduleWith(['cloud' => ['active' => true, 'value' => 'hourly']])->events();
 
         $this->assertCount(1, $events);
-        $this->assertSame(\App\Jobs\DeleteExpiredCloudInstances::class, $events[0]->description);
+        $this->assertSame(DeleteExpiredCloudInstances::class, $events[0]->description);
         $this->assertSame('0 * * * *', $events[0]->expression);
     }
 
@@ -192,6 +195,7 @@ class KernelTest extends DBTestCase
         foreach ($tasks as $job => $values) {
             Condition::where('job', $job)->update($values);
         }
+
         $schedule = new Schedule;
         $this->kernel->scheduleConfigurableTasks($schedule);
 
@@ -205,7 +209,7 @@ class KernelTest extends DBTestCase
     private function configurableEvents(array $tasks): array
     {
         return collect($this->scheduleWith($tasks)->events())
-            ->mapWithKeys(fn ($e) => [preg_replace('/^.*artisan\'? /', '', (string) $e->command) => $e->expression])
+            ->mapWithKeys(fn ($e): array => [preg_replace("/^.*artisan'? /", '', (string) $e->command) => $e->expression])
             ->all();
     }
 
@@ -218,7 +222,7 @@ class KernelTest extends DBTestCase
         $ref = new \ReflectionProperty(Kernel::class, 'commands');
         $commands = $ref->getValue($this->kernel);
 
-        $this->assertContains(\App\Console\Commands\GenerateSeoFiles::class, $commands);
+        $this->assertContains(GenerateSeoFiles::class, $commands);
     }
 
     public function test_seo_generate_files_is_scheduled_hourly(): void
@@ -232,8 +236,8 @@ class KernelTest extends DBTestCase
     public function test_cloud_instance_emails_run_in_background_without_overlap(): void
     {
         // Each domain check can take 10s; running in the foreground would delay later tasks.
-        $event = collect(app(\Illuminate\Console\Scheduling\Schedule::class)->events())
-            ->first(fn ($e) => str_contains((string) $e->command, 'cloud:send-instance-emails'));
+        $event = collect(resolve(Schedule::class)->events())
+            ->first(fn ($e): bool => str_contains((string) $e->command, 'cloud:send-instance-emails'));
 
         $this->assertNotNull($event);
         $this->assertSame('*/5 * * * *', $event->expression);
@@ -244,8 +248,8 @@ class KernelTest extends DBTestCase
     public function test_the_renewal_job_never_overlaps_itself(): void
     {
         // Two overlapping runs created two Stripe subscriptions for one renewal.
-        $event = collect(app(\Illuminate\Console\Scheduling\Schedule::class)->events())
-            ->first(fn ($e) => str_contains((string) $e->command, 'renewal:cron'));
+        $event = collect(resolve(Schedule::class)->events())
+            ->first(fn ($e): bool => str_contains((string) $e->command, 'renewal:cron'));
 
         $this->assertNotNull($event);
         $this->assertTrue($event->withoutOverlapping);

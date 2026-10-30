@@ -7,74 +7,63 @@ abstract class BaseWriter implements IWriter
     /**
      * Write charts that are defined in the workbook?
      * Identifies whether the Writer should write definitions for any charts that exist in the PhpSpreadsheet object.
-     *
-     * @var bool
      */
-    protected $includeCharts = false;
+    protected bool $includeCharts = false;
 
     /**
      * Pre-calculate formulas
      * Forces PhpSpreadsheet to recalculate all formulae in a workbook when saving, so that the pre-calculated values are
      * immediately available to MS Excel or other office spreadsheet viewer when opening the file.
-     *
-     * @var bool
      */
-    protected $preCalculateFormulas = true;
+    protected bool $preCalculateFormulas = true;
 
     /**
      * Use disk caching where possible?
-     *
-     * @var bool
      */
-    private $useDiskCaching = false;
+    private bool $useDiskCaching = false;
 
     /**
      * Disk caching directory.
-     *
-     * @var string
      */
-    private $diskCachingDirectory = './';
+    private string $diskCachingDirectory = './';
 
     /**
      * @var resource
      */
     protected $fileHandle;
 
-    /**
-     * @var bool
-     */
-    private $shouldCloseFile;
+    private bool $shouldCloseFile;
 
-    public function getIncludeCharts()
+    public function getIncludeCharts(): bool
     {
         return $this->includeCharts;
     }
 
-    public function setIncludeCharts($includeCharts)
+    public function setIncludeCharts(bool $includeCharts): self
     {
-        $this->includeCharts = (bool) $includeCharts;
+        $this->includeCharts = $includeCharts;
 
         return $this;
     }
 
-    public function getPreCalculateFormulas()
+    public function getPreCalculateFormulas(): bool
     {
         return $this->preCalculateFormulas;
     }
 
-    public function setPreCalculateFormulas($precalculateFormulas)
+    public function setPreCalculateFormulas(bool $precalculateFormulas): self
     {
-        $this->preCalculateFormulas = (bool) $precalculateFormulas;
+        $this->preCalculateFormulas = $precalculateFormulas;
 
         return $this;
     }
 
-    public function getUseDiskCaching()
+    public function getUseDiskCaching(): bool
     {
         return $this->useDiskCaching;
     }
 
-    public function setUseDiskCaching($useDiskCache, $cacheDirectory = null)
+    public function setUseDiskCaching(bool $useDiskCache, ?string $cacheDirectory = null): self
     {
         $this->useDiskCaching = $useDiskCache;
 
@@ -89,7 +78,7 @@ abstract class BaseWriter implements IWriter
         return $this;
     }
 
-    public function getDiskCachingDirectory()
+    public function getDiskCachingDirectory(): string
     {
         return $this->diskCachingDirectory;
     }
@@ -111,7 +100,7 @@ abstract class BaseWriter implements IWriter
      */
     public function openFileHandle($filename): void
     {
-        if (is_resource($filename)) {
+        if (!is_string($filename)) {
             $this->fileHandle = $filename;
             $this->shouldCloseFile = false;
 
@@ -134,13 +123,18 @@ abstract class BaseWriter implements IWriter
         $this->shouldCloseFile = true;
     }
 
+    protected function tryClose(): bool
+    {
+        return fclose($this->fileHandle);
+    }
+
     /**
      * Close file handle only if we opened it ourselves.
      */
     protected function maybeCloseFileHandle(): void
     {
         if ($this->shouldCloseFile) {
-            if (!fclose($this->fileHandle)) {
+            if (!$this->tryClose()) {
                 throw new Exception('Could not close file after writing.');
             }
         }

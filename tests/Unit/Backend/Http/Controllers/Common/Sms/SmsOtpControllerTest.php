@@ -14,7 +14,7 @@ class SmsOtpControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->controller = new SmsOtpController();
+        $this->controller = new SmsOtpController;
     }
 
     // =========================================================================

@@ -209,10 +209,12 @@ final class DispatchingEmitter implements Emitter
     }
 
     /**
+     * @param list<non-empty-string> $pipeline
+     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function testSuiteSorted(int $executionOrder, int $executionOrderDefects, bool $resolveDependencies): void
+    public function testSuiteSorted(int $executionOrder, int $executionOrderDefects, bool $resolveDependencies, array $pipeline): void
     {
         $this->dispatcher->dispatch(
             new TestSuiteSorted(
@@ -220,6 +222,7 @@ final class DispatchingEmitter implements Emitter
                 $executionOrder,
                 $executionOrderDefects,
                 $resolveDependencies,
+                $pipeline,
             ),
         );
     }
@@ -273,25 +276,36 @@ final class DispatchingEmitter implements Emitter
         );
     }
 
-    public function childProcessStarted(): void
+    public function childProcessStarted(TestRunner\ChildProcessReason $reason): void
     {
         $this->dispatcher->dispatch(
-            new TestRunner\ChildProcessStarted($this->telemetryInfo()),
+            new TestRunner\ChildProcessStarted(
+                $this->telemetryInfo(),
+                $reason,
+            ),
         );
     }
 
-    public function childProcessErrored(): void
+    /**
+     * @param non-empty-string $message
+     */
+    public function childProcessErrored(TestRunner\ChildProcessReason $reason, string $message): void
     {
         $this->dispatcher->dispatch(
-            new TestRunner\ChildProcessErrored($this->telemetryInfo()),
+            new TestRunner\ChildProcessErrored(
+                $this->telemetryInfo(),
+                $reason,
+                $message,
+            ),
         );
     }
 
-    public function childProcessFinished(string $stdout, string $stderr): void
+    public function childProcessFinished(TestRunner\ChildProcessReason $reason, string $stdout, string $stderr): void
     {
         $this->dispatcher->dispatch(
             new TestRunner\ChildProcessFinished(
                 $this->telemetryInfo(),
+                $reason,
                 $stdout,
                 $stderr,
             ),
@@ -724,6 +738,39 @@ final class DispatchingEmitter implements Emitter
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
+    public function testAttemptErrored(Code\Test $test, Throwable $throwable, Telemetry\Duration $duration): void
+    {
+        $this->dispatcher->dispatch(
+            new Test\AttemptErrored(
+                $this->telemetryInfo(),
+                $test,
+                $throwable,
+                $duration,
+            ),
+        );
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function testAttemptFailed(Code\Test $test, Throwable $throwable, ?ComparisonFailure $comparisonFailure, Telemetry\Duration $duration): void
+    {
+        $this->dispatcher->dispatch(
+            new Test\AttemptFailed(
+                $this->telemetryInfo(),
+                $test,
+                $throwable,
+                $comparisonFailure,
+                $duration,
+            ),
+        );
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
     public function testPassed(Code\Test $test): void
     {
         $this->dispatcher->dispatch(
@@ -835,7 +882,7 @@ final class DispatchingEmitter implements Emitter
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function testTriggeredPhpDeprecation(Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, bool $ignoredByTest, IssueTrigger $trigger): void
+    public function testTriggeredPhpDeprecation(Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, bool $ignoredByTest, bool $ignoredByFilter, IssueTrigger $trigger): void
     {
         $this->dispatcher->dispatch(
             new Test\PhpDeprecationTriggered(
@@ -847,6 +894,7 @@ final class DispatchingEmitter implements Emitter
                 $suppressed,
                 $ignoredByBaseline,
                 $ignoredByTest,
+                $ignoredByFilter,
                 $trigger,
             ),
         );
@@ -861,7 +909,7 @@ final class DispatchingEmitter implements Emitter
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function testTriggeredDeprecation(Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, bool $ignoredByTest, IssueTrigger $trigger, string $stackTrace): void
+    public function testTriggeredDeprecation(Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, bool $ignoredByTest, bool $ignoredByFilter, IssueTrigger $trigger, string $stackTrace): void
     {
         $this->dispatcher->dispatch(
             new Test\DeprecationTriggered(
@@ -873,6 +921,7 @@ final class DispatchingEmitter implements Emitter
                 $suppressed,
                 $ignoredByBaseline,
                 $ignoredByTest,
+                $ignoredByFilter,
                 $trigger,
                 $stackTrace,
             ),
@@ -1486,7 +1535,7 @@ final class DispatchingEmitter implements Emitter
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function testRunnerTriggeredPhpDeprecation(string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, IssueTrigger $trigger): void
+    public function testRunnerTriggeredPhpDeprecation(string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, bool $ignoredByFilter, IssueTrigger $trigger): void
     {
         $this->dispatcher->dispatch(
             new TestRunner\PhpDeprecationTriggered(
@@ -1496,6 +1545,7 @@ final class DispatchingEmitter implements Emitter
                 $line,
                 $suppressed,
                 $ignoredByBaseline,
+                $ignoredByFilter,
                 $trigger,
             ),
         );
@@ -1510,7 +1560,7 @@ final class DispatchingEmitter implements Emitter
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function testRunnerTriggeredDeprecation(string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, IssueTrigger $trigger, string $stackTrace): void
+    public function testRunnerTriggeredDeprecation(string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, bool $ignoredByFilter, IssueTrigger $trigger, string $stackTrace): void
     {
         $this->dispatcher->dispatch(
             new TestRunner\Issue\DeprecationTriggered(
@@ -1520,6 +1570,7 @@ final class DispatchingEmitter implements Emitter
                 $line,
                 $suppressed,
                 $ignoredByBaseline,
+                $ignoredByFilter,
                 $trigger,
                 $stackTrace,
             ),
@@ -1588,6 +1639,19 @@ final class DispatchingEmitter implements Emitter
     {
         $this->dispatcher->dispatch(
             new TestRunner\Finished($this->telemetryInfo()),
+        );
+    }
+
+    /**
+     * @param positive-int $timeLimit
+     *
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function testRunnerTimeLimitExceeded(int $timeLimit): void
+    {
+        $this->dispatcher->dispatch(
+            new TestRunner\TimeLimitExceeded($this->telemetryInfo(), $timeLimit),
         );
     }
 

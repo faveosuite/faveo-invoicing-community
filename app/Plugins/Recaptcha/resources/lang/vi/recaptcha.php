@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'captcha_settings' => 'Cài đặt reCAPTCHA',
     'captcha_configuration' => 'Cấu hình reCAPTCHA',

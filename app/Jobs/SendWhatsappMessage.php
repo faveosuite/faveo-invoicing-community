@@ -22,9 +22,7 @@ class SendWhatsappMessage implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected mixed $message)
-    {
-    }
+    public function __construct(protected mixed $message) {}
 
     /**
      * Execute the job.
@@ -33,6 +31,7 @@ class SendWhatsappMessage implements ShouldQueue
     {
         $client = new Client;
         $urls = Session::has('NonReachableUrls') ? Session::get('NonReachableUrls') : [];
+        $url = null;
         try {
             $data = json_decode((string) $this->message, associative: true);
             if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
@@ -49,8 +48,11 @@ class SendWhatsappMessage implements ShouldQueue
                 }
             }
         } catch (Exception $exception) {
-            $urls[] = $url;
-            Session::put('NonReachableUrls', $urls);
+            if ($url) {
+                $urls[] = $url;
+                Session::put('NonReachableUrls', $urls);
+            }
+
             Log::error('Whatsapp Message Failure: '.$exception->getMessage());
         }
     }

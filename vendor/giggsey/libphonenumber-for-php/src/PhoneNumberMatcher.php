@@ -21,6 +21,7 @@ use function preg_match;
 use function preg_split;
 use function str_contains;
 use function str_ends_with;
+use function str_starts_with;
 
 /**
  * A class that finds and extracts telephone numbers from $text.
@@ -511,10 +512,10 @@ class PhoneNumberMatcher implements Iterator
                     // accept the number if there is no formatting symbol at all in the number, except
                     // for extensions. This is only important for countries with national prefixes.
                     $nationalSignificantNumber = $util->getNationalSignificantNumber($number);
-                    return mb_substr(
+                    return str_starts_with(
                         mb_substr($normalizedCandidate, $fromIndex - mb_strlen($iValue)),
-                        mb_strlen($nationalSignificantNumber)
-                    ) === $nationalSignificantNumber;
+                        $nationalSignificantNumber
+                    );
                 }
             }
         }
@@ -697,7 +698,7 @@ class PhoneNumberMatcher implements Iterator
                     if ($util->isNumberMatch($number, mb_substr($candidate, $index)) !== MatchType::NSN_MATCH) {
                         return false;
                     }
-                } elseif (PhoneNumberUtil::normalizeDigitsOnly(mb_substr($candidate, $index)) !== $number->getExtension()) {
+                } elseif (PhoneNumberUtil::normalizeDigitsOnly(mb_substr($candidate, $index)) !== ($number->getExtension() ?? '')) {
                     // This is the extension sign case, in which the 'x' or 'X' should always precede the
                     // extension number
                     return false;
@@ -775,8 +776,6 @@ class PhoneNumberMatcher implements Iterator
             $this->searchIndex = $this->lastMatch->end();
             $this->state = 'READY';
         }
-
-        $this->searchIndex++;
     }
 
     public function key(): int

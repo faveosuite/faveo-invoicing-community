@@ -12,6 +12,7 @@ use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
@@ -20,8 +21,8 @@ use App\Plugins\Payment\Dto\SubscriptionResult;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\Services\Payment\SubscriptionService;
 use App\User;
-use Auth;
 // Cartalyst Stripe SDK not installed — tests using Stripe::make() are skipped below
+use Auth;
 use DB;
 use Exception;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -178,7 +179,7 @@ class SettingsControllerTest extends DBTestCase
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999)]);
-        \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
+        OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
         $subscription = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
         Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
         DB::table('api_keys')->where('id', 1)->update(['rzp_key' => 'rzp_test_0UWbi4WpjuMCoC', 'rzp_secret' => 'jZbOckxf4RhwaUAgxzegwQqV']); // NOSONAR

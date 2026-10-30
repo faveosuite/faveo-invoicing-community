@@ -81,7 +81,7 @@ class SubscriptionServiceTest extends TestCase
 
     public function test_create_subscription_throws_when_gateway_not_registered(): void
     {
-        $manager = new PaymentGatewayManager(); // empty
+        $manager = new PaymentGatewayManager; // empty
 
         $this->payments->shouldReceive('manager')->andReturn($manager);
 

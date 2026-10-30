@@ -14,9 +14,7 @@ class LicensedPluginsController extends Controller
 {
     use AfuCallbackHelpers;
 
-    public function __construct(protected LicenseValidator $validator, protected LicenseService $licenseService)
-    {
-    }
+    public function __construct(protected LicenseValidator $validator, protected LicenseService $licenseService) {}
 
     /**
      * Add-ons the client's licence can install (replaces the unauthenticated /api/pluginInfo).

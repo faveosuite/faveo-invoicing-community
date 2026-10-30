@@ -11,7 +11,7 @@ class OpenPaymentRequestTest extends TestCase
 {
     private function rules(): array
     {
-        return (new OpenPaymentRequest())->rules();
+        return new OpenPaymentRequest()->rules();
     }
 
     private function valid(): array
@@ -27,7 +27,7 @@ class OpenPaymentRequestTest extends TestCase
 
     public function test_authorize_returns_true(): void
     {
-        $this->assertTrue((new OpenPaymentRequest())->authorize());
+        $this->assertTrue(new OpenPaymentRequest()->authorize());
     }
 
     public function test_validation_passes_with_valid_data(): void
@@ -93,6 +93,6 @@ class OpenPaymentRequestTest extends TestCase
 
     public function test_messages_returns_non_empty_array(): void
     {
-        $this->assertNotEmpty((new OpenPaymentRequest())->messages());
+        $this->assertNotEmpty(new OpenPaymentRequest()->messages());
     }
 }

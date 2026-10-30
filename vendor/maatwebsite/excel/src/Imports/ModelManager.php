@@ -20,57 +20,35 @@ use Throwable;
 class ModelManager
 {
     /**
-     * @var array
+     * @var array<int, array<array-key, mixed>>
      */
-    private $rows = [];
+    private array $rows = [];
 
-    /**
-     * @var RowValidator
-     */
-    private $validator;
-    /**
-     * @var bool
-     */
-    private $remembersRowNumber = false;
+    private bool $remembersRowNumber = false;
 
-    /**
-     * @var CascadePersistManager
-     */
-    private $cascade;
-
-    /**
-     * @param  RowValidator  $validator
-     */
-    public function __construct(RowValidator $validator, CascadePersistManager $cascade)
-    {
-        $this->validator = $validator;
-        $this->cascade   = $cascade;
+    public function __construct(
+        private readonly RowValidator $validator,
+        private readonly CascadePersistManager $cascade,
+    ) {
     }
 
     /**
-     * @param  int  $row
-     * @param  array  $attributes
+     * @param  array<array-key, mixed>  $attributes
      */
-    public function add(int $row, array $attributes)
+    public function add(int $row, array $attributes): void
     {
         $this->rows[$row] = $attributes;
     }
 
-    /**
-     * @param  bool  $remembersRowNumber
-     */
-    public function setRemembersRowNumber(bool $remembersRowNumber)
+    public function setRemembersRowNumber(bool $remembersRowNumber): void
     {
         $this->remembersRowNumber = $remembersRowNumber;
     }
 
     /**
-     * @param  ToModel  $import
-     * @param  bool  $massInsert
-     *
      * @throws ValidationException
      */
-    public function flush(ToModel $import, bool $massInsert = false)
+    public function flush(ToModel $import, bool $massInsert = false): void
     {
         if ($import instanceof WithValidation) {
             $this->validateRows($import);
@@ -86,66 +64,56 @@ class ModelManager
     }
 
     /**
-     * @param  ToModel  $import
-     * @param  array  $attributes
-     * @param  int|null  $rowNumber
-     * @return Model[]|Collection
+     * @param  array<array-key, mixed>  $attributes
+     * @return Collection<int, Model>
      */
-    public function toModels(ToModel $import, array $attributes, $rowNumber = null): Collection
+    public function toModels(ToModel $import, array $attributes, ?int $rowNumber = null): Collection
     {
-        if ($this->remembersRowNumber) {
+        if ($this->remembersRowNumber && method_exists($import, 'rememberRowNumber')) {
             $import->rememberRowNumber($rowNumber);
         }
 
         return Collection::wrap($import->model($attributes));
     }
 
-    /**
-     * @param  ToModel  $import
-     */
-    private function massFlush(ToModel $import)
+    private function massFlush(ToModel $import): void
     {
         $this->rows()
-             ->flatMap(function (array $attributes, $index) use ($import) {
-                 return $this->toModels($import, $attributes, $index);
-             })
-             ->mapToGroups(function ($model) {
-                 return [\get_class($model) => $this->prepare($model)->getAttributes()];
-             })
-             ->each(function (Collection $models, string $model) use ($import) {
-                 try {
-                     /* @var Model $model */
+            ->flatMap(fn (array $attributes, ?int $index): Collection => $this->toModels($import, $attributes, $index))
+            ->mapToGroups(fn (Model $model): array => [$model::class => $this->prepare($model)->getAttributes()])
+            ->each(function (Collection $models, string $model) use ($import): void {
+                try {
+                    /* @var Model $model */
+                    if ($import instanceof WithUpserts) {
+                        $model::query()->upsert(
+                            $models->toArray(),
+                            $import->uniqueBy(),
+                            $import instanceof WithUpsertColumns ? $import->upsertColumns() : null
+                        );
 
-                     if ($import instanceof WithUpserts) {
-                         $model::query()->upsert(
-                             $models->toArray(),
-                             $import->uniqueBy(),
-                             $import instanceof WithUpsertColumns ? $import->upsertColumns() : null
-                         );
+                        return;
+                    }
+                    /* @var Model $model */
 
-                         return;
-                     } elseif ($import instanceof WithSkipDuplicates) {
-                         $model::query()->insertOrIgnore($models->toArray());
+                    if ($import instanceof WithSkipDuplicates) {
+                        $model::query()->insertOrIgnore($models->toArray());
 
-                         return;
-                     }
+                        return;
+                    }
 
-                     $model::query()->insert($models->toArray());
-                 } catch (Throwable $e) {
-                     $this->handleException($import, $e);
-                 }
-             });
+                    $model::query()->insert($models->toArray());
+                } catch (Throwable $e) {
+                    $this->handleException($import, $e);
+                }
+            });
     }
 
-    /**
-     * @param  ToModel  $import
-     */
-    private function singleFlush(ToModel $import)
+    private function singleFlush(ToModel $import): void
     {
         $this
             ->rows()
-            ->each(function (array $attributes, $index) use ($import) {
-                $this->toModels($import, $attributes, $index)->each(function (Model $model) use ($import) {
+            ->each(function (array $attributes, ?int $index) use ($import): void {
+                $this->toModels($import, $attributes, $index)->each(function (Model $model) use ($import): void {
                     try {
                         if ($import instanceof WithUpserts) {
                             $model->upsert(
@@ -155,8 +123,9 @@ class ModelManager
                             );
 
                             return;
-                        } elseif ($import instanceof WithSkipDuplicates) {
-                            $model::query()->insertOrIgnore([$model->getAttributes()]);
+                        }
+                        if ($import instanceof WithSkipDuplicates) {
+                            $model::query()->insertOrIgnore([$this->prepare($model)->getAttributes()]);
 
                             return;
                         }
@@ -173,10 +142,6 @@ class ModelManager
             });
     }
 
-    /**
-     * @param  Model  $model
-     * @return Model
-     */
     private function prepare(Model $model): Model
     {
         if ($model->usesTimestamps()) {
@@ -185,14 +150,14 @@ class ModelManager
             $updatedAtColumn = $model->getUpdatedAtColumn();
 
             // If model has updated at column and not manually provided.
-            if ($updatedAtColumn && null === $model->{$updatedAtColumn}) {
+            if ($updatedAtColumn && $model->{$updatedAtColumn} === null) {
                 $model->setUpdatedAt($time);
             }
 
             $createdAtColumn = $model->getCreatedAtColumn();
 
             // If model has created at column and not manually provided.
-            if ($createdAtColumn && null === $model->{$createdAtColumn}) {
+            if ($createdAtColumn && $model->{$createdAtColumn} === null) {
                 $model->setCreatedAt($time);
             }
         }
@@ -201,11 +166,9 @@ class ModelManager
     }
 
     /**
-     * @param  WithValidation  $import
-     *
      * @throws ValidationException
      */
-    private function validateRows(WithValidation $import)
+    private function validateRows(WithValidation $import): void
     {
         try {
             $this->validator->validate($this->rows, $import);
@@ -217,7 +180,7 @@ class ModelManager
     }
 
     /**
-     * @return Collection
+     * @return Collection<int, array<array-key, mixed>>
      */
     private function rows(): Collection
     {

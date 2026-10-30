@@ -242,7 +242,7 @@ class Install extends LoggableCommand
             'migrate', 'dummy', 'env',
         ];
 
-        if (array_filter($options, fn ($o): bool => (bool) $this->option($o))) {
+        if (array_filter($options, fn (string $o): bool => (bool) $this->option($o))) {
             $migrateOpt = $this->option('migrate');
             $migrateOption = trim(is_string($migrateOpt) ? $migrateOpt : '');
 

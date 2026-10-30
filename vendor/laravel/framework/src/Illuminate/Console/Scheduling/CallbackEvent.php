@@ -14,7 +14,7 @@ class CallbackEvent extends Event
     /**
      * The callback to call.
      *
-     * @var string
+     * @var string|callable
      */
     protected $callback;
 
@@ -112,6 +112,8 @@ class CallbackEvent extends Event
      */
     protected function execute($container)
     {
+        $this->exception = null;
+
         try {
             $this->result = is_object($this->callback)
                 ? $container->call([$this->callback, '__invoke'], $this->parameters)
@@ -131,11 +133,12 @@ class CallbackEvent extends Event
      * The expiration time of the underlying cache lock may be specified in minutes.
      *
      * @param  int  $expiresAt
+     * @param  bool  $releaseOnTerminationSignals
      * @return $this
      *
      * @throws \LogicException
      */
-    public function withoutOverlapping($expiresAt = 1440)
+    public function withoutOverlapping($expiresAt = 1440, $releaseOnTerminationSignals = true)
     {
         if (! isset($this->description)) {
             throw new LogicException(
@@ -143,7 +146,7 @@ class CallbackEvent extends Event
             );
         }
 
-        return parent::withoutOverlapping($expiresAt);
+        return parent::withoutOverlapping($expiresAt, $releaseOnTerminationSignals);
     }
 
     /**

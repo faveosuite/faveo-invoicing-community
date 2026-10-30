@@ -18,7 +18,7 @@ class Unique
      *
      * @return mixed The unique values from the search range
      */
-    public static function unique($lookupVector, $byColumn = false, $exactlyOnce = false)
+    public static function unique(mixed $lookupVector, mixed $byColumn = false, mixed $exactlyOnce = false): mixed
     {
         if (!is_array($lookupVector)) {
             // Scalars are always returned "as is"
@@ -33,20 +33,31 @@ class Unique
             : self::uniqueByRow($lookupVector, $exactlyOnce);
     }
 
-    /**
-     * @return mixed
-     */
-    private static function uniqueByRow(array $lookupVector, bool $exactlyOnce)
+    /** @param mixed[] $lookupVector */
+    private static function uniqueByRow(array $lookupVector, bool $exactlyOnce): mixed
     {
         // When not $byColumn, we count whole rows or values, not individual values
         //      so implode each row into a single string value
         array_walk(
             $lookupVector,
+            // @phpstan-ignore argument.type (not sure what is needed)
             function (array &$value): void {
-                $value = implode(chr(0x00), $value);
+                $valuex = '';
+                $separator = '';
+                $numericIndicator = "\x01";
+                foreach ($value as $cellValue) {
+                    /** @var scalar $cellValue */
+                    $valuex .= $separator . $cellValue;
+                    $separator = "\x00";
+                    if (is_int($cellValue) || is_float($cellValue)) {
+                        $valuex .= $numericIndicator;
+                    }
+                }
+                $value = $valuex;
             }
         );
 
+        /** @var string[] $lookupVector */
         $result = self::countValuesCaseInsensitive($lookupVector);
 
         if ($exactlyOnce === true) {
@@ -63,18 +74,24 @@ class Unique
         array_walk(
             $result,
             function (string &$value): void {
-                $value = explode(chr(0x00), $value);
+                $value = explode("\x00", $value);
+                foreach ($value as &$stringValue) {
+                    if (str_ends_with($stringValue, "\x01")) {
+                        // x01 should only end a string which is otherwise a float or int,
+                        // so phpstan is technically correct but what it fears should not happen.
+                        $stringValue = 0 + substr($stringValue, 0, -1); //@phpstan-ignore binaryOp.invalid (stringValue might not be numeric?)
+                    }
+                }
             }
         );
 
         return (count($result) === 1) ? array_pop($result) : $result;
     }
 
-    /**
-     * @return mixed
-     */
-    private static function uniqueByColumn(array $lookupVector, bool $exactlyOnce)
+    /** @param mixed[] $lookupVector */
+    private static function uniqueByColumn(array $lookupVector, bool $exactlyOnce): mixed
     {
+        /** @var string[] */
         $flattenedLookupVector = Functions::flattenArray($lookupVector);
 
         if (count($lookupVector, COUNT_RECURSIVE) > count($flattenedLookupVector, COUNT_RECURSIVE) + 1) {
@@ -100,13 +117,16 @@ class Unique
         return $result;
     }
 
+    /**
+     * @param string[] $caseSensitiveLookupValues
+     *
+     * @return mixed[]
+     */
     private static function countValuesCaseInsensitive(array $caseSensitiveLookupValues): array
     {
         $caseInsensitiveCounts = array_count_values(
             array_map(
-                function (string $value) {
-                    return StringHelper::strToUpper($value);
-                },
+                fn (string $value): string => StringHelper::strToUpper($value),
                 $caseSensitiveLookupValues
             )
         );
@@ -129,13 +149,16 @@ class Unique
         return $caseSensitiveCounts;
     }
 
+    /**
+     * @param mixed[] $values
+     *
+     * @return mixed[]
+     */
     private static function exactlyOnceFilter(array $values): array
     {
         return array_filter(
             $values,
-            function ($value) {
-                return $value === 1;
-            }
+            fn ($value): bool => $value === 1
         );
     }
 }

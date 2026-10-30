@@ -67,7 +67,7 @@ class OrderPolicy
             return $renew;
         }
 
-        return in_array($gateway, AutoRenewalActivationService::gatewaysFor((string) $user->country), true)
+        return in_array($gateway, AutoRenewalActivationService::gatewaysFor((string) $user->country), strict: true)
             ? Response::allow()
             : Response::deny(__('message.no_permission_for_action'));
     }

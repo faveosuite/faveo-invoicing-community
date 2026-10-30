@@ -15,10 +15,10 @@ class DatabaseSeeder extends Seeder
     {
 
         $this->call([PricingTemplateSeeder::class]);
-        $this->command->info('Pricing Template Table Seeded!');
+        $this->command?->info('Pricing Template Table Seeded!');
 
         $this->call([TemplateTableSeeder::class]);
-        $this->command->info('Template table seeded!');
+        $this->command?->info('Template table seeded!');
 
     }
 }

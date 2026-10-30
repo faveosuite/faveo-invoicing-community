@@ -2,6 +2,8 @@
 
 namespace PhpOffice\PhpSpreadsheet\Style;
 
+use PhpOffice\PhpSpreadsheet\Theme;
+
 class Color extends Supervisor
 {
     const NAMED_COLORS = [
@@ -106,13 +108,12 @@ class Color extends Supervisor
 
     /**
      * ARGB - Alpha RGB.
-     *
-     * @var null|string
      */
-    protected $argb;
+    protected ?string $argb = null;
 
-    /** @var bool */
-    private $hasChanged = false;
+    private bool $hasChanged = false;
+
+    private int $theme = -1;
 
     /**
      * Create a new Color.
@@ -125,7 +126,7 @@ class Color extends Supervisor
      *                                    Leave this value at default unless you understand exactly what
      *                                        its ramifications are
      */
-    public function __construct($colorValue = self::COLOR_BLACK, $isSupervisor = false, $isConditional = false)
+    public function __construct(string $colorValue = self::COLOR_BLACK, bool $isSupervisor = false, bool $isConditional = false)
     {
         //    Supervisor?
         parent::__construct($isSupervisor);
@@ -139,12 +140,10 @@ class Color extends Supervisor
     /**
      * Get the shared style component for the currently active cell in currently active sheet.
      * Only used for style supervisor.
-     *
-     * @return Color
      */
-    public function getSharedComponent()
+    public function getSharedComponent(): self
     {
-        /** @var Style */
+        /** @var Style $parent */
         $parent = $this->parent;
         /** @var Border|Fill $sharedComponent */
         $sharedComponent = $parent->getSharedComponent();
@@ -162,16 +161,16 @@ class Color extends Supervisor
     /**
      * Build style array from subcomponents.
      *
-     * @param array $array
+     * @param mixed[] $array
      *
-     * @return array
+     * @return mixed[]
      */
-    public function getStyleArray($array)
+    public function getStyleArray(array $array): array
     {
-        /** @var Style */
+        /** @var Style $parent */
         $parent = $this->parent;
 
-        return $parent->/** @scrutinizer ignore-call */ getStyleArray([$this->parentPropertyName => $array]);
+        return $parent->getStyleArray([$this->parentPropertyName => $array]);
     }
 
     /**
@@ -181,20 +180,27 @@ class Color extends Supervisor
      * $spreadsheet->getActiveSheet()->getStyle('B2')->getFont()->getColor()->applyFromArray(['rgb' => '808080']);
      * </code>
      *
-     * @param array $styleArray Array containing style information
+     * @param array{rgb?: string, argb?: string, theme?: int} $styleArray Array containing style information
      *
      * @return $this
      */
-    public function applyFromArray(array $styleArray)
+    public function applyFromArray(array $styleArray): static
     {
         if ($this->isSupervisor) {
-            $this->getActiveSheet()->getStyle($this->getSelectedCells())->applyFromArray($this->getStyleArray($styleArray));
+            $this->getActiveSheet()
+                ->getStyle($this->getSelectedCells())
+                ->applyFromArray(
+                    $this->getStyleArray($styleArray)
+                );
         } else {
             if (isset($styleArray['rgb'])) {
                 $this->setRGB($styleArray['rgb']);
             }
             if (isset($styleArray['argb'])) {
                 $this->setARGB($styleArray['argb']);
+            }
+            if (isset($styleArray['theme'])) {
+                $this->setTheme($styleArray['theme']);
             }
         }
 
@@ -235,16 +241,19 @@ class Color extends Supervisor
     /**
      * Set ARGB.
      *
-     * @param string $colorValue  ARGB value, or a named color
+     * @param ?string $colorValue  ARGB value, or a named color
      *
      * @return $this
      */
-    public function setARGB(?string $colorValue = self::COLOR_BLACK)
+    public function setARGB(?string $colorValue = self::COLOR_BLACK, bool $nullStringOkay = false): static
     {
         $this->hasChanged = true;
-        $colorValue = $this->validateColor($colorValue);
-        if ($colorValue === '') {
-            return $this;
+        $this->setTheme(-1);
+        if (!$nullStringOkay || $colorValue !== '') {
+            $colorValue = $this->validateColor($colorValue);
+            if ($colorValue === '') {
+                return $this;
+            }
         }
 
         if ($this->isSupervisor) {
@@ -272,11 +281,11 @@ class Color extends Supervisor
     /**
      * Set RGB.
      *
-     * @param string $colorValue RGB value, or a named color
+     * @param ?string $colorValue RGB value, or a named color
      *
      * @return $this
      */
-    public function setRGB(?string $colorValue = self::COLOR_BLACK)
+    public function setRGB(?string $colorValue = self::COLOR_BLACK): static
     {
         return $this->setARGB($colorValue);
     }
@@ -291,7 +300,7 @@ class Color extends Supervisor
      *
      * @return int|string The extracted colour component
      */
-    private static function getColourComponent($rgbValue, $offset, $hex = true)
+    private static function getColourComponent(string $rgbValue, int $offset, bool $hex = true): string|int
     {
         $colour = substr($rgbValue, $offset, 2) ?: '';
         if (preg_match('/^[0-9a-f]{2}$/i', $colour) !== 1) {
@@ -310,7 +319,7 @@ class Color extends Supervisor
      *
      * @return int|string The red colour component
      */
-    public static function getRed($rgbValue, $hex = true)
+    public static function getRed(string $rgbValue, bool $hex = true)
     {
         return self::getColourComponent($rgbValue, strlen($rgbValue) - 6, $hex);
     }
@@ -324,7 +333,7 @@ class Color extends Supervisor
      *
      * @return int|string The green colour component
      */
-    public static function getGreen($rgbValue, $hex = true)
+    public static function getGreen(string $rgbValue, bool $hex = true)
     {
         return self::getColourComponent($rgbValue, strlen($rgbValue) - 4, $hex);
     }
@@ -338,7 +347,7 @@ class Color extends Supervisor
      *
      * @return int|string The blue colour component
      */
-    public static function getBlue($rgbValue, $hex = true)
+    public static function getBlue(string $rgbValue, bool $hex = true)
     {
         return self::getColourComponent($rgbValue, strlen($rgbValue) - 2, $hex);
     }
@@ -351,7 +360,7 @@ class Color extends Supervisor
      *
      * @return string The adjusted colour as an RGBA or RGB value (e.g. FF00CCCC or CCDDEE)
      */
-    public static function changeBrightness($hexColourValue, $adjustPercentage)
+    public static function changeBrightness(string $hexColourValue, float $adjustPercentage): string
     {
         $rgba = (strlen($hexColourValue) === 8);
         $adjustPercentage = max(-1.0, min(1.0, $adjustPercentage));
@@ -372,8 +381,9 @@ class Color extends Supervisor
      * @param int $colorIndex Index entry point into the colour array
      * @param bool $background Flag to indicate whether default background or foreground colour
      *                                            should be returned if the indexed colour doesn't exist
+     * @param null|string[] $palette
      */
-    public static function indexedColor($colorIndex, $background = false, ?array $palette = null): self
+    public static function indexedColor(int $colorIndex, bool $background = false, ?array $palette = null): self
     {
         // Clean parameter
         $colorIndex = (int) $colorIndex;
@@ -403,15 +413,18 @@ class Color extends Supervisor
         }
 
         return md5(
-            $this->argb .
-            __CLASS__
+            $this->argb
+            . (string) $this->theme
+            . __CLASS__
         );
     }
 
+    /** @return mixed[] */
     protected function exportArray1(): array
     {
         $exportedArray = [];
         $this->exportArray2($exportedArray, 'argb', $this->getARGB());
+        $this->exportArray2($exportedArray, 'theme', $this->getTheme());
 
         return $exportedArray;
     }
@@ -423,5 +436,43 @@ class Color extends Supervisor
         }
 
         return $this->hasChanged;
+    }
+
+    public function getTheme(): int
+    {
+        if ($this->isSupervisor) {
+            return $this->getSharedComponent()->getTheme();
+        }
+
+        return $this->theme;
+    }
+
+    public function setTheme(int $theme): self
+    {
+        $this->hasChanged = true;
+
+        if ($this->isSupervisor) {
+            $styleArray = $this->getStyleArray(['theme' => $theme]);
+            $this->getActiveSheet()
+                ->getStyle($this->getSelectedCells())
+                ->applyFromArray($styleArray);
+        } else {
+            $this->theme = $theme;
+        }
+
+        return $this;
+    }
+
+    public function setHyperlinkTheme(): self
+    {
+        $rgb = $this->getActiveSheet()
+            ->getParent()
+            ?->getTheme()
+            ->getThemeColors();
+        if (is_array($rgb) && array_key_exists('hlink', $rgb)) {
+            $this->setRGB($rgb['hlink']);
+        }
+
+        return $this->setTheme(Theme::HYPERLINK_THEME);
     }
 }

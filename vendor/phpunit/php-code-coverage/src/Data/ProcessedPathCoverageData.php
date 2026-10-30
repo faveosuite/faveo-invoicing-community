@@ -9,30 +9,26 @@
  */
 namespace SebastianBergmann\CodeCoverage\Data;
 
-use function array_merge;
-use function array_unique;
-use function array_values;
 use NoDiscard;
-use SebastianBergmann\CodeCoverage\Driver\XdebugDriver;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
- * @phpstan-import-type TestIdType from ProcessedCodeCoverageData
- * @phpstan-import-type XdebugPathCoverageType from XdebugDriver
+ * @phpstan-import-type TestIndexType from ProcessedCodeCoverageData
+ * @phpstan-import-type PathCoverageType from RawCodeCoverageData
  */
 final class ProcessedPathCoverageData
 {
     /** @var array<int, int> */
     public readonly array $path;
 
-    /** @var list<TestIdType> */
+    /** @var array<TestIndexType, positive-int> map of test index to the number of times the test executed the path */
     public array $hit;
 
     /**
-     * @param XdebugPathCoverageType $xdebugCoverageData
+     * @param PathCoverageType $xdebugCoverageData
      */
     public static function fromXdebugCoverage(array $xdebugCoverageData): self
     {
@@ -43,8 +39,8 @@ final class ProcessedPathCoverageData
     }
 
     /**
-     * @param array<int, int>  $path
-     * @param list<TestIdType> $hit
+     * @param array<int, int>                    $path
+     * @param array<TestIndexType, positive-int> $hit
      */
     public function __construct(
         array $path,
@@ -54,6 +50,12 @@ final class ProcessedPathCoverageData
         $this->path = $path;
     }
 
+    /**
+     * Hit counts for a test case that occurs in both operands are combined with max(), not summed,
+     * because the same test case id on both sides means the same test execution was observed twice.
+     *
+     * @see ProcessedCodeCoverageData::merge()
+     */
     #[NoDiscard]
     public function merge(self $data): self
     {
@@ -63,15 +65,32 @@ final class ProcessedPathCoverageData
 
         return new self(
             $this->path,
-            array_values(array_unique(array_merge($this->hit, $data->hit))),
+            HitMap::merge($this->hit, $data->hit),
         );
     }
 
     /**
-     * @param TestIdType $testCaseId
+     * @param array<TestIndexType, TestIndexType> $remap
      */
-    public function recordHit(string $testCaseId): void
+    #[NoDiscard]
+    public function withRemappedTestIndexes(array $remap): self
     {
-        $this->hit[] = $testCaseId;
+        if ($this->hit === []) {
+            return $this;
+        }
+
+        return new self(
+            $this->path,
+            HitMap::withRemappedTestIndexes($this->hit, $remap),
+        );
+    }
+
+    /**
+     * @param TestIndexType $testIndex
+     * @param positive-int  $count
+     */
+    public function recordHit(int $testIndex, int $count): void
+    {
+        $this->hit[$testIndex] = ($this->hit[$testIndex] ?? 0) + $count;
     }
 }

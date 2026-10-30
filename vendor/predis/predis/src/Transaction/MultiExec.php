@@ -12,7 +12,6 @@
 
 namespace Predis\Transaction;
 
-use Exception;
 use InvalidArgumentException;
 use Predis\ClientContextInterface;
 use Predis\ClientException;
@@ -32,6 +31,7 @@ use Predis\Transaction\Strategy\StrategyResolverInterface;
 use Relay\Exception as RelayException;
 use Relay\Relay;
 use SplQueue;
+use Throwable;
 
 /**
  * Client-side abstraction of a Redis transaction based on MULTI / EXEC.
@@ -182,6 +182,40 @@ class MultiExec implements ClientContextInterface
     }
 
     /**
+     * Reads entries from one or multiple streams.
+     *
+     * @deprecated Use xread_v4() instead. Public API will be changed in the next major version.
+     *
+     * @param  int|null    $count   Maximum number of entries per stream
+     * @param  int|null    $block   Milliseconds to block waiting for new entries
+     * @param  array|null  $streams Stream keys to read from
+     * @param  string      ...$id   Last-seen ID per stream
+     * @return $this|mixed
+     */
+    public function xread($count = null, $block = null, ?array $streams = null, ...$id)
+    {
+        return $this->__call('xread', func_get_args());
+    }
+
+    /**
+     * Reads entries from one or multiple streams as part of a consumer group.
+     *
+     * @deprecated Use xreadgroup_claim() instead. Public API will be changed in the next major version.
+     *
+     * @param  string      $group      Consumer-group name
+     * @param  string      $consumer   Consumer name
+     * @param  int|null    $count      Maximum number of entries per stream
+     * @param  int|null    $blockMs    Milliseconds to block waiting for new entries
+     * @param  bool        $noAck      Do not add entries to the pending entries list
+     * @param  string      ...$keyOrId Stream keys followed by one ID per stream
+     * @return $this|mixed
+     */
+    public function xreadgroup($group, $consumer, $count = null, $blockMs = null, $noAck = false, ...$keyOrId)
+    {
+        return $this->__call('xreadgroup', func_get_args());
+    }
+
+    /**
      * Executes the specified Redis command.
      *
      * @param CommandInterface $command Command instance.
@@ -245,11 +279,11 @@ class MultiExec implements ClientContextInterface
      */
     public function multi()
     {
-        if ($this->state->check(MultiExecState::INITIALIZED | MultiExecState::CAS)) {
+        $this->initialize();
+
+        if ($this->state->isCAS()) {
             $this->state->unflag(MultiExecState::CAS);
             $this->connectionStrategy->multi();
-        } else {
-            $this->initialize();
         }
 
         return $this;
@@ -367,7 +401,7 @@ class MultiExec implements ClientContextInterface
             }
 
             if ($this->commands->isEmpty()) {
-                if ($this->state->isWatching()) {
+                if ($this->state->isWatching() || ($this->state->isInitialized() && !$this->state->isCAS())) {
                     $this->discard();
                 }
 
@@ -448,7 +482,7 @@ class MultiExec implements ClientContextInterface
             // NOOP
         } catch (ServerException $exception) {
             // NOOP
-        } catch (Exception $exception) {
+        } catch (Throwable $exception) {
             $this->discard();
         }
 

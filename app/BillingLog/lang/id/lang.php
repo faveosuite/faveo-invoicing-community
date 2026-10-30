@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => 'Default',
     'cloud-instance-created' => 'Instance Cloud Dibuat',

@@ -33,12 +33,13 @@ use Cache;
 use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Lang;
 use Sentry\State\HubInterface;
 use Spatie\Activitylog\Models\Activity;
@@ -71,9 +72,9 @@ class SettingsController extends BaseSettingsController
      * PAyment Gateway that is shown on the basis of currency.
      *
      * @param  string  $currency  The currency of the Product Selected
-     * @return array<int,mixed>|RedirectResponse
+     * @return array<int,mixed>
      */
-    public static function checkPaymentGateway($currency)
+    public static function checkPaymentGateway($currency): array
     {
         try {
             $active_plugins = Plugin::where('status', 1)->get();
@@ -399,7 +400,7 @@ class SettingsController extends BaseSettingsController
             ]);
 
             return successResponse($this->langStr('message.pipedrive_setting'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
@@ -740,7 +741,7 @@ class SettingsController extends BaseSettingsController
                 'order_id' => $row->order_id, // @phpstan-ignore property.notFound
                 'amount' => $row->amount ?? '—',
                 // Some old rows stored an empty list ("[]") as the method.
-                'payment_method' => in_array($row->payment_method, [null, '', '[]'], true) ? '—' : ucfirst((string) $row->payment_method),
+                'payment_method' => in_array($row->payment_method, [null, '', '[]'], strict: true) ? '—' : ucfirst((string) $row->payment_method),
                 'payment_type' => ucfirst($row->payment_type ?? '—'),
                 'status' => ucfirst($row->status ?? '—'),
                 'exception' => $row->status === 'failed' ? $row->exception : null,
@@ -761,6 +762,7 @@ class SettingsController extends BaseSettingsController
             if (! $setting instanceof Setting) {
                 return errorResponse(trans('message.something_went_wrong'));
             }
+
             $setting->fill($request->only(['error_log', 'error_email']))->save();
 
             return successResponse($this->langStr('message.updated-successfully'));
@@ -852,8 +854,8 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $request->validate([
-                'ids' => 'array',
-                'ids.*' => 'integer|exists:payment_logs,id',
+                'ids' => ['array'],
+                'ids.*' => ['integer', 'exists:payment_logs,id'],
             ]);
 
             $ids = $request->input('ids', []);
@@ -865,7 +867,7 @@ class SettingsController extends BaseSettingsController
             Payment_log::whereIn('id', $ids)->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Illuminate\Validation\ValidationException $exception) {
+        } catch (ValidationException $exception) {
             return errorResponse($exception->getMessage());
         } catch (Exception $exception) {
             \Logger::exception($exception);

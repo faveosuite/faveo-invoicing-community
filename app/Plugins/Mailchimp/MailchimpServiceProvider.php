@@ -57,7 +57,7 @@ class MailchimpServiceProvider extends ServiceProvider
             resolve(NewsletterManager::class)->register(
                 new MailchimpNewsletterProvider(resolve(MailchimpService::class))
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // DB unavailable (e.g., fresh install) — skip Mailchimp registration
         }
     }

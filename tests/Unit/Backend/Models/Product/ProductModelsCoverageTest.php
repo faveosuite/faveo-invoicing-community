@@ -24,39 +24,39 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_product_category_table_is_product_categories(): void
     {
-        $this->assertSame('product_categories', (new ProductCategory())->getTable());
+        $this->assertSame('product_categories', new ProductCategory()->getTable());
     }
 
     public function test_product_category_fillable_contains_expected_fields(): void
     {
-        $fillable = (new ProductCategory())->getFillable();
+        $fillable = new ProductCategory()->getFillable();
         $this->assertContains('category_name', $fillable);
     }
 
     public function test_product_category_get_description_for_event_created(): void
     {
-        $cat = new ProductCategory();
+        $cat = new ProductCategory;
         $result = $cat->getDescriptionForEvent('created');
         $this->assertStringContainsString('created', $result);
     }
 
     public function test_product_category_get_description_for_event_updated(): void
     {
-        $cat = new ProductCategory();
+        $cat = new ProductCategory;
         $result = $cat->getDescriptionForEvent('updated');
         $this->assertStringContainsString('updated', $result);
     }
 
     public function test_product_category_get_description_for_event_deleted(): void
     {
-        $cat = new ProductCategory();
+        $cat = new ProductCategory;
         $result = $cat->getDescriptionForEvent('deleted');
         $this->assertStringContainsString('deleted', $result);
     }
 
     public function test_product_category_get_description_for_event_other_returns_empty(): void
     {
-        $cat = new ProductCategory();
+        $cat = new ProductCategory;
         $result = $cat->getDescriptionForEvent('some_other_event');
         $this->assertSame('', $result);
     }
@@ -67,12 +67,12 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_product_upload_table_is_product_uploads(): void
     {
-        $this->assertSame('product_uploads', (new ProductUpload())->getTable());
+        $this->assertSame('product_uploads', new ProductUpload()->getTable());
     }
 
     public function test_product_upload_fillable_contains_expected_fields(): void
     {
-        $fillable = (new ProductUpload())->getFillable();
+        $fillable = new ProductUpload()->getFillable();
         $this->assertContains('product_id', $fillable);
         $this->assertContains('title', $fillable);
         $this->assertContains('version', $fillable);
@@ -81,33 +81,35 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_product_upload_product_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new ProductUpload())->product());
+        $this->assertInstanceOf(BelongsTo::class, new ProductUpload()->product());
     }
 
     public function test_product_upload_order_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new ProductUpload())->order());
+        $this->assertInstanceOf(BelongsTo::class, new ProductUpload()->order());
     }
 
     public function test_product_upload_dependencies_accessor_decodes_json(): void
     {
-        $upload = new ProductUpload();
+        $upload = new ProductUpload;
         $upload->setRawAttributes(['dependencies' => json_encode(['dep1', 'dep2'])]);
+
         $result = $upload->dependencies;
         $this->assertIsArray((array) $result);
     }
 
     public function test_product_upload_dependencies_accessor_null_json(): void
     {
-        $upload = new ProductUpload();
+        $upload = new ProductUpload;
         $upload->setRawAttributes(['dependencies' => null]);
+
         $result = $upload->dependencies;
         $this->assertNull($result);
     }
 
     public function test_resolved_file_returns_the_file_column(): void
     {
-        $upload = new ProductUpload();
+        $upload = new ProductUpload;
         $upload->setRawAttributes(['file' => 'fallback.zip']);
 
         $this->assertSame('fallback.zip', $upload->resolvedFile());
@@ -119,19 +121,19 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_type_table_is_product_types(): void
     {
-        $this->assertSame('product_types', (new Type())->getTable());
+        $this->assertSame('product_types', new Type()->getTable());
     }
 
     public function test_type_fillable_contains_expected_fields(): void
     {
-        $fillable = (new Type())->getFillable();
+        $fillable = new Type()->getFillable();
         $this->assertContains('name', $fillable);
         $this->assertContains('description', $fillable);
     }
 
     public function test_type_product_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Type())->product());
+        $this->assertInstanceOf(HasMany::class, new Type()->product());
     }
 
     // =========================================================================
@@ -140,33 +142,33 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_cloud_products_table_is_cloud_products(): void
     {
-        $this->assertSame('cloud_products', (new CloudProducts())->getTable());
+        $this->assertSame('cloud_products', new CloudProducts()->getTable());
     }
 
     public function test_cloud_products_guarded_is_empty(): void
     {
-        $this->assertEmpty((new CloudProducts())->getGuarded());
+        $this->assertEmpty(new CloudProducts()->getGuarded());
     }
 
     public function test_cloud_products_product_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new CloudProducts())->product());
+        $this->assertInstanceOf(BelongsTo::class, new CloudProducts()->product());
     }
 
     public function test_cloud_products_plan_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new CloudProducts())->plan());
+        $this->assertInstanceOf(BelongsTo::class, new CloudProducts()->plan());
     }
 
     public function test_cloud_products_product_uses_cloud_product_key(): void
     {
-        $relation = (new CloudProducts())->product();
+        $relation = new CloudProducts()->product();
         $this->assertSame('cloud_product', $relation->getForeignKeyName());
     }
 
     public function test_cloud_products_plan_uses_cloud_free_plan_key(): void
     {
-        $relation = (new CloudProducts())->plan();
+        $relation = new CloudProducts()->plan();
         $this->assertSame('cloud_free_plan', $relation->getForeignKeyName());
     }
 
@@ -176,12 +178,12 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_product_group_table_is_product_groups(): void
     {
-        $this->assertSame('product_groups', (new ProductGroup())->getTable());
+        $this->assertSame('product_groups', new ProductGroup()->getTable());
     }
 
     public function test_product_group_fillable_contains_expected_fields(): void
     {
-        $fillable = (new ProductGroup())->getFillable();
+        $fillable = new ProductGroup()->getFillable();
         $this->assertContains('name', $fillable);
         $this->assertContains('headline', $fillable);
         $this->assertContains('tagline', $fillable);
@@ -190,22 +192,22 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_product_group_config_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new ProductGroup())->config());
+        $this->assertInstanceOf(HasMany::class, new ProductGroup()->config());
     }
 
     public function test_product_group_features_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new ProductGroup())->features());
+        $this->assertInstanceOf(HasMany::class, new ProductGroup()->features());
     }
 
     public function test_product_group_product_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new ProductGroup())->product());
+        $this->assertInstanceOf(HasMany::class, new ProductGroup()->product());
     }
 
     public function test_product_group_pricing_template_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new ProductGroup())->pricingTemplate());
+        $this->assertInstanceOf(BelongsTo::class, new ProductGroup()->pricingTemplate());
     }
 
     // =========================================================================
@@ -214,12 +216,12 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_subscription_table_is_subscriptions(): void
     {
-        $this->assertSame('subscriptions', (new Subscription())->getTable());
+        $this->assertSame('subscriptions', new Subscription()->getTable());
     }
 
     public function test_subscription_fillable_contains_expected_fields(): void
     {
-        $fillable = (new Subscription())->getFillable();
+        $fillable = new Subscription()->getFillable();
         $this->assertContains('user_id', $fillable);
         $this->assertContains('plan_id', $fillable);
         $this->assertContains('order_id', $fillable);
@@ -229,35 +231,36 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_subscription_casts_ends_at_as_datetime(): void
     {
-        $casts = (new Subscription())->getCasts();
+        $casts = new Subscription()->getCasts();
         $this->assertArrayHasKey('ends_at', $casts);
         $this->assertSame('datetime', $casts['ends_at']);
     }
 
     public function test_subscription_plan_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new Subscription())->plan());
+        $this->assertInstanceOf(BelongsTo::class, new Subscription()->plan());
     }
 
     public function test_subscription_product_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new Subscription())->product());
+        $this->assertInstanceOf(BelongsTo::class, new Subscription()->product());
     }
 
     public function test_subscription_user_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new Subscription())->user());
+        $this->assertInstanceOf(BelongsTo::class, new Subscription()->user());
     }
 
     public function test_subscription_order_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new Subscription())->order());
+        $this->assertInstanceOf(BelongsTo::class, new Subscription()->order());
     }
 
     public function test_subscription_get_log_url_returns_url_string(): void
     {
-        $sub = new Subscription();
+        $sub = new Subscription;
         $sub->forceFill(['order_id' => 42]);
+
         $url = $sub->getLogUrl();
         $this->assertStringContainsString('admin/orders/42', $url);
     }
@@ -268,12 +271,12 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_product_table_is_products(): void
     {
-        $this->assertSame('products', (new Product())->getTable());
+        $this->assertSame('products', new Product()->getTable());
     }
 
     public function test_product_fillable_contains_expected_fields(): void
     {
-        $fillable = (new Product())->getFillable();
+        $fillable = new Product()->getFillable();
         $this->assertContains('name', $fillable);
         $this->assertContains('description', $fillable);
         $this->assertContains('type', $fillable);
@@ -283,7 +286,7 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_product_fillable_contains_license_signing_fields(): void
     {
-        $fillable = (new Product())->getFillable();
+        $fillable = new Product()->getFillable();
         $this->assertContains('apl_salt', $fillable);
         $this->assertContains('product_type', $fillable);
         $this->assertContains('config_file_path', $fillable);
@@ -292,82 +295,82 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_product_plugin_groups_as_product_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Product())->productPluginGroupsAsProduct());
+        $this->assertInstanceOf(HasMany::class, new Product()->productPluginGroupsAsProduct());
     }
 
     public function test_product_order_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Product())->order());
+        $this->assertInstanceOf(HasMany::class, new Product()->order());
     }
 
     public function test_product_subscription_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Product())->subscription());
+        $this->assertInstanceOf(HasMany::class, new Product()->subscription());
     }
 
     public function test_product_license_type_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new Product())->licenseType());
+        $this->assertInstanceOf(BelongsTo::class, new Product()->licenseType());
     }
 
     public function test_product_price_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Product())->price());
+        $this->assertInstanceOf(HasMany::class, new Product()->price());
     }
 
     public function test_product_promo_relation_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Product())->PromoRelation());
+        $this->assertInstanceOf(HasMany::class, new Product()->PromoRelation());
     }
 
     public function test_product_tax_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Product())->tax());
+        $this->assertInstanceOf(HasMany::class, new Product()->tax());
     }
 
     public function test_product_product_upload_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Product())->productUpload());
+        $this->assertInstanceOf(HasMany::class, new Product()->productUpload());
     }
 
     public function test_product_plan_relation_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Product())->planRelation());
+        $this->assertInstanceOf(HasMany::class, new Product()->planRelation());
     }
 
     public function test_product_group_relation_is_belongs_to(): void
     {
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, (new Product())->groupRelation());
+        $this->assertInstanceOf(BelongsTo::class, new Product()->groupRelation());
     }
 
     public function test_product_product_plugin_groups_as_product_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Product())->productPluginGroupsAsProduct());
+        $this->assertInstanceOf(HasMany::class, new Product()->productPluginGroupsAsProduct());
     }
 
     public function test_product_product_plugin_groups_as_plugin_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Product())->productPluginGroupsAsPlugin());
+        $this->assertInstanceOf(HasMany::class, new Product()->productPluginGroupsAsPlugin());
     }
 
     public function test_product_config_options_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Product())->configOptions());
+        $this->assertInstanceOf(HasMany::class, new Product()->configOptions());
     }
 
     public function test_product_product_comp_with_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Product())->productCompWith());
+        $this->assertInstanceOf(HasMany::class, new Product()->productCompWith());
     }
 
     public function test_product_plugin_comp_with_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Product())->pluginCompWith());
+        $this->assertInstanceOf(HasMany::class, new Product()->pluginCompWith());
     }
 
     public function test_product_parent_relation_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new Product())->parentRelation());
+        $this->assertInstanceOf(BelongsTo::class, new Product()->parentRelation());
     }
 
     // =========================================================================
@@ -376,7 +379,7 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_cloud_products_get_mappings_returns_expected_keys(): void
     {
-        $model = new CloudProducts();
+        $model = new CloudProducts;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertIsArray($mappings);
@@ -388,9 +391,9 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_cloud_products_get_log_name_column_returns_string(): void
     {
-        $model = new CloudProducts();
+        $model = new CloudProducts;
         // cloud_product = null, so Product::find(null) returns null, falls back to null
-        $result = $model->getLogNameColumn();
+        $model->getLogNameColumn();
         // Returns null or empty when no product found; just assert it returns without error
         $this->assertTrue(true);
     }
@@ -401,7 +404,7 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_product_group_get_mappings_returns_expected_keys(): void
     {
-        $model = new ProductGroup();
+        $model = new ProductGroup;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertIsArray($mappings);
@@ -416,7 +419,7 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_product_upload_get_mappings_returns_expected_keys(): void
     {
-        $model = new ProductUpload();
+        $model = new ProductUpload;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertIsArray($mappings);
@@ -427,12 +430,12 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_product_upload_callbacks_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new ProductUpload())->callbacks());
+        $this->assertInstanceOf(HasMany::class, new ProductUpload()->callbacks());
     }
 
     public function test_product_upload_installations_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new ProductUpload())->installations());
+        $this->assertInstanceOf(HasMany::class, new ProductUpload()->installations());
     }
 
     // =========================================================================
@@ -441,7 +444,7 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_subscription_get_mappings_returns_expected_keys(): void
     {
-        $model = new Subscription();
+        $model = new Subscription;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertIsArray($mappings);
@@ -467,19 +470,19 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_license_permission_pivot_table_is_correct(): void
     {
-        $this->assertSame('license_license_permissions', (new LicensePermissionPivot())->getTable());
+        $this->assertSame('license_license_permissions', new LicensePermissionPivot()->getTable());
     }
 
     public function test_license_permission_pivot_fillable_contains_expected_fields(): void
     {
-        $fillable = (new LicensePermissionPivot())->getFillable();
+        $fillable = new LicensePermissionPivot()->getFillable();
         $this->assertContains('license_type_id', $fillable);
         $this->assertContains('license_permission_id', $fillable);
     }
 
     public function test_license_permission_pivot_get_mappings_returns_expected_keys(): void
     {
-        $model = new LicensePermissionPivot();
+        $model = new LicensePermissionPivot;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertIsArray($mappings);
@@ -488,9 +491,9 @@ class ProductModelsCoverageTest extends TestCase
 
     public function test_license_permission_pivot_get_log_name_column_returns_string(): void
     {
-        $model = new LicensePermissionPivot();
+        $model = new LicensePermissionPivot;
         // license_type_id = null → LicenseType::find(null) = null
-        $result = $model->getLogNameColumn();
+        $model->getLogNameColumn();
         // Returns null-coalesced string or integer; just ensure it runs without error
         $this->assertTrue(true);
     }

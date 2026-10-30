@@ -10,15 +10,20 @@ use DebugBar\DebugBar;
 use Fruitcake\LaravelDebugbar\Console\ClearCommand;
 use Fruitcake\LaravelDebugbar\Console\FindCommand;
 use Fruitcake\LaravelDebugbar\Console\GetCommand;
+use Fruitcake\LaravelDebugbar\Console\InstallSkillCommand;
 use Fruitcake\LaravelDebugbar\Console\QueriesCommand;
 use Fruitcake\LaravelDebugbar\Support\Octane\ResetDebugbar;
 use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\View\Engine;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Events\Terminating;
 use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Collection;
+use Illuminate\View\Factory as ViewFactory;
 use Laravel\Octane\Events\RequestReceived;
 
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
@@ -45,6 +50,46 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             debug($this);
             return $this;
         });
+
+        if (
+            !$this->app['config']->get('debugbar.collectors.time', false)
+            || !$this->app['config']->get('debugbar.collectors.views', false)
+            || !$this->app['config']->get('debugbar.options.views.timeline', false)
+            || !$this->app['config']->get('debugbar.options.views.timeline_duration', false)
+        ) {
+            return;
+        }
+
+        $this->app->extend(
+            'view',
+            function (Factory $factory, Container $application): Factory {
+                assert($factory instanceof ViewFactory);
+                $laravelDebugbar = $application->make(LaravelDebugbar::class);
+
+                if (! $laravelDebugbar->isEnabled()) {
+                    return $factory; // Do not swap the engine to save performance
+                }
+
+                $extensions = array_reverse($factory->getExtensions());
+                $engines = array_flip($extensions);
+                $enginesResolver = $application->make('view.engine.resolver');
+
+                foreach ($engines as $engine => $extension) {
+                    $resolved = $enginesResolver->resolve($engine);
+
+                    $factory->addExtension($extension, $engine, function () use ($resolved, $laravelDebugbar): Engine {
+                        return new DebugbarViewEngine($resolved, $laravelDebugbar);
+                    });
+                }
+
+                // returns original order of extensions
+                foreach ($extensions as $extension => $engine) {
+                    $factory->addExtension($extension, $engine);
+                }
+
+                return $factory;
+            }
+        );
     }
 
     /**
@@ -57,7 +102,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             $configPath = __DIR__ . '/../config/debugbar.php';
             $this->publishes([$configPath => $this->getConfigPath()], 'config');
 
-            $this->commands([FindCommand::class, GetCommand::class, ClearCommand::class, QueriesCommand::class]);
+            $this->commands([FindCommand::class, GetCommand::class, ClearCommand::class, QueriesCommand::class, InstallSkillCommand::class]);
         }
 
         // Eearly return if debugbar can not enabled

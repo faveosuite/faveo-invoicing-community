@@ -14,8 +14,9 @@ class VerifyCsrfTokenTest extends TestCase
     public function test_except_list_contains_api_routes(): void
     {
         $middleware = $this->app->make(VerifyCsrfToken::class);
-        $prop = (new \ReflectionClass($middleware))->getProperty('except');
-        $prop->setAccessible(true);
+        $prop = new \ReflectionClass($middleware)->getProperty('except');
+        $prop->setAccessible(accessible: true);
+
         $except = $prop->getValue($middleware);
 
         $this->assertContains('api/v3/*', $except);
@@ -30,10 +31,11 @@ class VerifyCsrfTokenTest extends TestCase
         // Use the session decorator that Request expects
         $session = $this->app['session']->driver();
         $session->start();
+
         $request->setLaravelSession($session);
 
-        $response = $middleware->handle($request, function () {
-            throw new TokenMismatchException();
+        $response = $middleware->handle($request, function (): void {
+            throw new TokenMismatchException;
         });
 
         $this->assertSame(302, $response->getStatusCode());

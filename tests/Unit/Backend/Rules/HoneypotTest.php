@@ -6,6 +6,7 @@ namespace Tests\Unit\Backend\Rules;
 
 use App\Rules\Honeypot;
 use Crypt;
+use Illuminate\Http\Request;
 use Tests\TestCase;
 
 class HoneypotTest extends TestCase
@@ -41,7 +42,7 @@ class HoneypotTest extends TestCase
     public function test_valid_payload_with_null_pot_passes(): void
     {
         $fails = false;
-        $payload = $this->validPayload(null);
+        $payload = $this->validPayload(potValue: null);
 
         $this->rule->validate('honeypot', $payload, function () use (&$fails): void {
             $fails = true;
@@ -55,7 +56,7 @@ class HoneypotTest extends TestCase
     public function test_null_value_fails(): void
     {
         $fails = false;
-        $this->rule->validate('honeypot', null, function () use (&$fails): void {
+        $this->rule->validate('honeypot', value: null, fail: function () use (&$fails): void {
             $fails = true;
         });
 
@@ -198,12 +199,12 @@ class HoneypotTest extends TestCase
 
     public function test_skips_validation_for_v3_api_request(): void
     {
-        $request = \Illuminate\Http\Request::create(config('app.url').'/api/v3/test', 'GET');
+        $request = Request::create(config('app.url').'/api/v3/test', 'GET');
         $this->app->instance('request', $request);
 
         $fails = false;
-        $rule = new Honeypot();
-        $rule->validate('honeypot', null, function () use (&$fails): void {
+        $rule = new Honeypot;
+        $rule->validate('honeypot', value: null, fail: function () use (&$fails): void {
             $fails = true;
         });
 

@@ -6,17 +6,15 @@ class Hyperlink
 {
     /**
      * URL to link the cell to.
-     *
-     * @var string
      */
-    private $url;
+    private string $url;
 
     /**
      * Tooltip to display on the hyperlink.
-     *
-     * @var string
      */
-    private $tooltip;
+    private string $tooltip;
+
+    private string $display = '';
 
     /**
      * Create a new Hyperlink.
@@ -24,7 +22,7 @@ class Hyperlink
      * @param string $url Url to link the cell to
      * @param string $tooltip Tooltip to display on the hyperlink
      */
-    public function __construct($url = '', $tooltip = '')
+    public function __construct(string $url = '', string $tooltip = '')
     {
         // Initialise member variables
         $this->url = $url;
@@ -33,10 +31,8 @@ class Hyperlink
 
     /**
      * Get URL.
-     *
-     * @return string
      */
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->url;
     }
@@ -44,11 +40,9 @@ class Hyperlink
     /**
      * Set URL.
      *
-     * @param string $url
-     *
      * @return $this
      */
-    public function setUrl($url)
+    public function setUrl(string $url): static
     {
         $this->url = $url;
 
@@ -57,10 +51,8 @@ class Hyperlink
 
     /**
      * Get tooltip.
-     *
-     * @return string
      */
-    public function getTooltip()
+    public function getTooltip(): string
     {
         return $this->tooltip;
     }
@@ -68,11 +60,9 @@ class Hyperlink
     /**
      * Set tooltip.
      *
-     * @param string $tooltip
-     *
      * @return $this
      */
-    public function setTooltip($tooltip)
+    public function setTooltip(string $tooltip): static
     {
         $this->tooltip = $tooltip;
 
@@ -80,21 +70,33 @@ class Hyperlink
     }
 
     /**
-     * Is this hyperlink internal? (to another worksheet).
-     *
-     * @return bool
+     * Is this hyperlink internal? (to another worksheet or a cell in this worksheet).
      */
-    public function isInternal()
+    public function isInternal(): bool
     {
-        return strpos($this->url, 'sheet://') !== false;
+        return str_starts_with($this->url, 'sheet://') || str_starts_with($this->url, '#');
+    }
+
+    public function getTypeHyperlink(): string
+    {
+        return $this->isInternal() ? '' : 'External';
+    }
+
+    public function getDisplay(): string
+    {
+        return $this->display;
     }
 
     /**
-     * @return string
+     * This can be displayed in cell rather than actual cell contents.
+     * It seems to be ignored by Excel.
+     * It may be used by Google Sheets.
      */
-    public function getTypeHyperlink()
+    public function setDisplay(string $display): self
     {
-        return $this->isInternal() ? '' : 'External';
+        $this->display = $display;
+
+        return $this;
     }
 
     /**
@@ -102,12 +104,16 @@ class Hyperlink
      *
      * @return string Hash code
      */
-    public function getHashCode()
+    public function getHashCode(): string
     {
         return md5(
-            $this->url .
-            $this->tooltip .
-            __CLASS__
+            $this->url
+            . ','
+            . $this->tooltip
+            . ','
+            . $this->display
+            . ','
+            . __CLASS__
         );
     }
 }

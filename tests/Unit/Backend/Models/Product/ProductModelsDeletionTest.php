@@ -35,7 +35,7 @@ class ProductModelsDeletionTest extends DBTestCase
         try {
             $type->delete();
             $this->assertDatabaseMissing('product_types', ['id' => $id]);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // FK constraints may prevent deletion - the body was executed
             $this->assertTrue(true);
         }

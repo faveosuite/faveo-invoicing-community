@@ -61,15 +61,17 @@ final readonly class Exporter
      * @var positive-int
      */
     private int $maxLengthForStrings;
+    private ?ObjectExporter $objectExporter;
 
     /**
      * @param non-negative-int $shortenArraysLongerThan
      * @param positive-int     $maxLengthForStrings
      */
-    public function __construct(int $shortenArraysLongerThan = 0, int $maxLengthForStrings = 40)
+    public function __construct(int $shortenArraysLongerThan = 0, int $maxLengthForStrings = 40, ?ObjectExporter $objectExporter = null)
     {
         $this->shortenArraysLongerThan = $shortenArraysLongerThan;
         $this->maxLengthForStrings     = $maxLengthForStrings;
+        $this->objectExporter          = $objectExporter;
     }
 
     /**
@@ -84,15 +86,23 @@ final readonly class Exporter
      *  - Strings are always quoted with single quotes
      *  - Carriage returns and newlines are normalized to \n
      *  - Recursion and repeated rendering is treated properly
+     *
+     * An implementation of ObjectExporter must pass the ExportContext it is
+     * given to this method when it exports values that are nested in the
+     * object it handles.
+     *
+     * @throws ObjectNotSupportedException
      */
-    public function export(mixed $value, int $indentation = 0): string
+    public function export(mixed $value, int $indentation = 0, ?ExportContext $context = null): string
     {
-        return $this->recursiveExport($value, $indentation);
+        return $this->recursiveExport($value, $indentation, $context);
     }
 
     /**
      * @param array<mixed> $data
      * @param positive-int $maxLengthForStrings
+     *
+     * @throws ObjectNotSupportedException
      */
     public function shortenedRecursiveExport(array &$data, int $maxLengthForStrings = 40, ?RecursionContext $processed = null): string
     {
@@ -126,7 +136,13 @@ final readonly class Exporter
      * Newlines are replaced by the visible string '\n'.
      * Contents of arrays and objects (if any) are replaced by '...'.
      *
+     * The representation a custom object exporter provides for an object is
+     * used, but it is collapsed to a single line and shortened when it is
+     * longer than $maxLengthForStrings.
+     *
      * @param positive-int $maxLengthForStrings
+     *
+     * @throws ObjectNotSupportedException
      */
     public function shortenedExport(mixed $value, int $maxLengthForStrings = 40): string
     {
@@ -135,13 +151,20 @@ final readonly class Exporter
         }
 
         if (is_string($value)) {
-            $string = str_replace("\n", '', $this->exportString($value));
+            return $this->shorten($this->exportString($value), $maxLengthForStrings);
+        }
 
-            if (mb_strlen($string) > $maxLengthForStrings) {
-                return mb_substr($string, 0, $maxLengthForStrings - 10) . '...' . mb_substr($string, -7);
-            }
+        if ($this->objectExporter !== null &&
+            is_object($value) &&
+            $this->objectExporter->handles($value)) {
+            $context = new ExportContext;
 
-            return $string;
+            $context->beginExportByObjectExporter($value);
+
+            return $this->shorten(
+                $this->objectExporter->export($value, $this, 0, $context),
+                $maxLengthForStrings,
+            );
         }
 
         if ($value instanceof BackedEnum) {
@@ -177,6 +200,26 @@ final readonly class Exporter
         }
 
         return $this->export($value);
+    }
+
+    /**
+     * Returns whether a custom object exporter provides the representation
+     * for an object.
+     *
+     * This is intended for code that renders objects itself and wants to use
+     * the representation a custom object exporter provides when there is one.
+     *
+     * Bear in mind that an object that is (indirectly) nested in itself is
+     * replaced with a reference to the object instead of being exported by a
+     * custom object exporter again.
+     */
+    public function hasCustomRepresentationFor(object $object): bool
+    {
+        if ($this->objectExporter === null) {
+            return false;
+        }
+
+        return $this->objectExporter->handles($object);
     }
 
     /**
@@ -312,6 +355,8 @@ final readonly class Exporter
     /**
      * @param array<mixed> $data
      * @param positive-int $maxLengthForStrings
+     *
+     * @throws ObjectNotSupportedException
      */
     private function shortenedCountedRecursiveExport(array &$data, RecursionContext $processed, int &$counter, int $maxLengthForStrings): string
     {
@@ -348,7 +393,10 @@ final readonly class Exporter
         return implode(', ', $result);
     }
 
-    private function recursiveExport(mixed &$value, int $indentation = 0, ?RecursionContext $processed = null): string
+    /**
+     * @throws ObjectNotSupportedException
+     */
+    private function recursiveExport(mixed &$value, int $indentation = 0, ?ExportContext $context = null): string
     {
         if ($value === null) {
             return 'null';
@@ -375,42 +423,40 @@ final readonly class Exporter
             );
         }
 
-        if ($value instanceof BackedEnum) {
-            return sprintf(
-                '%s Enum #%d (%s, %s)',
-                $value::class,
-                spl_object_id($value),
-                $value->name,
-                $this->export($value->value),
-            );
-        }
-
-        if ($value instanceof UnitEnum) {
-            return sprintf(
-                '%s Enum #%d (%s)',
-                $value::class,
-                spl_object_id($value),
-                $value->name,
-            );
-        }
-
         if (is_string($value)) {
             return $this->exportString($value);
         }
 
-        if ($processed === null) {
-            $processed = new RecursionContext;
+        if ($context === null) {
+            $context = new ExportContext;
         }
 
         if (is_array($value)) {
-            return $this->exportArray($value, $processed, $indentation);
+            return $this->exportArray($value, $context, $indentation);
         }
 
         if (is_object($value)) {
-            return $this->exportObject($value, $processed, $indentation);
+            return $this->exportObject($value, $context, $indentation);
         }
 
         return var_export($value, true);
+    }
+
+    /**
+     * Collapses a representation to a single line and shortens it when it is
+     * longer than $maxLengthForStrings.
+     *
+     * @param positive-int $maxLengthForStrings
+     */
+    private function shorten(string $string, int $maxLengthForStrings): string
+    {
+        $string = str_replace(["\r", "\n"], '', $string);
+
+        if (mb_strlen($string) > $maxLengthForStrings) {
+            return mb_substr($string, 0, $maxLengthForStrings - 10) . '...' . mb_substr($string, -7);
+        }
+
+        return $string;
     }
 
     private function exportFloat(float $value): string
@@ -483,15 +529,17 @@ final readonly class Exporter
 
     /**
      * @param array<mixed> $value
+     *
+     * @throws ObjectNotSupportedException
      */
-    private function exportArray(array &$value, RecursionContext $processed, int $indentation): string
+    private function exportArray(array &$value, ExportContext $context, int $indentation): string
     {
-        if (($key = $processed->contains($value)) !== false) {
+        if (($key = $context->contains($value)) !== false) {
             return 'Array &' . $key;
         }
 
         $array  = $value;
-        $key    = $processed->add($value);
+        $key    = $context->add($value);
         $values = '';
 
         if (count($array) > 0) {
@@ -504,7 +552,7 @@ final readonly class Exporter
                     $this->recursiveExport($k, $indentation)
                     . ' => ' .
                     /** @phpstan-ignore offsetAccess.invalidOffset */
-                    $this->recursiveExport($value[$k], $indentation + 1, $processed)
+                    $this->recursiveExport($value[$k], $indentation + 1, $context)
                     . ",\n";
             }
 
@@ -514,15 +562,68 @@ final readonly class Exporter
         return 'Array &' . (string) $key . ' [' . $values . ']';
     }
 
-    private function exportObject(object $value, RecursionContext $processed, int $indentation): string
+    /**
+     * @throws ObjectNotSupportedException
+     */
+    private function exportObject(object $value, ExportContext $context, int $indentation): string
     {
         $class = $value::class;
 
-        if ($processed->contains($value) !== false) {
+        if ($this->objectExporter !== null) {
+            // An object that is (indirectly) nested in itself cannot be
+            // exported by a custom object exporter without recursing
+            // infinitely and is therefore replaced with a reference to the
+            // object.
+            if ($context->isBeingExportedByObjectExporter($value)) {
+                return $class . ' Object #' . spl_object_id($value);
+            }
+
+            // A custom object exporter is responsible for the entire
+            // representation of the object it handles. Therefore, it is asked
+            // for that representation before the recursion context is
+            // consulted: every occurrence of such an object is exported the
+            // same way instead of repeated occurrences being replaced with a
+            // reference to the object.
+            if ($this->objectExporter->handles($value)) {
+                $context->beginExportByObjectExporter($value);
+
+                try {
+                    return $this->objectExporter->export($value, $this, $indentation, $context);
+                } finally {
+                    $context->endExportByObjectExporter($value);
+                }
+            }
+        }
+
+        // Enums are handled after a custom object exporter has been consulted
+        // so that the representation of an enum can be customized, but before
+        // the recursion context is consulted because an enum case is a
+        // singleton for which a reference to a previous occurrence would be
+        // less informative than the representation itself.
+        if ($value instanceof BackedEnum) {
+            return sprintf(
+                '%s Enum #%d (%s, %s)',
+                $class,
+                spl_object_id($value),
+                $value->name,
+                $this->export($value->value),
+            );
+        }
+
+        if ($value instanceof UnitEnum) {
+            return sprintf(
+                '%s Enum #%d (%s)',
+                $class,
+                spl_object_id($value),
+                $value->name,
+            );
+        }
+
+        if ($context->contains($value) !== false) {
             return $class . ' Object #' . spl_object_id($value);
         }
 
-        $processed->add($value);
+        $context->add($value);
 
         $array  = $this->toArray($value);
         $buffer = '';
@@ -536,7 +637,7 @@ final readonly class Exporter
                     . '    ' .
                     $this->recursiveExport($k, $indentation)
                     . ' => ' .
-                    $this->recursiveExport($v, $indentation + 1, $processed)
+                    $this->recursiveExport($v, $indentation + 1, $context)
                     . ",\n";
             }
 

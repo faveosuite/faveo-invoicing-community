@@ -8,6 +8,7 @@ use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
 use DB;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -123,6 +124,7 @@ class CurrencyController extends Controller
             if (is_null($currency)) {
                 return errorResponse(__('message.currency_not_found'));
             }
+
             /** @var mixed $currency */
             $currency->code = $request->editcode;
             $currency->symbol = $request->editsymbol;
@@ -159,7 +161,7 @@ class CurrencyController extends Controller
                     'status' => $currency->status,
                 ]);
             });
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);
@@ -179,7 +181,7 @@ class CurrencyController extends Controller
             ]);
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             \Logger::exception($exception);

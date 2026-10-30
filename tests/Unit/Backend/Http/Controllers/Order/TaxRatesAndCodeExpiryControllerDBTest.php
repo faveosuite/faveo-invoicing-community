@@ -4,8 +4,12 @@ namespace Tests\Unit\Backend\Http\Controllers\Order;
 
 use App\Http\Controllers\Order\TaxRatesAndCodeExpiryController;
 use App\Model\Order\Invoice;
+use App\Model\Order\InvoiceItem;
 use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
+use App\Model\Payment\PromoProductRelation;
+use App\Model\Payment\Promotion;
+use App\Model\Product\Product;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
@@ -117,7 +121,7 @@ class TaxRatesAndCodeExpiryControllerDBTest extends DBTestCase
         $response = $this->controller->paymentEditById(999999);
 
         $this->assertEquals(400, $response->getStatusCode());
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
         $this->assertFalse($body['success']);
     }
 
@@ -144,7 +148,7 @@ class TaxRatesAndCodeExpiryControllerDBTest extends DBTestCase
 
         // Due to the undefined $this->user property, the catch block fires → 400
         $this->assertEquals(400, $response->getStatusCode());
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
         $this->assertFalse($body['success']);
     }
 
@@ -197,7 +201,7 @@ class TaxRatesAndCodeExpiryControllerDBTest extends DBTestCase
 
     public function test_get_message_returns_success_message_when_items_truthy(): void
     {
-        $item = new \App\Model\Order\InvoiceItem;
+        $item = new InvoiceItem;
         $item->invoice_id = 1;
 
         $result = $this->controller->getMessage($item, $this->user->id);
@@ -207,7 +211,7 @@ class TaxRatesAndCodeExpiryControllerDBTest extends DBTestCase
 
     public function test_get_message_returns_fails_message_when_items_falsy(): void
     {
-        $result = $this->controller->getMessage(null, $this->user->id);
+        $result = $this->controller->getMessage(items: null, user_id: $this->user->id);
 
         $this->assertArrayHasKey('fails', $result);
     }
@@ -218,7 +222,7 @@ class TaxRatesAndCodeExpiryControllerDBTest extends DBTestCase
 
     public function test_get_grand_total_returns_total_unchanged_when_no_code(): void
     {
-        $result = $this->controller->getGrandTotal(null, 100.0, 100.0, 1, 'USD', (string) $this->user->id);
+        $result = $this->controller->getGrandTotal(code: null, total: 100.0, cost: 100.0, productid: 1, currency: 'USD', user_id: (string) $this->user->id);
 
         $this->assertIsArray($result);
         $this->assertEquals(100.0, $result['total']);
@@ -229,13 +233,13 @@ class TaxRatesAndCodeExpiryControllerDBTest extends DBTestCase
     {
         // QA case: coupon for HD Enterprise, already used up, tried on an HD Enterprise Pro
         // invoice — "invalid" (wrong product) wins over "used up".
-        $couponProduct = \App\Model\Product\Product::factory()->create();
-        $invoiceProduct = \App\Model\Product\Product::factory()->create();
-        $promo = \App\Model\Payment\Promotion::create([
+        $couponProduct = Product::factory()->create();
+        $invoiceProduct = Product::factory()->create();
+        $promo = Promotion::create([
             'code' => 'T'.strtoupper(uniqid()), 'type' => 2, 'uses' => 0, 'value' => '10',
             'start' => now()->subDay()->toDateTimeString(), 'expiry' => now()->addDay()->toDateTimeString(),
         ]);
-        \App\Model\Payment\PromoProductRelation::create(['promotion_id' => $promo->id, 'product_id' => $couponProduct->id]);
+        PromoProductRelation::create(['promotion_id' => $promo->id, 'product_id' => $couponProduct->id]);
 
         $this->expectExceptionMessageIsOrContains(__('message.invalid_coupon_code'));
 
@@ -244,7 +248,7 @@ class TaxRatesAndCodeExpiryControllerDBTest extends DBTestCase
 
     public function test_get_grand_total_returns_zeros_when_total_is_zero(): void
     {
-        $result = $this->controller->getGrandTotal(null, 0, 0, 1, 'USD');
+        $result = $this->controller->getGrandTotal(code: null, total: 0, cost: 0, productid: 1, currency: 'USD');
 
         $this->assertIsArray($result);
         $this->assertEquals(0, $result['total']);

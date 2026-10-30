@@ -6,6 +6,7 @@ namespace Tests\Unit\Backend\Http\Middleware;
 
 use App\Http\Middleware\Authenticate;
 use App\User;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Tests\TestCase;
@@ -16,7 +17,7 @@ class AuthenticateTest extends TestCase
 
     private function next(): \Closure
     {
-        return fn ($req) => response('passed');
+        return fn ($req): ResponseFactory|\Illuminate\Http\Response => response('passed');
     }
 
     public function test_guest_ajax_request_returns_401(): void

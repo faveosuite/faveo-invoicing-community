@@ -13,6 +13,7 @@ use function is_int;
 use function sprintf;
 use PHPUnit\Event\TestData\TestDataCollection;
 use PHPUnit\Metadata\MetadataCollection;
+use PHPUnit\Util\Sanitizer;
 
 /**
  * @immutable
@@ -40,23 +41,51 @@ final readonly class TestMethod extends Test
     private TestDataCollection $testData;
 
     /**
+     * @var positive-int
+     */
+    private int $repetition;
+
+    /**
+     * @var positive-int
+     */
+    private int $totalRepetitions;
+
+    /**
+     * @var positive-int
+     */
+    private int $attempt;
+
+    /**
+     * @var positive-int
+     */
+    private int $maxAttempts;
+
+    /**
      * @param class-string     $className
      * @param non-empty-string $methodName
      * @param non-empty-string $file
      * @param non-negative-int $line
+     * @param positive-int     $repetition
+     * @param positive-int     $totalRepetitions
+     * @param positive-int     $attempt
+     * @param positive-int     $maxAttempts
      *
      * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
-    public function __construct(string $className, string $methodName, string $file, int $line, TestDox $testDox, MetadataCollection $metadata, TestDataCollection $testData)
+    public function __construct(string $className, string $methodName, string $file, int $line, TestDox $testDox, MetadataCollection $metadata, TestDataCollection $testData, int $repetition = 1, int $totalRepetitions = 1, int $attempt = 1, int $maxAttempts = 1)
     {
         parent::__construct($file);
 
-        $this->className  = $className;
-        $this->methodName = $methodName;
-        $this->line       = $line;
-        $this->testDox    = $testDox;
-        $this->metadata   = $metadata;
-        $this->testData   = $testData;
+        $this->className        = $className;
+        $this->methodName       = $methodName;
+        $this->line             = $line;
+        $this->testDox          = $testDox;
+        $this->metadata         = $metadata;
+        $this->testData         = $testData;
+        $this->repetition       = $repetition;
+        $this->totalRepetitions = $totalRepetitions;
+        $this->attempt          = $attempt;
+        $this->maxAttempts      = $maxAttempts;
     }
 
     /**
@@ -98,6 +127,48 @@ final readonly class TestMethod extends Test
         return $this->testData;
     }
 
+    /**
+     * @return positive-int
+     */
+    public function repetition(): int
+    {
+        return $this->repetition;
+    }
+
+    /**
+     * @return positive-int
+     */
+    public function totalRepetitions(): int
+    {
+        return $this->totalRepetitions;
+    }
+
+    public function isRepeated(): bool
+    {
+        return $this->totalRepetitions > 1;
+    }
+
+    /**
+     * @return positive-int
+     */
+    public function attempt(): int
+    {
+        return $this->attempt;
+    }
+
+    /**
+     * @return positive-int
+     */
+    public function maxAttempts(): int
+    {
+        return $this->maxAttempts;
+    }
+
+    public function isRetried(): bool
+    {
+        return $this->maxAttempts > 1;
+    }
+
     public function isTestMethod(): true
     {
         return true;
@@ -112,6 +183,22 @@ final readonly class TestMethod extends Test
 
         if ($this->testData()->hasDataFromDataProvider()) {
             $buffer .= '#' . $this->testData->dataFromDataProvider()->dataSetName();
+        }
+
+        if ($this->totalRepetitions > 1) {
+            $buffer .= sprintf(
+                ' (repetition %d of %d)',
+                $this->repetition,
+                $this->totalRepetitions,
+            );
+        }
+
+        if ($this->attempt > 1) {
+            $buffer .= sprintf(
+                ' (attempt %d of %d)',
+                $this->attempt,
+                $this->maxAttempts,
+            );
         }
 
         return $buffer;
@@ -130,24 +217,58 @@ final readonly class TestMethod extends Test
      */
     public function name(): string
     {
-        if (!$this->testData->hasDataFromDataProvider()) {
-            return $this->methodName;
-        }
+        $name = $this->nameWithDataSet();
 
-        $dataSetName = $this->testData->dataFromDataProvider()->dataSetName();
-
-        if (is_int($dataSetName)) {
-            $dataSetName = sprintf(
-                ' with data set #%d',
-                $dataSetName,
-            );
-        } else {
-            $dataSetName = sprintf(
-                ' with data set "%s"',
-                $dataSetName,
+        if ($this->totalRepetitions > 1) {
+            $name .= sprintf(
+                ' (repetition %d of %d)',
+                $this->repetition,
+                $this->totalRepetitions,
             );
         }
 
-        return $this->methodName . $dataSetName;
+        if ($this->attempt > 1) {
+            $name .= sprintf(
+                ' (attempt %d of %d)',
+                $this->attempt,
+                $this->maxAttempts,
+            );
+        }
+
+        return $name;
+    }
+
+    /**
+     * @return non-empty-string
+     */
+    public function sortId(): string
+    {
+        return $this->className . '::' . $this->nameWithDataSet();
+    }
+
+    /**
+     * @return non-empty-string
+     */
+    private function nameWithDataSet(): string
+    {
+        $name = $this->methodName;
+
+        if ($this->testData->hasDataFromDataProvider()) {
+            $dataSetName = $this->testData->dataFromDataProvider()->dataSetName();
+
+            if (is_int($dataSetName)) {
+                $name .= sprintf(
+                    ' with data set #%d',
+                    $dataSetName,
+                );
+            } else {
+                $name .= sprintf(
+                    ' with data set "%s"',
+                    Sanitizer::sanitizeControlCharacters($dataSetName),
+                );
+            }
+        }
+
+        return $name;
     }
 }

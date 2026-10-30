@@ -7,13 +7,23 @@ use App\Http\Controllers\Front\Cart\GuestCart;
 use App\Http\Controllers\Order\ExtendedOrderController;
 use App\Model\Cart\Cart;
 use App\Model\Cart\CartItem;
+use App\Model\Common\Country;
+use App\Model\Order\Invoice;
+use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
+use App\Model\Payment\PromoProductRelation;
+use App\Model\Payment\Promotion;
+use App\Model\Payment\PromotionType;
+use App\Model\Payment\TaxOption;
 use App\Model\Product\Product;
 use App\Services\Payment\InvoicePaymentService;
+use App\Services\Tax\TaxService;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Mockery;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\DBTestCase;
 
 /**
@@ -40,7 +50,7 @@ class CartAgentsTest extends DBTestCase
     private function request(bool $guest = false): Request
     {
         $request = Request::create('/cart', 'POST');
-        $request->setLaravelSession(app('session.store'));
+        $request->setLaravelSession(resolve('session.store'));
         if (! $guest) {
             $request->setUserResolver(fn () => $this->user);
         }
@@ -92,15 +102,15 @@ class CartAgentsTest extends DBTestCase
         $cart = $this->service->resolveCart($this->request());
 
         $this->assertSame($currency, $cart->currency);
-        $this->assertSame([$priced->id], $cart->items->pluck('product_id')->map(fn ($id) => (int) $id)->all());
+        $this->assertSame([$priced->id], $cart->items->pluck('product_id')->map(fn ($id): int => (int) $id)->all());
     }
 
     public function test_guest_usd_cart_becomes_inr_with_the_inr_price_when_an_indian_user_logs_in(): void
     {
         // QA case: guest adds a $50 product, an Indian user (whose old cart row is USD) logs in.
         $this->user->update(['country' => 'IN']);
-        $inr = \App\Model\Payment\Currency::updateOrCreate(['code' => 'INR'], ['name' => 'Indian Rupee', 'symbol' => '₹', 'status' => 1]);
-        \App\Model\Common\Country::where('country_code_char2', 'IN')->update(['currency_id' => $inr->id]);
+        $inr = Currency::updateOrCreate(['code' => 'INR'], ['name' => 'Indian Rupee', 'symbol' => '₹', 'status' => 1]);
+        Country::where('country_code_char2', 'IN')->update(['currency_id' => $inr->id]);
         [$product, $plan] = $this->product(canModifyAgents: false, planAgents: '1');
         PlanPrice::where('plan_id', $plan->id)->where('currency', 'USD')->update(['add_price' => 50]);
         PlanPrice::where('plan_id', $plan->id)->where('currency', 'INR')->update(['add_price' => 4000]);
@@ -123,12 +133,13 @@ class CartAgentsTest extends DBTestCase
         [$gone, $gonePlan] = $this->product(canModifyAgents: false, planAgents: '1');
         $this->service->addItem($this->request(), ['product_id' => $kept->id, 'plan_id' => $keptPlan->id]);
         $this->service->addItem($this->request(), ['product_id' => $gone->id, 'plan_id' => $gonePlan->id]);
+
         $gone->delete();
 
         $cart = $this->service->resolveCart($this->request());
 
         $this->assertTrue($cart->itemsRemoved);
-        $this->assertSame([$kept->id], $cart->items->pluck('product_id')->map(fn ($id) => (int) $id)->all());
+        $this->assertSame([$kept->id], $cart->items->pluck('product_id')->map(fn ($id): int => (int) $id)->all());
         $this->assertFalse($this->service->resolveCart($this->request())->itemsRemoved); // told once
     }
 
@@ -250,6 +261,7 @@ class CartAgentsTest extends DBTestCase
         // A guest row saved before this fix carries the old hard-coded 1.
         $guest->clear();
         $guest->add(['product_id' => $product->id, 'plan_id' => $plan->id, 'agents' => 1], 'USD');
+
         $this->service->mergeGuestCart($this->user);
 
         $this->assertSame(2, $this->line()->agents);
@@ -263,7 +275,7 @@ class CartAgentsTest extends DBTestCase
         $cart->update(['currency' => 'USD']);
         $cart = $this->service->resolveCart($this->request());
 
-        $summary = (new \ReflectionMethod($this->service, 'summary'))->invoke($this->service, $cart, $this->user);
+        $summary = new \ReflectionMethod($this->service, 'summary')->invoke($this->service, $cart, $this->user);
         $item = $summary['items'][0];
 
         $this->assertSame(6, $item['agents']);                              // → licence serial …0006
@@ -279,9 +291,10 @@ class CartAgentsTest extends DBTestCase
         try {
             $add();
             $this->fail('Expected the cart to refuse this line.');
-        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
-            $this->assertSame(422, $e->getStatusCode());
+        } catch (HttpException $httpException) {
+            $this->assertSame(422, $httpException->getStatusCode());
         }
+
         $this->assertCount(0, $this->service->resolveCart($this->request())->items);
     }
 
@@ -331,12 +344,12 @@ class CartAgentsTest extends DBTestCase
     private function coupon(Product $for, string $value, int $type = 1): string
     {
         $code = 'T'.strtoupper(uniqid());
-        $type = \App\Model\Payment\PromotionType::find($type) ? $type : \App\Model\Payment\PromotionType::firstOrCreate(['name' => 'Percentage'])->id;
-        $promo = \App\Model\Payment\Promotion::create([
+        $type = PromotionType::find($type) ? $type : PromotionType::firstOrCreate(['name' => 'Percentage'])->id;
+        $promo = Promotion::create([
             'code' => $code, 'type' => $type, 'uses' => 100, 'value' => $value,
             'start' => now()->subDay()->toDateTimeString(), 'expiry' => now()->addDay()->toDateTimeString(),
         ]);
-        \App\Model\Payment\PromoProductRelation::create(['promotion_id' => $promo->id, 'product_id' => $for->id]);
+        PromoProductRelation::create(['promotion_id' => $promo->id, 'product_id' => $for->id]);
 
         return $code;
     }
@@ -355,9 +368,10 @@ class CartAgentsTest extends DBTestCase
         try {
             $this->service->applyCoupon($this->request(), $this->coupon(for: $a, value: '10%'));
             $this->fail('Expected the coupon to be refused.');
-        } catch (\Exception $e) {
-            $this->assertSame(__('message.invalid_coupon_code'), $e->getMessage());
+        } catch (\Exception $exception) {
+            $this->assertSame(__('message.invalid_coupon_code'), $exception->getMessage());
         }
+
         $this->assertNull(Cart::where('user_id', $this->user->id)->value('coupon_code'));
     }
 
@@ -385,7 +399,7 @@ class CartAgentsTest extends DBTestCase
         $this->service->applyCoupon($this->request(), $this->coupon(for: $a, value: '486', type: 2));
         $this->assertEqualsWithDelta(100.0, $this->cartDiscount(), 0.001); // not 200 off the whole cart
 
-        $aLine = CartItem::whereHas('cart', fn ($q) => $q->where('user_id', $this->user->id))->where('product_id', $a->id)->firstOrFail();
+        $aLine = CartItem::whereHas('cart', fn (Builder $q) => $q->where('user_id', $this->user->id))->where('product_id', $a->id)->firstOrFail();
         $this->service->removeItem($this->request(), $aLine->id);
 
         $this->assertNull(Cart::where('user_id', $this->user->id)->value('coupon_code'));
@@ -396,14 +410,14 @@ class CartAgentsTest extends DBTestCase
 
     private function flatTax(float $percent): void
     {
-        $tax = \Mockery::mock(\App\Services\Tax\TaxService::class);
-        $tax->shouldReceive('calculate')->andReturnUsing(fn (float $amount) => [
+        $tax = Mockery::mock(TaxService::class);
+        $tax->shouldReceive('calculate')->andReturnUsing(fn (float $amount): array => [
             'applicable' => true, 'prices_include_tax' => false, 'rates' => [], 'percent' => $percent, 'name' => 'GST',
             'total' => round($amount * $percent / 100, 2),
             'lines' => [['tax_rate_id' => 1, 'label' => 'GST', 'rate' => $percent, 'compound' => false, 'amount' => round($amount * $percent / 100, 2)]],
         ]);
-        $this->app->instance(\App\Services\Tax\TaxService::class, $tax);
-        \App\Model\Payment\TaxOption::whereKey(1)->update(['inclusive' => 0]);
+        $this->app->instance(TaxService::class, $tax);
+        TaxOption::whereKey(1)->update(['inclusive' => 0]);
     }
 
     private function cartSummary(): array
@@ -411,7 +425,7 @@ class CartAgentsTest extends DBTestCase
         Cart::where('user_id', $this->user->id)->update(['currency' => 'USD']);
         $cart = $this->service->resolveCart($this->request());
 
-        return (new \ReflectionMethod($this->service, 'summary'))->invoke($this->service, $cart, $this->user);
+        return new \ReflectionMethod($this->service, 'summary')->invoke($this->service, $cart, $this->user);
     }
 
     public function test_tax_is_charged_on_the_discounted_price(): void
@@ -440,9 +454,10 @@ class CartAgentsTest extends DBTestCase
         try {
             $this->service->applyCoupon($this->request(), $this->coupon(for: $a, value: '10', type: 2));
             $this->fail('A coupon for another product was applied.');
-        } catch (\Exception $e) {
-            $this->assertSame(__('message.invalid_coupon_code'), $e->getMessage());
+        } catch (\Exception $exception) {
+            $this->assertSame(__('message.invalid_coupon_code'), $exception->getMessage());
         }
+
         $this->assertSame(0.0, $this->cartDiscount());
     }
 
@@ -452,7 +467,7 @@ class CartAgentsTest extends DBTestCase
         [$b, $bPlan] = $this->product(canModifyAgents: false, planAgents: '1', price: 100);
         $this->service->addItem($this->request(), ['product_id' => $b->id, 'plan_id' => $bPlan->id]);
         $code = $this->coupon(for: $a, value: '10', type: 2);
-        \App\Model\Payment\Promotion::where('code', $code)->update(['uses' => 0]);
+        Promotion::where('code', $code)->update(['uses' => 0]);
 
         $this->expectExceptionMessageIsOrContains(__('message.invalid_coupon_code'));
 
@@ -550,7 +565,7 @@ class CartAgentsTest extends DBTestCase
         [$a, $aPlan] = $this->product(canModifyAgents: false, planAgents: '1', price: 100);
         $this->service->addItem($this->request(), ['product_id' => $a->id, 'plan_id' => $aPlan->id]);
         $code = $this->coupon(for: $a, value: '10%');
-        \App\Model\Payment\Promotion::where('code', $code)->update(['uses' => 1]);
+        Promotion::where('code', $code)->update(['uses' => 1]);
 
         return [$code, Cart::where('user_id', $this->user->id)->firstOrFail()];
     }
@@ -559,7 +574,7 @@ class CartAgentsTest extends DBTestCase
     {
         [$code, $cart] = $this->singleUseCouponInCart();
         // Placed the order once: their own pending invoice now carries the code.
-        $own = \App\Model\Order\Invoice::factory()->create(['user_id' => $this->user->id, 'status' => 'pending', 'coupon_code' => $code]);
+        $own = Invoice::factory()->create(['user_id' => $this->user->id, 'status' => 'pending', 'coupon_code' => $code]);
         $cart->update(['invoice_id' => $own->id]);
 
         $this->service->applyCoupon($this->request(), $code);
@@ -570,7 +585,7 @@ class CartAgentsTest extends DBTestCase
     public function test_someone_elses_use_still_counts(): void
     {
         [$code] = $this->singleUseCouponInCart();
-        \App\Model\Order\Invoice::factory()->create(['status' => 'success', 'coupon_code' => $code]);
+        Invoice::factory()->create(['status' => 'success', 'coupon_code' => $code]);
 
         $this->expectExceptionMessageIsOrContains(__('message.usage-of-code-completed'));
         $this->service->applyCoupon($this->request(), $code);

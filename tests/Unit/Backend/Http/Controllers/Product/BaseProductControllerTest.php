@@ -73,7 +73,7 @@ class BaseProductControllerTest extends DBTestCase
 
         $response = $this->controller()->userDownload($order->id);
 
-        $data = json_decode((string) $response->getContent(), true);
+        $data = json_decode((string) $response->getContent(), associative: true);
         $this->assertFalse($data['success']);
         $this->assertSame(trans('message.no_permission_for_action'), $data['message']);
     }
@@ -88,7 +88,7 @@ class BaseProductControllerTest extends DBTestCase
 
         $response = $this->controller()->userDownload($order->id);
 
-        $data = json_decode((string) $response->getContent(), true);
+        $data = json_decode((string) $response->getContent(), associative: true);
         $this->assertFalse($data['success']);
         $this->assertSame(trans('message.no_order_exists_invoice'), $data['message']);
     }
@@ -105,7 +105,7 @@ class BaseProductControllerTest extends DBTestCase
 
         $response = $this->controller()->userDownload($order->id);
 
-        $data = json_decode((string) $response->getContent(), true);
+        $data = json_decode((string) $response->getContent(), associative: true);
         $this->assertFalse($data['success']);
         $this->assertSame(trans('message.renew_subscription_download'), $data['message']);
     }
@@ -120,7 +120,7 @@ class BaseProductControllerTest extends DBTestCase
 
         $response = $this->controller()->userDownload($order->id);
 
-        $data = json_decode((string) $response->getContent(), true);
+        $data = json_decode((string) $response->getContent(), associative: true);
         $this->assertFalse($data['success']);
         $this->assertSame(trans('message.no_permission_for_action'), $data['message']);
     }
@@ -168,7 +168,7 @@ class BaseProductControllerTest extends DBTestCase
         $stampingService = Mockery::mock(ProductBundleStampingService::class);
         $stampingService->shouldReceive('downloadResponseFor')
             ->once()
-            ->withArgs(fn ($v, $p, $path, $passedOrder) => $p->is($product) && $passedOrder->is($order))
+            ->withArgs(fn ($v, $p, $path, $passedOrder): bool => $p->is($product) && $passedOrder->is($order))
             ->andReturn($stampedResponse);
 
         $this->be($owner);

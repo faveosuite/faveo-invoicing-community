@@ -13,6 +13,9 @@ use function array_merge;
 use function assert;
 use function get_parent_class;
 use function preg_match;
+use function range;
+use function sprintf;
+use PHPUnit\Event\Emitter;
 use PHPUnit\Metadata\Api\DataProvider;
 use PHPUnit\Metadata\Api\Groups;
 use PHPUnit\Metadata\Api\ProvidedData;
@@ -21,12 +24,18 @@ use PHPUnit\Metadata\BackupGlobals;
 use PHPUnit\Metadata\BackupStaticProperties;
 use PHPUnit\Metadata\ExcludeGlobalVariableFromBackup;
 use PHPUnit\Metadata\ExcludeStaticPropertyFromBackup;
+use PHPUnit\Metadata\Metadata;
+use PHPUnit\Metadata\MetadataCollection;
 use PHPUnit\Metadata\Parser\Registry as MetadataRegistry;
 use PHPUnit\Metadata\PreserveGlobalState;
+use PHPUnit\Metadata\Repeat as RepeatMetadata;
+use PHPUnit\Metadata\Retry as RetryMetadata;
 use PHPUnit\Runner\ErrorHandler;
-use PHPUnit\Runner\Filter\MethodNameFilterCompiler;
+use PHPUnit\Runner\Filter\CompiledNameFilter;
 use PHPUnit\TextUI\Configuration\Registry as ConfigurationRegistry;
 use ReflectionClass;
+use ReflectionMethod;
+use ReflectionNamedType;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -37,16 +46,85 @@ use ReflectionClass;
  */
 final readonly class TestBuilder
 {
+    private Emitter $emitter;
+
+    public function __construct(Emitter $emitter)
+    {
+        $this->emitter = $emitter;
+    }
+
     /**
      * @param ReflectionClass<TestCase> $theClass
      * @param non-empty-string          $methodName
      * @param list<non-empty-string>    $groups
+     * @param positive-int              $numberOfRuns
+     * @param positive-int              $failureThreshold
+     * @param positive-int              $maxAttempts
      *
      * @throws InvalidDataProviderException
      */
-    public function build(ReflectionClass $theClass, string $methodName, array $groups = []): Test
+    public function build(ReflectionClass $theClass, string $methodName, array $groups = [], int $numberOfRuns = 1, int $failureThreshold = 1, int $maxAttempts = 1): Test
     {
-        $className = $theClass->getName();
+        $className                = $theClass->getName();
+        $runTestInSeparateProcess = $this->shouldTestMethodBeRunInSeparateProcess($className, $methodName);
+        $preserveGlobalState      = $this->shouldGlobalStateBePreserved($className, $methodName);
+        $backupSettings           = $this->backupSettings($className, $methodName);
+
+        $repeatMetadata = MetadataRegistry::parser()->forMethod($className, $methodName)->isRepeat();
+
+        if ($repeatMetadata->isNotEmpty()) {
+            $metadata = $repeatMetadata->asArray()[0];
+
+            assert($metadata instanceof RepeatMetadata);
+
+            $numberOfRuns     = $metadata->times();
+            $failureThreshold = $metadata->failureThreshold();
+
+            // an attribute that does not ask for more than one run does not select
+            // repetition, so it neither conflicts with --retry nor makes the
+            // eligibility of the method relevant
+            if ($numberOfRuns > 1) {
+                // a method-level #[Repeat] attribute takes precedence over the --retry CLI option
+                $maxAttempts = 1;
+
+                $this->warnWhenMethodIsIneligible('Repeat', 'repeated', $theClass, $className, $methodName);
+            }
+        }
+
+        $retryMetadata = MetadataRegistry::parser()->forMethod($className, $methodName)->isRetry();
+
+        if ($retryMetadata->isNotEmpty()) {
+            if ($repeatMetadata->isNotEmpty()) {
+                $this->emitter->testRunnerTriggeredPhpunitWarning(
+                    sprintf(
+                        'Method %s::%s is annotated with both #[Repeat] and #[Retry], the #[Retry] attribute is ignored',
+                        $className,
+                        $methodName,
+                    ),
+                );
+            } else {
+                $metadata = $retryMetadata->asArray()[0];
+
+                assert($metadata instanceof RetryMetadata);
+
+                $maxAttempts = $metadata->maxAttempts();
+
+                if ($maxAttempts > 1) {
+                    $this->warnWhenMethodIsIneligible('Retry', 'retried', $theClass, $className, $methodName);
+                }
+            }
+        }
+
+        $retry = $maxAttempts > 1 &&
+                 $this->isEligibleForRepeatOrRetry($theClass, $className, $methodName);
+
+        if ($retry) {
+            // #[Retry] takes precedence over --repeat
+            $numberOfRuns = 1;
+        }
+
+        $repeat = $numberOfRuns > 1 &&
+                  $this->isEligibleForRepeatOrRetry($theClass, $className, $methodName);
 
         $data = null;
 
@@ -55,7 +133,7 @@ final readonly class TestBuilder
 
             if ($this->requirementsSatisfied($className, $methodName) &&
                 !$this->filterExcludesMethod($className, $methodName)) {
-                $data = (new DataProvider)->providedData($className, $methodName);
+                $data = new DataProvider($this->emitter)->providedData($className, $methodName);
             }
         } finally {
             ErrorHandler::instance()->leaveTestCaseContext();
@@ -66,9 +144,37 @@ final readonly class TestBuilder
                 $methodName,
                 $className,
                 $data,
-                $this->shouldTestMethodBeRunInSeparateProcess($className, $methodName),
-                $this->shouldGlobalStateBePreserved($className, $methodName),
-                $this->backupSettings($className, $methodName),
+                $runTestInSeparateProcess,
+                $preserveGlobalState,
+                $backupSettings,
+                $groups,
+                $repeat ? $numberOfRuns : 1,
+                $failureThreshold,
+                $retry ? $maxAttempts : 1,
+            );
+        }
+
+        if ($retry) {
+            return $this->buildRetryTestSuite(
+                $className,
+                $methodName,
+                $maxAttempts,
+                $runTestInSeparateProcess,
+                $preserveGlobalState,
+                $backupSettings,
+                $groups,
+            );
+        }
+
+        if ($repeat) {
+            return $this->buildRepeatTestSuite(
+                $className,
+                $methodName,
+                $numberOfRuns,
+                $failureThreshold,
+                $runTestInSeparateProcess,
+                $preserveGlobalState,
+                $backupSettings,
                 $groups,
             );
         }
@@ -83,9 +189,9 @@ final readonly class TestBuilder
 
         $this->configureTestCase(
             $test,
-            $this->shouldTestMethodBeRunInSeparateProcess($className, $methodName),
-            $this->shouldGlobalStateBePreserved($className, $methodName),
-            $this->backupSettings($className, $methodName),
+            $runTestInSeparateProcess,
+            $preserveGlobalState,
+            $backupSettings,
         );
 
         return $test;
@@ -97,11 +203,15 @@ final readonly class TestBuilder
      * @param array<ProvidedData>    $data
      * @param BackupSettings         $backupSettings
      * @param list<non-empty-string> $groups
+     * @param positive-int           $numberOfRuns
+     * @param positive-int           $failureThreshold
+     * @param positive-int           $maxAttempts
      */
-    private function buildDataProviderTestSuite(string $methodName, string $className, array $data, bool $runTestInSeparateProcess, ?bool $preserveGlobalState, array $backupSettings, array $groups): DataProviderTestSuite
+    private function buildDataProviderTestSuite(string $methodName, string $className, array $data, bool $runTestInSeparateProcess, ?bool $preserveGlobalState, array $backupSettings, array $groups, int $numberOfRuns = 1, int $failureThreshold = 1, int $maxAttempts = 1): DataProviderTestSuite
     {
         $dataProviderTestSuite = DataProviderTestSuite::empty(
             $className . '::' . $methodName,
+            $this->emitter,
         );
 
         $groups = array_merge(
@@ -110,21 +220,159 @@ final readonly class TestBuilder
         );
 
         foreach ($data as $_dataName => $_data) {
-            $_test = new $className($methodName);
+            if ($maxAttempts > 1) {
+                $factory = function () use ($className, $methodName, $_dataName, $_data, $runTestInSeparateProcess, $preserveGlobalState, $backupSettings): TestCase
+                {
+                    $test = new $className($methodName);
 
-            $_test->setData($_dataName, $_data->value());
+                    $test->setData($_dataName, $_data->value());
+
+                    $this->configureTestCase(
+                        $test,
+                        $runTestInSeparateProcess,
+                        $preserveGlobalState,
+                        $backupSettings,
+                    );
+
+                    return $test;
+                };
+
+                $dataProviderTestSuite->addTest(
+                    RetryTestSuite::fromTestCase(
+                        $className . '::' . $methodName . '#' . $_dataName,
+                        $this->emitter,
+                        $factory(),
+                        $maxAttempts,
+                        $factory,
+                        $groups,
+                    ),
+                    $groups,
+                );
+            } elseif ($numberOfRuns > 1) {
+                $tests = [];
+
+                foreach (range(1, $numberOfRuns) as $i) {
+                    $_test = new $className($methodName);
+
+                    $_test->setData($_dataName, $_data->value());
+                    $_test->setRepetition($i, $numberOfRuns);
+
+                    $this->configureTestCase(
+                        $_test,
+                        $runTestInSeparateProcess,
+                        $preserveGlobalState,
+                        $backupSettings,
+                    );
+
+                    $tests[] = $_test;
+                }
+
+                $dataProviderTestSuite->addTest(
+                    RepeatTestSuite::fromTests(
+                        $className . '::' . $methodName . '#' . $_dataName,
+                        $this->emitter,
+                        $tests,
+                        $failureThreshold,
+                        $groups,
+                    ),
+                    $groups,
+                );
+            } else {
+                $_test = new $className($methodName);
+
+                $_test->setData($_dataName, $_data->value());
+
+                $this->configureTestCase(
+                    $_test,
+                    $runTestInSeparateProcess,
+                    $preserveGlobalState,
+                    $backupSettings,
+                );
+
+                $dataProviderTestSuite->addTest($_test, $groups);
+            }
+        }
+
+        return $dataProviderTestSuite;
+    }
+
+    /**
+     * @param class-string<TestCase> $className
+     * @param non-empty-string       $methodName
+     * @param positive-int           $numberOfRuns
+     * @param positive-int           $failureThreshold
+     * @param BackupSettings         $backupSettings
+     * @param list<non-empty-string> $groups
+     */
+    private function buildRepeatTestSuite(string $className, string $methodName, int $numberOfRuns, int $failureThreshold, bool $runTestInSeparateProcess, ?bool $preserveGlobalState, array $backupSettings, array $groups): RepeatTestSuite
+    {
+        $tests = [];
+
+        foreach (range(1, $numberOfRuns) as $i) {
+            $test = new $className($methodName);
+
+            $test->setRepetition($i, $numberOfRuns);
 
             $this->configureTestCase(
-                $_test,
+                $test,
                 $runTestInSeparateProcess,
                 $preserveGlobalState,
                 $backupSettings,
             );
 
-            $dataProviderTestSuite->addTest($_test, $groups);
+            $tests[] = $test;
         }
 
-        return $dataProviderTestSuite;
+        $groups = array_merge(
+            $groups,
+            (new Groups)->groups($className, $methodName),
+        );
+
+        return RepeatTestSuite::fromTests(
+            $className . '::' . $methodName,
+            $this->emitter,
+            $tests,
+            $failureThreshold,
+            $groups,
+        );
+    }
+
+    /**
+     * @param class-string<TestCase> $className
+     * @param non-empty-string       $methodName
+     * @param positive-int           $maxAttempts
+     * @param BackupSettings         $backupSettings
+     * @param list<non-empty-string> $groups
+     */
+    private function buildRetryTestSuite(string $className, string $methodName, int $maxAttempts, bool $runTestInSeparateProcess, ?bool $preserveGlobalState, array $backupSettings, array $groups): RetryTestSuite
+    {
+        $factory = function () use ($className, $methodName, $runTestInSeparateProcess, $preserveGlobalState, $backupSettings): TestCase
+        {
+            $test = new $className($methodName);
+
+            $this->configureTestCase(
+                $test,
+                $runTestInSeparateProcess,
+                $preserveGlobalState,
+                $backupSettings,
+            );
+
+            return $test;
+        };
+
+        $groups = array_merge(
+            $groups,
+            (new Groups)->groups($className, $methodName),
+        );
+
+        return RetryTestSuite::fromTestCase(
+            $className . '::' . $methodName,
+            $this->emitter,
+            $factory(),
+            $maxAttempts,
+            $factory,
+            $groups,
+        );
     }
 
     /**
@@ -175,20 +423,15 @@ final readonly class TestBuilder
         $backupGlobals            = null;
         $backupGlobalsExcludeList = [];
 
-        if ($metadataForMethod->isBackupGlobals()->isNotEmpty()) {
-            $metadata = $metadataForMethod->isBackupGlobals()->asArray()[0];
+        $backupGlobalsMetadata = $this->methodOrClassLevelMetadata(
+            $metadataForMethod->isBackupGlobals(),
+            $metadataForClass->isBackupGlobals(),
+        );
 
-            assert($metadata instanceof BackupGlobals);
+        if ($backupGlobalsMetadata !== null) {
+            assert($backupGlobalsMetadata instanceof BackupGlobals);
 
-            if ($metadata->enabled()) {
-                $backupGlobals = true;
-            }
-        } elseif ($metadataForClass->isBackupGlobals()->isNotEmpty()) {
-            $metadata = $metadataForClass->isBackupGlobals()->asArray()[0];
-
-            assert($metadata instanceof BackupGlobals);
-
-            if ($metadata->enabled()) {
+            if ($backupGlobalsMetadata->enabled()) {
                 $backupGlobals = true;
             }
         }
@@ -202,20 +445,15 @@ final readonly class TestBuilder
         $backupStaticProperties            = null;
         $backupStaticPropertiesExcludeList = [];
 
-        if ($metadataForMethod->isBackupStaticProperties()->isNotEmpty()) {
-            $metadata = $metadataForMethod->isBackupStaticProperties()->asArray()[0];
+        $backupStaticPropertiesMetadata = $this->methodOrClassLevelMetadata(
+            $metadataForMethod->isBackupStaticProperties(),
+            $metadataForClass->isBackupStaticProperties(),
+        );
 
-            assert($metadata instanceof BackupStaticProperties);
+        if ($backupStaticPropertiesMetadata !== null) {
+            assert($backupStaticPropertiesMetadata instanceof BackupStaticProperties);
 
-            if ($metadata->enabled()) {
-                $backupStaticProperties = true;
-            }
-        } elseif ($metadataForClass->isBackupStaticProperties()->isNotEmpty()) {
-            $metadata = $metadataForClass->isBackupStaticProperties()->asArray()[0];
-
-            assert($metadata instanceof BackupStaticProperties);
-
-            if ($metadata->enabled()) {
+            if ($backupStaticPropertiesMetadata->enabled()) {
                 $backupStaticProperties = true;
             }
         }
@@ -244,24 +482,32 @@ final readonly class TestBuilder
      */
     private function shouldGlobalStateBePreserved(string $className, string $methodName): ?bool
     {
-        $metadataForMethod = MetadataRegistry::parser()->forMethod($className, $methodName);
+        $metadata = $this->methodOrClassLevelMetadata(
+            MetadataRegistry::parser()->forMethod($className, $methodName)->isPreserveGlobalState(),
+            MetadataRegistry::parser()->forClass($className)->isPreserveGlobalState(),
+        );
 
-        if ($metadataForMethod->isPreserveGlobalState()->isNotEmpty()) {
-            $metadata = $metadataForMethod->isPreserveGlobalState()->asArray()[0];
-
-            assert($metadata instanceof PreserveGlobalState);
-
-            return $metadata->enabled();
+        if ($metadata === null) {
+            return null;
         }
 
-        $metadataForClass = MetadataRegistry::parser()->forClass($className);
+        assert($metadata instanceof PreserveGlobalState);
 
-        if ($metadataForClass->isPreserveGlobalState()->isNotEmpty()) {
-            $metadata = $metadataForClass->isPreserveGlobalState()->asArray()[0];
+        return $metadata->enabled();
+    }
 
-            assert($metadata instanceof PreserveGlobalState);
+    /**
+     * Metadata on a test method takes precedence over metadata on the class
+     * that declares it.
+     */
+    private function methodOrClassLevelMetadata(MetadataCollection $forMethod, MetadataCollection $forClass): ?Metadata
+    {
+        if ($forMethod->isNotEmpty()) {
+            return $forMethod->asArray()[0];
+        }
 
-            return $metadata->enabled();
+        if ($forClass->isNotEmpty()) {
+            return $forClass->asArray()[0];
         }
 
         return null;
@@ -294,7 +540,7 @@ final readonly class TestBuilder
      */
     private function requirementsSatisfied(string $className, string $methodName): bool
     {
-        return (new Requirements)->requirementsNotSatisfiedFor($className, $methodName) === [];
+        return new Requirements($this->emitter)->requirementsNotSatisfiedFor($className, $methodName) === [];
     }
 
     /**
@@ -309,18 +555,92 @@ final readonly class TestBuilder
             return false;
         }
 
-        $regularExpression = MethodNameFilterCompiler::compile($configuration->filter());
+        $filter = CompiledNameFilter::from($configuration->filter());
 
-        if ($regularExpression === null) {
+        if (!$filter->constrainsMethodName()) {
             return false;
         }
 
-        $result = @preg_match($regularExpression, $className . '::' . $methodName);
+        $result = @preg_match($filter->methodNameRegularExpression(), $className . '::' . $methodName);
 
         if ($result === false) {
             return false;
         }
 
         return $result === 0;
+    }
+
+    /**
+     * A test method is eligible for repetition and retrying when it declares
+     * an explicit void return type and does not depend on another test.
+     *
+     * @param ReflectionClass<TestCase> $theClass
+     * @param class-string<TestCase>    $className
+     * @param non-empty-string          $methodName
+     */
+    private function isEligibleForRepeatOrRetry(ReflectionClass $theClass, string $className, string $methodName): bool
+    {
+        return $this->hasVoidReturnType($theClass->getMethod($methodName)) &&
+               $this->doesNotDependOnAnotherTest($className, $methodName);
+    }
+
+    /**
+     * @param 'Repeat'|'Retry'          $attribute
+     * @param 'repeated'|'retried'      $verb
+     * @param ReflectionClass<TestCase> $theClass
+     * @param class-string<TestCase>    $className
+     * @param non-empty-string          $methodName
+     */
+    private function warnWhenMethodIsIneligible(string $attribute, string $verb, ReflectionClass $theClass, string $className, string $methodName): void
+    {
+        if (!$this->hasVoidReturnType($theClass->getMethod($methodName))) {
+            $this->emitter->testRunnerTriggeredPhpunitWarning(
+                sprintf(
+                    'Method %s::%s is annotated with #[%s] but does not have a void return type declaration and will not be %s',
+                    $className,
+                    $methodName,
+                    $attribute,
+                    $verb,
+                ),
+            );
+        }
+
+        if (!$this->doesNotDependOnAnotherTest($className, $methodName)) {
+            $this->emitter->testRunnerTriggeredPhpunitWarning(
+                sprintf(
+                    'Method %s::%s is annotated with #[%s] but depends on another test and will not be %s',
+                    $className,
+                    $methodName,
+                    $attribute,
+                    $verb,
+                ),
+            );
+        }
+    }
+
+    private function hasVoidReturnType(ReflectionMethod $method): bool
+    {
+        if (!$method->hasReturnType()) {
+            return false;
+        }
+
+        $returnType = $method->getReturnType();
+
+        if (!$returnType instanceof ReflectionNamedType) {
+            return false;
+        }
+
+        return $returnType->getName() === 'void';
+    }
+
+    /**
+     * @param class-string     $className
+     * @param non-empty-string $methodName
+     */
+    private function doesNotDependOnAnotherTest(string $className, string $methodName): bool
+    {
+        $metadata = MetadataRegistry::parser()->forClassAndMethod($className, $methodName);
+
+        return $metadata->isDepends()->isEmpty();
     }
 }

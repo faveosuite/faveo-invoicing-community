@@ -44,17 +44,17 @@ abstract class BaseExternalSyncListener implements ShouldQueue
 
         try {
             $this->sync($event->user);
-        } catch (Throwable $exception) {
+        } catch (Throwable $throwable) {
             // On the sync driver this runs inside the HTTP request, and a thrown error would abort
             // the request and skip every listener registered after this one. Log it and move on.
             // On a real queue, rethrow so the job keeps its retries and failed() reporting.
             if ($this->job === null || $this->job instanceof SyncJob) {
-                Logger::exception($exception);
+                Logger::exception($throwable);
 
                 return;
             }
 
-            throw $exception;
+            throw $throwable;
         }
     }
 

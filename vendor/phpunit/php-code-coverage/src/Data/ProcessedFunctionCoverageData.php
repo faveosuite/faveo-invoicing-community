@@ -11,17 +11,16 @@ namespace SebastianBergmann\CodeCoverage\Data;
 
 use function array_map;
 use NoDiscard;
-use SebastianBergmann\CodeCoverage\Driver\XdebugDriver;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
- * @phpstan-import-type TestIdType from ProcessedCodeCoverageData
- * @phpstan-import-type XdebugFunctionCoverageType from XdebugDriver
- * @phpstan-import-type XdebugBranchCoverageType from XdebugDriver
- * @phpstan-import-type XdebugPathCoverageType from XdebugDriver
+ * @phpstan-import-type TestIndexType from ProcessedCodeCoverageData
+ * @phpstan-import-type FunctionCoverageType from RawCodeCoverageData
+ * @phpstan-import-type BranchCoverageType from RawCodeCoverageData
+ * @phpstan-import-type PathCoverageType from RawCodeCoverageData
  */
 final readonly class ProcessedFunctionCoverageData
 {
@@ -32,12 +31,12 @@ final readonly class ProcessedFunctionCoverageData
     public array $paths;
 
     /**
-     * @param XdebugFunctionCoverageType $xdebugCoverageData
+     * @param FunctionCoverageType $xdebugCoverageData
      */
     public static function fromXdebugCoverage(array $xdebugCoverageData): self
     {
         $branches = array_map(
-            /** @param XdebugBranchCoverageType $branch */
+            /** @param BranchCoverageType $branch */
             static function (array $branch): ProcessedBranchCoverageData
             {
                 return ProcessedBranchCoverageData::fromXdebugCoverage($branch);
@@ -46,7 +45,7 @@ final readonly class ProcessedFunctionCoverageData
         );
 
         $paths = array_map(
-            /** @param XdebugPathCoverageType $path */
+            /** @param PathCoverageType $path */
             static function (array $path): ProcessedPathCoverageData
             {
                 return ProcessedPathCoverageData::fromXdebugCoverage($path);
@@ -114,26 +113,52 @@ final readonly class ProcessedFunctionCoverageData
     }
 
     /**
-     * @param TestIdType $testCaseId
+     * @param array<TestIndexType, TestIndexType> $remap
      */
-    public function recordBranchHit(int $branchId, string $testCaseId): void
+    #[NoDiscard]
+    public function withRemappedTestIndexes(array $remap): self
+    {
+        $branches = [];
+
+        foreach ($this->branches as $branchId => $branch) {
+            $branches[$branchId] = $branch->withRemappedTestIndexes($remap);
+        }
+
+        $paths = [];
+
+        foreach ($this->paths as $pathId => $path) {
+            $paths[$pathId] = $path->withRemappedTestIndexes($remap);
+        }
+
+        return new self(
+            $branches,
+            $paths,
+        );
+    }
+
+    /**
+     * @param TestIndexType $testIndex
+     * @param positive-int  $count
+     */
+    public function recordBranchHit(int $branchId, int $testIndex, int $count): void
     {
         if (!isset($this->branches[$branchId])) {
             return;
         }
 
-        $this->branches[$branchId]->recordHit($testCaseId);
+        $this->branches[$branchId]->recordHit($testIndex, $count);
     }
 
     /**
-     * @param TestIdType $testCaseId
+     * @param TestIndexType $testIndex
+     * @param positive-int  $count
      */
-    public function recordPathHit(int $pathId, string $testCaseId): void
+    public function recordPathHit(int $pathId, int $testIndex, int $count): void
     {
         if (!isset($this->paths[$pathId])) {
             return;
         }
 
-        $this->paths[$pathId]->recordHit($testCaseId);
+        $this->paths[$pathId]->recordHit($testIndex, $count);
     }
 }

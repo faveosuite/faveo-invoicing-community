@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Backend\Http\Controllers;
 
+use App\Auto_renewal;
 use App\Http\Controllers\ConcretePostSubscriptionHandleController;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
@@ -9,7 +10,9 @@ use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
+use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\Payment\AutoRenewalActivationService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -135,7 +138,7 @@ class ConcretePostSubscriptionHandleControllerTest extends DBTestCase
 
     public function test_disable_autorenewal_updates_existing_subscription(): void
     {
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'CPSHT Test '.uniqid()]);
+        $product = Product::first() ?? Product::create(['name' => 'CPSHT Test '.uniqid()]);
         $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'CPSHT Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $order = Order::create([
@@ -169,7 +172,7 @@ class ConcretePostSubscriptionHandleControllerTest extends DBTestCase
      */
     public function test_disable_autorenewal_clears_subscribe_id(): void
     {
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'CPSHT Test '.uniqid()]);
+        $product = Product::first() ?? Product::create(['name' => 'CPSHT Test '.uniqid()]);
         $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'CPSHT Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $order = Order::create([
@@ -205,7 +208,7 @@ class ConcretePostSubscriptionHandleControllerTest extends DBTestCase
      */
     public function test_disable_autorenewal_deletes_auto_renewal_row_so_reactivation_is_not_blocked(): void
     {
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'CPSHT Test '.uniqid()]);
+        $product = Product::first() ?? Product::create(['name' => 'CPSHT Test '.uniqid()]);
         $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'CPSHT Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $order = Order::create([
@@ -221,7 +224,7 @@ class ConcretePostSubscriptionHandleControllerTest extends DBTestCase
             'is_subscribed' => 1,
             'autoRenew_status' => 1,
         ]);
-        \App\Auto_renewal::create([
+        Auto_renewal::create([
             'user_id' => $this->user->id,
             'customer_id' => 'pi_old_123',
             'payment_method' => 'stripe',
@@ -235,7 +238,7 @@ class ConcretePostSubscriptionHandleControllerTest extends DBTestCase
 
         // The real regression: a subsequent activate() call must actually
         // re-enable, not silently no-op because a stale row is still there.
-        $activation = new \App\Services\Payment\AutoRenewalActivationService();
+        $activation = new AutoRenewalActivationService;
         $activation->activate($order, $this->user, 'stripe', 'pi_new_456');
 
         $this->assertSame('1', (string) Subscription::where('order_id', $order->id)->value('autoRenew_status'));
@@ -266,9 +269,10 @@ class ConcretePostSubscriptionHandleControllerTest extends DBTestCase
             $this->controller->sendPaymentSuccessMail(
                 999999, 'USD', 100.0, $this->user, 'Test Product', 'ORD-001'
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // Subscription not found → exception caught internally or propagated
         }
+
         $this->assertTrue(true);
     }
 

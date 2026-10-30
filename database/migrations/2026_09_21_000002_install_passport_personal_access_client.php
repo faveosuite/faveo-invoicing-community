@@ -1,10 +1,11 @@
 <?php
 
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Database\Migrations\Migration;
 use Laravel\Passport\Client;
 use Laravel\Passport\ClientRepository;
 use Laravel\Passport\Passport;
-use phpseclib3\Crypt\RSA;
+use phpseclib4\Crypt\RSA;
 
 return new class extends Migration
 {
@@ -28,13 +29,13 @@ return new class extends Migration
         $provider = config('auth.guards.api.provider');
 
         $exists = Passport::client()->newQuery()
-            ->where('revoked', false)
-            ->where(fn ($query) => $query->whereNull('provider')->orWhere('provider', $provider))
+            ->where('revoked', operator: false)
+            ->where(fn (Builder $query) => $query->whereNull('provider')->orWhere('provider', $provider))
             ->get()
             ->contains(fn (Client $client): bool => $client->hasGrantType('personal_access'));
 
         if (! $exists) {
-            app(ClientRepository::class)->createPersonalAccessGrantClient('Personal Access Client', $provider);
+            resolve(ClientRepository::class)->createPersonalAccessGrantClient('Personal Access Client', $provider);
         }
     }
 

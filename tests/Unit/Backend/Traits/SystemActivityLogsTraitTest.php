@@ -11,6 +11,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Collection;
 use Mockery;
 use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\Support\LogOptions;
 use Tests\DBTestCase;
 
 class SystemActivityLogsTraitTest extends DBTestCase
@@ -36,7 +37,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
             protected function getMappings(): array
             {
                 return [
-                    'first_name' => ['name', fn ($v) => strtoupper($v)],
+                    'first_name' => ['name', fn ($v): string => strtoupper($v)],
                 ];
             }
         };
@@ -52,7 +53,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
     {
         $options = $this->subject->getActivitylogOptions();
 
-        $this->assertInstanceOf(\Spatie\Activitylog\Support\LogOptions::class, $options);
+        $this->assertInstanceOf(LogOptions::class, $options);
     }
 
     public function test_get_activitylog_options_resolves_the_instance_log_name(): void
@@ -66,7 +67,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
 
     public function test_tap_activity_logs_maps_attributes(): void
     {
-        $activity = new Activity();
+        $activity = new Activity;
         $activity->attribute_changes = collect([
             'attributes' => ['first_name' => 'john', 'email' => 'j@example.com'],
         ]);
@@ -81,7 +82,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
 
     public function test_tap_activity_logs_handles_missing_properties(): void
     {
-        $activity = new Activity();
+        $activity = new Activity;
         $activity->attribute_changes = collect([]);
 
         $this->getPrivateMethod($this->subject, 'tapActivityLogs', [$activity]);
@@ -91,9 +92,9 @@ class SystemActivityLogsTraitTest extends DBTestCase
 
     public function test_set_causer_associates_user_when_found(): void
     {
-        $user = User::factory()->create();
+        User::factory()->create();
 
-        $activity = new Activity();
+        $activity = new Activity;
         $activity->subject = (object) ['causerID' => null]; // null → no associate
 
         // Just test no exception is thrown
@@ -115,8 +116,6 @@ class SystemActivityLogsTraitTest extends DBTestCase
 
     public function test_resolve_deleted_event_name_returns_suspended_for_soft_delete(): void
     {
-        $subject = (object) [];
-
         $activity = Mockery::mock(Activity::class)->makePartial();
         $activity->subject = new class
         {
@@ -211,7 +210,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
         };
         $subject->setRawAttributes(['product_id' => 7, 'title' => 'v1.2']);
 
-        $activity = new Activity();
+        $activity = new Activity;
         $activity->subject_id = 3;
         $activity->setRelation('subject', $subject);
 
@@ -223,8 +222,8 @@ class SystemActivityLogsTraitTest extends DBTestCase
 
     public function test_tap_activity_runs_all_steps(): void
     {
-        $user = User::factory()->create();
-        $activity = new Activity();
+        User::factory()->create();
+        $activity = new Activity;
         $activity->properties = collect([
             'attributes' => ['first_name' => 'alice'],
         ]);
@@ -238,7 +237,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
 
     public function test_generate_description_for_deleted_event(): void
     {
-        $activity = new Activity();
+        $activity = new Activity;
         $activity->subject = (object) ['first_name' => 'Bob'];
         $activity->subject_id = null;
         $activity->properties = collect([]);
@@ -250,7 +249,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
 
     public function test_tap_activity_logs_transforms_old_attributes(): void
     {
-        $activity = new Activity();
+        $activity = new Activity;
         $activity->attribute_changes = collect([
             'old' => ['first_name' => 'alice'],
         ]);
@@ -264,7 +263,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
 
     public function test_tap_activity_logs_handles_array_properties(): void
     {
-        $activity = new Activity();
+        $activity = new Activity;
         // Pass array instead of Collection — covers line 59
         $activity->attribute_changes = ['attributes' => ['first_name' => 'alice']];
 
@@ -292,7 +291,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
             }
         };
 
-        $activity = new Activity();
+        $activity = new Activity;
         $activity->attribute_changes = collect(['attributes' => ['first_name' => 'alice']]);
 
         $this->getPrivateMethod($subject, 'tapActivityLogs', [$activity]);

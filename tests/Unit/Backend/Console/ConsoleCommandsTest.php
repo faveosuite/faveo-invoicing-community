@@ -20,6 +20,7 @@ use App\Console\Commands\SetupTestEnv;
 use App\Console\LoggableCommand;
 use App\Model\Mailjob\Condition;
 use App\Services\Cloud\CloudInstanceEmailNotifier;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 use Mockery;
 use Tests\DBTestCase;
@@ -43,7 +44,7 @@ class ConsoleCommandsTest extends DBTestCase
 
     public function test_inspire_command_has_correct_name(): void
     {
-        $this->assertSame('inspire', (new Inspire())->getName());
+        $this->assertSame('inspire', new Inspire()->getName());
     }
 
     public function test_inspire_command_runs_without_error(): void
@@ -51,7 +52,7 @@ class ConsoleCommandsTest extends DBTestCase
         // Inspire uses $name (not $signature), so Logger::cron() receives null.
         // Mockery proxies enforce original type hints, so use an anonymous class
         // with relaxed (mixed) type hints to accept null.
-        $this->app->bind('Log', function () {
+        $this->app->bind('Log', function (): object {
             return new class
             {
                 public function cron(mixed $signature = null, mixed $description = ''): mixed
@@ -59,13 +60,9 @@ class ConsoleCommandsTest extends DBTestCase
                     return null;
                 }
 
-                public function cronCompleted(mixed $id = null): void
-                {
-                }
+                public function cronCompleted(mixed $id = null): void {}
 
-                public function cronFailed(mixed $id = null, mixed $exception = null): void
-                {
-                }
+                public function cronFailed(mixed $id = null, mixed $exception = null): void {}
             };
         });
 
@@ -76,7 +73,7 @@ class ConsoleCommandsTest extends DBTestCase
 
     public function test_autorenewal_expiry_mail_command_has_correct_signature(): void
     {
-        $this->assertSame('renewal:notification', (new AutorenewalExpirymail())->getName());
+        $this->assertSame('renewal:notification', new AutorenewalExpirymail()->getName());
     }
 
     public function test_autorenewal_expiry_mail_command_runs(): void
@@ -90,7 +87,7 @@ class ConsoleCommandsTest extends DBTestCase
 
     public function test_cleanup_msg91_reports_command_has_correct_signature(): void
     {
-        $this->assertSame('cleanup:msg-reports', (new CleanupMsg91Reports())->getName());
+        $this->assertSame('cleanup:msg-reports', new CleanupMsg91Reports()->getName());
     }
 
     public function test_cleanup_msg91_reports_command_runs(): void
@@ -104,7 +101,7 @@ class ConsoleCommandsTest extends DBTestCase
 
     public function test_send_cloud_instance_emails_command_has_correct_signature(): void
     {
-        $this->assertSame('cloud:send-instance-emails', (new SendCloudInstanceEmails())->getName());
+        $this->assertSame('cloud:send-instance-emails', new SendCloudInstanceEmails()->getName());
     }
 
     public function test_send_cloud_instance_emails_runs_the_notifier(): void
@@ -120,7 +117,7 @@ class ConsoleCommandsTest extends DBTestCase
 
     public function test_cleanup_activity_logs_command_has_correct_signature(): void
     {
-        $this->assertSame('activity-logs:cleanup', (new CleanupActivityLogs())->getName());
+        $this->assertSame('activity-logs:cleanup', new CleanupActivityLogs()->getName());
     }
 
     public function test_cleanup_activity_logs_deletes_logs_older_than_admin_setting(): void
@@ -175,7 +172,7 @@ class ConsoleCommandsTest extends DBTestCase
 
     public function test_expiry_cron_command_has_correct_signature(): void
     {
-        $this->assertSame('expiry:notification', (new ExpiryCron())->getName());
+        $this->assertSame('expiry:notification', new ExpiryCron()->getName());
     }
 
     public function test_expiry_cron_command_runs(): void
@@ -189,7 +186,7 @@ class ConsoleCommandsTest extends DBTestCase
 
     public function test_failed_message_delivery_command_has_correct_signature(): void
     {
-        $this->assertSame('app:failed-message-delivery', (new FailedMessageDelivery())->getName());
+        $this->assertSame('app:failed-message-delivery', new FailedMessageDelivery()->getName());
     }
 
     public function test_failed_message_delivery_command_runs(): void
@@ -203,7 +200,7 @@ class ConsoleCommandsTest extends DBTestCase
 
     public function test_invoice_deletion_command_has_correct_signature(): void
     {
-        $this->assertSame('invoices:delete', (new invoiceDeletion())->getName());
+        $this->assertSame('invoices:delete', new invoiceDeletion()->getName());
     }
 
     public function test_invoice_deletion_command_runs(): void
@@ -217,7 +214,7 @@ class ConsoleCommandsTest extends DBTestCase
 
     public function test_post_expiry_cron_command_has_correct_signature(): void
     {
-        $this->assertSame('postexpiry:notification', (new PostExpiryCron())->getName());
+        $this->assertSame('postexpiry:notification', new PostExpiryCron()->getName());
     }
 
     public function test_post_expiry_cron_command_runs(): void
@@ -231,7 +228,7 @@ class ConsoleCommandsTest extends DBTestCase
 
     public function test_reoon_logs_deletion_command_has_correct_signature(): void
     {
-        $this->assertSame('reoon:logs-deletion', (new ReoonLogsDeletion())->getName());
+        $this->assertSame('reoon:logs-deletion', new ReoonLogsDeletion()->getName());
     }
 
     public function test_reoon_logs_deletion_command_runs(): void
@@ -245,7 +242,7 @@ class ConsoleCommandsTest extends DBTestCase
 
     public function test_renewal_cron_command_has_correct_signature(): void
     {
-        $this->assertSame('renewal:cron', (new RenewalCron())->getName());
+        $this->assertSame('renewal:cron', new RenewalCron()->getName());
     }
 
     public function test_renewal_cron_command_runs(): void
@@ -259,7 +256,7 @@ class ConsoleCommandsTest extends DBTestCase
 
     public function test_move_images_command_has_correct_signature(): void
     {
-        $this->assertSame('move:images', (new moveImages())->getName());
+        $this->assertSame('move:images', new moveImages()->getName());
     }
 
     public function test_move_images_command_runs(): void
@@ -283,14 +280,14 @@ class ConsoleCommandsTest extends DBTestCase
 
             protected $description = 'Testing error handling';
 
-            public function handleAndLog(): void
+            public function handleAndLog(): never
             {
                 throw new \Exception('Test error from handleAndLog');
             }
         };
 
         // Register the command in the application
-        $this->app->make(\Illuminate\Contracts\Console\Kernel::class)
+        $this->app->make(Kernel::class)
             ->registerCommand($throwingCommand);
 
         // The command should handle the exception gracefully (not rethrow)
@@ -298,7 +295,7 @@ class ConsoleCommandsTest extends DBTestCase
         $this->assertTrue(true);
     }
 
-    public function test_loggable_command_cronCompleted_called_when_log_is_set(): void
+    public function test_loggable_command_cron_completed_called_when_log_is_set(): void
     {
         // autorenewal runs with real Logger (non-null log) so cronCompleted IS called
         // This covers lines 47-48 in LoggableCommand.php
@@ -310,12 +307,12 @@ class ConsoleCommandsTest extends DBTestCase
 
     public function test_setup_test_env_command_has_correct_signature(): void
     {
-        $this->assertSame('testing-setup', (new SetupTestEnv())->getName());
+        $this->assertSame('testing-setup', new SetupTestEnv()->getName());
     }
 
     public function test_setup_test_env_command_description_is_set(): void
     {
-        $command = new SetupTestEnv();
+        $command = new SetupTestEnv;
         $this->assertNotEmpty($command->getDescription());
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => 'Zadano',
     'cloud-instance-created' => 'Instanca oblaka kreirana',

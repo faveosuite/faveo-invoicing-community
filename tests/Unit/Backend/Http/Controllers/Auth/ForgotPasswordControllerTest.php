@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Auth;
 
+use App\Model\User\Password;
 use App\User;
 use Crypt;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -66,7 +67,7 @@ class ForgotPasswordControllerTest extends DBTestCase
         $user = User::factory()->create();
 
         // Create an existing reset token
-        \App\Model\User\Password::create(['email' => $user->email, 'token' => 'old-token', 'created_at' => now()]);
+        Password::create(['email' => $user->email, 'token' => 'old-token', 'created_at' => now()]);
 
         $response = $this->postJson('/password/email', [
             'email' => $user->email,

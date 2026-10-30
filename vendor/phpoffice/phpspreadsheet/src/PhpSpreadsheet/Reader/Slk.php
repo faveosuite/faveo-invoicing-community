@@ -5,54 +5,43 @@ namespace PhpOffice\PhpSpreadsheet\Reader;
 use PhpOffice\PhpSpreadsheet\Calculation\Calculation;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Reader\Exception as ReaderException;
+use PhpOffice\PhpSpreadsheet\ReferenceHelper;
 use PhpOffice\PhpSpreadsheet\Shared\StringHelper;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class Slk extends BaseReader
 {
     /**
-     * Input encoding.
-     *
-     * @var string
-     */
-    private $inputEncoding = 'ANSI';
-
-    /**
      * Sheet index to read.
-     *
-     * @var int
      */
-    private $sheetIndex = 0;
+    private int $sheetIndex = 0;
 
     /**
      * Formats.
      *
-     * @var array
+     * @var mixed[]
      */
-    private $formats = [];
+    private array $formats = [];
 
     /**
      * Format Count.
-     *
-     * @var int
      */
-    private $format = 0;
+    private int $format = 0;
 
     /**
      * Fonts.
      *
-     * @var array
+     * @var mixed[]
      */
-    private $fonts = [];
+    private array $fonts = [];
 
     /**
      * Font Count.
-     *
-     * @var int
      */
-    private $fontcount = 0;
+    private int $fontcount = 0;
 
     /**
      * Create a new SYLK Reader instance.
@@ -69,7 +58,7 @@ class Slk extends BaseReader
     {
         try {
             $this->openFile($filename);
-        } catch (ReaderException $e) {
+        } catch (ReaderException) {
             return false;
         }
 
@@ -82,7 +71,7 @@ class Slk extends BaseReader
 
         // Analyze first line looking for ID; signature
         $lines = explode("\n", $data);
-        $hasId = substr($lines[0], 0, 4) === 'ID;P';
+        $hasId = str_starts_with($lines[0], 'ID;P');
 
         fclose($this->fileHandle);
 
@@ -98,53 +87,18 @@ class Slk extends BaseReader
     }
 
     /**
-     * Set input encoding.
-     *
-     * @deprecated no use is made of this property
-     *
-     * @param string $inputEncoding Input encoding, eg: 'ANSI'
-     *
-     * @return $this
-     *
-     * @codeCoverageIgnore
-     */
-    public function setInputEncoding($inputEncoding)
-    {
-        $this->inputEncoding = $inputEncoding;
-
-        return $this;
-    }
-
-    /**
-     * Get input encoding.
-     *
-     * @deprecated no use is made of this property
-     *
-     * @return string
-     *
-     * @codeCoverageIgnore
-     */
-    public function getInputEncoding()
-    {
-        return $this->inputEncoding;
-    }
-
-    /**
      * Return worksheet info (Name, Last Column Letter, Last Column Index, Total Rows, Total Columns).
      *
-     * @param string $filename
-     *
-     * @return array
+     * @return array<int, array{worksheetName: string, lastColumnLetter: string, lastColumnIndex: int, totalRows: int, totalColumns: int, sheetState: string}>
      */
-    public function listWorksheetInfo($filename)
+    public function listWorksheetInfo(string $filename): array
     {
         // Open file
         $this->canReadOrBust($filename);
         $fileHandle = $this->fileHandle;
         rewind($fileHandle);
 
-        $worksheetInfo = [];
-        $worksheetInfo[0]['worksheetName'] = basename($filename, '.slk');
+        $worksheetInfo = [['worksheetName' => basename($filename, '.slk')]];
 
         // loop through one row (line) at a time in the file
         $rowIndex = 0;
@@ -168,7 +122,7 @@ class Slk extends BaseReader
 
                             break;
                         case 'Y':
-                            $rowIndex = substr($rowDatum, 1);
+                            $rowIndex = (int) substr($rowDatum, 1);
 
                             break;
                     }
@@ -180,8 +134,9 @@ class Slk extends BaseReader
 
         $worksheetInfo[0]['lastColumnIndex'] = $columnIndex;
         $worksheetInfo[0]['totalRows'] = $rowIndex;
-        $worksheetInfo[0]['lastColumnLetter'] = Coordinate::stringFromColumnIndex($worksheetInfo[0]['lastColumnIndex'] + 1);
+        $worksheetInfo[0]['lastColumnLetter'] = Coordinate::stringFromColumnIndex($worksheetInfo[0]['lastColumnIndex'] + 1, true);
         $worksheetInfo[0]['totalColumns'] = $worksheetInfo[0]['lastColumnIndex'] + 1;
+        $worksheetInfo[0]['sheetState'] = Worksheet::SHEETSTATE_VISIBLE;
 
         // Close file
         fclose($fileHandle);
@@ -194,8 +149,8 @@ class Slk extends BaseReader
      */
     protected function loadSpreadsheetFromFile(string $filename): Spreadsheet
     {
-        // Create new Spreadsheet
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = $this->newSpreadsheet();
+        $spreadsheet->setValueBinder($this->valueBinder);
 
         // Load into this instance
         return $this->loadIntoExisting($filename, $spreadsheet);
@@ -218,6 +173,9 @@ class Slk extends BaseReader
         'U' => 'underline',
     ];
 
+    /**
+     * @param-out true $hasCalculatedValue
+     */
     private function processFormula(string $rowDatum, bool &$hasCalculatedValue, string &$cellDataFormula, string $row, string $column): void
     {
         $cellDataFormula = '=' . substr($rowDatum, 1);
@@ -266,25 +224,29 @@ class Slk extends BaseReader
         $hasCalculatedValue = true;
     }
 
+    /** @param mixed[] $rowData */
     private function processCRecord(array $rowData, Spreadsheet &$spreadsheet, string &$row, string &$column): void
     {
         //    Read cell value data
         $hasCalculatedValue = false;
+        $tryNumeric = false;
         $cellDataFormula = $cellData = '';
+        $sharedColumn = $sharedRow = -1;
+        $sharedFormula = false;
         foreach ($rowData as $rowDatum) {
+            /** @var string $rowDatum */
             switch ($rowDatum[0]) {
-                case 'C':
                 case 'X':
                     $column = substr($rowDatum, 1);
 
                     break;
-                case 'R':
                 case 'Y':
                     $row = substr($rowDatum, 1);
 
                     break;
                 case 'K':
                     $cellData = substr($rowDatum, 1);
+                    $tryNumeric = is_numeric($cellData);
 
                     break;
                 case 'E':
@@ -300,25 +262,55 @@ class Slk extends BaseReader
                         ->createText($comment);
 
                     break;
+                case 'C':
+                    $sharedColumn = (int) substr($rowDatum, 1);
+
+                    break;
+                case 'R':
+                    $sharedRow = (int) substr($rowDatum, 1);
+
+                    break;
+                case 'S':
+                    $sharedFormula = true;
+
+                    break;
             }
         }
+        if ($sharedFormula === true && $sharedRow >= 0 && $sharedColumn >= 0) {
+            $thisCoordinate = Coordinate::stringFromColumnIndex((int) $column) . $row;
+            $sharedCoordinate = Coordinate::stringFromColumnIndex($sharedColumn) . $sharedRow;
+            /** @var string */
+            $formula = $spreadsheet->getActiveSheet()->getCell($sharedCoordinate)->getValue();
+            $spreadsheet->getActiveSheet()->getCell($thisCoordinate)->setValue($formula);
+            $referenceHelper = ReferenceHelper::getInstance();
+            $newFormula = $referenceHelper->updateFormulaReferences($formula, 'A1', (int) $column - $sharedColumn, (int) $row - $sharedRow, '', true, false);
+            $spreadsheet->getActiveSheet()->getCell($thisCoordinate)->setValue($newFormula);
+            //$calc = $spreadsheet->getActiveSheet()->getCell($thisCoordinate)->getCalculatedValue();
+            //$spreadsheet->getActiveSheet()->getCell($thisCoordinate)->setCalculatedValue($calc);
+            $cellData = Calculation::unwrapResult($cellData);
+            $spreadsheet->getActiveSheet()->getCell($thisCoordinate)->setCalculatedValue($cellData, $tryNumeric);
+
+            return;
+        }
         $columnLetter = Coordinate::stringFromColumnIndex((int) $column);
+        /** @var string */
         $cellData = Calculation::unwrapResult($cellData);
 
         // Set cell value
-        $this->processCFinal($spreadsheet, $hasCalculatedValue, $cellDataFormula, $cellData, "$columnLetter$row");
+        $this->processCFinal($spreadsheet, $hasCalculatedValue, $cellDataFormula, $cellData, "$columnLetter$row", $tryNumeric);
     }
 
-    private function processCFinal(Spreadsheet &$spreadsheet, bool $hasCalculatedValue, string $cellDataFormula, string $cellData, string $coordinate): void
+    private function processCFinal(Spreadsheet &$spreadsheet, bool $hasCalculatedValue, string $cellDataFormula, string $cellData, string $coordinate, bool $tryNumeric): void
     {
         // Set cell value
         $spreadsheet->getActiveSheet()->getCell($coordinate)->setValue(($hasCalculatedValue) ? $cellDataFormula : $cellData);
         if ($hasCalculatedValue) {
             $cellData = Calculation::unwrapResult($cellData);
-            $spreadsheet->getActiveSheet()->getCell($coordinate)->setCalculatedValue($cellData);
+            $spreadsheet->getActiveSheet()->getCell($coordinate)->setCalculatedValue($cellData, $tryNumeric);
         }
     }
 
+    /** @param mixed[] $rowData */
     private function processFRecord(array $rowData, Spreadsheet &$spreadsheet, string &$row, string &$column): void
     {
         //    Read cell formatting
@@ -327,6 +319,7 @@ class Slk extends BaseReader
         $fontStyle = '';
         $styleData = [];
         foreach ($rowData as $rowDatum) {
+            /** @var string $rowDatum */
             switch ($rowDatum[0]) {
                 case 'C':
                 case 'X':
@@ -352,6 +345,7 @@ class Slk extends BaseReader
                     break;
             }
         }
+        /** @var string $formatStyle */
         $this->addFormats($spreadsheet, $formatStyle, $row, $column);
         $this->addFonts($spreadsheet, $fontStyle, $row, $column);
         $this->addStyle($spreadsheet, $styleData, $row, $column);
@@ -367,6 +361,7 @@ class Slk extends BaseReader
         'T' => 'top',
     ];
 
+    /** @param mixed[][] $styleData */
     private function styleSettings(string $rowDatum, array &$styleData, string &$fontStyle): void
     {
         $styleSettings = substr($rowDatum, 1);
@@ -376,9 +371,9 @@ class Slk extends BaseReader
             if (array_key_exists($char, self::STYLE_SETTINGS_FONT)) {
                 $styleData['font'][self::STYLE_SETTINGS_FONT[$char]] = true;
             } elseif (array_key_exists($char, self::STYLE_SETTINGS_BORDER)) {
-                $styleData['borders'][self::STYLE_SETTINGS_BORDER[$char]]['borderStyle'] = Border::BORDER_THIN;
+                $styleData['borders'][self::STYLE_SETTINGS_BORDER[$char]]['borderStyle'] = Border::BORDER_THIN; //* @phpstan-ignore offsetAccess.nonOffsetAccessible (I don't know how to fix this)
             } elseif ($char == 'S') {
-                $styleData['fill']['fillType'] = \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_PATTERN_GRAY125;
+                $styleData['fill']['fillType'] = Fill::FILL_PATTERN_GRAY125;
             } elseif ($char == 'M') {
                 if (preg_match('/M([1-9]\d*)/', $styleSettings, $matches)) {
                     $fontStyle = $matches[1];
@@ -391,7 +386,7 @@ class Slk extends BaseReader
     {
         if ($formatStyle && $column > '' && $row > '') {
             $columnLetter = Coordinate::stringFromColumnIndex((int) $column);
-            if (isset($this->formats[$formatStyle])) {
+            if (isset($this->formats[$formatStyle]) && is_array($this->formats[$formatStyle])) {
                 $spreadsheet->getActiveSheet()->getStyle($columnLetter . $row)->applyFromArray($this->formats[$formatStyle]);
             }
         }
@@ -401,12 +396,13 @@ class Slk extends BaseReader
     {
         if ($fontStyle && $column > '' && $row > '') {
             $columnLetter = Coordinate::stringFromColumnIndex((int) $column);
-            if (isset($this->fonts[$fontStyle])) {
+            if (isset($this->fonts[$fontStyle]) && is_array($this->fonts[$fontStyle])) {
                 $spreadsheet->getActiveSheet()->getStyle($columnLetter . $row)->applyFromArray($this->fonts[$fontStyle]);
             }
         }
     }
 
+    /** @param mixed[] $styleData */
     private function addStyle(Spreadsheet &$spreadsheet, array $styleData, string $row, string $column): void
     {
         if ((!empty($styleData)) && $column > '' && $row > '') {
@@ -426,12 +422,18 @@ class Slk extends BaseReader
                 $endCol = Coordinate::stringFromColumnIndex((int) $endCol);
                 $spreadsheet->getActiveSheet()->getColumnDimension($startCol)->setWidth((float) $columnWidth);
                 do {
-                    $spreadsheet->getActiveSheet()->getColumnDimension(++$startCol)->setWidth((float) $columnWidth);
+                    /** @var string $startCol */
+                    $spreadsheet->getActiveSheet()
+                        ->getColumnDimension(
+                            StringHelper::stringIncrement($startCol)
+                        )
+                        ->setWidth((float) $columnWidth);
                 } while ($startCol !== $endCol);
             }
         }
     }
 
+    /** @param string[] $rowData */
     private function processPRecord(array $rowData, Spreadsheet &$spreadsheet): void
     {
         //    Read shared styles
@@ -454,6 +456,7 @@ class Slk extends BaseReader
 
                     break;
                 case 'L':
+                    /** @var mixed[][][] $formatArray */
                     $this->processPColors($rowDatum, $formatArray);
 
                     break;
@@ -466,14 +469,16 @@ class Slk extends BaseReader
         $this->processPFinal($spreadsheet, $formatArray);
     }
 
+    /** @param mixed[][][] $formatArray */
     private function processPColors(string $rowDatum, array &$formatArray): void
     {
         if (preg_match('/L([1-9]\d*)/', $rowDatum, $matches)) {
-            $fontColor = $matches[1] % 8;
+            $fontColor = ((int) $matches[1]) % 8;
             $formatArray['font']['color']['argb'] = self::COLOR_ARRAY[$fontColor];
         }
     }
 
+    /** @param mixed[][] $formatArray */
     private function processPFontStyles(string $rowDatum, array &$formatArray): void
     {
         $styleSettings = substr($rowDatum, 1);
@@ -485,6 +490,7 @@ class Slk extends BaseReader
         }
     }
 
+    /** @param mixed[] $formatArray */
     private function processPFinal(Spreadsheet &$spreadsheet, array $formatArray): void
     {
         if (array_key_exists('numberFormat', $formatArray)) {
@@ -501,12 +507,8 @@ class Slk extends BaseReader
 
     /**
      * Loads PhpSpreadsheet from file into PhpSpreadsheet instance.
-     *
-     * @param string $filename
-     *
-     * @return Spreadsheet
      */
-    public function loadIntoExisting($filename, Spreadsheet $spreadsheet)
+    public function loadIntoExisting(string $filename, Spreadsheet $spreadsheet): Spreadsheet
     {
         // Open file
         $this->canReadOrBust($filename);
@@ -554,6 +556,7 @@ class Slk extends BaseReader
         return $spreadsheet;
     }
 
+    /** @param string[] $rowData */
     private function columnRowFromRowData(array $rowData, string &$column, string &$row): void
     {
         foreach ($rowData as $rowDatum) {
@@ -568,10 +571,8 @@ class Slk extends BaseReader
 
     /**
      * Get sheet index.
-     *
-     * @return int
      */
-    public function getSheetIndex()
+    public function getSheetIndex(): int
     {
         return $this->sheetIndex;
     }
@@ -583,7 +584,7 @@ class Slk extends BaseReader
      *
      * @return $this
      */
-    public function setSheetIndex($sheetIndex)
+    public function setSheetIndex(int $sheetIndex): static
     {
         $this->sheetIndex = $sheetIndex;
 

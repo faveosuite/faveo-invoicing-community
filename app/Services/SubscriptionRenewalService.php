@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Http\Controllers\License\LicensePermissionsController;
+use App\License\Models\License;
 use App\License\Services\LicenseService;
 use App\Model\Order\Order;
 use App\Model\Product\Subscription;
@@ -12,9 +13,7 @@ use Throwable;
 
 class SubscriptionRenewalService
 {
-    public function __construct(private LicenseService $licenseService)
-    {
-    }
+    public function __construct(private LicenseService $licenseService) {}
 
     /**
      * Extend subscription dates by the plan's days, then sync with the license server.
@@ -90,7 +89,7 @@ class SubscriptionRenewalService
         $ipAndDomain = LicenseService::parseIpAndDomain($order->domain);
         $existingLicense = $this->licenseService->findByCode($order->serial_key);
 
-        if (! $existingLicense) {
+        if (! $existingLicense instanceof License) {
             return;
         }
 
@@ -132,7 +131,7 @@ class SubscriptionRenewalService
             $ipAndDomain = LicenseService::parseIpAndDomain($domain);
             $existingLicense = $this->licenseService->findByCode($licenseCode);
 
-            if (! $existingLicense) {
+            if (! $existingLicense instanceof License) {
                 return;
             }
 

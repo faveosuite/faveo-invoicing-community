@@ -11,6 +11,7 @@ use App\Model\Configure\ProductPluginGroup;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 class LicenseService
@@ -163,7 +164,7 @@ class LicenseService
 
         $licenses = License::with('plugins')
             ->whereIn('license_code', array_unique([$license->license_code, ...$codes]))
-            ->where(fn ($q) => $q->whereNull('license_expire_date')->orWhere('license_expire_date', '>', now()))
+            ->where(fn (Builder $q) => $q->whereNull('license_expire_date')->orWhere('license_expire_date', '>', now()))
             ->get();
 
         $rows = [];

@@ -6,6 +6,7 @@ use App\Model\Github\Github;
 use Exception;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 
 class GithubApiController
@@ -105,14 +106,14 @@ class GithubApiController
 
         try {
             $response = (clone $this->http)->timeout(600)->sink($tempPath)->get($this->zipballUrl($owner, $repo, $ref));
-        } catch (Exception $e) {
-            @unlink($tempPath);
+        } catch (Exception $exception) {
+            File::delete($tempPath);
 
-            throw $e;
+            throw $exception;
         }
 
         if (! $response->successful()) {
-            @unlink($tempPath);
+            File::delete($tempPath);
 
             throw new Exception(trans('message.file_not_exist'));
         }

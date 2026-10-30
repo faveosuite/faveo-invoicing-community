@@ -330,6 +330,14 @@ class LaravelDebugbar extends DebugBar
                         'database' => $connection->getDatabaseName(),
                     ];
                 },
+                // Flatten to plain arrays so validation messages survive the cloner's max_depth
+                // instead of being cut off inside the nested MessageBag object (see #2036).
+                \Illuminate\Support\ViewErrorBag::class => static function (\Illuminate\Support\ViewErrorBag $bag, array $a, Stub $stub): array {
+                    return array_map(static fn(\Illuminate\Contracts\Support\MessageBag $messageBag): array => $messageBag->toArray(), $bag->getBags());
+                },
+                \Illuminate\Support\MessageBag::class => static function (\Illuminate\Support\MessageBag $bag, array $a, Stub $stub): array {
+                    return $bag->toArray();
+                },
             ],
         ]);
 
@@ -613,8 +621,16 @@ class LaravelDebugbar extends DebugBar
                 return $this->storageOpen;
             }
 
-            // Allow localhost request when not explicitly allowed/disallowed
-            $this->storageOpen = IpUtils::isPrivateIp($request->getClientIp());
+            try {
+                // Allow localhost and private network (eg. Docker/Sail) requests when not explicitly allowed/disallowed
+                $this->storageOpen = IpUtils::checkIp((string) $request->getClientIp(), [
+                    '127.0.0.0/8', '::1', '::ffff:127.0.0.0/104', // Loopback
+                    '10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', // RFC1918
+                    'fc00::/7', // Unique Local Address
+                ]);
+            } catch (\ValueError $e) {
+                $this->storageOpen = false;
+            }
         }
 
         return $this->storageOpen;

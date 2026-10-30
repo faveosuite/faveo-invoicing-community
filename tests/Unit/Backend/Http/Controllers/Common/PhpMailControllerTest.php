@@ -46,10 +46,10 @@ class PhpMailControllerTest extends DBTestCase
             'noreply@test.local',
             'stripe',
             'success',
-            null,
-            null,
-            100.0,
-            'invoice'
+            order: null,
+            exception: null,
+            amount: 100.0,
+            payment_type: 'invoice'
         );
 
         $this->assertTrue(true);

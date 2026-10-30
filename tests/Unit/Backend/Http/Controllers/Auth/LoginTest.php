@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Auth;
 
+use App\DefaultPage;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Middleware\Install;
 use App\Model\Common\StatusSetting;
 use App\Plugins\Recaptcha\Model\RecaptchaSetting;
@@ -18,7 +20,7 @@ class LoginTest extends DBTestCase
     #[Group('postLogin')]
     public function test_post_login_for_verified_users(): void
     {
-        \App\DefaultPage::query()->delete(); // ensure url('/') fallback, not DB page_url
+        DefaultPage::query()->delete(); // ensure url('/') fallback, not DB page_url
         $user = User::factory()->create(['password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
@@ -256,7 +258,7 @@ class LoginTest extends DBTestCase
     #[Group('postLogin')]
     public function test_it_succeeds_with_valid_input_and_no_honeypot(): void
     {
-        \App\DefaultPage::query()->delete(); // ensure url('/') fallback
+        DefaultPage::query()->delete(); // ensure url('/') fallback
         $user = User::factory()->create(['active' => 1, 'email' => 'user@example.com', 'password' => bcrypt('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
@@ -335,7 +337,7 @@ class LoginTest extends DBTestCase
     #[Group('postLogin')]
     public function test_login_with_username(): void
     {
-        \App\DefaultPage::query()->delete(); // ensure url('/') fallback
+        DefaultPage::query()->delete(); // ensure url('/') fallback
         $this->withoutMiddleware();
         $user = User::factory()->create([
             'user_name' => 'testuser',
@@ -364,7 +366,7 @@ class LoginTest extends DBTestCase
     #[Group('postLogin')]
     public function test_login_with_email_shaped_username_after_email_changed(): void
     {
-        \App\DefaultPage::query()->delete(); // ensure url('/') fallback
+        DefaultPage::query()->delete(); // ensure url('/') fallback
         $this->withoutMiddleware();
         // Username was copied from the original email; the email was changed later.
         User::factory()->create([
@@ -402,7 +404,7 @@ class LoginTest extends DBTestCase
     public function test_get_login_rate_limit_key_returns_string(): void
     {
         $this->withoutMiddleware();
-        $controller = new \App\Http\Controllers\Auth\LoginController;
+        $controller = new LoginController;
         $key = $controller->getLoginRateLimitKey('test@example.com');
         $this->assertIsString($key);
         $this->assertEquals(32, strlen($key)); // MD5 is 32 hex chars
@@ -416,7 +418,7 @@ class LoginTest extends DBTestCase
     {
         $this->withoutMiddleware();
         $user = User::factory()->create();
-        $controller = new \App\Http\Controllers\Auth\LoginController;
+        $controller = new LoginController;
         $controller->logActivityLogin($user);
         $this->assertTrue(true);
     }
@@ -424,8 +426,8 @@ class LoginTest extends DBTestCase
     public function test_log_activity_login_returns_early_for_null(): void
     {
         $this->withoutMiddleware();
-        $controller = new \App\Http\Controllers\Auth\LoginController;
-        $controller->logActivityLogin(null);
+        $controller = new LoginController;
+        $controller->logActivityLogin(user: null);
         $this->assertTrue(true);
     }
 
@@ -451,7 +453,7 @@ class LoginTest extends DBTestCase
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
 
-        $controller = new \App\Http\Controllers\Auth\LoginController;
+        $controller = new LoginController;
         $path = $controller->redirectPath();
 
         $this->assertEquals(url('/admin'), $path);
@@ -462,7 +464,7 @@ class LoginTest extends DBTestCase
         $user = User::factory()->create(['role' => 'user']);
         $this->actingAs($user);
 
-        $controller = new \App\Http\Controllers\Auth\LoginController;
+        $controller = new LoginController;
         $path = $controller->redirectPath();
 
         $this->assertIsString($path);

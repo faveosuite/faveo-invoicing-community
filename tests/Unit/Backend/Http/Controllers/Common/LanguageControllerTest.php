@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Common;
 
+use App\Model\Common\Language;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -129,9 +130,9 @@ class LanguageControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $lang = \App\Model\Common\Language::first();
+        $lang = Language::first();
         if (! $lang) {
-            $lang = \App\Model\Common\Language::create(['name' => 'Test Language', 'locale' => 'tl-'.uniqid(), 'status' => 1]);
+            $lang = Language::create(['name' => 'Test Language', 'locale' => 'tl-'.uniqid(), 'status' => 1]);
         }
 
         $response = $this->postJson('/language-set-default', [

@@ -2,8 +2,10 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\License;
 
+use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
+use App\Model\Product\Product;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -147,7 +149,7 @@ class LicensePermissionsControllerTest extends DBTestCase
 
     public function test_get_permissions_for_product_returns_all_false_for_unknown_product(): void
     {
-        $result = \App\Http\Controllers\License\LicensePermissionsController::getPermissionsForProduct(999999);
+        $result = LicensePermissionsController::getPermissionsForProduct(999999);
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('generateLicenseExpiryDate', $result);
@@ -162,9 +164,9 @@ class LicensePermissionsControllerTest extends DBTestCase
         $type = LicenseType::create(['name' => 'test-type-'.uniqid()]);
         $type->permissions()->attach($perm->id);
 
-        $product = \App\Model\Product\Product::factory()->create(['type' => $type->id]);
+        $product = Product::factory()->create(['type' => $type->id]);
 
-        $result = \App\Http\Controllers\License\LicensePermissionsController::getPermissionsForProduct($product->id);
+        $result = LicensePermissionsController::getPermissionsForProduct($product->id);
 
         $this->assertIsArray($result);
         $this->assertTrue($result['generateLicenseExpiryDate']);
@@ -175,11 +177,11 @@ class LicensePermissionsControllerTest extends DBTestCase
         $perm = LicensePermission::firstOrCreate(['permissions' => 'Can be Downloaded']);
         $type = LicenseType::create(['name' => 'test-type-'.uniqid()]);
         $type->permissions()->attach($perm->id);
-        $product = \App\Model\Product\Product::factory()->create(['type' => $type->id]);
+        $product = Product::factory()->create(['type' => $type->id]);
 
         // e.g. an eager load like 'productRelation:id,name'
-        $partial = \App\Model\Product\Product::select('id', 'name')->find($product->id);
+        $partial = Product::select('id', 'name')->find($product->id);
 
-        $this->assertTrue(\App\Http\Controllers\License\LicensePermissionsController::permissionsFor($partial)['downloadPermission']);
+        $this->assertTrue(LicensePermissionsController::permissionsFor($partial)['downloadPermission']);
     }
 }

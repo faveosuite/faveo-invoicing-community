@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         if (! Schema::hasTable('github_repos')) {
-            Schema::create('github_repos', function (Blueprint $table) {
+            Schema::create('github_repos', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('display_name');
                 $table->string('owner');

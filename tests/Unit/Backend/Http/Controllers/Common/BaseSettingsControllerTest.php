@@ -140,8 +140,8 @@ class BaseSettingsControllerTest extends DBTestCase
     /** @return list<string> */
     private function formatProperties(array $properties, mixed $event): array
     {
-        return (new \ReflectionMethod(SettingsController::class, 'formatProperties'))
-            ->invoke(app(SettingsController::class), $properties, $event);
+        return new \ReflectionMethod(SettingsController::class, 'formatProperties')
+            ->invoke(resolve(SettingsController::class), $properties, $event);
     }
 
     public function test_format_properties_describes_each_updated_field(): void

@@ -25,7 +25,7 @@ class GetVersionsControllerTest extends LicenseTestCase
         $validator->shouldReceive('isValidAfuRequest')->once()->andReturn(true);
         $validator->shouldReceive('isBanned')->once()->andReturn(false);
         $validator->shouldReceive('verifyAfuScriptSignature')->once()->andReturn(true);
-        $validator->shouldReceive('isPastDate')->andReturnUsing(fn ($date) => new LicenseValidator()->isPastDate($date));
+        $validator->shouldReceive('isPastDate')->andReturnUsing(fn ($date): bool => new LicenseValidator()->isPastDate($date));
 
         $response = new GetVersionsController($validator)->getVersions($this->moduleRequest([
             'product_id' => $product->id,
@@ -62,7 +62,7 @@ class GetVersionsControllerTest extends LicenseTestCase
         $validator->shouldReceive('isValidAfuRequest')->once()->andReturn(true);
         $validator->shouldReceive('isBanned')->once()->andReturn(false);
         $validator->shouldReceive('verifyAfuScriptSignature')->once()->andReturn(true);
-        $validator->shouldReceive('isPastDate')->andReturnUsing(fn ($date) => new LicenseValidator()->isPastDate($date));
+        $validator->shouldReceive('isPastDate')->andReturnUsing(fn ($date): bool => new LicenseValidator()->isPastDate($date));
 
         $response = new GetVersionsController($validator)->getVersions($this->moduleRequest([
             'product_id' => $product->id,

@@ -111,11 +111,11 @@ class Configuration
      */
     protected string $host = 'https://api.pipedrive.com/api/v2';
     /**
-     * User agent of the HTTP request, set to "Pipedrive-SDK-PHP-16.x" by default
+     * User agent of the HTTP request, set to "Pipedrive-SDK-PHP-19.x" by default
      *
      * @var string
      */
-    protected string $userAgent = 'Pipedrive-SDK-PHP-16.x';
+    protected string $userAgent = 'Pipedrive-SDK-PHP-19.x';
 
     /**
      * Debug switch (default set to false)

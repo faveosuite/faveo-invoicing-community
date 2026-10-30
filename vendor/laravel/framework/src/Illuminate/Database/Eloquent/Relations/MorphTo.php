@@ -226,7 +226,7 @@ class MorphTo extends BelongsTo
     protected function matchToMorphParents($type, EloquentCollection $results)
     {
         foreach ($results as $result) {
-            $ownerKey = ! is_null($this->ownerKey) ? $this->getDictionaryKey($result->{$this->ownerKey}) : $result->getKey();
+            $ownerKey = $this->getDictionaryKey(! is_null($this->ownerKey) ? $result->{$this->ownerKey} : $result->getKey());
 
             if ($ownerKey !== null && isset($this->dictionary[$type][$ownerKey])) {
                 foreach ($this->dictionary[$type][$ownerKey] as $model) {
@@ -322,7 +322,7 @@ class MorphTo extends BelongsTo
     public function morphWith(array $with)
     {
         $this->morphableEagerLoads = array_merge(
-            $this->morphableEagerLoads, $with
+            $this->morphableEagerLoads, $this->resolveMorphTypes($with)
         );
 
         return $this;
@@ -337,7 +337,7 @@ class MorphTo extends BelongsTo
     public function morphWithCount(array $withCount)
     {
         $this->morphableEagerLoadCounts = array_merge(
-            $this->morphableEagerLoadCounts, $withCount
+            $this->morphableEagerLoadCounts, $this->resolveMorphTypes($withCount)
         );
 
         return $this;
@@ -352,10 +352,27 @@ class MorphTo extends BelongsTo
     public function constrain(array $callbacks)
     {
         $this->morphableConstraints = array_merge(
-            $this->morphableConstraints, $callbacks
+            $this->morphableConstraints, $this->resolveMorphTypes($callbacks)
         );
 
         return $this;
+    }
+
+    /**
+     * Resolve morph map aliases used as keys to their class names.
+     *
+     * @param  array  $values
+     * @return array
+     */
+    protected function resolveMorphTypes(array $values)
+    {
+        $resolved = [];
+
+        foreach ($values as $type => $value) {
+            $resolved[static::getMorphedModel($type) ?? $type] = $value;
+        }
+
+        return $resolved;
     }
 
     /**
@@ -365,7 +382,7 @@ class MorphTo extends BelongsTo
      */
     public function withTrashed()
     {
-        $callback = fn ($query) => $query->hasMacro('withTrashed') ? $query->withTrashed() : $query;
+        $callback = static fn ($query) => $query->hasMacro('withTrashed') ? $query->withTrashed() : $query;
 
         $this->macroBuffer[] = [
             'method' => 'when',
@@ -382,7 +399,7 @@ class MorphTo extends BelongsTo
      */
     public function withoutTrashed()
     {
-        $callback = fn ($query) => $query->hasMacro('withoutTrashed') ? $query->withoutTrashed() : $query;
+        $callback = static fn ($query) => $query->hasMacro('withoutTrashed') ? $query->withoutTrashed() : $query;
 
         $this->macroBuffer[] = [
             'method' => 'when',
@@ -399,7 +416,7 @@ class MorphTo extends BelongsTo
      */
     public function onlyTrashed()
     {
-        $callback = fn ($query) => $query->hasMacro('onlyTrashed') ? $query->onlyTrashed() : $query;
+        $callback = static fn ($query) => $query->hasMacro('onlyTrashed') ? $query->onlyTrashed() : $query;
 
         $this->macroBuffer[] = [
             'method' => 'when',
@@ -415,7 +432,7 @@ class MorphTo extends BelongsTo
      * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
      * @return \Illuminate\Database\Eloquent\Builder<TRelatedModel>
      */
-    protected function replayMacros(Builder $query)
+    public function replayMacros(Builder $query)
     {
         foreach ($this->macroBuffer as $macro) {
             $query->{$macro['method']}(...$macro['parameters']);
@@ -448,7 +465,7 @@ class MorphTo extends BelongsTo
             $result = parent::__call($method, $parameters);
 
             if (in_array($method, ['select', 'selectRaw', 'selectSub', 'addSelect', 'withoutGlobalScopes'])) {
-                $this->macroBuffer[] = compact('method', 'parameters');
+                $this->macroBuffer[] = ['method' => $method, 'parameters' => $parameters];
             }
 
             return $result;
@@ -458,7 +475,7 @@ class MorphTo extends BelongsTo
         // we'll assume that we want to call a query macro (e.g. withTrashed) that only
         // exists on related models. We will just store the call and replay it later.
         catch (BadMethodCallException) {
-            $this->macroBuffer[] = compact('method', 'parameters');
+            $this->macroBuffer[] = ['method' => $method, 'parameters' => $parameters];
 
             return $this;
         }

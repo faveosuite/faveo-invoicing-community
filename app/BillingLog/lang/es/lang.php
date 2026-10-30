@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => 'Predeterminado',
     'cloud-instance-created' => 'Instancia en la nube creada',

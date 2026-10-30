@@ -257,6 +257,7 @@ class ProjectFieldItem implements ModelInterface, ArrayAccess, JsonSerializable
     const FIELD_TYPE_BILLING_FREQUENCY = 'billing_frequency';
     const FIELD_TYPE_PROJECTS_BOARD = 'projects_board';
     const FIELD_TYPE_PROJECTS_PHASE = 'projects_phase';
+    const FIELD_TYPE_ORGS = 'orgs';
 
     /**
      * Gets allowable values of the enum
@@ -301,6 +302,7 @@ class ProjectFieldItem implements ModelInterface, ArrayAccess, JsonSerializable
             self::FIELD_TYPE_BILLING_FREQUENCY,
             self::FIELD_TYPE_PROJECTS_BOARD,
             self::FIELD_TYPE_PROJECTS_PHASE,
+            self::FIELD_TYPE_ORGS,
         ];
     }
 

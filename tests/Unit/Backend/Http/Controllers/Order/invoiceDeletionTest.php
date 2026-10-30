@@ -45,7 +45,7 @@ class invoiceDeletionTest extends DBTestCase
         $this->getLoggedInUser('admin');
 
         $invoice = Invoice::factory()->create(['user_id' => $this->user->id, 'is_renewed' => '1']);
-        $invoiceItem = InvoiceItem::create([
+        InvoiceItem::create([
             'invoice_id' => $invoice->id,
             'product_name' => 'Helpdesk Advance',
             'regular_price' => 10000,
@@ -56,7 +56,7 @@ class invoiceDeletionTest extends DBTestCase
             'domain' => 'faveo.com',
             'plan_id' => 1,
         ]);
-        $orderRelation = OrderInvoiceRelation::create(['invoice_id' => $invoice->id]);
+        OrderInvoiceRelation::create(['invoice_id' => $invoice->id]);
 
         $response = $this->deleteJson('/invoices', [
             'invoice_ids' => [$invoice->id],

@@ -1,26 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Events;
 
+use Maatwebsite\Excel\Concerns\Export;
+use Maatwebsite\Excel\Concerns\Import;
 use Maatwebsite\Excel\Sheet;
 
 class AfterChunk extends Event
 {
-    /**
-     * @var Sheet
-     */
-    private $sheet;
-
-    /**
-     * @var int
-     */
-    private $startRow;
-
-    public function __construct(Sheet $sheet, $importable, int $startRow)
-    {
-        $this->sheet     = $sheet;
-        $this->startRow  = $startRow;
-        parent::__construct($importable);
+    public function __construct(
+        private readonly Sheet $sheet,
+        Export|Import $concernable,
+        private readonly int $startRow,
+    ) {
+        parent::__construct($concernable);
     }
 
     public function getSheet(): Sheet
@@ -28,7 +23,7 @@ class AfterChunk extends Event
         return $this->sheet;
     }
 
-    public function getDelegate()
+    public function getDelegate(): Sheet
     {
         return $this->sheet;
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Middleware;
 
 use App\Http\Middleware\CheckPulseEnabled;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Tests\TestCase;
 
@@ -12,7 +13,7 @@ class CheckPulseEnabledTest extends TestCase
 {
     private function next(): \Closure
     {
-        return fn ($req) => response('passed');
+        return fn ($req): ResponseFactory|\Illuminate\Http\Response => response('passed');
     }
 
     public function test_passes_through_when_pulse_enabled(): void
@@ -20,7 +21,7 @@ class CheckPulseEnabledTest extends TestCase
         config(['pulse.enabled' => true]);
         $request = Request::create('/pulse', 'GET');
 
-        $response = (new CheckPulseEnabled())->handle($request, $this->next());
+        $response = new CheckPulseEnabled()->handle($request, $this->next());
 
         $this->assertSame('passed', $response->getContent());
     }
@@ -30,7 +31,7 @@ class CheckPulseEnabledTest extends TestCase
         config(['pulse.enabled' => false]);
         $request = Request::create('/pulse', 'GET');
 
-        $response = (new CheckPulseEnabled())->handle($request, $this->next());
+        $response = new CheckPulseEnabled()->handle($request, $this->next());
 
         $this->assertSame(302, $response->getStatusCode());
     }

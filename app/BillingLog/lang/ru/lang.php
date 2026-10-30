@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => 'По умолчанию',
     'cloud-instance-created' => 'Облачный экземпляр создан',

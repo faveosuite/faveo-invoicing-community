@@ -58,9 +58,11 @@ class BaseRenewController extends Controller
                 // the first item of the order's original (oldest linked) invoice instead.
                 $item = $order->invoices()->oldest('invoices.id')->first()?->invoiceItem()->first();
             }
+
             if (! $item instanceof InvoiceItem) {
                 throw new Exception(__('message.record_not_found'));
             }
+
             $product = $this->getProductByProductId($item->product_id, $order);
             $user = $this->getUserById($order->client); // @phpstan-ignore method.notFound
             if (! $user) {
@@ -111,6 +113,7 @@ class BaseRenewController extends Controller
             if ($order && ! authorizeOwnership((int) $order->client, allowAdmin: true)) {
                 return errorResponse(__('message.unauthorized_action'), 403);
             }
+
             $customer = $order ? (User::find($order->client) ?? $authUser) : $authUser;
 
             if (! $planId) {
@@ -218,7 +221,7 @@ class BaseRenewController extends Controller
      */
     protected function orderAgents(int $orderId): mixed
     {
-        return InvoiceItem::whereHas('invoice', fn (Builder $q) => $q->whereHas('orders', fn (Builder $q) => $q->where('orders.id', $orderId))) // @phpstan-ignore argument.templateType
+        return InvoiceItem::whereHas('invoice', fn (Builder $q) => $q->whereHas('orders', fn (Builder $q) => $q->where('orders.id', $orderId)))
             ->orderByDesc('id')
             ->value('agents');
     }

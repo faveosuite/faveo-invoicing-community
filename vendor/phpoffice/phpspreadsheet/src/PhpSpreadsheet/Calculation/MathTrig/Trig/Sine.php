@@ -17,11 +17,11 @@ class Sine
      *
      * @param mixed $angle Should be numeric, or can be an array of numbers
      *
-     * @return array|float|string sine
+     * @return array<mixed>|float|string sine
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */
-    public static function sin($angle)
+    public static function sin(mixed $angle): array|string|float
     {
         if (is_array($angle)) {
             return self::evaluateSingleArgumentArray([self::class, __FUNCTION__], $angle);
@@ -43,11 +43,11 @@ class Sine
      *
      * @param mixed $angle Should be numeric, or can be an array of numbers
      *
-     * @return array|float|string hyperbolic sine
+     * @return array<mixed>|float|string hyperbolic sine
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */
-    public static function sinh($angle)
+    public static function sinh(mixed $angle): array|string|float
     {
         if (is_array($angle)) {
             return self::evaluateSingleArgumentArray([self::class, __FUNCTION__], $angle);
@@ -67,9 +67,9 @@ class Sine
      *
      * Returns the arcsine of a number.
      *
-     * @param array|float $number Number, or can be an array of numbers
+     * @param array<mixed>|float $number Number, or can be an array of numbers
      *
-     * @return array|float|string The arcsine of the number
+     * @return array<mixed>|float|string The arcsine of the number
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */
@@ -93,9 +93,9 @@ class Sine
      *
      * Returns the inverse hyperbolic sine of a number.
      *
-     * @param array|float $number Number, or can be an array of numbers
+     * @param array<mixed>|float $number Number, or can be an array of numbers
      *
-     * @return array|float|string The inverse hyperbolic sine of the number
+     * @return array<mixed>|float|string The inverse hyperbolic sine of the number
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */

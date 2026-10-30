@@ -7,9 +7,7 @@ use Exception;
 
 class BillingDependencyController extends Controller
 {
-    public function __construct(private mixed $extensionCheckFrom)
-    {
-    }
+    public function __construct(private mixed $extensionCheckFrom) {}
 
     public function validateDirectory(string $basePath, int &$errorCount): mixed
     {

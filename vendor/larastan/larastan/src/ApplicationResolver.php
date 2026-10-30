@@ -61,6 +61,7 @@ final class ApplicationResolver
     {
         /** @var non-empty-string $workingPath */
         $workingPath = getcwd();
+
         if (! defined('TESTBENCH_WORKING_PATH')) {
             define('TESTBENCH_WORKING_PATH', $workingPath);
         }
@@ -76,7 +77,7 @@ final class ApplicationResolver
         $resolvingCallback = static function ($app): void {
             $packageManifest = $app->make(PackageManifest::class);
 
-            if (file_exists($packageManifest->manifestPath)) {
+            if ($packageManifest->manifestPath === null || file_exists($packageManifest->manifestPath)) {
                 return;
             }
 

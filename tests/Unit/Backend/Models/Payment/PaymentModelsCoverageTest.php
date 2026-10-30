@@ -19,6 +19,7 @@ use App\Model\Payment\TaxRateLocation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Tests\TestCase;
 
 class PaymentModelsCoverageTest extends TestCase
@@ -29,19 +30,19 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_period_table_is_periods(): void
     {
-        $this->assertSame('periods', (new Period())->getTable());
+        $this->assertSame('periods', new Period()->getTable());
     }
 
     public function test_period_fillable_contains_expected_fields(): void
     {
-        $fillable = (new Period())->getFillable();
+        $fillable = new Period()->getFillable();
         $this->assertContains('name', $fillable);
         $this->assertContains('days', $fillable);
     }
 
     public function test_period_plans_relation_is_belongs_to_many(): void
     {
-        $this->assertInstanceOf(BelongsToMany::class, (new Period())->plans());
+        $this->assertInstanceOf(BelongsToMany::class, new Period()->plans());
     }
 
     // =========================================================================
@@ -50,12 +51,12 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_plan_price_table_is_plan_prices(): void
     {
-        $this->assertSame('plan_prices', (new PlanPrice())->getTable());
+        $this->assertSame('plan_prices', new PlanPrice()->getTable());
     }
 
     public function test_plan_price_fillable_contains_expected_fields(): void
     {
-        $fillable = (new PlanPrice())->getFillable();
+        $fillable = new PlanPrice()->getFillable();
         $this->assertContains('plan_id', $fillable);
         $this->assertContains('currency', $fillable);
         $this->assertContains('add_price', $fillable);
@@ -69,12 +70,12 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_tax_option_table_is_tax_rules(): void
     {
-        $this->assertSame('tax_rules', (new TaxOption())->getTable());
+        $this->assertSame('tax_rules', new TaxOption()->getTable());
     }
 
     public function test_tax_option_fillable_contains_expected_fields(): void
     {
-        $fillable = (new TaxOption())->getFillable();
+        $fillable = new TaxOption()->getFillable();
         $this->assertContains('tax_enable', $fillable);
         $this->assertContains('inclusive', $fillable);
         $this->assertContains('rounding', $fillable);
@@ -86,24 +87,24 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_tax_product_relation_table_is_tax_product_relations(): void
     {
-        $this->assertSame('tax_product_relations', (new TaxProductRelation())->getTable());
+        $this->assertSame('tax_product_relations', new TaxProductRelation()->getTable());
     }
 
     public function test_tax_product_relation_fillable_contains_expected_fields(): void
     {
-        $fillable = (new TaxProductRelation())->getFillable();
+        $fillable = new TaxProductRelation()->getFillable();
         $this->assertContains('product_id', $fillable);
         $this->assertContains('tax_class_id', $fillable);
     }
 
     public function test_tax_product_relation_tax_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new TaxProductRelation())->tax());
+        $this->assertInstanceOf(BelongsTo::class, new TaxProductRelation()->tax());
     }
 
     public function test_tax_product_relation_product_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new TaxProductRelation())->product());
+        $this->assertInstanceOf(HasMany::class, new TaxProductRelation()->product());
     }
 
     // =========================================================================
@@ -112,23 +113,23 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_tax_class_table_is_tax_classes(): void
     {
-        $this->assertSame('tax_classes', (new TaxClass())->getTable());
+        $this->assertSame('tax_classes', new TaxClass()->getTable());
     }
 
     public function test_tax_class_fillable_contains_name(): void
     {
-        $fillable = (new TaxClass())->getFillable();
+        $fillable = new TaxClass()->getFillable();
         $this->assertContains('name', $fillable);
     }
 
     public function test_tax_class_tax_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new TaxClass())->tax());
+        $this->assertInstanceOf(HasMany::class, new TaxClass()->tax());
     }
 
     public function test_tax_class_tax_product_relation_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new TaxClass())->tax_product_relation());
+        $this->assertInstanceOf(HasMany::class, new TaxClass()->tax_product_relation());
     }
 
     // =========================================================================
@@ -137,12 +138,12 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_plan_table_is_plans(): void
     {
-        $this->assertSame('plans', (new Plan())->getTable());
+        $this->assertSame('plans', new Plan()->getTable());
     }
 
     public function test_plan_fillable_contains_expected_fields(): void
     {
-        $fillable = (new Plan())->getFillable();
+        $fillable = new Plan()->getFillable();
         $this->assertContains('name', $fillable);
         $this->assertContains('product', $fillable);
         $this->assertContains('allow_tax', $fillable);
@@ -152,22 +153,22 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_plan_plan_price_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Plan())->planPrice());
+        $this->assertInstanceOf(HasMany::class, new Plan()->planPrice());
     }
 
     public function test_plan_product_relation_is_belongs_to(): void
     {
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, (new Plan())->productRelation());
+        $this->assertInstanceOf(BelongsTo::class, new Plan()->productRelation());
     }
 
     public function test_plan_periods_is_belongs_to_many(): void
     {
-        $this->assertInstanceOf(BelongsToMany::class, (new Plan())->periods());
+        $this->assertInstanceOf(BelongsToMany::class, new Plan()->periods());
     }
 
     public function test_plan_config_options_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Plan())->configOptions());
+        $this->assertInstanceOf(HasMany::class, new Plan()->configOptions());
     }
 
     // =========================================================================
@@ -176,12 +177,12 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_promotion_table_is_promotions(): void
     {
-        $this->assertSame('promotions', (new Promotion())->getTable());
+        $this->assertSame('promotions', new Promotion()->getTable());
     }
 
     public function test_promotion_fillable_contains_expected_fields(): void
     {
-        $fillable = (new Promotion())->getFillable();
+        $fillable = new Promotion()->getFillable();
         $this->assertContains('code', $fillable);
         $this->assertContains('type', $fillable);
         $this->assertContains('uses', $fillable);
@@ -192,7 +193,7 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_promotion_relation_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Promotion())->relation());
+        $this->assertInstanceOf(HasMany::class, new Promotion()->relation());
     }
 
     // =========================================================================
@@ -201,12 +202,12 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_tax_table_is_taxes(): void
     {
-        $this->assertSame('taxes', (new Tax())->getTable());
+        $this->assertSame('taxes', new Tax()->getTable());
     }
 
     public function test_tax_fillable_contains_expected_fields(): void
     {
-        $fillable = (new Tax())->getFillable();
+        $fillable = new Tax()->getFillable();
         $this->assertContains('level', $fillable);
         $this->assertContains('name', $fillable);
         $this->assertContains('country', $fillable);
@@ -219,12 +220,12 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_tax_tax_class_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new Tax())->taxClass());
+        $this->assertInstanceOf(BelongsTo::class, new Tax()->taxClass());
     }
 
     public function test_tax_tax_class_uses_tax_classes_id_fk(): void
     {
-        $relation = (new Tax())->taxClass();
+        $relation = new Tax()->taxClass();
         $this->assertSame('tax_classes_id', $relation->getForeignKeyName());
     }
 
@@ -234,12 +235,12 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_currency_table_is_currencies(): void
     {
-        $this->assertSame('currencies', (new Currency())->getTable());
+        $this->assertSame('currencies', new Currency()->getTable());
     }
 
     public function test_currency_fillable_contains_expected_fields(): void
     {
-        $fillable = (new Currency())->getFillable();
+        $fillable = new Currency()->getFillable();
         $this->assertContains('code', $fillable);
         $this->assertContains('symbol', $fillable);
         $this->assertContains('name', $fillable);
@@ -248,24 +249,24 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_currency_country_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Currency())->country());
+        $this->assertInstanceOf(HasMany::class, new Currency()->country());
     }
 
     public function test_currency_country_relation_uses_currency_id_foreign_key(): void
     {
-        $relation = (new Currency())->country();
+        $relation = new Currency()->country();
         $this->assertSame('currency_id', $relation->getForeignKeyName());
     }
 
     public function test_currency_country_relation_related_class_is_country(): void
     {
-        $relation = (new Currency())->country();
+        $relation = new Currency()->country();
         $this->assertInstanceOf(Country::class, $relation->getRelated());
     }
 
     public function test_currency_get_mappings_returns_array_with_expected_keys(): void
     {
-        $model = new Currency();
+        $model = new Currency;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertIsArray($mappings);
@@ -281,12 +282,12 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_plan_price_plan_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new PlanPrice())->plan());
+        $this->assertInstanceOf(BelongsTo::class, new PlanPrice()->plan());
     }
 
     public function test_plan_price_get_mappings_returns_expected_keys(): void
     {
-        $model = new PlanPrice();
+        $model = new PlanPrice;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertIsArray($mappings);
@@ -303,7 +304,7 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_tax_option_get_mappings_returns_expected_keys(): void
     {
-        $model = new TaxOption();
+        $model = new TaxOption;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertIsArray($mappings);
@@ -319,12 +320,12 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_tax_rate_location_table_is_tax_rate_locations(): void
     {
-        $this->assertSame('tax_rate_locations', (new TaxRateLocation())->getTable());
+        $this->assertSame('tax_rate_locations', new TaxRateLocation()->getTable());
     }
 
     public function test_tax_rate_location_fillable_contains_expected_fields(): void
     {
-        $fillable = (new TaxRateLocation())->getFillable();
+        $fillable = new TaxRateLocation()->getFillable();
         $this->assertContains('tax_rate_id', $fillable);
         $this->assertContains('location_code', $fillable);
         $this->assertContains('location_type', $fillable);
@@ -332,7 +333,7 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_tax_rate_location_tax_rate_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new TaxRateLocation())->taxRate());
+        $this->assertInstanceOf(BelongsTo::class, new TaxRateLocation()->taxRate());
     }
 
     // =========================================================================
@@ -341,12 +342,12 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_tax_rate_table_is_tax_rates(): void
     {
-        $this->assertSame('tax_rates', (new TaxRate())->getTable());
+        $this->assertSame('tax_rates', new TaxRate()->getTable());
     }
 
     public function test_tax_rate_fillable_contains_expected_fields(): void
     {
-        $fillable = (new TaxRate())->getFillable();
+        $fillable = new TaxRate()->getFillable();
         $this->assertContains('name', $fillable);
         $this->assertContains('country', $fillable);
         $this->assertContains('rate', $fillable);
@@ -355,7 +356,7 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_tax_rate_get_mappings_returns_expected_keys(): void
     {
-        $model = new TaxRate();
+        $model = new TaxRate;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertIsArray($mappings);
@@ -368,17 +369,17 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_tax_rate_locations_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new TaxRate())->locations());
+        $this->assertInstanceOf(HasMany::class, new TaxRate()->locations());
     }
 
     public function test_tax_rate_tax_class_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new TaxRate())->taxClass());
+        $this->assertInstanceOf(BelongsTo::class, new TaxRate()->taxClass());
     }
 
     public function test_tax_rate_casts_contains_expected_keys(): void
     {
-        $casts = (new TaxRate())->getCasts();
+        $casts = new TaxRate()->getCasts();
         $this->assertArrayHasKey('rate', $casts);
         $this->assertArrayHasKey('compound', $casts);
         $this->assertArrayHasKey('active', $casts);
@@ -390,7 +391,7 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_tax_class_get_mappings_returns_expected_keys(): void
     {
-        $model = new TaxClass();
+        $model = new TaxClass;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertIsArray($mappings);
@@ -400,7 +401,7 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_tax_class_rates_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new TaxClass())->rates());
+        $this->assertInstanceOf(HasMany::class, new TaxClass()->rates());
     }
 
     // =========================================================================
@@ -409,7 +410,7 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_plan_get_mappings_returns_expected_keys(): void
     {
-        $model = new Plan();
+        $model = new Plan;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertIsArray($mappings);
@@ -436,7 +437,7 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_promotion_get_mappings_returns_expected_keys(): void
     {
-        $model = new Promotion();
+        $model = new Promotion;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertIsArray($mappings);
@@ -448,14 +449,14 @@ class PaymentModelsCoverageTest extends TestCase
 
     public function test_promotion_promotion_type_is_belongs_to(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new Promotion())->promotionType());
+        $this->assertInstanceOf(BelongsTo::class, new Promotion()->promotionType());
     }
 
     public function test_promotion_products_is_has_one_through(): void
     {
         $this->assertInstanceOf(
-            \Illuminate\Database\Eloquent\Relations\HasOneThrough::class,
-            (new Promotion())->products()
+            HasOneThrough::class,
+            new Promotion()->products()
         );
     }
 }

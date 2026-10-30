@@ -72,6 +72,7 @@ class UpdateLeadRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'person_id' => 'int',
         'organization_id' => 'int',
         'is_archived' => 'bool',
+        'archive_reason' => 'string',
         'value' => '\Pipedrive\versions\v1\Model\LeadValue',
         'expected_close_date' => '\DateTime',
         'visible_to' => '\Pipedrive\versions\v1\Model\VisibleTo',
@@ -94,6 +95,7 @@ class UpdateLeadRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'person_id' => null,
         'organization_id' => null,
         'is_archived' => null,
+        'archive_reason' => null,
         'value' => null,
         'expected_close_date' => 'date',
         'visible_to' => null,
@@ -139,6 +141,7 @@ class UpdateLeadRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'person_id' => 'person_id',
         'organization_id' => 'organization_id',
         'is_archived' => 'is_archived',
+        'archive_reason' => 'archive_reason',
         'value' => 'value',
         'expected_close_date' => 'expected_close_date',
         'visible_to' => 'visible_to',
@@ -159,6 +162,7 @@ class UpdateLeadRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'person_id' => 'setPersonId',
         'organization_id' => 'setOrganizationId',
         'is_archived' => 'setIsArchived',
+        'archive_reason' => 'setArchiveReason',
         'value' => 'setValue',
         'expected_close_date' => 'setExpectedCloseDate',
         'visible_to' => 'setVisibleTo',
@@ -179,6 +183,7 @@ class UpdateLeadRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'person_id' => 'getPersonId',
         'organization_id' => 'getOrganizationId',
         'is_archived' => 'getIsArchived',
+        'archive_reason' => 'getArchiveReason',
         'value' => 'getValue',
         'expected_close_date' => 'getExpectedCloseDate',
         'visible_to' => 'getVisibleTo',
@@ -260,6 +265,7 @@ class UpdateLeadRequest implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['person_id'] = $data['person_id'] ?? null;
         $this->container['organization_id'] = $data['organization_id'] ?? null;
         $this->container['is_archived'] = $data['is_archived'] ?? null;
+        $this->container['archive_reason'] = $data['archive_reason'] ?? null;
         $this->container['value'] = $data['value'] ?? null;
         $this->container['expected_close_date'] = $data['expected_close_date'] ?? null;
         $this->container['visible_to'] = $data['visible_to'] ?? null;
@@ -434,6 +440,30 @@ class UpdateLeadRequest implements ModelInterface, ArrayAccess, JsonSerializable
     public function setIsArchived($is_archived): self
     {
         $this->container['is_archived'] = $is_archived;
+
+        return $this;
+    }
+
+    /**
+     * Gets archive_reason
+     *
+     * @return string|null
+     */
+    public function getArchiveReason()
+    {
+        return $this->container['archive_reason'];
+    }
+
+    /**
+     * Sets archive_reason
+     *
+     * @param string|null $archive_reason The reason for archiving the lead. Can only be provided when `is_archived` is being set to `true` in the same request, or when updating a lead that's already archived — providing it otherwise will return a 400 error. Automatically cleared when the lead is unarchived. If archiving with a reason is required for your company, archiving a lead without providing one will also return a 400 error.
+     *
+     * @return self
+     */
+    public function setArchiveReason($archive_reason): self
+    {
+        $this->container['archive_reason'] = $archive_reason;
 
         return $this;
     }

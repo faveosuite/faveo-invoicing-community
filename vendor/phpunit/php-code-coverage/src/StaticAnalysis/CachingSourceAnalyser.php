@@ -18,6 +18,7 @@ use function is_file;
 use function serialize;
 use function unserialize;
 use SebastianBergmann\CodeCoverage\Util\Filesystem;
+use SebastianBergmann\CodeCoverage\Util\PhpParserVersion;
 use SebastianBergmann\CodeCoverage\Version;
 
 /**
@@ -27,6 +28,17 @@ use SebastianBergmann\CodeCoverage\Version;
  */
 final class CachingSourceAnalyser implements SourceAnalyser
 {
+    /**
+     * Version of the on-disk format of the serialized AnalysisResult objects.
+     *
+     * This must be incremented whenever the shape of AnalysisResult (or a value
+     * object it aggregates) changes, so that cache entries written by a build
+     * that reports the same Version::id() (for instance two snapshots of the
+     * same development branch installed without git metadata) cannot be
+     * misread after such a change.
+     */
+    private const int CACHE_FORMAT_VERSION = 3;
+
     /**
      * @var non-empty-string
      */
@@ -82,7 +94,15 @@ final class CachingSourceAnalyser implements SourceAnalyser
             $ignoreDeprecatedCode,
         );
 
-        $this->write($cacheFile, $analysisResult);
+        // A degraded analysis result for a file that could not be parsed is
+        // only cached when the version of PHP-Parser is exactly known: the
+        // version is part of the cache key, so a PHP-Parser upgrade that adds
+        // support for the syntax that could not be parsed invalidates the
+        // cache entry. When the version is not exactly known, a cached
+        // degraded result could outlive such an upgrade.
+        if ($analysisResult->wasParsed() || PhpParserVersion::isExact()) {
+            $this->write($cacheFile, $analysisResult);
+        }
 
         return $analysisResult;
     }
@@ -163,6 +183,8 @@ final class CachingSourceAnalyser implements SourceAnalyser
                 [
                     $source,
                     Version::id(),
+                    self::CACHE_FORMAT_VERSION,
+                    PhpParserVersion::id(),
                     $useAnnotationsForIgnoringCode,
                     $ignoreDeprecatedCode,
                 ],

@@ -3,6 +3,7 @@
 namespace App\License\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Override;
 use RuntimeException;
 
@@ -10,8 +11,8 @@ use RuntimeException;
  * @property int $id
  * @property string $public_key
  * @property string $secret_key
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseSigningKey newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseSigningKey newQuery()

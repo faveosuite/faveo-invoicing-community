@@ -14,12 +14,12 @@ class FrontModelsTest extends TestCase
 
     public function test_widgets_table_name(): void
     {
-        $this->assertSame('widgets', (new Widgets())->getTable());
+        $this->assertSame('widgets', new Widgets()->getTable());
     }
 
     public function test_widgets_fillable(): void
     {
-        $model = new Widgets();
+        $model = new Widgets;
         $this->assertContains('name', $model->getFillable());
         $this->assertContains('type', $model->getFillable());
         $this->assertContains('publish', $model->getFillable());
@@ -31,7 +31,7 @@ class FrontModelsTest extends TestCase
 
     public function test_widgets_get_mappings(): void
     {
-        $model = new Widgets();
+        $model = new Widgets;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertArrayHasKey('name', $mappings);
@@ -41,7 +41,7 @@ class FrontModelsTest extends TestCase
 
     public function test_widgets_mapping_active_inactive_callbacks(): void
     {
-        $model = new Widgets();
+        $model = new Widgets;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $active = $mappings['publish'][1](1);
@@ -54,12 +54,12 @@ class FrontModelsTest extends TestCase
 
     public function test_frontend_page_table_name(): void
     {
-        $this->assertSame('frontend_pages', (new FrontendPage())->getTable());
+        $this->assertSame('frontend_pages', new FrontendPage()->getTable());
     }
 
     public function test_frontend_page_fillable(): void
     {
-        $model = new FrontendPage();
+        $model = new FrontendPage;
         $this->assertContains('parent_page_id', $model->getFillable());
         $this->assertContains('slug', $model->getFillable());
         $this->assertContains('name', $model->getFillable());
@@ -71,7 +71,7 @@ class FrontModelsTest extends TestCase
 
     public function test_frontend_page_get_mappings(): void
     {
-        $model = new FrontendPage();
+        $model = new FrontendPage;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $this->assertArrayHasKey('slug', $mappings);
@@ -81,14 +81,14 @@ class FrontModelsTest extends TestCase
 
     public function test_frontend_page_slug_mutator_strips_spaces(): void
     {
-        $model = new FrontendPage();
+        $model = new FrontendPage;
         $model->slug = 'hello world';
         $this->assertSame('helloworld', $model->getAttributes()['slug']);
     }
 
     public function test_frontend_page_mapping_publish_callbacks(): void
     {
-        $model = new FrontendPage();
+        $model = new FrontendPage;
         $ref = new \ReflectionMethod($model, 'getMappings');
         $mappings = $ref->invoke($model);
         $active = $mappings['publish'][1](1);

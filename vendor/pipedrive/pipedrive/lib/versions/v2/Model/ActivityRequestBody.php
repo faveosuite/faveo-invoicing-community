@@ -71,7 +71,6 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
         'owner_id' => 'int',
         'deal_id' => 'int',
         'lead_id' => 'string',
-        'person_id' => 'int',
         'org_id' => 'int',
         'project_id' => 'int',
         'due_date' => 'string',
@@ -79,11 +78,12 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
         'duration' => 'string',
         'busy' => 'bool',
         'done' => 'bool',
-        'location' => '\Pipedrive\versions\v2\Model\ActivityItemLocation',
+        'location' => '\Pipedrive\versions\v2\Model\ActivityRequestBodyLocation',
         'participants' => '\Pipedrive\versions\v2\Model\ActivityItemParticipants[]',
         'attendees' => '\Pipedrive\versions\v2\Model\ActivityItemAttendees[]',
         'public_description' => 'string',
         'priority' => 'int',
+        'outcome' => 'int',
         'note' => 'string'
     ];
 
@@ -100,7 +100,6 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
         'owner_id' => null,
         'deal_id' => null,
         'lead_id' => null,
-        'person_id' => null,
         'org_id' => null,
         'project_id' => null,
         'due_date' => null,
@@ -113,6 +112,7 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
         'attendees' => null,
         'public_description' => null,
         'priority' => null,
+        'outcome' => null,
         'note' => null
     ];
 
@@ -152,7 +152,6 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
         'owner_id' => 'owner_id',
         'deal_id' => 'deal_id',
         'lead_id' => 'lead_id',
-        'person_id' => 'person_id',
         'org_id' => 'org_id',
         'project_id' => 'project_id',
         'due_date' => 'due_date',
@@ -165,6 +164,7 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
         'attendees' => 'attendees',
         'public_description' => 'public_description',
         'priority' => 'priority',
+        'outcome' => 'outcome',
         'note' => 'note'
     ];
 
@@ -179,7 +179,6 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
         'owner_id' => 'setOwnerId',
         'deal_id' => 'setDealId',
         'lead_id' => 'setLeadId',
-        'person_id' => 'setPersonId',
         'org_id' => 'setOrgId',
         'project_id' => 'setProjectId',
         'due_date' => 'setDueDate',
@@ -192,6 +191,7 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
         'attendees' => 'setAttendees',
         'public_description' => 'setPublicDescription',
         'priority' => 'setPriority',
+        'outcome' => 'setOutcome',
         'note' => 'setNote'
     ];
 
@@ -206,7 +206,6 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
         'owner_id' => 'getOwnerId',
         'deal_id' => 'getDealId',
         'lead_id' => 'getLeadId',
-        'person_id' => 'getPersonId',
         'org_id' => 'getOrgId',
         'project_id' => 'getProjectId',
         'due_date' => 'getDueDate',
@@ -219,6 +218,7 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
         'attendees' => 'getAttendees',
         'public_description' => 'getPublicDescription',
         'priority' => 'getPriority',
+        'outcome' => 'getOutcome',
         'note' => 'getNote'
     ];
 
@@ -294,7 +294,6 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
         $this->container['owner_id'] = $data['owner_id'] ?? null;
         $this->container['deal_id'] = $data['deal_id'] ?? null;
         $this->container['lead_id'] = $data['lead_id'] ?? null;
-        $this->container['person_id'] = $data['person_id'] ?? null;
         $this->container['org_id'] = $data['org_id'] ?? null;
         $this->container['project_id'] = $data['project_id'] ?? null;
         $this->container['due_date'] = $data['due_date'] ?? null;
@@ -307,6 +306,7 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
         $this->container['attendees'] = $data['attendees'] ?? null;
         $this->container['public_description'] = $data['public_description'] ?? null;
         $this->container['priority'] = $data['priority'] ?? null;
+        $this->container['outcome'] = $data['outcome'] ?? null;
         $this->container['note'] = $data['note'] ?? null;
     }
 
@@ -452,30 +452,6 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
     public function setLeadId($lead_id): self
     {
         $this->container['lead_id'] = $lead_id;
-
-        return $this;
-    }
-
-    /**
-     * Gets person_id
-     *
-     * @return int|null
-     */
-    public function getPersonId()
-    {
-        return $this->container['person_id'];
-    }
-
-    /**
-     * Sets person_id
-     *
-     * @param int|null $person_id The ID of the person linked to the activity
-     *
-     * @return self
-     */
-    public function setPersonId($person_id): self
-    {
-        $this->container['person_id'] = $person_id;
 
         return $this;
     }
@@ -651,7 +627,7 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Gets location
      *
-     * @return \Pipedrive\versions\v2\Model\ActivityItemLocation|null
+     * @return \Pipedrive\versions\v2\Model\ActivityRequestBodyLocation|null
      */
     public function getLocation()
     {
@@ -661,7 +637,7 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets location
      *
-     * @param \Pipedrive\versions\v2\Model\ActivityItemLocation|null $location location
+     * @param \Pipedrive\versions\v2\Model\ActivityRequestBodyLocation|null $location location
      *
      * @return self
      */
@@ -685,7 +661,7 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets participants
      *
-     * @param \Pipedrive\versions\v2\Model\ActivityItemParticipants[]|null $participants The participants of the activity
+     * @param \Pipedrive\versions\v2\Model\ActivityItemParticipants[]|null $participants The participants of the activity. Use this to set the activity's person — a primary participant (`primary: true`) sets `person_id` on the activity.
      *
      * @return self
      */
@@ -764,6 +740,30 @@ class ActivityRequestBody implements ModelInterface, ArrayAccess, JsonSerializab
     public function setPriority($priority): self
     {
         $this->container['priority'] = $priority;
+
+        return $this;
+    }
+
+    /**
+     * Gets outcome
+     *
+     * @return int|null
+     */
+    public function getOutcome()
+    {
+        return $this->container['outcome'];
+    }
+
+    /**
+     * Sets outcome
+     *
+     * @param int|null $outcome The ID of the Outcome for the activity. The available Outcome values depend on the activity type and can be retrieved using the Activity Fields API. Set to `null` to clear the Outcome.
+     *
+     * @return self
+     */
+    public function setOutcome($outcome): self
+    {
+        $this->container['outcome'] = $outcome;
 
         return $this;
     }

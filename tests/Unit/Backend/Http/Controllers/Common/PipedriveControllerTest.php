@@ -5,6 +5,7 @@ namespace Tests\Unit\Backend\Http\Controllers\Common;
 use App\ApiKey;
 use App\Http\Controllers\Common\PipedriveController;
 use App\Model\Common\PipedriveField;
+use App\Model\Common\PipedriveFieldOption;
 use App\Model\Common\PipedriveGroups;
 use App\Model\Common\PipedriveLocalFields;
 use App\Model\Common\StatusSetting;
@@ -12,6 +13,7 @@ use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Mockery;
+use Mockery\MockInterface;
 use ReflectionClass;
 use Tests\DBTestCase;
 
@@ -309,7 +311,7 @@ class PipedriveControllerTest extends DBTestCase
     /**
      * A partial mock with real group ids and every outbound Pipedrive call stubbed.
      *
-     * @return array{0: \Mockery\MockInterface&PipedriveController, 1: User}
+     * @return array{0: MockInterface&PipedriveController, 1: User}
      */
     private function syncFixture(bool $mapOrganization = true): array
     {
@@ -324,7 +326,7 @@ class PipedriveControllerTest extends DBTestCase
         }
 
         $mock = Mockery::mock(PipedriveController::class)->makePartial()->shouldAllowMockingProtectedMethods();
-        (new ReflectionClass(PipedriveController::class))->getProperty('groups')->setValue($mock, [
+        new ReflectionClass(PipedriveController::class)->getProperty('groups')->setValue($mock, [
             'personId' => $groups['Person'], 'organizationId' => $groups['Organization'], 'dealId' => $groups['Deal'],
         ]);
 
@@ -350,7 +352,7 @@ class PipedriveControllerTest extends DBTestCase
                 return ['id' => 20];
             }
         });
-        $clients = (new ReflectionClass(PipedriveController::class))->getProperty('apiClients');
+        $clients = new ReflectionClass(PipedriveController::class)->getProperty('apiClients');
         $clients->setValue($mock, ['persons' => $persons] + (array) $clients->getValue($mock));
 
         $this->assertSame(['Organization', 'Person'], $mock->syncUser($user));
@@ -393,7 +395,7 @@ class PipedriveControllerTest extends DBTestCase
     public function test_send_test_says_so_when_nothing_is_mapped(): void
     {
         PipedriveField::query()->update(['local_field_id' => null]);
-        \App\Model\Common\PipedriveFieldOption::query()->update(['status' => 0]);
+        PipedriveFieldOption::query()->update(['status' => 0]);
 
         $mock = Mockery::mock(PipedriveController::class)->makePartial();
         $mock->shouldNotReceive('syncUser');
@@ -403,7 +405,7 @@ class PipedriveControllerTest extends DBTestCase
 
     public function test_send_test_reports_what_was_sent_or_why_it_failed(): void
     {
-        app('translator')->addLines(['message.pipedrive_test_sent' => 'Sent :modules', 'message.pipedrive_test_failed' => 'Rejected: :reason'], 'en');
+        resolve('translator')->addLines(['message.pipedrive_test_sent' => 'Sent :modules', 'message.pipedrive_test_failed' => 'Rejected: :reason'], 'en');
 
         [$mock] = $this->syncFixture();
         $mock->shouldReceive('syncUser')->once()->andReturn(['Person', 'Deal']);
@@ -436,7 +438,7 @@ class PipedriveControllerTest extends DBTestCase
 
     public function test_mapping_requires_the_fields_pipedrive_requires(): void
     {
-        app('translator')->addLines(['message.pipedrive_required_missing' => 'Missing: :fields'], 'en');
+        resolve('translator')->addLines(['message.pipedrive_required_missing' => 'Missing: :fields'], 'en');
 
         $person = PipedriveGroups::where('group_name', 'Person')->first();
         PipedriveField::create(['pipedrive_group_id' => $person->id, 'field_key' => 'name', 'field_name' => 'Name']);
@@ -467,7 +469,7 @@ class PipedriveControllerTest extends DBTestCase
             'select2' => [['id' => $local->id, 'faveo_fields' => true]],
         ]));
 
-        $this->assertTrue($response->getData(true)['success']);
+        $this->assertTrue($response->getData(assoc: true)['success']);
         $this->assertSame($local->id, $name->refresh()->local_field_id);
     }
 
@@ -488,7 +490,7 @@ class PipedriveControllerTest extends DBTestCase
     {
         $mock = Mockery::mock(PipedriveController::class)->makePartial();
         // Same rows the tests look up with first() (the test DB may hold older group rows too).
-        (new ReflectionClass(PipedriveController::class))->getProperty('groups')->setValue($mock, collect(['Person', 'Organization', 'Deal'])
+        new ReflectionClass(PipedriveController::class)->getProperty('groups')->setValue($mock, collect(['Person', 'Organization', 'Deal'])
             ->mapWithKeys(fn ($group): array => [lcfirst($group).'Id' => PipedriveGroups::where('group_name', $group)->first()->id])->all());
         $mock->shouldReceive('addOrGetOrganization')->andReturn($orgResult);
         $mock->shouldReceive('deleteOrganization')->andReturn(true);
@@ -504,9 +506,9 @@ class PipedriveControllerTest extends DBTestCase
         $local = PipedriveLocalFields::firstOrCreate(['field_key' => 'company'], ['field_name' => 'Company']);
         $other = PipedriveLocalFields::firstOrCreate(['field_key' => 'email'], ['field_name' => 'Email']);
         $size = PipedriveField::create(['pipedrive_group_id' => $org->id, 'field_key' => 'size', 'field_name' => 'Size', 'local_field_id' => $other->id]);
-        $small = \App\Model\Common\PipedriveFieldOption::create(['pipedrive_field_id' => $size->id, 'key' => 's', 'value' => 'Small', 'status' => 0]);
-        $big = \App\Model\Common\PipedriveFieldOption::create(['pipedrive_field_id' => $size->id, 'key' => 'b', 'value' => 'Big', 'status' => 0]);
-        $huge = \App\Model\Common\PipedriveFieldOption::create(['pipedrive_field_id' => $size->id, 'key' => 'h', 'value' => 'Huge', 'status' => 1]);
+        $small = PipedriveFieldOption::create(['pipedrive_field_id' => $size->id, 'key' => 's', 'value' => 'Small', 'status' => 0]);
+        $big = PipedriveFieldOption::create(['pipedrive_field_id' => $size->id, 'key' => 'b', 'value' => 'Big', 'status' => 0]);
+        $huge = PipedriveFieldOption::create(['pipedrive_field_id' => $size->id, 'key' => 'h', 'value' => 'Huge', 'status' => 1]);
 
         $response = $this->orgRoundTrip(55)->mappingFields(new Request([
             'group_id' => $org->id,
@@ -514,7 +516,7 @@ class PipedriveControllerTest extends DBTestCase
             'select2' => [['id' => $local->id, 'faveo_fields' => 'true'], ['id' => [$small->id, $big->id], 'faveo_fields' => false]],
         ]));
 
-        $this->assertTrue($response->getData(true)['success']);
+        $this->assertTrue($response->getData(assoc: true)['success']);
         $this->assertSame($local->id, $name->refresh()->local_field_id);
         $this->assertSame($other->id, $size->refresh()->local_field_id); // an option row doesn't touch the field's own mapping
         $this->assertSame([1, 1, 0], [$small->refresh()->status, $big->refresh()->status, $huge->refresh()->status]);
@@ -549,7 +551,7 @@ class PipedriveControllerTest extends DBTestCase
             'select2' => [['id' => $local->id, 'faveo_fields' => true]],
         ]));
 
-        $this->assertSame(['success' => false, 'message' => 'Name is required'], array_intersect_key($response->getData(true), ['success' => 1, 'message' => 1]));
+        $this->assertSame(['success' => false, 'message' => 'Name is required'], array_intersect_key($response->getData(assoc: true), ['success' => 1, 'message' => 1]));
         $this->assertSame($before->id, $name->refresh()->local_field_id);
     }
 

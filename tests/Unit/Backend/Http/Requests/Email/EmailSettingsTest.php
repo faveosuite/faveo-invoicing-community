@@ -20,13 +20,14 @@ class EmailSettingsTest extends TestCase
 
     public function test_authorize_returns_true(): void
     {
-        $this->assertTrue((new EmailSettingRequest())->authorize());
+        $this->assertTrue(new EmailSettingRequest()->authorize());
     }
 
     public function test_smtp_driver_rules_require_port_and_host(): void
     {
-        $request = new EmailSettingRequest();
+        $request = new EmailSettingRequest;
         $request->merge(['driver' => 'smtp']);
+
         $rules = $request->rules();
 
         $validator = Validator::make(['driver' => 'smtp', 'password' => 'secret'], $rules);
@@ -39,6 +40,7 @@ class EmailSettingsTest extends TestCase
     {
         $request = new EmailSettingRequest;
         $request->merge(['driver' => 'sendmail']);
+
         $rules = $request->rules();
 
         $validator = Validator::make(['driver' => 'sendmail'], $rules);
@@ -63,7 +65,7 @@ class EmailSettingsTest extends TestCase
 
     public function test_messages_returns_expected_keys(): void
     {
-        $messages = (new EmailSettingRequest())->messages();
+        $messages = new EmailSettingRequest()->messages();
 
         $this->assertIsArray($messages);
         $this->assertArrayHasKey('driver.required', $messages);

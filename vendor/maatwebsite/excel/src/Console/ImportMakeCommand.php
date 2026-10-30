@@ -3,6 +3,7 @@
 namespace Maatwebsite\Excel\Console;
 
 use Illuminate\Console\GeneratorCommand;
+use Override;
 use Symfony\Component\Console\Input\InputOption;
 
 class ImportMakeCommand extends GeneratorCommand
@@ -32,10 +33,8 @@ class ImportMakeCommand extends GeneratorCommand
 
     /**
      * Get the stub file for the generator.
-     *
-     * @return string
      */
-    protected function getStub()
+    protected function getStub(): string
     {
         return $this->option('model')
             ? $this->resolveStubPath('/stubs/import.model.stub')
@@ -48,6 +47,7 @@ class ImportMakeCommand extends GeneratorCommand
      * @param  string  $rootNamespace
      * @return string
      */
+    #[Override]
     protected function getDefaultNamespace($rootNamespace)
     {
         return $rootNamespace . '\Imports';
@@ -60,6 +60,7 @@ class ImportMakeCommand extends GeneratorCommand
      * @param  string  $name
      * @return string
      */
+    #[Override]
     protected function buildClass($name)
     {
         $replace = [];
@@ -68,15 +69,13 @@ class ImportMakeCommand extends GeneratorCommand
         }
 
         return str_replace(
-            array_keys($replace), array_values($replace), parent::buildClass($name)
+            array_keys($replace),
+            array_values($replace),
+            parent::buildClass($name)
         );
     }
 
-    /**
-     * Get the console command options.
-     *
-     * @return array
-     */
+    #[Override]
     protected function getOptions()
     {
         return [

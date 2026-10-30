@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'captcha_settings' => 'Impostazioni reCAPTCHA',
     'captcha_configuration' => 'Configurazione reCAPTCHA',
@@ -63,8 +65,8 @@ return [
     'captcha_verification_failed' => 'Verifica reCAPTCHA non riuscita (mancata corrispondenza punteggio/azione/nome host)',
     'captcha_version_required' => 'La versione di reCAPTCHA è obbligatoria',
     'captcha_version_in' => 'La versione di reCAPTCHA selezionata non è valida',
-    'failover_action_required' => 'L\'azione di failover è obbligatoria',
-    'failover_action_in' => 'L\'azione di failover selezionata non è valida',
+    'failover_action_required' => "L'azione di failover è obbligatoria",
+    'failover_action_in' => "L'azione di failover selezionata non è valida",
     'score_threshold_numeric' => 'La soglia di punteggio deve essere un numero',
     'score_threshold_min' => 'La soglia di punteggio deve essere almeno 0',
     'score_threshold_max' => 'La soglia di punteggio non deve essere maggiore di 1',

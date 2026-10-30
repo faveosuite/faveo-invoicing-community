@@ -2,7 +2,7 @@
 
 namespace Livewire\Mechanisms\HandleComponents;
 
-use function Livewire\{on, store, trigger, wrap };
+use function Livewire\{on, trigger, wrap };
 use Livewire\Mechanisms\Mechanism;
 use Livewire\Mechanisms\HandleSynths\HandleSynths;
 use Livewire\Exceptions\PublicPropertyNotFoundException;
@@ -10,9 +10,11 @@ use Livewire\Exceptions\MethodNotFoundException;
 use Livewire\Exceptions\MaxNestingDepthExceededException;
 use Livewire\Exceptions\TooManyCallsException;
 use Livewire\Drawer\Utils;
+use Livewire\Features\SupportEvents\SupportEvents;
 use Livewire\Features\SupportFormObjects\Form;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class HandleComponents extends Mechanism
@@ -198,6 +200,7 @@ class HandleComponents extends Mechanism
             if (! is_array($call)
                 || ! is_string($call['method'] ?? null)
                 || ! is_array($call['params'] ?? null)
+                || ! Utils::hasUnambiguousParameterKeys($call['params'])
             ) {
                 if (config('app.debug')) throw new \InvalidArgumentException('Invalid Livewire call structure: each call must contain [method] (string) and [params] (array).');
 
@@ -307,7 +310,7 @@ class HandleComponents extends Mechanism
 
     protected function render($component, $default = null)
     {
-        if ($html = store($component)->get('skipRender', false)) {
+        if ($html = $component->shouldSkipRender()) {
             $html = value(is_string($html) ? $html : $default);
 
             if (! $html) return;
@@ -328,12 +331,14 @@ class HandleComponents extends Mechanism
 
             $viewContext = new ViewContext;
 
-            $html = $view->render(function ($view) use ($viewContext) {
-                // Extract leftover slots, sections, and pushes before they get flushed...
-                $viewContext->extractFromEnvironment($view->getFactory());
-            });
-
-            $revertA(); $revertB();
+            try {
+                $html = $view->render(function ($view) use ($viewContext) {
+                    // Extract leftover slots, sections, and pushes before they get flushed...
+                    $viewContext->extractFromEnvironment($view->getFactory());
+                });
+            } finally {
+                $revertA(); $revertB();
+            }
 
             $html = Utils::insertAttributesIntoHtmlRoot($html, [
                 'wire:id' => $component->getId(),
@@ -379,9 +384,11 @@ class HandleComponents extends Mechanism
     {
         array_push(static::$renderStack, $component);
 
-        return tap($callback(), function () {
+        try {
+            return $callback();
+        } finally {
             array_pop(static::$renderStack);
-        });
+        }
     }
 
     protected function updateProperties($component, $updates, $data, $context)
@@ -414,7 +421,11 @@ class HandleComponents extends Mechanism
         $expanded = [];
 
         foreach ($updates as $path => $value) {
-            if (is_array($value) && property_exists($component, $path) && $component->$path instanceof Form) {
+            if (is_array($value)
+                && property_exists($component, $path)
+                && ! Utils::propertyIsTypedAndUninitialized($component, $path)
+                && $component->$path instanceof Form
+            ) {
                 foreach ($value as $key => $child) {
                     $expanded["{$path}.{$key}"] = $child;
                 }
@@ -449,7 +460,12 @@ class HandleComponents extends Mechanism
         if (empty($segments)) {
             $this->setComponentPropertyAwareOfTypes($component, $property, $value);
         } else {
-            $propertyValue = $component->$property;
+            // An uninitialized typed property has no value to drill into. Start from
+            // an empty structure, like missing nested keys below, so the assignment
+            // runs through the usual typed property handling instead of throwing...
+            $propertyValue = Utils::propertyIsTypedAndUninitialized($component, $property)
+                ? []
+                : $component->$property;
 
             $this->setComponentPropertyAwareOfTypes($component, $property,
                 $this->recursivelySetValue($property, $propertyValue, $value, $segments, 0, $context)
@@ -530,6 +546,7 @@ class HandleComponents extends Mechanism
         }
 
         $returns = [];
+        $shouldSkipRender = $this->shouldSkipRenderAfterCalls($root, $calls);
 
         foreach ($calls as $idx => $call) {
             $method = $call['method'];
@@ -548,16 +565,11 @@ class HandleComponents extends Mechanism
             if ($earlyReturnCalled) {
                 $return = $finish($earlyReturn);
 
-                // File downloads are sent to the browser through the download effect, so we shouldn't add
-                // the response object as a return here. But we need to keep it's position in `returns`
-                // so we will just set it to `null` instead...
-                if ($return instanceof StreamedResponse || $return instanceof BinaryFileResponse) {
+                // File downloads and redirects are sent to the browser through their own effects, so we
+                // shouldn't add the response object as a return here. But we need to keep it's position
+                // in `returns` so we will just set it to `null` instead...
+                if ($return instanceof StreamedResponse || $return instanceof BinaryFileResponse || $return instanceof RedirectResponse) {
                     $return = null;
-                }
-
-                // Support `.renderless` on magic actions like `wire:model.renderless.live`...
-                if ($metadata['renderless'] ?? false) {
-                    $root->skipRender();
                 }
 
                 $returns[] = $return;
@@ -583,22 +595,52 @@ class HandleComponents extends Mechanism
 
             $return = $finish($return);
 
-            // File downloads are sent to the browser through the download effect, so we shouldn't add
-            // the response object as a return here. But we need to keep it's position in `returns`
-            // so we will just set it to `null` instead...
-            if ($return instanceof StreamedResponse || $return instanceof BinaryFileResponse) {
+            // File downloads and redirects are sent to the browser through their own effects, so we
+            // shouldn't add the response object as a return here. But we need to keep it's position
+            // in `returns` so we will just set it to `null` instead...
+            if ($return instanceof StreamedResponse || $return instanceof BinaryFileResponse || $return instanceof RedirectResponse) {
                 $return = null;
             }
 
             $returns[] = $return;
+        }
 
-            // Support `Wire:click.renderless`...
-            if ($metadata['renderless'] ?? false) {
-                $root->skipRender();
-            }
+        if ($shouldSkipRender) {
+            $root->skipRender();
         }
 
         $componentContext->addEffect('returns', $returns);
+    }
+
+    protected function shouldSkipRenderAfterCalls($root, $calls)
+    {
+        if (count($calls) === 0) return false;
+
+        return collect($calls)->every(
+            fn ($call) => $this->isCallRenderless($root, $call)
+        );
+    }
+
+    protected function isCallRenderless($root, $call)
+    {
+        return ($call['metadata']['renderless'] ?? false)
+            || $root->isRenderlessMethod($this->resolveCalledMethod($root, $call));
+    }
+
+    protected function resolveCalledMethod($root, $call)
+    {
+        if ($call['method'] !== '__dispatch' || ! isset($call['params'][0])) {
+            return $call['method'];
+        }
+
+        $event = $call['params'][0];
+
+        // Event listeners travel as __dispatch calls, but their attributes belong to the listener method...
+        if (! in_array($event, SupportEvents::getListenerEventNames($root))) {
+            return $call['method'];
+        }
+
+        return SupportEvents::getListenerMethodName($root, $event);
     }
 
     protected function pushOntoComponentStack($component)

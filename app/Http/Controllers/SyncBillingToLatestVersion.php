@@ -36,7 +36,10 @@ class SyncBillingToLatestVersion
             $this->cacheDbVersion();
             $this->clearViewCache();
             $this->clearConfig();
-            isInstall() && $this->restartHorizon();
+            if (isInstall()) {
+                $this->restartHorizon();
+            }
+
             $this->storageLink();
         } catch (Exception $exception) {
             if (! isInstall()) {

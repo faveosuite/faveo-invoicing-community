@@ -75,7 +75,7 @@ class AddProductRequestBody implements ModelInterface, ArrayAccess, JsonSerializ
         'owner_id' => 'int',
         'is_linkable' => 'bool',
         'visible_to' => '\Pipedrive\versions\v2\Model\VisibleTo',
-        'prices' => 'object[]',
+        'prices' => '\Pipedrive\versions\v2\Model\ProductPriceRequest[]',
         'custom_fields' => 'array<string,object>',
         'billing_frequency' => '\Pipedrive\versions\v2\Model\BillingFrequency1',
         'billing_frequency_cycles' => 'int'
@@ -519,7 +519,7 @@ class AddProductRequestBody implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Gets prices
      *
-     * @return object[]|null
+     * @return \Pipedrive\versions\v2\Model\ProductPriceRequest[]|null
      */
     public function getPrices()
     {
@@ -529,7 +529,7 @@ class AddProductRequestBody implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Sets prices
      *
-     * @param object[]|null $prices An array of objects, each containing: `currency` (string), `price` (number), `cost` (number, optional), `direct_cost` (number, optional). Note that there can only be one price per product per currency. When `prices` is omitted altogether, a default price of 0 and the user's default currency will be assigned.
+     * @param \Pipedrive\versions\v2\Model\ProductPriceRequest[]|null $prices The prices of the product in different currencies. Note that there can only be one price per product per currency. When `prices` is omitted altogether, a default price of 0 and the user's default currency will be assigned.
      *
      * @return self
      */

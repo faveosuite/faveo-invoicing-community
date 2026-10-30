@@ -7,25 +7,20 @@ use PhpOffice\PhpSpreadsheet\Settings;
 
 class SettingsProvider
 {
-    /**
-     * @var CacheManager
-     */
-    private $cache;
-
-    public function __construct(CacheManager $cache)
-    {
-        $this->cache = $cache;
+    public function __construct(
+        private readonly CacheManager $cache,
+    ) {
     }
 
     /**
      * Provide PhpSpreadsheet settings.
      */
-    public function provide()
+    public function provide(): void
     {
         $this->configureCellCaching();
     }
 
-    protected function configureCellCaching()
+    protected function configureCellCaching(): void
     {
         Settings::setCache(
             $this->cache->driver()

@@ -1,48 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel;
+
+use Illuminate\Bus\PendingBatch;
+use Illuminate\Foundation\Bus\PendingDispatch;
+use Maatwebsite\Excel\Concerns\Export;
+use PhpOffice\PhpSpreadsheet\Exception;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 interface Exporter
 {
     /**
-     * @param  object  $export
-     * @param  string|null  $fileName
-     * @param  string  $writerType
-     * @param  array  $headers
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @param  array<string, string>  $headers
      *
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    public function download($export, string $fileName, ?string $writerType = null, array $headers = []);
+    public function download(Export $export, string $fileName, ?string $writerType = null, array $headers = []): BinaryFileResponse;
 
     /**
-     * @param  object  $export
-     * @param  string  $filePath
-     * @param  string|null  $diskName
-     * @param  string  $writerType
-     * @param  mixed  $diskOptions
-     * @return bool
-     *
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    public function store($export, string $filePath, ?string $diskName = null, ?string $writerType = null, $diskOptions = []);
+    public function store(Export $export, string $filePath, ?string $diskName = null, ?string $writerType = null, mixed $diskOptions = []): bool|PendingDispatch|PendingBatch;
 
-    /**
-     * @param  object  $export
-     * @param  string  $filePath
-     * @param  string|null  $disk
-     * @param  string  $writerType
-     * @param  mixed  $diskOptions
-     * @return \Illuminate\Foundation\Bus\PendingDispatch
-     */
-    public function queue($export, string $filePath, ?string $disk = null, ?string $writerType = null, $diskOptions = []);
+    public function queue(Export $export, string $filePath, ?string $disk = null, ?string $writerType = null, mixed $diskOptions = []): PendingDispatch|PendingBatch;
 
-    /**
-     * @param  object  $export
-     * @param  string  $writerType
-     * @return string
-     */
-    public function raw($export, string $writerType);
+    public function raw(Export $export, string $writerType): string;
 }

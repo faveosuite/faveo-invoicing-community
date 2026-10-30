@@ -3,34 +3,29 @@
 namespace Maatwebsite\Excel\Validators;
 
 use Illuminate\Validation\ValidationException as IlluminateValidationException;
+use Override;
 
 class ValidationException extends IlluminateValidationException
 {
-    /**
-     * @var Failure[]
-     */
-    protected $failures;
-
-    /**
-     * @param  IlluminateValidationException  $previous
-     * @param  array  $failures
-     */
-    public function __construct(IlluminateValidationException $previous, array $failures)
-    {
+    public function __construct(
+        IlluminateValidationException $previous,
+        /** @var Failure[] */
+        protected array $failures,
+    ) {
         parent::__construct($previous->validator, $previous->response, $previous->errorBag);
-        $this->failures = $failures;
     }
 
     /**
-     * @return string[]
+     * @return list<list<string>>
      */
+    #[Override]
     public function errors(): array
     {
         return collect($this->failures)->map->toArray()->all();
     }
 
     /**
-     * @return array
+     * @return array<int, Failure>
      */
     public function failures(): array
     {

@@ -12,6 +12,7 @@ use App\Model\Common\Bussiness;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
 use App\Model\Common\State;
+use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\CreditTransaction;
@@ -35,6 +36,7 @@ use Exception;
 use Hash;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
@@ -87,7 +89,7 @@ class ClientController extends AdvanceSearchController
         $template = TemplateType::getSelectedTemplate('registration_mail');
 
         // Check if settings or template is missing
-        if (! $settings || ! $template) {
+        if (! $settings || ! $template instanceof Template) {
             return;
         }
 
@@ -136,7 +138,7 @@ class ClientController extends AdvanceSearchController
                 ->onQueue('reports');
 
             return successResponse(__('message.system_generating_report'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             Logger::exception($exception);
@@ -167,7 +169,7 @@ class ClientController extends AdvanceSearchController
             }
 
             return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(shouldDelete: true);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
             Log::error('Report Export Failure'.$exception->getMessage());
@@ -322,7 +324,7 @@ class ClientController extends AdvanceSearchController
         $users->getCollection()->transform(function ($user) {
             if ($user->country) {
                 $name = getCountryByCode($user->country) ?? $user->country;
-                $user->setRawAttributes(array_merge($user->getAttributes(), ['country' => $name]), true);
+                $user->setRawAttributes(array_merge($user->getAttributes(), ['country' => $name]), sync: true);
             }
 
             return $user;
@@ -406,7 +408,7 @@ class ClientController extends AdvanceSearchController
 
             return successResponse(__('message.user-create-successfully'), $user);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -516,6 +518,7 @@ class ClientController extends AdvanceSearchController
             if ($request->filled('country')) {
                 $user->country = strtoupper((string) $request->input('country'));
             }
+
             $user->role = $request->input('role');
             $user->position = $request->input('position');
             $user->manager = $request->input('manager');
@@ -525,7 +528,7 @@ class ClientController extends AdvanceSearchController
 
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -553,7 +556,7 @@ class ClientController extends AdvanceSearchController
                 // Summed across every currency the client holds credit in, to
                 // match the tiles beside it (which also total mixed-currency
                 // invoices). The Credits tab shows the honest per-currency split.
-                'credit_balance' => app(CreditBalanceService::class)->balance($id),
+                'credit_balance' => resolve(CreditBalanceService::class)->balance($id),
                 'credit_balances' => UserCreditBalance::where('user_id', $id)
                     ->orderBy('currency')
                     ->get()
@@ -561,15 +564,15 @@ class ClientController extends AdvanceSearchController
                     ->values(),
                 // Kept apart from credit on purpose: this is the client's own
                 // money waiting to be allocated, not something we granted them.
-                'unapplied_balance' => app(UnappliedPaymentService::class)->balance($id),
-                'unapplied_balances' => app(UnappliedPaymentService::class)->balances($id),
+                'unapplied_balance' => resolve(UnappliedPaymentService::class)->balance($id),
+                'unapplied_balances' => resolve(UnappliedPaymentService::class)->balances($id),
                 'invoice_count' => $invoices->count(),
                 'payment_count' => Payment::where('user_id', $id)->count(),
                 'order_count' => Order::where('client', $id)->count(),
                 'credit_count' => CreditTransaction::where('user_id', $id)->count(),
             ]);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -620,7 +623,7 @@ class ClientController extends AdvanceSearchController
 
             return successResponse('', $invoices);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -669,7 +672,7 @@ class ClientController extends AdvanceSearchController
 
             return successResponse('', $transactions);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -734,7 +737,7 @@ class ClientController extends AdvanceSearchController
 
             return successResponse('', $payments);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -758,7 +761,7 @@ class ClientController extends AdvanceSearchController
 
             return successResponse('', $comments);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -786,7 +789,7 @@ class ClientController extends AdvanceSearchController
                 'author' => trim(auth()->user() instanceof User ? auth()->user()->first_name.' '.auth()->user()->last_name : ''),
             ]);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -801,10 +804,10 @@ class ClientController extends AdvanceSearchController
             $comment->save();
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
@@ -816,10 +819,10 @@ class ClientController extends AdvanceSearchController
             Comment::where('id', $commentId)->where('user_id', $id)->firstOrFail()->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return errorResponse(__('message.sorry_something_wrong'));
         }

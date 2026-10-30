@@ -86,7 +86,8 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $response = $this->get('/downloadLicenseFile?orderNo='.$order->number);
 
         $response->assertStatus(200);
-        $file = json_decode($response->streamedContent(), true);
+
+        $file = json_decode($response->streamedContent(), associative: true);
         $this->assertArrayHasKey('license', $file);
         $this->assertArrayHasKey('signature', $file);
         $this->assertTrue(
@@ -141,7 +142,8 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $response = $this->get('/LocalizedLicense/downloadLicense/'.$order->number);
 
         $response->assertStatus(200);
-        $file = json_decode($response->streamedContent(), true);
+
+        $file = json_decode($response->streamedContent(), associative: true);
         $this->assertArrayHasKey('license', $file);
         $this->assertArrayHasKey('signature', $file);
     }
@@ -286,6 +288,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $response = $this->getJson('/localized-license/orders');
 
         $response->assertStatus(200);
+
         $numbers = collect($response->json('data.data'))->pluck('number');
         $this->assertContains((int) $fileModeOrder->number, $numbers);
     }
@@ -306,6 +309,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $response = $this->getJson('/localized-license/orders?search-query='.$matchingProduct->name);
 
         $response->assertStatus(200);
+
         $numbers = collect($response->json('data.data'))->pluck('number');
         $this->assertContains((int) $match->number, $numbers);
         $this->assertNotContains((int) $otherProduct->id, $numbers);

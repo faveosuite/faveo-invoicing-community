@@ -8,6 +8,7 @@ use App\License\Helpers\LicenseValidator;
 use App\License\Models\VersionCallback;
 use App\License\Services\ProductBundleStampingService;
 use App\License\tests\Backend\LicenseTestCase;
+use App\Model\Order\Order;
 use Illuminate\Http\Response;
 use Mockery;
 use PHPUnit\Framework\Attributes\Group;
@@ -44,14 +45,14 @@ class DownloadFileControllerTest extends LicenseTestCase
     public function download_file_returns_archive_not_found_when_attach_cannot_locate_the_file(): void
     {
         $product = $this->createProduct(['product_key' => 'AFUKEY4']);
-        $version = $this->createVersion($product, ['version' => '1.0.0', 'file' => 'release.zip', 'status' => 1]);
+        $this->createVersion($product, ['version' => '1.0.0', 'file' => 'release.zip', 'status' => 1]);
 
         $validator = Mockery::mock(LicenseValidator::class);
         $validator->shouldReceive('resolveIp')->once()->andReturn('127.0.0.1');
         $validator->shouldReceive('isValidAfuRequest')->once()->andReturn(true);
         $validator->shouldReceive('isBanned')->once()->andReturn(false);
         $validator->shouldReceive('verifyAfuScriptSignature')->once()->andReturn(true);
-        $validator->shouldReceive('isPastDate')->andReturnUsing(fn ($date) => new LicenseValidator()->isPastDate($date));
+        $validator->shouldReceive('isPastDate')->andReturnUsing(fn ($date): bool => new LicenseValidator()->isPastDate($date));
 
         Attach::shouldReceive('exists')->once()->with('products/release.zip')->andReturn(false);
 
@@ -81,7 +82,7 @@ class DownloadFileControllerTest extends LicenseTestCase
         $validator->shouldReceive('isValidAfuRequest')->once()->andReturn(true);
         $validator->shouldReceive('isBanned')->once()->andReturn(false);
         $validator->shouldReceive('verifyAfuScriptSignature')->once()->andReturn(true);
-        $validator->shouldReceive('isPastDate')->andReturnUsing(fn ($date) => new LicenseValidator()->isPastDate($date));
+        $validator->shouldReceive('isPastDate')->andReturnUsing(fn ($date): bool => new LicenseValidator()->isPastDate($date));
 
         Attach::shouldReceive('exists')->once()->with('products/release.zip')->andReturn(true);
 
@@ -89,7 +90,7 @@ class DownloadFileControllerTest extends LicenseTestCase
         $stampingService = Mockery::mock(ProductBundleStampingService::class);
         $stampingService->shouldReceive('downloadResponseFor')
             ->once()
-            ->withArgs(fn ($v, $p, $path) => $v->is($version) && $p->is($product) && $path === 'products/release.zip')
+            ->withArgs(fn ($v, $p, $path): bool => $v->is($version) && $p->is($product) && $path === 'products/release.zip')
             ->andReturn($stampedResponse);
 
         $response = new DownloadFileController($validator, $stampingService)->downloadFile($this->moduleRequest([
@@ -115,14 +116,14 @@ class DownloadFileControllerTest extends LicenseTestCase
     {
         $product = $this->createProduct(['product_key' => 'AFUKEY7']);
         $this->createVersion($product, ['version' => '1.0.0', 'file' => 'release.zip', 'status' => 1]);
-        $order = \App\Model\Order\Order::factory()->create(['product' => $product->id]);
+        $order = Order::factory()->create(['product' => $product->id]);
         $this->createLicense(['license_code' => 'GOODCODE', 'product_id' => $product->id, 'license_status' => 1, 'license_order_number' => $order->number]);
         $this->createLicense(['license_code' => 'OFFCODE', 'product_id' => $product->id, 'license_status' => 0, 'license_order_number' => $order->number]);
 
         $passedOrders = [];
         $stampingService = Mockery::mock(ProductBundleStampingService::class);
         $stampingService->shouldReceive('downloadResponseFor')
-            ->andReturnUsing(function ($v, $p, $path, $passedOrder) use (&$passedOrders) {
+            ->andReturnUsing(function ($v, $p, $path, $passedOrder) use (&$passedOrders): Response {
                 $passedOrders[] = $passedOrder?->id;
 
                 return new Response('stamped');
@@ -153,14 +154,14 @@ class DownloadFileControllerTest extends LicenseTestCase
     public function download_file_falls_back_to_archive_not_found_when_stamping_throws(): void
     {
         $product = $this->createProduct(['product_key' => 'AFUKEY6']);
-        $version = $this->createVersion($product, ['version' => '1.0.0', 'file' => 'release.zip', 'status' => 1]);
+        $this->createVersion($product, ['version' => '1.0.0', 'file' => 'release.zip', 'status' => 1]);
 
         $validator = Mockery::mock(LicenseValidator::class);
         $validator->shouldReceive('resolveIp')->once()->andReturn('127.0.0.1');
         $validator->shouldReceive('isValidAfuRequest')->once()->andReturn(true);
         $validator->shouldReceive('isBanned')->once()->andReturn(false);
         $validator->shouldReceive('verifyAfuScriptSignature')->once()->andReturn(true);
-        $validator->shouldReceive('isPastDate')->andReturnUsing(fn ($date) => new LicenseValidator()->isPastDate($date));
+        $validator->shouldReceive('isPastDate')->andReturnUsing(fn ($date): bool => new LicenseValidator()->isPastDate($date));
 
         Attach::shouldReceive('exists')->once()->with('products/release.zip')->andReturn(true);
 

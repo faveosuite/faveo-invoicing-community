@@ -15,7 +15,7 @@ class TaxRatesAndCodeExpiryControllerTest extends TestCase
     {
         parent::setUp();
         $this->withoutMiddleware();
-        $this->controller = new TaxRatesAndCodeExpiryController();
+        $this->controller = new TaxRatesAndCodeExpiryController;
     }
 
     // =========================================================================
@@ -24,13 +24,13 @@ class TaxRatesAndCodeExpiryControllerTest extends TestCase
 
     public function test_get_grand_total_returns_zero_total_when_no_total(): void
     {
-        $result = $this->controller->getGrandTotal(null, 0, 0, 1, 'USD');
+        $result = $this->controller->getGrandTotal(code: null, total: 0, cost: 0, productid: 1, currency: 'USD');
         $this->assertSame(['total' => 0, 'code' => '', 'value' => '', 'mode' => ''], $result);
     }
 
     public function test_get_grand_total_returns_total_when_no_code(): void
     {
-        $result = $this->controller->getGrandTotal(null, 100.0, 100.0, 1, 'USD');
+        $result = $this->controller->getGrandTotal(code: null, total: 100.0, cost: 100.0, productid: 1, currency: 'USD');
         $this->assertSame(['total' => 100.0, 'code' => '', 'value' => '', 'mode' => ''], $result);
     }
 
@@ -46,15 +46,16 @@ class TaxRatesAndCodeExpiryControllerTest extends TestCase
 
     public function test_get_message_returns_success_when_items_truthy(): void
     {
-        $items = new \stdClass();
+        $items = new \stdClass;
         $items->invoice_id = 1;
+
         $result = $this->controller->getMessage($items, 1);
         $this->assertArrayHasKey('success', $result);
     }
 
     public function test_get_message_returns_fails_when_items_falsy(): void
     {
-        $result = $this->controller->getMessage(null, 1);
+        $result = $this->controller->getMessage(items: null, user_id: 1);
         $this->assertArrayHasKey('fails', $result);
     }
 

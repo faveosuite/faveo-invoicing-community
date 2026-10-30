@@ -1,12 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Middleware;
 
 abstract class CellMiddleware
 {
-    /**
-     * @param  mixed  $value
-     * @return mixed
-     */
-    abstract public function __invoke($value, callable $next);
+    abstract public function __invoke(mixed $value, callable $next): mixed;
 }

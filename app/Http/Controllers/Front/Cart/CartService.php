@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Front\Cart;
 
 use App\Http\Controllers\Common\SettingsController;
+use App\Http\Controllers\Front\ClientController;
 use App\Http\Controllers\Order\InvoiceController;
 use App\Model\Cart\Cart;
 use App\Model\Cart\CartItem;
@@ -22,9 +23,11 @@ use App\Services\Tax\TaxService;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Logger;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
 class CartService // NOSONAR - large existing class, kept as is: splitting it is a big change for little gain
@@ -32,8 +35,7 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
     public function __construct(
         private readonly GuestCart $guest,
         private readonly InvoicePaymentService $invoices,
-    ) {
-    }
+    ) {}
 
     // --- Cart resolution ---
 
@@ -72,9 +74,9 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
     private function resolveGuestCurrency(Request $request): string
     {
         $ip = $request->ip();
-        $iso = cache()->remember('user_location_'.$ip, 60, fn () => getLocation($ip)['iso_code'] ?? null);
+        $iso = cache()->remember('user_location_'.$ip, 60, fn (): mixed => getLocation($ip)['iso_code'] ?? null);
 
-        return getCurrencyForClient($iso ? (string) findCountryByGeoip($iso) : '');
+        return getCurrencyForClient($iso ? findCountryByGeoip($iso) : '');
     }
 
     /**
@@ -87,6 +89,7 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
         if (isset($data['agents']) && ! $this->canModifyAgents($request, $itemId)) {
             unset($data['agents']);
         }
+
         // Same for quantity: fulfilment issues one order/licence for the line however many are
         // "bought", so a product that doesn't allow it must stay at 1.
         if (isset($data['quantity']) && ! $this->canModifyQuantity($this->itemProductId($request, $itemId))) {
@@ -204,7 +207,7 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
 
     /**
      * Which of the active gateways can actually run auto-renewal right now —
-     * mirrors {@see \App\Http\Controllers\Front\ClientController::autoRenewalGateways()},
+     * mirrors {@see ClientController::autoRenewalGateways()},
      * the same check the existing post-purchase "Enable auto-renewal" tab
      * uses. A list, not a single yes/no: the checkout modal must only offer
      * auto-renew when it matches the gateway the customer actually selected,
@@ -227,7 +230,7 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
 
         return array_values(array_filter(
             ['Stripe', 'Razorpay'],
-            fn (string $gateway): bool => StatusSetting::autoRenewalEnabledFor($gateway) && in_array(strtolower($gateway), $active, true)
+            fn (string $gateway): bool => StatusSetting::autoRenewalEnabledFor($gateway) && in_array(strtolower($gateway), $active, strict: true)
         ));
     }
 
@@ -273,7 +276,7 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
                 // against the specific selected gateway, not "any gateway" —
                 // auto-renew must only apply if it's actually available for
                 // however this invoice ends up getting paid.
-                'metadata' => $autoRenewOptIn && $gateway && in_array($gateway, $this->autoRenewalGateways($this->activeGateways($cart->currency ?? 'USD'), (float) $summary['grand_total']), true)
+                'metadata' => $autoRenewOptIn && $gateway && in_array($gateway, $this->autoRenewalGateways($this->activeGateways($cart->currency ?? 'USD'), (float) $summary['grand_total']), strict: true)
                     ? ['auto_renew_opt_in' => true]
                     : null,
             ];
@@ -323,7 +326,7 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
     private function mailInvoice(Invoice $invoice): void
     {
         try {
-            app(InvoiceController::class)->sendMail((int) $invoice->user_id, $invoice->id);
+            resolve(InvoiceController::class)->sendMail((int) $invoice->user_id, $invoice->id);
         } catch (Throwable $throwable) {
             Logger::exception($throwable);
         }
@@ -360,7 +363,7 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
         foreach ($this->guest->all() as $data) {
             try {
                 $this->addToDbCart($cart, $data);
-            } catch (\Symfony\Component\HttpKernel\Exception\HttpException) {
+            } catch (HttpException) {
                 // A line the cart now refuses (plan gone, wrong product, no price in this
                 // currency) is dropped — it must never fail the login it runs inside.
             }
@@ -457,6 +460,7 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
             $this->recalculateCoupon($cart);
             $cart->refresh();
         }
+
         $cart->itemsRemoved = $unavailable->isNotEmpty();
 
         return $cart;
@@ -623,9 +627,6 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
     {
         try {
             $names = SettingsController::checkPaymentGateway($currency);
-            if (! is_array($names)) {
-                return [];
-            }
 
             return array_map(fn ($name): array => ['name' => $name, 'processing_fee' => ProcessingFee::percent($name) ?: null], $names);
         } catch (Throwable) {
@@ -687,14 +688,14 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
     }
 
     /**
-     * @param  \Illuminate\Support\Collection<int, CartItem>  $items
-     * @return \Illuminate\Support\Collection<int, CartItem>
+     * @param  Collection<int, CartItem>  $items
+     * @return Collection<int, CartItem>
      */
-    private function couponLines(\Illuminate\Support\Collection $items, Promotion $promo): \Illuminate\Support\Collection
+    private function couponLines(Collection $items, Promotion $promo): Collection
     {
         $productIds = PromoProductRelation::where('promotion_id', $promo->id)->pluck('product_id')->map(fn ($id): int => (int) $id)->all();
 
-        return $items->filter(fn (CartItem $item): bool => in_array((int) $item->product_id, $productIds, true))->values();
+        return $items->filter(fn (CartItem $item): bool => in_array((int) $item->product_id, $productIds, strict: true))->values();
     }
 
     /**
@@ -768,7 +769,7 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
             return false;
         }
 
-        return ! ($this->hasDateBound($promo->expiry) && $now->gt(Date::parse($promo->expiry)));
+        return ! $this->hasDateBound($promo->expiry) || ! $now->gt(Date::parse($promo->expiry));
     }
 
     /**

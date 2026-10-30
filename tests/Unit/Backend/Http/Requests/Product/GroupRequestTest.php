@@ -5,18 +5,19 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Requests\Product;
 
 use App\Http\Requests\Product\GroupRequest;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class GroupRequestTest extends TestCase
 {
     private function rules(): array
     {
-        return (new GroupRequest())->rules();
+        return new GroupRequest()->rules();
     }
 
     public function test_authorize_returns_true(): void
     {
-        $this->assertTrue((new GroupRequest())->authorize());
+        $this->assertTrue(new GroupRequest()->authorize());
     }
 
     public function test_name_is_required(): void
@@ -70,7 +71,7 @@ class GroupRequestTest extends TestCase
 
     public function test_og_image_rejects_a_disallowed_mime_type(): void
     {
-        $file = \Illuminate\Http\UploadedFile::fake()->create('doc.pdf', 10, 'application/pdf');
+        $file = UploadedFile::fake()->create('doc.pdf', 10, 'application/pdf');
 
         $v = validator(['name' => 'S', 'pricing_templates_id' => 1, 'og_image' => $file], $this->rules());
 
@@ -79,7 +80,7 @@ class GroupRequestTest extends TestCase
 
     public function test_og_image_accepts_an_allowed_image_type(): void
     {
-        $file = \Illuminate\Http\UploadedFile::fake()->image('cover.jpg');
+        $file = UploadedFile::fake()->image('cover.jpg');
 
         $v = validator(['name' => 'S', 'pricing_templates_id' => 1, 'og_image' => $file], $this->rules());
 

@@ -43,7 +43,7 @@ class CollectionFilterRejectDynamicReturnTypeExtension implements DynamicMethodR
         MethodCall $methodCall,
         Scope $scope,
     ): Type|null {
-        $calledOnType = $scope->getType($methodCall->var);
+        $calledOnType = TypeCombinator::removeNull($scope->getType($methodCall->var));
 
         if ($calledOnType->getObjectClassReflections() === [] || ! $calledOnType->getObjectClassReflections()[0]->isGeneric()) {
             return null;
@@ -86,6 +86,7 @@ class CollectionFilterRejectDynamicReturnTypeExtension implements DynamicMethodR
 
         if ($callbackArg instanceof Closure && count($callbackArg->stmts) === 1 && count($callbackArg->params) > 0) {
             $statement = $callbackArg->stmts[0];
+
             if ($statement instanceof Return_ && $statement->expr !== null) {
                 $var  = $callbackArg->params[0]->var;
                 $expr = $statement->expr;
@@ -98,7 +99,7 @@ class CollectionFilterRejectDynamicReturnTypeExtension implements DynamicMethodR
             return null;
         }
 
-        if ($var !== null && $expr !== null) {
+        if ($var !== null) {
             if (! $var instanceof Variable || ! is_string($var->name)) {
                 throw new ShouldNotHappenException();
             }

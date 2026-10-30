@@ -139,9 +139,9 @@ class RecaptchaMiddleware
                     'hostname' => $hostname,
                 ])
             )->json();
-        } catch (Throwable $exception) {
+        } catch (Throwable $throwable) {
             // Google unreachable: fail closed with the normal captcha error instead of a 500.
-            Logger::exception($exception);
+            Logger::exception($throwable);
 
             return [];
         }

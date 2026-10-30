@@ -394,9 +394,8 @@ class WhatsappController extends Controller
      */
     private function getToken(mixed $code): string
     {
-        [$app_id, $app_secret] = array_values(
-            WhatsappIntegration::select(['app_id', 'app_secret'])->firstOrFail()->toArray()
-        );
+        $integration = WhatsappIntegration::select(['app_id', 'app_secret'])->firstOrFail();
+        [$app_id, $app_secret] = [$integration->app_id, $integration->app_secret];
 
         $url = $this->base_url.'/'.$this->api_version.'/'.$this->endpoint['access_token'];
 

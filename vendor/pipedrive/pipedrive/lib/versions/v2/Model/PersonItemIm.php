@@ -2,7 +2,7 @@
 /**
  * PersonItemIm
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -56,7 +56,7 @@ class PersonItemIm implements ModelInterface, ArrayAccess, JsonSerializable
       *
       * @var string
       */
-    protected static string $openAPIModelName = 'PersonItem_im';
+    protected static string $openAPIModelName = 'PersonItemIm';
 
     /**
       * Array of property to type mappings. Used for (de)serialization
@@ -207,7 +207,7 @@ class PersonItemIm implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['value'] = $data['value'] ?? null;
         $this->container['primary'] = $data['primary'] ?? null;

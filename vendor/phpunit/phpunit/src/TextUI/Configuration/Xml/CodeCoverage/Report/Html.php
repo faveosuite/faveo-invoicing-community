@@ -23,6 +23,8 @@ use PHPUnit\TextUI\Configuration\NoHtmlCoverageTargetException;
 final readonly class Html
 {
     private ?Directory $target;
+    private bool $classView;
+    private bool $fileView;
 
     /**
      * @var non-negative-int
@@ -152,9 +154,11 @@ final readonly class Html
      * @param non-empty-string  $colorBreadcrumbsDark
      * @param ?non-empty-string $customCssFile
      */
-    public function __construct(?Directory $target, int $lowUpperBound, int $highLowerBound, string $colorSuccessLow, string $colorSuccessLowDark, string $colorSuccessMedium, string $colorSuccessMediumDark, string $colorSuccessHigh, string $colorSuccessHighDark, string $colorSuccessBar, string $colorSuccessBarDark, string $colorWarning, string $colorWarningDark, string $colorWarningBar, string $colorWarningBarDark, string $colorDanger, string $colorDangerDark, string $colorDangerBar, string $colorDangerBarDark, string $colorBreadcrumbs, string $colorBreadcrumbsDark, ?string $customCssFile)
+    public function __construct(?Directory $target, bool $classView, bool $fileView, int $lowUpperBound, int $highLowerBound, string $colorSuccessLow, string $colorSuccessLowDark, string $colorSuccessMedium, string $colorSuccessMediumDark, string $colorSuccessHigh, string $colorSuccessHighDark, string $colorSuccessBar, string $colorSuccessBarDark, string $colorWarning, string $colorWarningDark, string $colorWarningBar, string $colorWarningBarDark, string $colorDanger, string $colorDangerDark, string $colorDangerBar, string $colorDangerBarDark, string $colorBreadcrumbs, string $colorBreadcrumbsDark, ?string $customCssFile)
     {
         $this->target                 = $target;
+        $this->classView              = $classView;
+        $this->fileView               = $fileView;
         $this->lowUpperBound          = $lowUpperBound;
         $this->highLowerBound         = $highLowerBound;
         $this->colorSuccessLow        = $colorSuccessLow;
@@ -196,6 +200,16 @@ final readonly class Html
         }
 
         return $this->target;
+    }
+
+    public function classView(): bool
+    {
+        return $this->classView;
+    }
+
+    public function fileView(): bool
+    {
+        return $this->fileView;
     }
 
     /**

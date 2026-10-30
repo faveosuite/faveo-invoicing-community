@@ -63,17 +63,17 @@ class FrontendAssets extends Mechanism
         $this->javaScriptRoute = $route;
     }
 
-    public static function livewireScripts($expression)
+    public static function livewireScripts($expression): string
     {
         return '{!! \Livewire\Mechanisms\FrontendAssets\FrontendAssets::scripts('.$expression.') !!}';
     }
 
-    public static function livewireScriptConfig($expression)
+    public static function livewireScriptConfig($expression): string
     {
         return '{!! \Livewire\Mechanisms\FrontendAssets\FrontendAssets::scriptConfig('.$expression.') !!}';
     }
 
-    public static function livewireStyles($expression)
+    public static function livewireStyles($expression): string
     {
         return '{!! \Livewire\Mechanisms\FrontendAssets\FrontendAssets::styles('.$expression.') !!}';
     }
@@ -105,10 +105,7 @@ class FrontendAssets extends Mechanism
         return Utils::pretendResponseIsFile(__DIR__.'/../../../dist/livewire.csp.min.js.map');
     }
 
-    /**
-     * @return string
-     */
-    public static function styles($options = [])
+    public static function styles($options = []): string
     {
         if (app(static::class)->hasRenderedStyles) return '';
 
@@ -144,11 +141,13 @@ class FrontendAssets extends Mechanism
                 --livewire-progress-bar-color: {$progressBarColor};
             }
 
-            [x-cloak] {
+            [x-cloak="x-cloak"],
+            [x-cloak=""] {
                 display: none !important;
             }
 
-            [wire\:cloak] {
+            [wire\:cloak="wire:cloak"],
+            [wire\:cloak=""] {
                 display: none !important;
             }
 
@@ -161,10 +160,7 @@ class FrontendAssets extends Mechanism
         return static::minify($html);
     }
 
-    /**
-     * @return string
-     */
-    public static function scripts($options = [])
+    public static function scripts($options = []): string
     {
         if (app(static::class)->hasRenderedScripts) return '';
 
@@ -182,7 +178,7 @@ class FrontendAssets extends Mechanism
         return implode("\n", $html);
     }
 
-    public static function js($options)
+    public static function js($options): string
     {
         // Use the default endpoint...
         $url = url(app(static::class)->javaScriptRoute->uri);
@@ -208,6 +204,12 @@ class FrontendAssets extends Mechanism
         $manifestPath = __DIR__.'/../../../dist/manifest.json';
         $manifest = file_exists($manifestPath) ? json_decode(file_get_contents($manifestPath), true) : [];
         $versionHash = $manifest['/livewire.js'] ?? 'dev';
+
+        // Both builds are served from the same URL, so bust the cache when switching between them...
+        if (app('livewire')->isCspSafe()) {
+            $versionHash .= '-csp';
+        }
+
         $url = $url . (parse_url($url, PHP_URL_QUERY) ? '&' : '?') . "id={$versionHash}";
 
         $token = app()->has('session.store') ? csrf_token() : '';
@@ -233,7 +235,7 @@ class FrontendAssets extends Mechanism
         HTML;
     }
 
-    public static function scriptConfig($options = [])
+    public static function scriptConfig($options = []): string
     {
         app(static::class)->hasRenderedScripts = true;
 

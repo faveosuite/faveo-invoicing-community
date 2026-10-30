@@ -72,6 +72,25 @@ final class Facade
     }
 
     /**
+     * Registers subscribers that are notified of events while they are being
+     * collected instead of dispatched, for instance for an attempt of a
+     * retried test.
+     *
+     * @throws EventFacadeIsSealedException
+     * @throws UnknownSubscriberTypeException
+     */
+    public function registerSubscribersForCollectedEvents(Subscriber ...$subscribers): void
+    {
+        if ($this->sealed) {
+            throw new EventFacadeIsSealedException;
+        }
+
+        foreach ($subscribers as $subscriber) {
+            $this->deferredDispatcher()->registerSubscriberForCollectedEvents($subscriber);
+        }
+    }
+
+    /**
      * @throws EventFacadeIsSealedException
      */
     public function registerTracer(Tracer\Tracer $tracer): void
@@ -120,6 +139,22 @@ final class Facade
         }
     }
 
+    /**
+     * @throws EventsAreAlreadyBeingCollectedException
+     */
+    public function startCollectingEvents(): void
+    {
+        $this->deferredDispatcher()->startCollectingEvents();
+    }
+
+    /**
+     * @throws EventsAreNotBeingCollectedException
+     */
+    public function stopCollectingEvents(): EventCollection
+    {
+        return $this->deferredDispatcher()->stopCollectingEvents();
+    }
+
     public function seal(): void
     {
         $this->deferredDispatcher()->flush();
@@ -151,6 +186,7 @@ final class Facade
     {
         if ($this->deferringDispatcher === null) {
             $this->deferringDispatcher = new DeferringDispatcher(
+                new DirectDispatcher($this->typeMap()),
                 new DirectDispatcher($this->typeMap()),
             );
         }
@@ -200,6 +236,8 @@ final class Facade
             Test\ComparatorRegistered::class,
             Test\CustomTestMethodInvocationUsed::class,
             Test\ConsideredRisky::class,
+            Test\AttemptErrored::class,
+            Test\AttemptFailed::class,
             Test\DeprecationTriggered::class,
             Test\Errored::class,
             Test\ErrorTriggered::class,
@@ -246,6 +284,7 @@ final class Facade
             TestRunner\ExtensionBootstrapped::class,
             TestRunner\Finished::class,
             TestRunner\Started::class,
+            TestRunner\TimeLimitExceeded::class,
             TestRunner\DeprecationTriggered::class,
             TestRunner\NoticeTriggered::class,
             TestRunner\WarningTriggered::class,

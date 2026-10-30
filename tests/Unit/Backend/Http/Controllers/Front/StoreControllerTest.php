@@ -2,6 +2,16 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Front;
 
+use App\Http\Controllers\Front\StoreController;
+use App\Model\Common\CommonSettings;
+use App\Model\Common\PricingTemplate;
+use App\Model\Common\Setting;
+use App\Model\Payment\Period;
+use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
+use App\Model\Product\Product;
+use App\Model\Product\ProductGroup;
+use App\Services\Seo\SeoTemplateFormatter;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -33,15 +43,16 @@ class StoreControllerTest extends DBTestCase
 
     public function test_get_products_returns_response_for_valid_group(): void
     {
-        $group = \App\Model\Product\ProductGroup::first();
+        $group = ProductGroup::first();
         if (! $group) {
-            $tmpl = \App\Model\Common\PricingTemplate::first();
+            $tmpl = PricingTemplate::first();
             if (! $tmpl) {
                 $this->assertTrue(true);
 
                 return;
             }
-            $group = \App\Model\Product\ProductGroup::create(['name' => 'Test Group '.uniqid(), 'pricing_templates_id' => $tmpl->id]);
+
+            $group = ProductGroup::create(['name' => 'Test Group '.uniqid(), 'pricing_templates_id' => $tmpl->id]);
         }
 
         $response = $this->getJson("/store/{$group->id}/products");
@@ -51,22 +62,22 @@ class StoreControllerTest extends DBTestCase
 
     public function test_get_products_falls_back_to_the_bare_name_when_group_has_no_own_meta(): void
     {
-        \App\Model\Common\Setting::find(1)->update(['company' => 'Acme Inc', 'favicon_title_client' => '']);
-        \App\Model\Common\CommonSettings::where('option_name', 'seo')->where('optional_field', 'general_description')->delete();
+        Setting::find(1)->update(['company' => 'Acme Inc', 'favicon_title_client' => '']);
+        CommonSettings::where('option_name', 'seo')->where('optional_field', 'general_description')->delete();
         // SeoTemplateFormatter is bound as a singleton (AppServiceProvider)
         // and caches Setting/CommonSettings at construction — forget it so
         // the values just set above are actually picked up when the
         // controller resolves it fresh for this request.
-        $this->app->forgetInstance(\App\Services\Seo\SeoTemplateFormatter::class);
+        $this->app->forgetInstance(SeoTemplateFormatter::class);
 
-        $tmpl = \App\Model\Common\PricingTemplate::first();
+        $tmpl = PricingTemplate::first();
         if (! $tmpl) {
             $this->assertTrue(true);
 
             return;
         }
 
-        $group = \App\Model\Product\ProductGroup::create([
+        $group = ProductGroup::create([
             'name' => 'Widgets '.uniqid(),
             'pricing_templates_id' => $tmpl->id,
             'hidden' => 0,
@@ -81,28 +92,28 @@ class StoreControllerTest extends DBTestCase
     }
 
     /** A plan on $product priced $price with $offer % off, billed every $days days (null = no period). */
-    private function plan(\App\Model\Product\Product $product, float $price, float $offer = 0, ?int $days = 365, ?string $description = null): \App\Model\Payment\Plan
+    private function plan(Product $product, float $price, float $offer = 0, ?int $days = 365, ?string $description = null): Plan
     {
-        $plan = \App\Model\Payment\Plan::create(['name' => 'P'.uniqid(), 'product' => $product->id, 'days' => $days ?? 0]);
-        \App\Model\Payment\PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'USD', 'add_price' => $price, 'renew_price' => $price, 'offer_price' => $offer, 'price_description' => $description]);
+        $plan = Plan::create(['name' => 'P'.uniqid(), 'product' => $product->id, 'days' => $days ?? 0]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'USD', 'add_price' => $price, 'renew_price' => $price, 'offer_price' => $offer, 'price_description' => $description]);
         if ($days !== null) {
-            $plan->periods()->attach(\App\Model\Payment\Period::create(['name' => $days.' days', 'days' => $days])->id);
+            $plan->periods()->attach(Period::create(['name' => $days.' days', 'days' => $days])->id);
         }
 
         return $plan;
     }
 
     /** @return list<array<string, mixed>> */
-    private function plansFor(\App\Model\Product\Product $product): array
+    private function plansFor(Product $product): array
     {
-        $controller = app(\App\Http\Controllers\Front\StoreController::class);
+        $controller = resolve(StoreController::class);
 
-        return (new \ReflectionMethod($controller, 'getProductPlans'))->invoke($controller, $product->fresh(), 'USD');
+        return new \ReflectionMethod($controller, 'getProductPlans')->invoke($controller, $product->fresh(), 'USD');
     }
 
     public function test_plans_show_offer_price_per_month_and_original_price(): void
     {
-        $product = \App\Model\Product\Product::create(['name' => 'Plans '.uniqid()]);
+        $product = Product::create(['name' => 'Plans '.uniqid()]);
         $plan = $this->plan($product, 100, offer: 25, days: 360, description: 'per year');
 
         $this->assertSame([[
@@ -122,7 +133,7 @@ class StoreControllerTest extends DBTestCase
 
     public function test_plans_newest_first_cheapest_is_default_free_has_no_prices(): void
     {
-        $product = \App\Model\Product\Product::create(['name' => 'Plans '.uniqid()]);
+        $product = Product::create(['name' => 'Plans '.uniqid()]);
         $paid = $this->plan($product, 50, days: 30);
         $free = $this->plan($product, 0, days: null);
         $dear = $this->plan($product, 90, days: 15);
@@ -137,21 +148,23 @@ class StoreControllerTest extends DBTestCase
 
     public function test_products_sort_by_cheapest_paid_plan_ignoring_free_trial_plans(): void
     {
-        $tmpl = \App\Model\Common\PricingTemplate::first();
+        $tmpl = PricingTemplate::first();
         if (! $tmpl) {
             $this->markTestSkipped('No pricing template to attach a group to.');
         }
-        $group = \App\Model\Product\ProductGroup::create(['name' => 'Cloud '.uniqid(), 'pricing_templates_id' => $tmpl->id, 'hidden' => 0]);
+
+        $group = ProductGroup::create(['name' => 'Cloud '.uniqid(), 'pricing_templates_id' => $tmpl->id, 'hidden' => 0]);
         $currency = getCurrencyForClient((string) auth()->user()->country);
 
         // Created dearest first, and each carries a free trial plan like the cloud products do.
         $names = [];
         foreach (['Enterprise' => 300, 'SME' => 200, 'Startup' => 100] as $name => $price) {
-            $product = \App\Model\Product\Product::create(['name' => $name.' '.uniqid(), 'group' => $group->id, 'hidden' => 0]);
+            $product = Product::create(['name' => $name.' '.uniqid(), 'group' => $group->id, 'hidden' => 0]);
             foreach ([0, $price] as $amount) {
-                $plan = \App\Model\Payment\Plan::create(['name' => 'P'.uniqid(), 'product' => $product->id, 'days' => 30, 'status' => 1]);
-                \App\Model\Payment\PlanPrice::create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => $amount, 'renew_price' => $amount, 'offer_price' => 0]);
+                $plan = Plan::create(['name' => 'P'.uniqid(), 'product' => $product->id, 'days' => 30, 'status' => 1]);
+                PlanPrice::create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => $amount, 'renew_price' => $amount, 'offer_price' => 0]);
             }
+
             $names[$name] = $product->name;
         }
 
@@ -162,21 +175,23 @@ class StoreControllerTest extends DBTestCase
 
     public function test_a_free_product_stays_first_when_a_paid_plan_is_added_to_it(): void
     {
-        $tmpl = \App\Model\Common\PricingTemplate::first();
+        $tmpl = PricingTemplate::first();
         if (! $tmpl) {
             $this->markTestSkipped('No pricing template to attach a group to.');
         }
-        $group = \App\Model\Product\ProductGroup::create(['name' => 'Perpetual '.uniqid(), 'pricing_templates_id' => $tmpl->id, 'hidden' => 0]);
+
+        $group = ProductGroup::create(['name' => 'Perpetual '.uniqid(), 'pricing_templates_id' => $tmpl->id, 'hidden' => 0]);
         $currency = getCurrencyForClient((string) auth()->user()->country);
 
         // Freelancer is free, plus a paid plan dearer than Startup's; Startup has no free plan.
         $names = [];
         foreach (['Startup' => [100], 'Freelancer' => [0, 500]] as $name => $prices) {
-            $product = \App\Model\Product\Product::create(['name' => $name.' '.uniqid(), 'group' => $group->id, 'hidden' => 0]);
+            $product = Product::create(['name' => $name.' '.uniqid(), 'group' => $group->id, 'hidden' => 0]);
             foreach ($prices as $amount) {
-                $plan = \App\Model\Payment\Plan::create(['name' => 'P'.uniqid(), 'product' => $product->id, 'days' => 365, 'status' => 1]);
-                \App\Model\Payment\PlanPrice::create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => $amount, 'renew_price' => $amount, 'offer_price' => 0]);
+                $plan = Plan::create(['name' => 'P'.uniqid(), 'product' => $product->id, 'days' => 365, 'status' => 1]);
+                PlanPrice::create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => $amount, 'renew_price' => $amount, 'offer_price' => 0]);
             }
+
             $names[$name] = $product->name;
         }
 
@@ -187,19 +202,20 @@ class StoreControllerTest extends DBTestCase
 
     public function test_contact_sales_product_is_listed_last(): void
     {
-        $tmpl = \App\Model\Common\PricingTemplate::first();
+        $tmpl = PricingTemplate::first();
         if (! $tmpl) {
             $this->markTestSkipped('No pricing template to attach a group to.');
         }
-        $group = \App\Model\Product\ProductGroup::create(['name' => 'Perpetual '.uniqid(), 'pricing_templates_id' => $tmpl->id, 'hidden' => 0]);
+
+        $group = ProductGroup::create(['name' => 'Perpetual '.uniqid(), 'pricing_templates_id' => $tmpl->id, 'hidden' => 0]);
         $currency = getCurrencyForClient((string) auth()->user()->country);
 
         // Enterprise is contact-sales and cheapest, but must still come after Pro.
         $names = [];
         foreach (['Enterprise' => [10, 1], 'Pro' => [900, 0]] as $name => [$amount, $contact]) {
-            $product = \App\Model\Product\Product::create(['name' => $name.' '.uniqid(), 'group' => $group->id, 'hidden' => 0, 'add_to_contact' => $contact]);
-            $plan = \App\Model\Payment\Plan::create(['name' => 'P'.uniqid(), 'product' => $product->id, 'days' => 365, 'status' => 1]);
-            \App\Model\Payment\PlanPrice::create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => $amount, 'renew_price' => $amount, 'offer_price' => 0]);
+            $product = Product::create(['name' => $name.' '.uniqid(), 'group' => $group->id, 'hidden' => 0, 'add_to_contact' => $contact]);
+            $plan = Plan::create(['name' => 'P'.uniqid(), 'product' => $product->id, 'days' => 365, 'status' => 1]);
+            PlanPrice::create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => $amount, 'renew_price' => $amount, 'offer_price' => 0]);
             $names[$name] = $product->name;
         }
 
@@ -210,8 +226,8 @@ class StoreControllerTest extends DBTestCase
 
     public function test_plans_skip_a_plan_without_a_price(): void
     {
-        $product = \App\Model\Product\Product::create(['name' => 'Plans '.uniqid()]);
-        \App\Model\Payment\Plan::create(['name' => 'Unpriced', 'product' => $product->id, 'days' => 30]);
+        $product = Product::create(['name' => 'Plans '.uniqid()]);
+        Plan::create(['name' => 'Unpriced', 'product' => $product->id, 'days' => 30]);
 
         $this->assertSame([], $this->plansFor($product));
     }

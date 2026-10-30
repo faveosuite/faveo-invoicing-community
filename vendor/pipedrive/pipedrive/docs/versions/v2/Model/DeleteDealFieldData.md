@@ -6,7 +6,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **field_name** | **string** | The display name/label of the field |
 **field_code** | **string** | The unique identifier for the field (40-character hash for custom fields) |
-**description** | **string** | The description of the field |
+**description** | **string** | The description of the field | [optional]
 **field_type** | **string** | The type of the field |
 **options** | **object[]** | Array of available options for enum/set fields, null for other field types | [optional]
 **subfields** | **object[]** | Array of subfields for complex field types (address, monetary), null for simple field types | [optional]

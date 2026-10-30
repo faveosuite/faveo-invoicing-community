@@ -82,7 +82,7 @@ class ComponentAttributeBag implements Arrayable, ArrayAccess, IteratorAggregate
      *
      * @param  string|null  $key
      * @param  mixed  $default
-     * @return mixed
+     * @return ($key is null ? array<array-key, mixed> : mixed)
      */
     protected function data($key = null, $default = null)
     {
@@ -359,7 +359,7 @@ class ComponentAttributeBag implements Arrayable, ArrayAccess, IteratorAggregate
 
             unset($attributes['attributes']);
 
-            $attributes = $parentBag->merge($attributes, $escape = false)->getAttributes();
+            $attributes = $parentBag->merge($attributes, escape: false)->getAttributes();
         }
 
         $this->attributes = $attributes;

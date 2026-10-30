@@ -1,7 +1,7 @@
 <?php
 $set = \App\Model\Common\Setting::findOrFail(1);
 $rtl = isRtlForLang();
-$seoMeta = app(\App\Services\Seo\SeoMetaService::class);
+$seoMeta = resolve(\App\Services\Seo\SeoMetaService::class);
 
 // This request's own path — same cascade admin.blade.php always used
 // (General SEO -> per-route default -> hardcoded literal).

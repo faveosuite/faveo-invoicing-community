@@ -2,11 +2,22 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Front;
 
+use App\Http\Controllers\Github\GithubApiController;
+use App\License\Models\InstallationLog;
 use App\License\Models\License;
+use App\Model\License\LicensePermission;
+use App\Model\License\LicenseType;
+use App\Model\Order\CreditTransaction;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
+use App\Model\Payment\Period;
+use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
+use App\Model\Product\ProductUpload;
+use App\Model\Product\Subscription;
+use App\Services\Payment\CreditBalanceService;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
@@ -39,8 +50,8 @@ class ClientControllerTest extends DBTestCase
             'status' => 'pending',
         ]);
 
-        $credits = new \App\Services\Payment\CreditBalanceService;
-        $credits->grant($this->user->id, 'USD', 80.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT, note: 'Received via cash on 2026-08-21');
+        $credits = new CreditBalanceService;
+        $credits->grant($this->user->id, 'USD', 80.0, CreditTransaction::TYPE_OVERPAYMENT, note: 'Received via cash on 2026-08-21');
         $credits->apply($this->user->id, 'USD', 30.0, (int) $invoice->id);
 
         $data = $this->getJson('/get-credit-balance')->assertStatus(200)->json('data');
@@ -79,6 +90,7 @@ class ClientControllerTest extends DBTestCase
         $response = $this->getJson('/get-my-invoices?limit=10');
 
         $response->assertStatus(200);
+
         $invoices = $response->json('data.data');
         $this->assertNotEmpty($invoices);
         $first = $invoices[0];
@@ -102,6 +114,7 @@ class ClientControllerTest extends DBTestCase
         $response = $this->getJson('/get-my-invoices?search-query=UNIQUE-NUM-XYZ');
 
         $response->assertStatus(200);
+
         $invoices = $response->json('data.data');
         $this->assertNotEmpty($invoices);
         $this->assertEquals('UNIQUE-NUM-XYZ', $invoices[0]['number']);
@@ -110,7 +123,7 @@ class ClientControllerTest extends DBTestCase
     public function test_get_invoices_search_matches_what_the_table_shows(): void
     {
         $paid = Invoice::factory()->create(['user_id' => $this->user->id, 'number' => 'SRCH-1', 'status' => 'success']);
-        $unpaid = Invoice::factory()->create(['user_id' => $this->user->id, 'number' => 'SRCH-2', 'status' => 'pending']);
+        Invoice::factory()->create(['user_id' => $this->user->id, 'number' => 'SRCH-2', 'status' => 'pending']);
         $order = Order::factory()->create(['client' => $this->user->id, 'number' => 98761234]);
         OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $paid->id]);
 
@@ -143,6 +156,7 @@ class ClientControllerTest extends DBTestCase
         $response = $this->getJson('/get-my-invoices?search-query=INV-PAID-001');
 
         $response->assertStatus(200);
+
         $invoices = $response->json('data.data');
         $this->assertNotEmpty($invoices);
         $this->assertEquals('Paid', $invoices[0]['status']);
@@ -162,6 +176,7 @@ class ClientControllerTest extends DBTestCase
         $response = $this->getJson('/get-my-invoices?search-query=INV-UNPAID-002');
 
         $response->assertStatus(200);
+
         $invoices = $response->json('data.data');
         $this->assertNotEmpty($invoices);
         $this->assertEquals('Unpaid', $invoices[0]['status']);
@@ -354,11 +369,11 @@ class ClientControllerTest extends DBTestCase
      */
     private function downloadableOrder(): array
     {
-        $type = \App\Model\License\LicenseType::factory()->create();
-        $type->permissions()->attach(\App\Model\License\LicensePermission::firstOrCreate(['permissions' => 'Can be Downloaded'])->id);
+        $type = LicenseType::factory()->create();
+        $type->permissions()->attach(LicensePermission::firstOrCreate(['permissions' => 'Can be Downloaded'])->id);
         $product = Product::create(['name' => 'Test Product '.uniqid(), 'type' => $type->id]);
         $order = Order::create(['client' => $this->user->id, 'order_status' => 'executed', 'product' => $product->id, 'number' => random_int(100000000, 999999999)]);
-        \App\Model\Product\Subscription::factory()->create([
+        Subscription::factory()->create([
             'order_id' => $order->id, 'product_id' => $product->id, 'user_id' => $this->user->id, 'update_ends_at' => null, 'is_deleted' => 0,
         ]);
 
@@ -391,7 +406,7 @@ class ClientControllerTest extends DBTestCase
 
     public function test_renew_popup_vue_returns_plan_list_for_known_product(): void
     {
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'Test Product '.uniqid()]);
+        $product = Product::first() ?? Product::create(['name' => 'Test Product '.uniqid()]);
 
         $response = $this->getJson('/renew-popup-details/'.$product->id);
 
@@ -405,12 +420,12 @@ class ClientControllerTest extends DBTestCase
     public function test_version_popup_features_the_latest_release_and_the_latest_official_when_latest_is_an_rc(): void
     {
         [$product, $order] = $this->downloadableOrder();
-        $upload = fn (string $version, string $type, string $date) => \App\Model\Product\ProductUpload::create([
+        $upload = fn (string $version, string $type, string $date) => ProductUpload::create([
             'product_id' => $product->id, 'title' => $version, 'version' => $version, 'file' => 'x.zip',
             'is_private' => 0, 'release_type' => $type,
         ])->forceFill(['created_at' => $date])->save();
         $featured = fn () => collect($this->getJson("/get-versions/{$order->id}?limit=1")->assertStatus(200)->json('data.featured'))
-            ->map(fn ($v) => [$v['version'], $v['release_type']])->all();
+            ->map(fn ($v): array => [$v['version'], $v['release_type']])->all();
 
         $upload('v1.0.0', 'official', '2026-01-01');
         $upload('v1.1.0', 'official', '2026-02-01');
@@ -433,7 +448,7 @@ class ClientControllerTest extends DBTestCase
         [$product, $order] = $this->downloadableOrder();
         $versions = ['v9.4.3.RC.1', 'v9.4.3.RC.2', 'v9.4.3.RC.3', 'v9.4.3.RC.4', 'v9.4.3.RC.5'];
         foreach ($versions as $version) {
-            \App\Model\Product\ProductUpload::create([
+            ProductUpload::create([
                 'product_id' => $product->id, 'title' => $version, 'version' => $version, 'file' => 'x.zip',
                 'is_private' => 0, 'release_type' => 'pre_release',
             ])->forceFill(['created_at' => '2026-04-20 12:21:34'])->save();
@@ -452,7 +467,7 @@ class ClientControllerTest extends DBTestCase
     public function test_previous_versions_table_leaves_out_the_featured_versions(): void
     {
         [$product, $order] = $this->downloadableOrder();
-        $upload = fn (string $version, string $type) => \App\Model\Product\ProductUpload::create([
+        $upload = fn (string $version, string $type) => ProductUpload::create([
             'product_id' => $product->id, 'title' => $version, 'version' => $version, 'file' => 'x.zip',
             'is_private' => 0, 'release_type' => $type,
         ]);
@@ -470,16 +485,16 @@ class ClientControllerTest extends DBTestCase
     public function test_github_versions_list_more_than_three_and_link_to_billing_not_github(): void
     {
         [$product, $order] = $this->downloadableOrder();
-        \App\Model\Product\Product::whereKey($product->id)->update(['github_owner' => 'acme', 'github_repository' => 'app']);
+        Product::whereKey($product->id)->update(['github_owner' => 'acme', 'github_repository' => 'app']);
         $releases = array_map(fn (int $i): array => [
             'tag_name' => "v1.{$i}.0", 'name' => "v1.{$i}.0", 'prerelease' => false, 'body' => '',
             'created_at' => now()->subDays(10 - $i)->toIso8601String(), 'zipball_url' => "https://api.github.test/zip/v1.{$i}.0",
         ], range(5, 0)); // newest first, as GitHub returns them
 
-        $github = \Mockery::mock(\App\Http\Controllers\Github\GithubApiController::class);
+        $github = \Mockery::mock(GithubApiController::class);
         $github->shouldReceive('releases')->once()->andReturn($releases);
         $github->shouldNotReceive('downloadZipball'); // listing never downloads
-        $this->app->instance(\App\Http\Controllers\Github\GithubApiController::class, $github);
+        $this->app->instance(GithubApiController::class, $github);
 
         $data = $this->getJson("/get-versions/{$order->id}?limit=2")->assertOk()->json('data');
 
@@ -493,14 +508,14 @@ class ClientControllerTest extends DBTestCase
     public function test_github_release_notes_use_githubs_rendered_html(): void
     {
         [$product, $order] = $this->downloadableOrder();
-        \App\Model\Product\Product::whereKey($product->id)->update(['github_owner' => 'acme', 'github_repository' => 'app']);
+        Product::whereKey($product->id)->update(['github_owner' => 'acme', 'github_repository' => 'app']);
         $html = '<h2>Fixes</h2><img src="https://private-user-images.githubusercontent.com/1/a.png?jwt=x">';
-        $github = \Mockery::mock(\App\Http\Controllers\Github\GithubApiController::class);
+        $github = \Mockery::mock(GithubApiController::class);
         $github->shouldReceive('releases')->once()->andReturn([[
             'tag_name' => 'v1.0.0', 'name' => 'v1.0.0', 'prerelease' => false, 'created_at' => now()->toIso8601String(), 'zipball_url' => null,
             'body' => '![a](https://github.com/user-attachments/assets/a)', 'body_html' => $html,
         ]]);
-        $this->app->instance(\App\Http\Controllers\Github\GithubApiController::class, $github);
+        $this->app->instance(GithubApiController::class, $github);
 
         $notes = array_values($this->getJson("/get-versions/{$order->id}")->assertOk()->json('data.featured'))[0]['description'];
 
@@ -510,7 +525,7 @@ class ClientControllerTest extends DBTestCase
     public function test_no_previous_versions_when_only_the_featured_one_exists(): void
     {
         [$product, $order] = $this->downloadableOrder();
-        \App\Model\Product\ProductUpload::create(['product_id' => $product->id, 'title' => 'v1', 'version' => 'v1.0.0', 'file' => 'x.zip', 'is_private' => 0, 'release_type' => 'official']);
+        ProductUpload::create(['product_id' => $product->id, 'title' => 'v1', 'version' => 'v1.0.0', 'file' => 'x.zip', 'is_private' => 0, 'release_type' => 'official']);
 
         $data = $this->getJson("/get-versions/{$order->id}")->assertOk()->json('data');
 
@@ -521,11 +536,11 @@ class ClientControllerTest extends DBTestCase
     public function test_renew_popup_vue_shows_one_time_plans_only_to_one_time_orders(): void
     {
         $product = Product::create(['name' => 'Test Product '.uniqid()]);
-        $oneTimePeriod = \App\Model\Payment\Period::firstOrCreate(['name' => 'One Time'], ['days' => 365]);
+        $oneTimePeriod = Period::firstOrCreate(['name' => 'One Time'], ['days' => 365]);
         $currency = getCurrencyForClient($this->user->country);
         $makePlan = function (string $name) use ($product, $currency) {
-            $plan = \App\Model\Payment\Plan::create(['name' => $name, 'product' => $product->id, 'days' => 180, 'status' => 1]);
-            \App\Model\Payment\PlanPrice::create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => 100, 'renew_price' => 100]);
+            $plan = Plan::create(['name' => $name, 'product' => $product->id, 'days' => 180, 'status' => 1]);
+            PlanPrice::create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => 100, 'renew_price' => 100]);
 
             return $plan;
         };
@@ -535,7 +550,7 @@ class ClientControllerTest extends DBTestCase
 
         $makeOrder = function ($plan) use ($product) {
             $order = Order::create(['client' => $this->user->id, 'order_status' => 'executed', 'product' => $product->id, 'number' => random_int(100000000, 999999999)]);
-            \App\Model\Product\Subscription::create(['user_id' => $this->user->id, 'plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id]);
+            Subscription::create(['user_id' => $this->user->id, 'plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id]);
 
             return $order;
         };
@@ -552,7 +567,7 @@ class ClientControllerTest extends DBTestCase
 
     public function test_get_order_installations_returns_200_for_owned_order(): void
     {
-        $order = \App\Model\Order\Order::create([
+        $order = Order::create([
             'client' => $this->user->id,
             'order_status' => 'executed',
             'number' => 'INST-'.uniqid(),
@@ -570,14 +585,14 @@ class ClientControllerTest extends DBTestCase
 
     public function test_get_order_installations_returns_the_orders_installations(): void
     {
-        $order = \App\Model\Order\Order::create([
+        $order = Order::create([
             'client' => $this->user->id,
             'order_status' => 'executed',
             'number' => 'INST-'.uniqid(),
         ]);
         $code = 'INSTLIC'.uniqid();
-        \App\License\Models\License::create(['product_id' => Product::factory()->create()->id, 'license_code' => $code, 'license_order_number' => $order->number]);
-        \App\License\Models\InstallationLog::create([
+        License::create(['product_id' => Product::factory()->create()->id, 'license_code' => $code, 'license_order_number' => $order->number]);
+        InstallationLog::create([
             'license_code' => $code,
             'installation_domain' => 'https://helpdesk.example.test',
             'installation_ip' => '10.0.0.5',
@@ -585,7 +600,7 @@ class ClientControllerTest extends DBTestCase
             'installation_last_active_date' => '2026-10-20 10:00:00',
         ]);
         // Another license's installation must not show up on this order.
-        \App\License\Models\InstallationLog::create(['license_code' => 'OTHER'.uniqid(), 'installation_domain' => 'https://other.example.test']);
+        InstallationLog::create(['license_code' => 'OTHER'.uniqid(), 'installation_domain' => 'https://other.example.test']);
 
         $response = $this->getJson('/get-my-installations/'.$order->id)->assertStatus(200);
 
@@ -600,8 +615,8 @@ class ClientControllerTest extends DBTestCase
 
     public function test_get_order_installations_returns_400_for_unowned_order(): void
     {
-        $other = \App\User::factory()->create(['email' => 'other-inst-'.uniqid().'@test.local']);
-        $order = \App\Model\Order\Order::create([
+        $other = User::factory()->create(['email' => 'other-inst-'.uniqid().'@test.local']);
+        $order = Order::create([
             'client' => $other->id,
             'order_status' => 'executed',
             'number' => 'INST-OTHER-'.uniqid(),
@@ -620,9 +635,9 @@ class ClientControllerTest extends DBTestCase
 
     public function test_get_cloud_settings_is_refused_for_non_cloud_order(): void
     {
-        $product = \App\Model\Product\Product::create(['name' => 'Test Product '.uniqid()]);
+        $product = Product::create(['name' => 'Test Product '.uniqid()]);
 
-        $order = \App\Model\Order\Order::create([
+        $order = Order::create([
             'client' => $this->user->id,
             'product' => $product->id,
             'order_status' => 'executed',
@@ -661,7 +676,7 @@ class ClientControllerTest extends DBTestCase
     {
         $make = function (string $status, int $deleted, bool $licenseExpires = true): Order {
             $order = Order::factory()->withRelations()->create(['client' => $this->user->id, 'order_status' => $status]);
-            \App\Model\Product\Subscription::where('order_id', $order->id)->update([
+            Subscription::where('order_id', $order->id)->update([
                 'ends_at' => $licenseExpires ? now()->subDay() : null,
                 'update_ends_at' => now()->subDay(),
                 'is_deleted' => $deleted,
@@ -728,7 +743,7 @@ class ClientControllerTest extends DBTestCase
 
     public function test_post_password_updates_with_correct_old_password(): void
     {
-        $user = \App\User::factory()->create([
+        $user = User::factory()->create([
             'email' => 'pass-update-'.uniqid().'@test.local',
             'role' => 'user',
             'password' => \Hash::make('OldPass@123'),

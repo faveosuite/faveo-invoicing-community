@@ -56,8 +56,7 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
         private string $keySecret,
         private string $checkoutName = 'Payment',
         private string $webhookSecret = '',
-    ) {
-    }
+    ) {}
 
     public function name(): string
     {
@@ -139,9 +138,11 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
             if (! empty($payment['notes']) && empty($rawData['notes'])) {
                 $rawData['notes'] = $payment['notes'];
             }
+
             if (! empty($payment['amount']) && empty($rawData['amount_paid'])) {
                 $rawData['amount_paid'] = $payment['amount'];
             }
+
             if (! empty($payment['currency']) && empty($rawData['currency'])) {
                 $rawData['currency'] = $payment['currency'];
             }
@@ -321,7 +322,7 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
             $maxSpanUnits = 20 * 12; // months
         }
 
-        $totalCount = max(1, (int) min($requestedTotalCount, intdiv($maxSpanUnits, $interval)));
+        $totalCount = max(1, min($requestedTotalCount, intdiv($maxSpanUnits, $interval)));
 
         return ['period' => $period, 'interval' => $interval, 'totalCount' => $totalCount];
     }

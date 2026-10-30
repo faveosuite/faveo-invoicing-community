@@ -119,6 +119,7 @@ return [
         ],
         'views' => [
             'timeline' => env('DEBUGBAR_OPTIONS_VIEWS_TIMELINE', true),                  // Add the views to the timeline
+            'timeline_duration' => env('DEBUGBAR_OPTIONS_VIEWS_TIMELINE_DURATION', false),// Add the views duration on timeline (Experimental)
             'data' => env('DEBUGBAR_OPTIONS_VIEWS_DATA', false),                         // True for all data, 'keys' for only names, false for no parameters.
             'group' => (int) env('DEBUGBAR_OPTIONS_VIEWS_GROUP', 50),                    // Group duplicate views. Pass value to auto-group, or true/false to force
             'exclude_paths' => [    // Add the paths which you don't want to appear in the views
@@ -260,7 +261,8 @@ return [
     | Warning: Enabling storage.open will allow everyone to access previous
     | request, do not enable open storage in publicly available environments!
     | Specify a callback if you want to limit based on IP or authentication.
-    | Leaving it to null will allow localhost only.
+    | Leaving it to null will allow localhost and private network IPs
+    | (eg. Docker/Sail or LAN) only. Set to false to disable it completely.
     */
     'storage' => [
         'enabled'    => env('DEBUGBAR_STORAGE_ENABLED', true),

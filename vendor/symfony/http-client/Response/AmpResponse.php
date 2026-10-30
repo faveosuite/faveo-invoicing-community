@@ -96,12 +96,12 @@ final class AmpResponse implements ResponseInterface, StreamableInterface
             $onProgress((int) $info['size_download'], ((int) (1 + $info['download_content_length']) ?: 1) - 1, (array) $info);
         };
 
-        $pause = 0.0;
+        $pauseExpiry = &$this->pauseExpiry;
         $this->id = $id = self::$nextId;
         self::$nextId = str_increment(self::$nextId);
 
-        $info['pause_handler'] = static function (float $duration) use (&$pause) {
-            $pause = $duration;
+        $info['pause_handler'] = static function (float $duration) use (&$pauseExpiry) {
+            $pauseExpiry = 0 < $duration ? hrtime(true) / 1E9 + $duration : min($pauseExpiry, hrtime(true) / 1E9);
         };
 
         $multi->lastTimeout = null;
@@ -114,8 +114,8 @@ final class AmpResponse implements ResponseInterface, StreamableInterface
             unset($multi->openHandles[$id], $multi->handlesActivity[$id]);
         });
 
-        EventLoop::queue(static function () use ($request, $multi, $id, &$info, &$headers, $canceller, &$options, $onProgress, &$handle, $logger, &$pause) {
-            self::generateResponse($request, $multi, $id, $info, $headers, $canceller, $options, $onProgress, $handle, $logger, $pause);
+        EventLoop::queue(static function () use ($request, $multi, $id, &$info, &$headers, $canceller, &$options, $onProgress, &$handle, $logger, &$pauseExpiry) {
+            self::generateResponse($request, $multi, $id, $info, $headers, $canceller, $options, $onProgress, $handle, $logger, $pauseExpiry);
         });
     }
 
@@ -188,14 +188,13 @@ final class AmpResponse implements ResponseInterface, StreamableInterface
     {
         $delay = new DeferredFuture();
         $id = EventLoop::delay($timeout, $delay->complete(...));
+        $futures = [$delay->getFuture()];
 
-        awaitFirst((static function () use ($delay, $multi) {
-            yield $delay->getFuture();
+        foreach ($multi->openHandles as $deferred) {
+            $futures[] = $deferred->getFuture();
+        }
 
-            foreach ($multi->openHandles as $deferred) {
-                yield $deferred->getFuture();
-            }
-        })());
+        awaitFirst($futures);
 
         if ($delay->isComplete()) {
             return 0;
@@ -207,7 +206,7 @@ final class AmpResponse implements ResponseInterface, StreamableInterface
         return 1;
     }
 
-    private static function generateResponse(Request $request, AmpClientState $multi, string $id, array &$info, array &$headers, DeferredCancellation $canceller, array &$options, \Closure $onProgress, &$handle, ?LoggerInterface $logger, float &$pause): void
+    private static function generateResponse(Request $request, AmpClientState $multi, string $id, array &$info, array &$headers, DeferredCancellation $canceller, array &$options, \Closure $onProgress, &$handle, ?LoggerInterface $logger, float &$pauseExpiry): void
     {
         $request->setInformationalResponseHandler(static function (Response $response) use ($multi, $id, &$info, &$headers) {
             self::addResponseHeaders($response, $info, $headers);
@@ -221,7 +220,7 @@ final class AmpResponse implements ResponseInterface, StreamableInterface
             if (null === $response = self::getPushedResponse($request, $multi, $info, $headers, $canceller, $options, $logger)) {
                 $logger?->info(\sprintf('Request: "%s %s"', $info['http_method'], $info['url']));
 
-                $response = self::followRedirects($request, $multi, $info, $headers, $canceller, $options, $onProgress, $handle, $logger, $pause);
+                $response = self::followRedirects($request, $multi, $info, $headers, $canceller, $options, $onProgress, $handle, $logger, $pauseExpiry);
             }
 
             $options = null;
@@ -231,7 +230,6 @@ final class AmpResponse implements ResponseInterface, StreamableInterface
             if ('HEAD' === $response->getRequest()->getMethod() || \in_array($info['http_code'], [204, 304], true)) {
                 $multi->handlesActivity[$id][] = null;
                 $multi->handlesActivity[$id][] = null;
-                $multi->openHandles[$id]->complete();
 
                 return;
             }
@@ -250,7 +248,7 @@ final class AmpResponse implements ResponseInterface, StreamableInterface
                 $multi->openHandles[$id]->complete();
                 $multi->openHandles[$id] = new DeferredFuture();
 
-                if (0 < $pause) {
+                if (0 < $pause = $pauseExpiry - hrtime(true) / 1E9) {
                     delay($pause, true, $canceller->getCancellation());
                 }
 
@@ -269,12 +267,17 @@ final class AmpResponse implements ResponseInterface, StreamableInterface
             $multi->handlesActivity[$id][] = $e;
         } finally {
             $info['download_content_length'] = $info['size_download'];
+
+            if (isset($multi->openHandles[$id])) {
+                $multi->openHandles[$id]->complete();
+                $multi->openHandles[$id] = new DeferredFuture();
+            }
         }
     }
 
-    private static function followRedirects(Request $originRequest, AmpClientState $multi, array &$info, array &$headers, DeferredCancellation $canceller, array $options, \Closure $onProgress, &$handle, ?LoggerInterface $logger, float &$pause): ?Response
+    private static function followRedirects(Request $originRequest, AmpClientState $multi, array &$info, array &$headers, DeferredCancellation $canceller, array $options, \Closure $onProgress, &$handle, ?LoggerInterface $logger, float &$pauseExpiry): ?Response
     {
-        if (0 < $pause) {
+        if (0 < $pause = $pauseExpiry - hrtime(true) / 1E9) {
             delay($pause, true, $canceller->getCancellation());
         }
 
@@ -352,13 +355,13 @@ final class AmpResponse implements ResponseInterface, StreamableInterface
                 $request->addHeader($name, $value);
             }
 
-            if ($request->getUri()->getAuthority() !== $originRequest->getUri()->getAuthority()) {
+            if ($request->getUri()->getScheme() !== $originRequest->getUri()->getScheme() || $request->getUri()->getAuthority() !== $originRequest->getUri()->getAuthority()) {
                 $request->removeHeader('authorization');
                 $request->removeHeader('cookie');
                 $request->removeHeader('host');
             }
 
-            if (0 < $pause) {
+            if (0 < $pause = $pauseExpiry - hrtime(true) / 1E9) {
                 delay($pause, true, $canceller->getCancellation());
             }
 

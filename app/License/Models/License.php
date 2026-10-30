@@ -196,7 +196,7 @@ class License extends Model
     }
 
     /**
-     * @param  Builder<Model>  $query
+     * @param  Builder<static>  $query
      */
     #[Scope]
     protected function active(Builder $query): mixed
@@ -205,7 +205,7 @@ class License extends Model
     }
 
     /**
-     * @param  Builder<Model>  $query
+     * @param  Builder<static>  $query
      */
     #[Scope]
     protected function suspended(Builder $query): mixed
@@ -218,7 +218,7 @@ class License extends Model
      * this license (license_plugins) install under the same code with their own product_id,
      * and the install limit is per product — so counting them would overstate the usage.
      *
-     * @param  Builder<Model>  $query
+     * @param  Builder<static>  $query
      */
     #[Scope]
     protected function withUsage(Builder $query): mixed

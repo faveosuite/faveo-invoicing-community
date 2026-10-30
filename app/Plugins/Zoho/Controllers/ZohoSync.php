@@ -6,6 +6,7 @@ use App\Plugins\Zoho\Helpers\ZohoConnectHelper;
 use App\Plugins\Zoho\Models\ZohoFieldMappings;
 use App\Plugins\Zoho\Models\ZohoFields;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 
 class ZohoSync
 {
@@ -54,7 +55,7 @@ class ZohoSync
         }
 
         // Fields that changed (type, picklist choices): re-check their mapping with the same rule the mapping page uses on save.
-        foreach (ZohoFieldMappings::with(['zohoField', 'faveoLocalField'])->whereHas('zohoField', fn ($q) => $q->wherePlatform($platform)->whereModule($module))->get() as $mapping) {
+        foreach (ZohoFieldMappings::with(['zohoField', 'faveoLocalField'])->whereHas('zohoField', fn (Builder $q) => $q->wherePlatform($platform)->whereModule($module))->get() as $mapping) {
             if (! ZohoConnectHelper::mappingStillValid($mapping)) {
                 $removed[] = $mapping->zohoField->display_name;
                 $mapping->delete();

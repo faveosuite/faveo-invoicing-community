@@ -6,6 +6,7 @@ use App\Facades\Attach;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,8 +32,7 @@ class ProductBundleStampingService
     public function __construct(
         protected Ed25519SigningService $signingService,
         protected LicenseFileService $licenseFileService,
-    ) {
-    }
+    ) {}
 
     /**
      * Stamps $targetProduct's identity into a local temp copy of the
@@ -55,13 +55,13 @@ class ProductBundleStampingService
 
         try {
             $this->stampZip($localCopy, $targetProduct, $version, $order);
-        } catch (Throwable $e) {
+        } catch (Throwable $throwable) {
             // Don't leave a half-stamped (or never-stamped) copy behind in the
             // system temp dir — this method is called on every download, so a
             // recurring failure here would otherwise accumulate real disk usage.
-            @unlink($localCopy);
+            File::delete($localCopy);
 
-            throw $e;
+            throw $throwable;
         }
 
         return $localCopy;
@@ -99,7 +99,7 @@ class ProductBundleStampingService
                 $this->assertHasProductKey($product);
                 $this->stampZip($localZipPath, $product, $tag, $order, underRootFolder: true);
             } catch (Throwable $e) {
-                @unlink($localZipPath);
+                File::delete($localZipPath);
 
                 throw $e;
             }
@@ -303,6 +303,6 @@ class ProductBundleStampingService
      */
     private function isFileMode(?Order $order): bool
     {
-        return $order !== null && $order->license_mode === 'File';
+        return $order instanceof Order && $order->license_mode === 'File';
     }
 }

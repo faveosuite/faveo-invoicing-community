@@ -33,8 +33,8 @@ class SeoSettingsControllerTest extends DBTestCase
         $response->assertStatus(200)->assertJson(['success' => true]);
         $response->assertJsonPath('data.general_description', '');
         $response->assertJsonPath('data.favicon_title', '');
-        $response->assertJsonPath('data.general_og_image', null);
-        $response->assertJsonPath('data.general_og_same_as_meta', false);
+        $response->assertJsonPath('data.general_og_image', expect: null);
+        $response->assertJsonPath('data.general_og_same_as_meta', expect: false);
     }
 
     public function test_show_returns_configured_text_and_boolean_fields(): void
@@ -51,7 +51,7 @@ class SeoSettingsControllerTest extends DBTestCase
         $response->assertJsonPath('data.favicon_title', 'Admin Title');
         $response->assertJsonPath('data.favicon_title_client', 'Client Title');
         $response->assertJsonPath('data.general_description', 'A description');
-        $response->assertJsonPath('data.general_og_same_as_meta', true);
+        $response->assertJsonPath('data.general_og_same_as_meta', expect: true);
     }
 
     public function test_show_resolves_the_configured_image_to_a_url(): void
@@ -150,7 +150,7 @@ class SeoSettingsControllerTest extends DBTestCase
     {
         // generateAll() failures are caught and report()ed inside the
         // controller — they must never fail the request itself.
-        $this->mock(SeoFileGenerator::class, function ($mock) {
+        $this->mock(SeoFileGenerator::class, function ($mock): void {
             $mock->shouldReceive('generateAll')->once()->andThrow(new \RuntimeException('disk full'));
         });
 

@@ -10,8 +10,8 @@ trait WithModelStub
     /**
      * Build the model replacement values.
      *
-     * @param  array  $replace
-     * @return array
+     * @param  array<string, string>  $replace
+     * @return array<string, string>
      */
     protected function buildModelReplacements(array $replace): array
     {
@@ -25,11 +25,8 @@ trait WithModelStub
 
     /**
      * Get the fully-qualified model class name.
-     *
-     * @param  string  $model
-     * @return string
      */
-    protected function parseModel($model): string
+    protected function parseModel(string $model): string
     {
         if (preg_match('([^A-Za-z0-9_/\\\\])', $model)) {
             throw new InvalidArgumentException('Model name contains invalid characters.');
@@ -45,20 +42,15 @@ trait WithModelStub
             return $model;
         }
 
-        $model = is_dir(app_path('Models'))
+        return is_dir(app_path('Models'))
             ? $rootNamespace . 'Models\\' . $model
             : $rootNamespace . $model;
-
-        return $model;
     }
 
     /**
      * Resolve the fully-qualified path to the stub.
-     *
-     * @param  string  $stub
-     * @return string
      */
-    protected function resolveStubPath($stub)
+    protected function resolveStubPath(string $stub): string
     {
         return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
             ? $customPath

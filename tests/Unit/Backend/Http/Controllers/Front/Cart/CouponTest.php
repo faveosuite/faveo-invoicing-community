@@ -27,7 +27,7 @@ class CouponTest extends DBTestCase
         $this->actingAs($user);
 
         $promotionType = PromotionType::first() ?? PromotionType::create(['name' => 'Fixed Amount']);
-        $product = Product::factory()->create();
+        Product::factory()->create();
         Promotion::create([
             'code' => 'EXPIREDCOUPON',
             'type' => $promotionType->id,

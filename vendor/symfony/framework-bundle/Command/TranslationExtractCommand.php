@@ -59,6 +59,7 @@ class TranslationExtractCommand extends Command
         private array $codePaths = [],
         private array $enabledLocales = [],
     ) {
+        $this->enabledLocales = array_filter($enabledLocales);
         parent::__construct();
 
         if (!method_exists($writer, 'getFormats')) {
@@ -199,7 +200,7 @@ class TranslationExtractCommand extends Command
             : new MergeOperation($currentCatalogue, $extractedCatalogue);
 
         // Exit if no messages found.
-        if (!\count($operation->getDomains())) {
+        if (!$operation->getDomains()) {
             $errorIo->warning('No translation messages were found.');
 
             return 0;

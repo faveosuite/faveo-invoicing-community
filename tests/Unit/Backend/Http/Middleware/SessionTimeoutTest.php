@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Middleware;
 
 use App\Http\Middleware\SessionTimeout;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Session;
@@ -14,15 +15,15 @@ class SessionTimeoutTest extends TestCase
 {
     private function next(): \Closure
     {
-        return fn ($req) => response('passed');
+        return fn ($req): ResponseFactory|\Illuminate\Http\Response => response('passed');
     }
 
     public function test_resets_timer_and_passes_when_just_started(): void
     {
-        Session::put('justStarted', true);
+        Session::put('justStarted', value: true);
         $request = Request::create('/verify', 'GET');
 
-        $response = (new SessionTimeout())->handle($request, $this->next());
+        $response = new SessionTimeout()->handle($request, $this->next());
 
         $this->assertSame('passed', $response->getContent());
         $this->assertTrue(Session::has('lastVerificationActivity'));
@@ -33,7 +34,7 @@ class SessionTimeoutTest extends TestCase
         Session::forget('lastVerificationActivity');
         $request = Request::create('/verify', 'GET');
 
-        $response = (new SessionTimeout())->handle($request, $this->next());
+        $response = new SessionTimeout()->handle($request, $this->next());
 
         $this->assertSame('passed', $response->getContent());
         $this->assertTrue(Session::has('lastVerificationActivity'));
@@ -44,7 +45,7 @@ class SessionTimeoutTest extends TestCase
         Session::put('lastVerificationActivity', Date::now()->subMinutes(5)->timestamp);
         $request = Request::create('/verify', 'GET');
 
-        $response = (new SessionTimeout())->handle($request, $this->next(), 10);
+        $response = new SessionTimeout()->handle($request, $this->next(), 10);
 
         $this->assertSame('passed', $response->getContent());
     }
@@ -54,7 +55,7 @@ class SessionTimeoutTest extends TestCase
         Session::put('lastVerificationActivity', Date::now()->subMinutes(15)->timestamp);
         $request = Request::create('/verify', 'GET');
 
-        $response = (new SessionTimeout())->handle($request, $this->next(), 10);
+        $response = new SessionTimeout()->handle($request, $this->next(), 10);
 
         $this->assertSame(302, $response->getStatusCode());
     }
@@ -65,7 +66,7 @@ class SessionTimeoutTest extends TestCase
         $request = Request::create('/verify', 'GET');
         $request->headers->set('Accept', 'application/json');
 
-        $response = (new SessionTimeout())->handle($request, $this->next(), 10);
+        $response = new SessionTimeout()->handle($request, $this->next(), 10);
 
         $this->assertSame(401, $response->getStatusCode());
     }

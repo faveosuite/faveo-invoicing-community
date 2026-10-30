@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Payment;
 
+use App\Http\Middleware\Install;
 use Tests\DBTestCase;
 
 class OpenPaymentControllerTest extends DBTestCase
@@ -11,7 +12,7 @@ class OpenPaymentControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     private function validPayload(): array
@@ -48,6 +49,7 @@ class OpenPaymentControllerTest extends DBTestCase
         $response = $this->postJson('/pay/create', []);
 
         $response->assertStatus(412);
+
         $errors = $response->json('message');
 
         // Verify specific messages per the OpenPaymentRequest::messages()

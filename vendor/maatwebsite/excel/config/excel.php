@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+use Maatwebsite\Excel\DefaultValueBinder;
 use Maatwebsite\Excel\Excel;
 use PhpOffice\PhpSpreadsheet\Reader\Csv;
 
@@ -15,7 +18,7 @@ return [
         | Here you can specify how big the chunk should be.
         |
         */
-        'chunk_size'             => 1000,
+        'chunk_size' => env('EXCEL_CHUNK_SIZE', 1000),
 
         /*
         |--------------------------------------------------------------------------
@@ -42,7 +45,7 @@ return [
         | Configure e.g. delimiter, enclosure and line ending for CSV exports.
         |
         */
-        'csv'                    => [
+        'csv' => [
             'delimiter'              => ',',
             'enclosure'              => '"',
             'line_ending'            => PHP_EOL,
@@ -61,7 +64,7 @@ return [
         | Configure e.g. default title, creator, subject,...
         |
         */
-        'properties'             => [
+        'properties' => [
             'creator'        => '',
             'lastModifiedBy' => '',
             'title'          => '',
@@ -72,9 +75,21 @@ return [
             'manager'        => '',
             'company'        => '',
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Custom source handlers
+        |--------------------------------------------------------------------------
+        |
+        | Register class names that implement SheetSourceHandler or
+        | QueuedSheetSourceHandler. They are resolved from the service container
+        | and take priority over the built-in From* handlers.
+        |
+        */
+        'source_handlers' => [],
     ],
 
-    'imports'            => [
+    'imports' => [
 
         /*
         |--------------------------------------------------------------------------
@@ -87,7 +102,7 @@ return [
         | you can enable it by setting read_only to false.
         |
         */
-        'read_only'    => true,
+        'read_only' => true,
 
         /*
         |--------------------------------------------------------------------------
@@ -111,7 +126,7 @@ return [
         | Available options: none|slug|custom
         |
         */
-        'heading_row'  => [
+        'heading_row' => [
             'formatter' => 'slug',
         ],
 
@@ -123,7 +138,7 @@ return [
         | Configure e.g. delimiter, enclosure and line ending for CSV imports.
         |
         */
-        'csv'          => [
+        'csv' => [
             'delimiter'        => null,
             'enclosure'        => '"',
             'escape_character' => '\\',
@@ -139,7 +154,7 @@ return [
         | Configure e.g. default title, creator, subject,...
         |
         */
-        'properties'   => [
+        'properties' => [
             'creator'        => '',
             'lastModifiedBy' => '',
             'title'          => '',
@@ -159,10 +174,10 @@ return [
         | Configure middleware that is executed on getting a cell value
         |
         */
-        'cells'        => [
+        'cells' => [
             'middleware' => [
-                //\Maatwebsite\Excel\Middleware\TrimCellValue::class,
-                //\Maatwebsite\Excel\Middleware\ConvertEmptyCellValuesToNull::class,
+                // \Maatwebsite\Excel\Middleware\TrimCellValue::class,
+                // \Maatwebsite\Excel\Middleware\ConvertEmptyCellValuesToNull::class,
             ],
         ],
 
@@ -203,7 +218,7 @@ return [
         | Available options: Excel::MPDF | Excel::TCPDF | Excel::DOMPDF
         |
         */
-        'pdf'      => Excel::DOMPDF,
+        'pdf' => Excel::DOMPDF,
     ],
 
     /*
@@ -223,11 +238,11 @@ return [
     | [x] PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder::class
     |
     */
-    'value_binder'       => [
-        'default' => Maatwebsite\Excel\DefaultValueBinder::class,
+    'value_binder' => [
+        'default' => DefaultValueBinder::class,
     ],
 
-    'cache'        => [
+    'cache' => [
         /*
         |--------------------------------------------------------------------------
         | Default cell caching driver
@@ -244,7 +259,7 @@ return [
         | Drivers: memory|illuminate|batch
         |
         */
-        'driver'      => 'memory',
+        'driver' => env('EXCEL_CACHE_DRIVER', 'memory'),
 
         /*
         |--------------------------------------------------------------------------
@@ -256,8 +271,8 @@ return [
         | Here you can tweak the memory limit to your liking.
         |
         */
-        'batch'       => [
-            'memory_limit' => 60000,
+        'batch' => [
+            'memory_limit' => env('EXCEL_CACHE_BATCH_MEMORY', 60000),
         ],
 
         /*
@@ -272,8 +287,8 @@ return [
         | at "null" it will use the default store.
         |
         */
-        'illuminate'  => [
-            'store' => null,
+        'illuminate' => [
+            'store' => env('EXCEL_CACHE_STORAGE'),
         ],
 
         /*
@@ -326,7 +341,7 @@ return [
         | and the create file (file).
         |
         */
-        'local_path'          => storage_path('framework/cache/laravel-excel'),
+        'local_path' => storage_path('framework/cache/laravel-excel'),
 
         /*
         |--------------------------------------------------------------------------
@@ -338,7 +353,7 @@ return [
         | If omitted the default permissions of the filesystem will be used.
         |
         */
-        'local_permissions'   => [
+        'local_permissions' => [
             // 'dir'  => 0755,
             // 'file' => 0644,
         ],
@@ -357,8 +372,8 @@ return [
         | in conjunction with queued imports and exports.
         |
         */
-        'remote_disk'         => null,
-        'remote_prefix'       => null,
+        'remote_disk'   => null,
+        'remote_prefix' => null,
 
         /*
         |--------------------------------------------------------------------------

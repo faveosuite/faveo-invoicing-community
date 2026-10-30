@@ -23,6 +23,7 @@ use App\Model\Product\Subscription;
 use App\User;
 use DB;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -77,7 +78,7 @@ class HomeController extends BaseHomeController
 
             return self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
             $result = ['status' => 'error', 'message' => __('message.sorry_something_wrong')];
 
             $jsonResult = json_encode($result);
@@ -120,6 +121,7 @@ class HomeController extends BaseHomeController
             if ($key_content === false) {
                 dd('Failed to read key file');
             }
+
             if (! $privateKey = openssl_pkey_get_private($key_content)) {
                 dd('Private Key failed');
             }
@@ -207,10 +209,12 @@ class HomeController extends BaseHomeController
         if ($key_content === false) {
             throw new Exception('Failed to read public key file');
         }
+
         $public_key = openssl_get_publickey($key_content);
         if ($public_key === false) {
             throw new Exception('Invalid public key');
         }
+
         $encrypted = null;
         $e = null;
         openssl_seal($data, $encrypted, $e, [$public_key], 'RC4');
@@ -352,7 +356,7 @@ class HomeController extends BaseHomeController
                 }
             }
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
             $message = ['error' => __('message.sorry_something_wrong')];
         }
 
@@ -439,10 +443,12 @@ class HomeController extends BaseHomeController
             if (! $order instanceof Order) {
                 throw new Exception('Order not found');
             }
+
             $oldinvoice = $basecron->getInvoiceByOrderId($subscription->order_id);
             if (! $oldinvoice instanceof Invoice) {
                 throw new Exception('Invoice not found');
             }
+
             $item = $basecron->getInvoiceItemByInvoiceId($oldinvoice->id);
             if (! $item instanceof InvoiceItem) {
                 throw new Exception('Invoice item not found');
@@ -452,6 +458,7 @@ class HomeController extends BaseHomeController
             if (! $product_details instanceof Product) {
                 throw new Exception('Product details not found');
             }
+
             $oldcurrency = (string) $oldinvoice->currency;
 
             // The order's own plan, priced the same way as every other renewal.
@@ -529,9 +536,9 @@ class HomeController extends BaseHomeController
                 ->where('plans.status', 1)
                 ->where('plan_prices.currency', $currency)
                 // A cloud (status 1) product is listed only when it has both a monthly and a yearly price in this currency.
-                ->where(function ($query) use ($currency): void {
+                ->where(function (Builder $query) use ($currency): void {
                     $query->where('products.status', '!=', 1)
-                        ->orWhere(function ($active) use ($currency): void {
+                        ->orWhere(function (Builder $active) use ($currency): void {
                             $active->where('products.status', 1)
                                 ->whereExists(fn ($m) => $m->select(DB::raw(1))
                                     ->from('plans as p1')
@@ -550,7 +557,7 @@ class HomeController extends BaseHomeController
                         });
                 })
                 ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10,2)) ASC')
-                ->orderBy('products.created_at', 'ASC')
+                ->oldest('products.created_at')
                 // Public, unauthenticated feed: list only what a pricing card shows. Never `products.*`,
                 // which would leak product_key, apl_salt, file and server paths.
                 ->select(
@@ -566,8 +573,8 @@ class HomeController extends BaseHomeController
             $products->transform(function (Product $product) use ($page): Product {
                 $days = (int) $product->getAttribute('days');
 
-                if ((int) $product->status === 1 && in_array($days, [30, 31, 365, 366], true)) {
-                    $product->setAttribute('price_description', $page->getPriceDescription($product->id, in_array($days, [30, 31], true) ? [30, 31] : [365, 366]));
+                if ((int) $product->status === 1 && in_array($days, [30, 31, 365, 366], strict: true)) {
+                    $product->setAttribute('price_description', $page->getPriceDescription($product->id, in_array($days, [30, 31], strict: true) ? [30, 31] : [365, 366]));
                 }
 
                 return $product;
@@ -591,7 +598,7 @@ class HomeController extends BaseHomeController
 
         return $locale === 'en'
             ? $currency
-            : (new \NumberFormatter($locale, \NumberFormatter::CURRENCY))->getSymbol(\NumberFormatter::CURRENCY_SYMBOL);
+            : new \NumberFormatter($locale, \NumberFormatter::CURRENCY)->getSymbol(\NumberFormatter::CURRENCY_SYMBOL);
     }
 
     public function getDetailedBillingInfo(Request $request): JsonResponse

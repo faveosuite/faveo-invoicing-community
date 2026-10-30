@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\User;
 
 use App\Events\UserOrderDelete;
+use App\Model\Order\CreditTransaction;
 use App\Model\Order\Order;
+use App\Model\Order\Payment;
+use App\Model\Order\UserCreditBalance;
 use App\Model\Product\Subscription;
 use App\User;
 use DB;
@@ -81,19 +84,19 @@ class SoftDeleteController extends ClientController
                 // cloud tenants to destroy once the DB delete has committed
                 $tenants = $user->order()->whereIn('product', cloudPopupProducts())->get()
                     ->reject(fn (Order $order) => Subscription::where('order_id', $order->id)->where('is_deleted', 1)->exists())
-                    ->flatMap(fn (Order $order) => $order->installedDomains()->map(fn ($domain) => [$domain, $order->id]));
+                    ->flatMap(fn (Order $order) => $order->installedDomains()->map(fn ($domain): array => [$domain, $order->id]));
 
                 DB::transaction(function () use ($user): void {
                     // Model deletes, not query deletes: Invoice::delete()/Order::delete() clean up items,
                     // tax lines, links, licenses and gateway auto-renewal.
                     $user->order()->get()->each->delete();
                     $user->invoice()->get()->each->delete();
-                    \App\Model\Order\Payment::where('user_id', $user->id)->get()->each(function ($payment): void {
+                    Payment::where('user_id', $user->id)->get()->each(function ($payment): void {
                         $payment->invoices()->detach();
                         $payment->delete();
                     });
-                    \App\Model\Order\CreditTransaction::where('user_id', $user->id)->delete();
-                    \App\Model\Order\UserCreditBalance::where('user_id', $user->id)->delete();
+                    CreditTransaction::where('user_id', $user->id)->delete();
+                    UserCreditBalance::where('user_id', $user->id)->delete();
                     DB::table('free_trial_allowed')->where('user_id', $user->id)->delete();
                     DB::table('third_party_tokens')->where('user_id', $user->id)->delete();
                     DB::table('verification_attempts')->where('user_id', $user->id)->delete();

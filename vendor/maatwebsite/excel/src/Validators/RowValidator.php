@@ -11,27 +11,18 @@ use Maatwebsite\Excel\Exceptions\RowSkippedException;
 
 class RowValidator
 {
-    /**
-     * @var Factory
-     */
-    private $validator;
-
-    /**
-     * @param  Factory  $validator
-     */
-    public function __construct(Factory $validator)
-    {
-        $this->validator = $validator;
+    public function __construct(
+        private readonly Factory $validator,
+    ) {
     }
 
     /**
-     * @param  array  $rows
-     * @param  WithValidation  $import
+     * @param  array<int, array<array-key, mixed>>  $rows
      *
      * @throws ValidationException
      * @throws RowSkippedException
      */
-    public function validate(array $rows, WithValidation $import)
+    public function validate(array $rows, WithValidation $import): void
     {
         $rules      = $this->rules($import);
         $messages   = $this->messages($import);
@@ -48,7 +39,7 @@ class RowValidator
         } catch (IlluminateValidationException $e) {
             $failures = [];
             foreach ($e->errors() as $attribute => $messages) {
-                $row           = strtok($attribute, '.');
+                $row           = (int) strtok($attribute, '.');
                 $attributeName = strtok('');
                 $attributeName = $attributes['*.' . $attributeName] ?? $attributeName;
 
@@ -73,8 +64,7 @@ class RowValidator
     }
 
     /**
-     * @param  WithValidation  $import
-     * @return array
+     * @return array<string, mixed>
      */
     private function messages(WithValidation $import): array
     {
@@ -84,8 +74,7 @@ class RowValidator
     }
 
     /**
-     * @param  WithValidation  $import
-     * @return array
+     * @return array<string, mixed>
      */
     private function attributes(WithValidation $import): array
     {
@@ -95,8 +84,7 @@ class RowValidator
     }
 
     /**
-     * @param  WithValidation  $import
-     * @return array
+     * @return array<string, mixed>
      */
     private function rules(WithValidation $import): array
     {
@@ -104,12 +92,12 @@ class RowValidator
     }
 
     /**
-     * @param  array  $elements
-     * @return array
+     * @param  array<array-key, mixed>  $elements
+     * @return array<string, mixed>
      */
     private function formatKey(array $elements): array
     {
-        return collect($elements)->mapWithKeys(function ($rule, $attribute) {
+        return collect($elements)->mapWithKeys(function (string|object|callable|array $rule, $attribute): array {
             $attribute = Str::startsWith($attribute, '*.') ? $attribute : '*.' . $attribute;
 
             return [$attribute => $this->formatRule($rule)];
@@ -117,10 +105,10 @@ class RowValidator
     }
 
     /**
-     * @param  string|object|callable|array  $rules
-     * @return string|array
+     * @param  string|object|callable|array<array-key, mixed>  $rules
+     * @return string|object|callable|array<array-key, mixed>
      */
-    private function formatRule($rules)
+    private function formatRule(string|object|callable|array $rules): string|object|callable|array
     {
         if (is_array($rules)) {
             foreach ($rules as $rule) {
@@ -135,9 +123,7 @@ class RowValidator
         }
 
         if (Str::contains($rules, 'required_without') && preg_match('/(.*?):(.*)/', $rules, $matches)) {
-            $column = array_map(function ($match) {
-                return Str::startsWith($match, '*.') ? $match : '*.' . $match;
-            }, explode(',', $matches[2]));
+            $column = array_map(fn ($match): string => Str::startsWith($match, '*.') ? $match : '*.' . $match, explode(',', $matches[2]));
 
             return $matches[1] . ':' . implode(',', $column);
         }

@@ -1,13 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Concerns;
 
 use Throwable;
 
 interface SkipsOnError
 {
-    /**
-     * @param  Throwable  $e
-     */
-    public function onError(Throwable $e);
+    public function onError(Throwable $e): void;
 }

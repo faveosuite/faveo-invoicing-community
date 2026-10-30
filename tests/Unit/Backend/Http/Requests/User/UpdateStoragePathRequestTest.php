@@ -11,12 +11,12 @@ class UpdateStoragePathRequestTest extends TestCase
 {
     private function rules(): array
     {
-        return (new UpdateStoragePathRequest())->rules();
+        return new UpdateStoragePathRequest()->rules();
     }
 
     public function test_authorize_returns_true(): void
     {
-        $this->assertTrue((new UpdateStoragePathRequest())->authorize());
+        $this->assertTrue(new UpdateStoragePathRequest()->authorize());
     }
 
     public function test_disk_is_required(): void
@@ -39,6 +39,6 @@ class UpdateStoragePathRequestTest extends TestCase
 
     public function test_messages_returns_non_empty_array(): void
     {
-        $this->assertNotEmpty((new UpdateStoragePathRequest())->messages());
+        $this->assertNotEmpty(new UpdateStoragePathRequest()->messages());
     }
 }

@@ -90,13 +90,13 @@ class BaseCartControllerTest extends DBTestCase
             'quantity' => 1,
         ]);
         $addResponse->assertStatus(200);
+
         $cartData = $addResponse->json('data');
 
         if (! empty($cartData['items'])) {
             $itemId = $cartData['items'][0]['id'];
             $updateResponse = $this->putJson("my-cart/items/{$itemId}", ['quantity' => 2]);
             $updateResponse->assertStatus(200);
-        } else {
         }
     }
 
@@ -161,7 +161,7 @@ class BaseCartControllerTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         // Must use auth middleware for checkout
-        $this->withoutMiddleware(false);
+        $this->withoutMiddleware(middleware: false);
         $this->actingAs($user);
 
         $response = $this->getJson('my-cart/checkout');

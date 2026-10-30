@@ -2,84 +2,66 @@
 
 namespace Maatwebsite\Excel;
 
+use Illuminate\Bus\PendingBatch;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Macroable;
+use Maatwebsite\Excel\Concerns\Export;
+use Maatwebsite\Excel\Concerns\Import;
+use Maatwebsite\Excel\Contracts\QueuedSheetSourceHandler;
+use Maatwebsite\Excel\Contracts\SheetSourceHandler;
 use Maatwebsite\Excel\Files\Filesystem;
 use Maatwebsite\Excel\Files\TemporaryFile;
 use Maatwebsite\Excel\Helpers\FileTypeDetector;
+use Maatwebsite\Excel\Validators\ValidationException;
+use PhpOffice\PhpSpreadsheet\Exception;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class Excel implements Exporter, Importer
 {
     use Macroable, RegistersCustomConcerns;
 
-    const XLSX     = 'Xlsx';
+    public const string XLSX = 'Xlsx';
 
-    const CSV      = 'Csv';
+    public const string CSV = 'Csv';
 
-    const TSV      = 'Csv';
+    public const string TSV = 'Csv';
 
-    const ODS      = 'Ods';
+    public const string ODS = 'Ods';
 
-    const XLS      = 'Xls';
+    public const string XLS = 'Xls';
 
-    const SLK      = 'Slk';
+    public const string SLK = 'Slk';
 
-    const XML      = 'Xml';
+    public const string XML = 'Xml';
 
-    const GNUMERIC = 'Gnumeric';
+    public const string GNUMERIC = 'Gnumeric';
 
-    const HTML     = 'Html';
+    public const string HTML = 'Html';
 
-    const MPDF     = 'Mpdf';
+    public const string MPDF = 'Mpdf';
 
-    const DOMPDF   = 'Dompdf';
+    public const string DOMPDF = 'Dompdf';
 
-    const TCPDF    = 'Tcpdf';
+    public const string TCPDF = 'Tcpdf';
 
-    /**
-     * @var Writer
-     */
-    protected $writer;
-
-    /**
-     * @var QueuedWriter
-     */
-    protected $queuedWriter;
-
-    /**
-     * @var Filesystem
-     */
-    protected $filesystem;
-
-    /**
-     * @var Reader
-     */
-    private $reader;
-
-    /**
-     * @param  Writer  $writer
-     * @param  QueuedWriter  $queuedWriter
-     * @param  Reader  $reader
-     * @param  Filesystem  $filesystem
-     */
     public function __construct(
-        Writer $writer,
-        QueuedWriter $queuedWriter,
-        Reader $reader,
-        Filesystem $filesystem
+        protected Writer $writer,
+        protected QueuedWriter $queuedWriter,
+        private readonly Reader $reader,
+        protected Filesystem $filesystem,
+        private readonly HandlerRegistry $handlerRegistry,
     ) {
-        $this->writer       = $writer;
-        $this->reader       = $reader;
-        $this->filesystem   = $filesystem;
-        $this->queuedWriter = $queuedWriter;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @param  array<string, string>  $headers
      */
-    public function download($export, string $fileName, ?string $writerType = null, array $headers = [])
+    public function download(Export $export, string $fileName, ?string $writerType = null, array $headers = []): BinaryFileResponse
     {
         // Clear output buffer to prevent stuff being prepended to the Excel output.
         if (ob_get_length() > 0) {
@@ -99,7 +81,7 @@ class Excel implements Exporter, Importer
      *
      * @param  string|null  $disk  Fallback for usage with named properties
      */
-    public function store($export, string $filePath, ?string $diskName = null, ?string $writerType = null, $diskOptions = [], ?string $disk = null)
+    public function store(Export $export, string $filePath, ?string $diskName = null, ?string $writerType = null, mixed $diskOptions = [], ?string $disk = null): bool|PendingDispatch|PendingBatch
     {
         if ($export instanceof ShouldQueue) {
             return $this->queue($export, $filePath, $diskName ?: $disk, $writerType, $diskOptions);
@@ -117,10 +99,7 @@ class Excel implements Exporter, Importer
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function queue($export, string $filePath, ?string $disk = null, ?string $writerType = null, $diskOptions = [])
+    public function queue(Export $export, string $filePath, ?string $disk = null, ?string $writerType = null, mixed $diskOptions = []): PendingDispatch|PendingBatch
     {
         $writerType = FileTypeDetector::detectStrict($filePath, $writerType);
 
@@ -133,10 +112,7 @@ class Excel implements Exporter, Importer
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function raw($export, string $writerType)
+    public function raw(Export $export, string $writerType): string
     {
         $temporaryFile = $this->writer->export($export, $writerType);
 
@@ -147,14 +123,14 @@ class Excel implements Exporter, Importer
     }
 
     /**
-     * {@inheritdoc}
+     * @throws ValidationException
      */
-    public function import($import, $filePath, ?string $disk = null, ?string $readerType = null)
+    public function import(Import $import, string|UploadedFile $filePath, ?string $disk = null, ?string $readerType = null): static|PendingDispatch|PendingBatch
     {
         $readerType = FileTypeDetector::detect($filePath, $readerType);
         $response   = $this->reader->read($import, $filePath, $readerType, $disk);
 
-        if ($response instanceof PendingDispatch) {
+        if ($response instanceof PendingDispatch || $response instanceof PendingBatch) {
             return $response;
         }
 
@@ -162,9 +138,9 @@ class Excel implements Exporter, Importer
     }
 
     /**
-     * {@inheritdoc}
+     * @return array<array-key, array<int, array<array-key, mixed>>>
      */
-    public function toArray($import, $filePath, ?string $disk = null, ?string $readerType = null): array
+    public function toArray(Import $import, string|UploadedFile $filePath, ?string $disk = null, ?string $readerType = null): array
     {
         $readerType = FileTypeDetector::detect($filePath, $readerType);
 
@@ -172,32 +148,44 @@ class Excel implements Exporter, Importer
     }
 
     /**
-     * {@inheritdoc}
+     * @return Collection<array-key, Collection<int, Collection<array-key, mixed>>>
      */
-    public function toCollection($import, $filePath, ?string $disk = null, ?string $readerType = null): Collection
+    public function toCollection(?Import $import, string|UploadedFile $filePath, ?string $disk = null, ?string $readerType = null): Collection
     {
         $readerType = FileTypeDetector::detect($filePath, $readerType);
 
         return $this->reader->toCollection($import, $filePath, $readerType, $disk);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function queueImport(ShouldQueue $import, $filePath, ?string $disk = null, ?string $readerType = null)
+    public function queueImport(ShouldQueue&Import $import, string|UploadedFile $filePath, ?string $disk = null, ?string $readerType = null): PendingDispatch|PendingBatch
     {
-        return $this->import($import, $filePath, $disk, $readerType);
+        $response = $this->import($import, $filePath, $disk, $readerType);
+
+        // A ShouldQueue import always yields a pending dispatch or batch; the
+        // reader throws before reaching this point when it cannot be queued.
+        assert($response instanceof PendingDispatch || $response instanceof PendingBatch);
+
+        return $response;
     }
 
     /**
-     * @param  object  $export
-     * @param  string|null  $fileName
-     * @param  string  $writerType
-     * @return TemporaryFile
+     * Register a custom export source handler.
      *
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * The handler may implement SheetSourceHandler (sync), QueuedSheetSourceHandler
+     * (queued), or both. Pass a class name to have it resolved lazily from the
+     * service container, or pass an instance directly.
+     *
+     * @param  SheetSourceHandler|QueuedSheetSourceHandler|class-string  ...$handlers
      */
-    protected function export($export, string $fileName, ?string $writerType = null): TemporaryFile
+    public function registerSourceHandler(SheetSourceHandler|QueuedSheetSourceHandler|string ...$handlers): void
+    {
+        $this->handlerRegistry->register(...$handlers);
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function export(Export $export, string $fileName, ?string $writerType = null): TemporaryFile
     {
         $writerType = FileTypeDetector::detectStrict($fileName, $writerType);
 

@@ -31,6 +31,7 @@ Name | Type | Description | Notes
 **conference_meeting_id** | **string** | The ID of the conference meeting | [optional]
 **public_description** | **string** | The public description of the activity | [optional]
 **priority** | **int** | The priority of the activity. Mappable to a specific string using activityFields API. | [optional]
+**outcome** | **int** | The ID of the Outcome for the activity. The available Outcome values depend on the activity type and can be retrieved using the Activity Fields API. | [optional]
 **note** | **string** | The note of the activity | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

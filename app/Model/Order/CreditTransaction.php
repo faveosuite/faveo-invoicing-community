@@ -7,6 +7,7 @@ namespace App\Model\Order;
 use App\BaseModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 
 /**
  * Append-only history behind a client's credit balance — never edited or
@@ -24,8 +25,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int|null $payment_id
  * @property int|null $invoice_id
  * @property string|null $note
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CreditTransaction newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CreditTransaction newQuery()

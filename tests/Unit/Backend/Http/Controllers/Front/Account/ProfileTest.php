@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Front\Account;
 
+use App\Model\Common\Timezone;
 use App\User;
 use Hash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -40,7 +41,7 @@ class ProfileTest extends DBTestCase
 
     public function test_profile_loads_with_its_timezone_so_the_box_is_not_empty(): void
     {
-        $timezone = \App\Model\Common\Timezone::firstOrFail();
+        $timezone = Timezone::firstOrFail();
         $this->user->update(['timezone_id' => $timezone->id]);
 
         $this->getJson('/get-my-profile')

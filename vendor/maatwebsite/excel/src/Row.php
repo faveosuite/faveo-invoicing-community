@@ -4,91 +4,105 @@ namespace Maatwebsite\Excel;
 
 use ArrayAccess;
 use Closure;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Columns\ColumnCollection;
+use PhpOffice\PhpSpreadsheet\Calculation\Exception as CalculationException;
 use PhpOffice\PhpSpreadsheet\Worksheet\Row as SpreadsheetRow;
 
-/** @mixin SpreadsheetRow */
+/**
+ * @implements ArrayAccess<array-key, mixed>
+ *
+ * @mixin SpreadsheetRow
+ */
 class Row implements ArrayAccess
 {
     use DelegatedMacroable;
 
-    /**
-     * @var array
-     */
-    protected $headingRow = [];
+    protected ?Closure $preparationCallback = null;
 
     /**
-     * @var array
+     * @var array<array-key, mixed>|null
      */
-    protected $headerIsGrouped = [];
+    protected ?array $rowCache = null;
+
+    protected ?bool $rowCacheCalculateFormulas = null;
+
+    protected ?bool $rowCacheFormatData = null;
+
+    protected ?string $rowCacheEndColumn = null;
+
+    protected mixed $rowCacheNullValue = null;
 
     /**
-     * @var \Closure
+     * @param  list<string>  $headingRow
+     * @param  array<int, bool>  $headerIsGrouped
+     * @param  ColumnCollection|null  $columns  When given, the row is read through the
+     *                                          column definitions instead of the heading row.
      */
-    protected $preparationCallback;
-
-    /**
-     * @var SpreadsheetRow
-     */
-    protected $row;
-
-    /**
-     * @var array|null
-     */
-    protected $rowCache;
-
-    /**
-     * @var bool|null
-     */
-    protected $rowCacheFormatData;
-
-    /**
-     * @var string|null
-     */
-    protected $rowCacheEndColumn;
-
-    /**
-     * @param  SpreadsheetRow  $row
-     * @param  array  $headingRow
-     * @param  array  $headerIsGrouped
-     */
-    public function __construct(SpreadsheetRow $row, array $headingRow = [], array $headerIsGrouped = [])
-    {
-        $this->row             = $row;
-        $this->headingRow      = $headingRow;
-        $this->headerIsGrouped = $headerIsGrouped;
+    public function __construct(
+        protected SpreadsheetRow $row,
+        protected array $headingRow = [],
+        protected array $headerIsGrouped = [],
+        protected ?ColumnCollection $columns = null,
+    ) {
     }
 
-    /**
-     * @return SpreadsheetRow
-     */
     public function getDelegate(): SpreadsheetRow
     {
         return $this->row;
     }
 
     /**
-     * @param  null  $nullValue
-     * @param  bool  $calculateFormulas
-     * @param  bool  $formatData
-     * @param  string|null  $endColumn
-     * @return Collection
+     * @return Collection<array-key, mixed>
      */
-    public function toCollection($nullValue = null, $calculateFormulas = false, $formatData = true, ?string $endColumn = null): Collection
+    public function toCollection(mixed $nullValue = null, bool $calculateFormulas = false, bool $formatData = true, ?string $endColumn = null): Collection
     {
         return new Collection($this->toArray($nullValue, $calculateFormulas, $formatData, $endColumn));
     }
 
     /**
-     * @param  null  $nullValue
-     * @param  bool  $calculateFormulas
-     * @param  bool  $formatData
-     * @param  string|null  $endColumn
-     * @return array
+     * @return array<array-key, mixed>
+     *
+     * @throws CalculationException
      */
-    public function toArray($nullValue = null, $calculateFormulas = false, $formatData = true, ?string $endColumn = null)
+    public function toArrayWithColumns(ColumnCollection $columns): array
     {
-        if (is_array($this->rowCache) && ($this->rowCacheFormatData === $formatData) && ($this->rowCacheEndColumn === $endColumn)) {
+        // Columns without a matching heading still appear, as null, so the shape
+        // of the result doesn't depend on what the file happened to contain.
+        $cells = array_fill_keys($columns->unmatchedKeys(), null);
+
+        foreach ($this->row->getCellIterator($columns->start() ?: 'A', $columns->end()) as $cell) {
+            foreach (Arr::wrap($columns->get($cell->getColumn())) as $column) {
+                foreach ($column->columns() as $subColumn) {
+                    if ($subColumn->isReadable()) {
+                        $cells[$subColumn->getKey()] = $subColumn->read($cell);
+                    }
+                }
+            }
+        }
+
+        return $cells;
+    }
+
+    /**
+     * @return array<array-key, mixed>
+     */
+    public function toArray(mixed $nullValue = null, bool $calculateFormulas = false, bool $formatData = true, ?string $endColumn = null): array
+    {
+        // Columns define their own range and read behaviour, so none of the
+        // arguments apply and the result can be cached unconditionally.
+        if ($this->columns instanceof ColumnCollection) {
+            return $this->rowCache ??= $this->prepare(
+                $this->toArrayWithColumns($this->columns)
+            );
+        }
+
+        if (is_array($this->rowCache)
+            && ($this->rowCacheNullValue === $nullValue)
+            && ($this->rowCacheCalculateFormulas === $calculateFormulas)
+            && ($this->rowCacheFormatData === $formatData)
+            && ($this->rowCacheEndColumn === $endColumn)) {
             return $this->rowCache;
         }
 
@@ -111,66 +125,65 @@ class Row implements ArrayAccess
             $i++;
         }
 
-        if (isset($this->preparationCallback)) {
-            $cells = ($this->preparationCallback)($cells, $this->row->getRowIndex());
-        }
+        $cells = $this->prepare($cells);
 
-        $this->rowCache           = $cells;
-        $this->rowCacheFormatData = $formatData;
-        $this->rowCacheEndColumn  = $endColumn;
+        $this->rowCache                  = $cells;
+        $this->rowCacheNullValue         = $nullValue;
+        $this->rowCacheCalculateFormulas = $calculateFormulas;
+        $this->rowCacheFormatData        = $formatData;
+        $this->rowCacheEndColumn         = $endColumn;
 
         return $cells;
     }
 
-    /**
-     * @param  bool  $calculateFormulas
-     * @param  string|null  $endColumn
-     * @return bool
-     */
-    public function isEmpty($calculateFormulas = false, ?string $endColumn = null): bool
+    public function isEmpty(bool $calculateFormulas = false, ?string $endColumn = null): bool
     {
         return count(array_filter($this->toArray(null, $calculateFormulas, false, $endColumn))) === 0;
     }
 
-    /**
-     * @return int
-     */
     public function getIndex(): int
     {
         return $this->row->getRowIndex();
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return isset($this->toArray()[$offset]);
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->toArray()[$offset];
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         //
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         //
     }
 
     /**
-     * @param  \Closure  $preparationCallback
-     *
      * @internal
      */
-    public function setPreparationCallback(?Closure $preparationCallback = null)
+    public function setPreparationCallback(?Closure $preparationCallback = null): void
     {
         $this->preparationCallback = $preparationCallback;
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $cells
+     * @return array<array-key, mixed>
+     */
+    protected function prepare(array $cells): array
+    {
+        if (!$this->preparationCallback instanceof Closure) {
+            return $cells;
+        }
+
+        return ($this->preparationCallback)($cells, $this->row->getRowIndex());
     }
 }

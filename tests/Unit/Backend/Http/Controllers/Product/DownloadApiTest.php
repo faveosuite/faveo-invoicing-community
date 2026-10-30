@@ -3,8 +3,10 @@
 namespace Tests\Unit\Backend\Http\Controllers\Product;
 
 use App\Http\Controllers\Product\ExtendedBaseProductController;
+use App\License\Services\ProductBundleStampingService;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use Exception;
@@ -25,9 +27,9 @@ class DownloadApiTest extends DBTestCase
         $product = Product::factory()->create();
         $invoice = Invoice::factory()->create(['user_id' => $user_id]);
         $order = Order::factory()->create(['client' => $user_id, 'product' => $product->id]);
-        \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
+        OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
         Subscription::factory()->create(['user_id' => $user_id, 'order_id' => $order->id]);
-        $cont = new ExtendedBaseProductController($this->app->make(\App\License\Services\ProductBundleStampingService::class));
+        $cont = new ExtendedBaseProductController($this->app->make(ProductBundleStampingService::class));
         $this->getPrivateMethod($cont, 'downloadValidation', ['true', $product->id, '2222', false]);
     }
 
@@ -40,7 +42,7 @@ class DownloadApiTest extends DBTestCase
         $user_id = $this->user->id;
         $product = Product::factory()->create();
         $invoice = Invoice::factory()->create(['user_id' => $user_id]);
-        $cont = new ExtendedBaseProductController($this->app->make(\App\License\Services\ProductBundleStampingService::class));
+        $cont = new ExtendedBaseProductController($this->app->make(ProductBundleStampingService::class));
         $this->getPrivateMethod($cont, 'downloadValidation', ['true', $product->id, $invoice->number, false]);
     }
 }

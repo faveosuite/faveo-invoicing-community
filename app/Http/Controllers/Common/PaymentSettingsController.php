@@ -120,6 +120,7 @@ class PaymentSettingsController extends Controller
                 $column = $secretColumns[strtolower((string) $config['name'])] ?? null;
                 $config['webhook_configured'] = $column === null ? null : filled($keys?->{$column});
             }
+
             unset($config);
 
             return successResponse('', array_values($configs));

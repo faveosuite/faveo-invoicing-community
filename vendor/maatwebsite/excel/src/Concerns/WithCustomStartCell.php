@@ -1,11 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Concerns;
 
 interface WithCustomStartCell
 {
-    /**
-     * @return string
-     */
     public function startCell(): string;
 }

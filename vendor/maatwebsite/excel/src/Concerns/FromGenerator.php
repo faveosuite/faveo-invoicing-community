@@ -1,13 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maatwebsite\Excel\Concerns;
 
 use Generator;
 
-interface FromGenerator
+interface FromGenerator extends Export
 {
-    /**
-     * @return Generator
-     */
     public function generator(): Generator;
 }

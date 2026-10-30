@@ -69,7 +69,7 @@ class EmailSettingsControllerTest extends DBTestCase
 
     public function test_post_settings_email_mail_driver_attempts_send_and_may_fail(): void
     {
-        \App\Model\Common\Setting::firstOrCreate(['id' => 1], [
+        Setting::firstOrCreate(['id' => 1], [
             'email' => 'test@test.local',
             'driver' => 'mail',
         ]);
@@ -95,7 +95,7 @@ class EmailSettingsControllerTest extends DBTestCase
 
     public function test_post_settings_email_smtp_with_valid_fields_attempts_connection(): void
     {
-        \App\Model\Common\Setting::firstOrCreate(['id' => 1], [
+        Setting::firstOrCreate(['id' => 1], [
             'email' => 'test@test.local',
             'driver' => 'smtp',
             'host' => 'smtp.test.local',

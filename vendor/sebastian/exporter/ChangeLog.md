@@ -2,6 +2,20 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](https://keepachangelog.com/) principles.
 
+## [8.2.1] - 2026-08-07
+
+### Fixed
+
+* Removed `"minimum-stability": "dev"` from `composer.json`
+
+## [8.2.0] - 2026-08-07
+
+### Added
+
+* `ObjectExporter` interface, `ObjectExporterChain`, and `ExportContext` for customizing how objects are exported (an object exporter can be passed to `Exporter`'s constructor and is consulted before the default representation of an object is used)
+* `Exporter::shortenedExport()` and `Exporter::shortenedRecursiveExport()` use the representation provided by an object exporter as well; it is collapsed to a single line and shortened when it is longer than the configured maximum length
+* `Exporter::hasCustomRepresentationFor()` for checking whether an object exporter provides the representation for an object
+
 ## [8.1.1] - 2026-07-13
 
 ### Fixed
@@ -61,6 +75,8 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 * This component is no longer supported on PHP 8.2
 
+[8.2.1]: https://github.com/sebastianbergmann/exporter/compare/8.2.0...8.2.1
+[8.2.0]: https://github.com/sebastianbergmann/exporter/compare/8.1.1...8.2.0
 [8.1.1]: https://github.com/sebastianbergmann/exporter/compare/8.1.0...8.1.1
 [8.1.0]: https://github.com/sebastianbergmann/exporter/compare/8.0.3...8.1.0
 [8.0.3]: https://github.com/sebastianbergmann/exporter/compare/8.0.2...8.0.3

@@ -7,24 +7,16 @@ use SimpleXMLElement;
 
 class WorkbookView
 {
-    /**
-     * @var Spreadsheet
-     */
-    private $spreadsheet;
+    private Spreadsheet $spreadsheet;
 
     public function __construct(Spreadsheet $spreadsheet)
     {
         $this->spreadsheet = $spreadsheet;
     }
 
-    /**
-     * @param mixed $mainNS
-     */
-    public function viewSettings(SimpleXMLElement $xmlWorkbook, $mainNS, array $mapSheetId, bool $readDataOnly): void
+    /** @param array<int, ?int> $mapSheetId */
+    public function viewSettings(SimpleXMLElement $xmlWorkbook, string $mainNS, array $mapSheetId, bool $readDataOnly): void
     {
-        if ($this->spreadsheet->getSheetCount() == 0) {
-            $this->spreadsheet->createSheet();
-        }
         // Default active sheet index to the first loaded worksheet from the file
         $this->spreadsheet->setActiveSheetIndex(0);
 
@@ -34,7 +26,7 @@ class WorkbookView
             // active sheet index
             $activeTab = (int) $workbookViewAttributes->activeTab; // refers to old sheet index
             // keep active sheet index if sheet is still loaded, else first sheet is set as the active worksheet
-            if (isset($mapSheetId[$activeTab]) && $mapSheetId[$activeTab] !== null) {
+            if (isset($mapSheetId[$activeTab])) {
                 $this->spreadsheet->setActiveSheetIndex($mapSheetId[$activeTab]);
             }
 
@@ -49,10 +41,7 @@ class WorkbookView
         }
     }
 
-    /**
-     * @param mixed $value
-     */
-    public static function testSimpleXml($value): SimpleXMLElement
+    public static function testSimpleXml(mixed $value): SimpleXMLElement
     {
         return ($value instanceof SimpleXMLElement)
             ? $value
@@ -67,7 +56,7 @@ class WorkbookView
     /**
      * Convert an 'xsd:boolean' XML value to a PHP boolean value.
      * A valid 'xsd:boolean' XML value can be one of the following
-     * four values: 'true', 'false', '1', '0'.  It is case sensitive.
+     * four values: 'true', 'false', '1', '0'.  It is case-sensitive.
      *
      * Note that just doing '(bool) $xsdBoolean' is not safe,
      * since '(bool) "false"' returns true.

@@ -6,11 +6,14 @@ namespace Sentry\Logs;
 
 use Sentry\Attributes\Attribute;
 use Sentry\Client;
+use Sentry\ClientReport\ClientReportAggregator;
+use Sentry\ClientReport\Reason;
 use Sentry\Event;
 use Sentry\EventId;
 use Sentry\SentrySdk;
 use Sentry\State\HubInterface;
 use Sentry\State\Scope;
+use Sentry\Transport\DataCategory;
 use Sentry\Util\Arr;
 use Sentry\Util\Str;
 use Sentry\Util\TelemetryStorage;
@@ -50,16 +53,6 @@ final class LogsAggregator
 
         $options = $client->getOptions();
         $sdkLogger = $options->getLogger();
-
-        if (!$options->getEnableLogs()) {
-            if ($sdkLogger !== null) {
-                $sdkLogger->info(
-                    'Log will be discarded because "enable_logs" is "false".'
-                );
-            }
-
-            return;
-        }
 
         $formattedMessage = Str::vsprintfOrNull($message, $values);
 
@@ -141,7 +134,14 @@ final class LogsAggregator
             $log->setAttribute($key, $attribute);
         }
 
-        $log = ($options->getBeforeSendLogCallback())($log);
+        try {
+            $log = ($options->getBeforeSendLogCallback())($log);
+        } catch (\Throwable $exception) {
+            $options->getLoggerOrNullLogger()->error(\sprintf('The "before_send_log" callback failed with exception: "%s".', $exception->getMessage()));
+            ClientReportAggregator::getInstance()->add(DataCategory::logItem(), Reason::beforeSend(), 1);
+
+            return;
+        }
 
         if ($log === null) {
             if ($sdkLogger !== null) {
@@ -150,6 +150,8 @@ final class LogsAggregator
                     ['log' => $log]
                 );
             }
+
+            ClientReportAggregator::getInstance()->add(DataCategory::logItem(), Reason::beforeSend(), 1);
 
             return;
         }

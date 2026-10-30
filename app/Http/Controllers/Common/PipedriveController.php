@@ -222,11 +222,12 @@ class PipedriveController extends Controller
                 $payload[$objectFields[$key]] = ['value' => $value];
             } elseif (isset($idListFields[$key])) {
                 $payload[$idListFields[$key]] = [(int) $value];
-            } elseif (in_array($key, $topLevelKeys, true)) {
+            } elseif (in_array($key, $topLevelKeys, strict: true)) {
                 $payload[$key] = $value;
             } elseif (preg_match(self::CUSTOM_FIELD_KEY_PATTERN, (string) $key)) {
                 $customFields[$key] = $value;
             }
+
             // else: v1-only field with no v2 equivalent — dropped, see above.
         }
 
@@ -794,7 +795,7 @@ class PipedriveController extends Controller
                     }
 
                     $field->selected_field = $selectedField; // @phpstan-ignore property.notFound
-                    $field->is_mandatory = in_array($field->field_key, self::REQUIRED_FIELD_KEYS[$group_name] ?? [], true); // @phpstan-ignore property.notFound
+                    $field->is_mandatory = in_array($field->field_key, self::REQUIRED_FIELD_KEYS[$group_name] ?? [], strict: true); // @phpstan-ignore property.notFound
                     $field->local_field_options = $localFieldsArray; // @phpstan-ignore property.notFound
 
                     return $field;
@@ -879,13 +880,13 @@ class PipedriveController extends Controller
                 // their value reshaped for v2, verified live per field type.
                 $isCustomField = preg_match(self::CUSTOM_FIELD_KEY_PATTERN, (string) $fieldKey) === 1;
 
-                if ($isCustomField && in_array($field->field_type, self::CUSTOM_FIELD_NUMERIC_TYPES, true)) {
+                if ($isCustomField && in_array($field->field_type, self::CUSTOM_FIELD_NUMERIC_TYPES, strict: true)) {
                     // double/monetary reject a numeric string outright — skip
                     // if the mapped value isn't actually numeric.
                     if (is_numeric($value)) {
                         $result[$fieldKey] = $field->field_type === 'monetary' ? ['value' => (float) $value] : (float) $value;
                     }
-                } elseif ($isCustomField && in_array($field->field_type, self::CUSTOM_FIELD_OBJECT_VALUE_TYPES, true)) {
+                } elseif ($isCustomField && in_array($field->field_type, self::CUSTOM_FIELD_OBJECT_VALUE_TYPES, strict: true)) {
                     $result[$fieldKey] = ['value' => $value];
                 } else {
                     $result[$fieldKey] = $value;

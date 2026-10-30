@@ -35,6 +35,6 @@ class MailchimpServiceTest extends TestCase
         $setting = new MailchimpSetting(['list_id' => 'list1']);
         $setting->subscribe_status = 'subscribed';
 
-        (new MailchimpService($client, $builder, $setting))->updatePurchaseInterests($user, 7, true);
+        new MailchimpService($client, $builder, $setting)->updatePurchaseInterests($user, 7, isPaid: true);
     }
 }

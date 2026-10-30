@@ -3,7 +3,9 @@
 namespace App\License\tests\Backend\Helpers;
 
 use App\License\Helpers\LicenseValidator;
+use App\License\Models\License;
 use App\License\tests\Backend\LicenseTestCase;
+use App\User;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -41,12 +43,12 @@ class LicenseValidatorTest extends LicenseTestCase
     }
 
     /** No IP/domain restrictions unless a test sets them. */
-    private function openLicense(array $attributes = []): \App\License\Models\License
+    private function openLicense(array $attributes = []): License
     {
         return $this->createLicense($attributes + ['license_ip' => null, 'license_domain' => null, 'license_require_domain' => 0]);
     }
 
-    private function check(?\App\License\Models\License $license, string $ip = '127.0.0.1', string $rootUrl = 'https://example.test/app', ?string $email = null, ?int $productId = null): array
+    private function check(?License $license, string $ip = '127.0.0.1', string $rootUrl = 'https://example.test/app', ?string $email = null, ?int $productId = null): array
     {
         return new LicenseValidator()->validateLicense($license, $productId ?? $license->product_id, $email, $ip, $rootUrl);
     }
@@ -55,7 +57,7 @@ class LicenseValidatorTest extends LicenseTestCase
     #[Group('license-callbacks')]
     public function validate_license_without_license_or_email_is_not_found(): void
     {
-        $this->assertSame(['valid' => false, 'error' => 'license_not_found'], $this->check(null, productId: 1));
+        $this->assertSame(['valid' => false, 'error' => 'license_not_found'], $this->check(license: null, productId: 1));
     }
 
     #[Test]
@@ -63,10 +65,10 @@ class LicenseValidatorTest extends LicenseTestCase
     public function validate_license_falls_back_to_the_clients_active_license_by_email(): void
     {
         $license = $this->openLicense();
-        $user = \App\User::find($license->user_id);
+        $user = User::find($license->user_id);
         $user->update(['active' => 1]);
 
-        $result = $this->check(null, email: $user->email, productId: $license->product_id);
+        $result = $this->check(license: null, email: $user->email, productId: $license->product_id);
 
         $this->assertTrue($result['valid']);
         $this->assertSame($license->id, $result['license']->id);
@@ -105,7 +107,7 @@ class LicenseValidatorTest extends LicenseTestCase
         $this->assertTrue($validator->isPastDate('2001-01-01'));
 
         foreach ([null, '', '0000-00-00 00:00:00', 'not-a-date'] as $never) {
-            $this->assertFalse($validator->isPastDate($never), var_export($never, true));
+            $this->assertFalse($validator->isPastDate($never), var_export($never, return: true));
         }
     }
 

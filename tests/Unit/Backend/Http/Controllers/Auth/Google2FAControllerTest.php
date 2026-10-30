@@ -6,6 +6,7 @@ use App\User;
 use App\UserBackupCodes;
 use Hash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Crypt;
 use Tests\DBTestCase;
 
 class Google2FAControllerTest extends DBTestCase
@@ -207,7 +208,7 @@ class Google2FAControllerTest extends DBTestCase
     {
         $user = User::factory()->create([
             'is_2fa_enabled' => 1,
-            'google2fa_secret' => \Illuminate\Support\Facades\Crypt::encrypt('JBSWY3DPEHPK3PXP'),
+            'google2fa_secret' => Crypt::encrypt('JBSWY3DPEHPK3PXP'),
         ]);
 
         session(['2fa:user:id' => $user->id]);

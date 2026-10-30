@@ -4,7 +4,17 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Order;
 
+use App\Http\Controllers\Order\InvoiceController;
+use App\Http\Middleware\Install;
+use App\Model\Common\Setting;
 use App\Model\Order\Invoice;
+use App\Model\Order\InvoiceItem;
+use App\Model\Order\InvoiceTaxLine;
+use App\Model\Order\Order;
+use App\Model\Payment\Plan;
+use App\Model\Product\Product;
+use App\Services\Payment\PostPaymentService;
+use App\User;
 use Tests\DBTestCase;
 
 class InvoiceControllerTest extends DBTestCase
@@ -12,7 +22,7 @@ class InvoiceControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withoutMiddleware(Install::class);
     }
 
     // =========================================================================
@@ -123,6 +133,7 @@ class InvoiceControllerTest extends DBTestCase
         $response = $this->postJson('/generate/invoice', []);
 
         $response->assertStatus(412);
+
         $errors = $response->json('message');
 
         // All required fields must appear in errors
@@ -310,7 +321,7 @@ class InvoiceControllerTest extends DBTestCase
     public function test_new_payment_with_valid_clientid_returns_200(): void
     {
         $this->getLoggedInUser('admin');
-        $client = \App\User::factory()->create(['role' => 'user', 'email' => 'newpay-'.uniqid().'@test.local']);
+        $client = User::factory()->create(['role' => 'user', 'email' => 'newpay-'.uniqid().'@test.local']);
         $response = $this->getJson("/newPayment/receive?clientid={$client->id}");
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
@@ -332,8 +343,8 @@ class InvoiceControllerTest extends DBTestCase
     public function test_get_invoice_returns_structured_data_for_existing(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['email' => 'inv-detail-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
+        $user = User::factory()->create(['email' => 'inv-detail-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
 
         $response = $this->getJson('/invoice/'.$invoice->id);
 
@@ -372,8 +383,8 @@ class InvoiceControllerTest extends DBTestCase
     public function test_pdf_with_existing_invoice_returns_response(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['email' => 'pdf-test-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $user->id]);
+        $user = User::factory()->create(['email' => 'pdf-test-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
 
         $response = $this->getJson('/pdf?id='.$invoice->id);
         // May succeed or fail depending on PDF generator config
@@ -390,13 +401,13 @@ class InvoiceControllerTest extends DBTestCase
      */
     public function test_invoice_item_order_link_resolves_to_its_own_order(): void
     {
-        $user = \App\User::factory()->create(['email' => 'pdf-multi-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $user->id]);
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'PPSvc '.uniqid()]);
+        $user = User::factory()->create(['email' => 'pdf-multi-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+        $product = Product::first() ?? Product::create(['name' => 'PPSvc '.uniqid()]);
 
         $links = [];
         foreach (range(1, 2) as $i) {
-            $item = \App\Model\Order\InvoiceItem::create([
+            $item = InvoiceItem::create([
                 'invoice_id' => $invoice->id,
                 'product_id' => $product->id,
                 'product_name' => 'Product '.$i,
@@ -404,7 +415,7 @@ class InvoiceControllerTest extends DBTestCase
                 'quantity' => 1,
                 'subtotal' => 50,
             ]);
-            $order = \App\Model\Order\Order::create([
+            $order = Order::create([
                 'client' => $user->id,
                 'product' => $product->id,
                 'order_status' => 'executed',
@@ -441,8 +452,8 @@ class InvoiceControllerTest extends DBTestCase
     public function test_get_invoice_data_for_existing(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['email' => 'inv-detail-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $user->id]);
+        $user = User::factory()->create(['email' => 'inv-detail-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
 
         $response = $this->getJson('/invoice/'.$invoice->id);
 
@@ -488,8 +499,8 @@ class InvoiceControllerTest extends DBTestCase
     public function test_delete_bulk_invoices_deletes_specified_invoices(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['email' => 'del-bulk-inv-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
+        $user = User::factory()->create(['email' => 'del-bulk-inv-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
 
         $response = $this->deleteJson('/invoices', ['invoice_ids' => [$invoice->id]]);
 
@@ -507,7 +518,7 @@ class InvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $controller = new \App\Http\Controllers\Order\InvoiceController;
+        $controller = new InvoiceController;
         $controller->setDomain('1', 'test.example.com');
 
         $this->assertEquals('test.example.com', session('domain1'));
@@ -518,7 +529,7 @@ class InvoiceControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
 
         session(['domain2' => 'old.domain.com']);
-        $controller = new \App\Http\Controllers\Order\InvoiceController;
+        $controller = new InvoiceController;
         $controller->setDomain('2', 'new.domain.com');
 
         $this->assertEquals('new.domain.com', session('domain2'));
@@ -555,15 +566,15 @@ class InvoiceControllerTest extends DBTestCase
     public function test_calculate_invoice_returns_array_with_expected_keys(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['email' => 'calc-inv-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $user = User::factory()->create(['email' => 'calc-inv-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create([
             'user_id' => $user->id,
             'grand_total' => 200.0,
             'currency' => 'USD',
             'status' => 'pending',
         ]);
 
-        $result = \App\Http\Controllers\Order\InvoiceController::calculateInvoice($invoice->id);
+        $result = InvoiceController::calculateInvoice($invoice->id);
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('subtotal', $result);
@@ -577,8 +588,8 @@ class InvoiceControllerTest extends DBTestCase
     public function test_calculate_invoice_with_format_currency_returns_strings(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['email' => 'calc-fmt-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $user = User::factory()->create(['email' => 'calc-fmt-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create([
             'user_id' => $user->id,
             'grand_total' => 150.0,
             'currency' => 'USD',
@@ -586,7 +597,7 @@ class InvoiceControllerTest extends DBTestCase
             'discount' => 10.0,
         ]);
 
-        $result = \App\Http\Controllers\Order\InvoiceController::calculateInvoice($invoice->id, formatCurrency: true);
+        $result = InvoiceController::calculateInvoice($invoice->id, formatCurrency: true);
 
         $this->assertIsArray($result);
         // When formatCurrency = true, total is formatted as string
@@ -597,15 +608,15 @@ class InvoiceControllerTest extends DBTestCase
     public function test_calculate_invoice_without_format_currency_returns_numerics(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['email' => 'calc-num-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $user = User::factory()->create(['email' => 'calc-num-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create([
             'user_id' => $user->id,
             'grand_total' => 300.0,
             'currency' => 'USD',
             'status' => 'pending',
         ]);
 
-        $result = \App\Http\Controllers\Order\InvoiceController::calculateInvoice($invoice->id, formatCurrency: false);
+        $result = InvoiceController::calculateInvoice($invoice->id, formatCurrency: false);
 
         $this->assertIsFloat($result['total']);
         $this->assertIsFloat($result['processing_fee']);
@@ -620,21 +631,21 @@ class InvoiceControllerTest extends DBTestCase
     public function test_calculate_invoice_fee_is_only_what_the_gateway_charged(): void
     {
         $this->getLoggedInUser('admin');
-        $user = \App\User::factory()->create(['email' => 'calc-fee-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $user = User::factory()->create(['email' => 'calc-fee-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create([
             'user_id' => $user->id, 'grand_total' => 81310.31, 'currency' => 'INR',
             'status' => 'success', 'processing_fee' => '2%', 'discount' => 0,
         ]);
-        $item = \App\Model\Order\InvoiceItem::create([
+        $item = InvoiceItem::create([
             'invoice_id' => $invoice->id, 'product_name' => 'Fee item',
             'regular_price' => 68504, 'quantity' => 1, 'subtotal' => 68504,
         ]);
         foreach (['UGST', 'SGST'] as $label) {
-            \App\Model\Order\InvoiceTaxLine::create(['invoice_id' => $invoice->id, 'invoice_item_id' => $item->id,
+            InvoiceTaxLine::create(['invoice_id' => $invoice->id, 'invoice_item_id' => $item->id,
                 'label' => $label, 'rate' => 9, 'compound' => false, 'amount' => 6165.36]);
         }
 
-        $result = \App\Http\Controllers\Order\InvoiceController::calculateInvoice($invoice->id);
+        $result = InvoiceController::calculateInvoice($invoice->id);
 
         $this->assertSame(475.59, $result['processing_fee']);
         $this->assertSame('Subtotal', $result['subtotal_label']);
@@ -650,12 +661,12 @@ class InvoiceControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
 
         // Ensure at least one Setting row exists
-        if (! \App\Model\Common\Setting::find(1)) {
-            \App\Model\Common\Setting::factory()->create(['id' => 1]);
+        if (! Setting::find(1)) {
+            Setting::factory()->create(['id' => 1]);
         }
 
-        $user = \App\User::factory()->create(['email' => 'inv-setting-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $user = User::factory()->create(['email' => 'inv-setting-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create([
             'user_id' => $user->id,
             'grand_total' => 250.0,
             'currency' => 'USD',
@@ -720,8 +731,8 @@ class InvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $user = \App\User::factory()->create(['email' => 'soft-del-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $user = User::factory()->create(['email' => 'soft-del-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create([
             'user_id' => $user->id,
             'grand_total' => 100.0,
             'status' => 'pending',
@@ -744,13 +755,13 @@ class InvoiceControllerTest extends DBTestCase
     public function test_create_invoice_items_by_admin_keeps_the_fraction_of_a_pro_rata_price(): void
     {
         $this->getLoggedInUser('admin');
-        $product = \App\Model\Product\Product::factory()->create();
-        $user = \App\User::factory()->create(['email' => 'ci-frac-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $user->id, 'currency' => 'INR']);
+        $product = Product::factory()->create();
+        $user = User::factory()->create(['email' => 'ci-frac-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id, 'currency' => 'INR']);
 
-        $plan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id]);
+        $plan = Plan::factory()->create(['product' => $product->id]);
 
-        $item = (new \App\Http\Controllers\Order\InvoiceController)->createInvoiceItemsByAdmin(
+        $item = (new InvoiceController)->createInvoiceItemsByAdmin(
             $invoice->id, (string) $product->id, 11560.5, 'INR', 1, 3, $plan->id, $user->id, 'VAT', 10.0, 11560.5
         );
 
@@ -762,17 +773,17 @@ class InvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $product = \App\Model\Product\Product::factory()->create();
-        $user = \App\User::factory()->create(['email' => 'ci-admin-'.uniqid().'@test.local']);
-        $invoice = \App\Model\Order\Invoice::factory()->create([
+        $product = Product::factory()->create();
+        $user = User::factory()->create(['email' => 'ci-admin-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create([
             'user_id' => $user->id,
             'currency' => 'USD',
         ]);
 
         // We need a plan for the product
-        $plan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id]);
+        $plan = Plan::factory()->create(['product' => $product->id]);
 
-        $controller = new \App\Http\Controllers\Order\InvoiceController;
+        $controller = new InvoiceController;
         $result = $controller->createInvoiceItemsByAdmin(
             $invoice->id,
             (string) $product->id,
@@ -787,7 +798,7 @@ class InvoiceControllerTest extends DBTestCase
             100.0    // grandTotalAfterCoupon
         );
 
-        $this->assertInstanceOf(\App\Model\Order\InvoiceItem::class, $result);
+        $this->assertInstanceOf(InvoiceItem::class, $result);
         $this->assertEquals($invoice->id, $result->invoice_id);
         $this->assertEquals($product->id, $result->product_id);
     }
@@ -823,10 +834,11 @@ class InvoiceControllerTest extends DBTestCase
         // A card-paid renewal is already fulfilled and nothing marks that — each "execute"
         // used to extend its dates once more, for free.
         $this->getLoggedInUser('admin');
-        $invoice = \App\Model\Order\Invoice::factory()->create(['status' => 'success', 'is_renewed' => 1, 'grand_total' => 0]);
-        $post = \Mockery::mock(\App\Services\Payment\PostPaymentService::class);
+        $invoice = Invoice::factory()->create(['status' => 'success', 'is_renewed' => 1, 'grand_total' => 0]);
+        $post = \Mockery::mock(PostPaymentService::class);
         $post->shouldNotReceive('handle');
-        $this->app->instance(\App\Services\Payment\PostPaymentService::class, $post);
+
+        $this->app->instance(PostPaymentService::class, $post);
 
         $this->postJson("/invoices/{$invoice->id}/execute")
             ->assertJson(['success' => false, 'message' => __('message.invoice_execute_purchase_only')]);

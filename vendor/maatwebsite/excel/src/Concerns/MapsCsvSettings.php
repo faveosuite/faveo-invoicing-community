@@ -6,65 +6,32 @@ use Illuminate\Support\Arr;
 
 trait MapsCsvSettings
 {
-    /**
-     * @var string
-     */
-    protected static $delimiter = ',';
+    protected static ?string $delimiter = ',';
+
+    protected static string $enclosure = '"';
+
+    protected static string $lineEnding = PHP_EOL;
+
+    protected static bool $useBom = false;
+
+    protected static bool $includeSeparatorLine = false;
+
+    protected static bool $excelCompatibility = false;
+
+    protected static string $escapeCharacter = '\\';
+
+    protected static bool $contiguous = false;
+
+    protected static string $inputEncoding = 'UTF-8';
+
+    protected static string $outputEncoding = '';
+
+    protected static bool $testAutoDetect = true;
 
     /**
-     * @var string
+     * @param  array<string, mixed>  $config
      */
-    protected static $enclosure = '"';
-
-    /**
-     * @var string
-     */
-    protected static $lineEnding = PHP_EOL;
-
-    /**
-     * @var bool
-     */
-    protected static $useBom = false;
-
-    /**
-     * @var bool
-     */
-    protected static $includeSeparatorLine = false;
-
-    /**
-     * @var bool
-     */
-    protected static $excelCompatibility = false;
-
-    /**
-     * @var string
-     */
-    protected static $escapeCharacter = '\\';
-
-    /**
-     * @var bool
-     */
-    protected static $contiguous = false;
-
-    /**
-     * @var string
-     */
-    protected static $inputEncoding = 'UTF-8';
-
-    /**
-     * @var string
-     */
-    protected static $outputEncoding = '';
-
-    /**
-     * @var bool
-     */
-    protected static $testAutoDetect = true;
-
-    /**
-     * @param  array  $config
-     */
-    public static function applyCsvSettings(array $config)
+    public static function applyCsvSettings(array $config): void
     {
         static::$delimiter            = Arr::get($config, 'delimiter', static::$delimiter);
         static::$enclosure            = Arr::get($config, 'enclosure', static::$enclosure);

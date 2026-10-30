@@ -3,9 +3,16 @@
 namespace Tests\Unit\Backend\Http\Controllers\Tenancy;
 
 use App\Auto_renewal;
+use App\CloudPopUp;
 use App\Http\Controllers\Tenancy\TenantController;
+use App\License\Models\Installation;
+use App\License\Models\License;
 use App\Model\Common\FaveoCloud;
+use App\Model\Common\StatusSetting;
 use App\Model\Order\Order;
+use App\Model\Payment\Plan;
+use App\Model\Product\CloudProducts;
+use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\ThirdPartyApp;
 use App\User;
@@ -15,7 +22,10 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\ValidationException;
 use Tests\DBTestCase;
 
 class TenantControllerTest extends DBTestCase
@@ -126,7 +136,7 @@ class TenantControllerTest extends DBTestCase
 
     public function test_enable_cloud_when_status_setting_exists_returns_200(): void
     {
-        \App\Model\Common\StatusSetting::create([
+        StatusSetting::create([
             'emailverification_status' => 0,
             'msg91_status' => 0,
             'recaptcha_status' => 0,
@@ -138,7 +148,7 @@ class TenantControllerTest extends DBTestCase
         $controller = new TenantController($client, $cloud);
         $request = new Request(['debug' => 'true']);
         $response = $controller->enableCloud($request);
-        $data = json_decode((string) $response->getContent(), true);
+        $data = json_decode((string) $response->getContent(), associative: true);
         $this->assertTrue($data['success']);
     }
 
@@ -148,7 +158,7 @@ class TenantControllerTest extends DBTestCase
 
     public function test_cloud_popup_missing_fields_throws_validation_exception(): void
     {
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
         $mock = new MockHandler([]);
         $client = new Client(['handler' => HandlerStack::create($mock)]);
         $cloud = FaveoCloud::create(['cloud_central_domain' => 'https://cloud.example.com', 'cloud_cname' => 'test.example.com']);
@@ -169,7 +179,7 @@ class TenantControllerTest extends DBTestCase
             'cloud_label_radio' => 'Region',
         ]);
         $response = $controller->cloudPopUp($request);
-        $data = json_decode((string) $response->getContent(), true);
+        $data = json_decode((string) $response->getContent(), associative: true);
         $this->assertTrue($data['success']);
     }
 
@@ -179,7 +189,7 @@ class TenantControllerTest extends DBTestCase
 
     public function test_cloud_product_store_missing_fields_throws_validation_exception(): void
     {
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
         $mock = new MockHandler([]);
         $client = new Client(['handler' => HandlerStack::create($mock)]);
         $cloud = FaveoCloud::create(['cloud_central_domain' => 'https://cloud.example.com', 'cloud_cname' => 'test.example.com']);
@@ -194,15 +204,15 @@ class TenantControllerTest extends DBTestCase
         $client = new Client(['handler' => HandlerStack::create($mock)]);
         $cloud = FaveoCloud::create(['cloud_central_domain' => 'https://cloud.example.com', 'cloud_cname' => 'test.example.com']);
         $controller = new TenantController($client, $cloud);
-        $product = \App\Model\Product\Product::factory()->create();
-        $plan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id]);
+        $product = Product::factory()->create();
+        $plan = Plan::factory()->create(['product' => $product->id]);
         $request = new Request([
             'cloud_product' => $product->id,
             'cloud_free_plan' => $plan->id,
             'cloud_product_key' => 'HELPDESK_KEY',
         ]);
         $response = $controller->cloudProductStore($request);
-        $data = json_decode((string) $response->getContent(), true);
+        $data = json_decode((string) $response->getContent(), associative: true);
         $this->assertTrue($data['success']);
     }
 
@@ -311,9 +321,9 @@ class TenantControllerTest extends DBTestCase
         $client = new Client(['handler' => HandlerStack::create(new MockHandler([]))]);
         $controller = new TenantController($client, $cloud);
 
-        $request = new \Illuminate\Http\Request(['id' => 'no-such-domain.test']);
+        $request = new Request(['id' => 'no-such-domain.test']);
         $response = $controller->destroyTenant($request);
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
 
         // No app key → errorResponse with success=false
         $this->assertFalse($body['success']);
@@ -326,8 +336,9 @@ class TenantControllerTest extends DBTestCase
 
     public function test_status_change_with_nonexistent_order_does_not_throw(): void
     {
-        $cloud = new FaveoCloud();
+        $cloud = new FaveoCloud;
         $cloud->cloud_central_domain = 'https://cloud.example.com';
+
         $client = new Client([]);
         $controller = new TenantController($client, $cloud);
 
@@ -387,11 +398,11 @@ class TenantControllerTest extends DBTestCase
         $client = new Client([]);
         $controller = new TenantController($client, $cloud);
 
-        $request = new \Illuminate\Http\Request();
+        $request = new Request;
         $request->merge(['orderNo' => 'NONEXISTENT_ORDER_99999999']);
 
         $response = $controller->createTenant($request);
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
         $this->assertFalse($data['success']);
     }
 
@@ -440,10 +451,10 @@ class TenantControllerTest extends DBTestCase
         $client = new Client(['handler' => HandlerStack::create($mock)]);
         $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
         $controller = new TenantController($client, $cloud);
-        $request = new \Illuminate\Http\Request(['sort-field' => 'domain', 'sort-order' => 'asc']);
+        $request = new Request(['sort-field' => 'domain', 'sort-order' => 'asc']);
 
         $response = $controller->getTenants($request);
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
 
         $this->assertTrue($data['success']);
         $this->assertEquals(2, $data['data']['total']);
@@ -471,7 +482,7 @@ class TenantControllerTest extends DBTestCase
         $mock = new MockHandler($responses);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
-        $this->app->bind(Client::class, fn () => $client);
+        $this->app->bind(Client::class, fn (): Client => $client);
 
         return $client;
     }
@@ -500,14 +511,14 @@ class TenantControllerTest extends DBTestCase
     {
         ThirdPartyApp::firstOrCreate(['app_name' => 'faveo_app_key'], ['app_key' => 'test-key', 'app_secret' => 'test-secret']);
         FaveoCloud::updateOrCreate(['id' => 1], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
-        $product = \App\Model\Product\Product::factory()->create();
-        $plan = \App\Model\Payment\Plan::create(['name' => 'Cloud '.uniqid(), 'product' => $product->id, 'days' => 30]);
-        \App\Model\Product\CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        $order = \App\Model\Order\Order::factory()->create(['product' => $product->id]);
+        $product = Product::factory()->create();
+        $plan = Plan::create(['name' => 'Cloud '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
+        $order = Order::factory()->create(['product' => $product->id]);
         $code = 'TEN'.uniqid();
-        \App\License\Models\License::create(['product_id' => $order->product, 'license_code' => $code, 'license_order_number' => $order->number]);
-        \App\License\Models\Installation::create(['product_id' => $order->product, 'license_code' => $code, 'installation_domain' => 'acme.test.local']);
-        \Illuminate\Support\Facades\Cache::forget(TenantController::TENANTS_CACHE_KEY);
+        License::create(['product_id' => $order->product, 'license_code' => $code, 'license_order_number' => $order->number]);
+        Installation::create(['product_id' => $order->product, 'license_code' => $code, 'installation_domain' => 'acme.test.local']);
+        Cache::forget(TenantController::TENANTS_CACHE_KEY);
         $this->bindMockClientWithResponses([
             new Response(200, [], json_encode(['message' => [['id' => 'acme.test.local', 'domain' => 'acme.test.local']]])),
         ]);
@@ -522,23 +533,24 @@ class TenantControllerTest extends DBTestCase
     {
         ThirdPartyApp::firstOrCreate(['app_name' => 'faveo_app_key'], ['app_key' => 'test-key', 'app_secret' => 'test-secret']);
         FaveoCloud::updateOrCreate(['id' => 1], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
-        $product = \App\Model\Product\Product::factory()->create();
-        $plan = \App\Model\Payment\Plan::create(['name' => 'Cloud '.uniqid(), 'product' => $product->id, 'days' => 30]);
-        \App\Model\Product\CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
+        $product = Product::factory()->create();
+        $plan = Plan::create(['name' => 'Cloud '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         // Created in this order, so ids ascend while numbers descend.
         foreach (['b.test.local' => '90000002', 'a.test.local' => '10000001'] as $domain => $number) {
-            $order = \App\Model\Order\Order::factory()->create(['product' => $product->id, 'number' => $number]);
-            \App\License\Models\License::create(['product_id' => $product->id, 'license_code' => 'S'.$number, 'license_order_number' => $number]);
-            \App\License\Models\Installation::create(['product_id' => $product->id, 'license_code' => 'S'.$number, 'installation_domain' => $domain]);
+            $order = Order::factory()->create(['product' => $product->id, 'number' => $number]);
+            License::create(['product_id' => $product->id, 'license_code' => 'S'.$number, 'license_order_number' => $number]);
+            Installation::create(['product_id' => $product->id, 'license_code' => 'S'.$number, 'installation_domain' => $domain]);
         }
-        \Illuminate\Support\Facades\Cache::forget(TenantController::TENANTS_CACHE_KEY);
+
+        Cache::forget(TenantController::TENANTS_CACHE_KEY);
         $this->bindMockClientWithResponses([new Response(200, [], json_encode(['message' => [
             ['id' => 'b.test.local', 'domain' => 'b.test.local'], ['id' => 'a.test.local', 'domain' => 'a.test.local'],
         ]]))]);
 
         $rows = $this->getJson('/get-tenants?sort-field=order&sort-order=asc')->assertOk()->json('data.data');
 
-        $this->assertSame(['10000001', '90000002'], array_map(fn ($r) => (string) $r['order']['order_number'], $rows));
+        $this->assertSame(['10000001', '90000002'], array_map(fn (array $r): string => (string) $r['order']['order_number'], $rows));
     }
 
     public function test_client_deleting_their_instance_marks_the_subscription_deleted(): void
@@ -548,13 +560,13 @@ class TenantControllerTest extends DBTestCase
         $this->actingAs($client);
         ThirdPartyApp::firstOrCreate(['app_name' => 'faveo_app_key'], ['app_key' => 'test-key', 'app_secret' => 'test-secret']);
         FaveoCloud::updateOrCreate(['id' => 1], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
-        $product = \App\Model\Product\Product::factory()->create();
-        $plan = \App\Model\Payment\Plan::create(['name' => 'Cloud '.uniqid(), 'product' => $product->id, 'days' => 30]);
-        \App\Model\Product\CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        $order = \App\Model\Order\Order::factory()->create(['client' => $client->id, 'product' => $product->id, 'order_status' => 'executed']);
+        $product = Product::factory()->create();
+        $plan = Plan::create(['name' => 'Cloud '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
+        $order = Order::factory()->create(['client' => $client->id, 'product' => $product->id, 'order_status' => 'executed']);
         $sub = Subscription::factory()->create(['order_id' => $order->id, 'product_id' => $product->id, 'user_id' => $client->id, 'plan_id' => $plan->id, 'is_deleted' => 0]);
-        \App\License\Models\License::create(['product_id' => $product->id, 'license_code' => 'C'.$order->number, 'license_order_number' => $order->number]);
-        \App\License\Models\Installation::create(['product_id' => $product->id, 'license_code' => 'C'.$order->number, 'installation_domain' => 'mine.test.local']);
+        License::create(['product_id' => $product->id, 'license_code' => 'C'.$order->number, 'license_order_number' => $order->number]);
+        Installation::create(['product_id' => $product->id, 'license_code' => 'C'.$order->number, 'installation_domain' => 'mine.test.local']);
         $this->bindMockClientWithResponses([
             new Response(200, [], json_encode(['message' => [['id' => 'mine.test.local', 'domain' => 'mine.test.local']]])), // tenant list
             new Response(200, [], json_encode(['status' => 'success'])),                                               // DELETE tenant
@@ -588,9 +600,9 @@ class TenantControllerTest extends DBTestCase
         ]);
 
         $controller = new TenantController($client, $cloud);
-        $request = new \Illuminate\Http\Request(['id' => 'test.cloud.local']);
+        $request = new Request(['id' => 'test.cloud.local']);
         $response = $controller->destroyTenant($request);
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
 
         $this->assertTrue($body['success']);
         $this->assertEquals(200, $response->getStatusCode());
@@ -599,7 +611,7 @@ class TenantControllerTest extends DBTestCase
     public function test_destroy_tenant_succeeds_from_expiry_cron_with_no_logged_in_user(): void
     {
         $this->setCloudConfig();
-        \Illuminate\Support\Facades\Auth::logout();
+        Auth::logout();
 
         ThirdPartyApp::firstOrCreate(
             ['app_name' => 'faveo_app_key'],
@@ -616,7 +628,7 @@ class TenantControllerTest extends DBTestCase
             new Response(200, [], ''), // googleChat
         ]);
 
-        $response = new TenantController($client, $cloud)->destroyTenant(new \Illuminate\Http\Request(['id' => 'test.cloud.local']));
+        $response = new TenantController($client, $cloud)->destroyTenant(new Request(['id' => 'test.cloud.local']));
 
         $this->assertEquals(200, $response->getStatusCode());
     }
@@ -640,9 +652,9 @@ class TenantControllerTest extends DBTestCase
         ]);
 
         $controller = new TenantController($client, $cloud);
-        $request = new \Illuminate\Http\Request(['id' => 'test.cloud.local']);
+        $request = new Request(['id' => 'test.cloud.local']);
         $response = $controller->destroyTenant($request);
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
 
         $this->assertFalse($body['success']);
         $this->assertEquals(400, $response->getStatusCode());
@@ -667,9 +679,9 @@ class TenantControllerTest extends DBTestCase
         ]);
 
         $controller = new TenantController($client, $cloud);
-        $request = new \Illuminate\Http\Request(['id' => 'test.cloud.local']);
+        $request = new Request(['id' => 'test.cloud.local']);
         $response = $controller->destroyTenant($request);
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
 
         $this->assertFalse($body['success']);
         $this->assertEquals(400, $response->getStatusCode());
@@ -694,9 +706,9 @@ class TenantControllerTest extends DBTestCase
         ]);
 
         $controller = new TenantController($client, $cloud);
-        $request = new \Illuminate\Http\Request(['id' => 'test.cloud.local', 'orderId' => '999999']);
+        $request = new Request(['id' => 'test.cloud.local', 'orderId' => '999999']);
         $response = $controller->destroyTenant($request);
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
 
         // Returns cloud_deleted_failed since status != 'success'
         $this->assertFalse($body['success']);
@@ -713,9 +725,9 @@ class TenantControllerTest extends DBTestCase
         $client = new Client(['handler' => HandlerStack::create(new MockHandler([]))]);
         $controller = new TenantController($client, $cloud);
 
-        $request = new \Illuminate\Http\Request(['orderNo' => 'NONEXISTENT_ORDER_XYZ999']);
+        $request = new Request(['orderNo' => 'NONEXISTENT_ORDER_XYZ999']);
         $response = $controller->createTenant($request);
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
 
         $this->assertFalse($body['success']);
         $this->assertEquals(400, $response->getStatusCode());
@@ -728,8 +740,8 @@ class TenantControllerTest extends DBTestCase
     public function test_status_change_updates_subscription_is_deleted(): void
     {
         // $this->user is the admin created by getLoggedInUser('admin') in setUp()
-        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'TenantTest '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'TenantPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $product = Product::first() ?? Product::create(['name' => 'TenantTest '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'TenantPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $order = Order::create([
             'client' => $this->user->id,
@@ -737,7 +749,7 @@ class TenantControllerTest extends DBTestCase
             'order_status' => 'executed',
             'number' => 'SC-'.uniqid(),
         ]);
-        \App\Model\Product\Subscription::create([
+        Subscription::create([
             'order_id' => $order->id,
             'product_id' => $product->id,
             'plan_id' => $plan->id,
@@ -778,9 +790,9 @@ class TenantControllerTest extends DBTestCase
         $controller = new TenantController($client, $cloud);
 
         // search-query with name that won't match (no installation records → userData null)
-        $request = new \Illuminate\Http\Request(['search-query' => 'nonexistentusername123']);
+        $request = new Request(['search-query' => 'nonexistentusername123']);
         $response = $controller->getTenants($request);
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
 
         $this->assertTrue($data['success']);
         // After filtering (user name check), both have null userData → filtered out
@@ -810,10 +822,10 @@ class TenantControllerTest extends DBTestCase
         $client = new Client(['handler' => HandlerStack::create($mock)]);
         $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
         $controller = new TenantController($client, $cloud);
-        $request = new \Illuminate\Http\Request(['limit' => '2', 'page' => '1']);
+        $request = new Request(['limit' => '2', 'page' => '1']);
 
         $response = $controller->getTenants($request);
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
 
         $this->assertTrue($data['success']);
         $this->assertEquals(3, $data['data']['total']);
@@ -827,20 +839,20 @@ class TenantControllerTest extends DBTestCase
 
     public function test_cloud_product_store_second_entry_with_same_product_succeeds(): void
     {
-        $product = \App\Model\Product\Product::factory()->create();
-        $plan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id]);
+        $product = Product::factory()->create();
+        $plan = Plan::factory()->create(['product' => $product->id]);
 
         $client = new Client(['handler' => HandlerStack::create(new MockHandler([]))]);
         $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
         $controller = new TenantController($client, $cloud);
 
-        $request = new \Illuminate\Http\Request([
+        $request = new Request([
             'cloud_product' => $product->id,
             'cloud_free_plan' => $plan->id,
             'cloud_product_key' => 'KEY_'.uniqid(),
         ]);
         $response = $controller->cloudProductStore($request);
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
         $this->assertTrue($data['success']);
     }
 
@@ -850,7 +862,7 @@ class TenantControllerTest extends DBTestCase
 
     public function test_cloud_popup_updates_existing_settings(): void
     {
-        \App\CloudPopUp::updateOrCreate(['id' => 1], [
+        CloudPopUp::updateOrCreate(['id' => 1], [
             'cloud_top_message' => 'Old message',
             'cloud_label_field' => 'Old field',
             'cloud_label_radio' => 'Old radio',
@@ -860,13 +872,13 @@ class TenantControllerTest extends DBTestCase
         $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
         $controller = new TenantController($client, $cloud);
 
-        $request = new \Illuminate\Http\Request([
+        $request = new Request([
             'cloud_top_message' => 'New cloud message!',
             'cloud_label_field' => 'New field',
             'cloud_label_radio' => 'New radio',
         ]);
         $response = $controller->cloudPopUp($request);
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
 
         $this->assertTrue($data['success']);
         $this->assertEquals(200, $response->getStatusCode());
@@ -884,9 +896,9 @@ class TenantControllerTest extends DBTestCase
         $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
         $controller = new TenantController($client, $cloud);
 
-        $request = new \Illuminate\Http\Request(['debug' => 'false']);
+        $request = new Request(['debug' => 'false']);
         $response = $controller->enableCloud($request);
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
 
         $this->assertFalse($data['success']);
         $this->assertEquals(400, $response->getStatusCode());
@@ -914,10 +926,10 @@ class TenantControllerTest extends DBTestCase
         $client = new Client(['handler' => HandlerStack::create($mock)]);
         $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
         $controller = new TenantController($client, $cloud);
-        $request = new \Illuminate\Http\Request();
+        $request = new Request;
 
         $response = $controller->getTenants($request);
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), associative: true);
 
         $this->assertTrue($data['success']);
         $this->assertEquals(1, $data['data']['total']);
@@ -948,9 +960,9 @@ class TenantControllerTest extends DBTestCase
 
         $controller = new TenantController($client, $cloud);
         // orderId points to non-existent order → statusChange finds nothing, skips update
-        $request = new \Illuminate\Http\Request(['id' => 'test.cloud.local', 'orderId' => '999999']);
+        $request = new Request(['id' => 'test.cloud.local', 'orderId' => '999999']);
         $response = $controller->destroyTenant($request);
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
 
         $this->assertTrue($body['success']);
         $this->assertEquals(200, $response->getStatusCode());
@@ -966,9 +978,9 @@ class TenantControllerTest extends DBTestCase
         $client = new Client(['handler' => HandlerStack::create(new MockHandler([]))]);
         $controller = new TenantController($client, $cloud);
 
-        $request = new \Illuminate\Http\Request(['orderNo' => 'TOTALLY-NONEXISTENT-'.uniqid()]);
+        $request = new Request(['orderNo' => 'TOTALLY-NONEXISTENT-'.uniqid()]);
         $response = $controller->createTenant($request);
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), associative: true);
 
         $this->assertFalse($body['success']);
         $this->assertEquals(400, $response->getStatusCode());

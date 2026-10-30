@@ -52,3 +52,23 @@ ab00820c3757dbd30a8caa185aa4515b98713238
 M README.md
 ?? test.php
 ```
+
+When only the commit that is checked out is needed, `commit()` returns its hash without requiring an origin remote:
+
+#### `commit.php`
+```php
+use SebastianBergmann\GitState\Builder;
+
+$commit = (new Builder)->commit();
+
+if ($commit === false) {
+    // Not a Git repository, no commit yet, or Git cannot be run
+    exit(1);
+}
+
+print $commit . PHP_EOL;
+```
+
+```
+ab00820c3757dbd30a8caa185aa4515b98713238
+```

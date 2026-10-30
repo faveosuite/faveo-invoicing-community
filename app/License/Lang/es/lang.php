@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     '2fa_setup' => 'Configurar verificación en 2 pasos',
     'actions' => 'Acciones',
@@ -18,7 +20,7 @@ return [
     'dashboard' => 'Panel de control',
     'dashboard_show' => 'Panel de control',
     'callbacks_count' => 'Cantidad de llamadas de retorno',
-    'callbacks_description' => 'Ver las llamadas de retorno de verificación de licencia existentes. Si alguna necesita eliminarse, verifique el código de cliente o licencia y haga clic en el botón \'Enviar\'.',
+    'callbacks_description' => "Ver las llamadas de retorno de verificación de licencia existentes. Si alguna necesita eliminarse, verifique el código de cliente o licencia y haga clic en el botón 'Enviar'.",
     'adddd' => 'Licencia añadida correctamente',
     'admin_privileges' => 'Privilegios de administrador',
     'Api_Acess_not_allowed' => 'Acceso a la API no permitido',

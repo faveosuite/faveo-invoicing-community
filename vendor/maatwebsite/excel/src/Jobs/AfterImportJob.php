@@ -2,10 +2,13 @@
 
 namespace Maatwebsite\Excel\Jobs;
 
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\Import;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\HasEventBus;
@@ -14,49 +17,41 @@ use Throwable;
 
 class AfterImportJob implements ShouldQueue
 {
-    use HasEventBus, InteractsWithQueue, Queueable;
+    use Batchable, Dispatchable, HasEventBus, InteractsWithQueue, Queueable;
 
     /**
-     * @var WithEvents
+     * @var iterable<array-key, string>
      */
-    private $import;
+    private iterable $dependencyIds = [];
 
-    /**
-     * @var Reader
-     */
-    private $reader;
+    private int $interval = 60;
 
-    /**
-     * @var iterable
-     */
-    private $dependencyIds = [];
-
-    private $interval = 60;
-
-    /**
-     * @param  object  $import
-     * @param  Reader  $reader
-     */
-    public function __construct($import, Reader $reader)
-    {
-        $this->import = $import;
-        $this->reader = $reader;
+    public function __construct(
+        private readonly Import $import,
+        private readonly Reader $reader,
+    ) {
     }
 
-    public function setInterval(int $interval)
+    public function setInterval(int $interval): void
     {
         $this->interval = $interval;
     }
 
-    public function setDependencies(Collection $jobs)
+    /**
+     * @param  Collection<int, ReadChunk>  $jobs
+     */
+    public function setDependencies(Collection $jobs): void
     {
-        $this->dependencyIds = $jobs->map(function (ReadChunk $job) {
-            return $job->getUniqueId();
-        })->all();
+        $this->dependencyIds = $jobs->map(fn (ReadChunk $job): string => $job->getUniqueId())->all();
     }
 
-    public function handle()
+    public function handle(): void
     {
+        // Determine if the batch has been cancelled...
+        if ($this->batch()?->cancelled()) {
+            return;
+        }
+
         foreach ($this->dependencyIds as $id) {
             if (!ReadChunk::isComplete($id)) {
                 // Until there is no jobs left to run we put this job back into the queue every minute
@@ -75,10 +70,7 @@ class AfterImportJob implements ShouldQueue
         $this->reader->afterImport($this->import);
     }
 
-    /**
-     * @param  Throwable  $e
-     */
-    public function failed(Throwable $e)
+    public function failed(Throwable $e): void
     {
         if ($this->import instanceof WithEvents) {
             $this->registerListeners($this->import->registerEvents());

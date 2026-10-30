@@ -2,8 +2,11 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Auth;
 
+use App\Http\Middleware\Install;
+use App\Model\Common\StatusSetting;
 use App\Model\User\Password;
 use App\User;
+use App\UserBackupCodes;
 use Crypt;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
@@ -114,6 +117,20 @@ class ResetPasswordControllerTest extends DBTestCase
         $this->assertStringContainsString('verify-2fa', json_encode($response->json()));
     }
 
+    public function test_reset_page_itself_starts_the_2fa_session(): void
+    {
+        // The SPA's reset-validate XHR races other shell XHRs; the page request must set this.
+        $user = User::factory()->create(['is_2fa_enabled' => 1]);
+        $token = \Str::random(40);
+        Password::create(['email' => $user->email, 'token' => $token, 'created_at' => now()]);
+
+        $this->get('/password/reset/'.$token)
+            ->assertOk()
+            ->assertSessionHas('2fa:user:id', $user->id)
+            ->assertSessionHas('verification_user_id', $user->id)
+            ->assertSessionHas('reset_token', $token);
+    }
+
     public function test_reset_returns_400_when_email_has_no_matching_user(): void
     {
         // Covers line 113: user not found after valid token
@@ -220,7 +237,7 @@ class ResetPasswordControllerTest extends DBTestCase
             'role' => 'user', 'is_2fa_enabled' => 1, 'active' => 1,
             'email_verified' => 1, 'mobile_verified' => 1, 'password' => \Hash::make('password'),
         ]);
-        \App\UserBackupCodes::create(['user_id' => $user->id, 'backup_codes' => $code]);
+        UserBackupCodes::create(['user_id' => $user->id, 'backup_codes' => $code]);
 
         return $user;
     }
@@ -232,8 +249,8 @@ class ResetPasswordControllerTest extends DBTestCase
 
     public function test_another_accounts_2fa_does_not_unlock_a_reset_link(): void
     {
-        $this->withMiddleware()->withoutMiddleware(\App\Http\Middleware\Install::class);
-        \App\Model\Common\StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
+        $this->withMiddleware()->withoutMiddleware(Install::class);
+        StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $victim = $this->twoFaUserWithRecoveryCode('victim-code');
         $attacker = $this->twoFaUserWithRecoveryCode('attacker-code');
         $this->resetToken($victim, 'tok-victim');
@@ -256,7 +273,7 @@ class ResetPasswordControllerTest extends DBTestCase
 
     public function test_reset_link_owner_passes_2fa_and_resets(): void
     {
-        $this->withMiddleware()->withoutMiddleware(\App\Http\Middleware\Install::class);
+        $this->withMiddleware()->withoutMiddleware(Install::class);
         $user = $this->twoFaUserWithRecoveryCode('owner-code');
         // The forgot form stores the email as typed; the case may differ from the account's.
         DB::table('password_resets')->insert(['email' => strtoupper($user->email), 'token' => 'tok-owner', 'created_at' => now()]);

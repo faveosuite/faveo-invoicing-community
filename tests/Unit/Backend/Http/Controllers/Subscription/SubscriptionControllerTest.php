@@ -3,18 +3,31 @@
 namespace Tests\Unit\Backend\Http\Controllers\Subscription;
 
 use App\ApiKey;
+use App\Auto_renewal;
+use App\Http\Controllers\Common\CronController;
 use App\Http\Controllers\ConcretePostSubscriptionHandleController;
+use App\Http\Controllers\Order\BaseRenewController;
+use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\Subscription\SubscriptionController;
+use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\Condition;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Plugins\Payment\Dto\SubscriptionResult;
+use App\Plugins\Stripe\Controllers\SettingsController;
+use App\Services\Payment\ProcessingFee;
+use App\Services\Payment\SubscriptionService;
 use App\User;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Mail;
 use Tests\DBTestCase;
 
 class SubscriptionControllerTest extends DBTestCase
@@ -174,7 +187,7 @@ class SubscriptionControllerTest extends DBTestCase
         ]);
 
         $payment = $controller->recordPayment($invoice, 'Stripe');
-        $this->assertInstanceOf(\App\Model\Order\Payment::class, $payment);
+        $this->assertInstanceOf(Payment::class, $payment);
         $this->assertSame('success', $payment->payment_status);
     }
 
@@ -201,7 +214,7 @@ class SubscriptionControllerTest extends DBTestCase
         $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
 
-        $subscription = new \stdClass();
+        $subscription = new \stdClass;
         $subscription->order_id = 999999;
         $subscription->product_id = 999999;
         $subscription->user_id = 999999;
@@ -351,30 +364,32 @@ class SubscriptionControllerTest extends DBTestCase
         $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
 
-        $testUser = \App\User::first();
-        $testUser = $testUser ?? \App\User::factory()->create();
+        $testUser = User::first();
+        $testUser = $testUser ?? User::factory()->create();
+
         $invoice = Invoice::factory()->create(['user_id' => $testUser->id, 'status' => 'pending']);
-        $order = new \App\Model\Order\Order;
-        $product = \App\Model\Product\Product::first();
-        $user = \App\User::first();
-        $plan = \App\Model\Payment\Plan::first();
-        $subscription = new \App\Model\Product\Subscription;
+        $order = new Order;
+        $product = Product::first();
+        $user = User::first();
+        $plan = Plan::first();
+        $subscription = new Subscription;
 
         if (! $product || ! $user || ! $plan) {
             // create missing data
             if (! $product) {
-                $product = \App\Model\Product\Product::create(['name' => 'Sub Test '.uniqid()]);
+                $product = Product::create(['name' => 'Sub Test '.uniqid()]);
             }
+
             if (! $plan) {
-                $plan = \App\Model\Payment\Plan::create(['name' => 'Sub Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+                $plan = Plan::create(['name' => 'Sub Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
             }
         }
 
         try {
             $subController->createSubscriptionsForEnabledUsers(
-                null, $product, 10.0, 'USD', $plan, $subscription, $invoice, $order, $user, 10.0, null
+                stripeDetails: null, product: $product, unitCost: 10.0, currency: 'USD', plan: $plan, subscription: $subscription, invoice: $invoice, order: $order, user: $user, cost: 10.0, end: null
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // Gateway call may fail — method body was exercised
         }
 
@@ -395,7 +410,8 @@ class SubscriptionControllerTest extends DBTestCase
         $sub->rzp_subscription = '0';
 
         $method = new \ReflectionMethod(SubscriptionController::class, 'resolvePaymentMethod');
-        $method->setAccessible(true);
+        $method->setAccessible(accessible: true);
+
         $result = $method->invoke($subController, $sub);
 
         $this->assertSame('stripe', $result);
@@ -411,7 +427,8 @@ class SubscriptionControllerTest extends DBTestCase
         $sub->rzp_subscription = '1';
 
         $method = new \ReflectionMethod(SubscriptionController::class, 'resolvePaymentMethod');
-        $method->setAccessible(true);
+        $method->setAccessible(accessible: true);
+
         $result = $method->invoke($subController, $sub);
 
         $this->assertSame('razorpay', $result);
@@ -427,7 +444,8 @@ class SubscriptionControllerTest extends DBTestCase
         $sub->rzp_subscription = '0';
 
         $method = new \ReflectionMethod(SubscriptionController::class, 'resolvePaymentMethod');
-        $method->setAccessible(true);
+        $method->setAccessible(accessible: true);
+
         $result = $method->invoke($subController, $sub);
 
         $this->assertNull($result);
@@ -442,7 +460,7 @@ class SubscriptionControllerTest extends DBTestCase
         $user = User::factory()->create();
         $plan = (object) ['renew_price' => 500, 'no_of_agents' => 3];
         $auto = new SubscriptionController($this->instantiateDependencies());
-        $manual = new \App\Http\Controllers\Order\BaseRenewController;
+        $manual = new BaseRenewController;
 
         // agents on the order's latest invoice line → expected price
         foreach (['3' => 500.0, '6' => 1000.0, '0' => 500.0] as $agents => $expected) {
@@ -450,7 +468,7 @@ class SubscriptionControllerTest extends DBTestCase
             $order = Order::create(['client' => $user->id, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999), 'serial_key' => 'ABCDEFGH0009']);
             $invoice = Invoice::factory()->create(['user_id' => $user->id]);
             InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => 'P', 'agents' => $agents]);
-            \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
+            OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
 
             $this->assertEquals($expected, $manual->renewalCost($order->id, $plan), "manual, {$agents} agents");
             $this->assertEquals($expected, $auto->calculateRenewalCost(new Subscription, ['plan' => $plan], $order), "auto, {$agents} agents");
@@ -467,9 +485,9 @@ class SubscriptionControllerTest extends DBTestCase
         $subController = new SubscriptionController($controller);
 
         $product = Product::first() ?? Product::create(['name' => 'Test Product '.uniqid()]);
-        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
-        $user = \App\User::factory()->create(['role' => 'user']);
+        $user = User::factory()->create(['role' => 'user']);
         $order = Order::create([
             'client' => $user->id,
             'order_status' => 'executed',
@@ -481,11 +499,11 @@ class SubscriptionControllerTest extends DBTestCase
         $sub->update_ends_at = now()->addDays(3)->toDateTimeString();
 
         $method = new \ReflectionMethod(SubscriptionController::class, 'sendPendingAuthMail');
-        $method->setAccessible(true);
+        $method->setAccessible(accessible: true);
 
         try {
             $method->invoke($subController, $sub, $product, 100.0, 'USD', 'https://example.com/pay', $user);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // PhpMailController may throw — the code path was exercised
         }
 
@@ -504,7 +522,8 @@ class SubscriptionControllerTest extends DBTestCase
         $subController = new SubscriptionController($controller);
 
         $method = new \ReflectionMethod(SubscriptionController::class, 'getRenewalDays');
-        $method->setAccessible(true);
+        $method->setAccessible(accessible: true);
+
         $result = $method->invoke($subController);
 
         $this->assertIsArray($result);
@@ -519,7 +538,8 @@ class SubscriptionControllerTest extends DBTestCase
         $subController = new SubscriptionController($controller);
 
         $method = new \ReflectionMethod(SubscriptionController::class, 'getRenewalDays');
-        $method->setAccessible(true);
+        $method->setAccessible(accessible: true);
+
         $result = $method->invoke($subController);
 
         $this->assertIsArray($result);
@@ -534,7 +554,8 @@ class SubscriptionControllerTest extends DBTestCase
         $subController = new SubscriptionController($controller);
 
         $method = new \ReflectionMethod(SubscriptionController::class, 'getRenewalDays');
-        $method->setAccessible(true);
+        $method->setAccessible(accessible: true);
+
         $result = $method->invoke($subController);
 
         $this->assertIsArray($result);
@@ -550,7 +571,7 @@ class SubscriptionControllerTest extends DBTestCase
 
     public function test_auto_renewal_runs_without_exception_when_gateways_enabled_no_subs(): void
     {
-        \App\Model\Common\StatusSetting::updateOrCreate([], [
+        StatusSetting::updateOrCreate([], [
             'stripe_auto_renewal' => 1,
             'razorpay_auto_renewal' => 1,
         ]);
@@ -571,8 +592,8 @@ class SubscriptionControllerTest extends DBTestCase
 
     public function test_auto_renewal_does_not_create_invoice_for_already_active_subscription(): void
     {
-        \App\Model\Common\Setting::where('id', 1)->update(['autorenewal_status' => 1]);
-        \App\Model\Common\StatusSetting::updateOrCreate([], [
+        Setting::where('id', 1)->update(['autorenewal_status' => 1]);
+        StatusSetting::updateOrCreate([], [
             'stripe_auto_renewal' => 1,
             'razorpay_auto_renewal' => 0,
         ]);
@@ -582,11 +603,11 @@ class SubscriptionControllerTest extends DBTestCase
         // Setting::default_currency deterministically — read it rather than
         // hardcoding, since it differs between the dev DB and the DB phpunit
         // actually runs against (.env.testing points at a separate database).
-        $currency = \App\Model\Common\Setting::value('default_currency') ?: 'USD';
+        $currency = Setting::value('default_currency') ?: 'USD';
 
         $product = Product::create(['name' => 'RenewalSkip '.uniqid()]);
         $plan = Plan::create(['name' => 'RenewalSkipPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
-        \App\Model\Payment\PlanPrice::create(['plan_id' => $plan->id, 'currency' => $currency, 'renew_price' => 999, 'no_of_agents' => 1]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => $currency, 'renew_price' => 999, 'no_of_agents' => 1]);
         $user = User::factory()->create(['role' => 'user', 'country' => 'ZZ']);
         $order = Order::create([
             'client' => $user->id, 'order_status' => 'executed',
@@ -594,7 +615,7 @@ class SubscriptionControllerTest extends DBTestCase
         ]);
 
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
+        OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
 
         Subscription::create([
             'order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id,
@@ -619,7 +640,7 @@ class SubscriptionControllerTest extends DBTestCase
 
     public function test_get_on_day_expiry_info_subs_returns_empty_array_when_no_subs_expire(): void
     {
-        \App\Model\Common\StatusSetting::updateOrCreate([], [
+        StatusSetting::updateOrCreate([], [
             'stripe_auto_renewal' => 1,
             'razorpay_auto_renewal' => 0,
         ]);
@@ -634,7 +655,7 @@ class SubscriptionControllerTest extends DBTestCase
 
     public function test_get_on_day_expiry_info_subs_razorpay_enabled_returns_array(): void
     {
-        \App\Model\Common\StatusSetting::updateOrCreate([], [
+        StatusSetting::updateOrCreate([], [
             'stripe_auto_renewal' => 0,
             'razorpay_auto_renewal' => 1,
         ]);
@@ -654,14 +675,14 @@ class SubscriptionControllerTest extends DBTestCase
 
     public function test_get_on_day_expiry_info_subs_excludes_match_when_global_toggle_off(): void
     {
-        \App\Model\Common\Setting::where('id', 1)->update(['autorenewal_status' => 0]);
+        Setting::where('id', 1)->update(['autorenewal_status' => 0]);
         StatusSetting::updateOrCreate([], ['stripe_auto_renewal' => 1, 'razorpay_auto_renewal' => 0]);
         Condition::where('job', 'subsExpirymail')->update(['days' => '[7]']);
 
         Subscription::factory()->create([
             'is_subscribed' => 1,
             'autoRenew_status' => 1,
-            'update_ends_at' => \Illuminate\Support\Facades\Date::now()->addDays(7),
+            'update_ends_at' => Date::now()->addDays(7),
         ]);
 
         $controller = $this->instantiateDependencies();
@@ -672,14 +693,14 @@ class SubscriptionControllerTest extends DBTestCase
 
     public function test_get_on_day_expiry_info_subs_includes_match_when_global_toggle_on(): void
     {
-        \App\Model\Common\Setting::where('id', 1)->update(['autorenewal_status' => 1]);
+        Setting::where('id', 1)->update(['autorenewal_status' => 1]);
         StatusSetting::updateOrCreate([], ['stripe_auto_renewal' => 1, 'razorpay_auto_renewal' => 0]);
         Condition::where('job', 'subsExpirymail')->update(['days' => '[7]']);
 
         Subscription::factory()->create([
             'is_subscribed' => 1,
             'autoRenew_status' => 1,
-            'update_ends_at' => \Illuminate\Support\Facades\Date::now()->addDays(SubscriptionController::CHARGE_DAYS_BEFORE),
+            'update_ends_at' => Date::now()->addDays(SubscriptionController::CHARGE_DAYS_BEFORE),
         ]);
 
         $controller = $this->instantiateDependencies();
@@ -715,13 +736,13 @@ class SubscriptionControllerTest extends DBTestCase
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => $invoiceStatus, 'grand_total' => 100, 'currency' => 'INR',
             'metadata' => $upfrontForThisInvoice ? ['rzp_upfront_subscription' => 'sub_rzp'] : null]);
         InvoiceItem::factory()->create(['invoice_id' => $invoice->id, 'product_id' => $product->id]);
-        \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
+        OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
 
-        $gateways = \Mockery::mock(\App\Services\Payment\SubscriptionService::class);
+        $gateways = \Mockery::mock(SubscriptionService::class);
         $gateways->shouldReceive('getStatus')->with('Razorpay', 'sub_rzp')->andReturn($status);
-        $this->app->instance(\App\Services\Payment\SubscriptionService::class, $gateways);
+        $this->app->instance(SubscriptionService::class, $gateways);
 
-        (new SubscriptionController($this->instantiateDependencies()))->checkSubscriptionStatus(\DB::table('subscriptions')->find($sub->id));
+        new SubscriptionController($this->instantiateDependencies())->checkSubscriptionStatus(\DB::table('subscriptions')->find($sub->id));
 
         return [$sub->fresh(), $invoice->fresh()];
     }
@@ -775,13 +796,13 @@ class SubscriptionControllerTest extends DBTestCase
     private function captureCreatedSubscription(): \stdClass
     {
         $seen = new \stdClass;
-        $gateways = \Mockery::mock(\App\Services\Payment\SubscriptionService::class);
-        $gateways->shouldReceive('createSubscription')->andReturnUsing(function ($gateway, $request) use ($seen) {
+        $gateways = \Mockery::mock(SubscriptionService::class);
+        $gateways->shouldReceive('createSubscription')->andReturnUsing(function ($gateway, $request) use ($seen): SubscriptionResult {
             $seen->request = $request;
 
-            return new \App\Plugins\Payment\Dto\SubscriptionResult($gateway, 'sub_x', 'created', []);
+            return new SubscriptionResult($gateway, 'sub_x', 'created', []);
         });
-        $this->app->instance(\App\Services\Payment\SubscriptionService::class, $gateways);
+        $this->app->instance(SubscriptionService::class, $gateways);
 
         return $seen;
     }
@@ -793,7 +814,7 @@ class SubscriptionControllerTest extends DBTestCase
         $seen = $this->captureCreatedSubscription();
         $plan = Plan::factory()->create(['days' => 30]);
 
-        (new \App\Plugins\Stripe\Controllers\SettingsController)->handleStripeAutoPay(
+        (new SettingsController)->handleStripeAutoPay(
             (object) ['payment_intent_id' => 'pi_x'], (object) ['name' => 'P'], 1000, 'USD', $plan
         );
 
@@ -807,7 +828,7 @@ class SubscriptionControllerTest extends DBTestCase
         $seen = $this->captureCreatedSubscription();
         $sub = (object) ['update_ends_at' => now()->subDays(90)->toDateTimeString()];
 
-        (new \App\Http\Controllers\RazorpayController)->handleRzpAutoPay(1000, 30, 'P', null, 'INR', $sub, null, null, null, null);
+        (new RazorpayController)->handleRzpAutoPay(1000, 30, 'P', invoice: null, currency: 'INR', subscription: $sub, user: null, order: null, endDate: null, productDetails: null);
 
         $this->assertNull($seen->request->startAt);
         $this->assertFalse($seen->request->includeUpfrontCharge);
@@ -818,7 +839,7 @@ class SubscriptionControllerTest extends DBTestCase
         $seen = $this->captureCreatedSubscription();
         $sub = (object) ['update_ends_at' => now()->addDays(2)->toDateTimeString()];
 
-        (new \App\Http\Controllers\RazorpayController)->handleRzpAutoPay(1000, 30, 'P', null, 'INR', $sub, null, null, null, null);
+        (new RazorpayController)->handleRzpAutoPay(1000, 30, 'P', invoice: null, currency: 'INR', subscription: $sub, user: null, order: null, endDate: null, productDetails: null);
 
         $this->assertNotNull($seen->request->startAt);
         $this->assertTrue($seen->request->includeUpfrontCharge);
@@ -836,13 +857,13 @@ class SubscriptionControllerTest extends DBTestCase
         \DB::table('subscriptions')->where('id', $sub->id)->update(['autoRenew_status' => '0']); // switched off mid-flight
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending', 'grand_total' => 0, 'currency' => 'USD']);
 
-        $gateways = \Mockery::mock(\App\Services\Payment\SubscriptionService::class);
-        $gateways->shouldReceive('createSubscription')->andReturn(new \App\Plugins\Payment\Dto\SubscriptionResult('Stripe', 'sub_untracked', 'active', []));
+        $gateways = \Mockery::mock(SubscriptionService::class);
+        $gateways->shouldReceive('createSubscription')->andReturn(new SubscriptionResult('Stripe', 'sub_untracked', 'active', []));
         $gateways->shouldReceive('cancelSubscription')->once()->with('Stripe', 'sub_untracked');
-        $this->app->instance(\App\Services\Payment\SubscriptionService::class, $gateways);
+        $this->app->instance(SubscriptionService::class, $gateways);
 
         $controller = new SubscriptionController($this->instantiateDependencies());
-        (new \ReflectionMethod($controller, 'handleStripeSubscription'))->invoke(
+        new \ReflectionMethod($controller, 'handleStripeSubscription')->invoke(
             $controller, (object) ['payment_intent_id' => 'pi_x'], $product, 1000, 'USD', $plan, $sub->fresh(), $invoice, $order, $user, 0
         );
 
@@ -854,8 +875,8 @@ class SubscriptionControllerTest extends DBTestCase
     /** Runs the Stripe renewal job against a gateway that answers "incomplete" (needs 3DS). */
     private function stripeNeedsCardApproval(bool $emailsOn): Subscription
     {
-        \Illuminate\Support\Facades\Mail::fake();
-        \App\Model\Common\Setting::where('id', 1)->update(['sending_status' => $emailsOn ? 1 : 0]);
+        Mail::fake();
+        Setting::where('id', 1)->update(['sending_status' => $emailsOn ? 1 : 0]);
         $user = User::factory()->create();
         $product = Product::factory()->create();
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
@@ -864,14 +885,14 @@ class SubscriptionControllerTest extends DBTestCase
         \DB::table('subscriptions')->where('id', $sub->id)->update(['autoRenew_status' => '1']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending', 'grand_total' => 100, 'currency' => 'USD']);
 
-        $gateways = \Mockery::mock(\App\Services\Payment\SubscriptionService::class);
-        $gateways->shouldReceive('createSubscription')->andReturn(new \App\Plugins\Payment\Dto\SubscriptionResult(
+        $gateways = \Mockery::mock(SubscriptionService::class);
+        $gateways->shouldReceive('createSubscription')->andReturn(new SubscriptionResult(
             'Stripe', 'sub_3ds', 'incomplete', ['latest_invoice' => ['hosted_invoice_url' => 'https://pay.example/inv']]
         ));
-        $this->app->instance(\App\Services\Payment\SubscriptionService::class, $gateways);
+        $this->app->instance(SubscriptionService::class, $gateways);
 
         $controller = new SubscriptionController($this->instantiateDependencies());
-        (new \ReflectionMethod($controller, 'handleStripeSubscription'))->invoke(
+        new \ReflectionMethod($controller, 'handleStripeSubscription')->invoke(
             $controller, (object) ['payment_intent_id' => 'pi_x'], $product, 1000, 'USD', $plan, $sub->fresh(), $invoice, $order, $user, 100
         );
 
@@ -901,20 +922,20 @@ class SubscriptionControllerTest extends DBTestCase
         $user = User::factory()->create();
         $product = Product::factory()->create();
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        \App\Model\Payment\PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => getCurrencyForClient((string) $user->country), 'renew_price' => 0, 'no_of_agents' => 0]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => getCurrencyForClient((string) $user->country), 'renew_price' => 0, 'no_of_agents' => 0]);
         $order = Order::create(['client' => $user->id, 'product' => $product->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999)]);
         $sub = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $user->id, 'is_subscribed' => 1]);
         \DB::table('subscriptions')->where('id', $sub->id)->update(['subscribe_id' => 'sub_old', 'autoRenew_status' => '3']);
-        \App\Auto_renewal::create(['user_id' => $user->id, 'order_id' => $order->id, 'payment_method' => 'stripe']);
+        Auto_renewal::create(['user_id' => $user->id, 'order_id' => $order->id, 'payment_method' => 'stripe']);
 
-        $gateways = \Mockery::mock(\App\Services\Payment\SubscriptionService::class);
+        $gateways = \Mockery::mock(SubscriptionService::class);
         $gateways->shouldReceive('cancelSubscription')->once()->with('Stripe', 'sub_old'); // still billing the old price
-        $this->app->instance(\App\Services\Payment\SubscriptionService::class, $gateways);
+        $this->app->instance(SubscriptionService::class, $gateways);
 
         $controller = new SubscriptionController($this->instantiateDependencies());
-        (new \ReflectionMethod($controller, 'processSubscriptionRenewal'))->invoke($controller, \DB::table('subscriptions')->find($sub->id));
+        new \ReflectionMethod($controller, 'processSubscriptionRenewal')->invoke($controller, \DB::table('subscriptions')->find($sub->id));
 
-        $this->assertSame(0, \App\Auto_renewal::where('order_id', $order->id)->count()); // re-enable won't be ignored
+        $this->assertSame(0, Auto_renewal::where('order_id', $order->id)->count()); // re-enable won't be ignored
         $this->assertSame(0, (int) \DB::table('subscriptions')->where('id', $sub->id)->value('is_subscribed'));
     }
 
@@ -924,7 +945,7 @@ class SubscriptionControllerTest extends DBTestCase
 
     private function enableAutoRenewal(string $days = '[30,15,7,1]'): void
     {
-        \App\Model\Common\Setting::where('id', 1)->update(['autorenewal_status' => 1]);
+        Setting::where('id', 1)->update(['autorenewal_status' => 1]);
         StatusSetting::query()->update(['stripe_auto_renewal' => 1, 'razorpay_auto_renewal' => 1]);
         Condition::where('job', 'subsExpirymail')->update(['days' => $days]);
     }
@@ -1008,7 +1029,7 @@ class SubscriptionControllerTest extends DBTestCase
         $stripe = $this->autoSub(1, 'stripe');
         $razorpay = $this->autoSub(1, 'razorpay');
         $stripeEarly = $this->autoSub(30, 'stripe');
-        $cron = new \App\Http\Controllers\Common\CronController;
+        $cron = new CronController;
 
         $chargeDay = array_column($cron->getautoSubscriptions([1]), 'id');
         $this->assertNotContains($stripe->id, $chargeDay);   // gets the payment email instead
@@ -1019,7 +1040,7 @@ class SubscriptionControllerTest extends DBTestCase
 
     public function test_renewal_invoice_adds_the_processing_fee_on_top_not_inside_the_price(): void
     {
-        \App\Services\Payment\ProcessingFee::store('stripe', 5);
+        ProcessingFee::store('stripe', 5);
         $user = User::factory()->create();
         $product = Product::factory()->create();
         $plan = Plan::factory()->create(['product' => $product->id]);

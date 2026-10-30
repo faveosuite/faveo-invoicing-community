@@ -3,12 +3,12 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as BaseVerifier;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
 use Override;
 
-class VerifyCsrfToken extends BaseVerifier
+class VerifyCsrfToken extends PreventRequestForgery
 {
     /**
      * The URIs that should be excluded from CSRF verification.

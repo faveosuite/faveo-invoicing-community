@@ -77,7 +77,7 @@ class InstallerController extends Controller
 
                 if (Cache::get('dummy_data_installation')) {
                     $path = base_path().DIRECTORY_SEPARATOR.'DB'.DIRECTORY_SEPARATOR.'dummy-data.sql';
-                    DB::unprepared((string) file_get_contents($path));
+                    DB::unprepared((string) file_get_contents($path)); // @phpstan-ignore argument.type (bundled SQL file, not user input)
                 }
             }
         } catch (Exception $exception) {
@@ -97,7 +97,7 @@ class InstallerController extends Controller
         try {
             Artisan::call('migrate', ['--force' => true]);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
             $result = ['error' => __('message.sorry_something_wrong')];
 
             return response()->json(compact('result'), 500);
@@ -122,7 +122,7 @@ class InstallerController extends Controller
 
             $this->env($default, $host, $port, $database, $dbusername, $dbpassword, sslKey: $sslKey, sslCert: $sslCert, sslCa: $sslCa, sslVerify: $sslVerify);
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             return response()->json(['result' => __('message.sorry_something_wrong')], 500);
         }
@@ -193,7 +193,7 @@ class InstallerController extends Controller
 
         // Remove old .env file if it exists
         if (is_file($envPath)) {
-            unlink($envPath); // nosemgrep: php.lang.security.unlink-use.unlink-use
+            File::delete($envPath); // nosemgrep: php.lang.security.unlink-use.unlink-use
         }
 
         // Create a new example.env file if it doesn't exist
@@ -357,7 +357,7 @@ class InstallerController extends Controller
             // Return success response
             return successResponse(__('installer_messages.setup_completed'), '201');
         } catch (Exception $exception) {
-            \Logger::exception($exception);
+            Logger::exception($exception);
 
             // Return error response in case of exception
             return errorResponse(__('message.sorry_something_wrong'), 400);

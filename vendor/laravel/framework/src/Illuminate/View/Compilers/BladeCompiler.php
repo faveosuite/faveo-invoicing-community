@@ -41,6 +41,8 @@ class BladeCompiler extends Compiler implements CompilerInterface
         Concerns\CompilesUseStatements,
         ReflectsClosures;
 
+    const DEFAULT_ECHO_FORMAT = 'e(%s)';
+
     /**
      * All of the registered extensions.
      *
@@ -121,7 +123,7 @@ class BladeCompiler extends Compiler implements CompilerInterface
      *
      * @var string
      */
-    protected $echoFormat = 'e(%s)';
+    protected $echoFormat = self::DEFAULT_ECHO_FORMAT;
 
     /**
      * Array of footer lines to be added to the template.
@@ -205,6 +207,14 @@ class BladeCompiler extends Compiler implements CompilerInterface
 
             if ($compiledHash !== hash('xxh128', $contents)) {
                 $this->files->replace($compiledPath, $contents);
+
+                return;
+            }
+
+            $lastModified = $this->files->lastModified($this->getPath());
+
+            if ($lastModified >= $this->files->lastModified($compiledPath)) {
+                touch($compiledPath, $lastModified + 1);
             }
         }
     }
@@ -307,7 +317,7 @@ class BladeCompiler extends Compiler implements CompilerInterface
         // If there are any footer lines that need to get added to a template we will
         // add them here at the end of the template. This gets used mainly for the
         // template inheritance via the extends keyword that should be appended.
-        if (count($this->footer) > 0) {
+        if ($this->footer !== []) {
             $result = $this->addFooters($result);
         }
 
@@ -635,9 +645,9 @@ class BladeCompiler extends Compiler implements CompilerInterface
         $closing = 0;
 
         foreach ($tokens as $token) {
-            if ($token == ')') {
+            if ($token === ')') {
                 $closing++;
-            } elseif ($token == '(') {
+            } elseif ($token === '(') {
                 $opening++;
             }
         }
@@ -782,7 +792,7 @@ class BladeCompiler extends Compiler implements CompilerInterface
 
         if (is_null($alias)) {
             $alias = str_contains($class, '\\View\\Components\\')
-                ? (new Collection(explode('\\', Str::after($class, '\\View\\Components\\'))))
+                ? (new Stringable($class))->after('\\View\\Components\\')->explode('\\')
                     ->map(fn ($segment) => Str::kebab($segment))
                     ->implode(':')
                 : Str::kebab(class_basename($class));
@@ -1021,6 +1031,24 @@ class BladeCompiler extends Compiler implements CompilerInterface
     public function precompiler(callable $precompiler)
     {
         $this->precompilers[] = $precompiler;
+    }
+
+    /**
+     * Get the path to the compiled version of a view.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    public function getCompiledPath($path)
+    {
+        $compiled = parent::getCompiledPath($path);
+
+        // Non-default echo formats need their own compiled file so cached views are not reused...
+        if ($this->echoFormat === self::DEFAULT_ECHO_FORMAT) {
+            return $compiled;
+        }
+
+        return Str::beforeLast($compiled, '.').'_'.hash('xxh128', $this->echoFormat).'.'.$this->compiledExtension;
     }
 
     /**

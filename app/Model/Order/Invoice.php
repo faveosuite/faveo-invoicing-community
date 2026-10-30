@@ -187,7 +187,10 @@ class Invoice extends BaseModel
     }
 
     // Subscriptions reached through the pivot: Invoice → order_invoice_relations → subscriptions
-    public function subscriptions(): HasManyThrough // @phpstan-ignore missingType.generics
+    /**
+     * @return HasManyThrough<Subscription, OrderInvoiceRelation, $this>
+     */
+    public function subscriptions(): HasManyThrough
     {
         return $this->hasManyThrough(
             Subscription::class,
@@ -209,7 +212,7 @@ class Invoice extends BaseModel
      */
     public function payments(): BelongsToMany
     {
-        return $this->belongsToMany(Payment::class, 'payment_invoice', 'invoice_id', 'payment_id')
+        return $this->belongsToMany(Payment::class, PaymentInvoice::class, 'invoice_id', 'payment_id')
             ->using(PaymentInvoice::class)
             ->withPivot('amount');
     }
@@ -249,15 +252,15 @@ class Invoice extends BaseModel
     /**
      * grand_total is a varchar column, so it is cast to sort by amount, not as text.
      *
-     * @param  Builder<self>  $query
+     * @param  Builder<static>  $query
      */
-    public function scopeOrderByField(Builder $query, string $field, string $direction): void
+    protected function scopeOrderByField(Builder $query, string $field, string $direction): void
     {
         $column = $field === 'grand_total'
             ? DB::raw('CAST(invoices.grand_total AS DECIMAL(20,2))')
             : $field;
 
-        $query->orderBy($column, $direction);
+        $query->orderBy($column, strtolower($direction) === 'asc' ? 'asc' : 'desc');
     }
 
     /** Re-derive the status from what has actually been paid, and persist it. */

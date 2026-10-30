@@ -11,7 +11,6 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\SocialAuthController;
-use App\Http\Controllers\Common;
 use App\Http\Controllers\Common\BaseSettingsController;
 use App\Http\Controllers\Common\CacheSettingsController;
 use App\Http\Controllers\Common\ChatScriptController;
@@ -163,7 +162,7 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('auth/logout', [LoginController::class,    'logout'])->name('logout');
 
     // Password reset (GET serves the SPA shell; named `password.reset` for reset emails)
-    Route::get('password/reset/{token}', fn (): Factory|\Illuminate\Contracts\View\View => view('client'))->name('password.reset');
+    Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetPage'])->name('password.reset');
     Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
     Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
 
@@ -670,8 +669,8 @@ Route::middleware('installAgora')->group(function (): void {
     // Terms settings
     Route::get('settings/terms', [SettingsController::class, 'getTermsSettings']);
     Route::post('updateTermsDetails', [BaseSettingsController::class, 'updateTermsDetails'])->name('updateTermsDetails')->middleware(['auth', 'admin']);
-    Route::get('settings/deployment', [Common\SettingsController::class, 'getDeploymentSettings'])->name('getDeploymentSettings');
-    Route::post('settings/deployment', [Common\SettingsController::class, 'saveDeploymentSettings'])->name('saveDeploymentSettings');
+    Route::get('settings/deployment', [SettingsController::class, 'getDeploymentSettings'])->name('getDeploymentSettings');
+    Route::post('settings/deployment', [SettingsController::class, 'saveDeploymentSettings'])->name('saveDeploymentSettings');
 
     // License / encryption
     Route::post('licenseStatus', [SettingsController::class, 'licenseStatus'])->name('licenseStatus');

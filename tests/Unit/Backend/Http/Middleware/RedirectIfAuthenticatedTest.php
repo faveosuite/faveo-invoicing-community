@@ -6,6 +6,7 @@ namespace Tests\Unit\Backend\Http\Middleware;
 
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\User;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Tests\TestCase;
@@ -16,14 +17,14 @@ class RedirectIfAuthenticatedTest extends TestCase
 
     private function next(): \Closure
     {
-        return fn ($req) => response('passed');
+        return fn ($req): ResponseFactory|\Illuminate\Http\Response => response('passed');
     }
 
     public function test_passes_through_for_guest(): void
     {
         $request = Request::create('/login', 'GET');
 
-        $response = (new RedirectIfAuthenticated())->handle($request, $this->next());
+        $response = new RedirectIfAuthenticated()->handle($request, $this->next());
 
         $this->assertSame('passed', $response->getContent());
     }
@@ -34,7 +35,7 @@ class RedirectIfAuthenticatedTest extends TestCase
         $this->actingAs($user);
 
         $request = Request::create('/login', 'GET');
-        $response = (new RedirectIfAuthenticated())->handle($request, $this->next());
+        $response = new RedirectIfAuthenticated()->handle($request, $this->next());
 
         $this->assertSame(302, $response->getStatusCode());
         $this->assertStringContainsString('my-invoices', $response->headers->get('Location'));

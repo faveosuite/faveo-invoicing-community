@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Services\Payment;
 
+use App\Model\Order\Invoice;
+use App\Model\Payment\Plan;
 use App\Model\Product\CloudProducts;
+use App\Model\Product\Product;
 use App\Services\Payment\FreeTrialService;
+use App\User;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 use Tests\DBTestCase;
@@ -17,7 +21,7 @@ class FreeTrialServiceTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new FreeTrialService();
+        $this->service = new FreeTrialService;
     }
 
     // --- checkEligibility() ---
@@ -26,7 +30,7 @@ class FreeTrialServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
 
-        $cloudProduct = new CloudProducts();
+        $cloudProduct = new CloudProducts;
         $cloudProduct->cloud_product = 99999; // product_id that has no free_trial_allowed row
 
         // Should not throw
@@ -39,7 +43,7 @@ class FreeTrialServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
 
-        $cloudProduct = new CloudProducts();
+        $cloudProduct = new CloudProducts;
         $cloudProduct->cloud_product = 99999;
 
         // Insert a free_trial_allowed row within the transaction (rolled back after test).
@@ -65,7 +69,7 @@ class FreeTrialServiceTest extends DBTestCase
             'domain' => 'other-product.example.com',
         ]);
 
-        $cloudProduct = new CloudProducts();
+        $cloudProduct = new CloudProducts;
         $cloudProduct->cloud_product = 99999; // different product
 
         // Should NOT throw — trial used for a different product, not this one.
@@ -78,9 +82,9 @@ class FreeTrialServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
 
-        $otherUser = \App\User::factory()->create();
+        $otherUser = User::factory()->create();
 
-        $cloudProduct = new CloudProducts();
+        $cloudProduct = new CloudProducts;
         $cloudProduct->cloud_product = 99999;
 
         // Other user used trial — not this user.
@@ -98,11 +102,11 @@ class FreeTrialServiceTest extends DBTestCase
 
     public function test_trial_invoice_item_carries_no_domain_so_the_license_is_not_domain_locked(): void
     {
-        $product = \App\Model\Product\Product::factory()->create();
-        $plan = \App\Model\Payment\Plan::create(['name' => 'Trial '.uniqid(), 'product' => $product->id, 'days' => 14]);
-        $invoice = \App\Model\Order\Invoice::factory()->create(['cloud_domain' => 'acme']);
+        $product = Product::factory()->create();
+        $plan = Plan::create(['name' => 'Trial '.uniqid(), 'product' => $product->id, 'days' => 14]);
+        $invoice = Invoice::factory()->create(['cloud_domain' => 'acme']);
 
-        $item = (new \ReflectionMethod(FreeTrialService::class, 'createInvoiceItem'))->invoke($this->service, $invoice, $product, $plan, 'USD');
+        $item = new \ReflectionMethod(FreeTrialService::class, 'createInvoiceItem')->invoke($this->service, $invoice, $product, $plan, 'USD');
 
         $this->assertSame('', $item->domain); // the instance name stays on the invoice only
     }

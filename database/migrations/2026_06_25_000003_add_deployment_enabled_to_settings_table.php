@@ -8,16 +8,16 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('settings', function (Blueprint $table): void {
             if (! Schema::hasColumn('settings', 'deployment_enabled')) {
-                $table->boolean('deployment_enabled')->default(true)->after('help_description');
+                $table->boolean('deployment_enabled')->default(value: true)->after('help_description');
             }
         });
     }
 
     public function down(): void
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('settings', function (Blueprint $table): void {
             $table->dropColumn('deployment_enabled');
         });
     }

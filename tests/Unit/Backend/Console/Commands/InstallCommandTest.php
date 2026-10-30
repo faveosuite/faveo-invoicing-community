@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Backend\Console\Commands;
 
 use App\Console\Commands\Install;

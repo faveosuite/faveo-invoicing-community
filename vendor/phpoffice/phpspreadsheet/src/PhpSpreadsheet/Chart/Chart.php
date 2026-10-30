@@ -9,162 +9,157 @@ class Chart
 {
     /**
      * Chart Name.
-     *
-     * @var string
      */
-    private $name = '';
+    private string $name;
 
     /**
      * Worksheet.
-     *
-     * @var ?Worksheet
      */
-    private $worksheet;
+    private ?Worksheet $worksheet = null;
 
     /**
      * Chart Title.
-     *
-     * @var ?Title
      */
-    private $title;
+    private ?Title $title;
 
     /**
      * Chart Legend.
-     *
-     * @var ?Legend
      */
-    private $legend;
+    private ?Legend $legend;
 
     /**
      * X-Axis Label.
-     *
-     * @var ?Title
      */
-    private $xAxisLabel;
+    private ?Title $xAxisLabel;
 
     /**
      * Y-Axis Label.
-     *
-     * @var ?Title
      */
-    private $yAxisLabel;
+    private ?Title $yAxisLabel;
 
     /**
      * Chart Plot Area.
-     *
-     * @var ?PlotArea
      */
-    private $plotArea;
+    private ?PlotArea $plotArea;
 
     /**
      * Plot Visible Only.
-     *
-     * @var bool
      */
-    private $plotVisibleOnly = true;
+    private bool $plotVisibleOnly;
 
     /**
      * Display Blanks as.
-     *
-     * @var string
      */
-    private $displayBlanksAs = DataSeries::EMPTY_AS_GAP;
+    private string $displayBlanksAs;
 
     /**
      * Chart Asix Y as.
-     *
-     * @var Axis
      */
-    private $yAxis;
+    private Axis $yAxis;
 
     /**
      * Chart Asix X as.
-     *
-     * @var Axis
      */
-    private $xAxis;
+    private Axis $xAxis;
 
     /**
      * Top-Left Cell Position.
-     *
-     * @var string
      */
-    private $topLeftCellRef = 'A1';
+    private string $topLeftCellRef = 'A1';
 
     /**
      * Top-Left X-Offset.
-     *
-     * @var int
      */
-    private $topLeftXOffset = 0;
+    private int $topLeftXOffset = 0;
 
     /**
      * Top-Left Y-Offset.
-     *
-     * @var int
      */
-    private $topLeftYOffset = 0;
+    private int $topLeftYOffset = 0;
 
     /**
      * Bottom-Right Cell Position.
-     *
-     * @var string
      */
-    private $bottomRightCellRef = '';
+    private string $bottomRightCellRef = '';
 
     /**
      * Bottom-Right X-Offset.
-     *
-     * @var int
      */
-    private $bottomRightXOffset = 10;
+    private int $bottomRightXOffset = 10;
 
     /**
      * Bottom-Right Y-Offset.
-     *
-     * @var int
      */
-    private $bottomRightYOffset = 10;
+    private int $bottomRightYOffset = 10;
 
-    /** @var ?int */
-    private $rotX;
+    private ?int $rotX = null;
 
-    /** @var ?int */
-    private $rotY;
+    private ?int $rotY = null;
 
-    /** @var ?int */
-    private $rAngAx;
+    private ?int $rAngAx = null;
 
-    /** @var ?int */
-    private $perspective;
+    private ?int $perspective = null;
 
-    /** @var bool */
-    private $oneCellAnchor = false;
+    private bool $oneCellAnchor = false;
 
-    /** @var bool */
-    private $autoTitleDeleted = false;
+    private bool $autoTitleDeleted = false;
 
-    /** @var bool */
-    private $noFill = false;
+    private bool $noFill = false;
 
-    /** @var bool */
-    private $roundedCorners = false;
+    private bool $noBorder = false;
 
-    /** @var GridLines */
-    private $borderLines;
+    private bool $roundedCorners = false;
 
-    /** @var ChartColor */
-    private $fillColor;
+    private bool $date1904 = false;
+
+    private string $lang = 'en-GB';
+
+    /** @var array{
+     *     b?: numeric-string,
+     *     l?: numeric-string,
+     *     r?: numeric-string,
+     *     t?: numeric-string,
+     *     header?: numeric-string,
+     *     footer?: numeric-string,
+     * }
+     */
+    private array $pageMargins = [
+        'b' => '0.75',
+        'l' => '0.7',
+        'r' => '0.7',
+        't' => '0.75',
+        'header' => '0.3',
+        'footer' => '0.3',
+    ];
+
+    /** @var array{
+     *     paperSize?: string,
+     *     orientation?: string,
+     * }
+     */
+    private array $pageSetup = [
+        'orientation' => 'portrait',
+    ];
+
+    private GridLines $borderLines;
+
+    private ChartColor $fillColor;
+
+    /**
+     * Rendered width in pixels.
+     */
+    private ?float $renderedWidth = null;
+
+    /**
+     * Rendered height in pixels.
+     */
+    private ?float $renderedHeight = null;
 
     /**
      * Create a new Chart.
      * majorGridlines and minorGridlines are deprecated, moved to Axis.
-     *
-     * @param mixed $name
-     * @param mixed $plotVisibleOnly
-     * @param string $displayBlanksAs
      */
-    public function __construct($name, ?Title $title = null, ?Legend $legend = null, ?PlotArea $plotArea = null, $plotVisibleOnly = true, $displayBlanksAs = DataSeries::EMPTY_AS_GAP, ?Title $xAxisLabel = null, ?Title $yAxisLabel = null, ?Axis $xAxis = null, ?Axis $yAxis = null, ?GridLines $majorGridlines = null, ?GridLines $minorGridlines = null)
+    public function __construct(string $name, ?Title $title = null, ?Legend $legend = null, ?PlotArea $plotArea = null, bool $plotVisibleOnly = true, string $displayBlanksAs = DataSeries::DEFAULT_EMPTY_AS, ?Title $xAxisLabel = null, ?Title $yAxisLabel = null, ?Axis $xAxis = null, ?Axis $yAxis = null, ?GridLines $majorGridlines = null, ?GridLines $minorGridlines = null)
     {
         $this->name = $name;
         $this->title = $title;
@@ -173,7 +168,7 @@ class Chart
         $this->yAxisLabel = $yAxisLabel;
         $this->plotArea = $plotArea;
         $this->plotVisibleOnly = $plotVisibleOnly;
-        $this->displayBlanksAs = $displayBlanksAs;
+        $this->setDisplayBlanksAs($displayBlanksAs);
         $this->xAxis = $xAxis ?? new Axis();
         $this->yAxis = $yAxis ?? new Axis();
         if ($majorGridlines !== null) {
@@ -186,12 +181,15 @@ class Chart
         $this->borderLines = new GridLines();
     }
 
+    public function __destruct()
+    {
+        $this->worksheet = null;
+    }
+
     /**
      * Get Name.
-     *
-     * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -216,7 +214,7 @@ class Chart
      *
      * @return $this
      */
-    public function setWorksheet(?Worksheet $worksheet = null)
+    public function setWorksheet(?Worksheet $worksheet = null): static
     {
         $this->worksheet = $worksheet;
 
@@ -233,7 +231,7 @@ class Chart
      *
      * @return $this
      */
-    public function setTitle(Title $title)
+    public function setTitle(Title $title): static
     {
         $this->title = $title;
 
@@ -250,7 +248,7 @@ class Chart
      *
      * @return $this
      */
-    public function setLegend(Legend $legend)
+    public function setLegend(Legend $legend): static
     {
         $this->legend = $legend;
 
@@ -267,7 +265,7 @@ class Chart
      *
      * @return $this
      */
-    public function setXAxisLabel(Title $label)
+    public function setXAxisLabel(Title $label): static
     {
         $this->xAxisLabel = $label;
 
@@ -284,7 +282,7 @@ class Chart
      *
      * @return $this
      */
-    public function setYAxisLabel(Title $label)
+    public function setYAxisLabel(Title $label): static
     {
         $this->yAxisLabel = $label;
 
@@ -294,6 +292,16 @@ class Chart
     public function getPlotArea(): ?PlotArea
     {
         return $this->plotArea;
+    }
+
+    public function getPlotAreaOrThrow(): PlotArea
+    {
+        $plotArea = $this->getPlotArea();
+        if ($plotArea !== null) {
+            return $plotArea;
+        }
+
+        throw new Exception('Chart has no PlotArea');
     }
 
     /**
@@ -308,10 +316,8 @@ class Chart
 
     /**
      * Get Plot Visible Only.
-     *
-     * @return bool
      */
-    public function getPlotVisibleOnly()
+    public function getPlotVisibleOnly(): bool
     {
         return $this->plotVisibleOnly;
     }
@@ -319,11 +325,9 @@ class Chart
     /**
      * Set Plot Visible Only.
      *
-     * @param bool $plotVisibleOnly
-     *
      * @return $this
      */
-    public function setPlotVisibleOnly($plotVisibleOnly)
+    public function setPlotVisibleOnly(bool $plotVisibleOnly): static
     {
         $this->plotVisibleOnly = $plotVisibleOnly;
 
@@ -332,10 +336,8 @@ class Chart
 
     /**
      * Get Display Blanks as.
-     *
-     * @return string
      */
-    public function getDisplayBlanksAs()
+    public function getDisplayBlanksAs(): string
     {
         return $this->displayBlanksAs;
     }
@@ -343,13 +345,12 @@ class Chart
     /**
      * Set Display Blanks as.
      *
-     * @param string $displayBlanksAs
-     *
      * @return $this
      */
-    public function setDisplayBlanksAs($displayBlanksAs)
+    public function setDisplayBlanksAs(string $displayBlanksAs): static
     {
-        $this->displayBlanksAs = $displayBlanksAs;
+        $displayBlanksAs = strtolower($displayBlanksAs);
+        $this->displayBlanksAs = in_array($displayBlanksAs, DataSeries::VALID_EMPTY_AS, true) ? $displayBlanksAs : DataSeries::DEFAULT_EMPTY_AS;
 
         return $this;
     }
@@ -385,41 +386,11 @@ class Chart
     }
 
     /**
-     * Get Major Gridlines.
-     *
-     * @deprecated 1.24.0 Use Axis->getMajorGridlines()
-     * @see Axis::getMajorGridlines()
-     *
-     * @codeCoverageIgnore
-     */
-    public function getMajorGridlines(): ?GridLines
-    {
-        return $this->yAxis->getMajorGridLines();
-    }
-
-    /**
-     * Get Minor Gridlines.
-     *
-     * @deprecated 1.24.0 Use Axis->getMinorGridlines()
-     * @see Axis::getMinorGridlines()
-     *
-     * @codeCoverageIgnore
-     */
-    public function getMinorGridlines(): ?GridLines
-    {
-        return $this->yAxis->getMinorGridLines();
-    }
-
-    /**
      * Set the Top Left position for the chart.
-     *
-     * @param string $cellAddress
-     * @param int $xOffset
-     * @param int $yOffset
      *
      * @return $this
      */
-    public function setTopLeftPosition($cellAddress, $xOffset = null, $yOffset = null)
+    public function setTopLeftPosition(string $cellAddress, ?int $xOffset = null, ?int $yOffset = null): static
     {
         $this->topLeftCellRef = $cellAddress;
         if ($xOffset !== null) {
@@ -450,10 +421,8 @@ class Chart
 
     /**
      * Get the cell address where the top left of the chart is fixed.
-     *
-     * @return string
      */
-    public function getTopLeftCell()
+    public function getTopLeftCell(): string
     {
         return $this->topLeftCellRef;
     }
@@ -461,11 +430,9 @@ class Chart
     /**
      * Set the Top Left cell position for the chart.
      *
-     * @param string $cellAddress
-     *
      * @return $this
      */
-    public function setTopLeftCell($cellAddress)
+    public function setTopLeftCell(string $cellAddress): static
     {
         $this->topLeftCellRef = $cellAddress;
 
@@ -475,12 +442,9 @@ class Chart
     /**
      * Set the offset position within the Top Left cell for the chart.
      *
-     * @param ?int $xOffset
-     * @param ?int $yOffset
-     *
      * @return $this
      */
-    public function setTopLeftOffset($xOffset, $yOffset)
+    public function setTopLeftOffset(?int $xOffset, ?int $yOffset): static
     {
         if ($xOffset !== null) {
             $this->setTopLeftXOffset($xOffset);
@@ -498,7 +462,7 @@ class Chart
      *
      * @return int[]
      */
-    public function getTopLeftOffset()
+    public function getTopLeftOffset(): array
     {
         return [
             'X' => $this->topLeftXOffset,
@@ -507,11 +471,9 @@ class Chart
     }
 
     /**
-     * @param int $xOffset
-     *
      * @return $this
      */
-    public function setTopLeftXOffset($xOffset)
+    public function setTopLeftXOffset(int $xOffset): static
     {
         $this->topLeftXOffset = $xOffset;
 
@@ -524,11 +486,9 @@ class Chart
     }
 
     /**
-     * @param int $yOffset
-     *
      * @return $this
      */
-    public function setTopLeftYOffset($yOffset)
+    public function setTopLeftYOffset(int $yOffset): static
     {
         $this->topLeftYOffset = $yOffset;
 
@@ -543,13 +503,9 @@ class Chart
     /**
      * Set the Bottom Right position of the chart.
      *
-     * @param string $cellAddress
-     * @param int $xOffset
-     * @param int $yOffset
-     *
      * @return $this
      */
-    public function setBottomRightPosition($cellAddress = '', $xOffset = null, $yOffset = null)
+    public function setBottomRightPosition(string $cellAddress = '', ?int $xOffset = null, ?int $yOffset = null): static
     {
         $this->bottomRightCellRef = $cellAddress;
         if ($xOffset !== null) {
@@ -565,9 +521,9 @@ class Chart
     /**
      * Get the bottom right position of the chart.
      *
-     * @return array an associative array containing the cell address, X-Offset and Y-Offset from the top left of that cell
+     * @return array{cell: string, xOffset: int, yOffset:int} an associative array containing the cell address, X-Offset and Y-Offset from the top left of that cell
      */
-    public function getBottomRightPosition()
+    public function getBottomRightPosition(): array
     {
         return [
             'cell' => $this->bottomRightCellRef,
@@ -581,7 +537,7 @@ class Chart
      *
      * @return $this
      */
-    public function setBottomRightCell(string $cellAddress = '')
+    public function setBottomRightCell(string $cellAddress = ''): static
     {
         $this->bottomRightCellRef = $cellAddress;
 
@@ -599,12 +555,9 @@ class Chart
     /**
      * Set the offset position within the Bottom Right cell for the chart.
      *
-     * @param ?int $xOffset
-     * @param ?int $yOffset
-     *
      * @return $this
      */
-    public function setBottomRightOffset($xOffset, $yOffset)
+    public function setBottomRightOffset(?int $xOffset, ?int $yOffset): static
     {
         if ($xOffset !== null) {
             $this->setBottomRightXOffset($xOffset);
@@ -622,7 +575,7 @@ class Chart
      *
      * @return int[]
      */
-    public function getBottomRightOffset()
+    public function getBottomRightOffset(): array
     {
         return [
             'X' => $this->bottomRightXOffset,
@@ -631,11 +584,9 @@ class Chart
     }
 
     /**
-     * @param int $xOffset
-     *
      * @return $this
      */
-    public function setBottomRightXOffset($xOffset)
+    public function setBottomRightXOffset(int $xOffset): static
     {
         $this->bottomRightXOffset = $xOffset;
 
@@ -648,11 +599,9 @@ class Chart
     }
 
     /**
-     * @param int $yOffset
-     *
      * @return $this
      */
-    public function setBottomRightYOffset($yOffset)
+    public function setBottomRightYOffset(int $yOffset): static
     {
         $this->bottomRightYOffset = $yOffset;
 
@@ -674,11 +623,11 @@ class Chart
     /**
      * Render the chart to given file (or stream).
      *
-     * @param string $outputDestination Name of the file render to
+     * @param ?string $outputDestination Name of the file render to
      *
      * @return bool true on success
      */
-    public function render($outputDestination = null)
+    public function render(?string $outputDestination = null): bool
     {
         if ($outputDestination == 'php://output') {
             $outputDestination = null;
@@ -694,7 +643,7 @@ class Chart
 
         $renderer = new $libraryName($this);
 
-        return $renderer->render($outputDestination); // @phpstan-ignore-line
+        return $renderer->render($outputDestination);
     }
 
     public function getRotX(): ?int
@@ -762,9 +711,11 @@ class Chart
         return $this->autoTitleDeleted;
     }
 
-    public function setAutoTitleDeleted(bool $autoTitleDeleted): self
+    public function setAutoTitleDeleted(?bool $autoTitleDeleted): self
     {
-        $this->autoTitleDeleted = $autoTitleDeleted;
+        if (is_bool($autoTitleDeleted)) {
+            $this->autoTitleDeleted = $autoTitleDeleted;
+        }
 
         return $this;
     }
@@ -781,6 +732,18 @@ class Chart
         return $this;
     }
 
+    public function getNoBorder(): bool
+    {
+        return $this->noBorder;
+    }
+
+    public function setNoBorder(bool $noBorder): self
+    {
+        $this->noBorder = $noBorder;
+
+        return $this;
+    }
+
     public function getRoundedCorners(): bool
     {
         return $this->roundedCorners;
@@ -790,6 +753,34 @@ class Chart
     {
         if ($roundedCorners !== null) {
             $this->roundedCorners = $roundedCorners;
+        }
+
+        return $this;
+    }
+
+    public function getDate1904(): bool
+    {
+        return $this->date1904;
+    }
+
+    public function setDate1904(?bool $date1904): self
+    {
+        if ($date1904 !== null) {
+            $this->date1904 = $date1904;
+        }
+
+        return $this;
+    }
+
+    public function getLang(): string
+    {
+        return $this->lang;
+    }
+
+    public function setLang(?string $lang): self
+    {
+        if ($lang !== null && $lang !== '') {
+            $this->lang = $lang;
         }
 
         return $this;
@@ -810,5 +801,100 @@ class Chart
     public function getFillColor(): ChartColor
     {
         return $this->fillColor;
+    }
+
+    public function setRenderedWidth(?float $width): self
+    {
+        $this->renderedWidth = $width;
+
+        return $this;
+    }
+
+    public function getRenderedWidth(): ?float
+    {
+        return $this->renderedWidth;
+    }
+
+    public function setRenderedHeight(?float $height): self
+    {
+        $this->renderedHeight = $height;
+
+        return $this;
+    }
+
+    public function getRenderedHeight(): ?float
+    {
+        return $this->renderedHeight;
+    }
+
+    /**
+     * Implement PHP __clone to create a deep clone, not just a shallow copy.
+     */
+    public function __clone()
+    {
+        $this->worksheet = null;
+        $this->title = ($this->title === null) ? null : clone $this->title;
+        $this->legend = ($this->legend === null) ? null : clone $this->legend;
+        $this->xAxisLabel = ($this->xAxisLabel === null) ? null : clone $this->xAxisLabel;
+        $this->yAxisLabel = ($this->yAxisLabel === null) ? null : clone $this->yAxisLabel;
+        $this->plotArea = ($this->plotArea === null) ? null : clone $this->plotArea;
+        $this->xAxis = clone $this->xAxis;
+        $this->yAxis = clone $this->yAxis;
+        $this->borderLines = clone $this->borderLines;
+        $this->fillColor = clone $this->fillColor;
+    }
+
+    /** @return array{
+     * b?: numeric-string,
+     * l?: numeric-string,
+     * r?: numeric-string,
+     * t?: numeric-string,
+     * header?: numeric-string,
+     * footer?: numeric-string,
+     * }
+     */
+    public function getPageMargins(): array
+    {
+        return $this->pageMargins;
+    }
+
+    /** @param mixed $pageMargins expecting array matching $this->pageMargins */
+    public function setPageMargins(mixed $pageMargins): self
+    {
+        if (is_array($pageMargins)) {
+            foreach (['b', 'l', 'r', 't', 'header', 'footer'] as $key) {
+                $value = $pageMargins[$key] ?? null;
+                if (is_string($value) && is_numeric($value)) {
+                    $this->pageMargins[$key] = "$value";
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /** @return array{
+     *     paperSize?: string,
+     *     orientation?: string,
+     * }
+     */
+    public function getPageSetup(): array
+    {
+        return $this->pageSetup;
+    }
+
+    /** @param mixed $pageSetup expecting array matching $this->pageSetup */
+    public function setPageSetup(mixed $pageSetup): self
+    {
+        if (is_array($pageSetup)) {
+            foreach (['paperSize', 'orientation'] as $key) {
+                $value = $pageSetup[$key] ?? null;
+                if (is_string($value)) {
+                    $this->pageSetup[$key] = "$value";
+                }
+            }
+        }
+
+        return $this;
     }
 }

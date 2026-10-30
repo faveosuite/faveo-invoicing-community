@@ -4,11 +4,12 @@ namespace Livewire\Features\SupportLegacyModels;
 
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\ClassMorphViolationException;
+use Livewire\Mechanisms\HandleComponents\Synthesizers\ArrayShapedSynth;
 use Livewire\Mechanisms\HandleComponents\Synthesizers\Synth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
-class EloquentModelSynth extends Synth
+class EloquentModelSynth extends Synth implements ArrayShapedSynth
 {
     public static $key = 'elmdl';
 
@@ -91,6 +92,31 @@ class EloquentModelSynth extends Synth
         $this->setDataOnModel($model, $data);
 
         return $model;
+    }
+
+    public function unwrapForValidation($model)
+    {
+        $values = $model->toArray();
+        $attributes = $model->getAttributes();
+
+        foreach ($attributes as $key => $attribute) {
+            if (! array_key_exists($key, $values)) continue;
+
+            $casted = $values[$key];
+
+            if (! is_scalar($attribute) || $attribute == $casted) continue;
+
+            // Integer and float casts coerce the raw input (e.g. "32.5" becomes 32), so validate the raw
+            // input instead. Other casts, like "encrypted", should be validated using the cast value...
+            if (
+                (is_int($casted) && (int) $attribute === $casted)
+                || (is_float($casted) && (float) $attribute === $casted)
+            ) {
+                $values[$key] = $attribute;
+            }
+        }
+
+        return $values;
     }
 
     public function get(&$target, $key)

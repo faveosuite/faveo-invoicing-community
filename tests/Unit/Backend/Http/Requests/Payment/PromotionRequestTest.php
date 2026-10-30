@@ -11,12 +11,12 @@ class PromotionRequestTest extends TestCase
 {
     public function test_authorize_returns_true(): void
     {
-        $this->assertTrue((new PromotionRequest())->authorize());
+        $this->assertTrue(new PromotionRequest()->authorize());
     }
 
     public function test_rules_define_code_required(): void
     {
-        $rules = (new PromotionRequest())->rules();
+        $rules = new PromotionRequest()->rules();
         $this->assertArrayHasKey('code', $rules);
     }
 
@@ -24,7 +24,7 @@ class PromotionRequestTest extends TestCase
     {
         $v = validator(['type' => '2', 'applied' => '2025-01-01', 'uses' => 10,
             'start' => '2025-01-01', 'expiry' => '2025-12-31', 'value' => 50],
-            (new PromotionRequest())->rules());
+            new PromotionRequest()->rules());
         $this->assertArrayHasKey('code', $v->errors()->toArray());
     }
 
@@ -32,7 +32,7 @@ class PromotionRequestTest extends TestCase
     {
         $data = ['code' => 'PROMO10', 'type' => '2', 'applied' => '2025-01-01',
             'uses' => 'many', 'start' => '2025-01-01', 'expiry' => '2025-12-31', 'value' => 50];
-        $v = validator($data, (new PromotionRequest())->rules());
+        $v = validator($data, new PromotionRequest()->rules());
         $this->assertArrayHasKey('uses', $v->errors()->toArray());
     }
 
@@ -41,10 +41,11 @@ class PromotionRequestTest extends TestCase
         $base = ['code' => 'PROMO10', 'type' => '2', 'applied' => '2025-01-01',
             'start' => '2025-01-01', 'expiry' => '2025-12-31', 'value' => 50];
         foreach (['2.5', -1] as $bad) {
-            $v = validator([...$base, 'uses' => $bad], (new PromotionRequest())->rules());
+            $v = validator([...$base, 'uses' => $bad], new PromotionRequest()->rules());
             $this->assertArrayHasKey('uses', $v->errors()->toArray(), "uses=$bad should fail");
         }
-        $v = validator([...$base, 'uses' => 0], (new PromotionRequest())->rules());
+
+        $v = validator([...$base, 'uses' => 0], new PromotionRequest()->rules());
         $this->assertArrayNotHasKey('uses', $v->errors()->toArray());
     }
 
@@ -52,15 +53,16 @@ class PromotionRequestTest extends TestCase
     {
         $data = ['code' => 'PROMO10', 'type' => '2', 'applied' => '2025-01-01',
             'uses' => 10, 'start' => '2025-12-31', 'expiry' => '2025-01-01', 'value' => 50];
-        $v = validator($data, (new PromotionRequest())->rules());
+        $v = validator($data, new PromotionRequest()->rules());
         $this->assertArrayHasKey('expiry', $v->errors()->toArray());
     }
 
     public function test_percentage_type_value_must_be_between_1_and_100(): void
     {
         // type '1' → percentage → value must be between 1 and 100
-        $request = new PromotionRequest();
+        $request = new PromotionRequest;
         $request->merge(['type' => '1']);
+
         $v = validator(['code' => 'P', 'type' => '1', 'applied' => '2025-01-01',
             'uses' => 5, 'start' => '2025-01-01', 'expiry' => '2025-12-31', 'value' => 150],
             $request->rules());
@@ -69,6 +71,6 @@ class PromotionRequestTest extends TestCase
 
     public function test_messages_returns_non_empty_array(): void
     {
-        $this->assertNotEmpty((new PromotionRequest())->messages());
+        $this->assertNotEmpty(new PromotionRequest()->messages());
     }
 }

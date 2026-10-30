@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Larastan\Larastan\Rules;
 
 use Illuminate\View\Factory;
+use Larastan\Larastan\Collectors\UsedEmailAlternativeSyntaxViewCollector;
+use Larastan\Larastan\Collectors\UsedEmailSendViewCollector;
 use Larastan\Larastan\Collectors\UsedEmailViewCollector;
 use Larastan\Larastan\Collectors\UsedRouteFacadeViewCollector;
 use Larastan\Larastan\Collectors\UsedViewFacadeMakeCollector;
@@ -51,6 +53,8 @@ final class UnusedViewsRule implements Rule
         $usedViews = collect([
             $node->get(UsedViewFunctionCollector::class),
             $node->get(UsedEmailViewCollector::class),
+            $node->get(UsedEmailAlternativeSyntaxViewCollector::class),
+            $node->get(UsedEmailSendViewCollector::class),
             $node->get(UsedViewMakeCollector::class),
             $node->get(UsedViewFacadeMakeCollector::class),
             $node->get(UsedRouteFacadeViewCollector::class),
@@ -69,6 +73,7 @@ final class UnusedViewsRule implements Rule
         $unusedViews = array_unique(array_diff($allViews, $usedViews));
 
         $errors = [];
+
         foreach ($unusedViews as $file) {
             $path = $finder->find($file);
 

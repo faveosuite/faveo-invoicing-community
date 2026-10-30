@@ -9,11 +9,11 @@
  */
 namespace PHPUnit\Event\Code;
 
-use function is_numeric;
 use PHPUnit\Event\TestData\DataFromDataProvider;
 use PHPUnit\Event\TestData\DataFromTestDependency;
 use PHPUnit\Event\TestData\TestDataCollection;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Metadata\MetadataCollection;
 use PHPUnit\Metadata\Parser\Registry as MetadataRegistry;
 use PHPUnit\Util\Exporter;
 use PHPUnit\Util\Reflection;
@@ -43,8 +43,12 @@ final readonly class TestMethodBuilder
             $location['file'],
             $location['line'],
             $testDox,
-            MetadataRegistry::parser()->forClassAndMethod($testCase::class, $methodName),
+            self::metadataFor($testCase::class, $methodName),
             self::dataFor($testCase),
+            $testCase->repetition(),
+            $testCase->totalRepetitions(),
+            $testCase->attempt(),
+            $testCase->maxAttempts(),
         );
     }
 
@@ -56,19 +60,38 @@ final readonly class TestMethodBuilder
         return TestUtil::currentTestCase()->valueObjectForEvents();
     }
 
+    /**
+     * The metadata of the test method, without the closure that a
+     * #[DataProviderClosure] attribute declares. The closure is only used to
+     * build the test suite, and an event that carries it cannot be serialized,
+     * while the events of a test that runs in a child process are serialized
+     * to be forwarded to the main process.
+     *
+     * @param class-string     $className
+     * @param non-empty-string $methodName
+     */
+    private static function metadataFor(string $className, string $methodName): MetadataCollection
+    {
+        $metadata = [];
+
+        foreach (MetadataRegistry::parser()->forClassAndMethod($className, $methodName) as $item) {
+            if ($item->isDataProviderClosure()) {
+                continue;
+            }
+
+            $metadata[] = $item;
+        }
+
+        return MetadataCollection::fromArray($metadata);
+    }
+
     private static function dataFor(TestCase $testCase): TestDataCollection
     {
         $testData = [];
 
         if ($testCase->usesDataProvider()) {
-            $dataSetName = $testCase->dataName();
-
-            if (is_numeric($dataSetName)) {
-                $dataSetName = (int) $dataSetName;
-            }
-
             $testData[] = DataFromDataProvider::from(
-                $dataSetName,
+                $testCase->dataName(),
                 Exporter::shortenedRecursiveExport($testCase->providedData()),
                 $testCase->dataSetAsStringWithData(),
             );

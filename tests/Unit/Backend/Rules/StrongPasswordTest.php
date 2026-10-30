@@ -18,7 +18,7 @@ class StrongPasswordTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->rule = new StrongPassword();
+        $this->rule = new StrongPassword;
     }
 
     private function fails(string $value): bool

@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Jobs;
 
 use App\Jobs\CancelGatewaySubscriptionsJob;
+use App\Model\Product\Product;
+use App\Plugins\Payment\Dto\SubscriptionResult;
 use App\Services\Payment\SubscriptionService;
+use App\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery;
@@ -56,7 +59,7 @@ class CancelGatewaySubscriptionsJobTest extends TestCase
         $service = Mockery::mock(SubscriptionService::class);
         $service->shouldReceive('cancelSubscription')->never();
 
-        (new CancelGatewaySubscriptionsJob('stripe'))->handle($service);
+        new CancelGatewaySubscriptionsJob('stripe')->handle($service);
         $this->assertTrue(true);
     }
 
@@ -64,8 +67,8 @@ class CancelGatewaySubscriptionsJobTest extends TestCase
 
     public function test_handle_cancels_active_stripe_subscriptions_and_zeroes_out_status(): void
     {
-        $product = \App\Model\Product\Product::factory()->create();
-        $user = \App\User::factory()->create();
+        $product = Product::factory()->create();
+        $user = User::factory()->create();
         $subId = (int) \DB::table('subscriptions')->insertGetId([
             'product_id' => $product->id,
             'user_id' => $user->id,
@@ -81,11 +84,11 @@ class CancelGatewaySubscriptionsJobTest extends TestCase
         $service->shouldReceive('cancelSubscription')
             ->once()
             ->with('Stripe', 'sub_stripe_test_123')
-            ->andReturn(new \App\Plugins\Payment\Dto\SubscriptionResult(
+            ->andReturn(new SubscriptionResult(
                 gateway: 'Stripe', id: 'sub_stripe_test_123', status: 'cancelled'
             ));
 
-        (new CancelGatewaySubscriptionsJob('stripe'))->handle($service);
+        new CancelGatewaySubscriptionsJob('stripe')->handle($service);
 
         $row = \DB::table('subscriptions')->where('id', $subId)->first();
         // is_subscribed and autoRenew_status are in fillable — both cleared

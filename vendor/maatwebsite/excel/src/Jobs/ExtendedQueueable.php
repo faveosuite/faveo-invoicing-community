@@ -11,13 +11,12 @@ trait ExtendedQueueable
     }
 
     /**
-     * @param  $chain
-     * @return $this
+     * @param  array<int, object>  $chain
      */
-    public function chain($chain)
+    public function chain($chain): static
     {
-        collect($chain)->each(function ($job) {
-            $serialized      = method_exists($this, 'serializeJob') ? $this->serializeJob($job) : serialize($job);
+        collect($chain)->each(function ($job): void {
+            $serialized      = $this->serializeJob($job);
             $this->chained[] = $serialized;
         });
 

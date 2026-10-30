@@ -51,7 +51,7 @@ class PaymentServiceTest extends DBTestCase
     public function test_manager_returns_payment_gateway_manager_instance(): void
     {
         // Uses the real manager() which reads ApiKey::find(1) from the DB.
-        $real = new PaymentService();
+        $real = new PaymentService;
         $result = $real->manager();
 
         $this->assertInstanceOf(PaymentGatewayManager::class, $result);
@@ -59,7 +59,7 @@ class PaymentServiceTest extends DBTestCase
 
     public function test_manager_registers_stripe_and_razorpay(): void
     {
-        $real = new PaymentService();
+        $real = new PaymentService;
         $mgr = $real->manager();
 
         $this->assertTrue($mgr->has('stripe'));
@@ -70,7 +70,7 @@ class PaymentServiceTest extends DBTestCase
 
     public function test_publishable_key_returns_string(): void
     {
-        $real = new PaymentService();
+        $real = new PaymentService;
         $key = $real->publishableKey();
 
         $this->assertIsString($key);

@@ -32,9 +32,9 @@ class LinkLicenseToPlugin extends Command
     protected $signature = 'link:license-to-plugin'
         .' {--product= : Comma-separated product IDs; links all their licenses}'
         .' {--license= : Comma-separated license codes; links only these licenses}'
-        .' {--plugin= : Comma-separated plugin product IDs; omit to use each product\'s mapped plugins}';
+        ." {--plugin= : Comma-separated plugin product IDs; omit to use each product's mapped plugins}";
 
-    protected $description = 'Link existing licenses to plugins (the product\'s mapped plugins by default)';
+    protected $description = "Link existing licenses to plugins (the product's mapped plugins by default)";
 
     public function handle(): int
     {

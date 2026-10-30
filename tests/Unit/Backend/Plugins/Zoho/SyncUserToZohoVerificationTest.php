@@ -20,6 +20,7 @@ class SyncUserToZohoVerificationTest extends DBTestCase
         if (! ZohoIntegration::where('platform', 'campaigns')->exists()) {
             $this->markTestSkipped('No Zoho Campaigns integration row to activate.');
         }
+
         StatusSetting::query()->update(['emailverification_status' => 1, 'msg91_status' => 0]);
     }
 

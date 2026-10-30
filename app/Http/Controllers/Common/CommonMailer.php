@@ -23,7 +23,7 @@ class CommonMailer
             $transport->setPassword($config['password']);
 
             // Set the mailer
-            $mailer = app(Mailer::class);
+            $mailer = resolve(Mailer::class);
             $mailer->setSymfonyTransport($transport);
 
             return true;

@@ -311,7 +311,7 @@ $apiInstance = new Pipedrive\versions\v2\Api\ProductFieldsApi(
     $config
 );
 $field_code = 'field_code_example'; // string | The unique code identifying the field
-$include_fields = 'include_fields_example'; // string | Optional comma separated string array of additional data namespaces to include in response
+$include_fields = array('include_fields_example'); // string[] | Optional comma separated string array of additional data namespaces to include in response
 
 try {
     $result = $apiInstance->getProductField($field_code, $include_fields);
@@ -326,7 +326,7 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **field_code** | **string**| The unique code identifying the field |
- **include_fields** | **string**| Optional comma separated string array of additional data namespaces to include in response | [optional]
+ **include_fields** | [**string[]**](../Model/string.md)| Optional comma separated string array of additional data namespaces to include in response | [optional]
 
 ### Return type
 
@@ -377,7 +377,7 @@ $apiInstance = new Pipedrive\versions\v2\Api\ProductFieldsApi(
     new GuzzleHttp\Client(),
     $config
 );
-$include_fields = 'include_fields_example'; // string | Optional comma separated string array of additional data namespaces to include in response
+$include_fields = array('include_fields_example'); // string[] | Optional comma separated string array of additional data namespaces to include in response
 $limit = 100; // int | For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed.
 $cursor = 'cursor_example'; // string | For pagination, the marker (an opaque string value) representing the first item on the next page
 
@@ -393,7 +393,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **include_fields** | **string**| Optional comma separated string array of additional data namespaces to include in response | [optional]
+ **include_fields** | [**string[]**](../Model/string.md)| Optional comma separated string array of additional data namespaces to include in response | [optional]
  **limit** | **int**| For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. | [optional]
  **cursor** | **string**| For pagination, the marker (an opaque string value) representing the first item on the next page | [optional]
 
