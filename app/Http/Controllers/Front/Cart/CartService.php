@@ -35,7 +35,8 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
     public function __construct(
         private readonly GuestCart $guest,
         private readonly InvoicePaymentService $invoices,
-    ) {}
+    ) {
+    }
 
     // --- Cart resolution ---
 

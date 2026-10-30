@@ -216,5 +216,7 @@ class TestResult
 
     const STATUS_ERROR = 'Error';
 
-    public function __construct(public mixed $message, public mixed $status = self::STATUS_OK) {}
+    public function __construct(public mixed $message, public mixed $status = self::STATUS_OK)
+    {
+    }
 }

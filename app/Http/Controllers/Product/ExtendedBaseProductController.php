@@ -24,7 +24,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ExtendedBaseProductController extends Controller
 {
-    public function __construct(protected ProductBundleStampingService $stampingService) {}
+    public function __construct(protected ProductBundleStampingService $stampingService)
+    {
+    }
 
     // Update the File Info
     public function uploadUpdate(mixed $id, Request $request): mixed

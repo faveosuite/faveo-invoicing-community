@@ -18,7 +18,9 @@ class Honeypot implements ValidationRule
      */
     public $implicit = true;
 
-    public function __construct(protected int $minTime = 1, protected string $message = 'Your submission was flagged as automated. If this is a mistake, please try again.') {}
+    public function __construct(protected int $minTime = 1, protected string $message = 'Your submission was flagged as automated. If this is a mistake, please try again.')
+    {
+    }
 
     /**
      * Run the validation rule.

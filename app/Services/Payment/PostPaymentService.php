@@ -40,7 +40,8 @@ class PostPaymentService
 
     public function __construct(
         private readonly AutoRenewalActivationService $autoRenewal,
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<mixed>

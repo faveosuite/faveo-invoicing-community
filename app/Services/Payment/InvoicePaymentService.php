@@ -45,7 +45,8 @@ class InvoicePaymentService
         private readonly PaymentService $payments,
         private readonly PostPaymentService $postPayment,
         private readonly AutoRenewalActivationService $autoRenewal,
-    ) {}
+    ) {
+    }
 
     /** Stripe publishable key, for the SPA to initialise Stripe.js. */
     public function publishableKey(): string

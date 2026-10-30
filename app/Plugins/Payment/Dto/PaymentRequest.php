@@ -31,5 +31,6 @@ final readonly class PaymentRequest
         public ?string $returnUrl = null,
         public array $metadata = [],
         public bool $saveForFutureUse = false,
-    ) {}
+    ) {
+    }
 }
