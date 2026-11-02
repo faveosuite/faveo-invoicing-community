@@ -344,10 +344,10 @@ class HomeController extends BaseHomeController
                 ->whereIn('release_type', $releases)
                 ->orderBy('id', 'desc')->pluck('version')->toArray();
             $currenctVersion = $this->getPHPCompatibleVersionString($request->version);
-            $message = ['status' => '', 'message' => 'no-new-version-available'];
+            $message = ['status' => '', 'message' => 'no-new-version-available', 'versions' => $allVersions];
             foreach ($allVersions as $version) {
                 if (version_compare($this->getPHPCompatibleVersionString($version), $currenctVersion) === 1) {
-                    $message = ['status' => 'true', 'message' => 'new-version-available'];
+                    $message = ['status' => 'true', 'message' => 'new-version-available', 'versions' => $allVersions];
                     break;
                 }
             }
@@ -596,18 +596,27 @@ class HomeController extends BaseHomeController
 
     public function getDetailedBillingInfo(Request $request): JsonResponse
     {
-        $order = $request->input('order');
-        // Fetch the order details
-        $user = Order::where('number', $order)->value('client');
+        $order = Order::with(['user:id,email,company', 'subscription.plan:id,name'])
+            ->where('number', $request->input('order'))
+            ->first();
 
-        $email = User::where('id', $user)->value('email');
-
-        if (! $email) {
+        if (! $order?->user?->email) {
             return response()->json([]);
         }
 
+        $subscription = $order->subscription;
+        // Earliest of the three expiries is when the client next has to pay.
+        $nextBillingDate = collect([$subscription?->ends_at, $subscription?->update_ends_at, $subscription?->support_ends_at])
+            ->filter()
+            ->min();
+
         return response()->json([
-            'billing_client_email' => $email,
+            'billing_client_email' => $order->user->email,
+            'company' => $order->user->company,
+            'plan_name' => $subscription?->plan?->name,
+            'start_date' => $order->created_at,
+            'next_billing_date' => $nextBillingDate,
+            'order_url' => url('my-order/'.$order->id),
         ]);
     }
 

@@ -301,6 +301,24 @@ class HomeControllerTest extends DBTestCase
         $this->assertSame('no-new-version-available', $data['message']);
     }
 
+    public function test_is_new_version_available_returns_public_versions_list(): void
+    {
+        $product = Product::create(['name' => 'NV Product '.uniqid()]);
+        foreach ([['v5.0.0', 0], ['v6.0.0', 0], ['v7.0.0', 1]] as [$version, $private]) {
+            \App\Model\Product\ProductUpload::factory()->create([
+                'product_id' => $product->id, 'version' => $version, 'release_type' => 'official', 'is_private' => $private,
+            ]);
+        }
+
+        $newer = $this->getJson('/new-version-available?title=x&id='.$product->id.'&version=v5.0.0')->assertOk()->json();
+        $this->assertSame('new-version-available', $newer['message']);
+        $this->assertSame(['v6.0.0', 'v5.0.0'], $newer['versions']);
+
+        $latest = $this->getJson('/new-version-available?title=x&id='.$product->id.'&version=v6.0.0')->assertOk()->json();
+        $this->assertSame('no-new-version-available', $latest['message']);
+        $this->assertSame(['v6.0.0', 'v5.0.0'], $latest['versions']);
+    }
+
     // =========================================================================
     // latestVersion — with product found by ID (covers more branches)
     // =========================================================================
@@ -468,6 +486,33 @@ class HomeControllerTest extends DBTestCase
         $data = $response->json();
         $this->assertArrayHasKey('billing_client_email', $data);
         $this->assertEquals($user->email, $data['billing_client_email']);
+        // No subscription yet: plan/billing date are null instead of a 500.
+        $this->assertNull($data['plan_name']);
+        $this->assertNull($data['next_billing_date']);
+    }
+
+    public function test_get_detailed_billing_info_returns_plan_and_earliest_expiry(): void
+    {
+        $user = User::factory()->create(['email' => 'billing-info-'.uniqid().'@test.local', 'company' => 'Acme Corp']);
+        $product = Product::factory()->create();
+        $plan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id]);
+        $order = Order::create(['client' => $user->id, 'order_status' => 'executed', 'product' => $product->id, 'number' => 'BILLING-'.uniqid()]);
+        \App\Model\Product\Subscription::create([
+            'order_id' => $order->id,
+            'plan_id' => $plan->id,
+            'product_id' => $product->id,
+            'ends_at' => '2026-11-30 00:00:00',
+            'update_ends_at' => '2026-12-31 00:00:00',
+            'support_ends_at' => null,
+        ]);
+
+        $data = $this->getJson('/api/billingInfo?order='.$order->number)->assertOk()->json();
+
+        $this->assertSame('Acme Corp', $data['company']);
+        $this->assertSame($plan->name, $data['plan_name']);
+        $this->assertStringStartsWith('2026-11-30', $data['next_billing_date']);
+        $this->assertSame(url('my-order/'.$order->id), $data['order_url']);
+        $this->assertNotNull($data['start_date']);
     }
 
     // =========================================================================
