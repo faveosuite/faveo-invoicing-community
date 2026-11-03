@@ -11,7 +11,7 @@
             <!-- Products -->
             <div v-if="loadingProducts" class="row justify-content-center py-3"><loader /></div>
             <div v-else-if="products.length === 0" class="text-center text-muted py-5">
-                {{ __('message.no_records_found') }}
+                {{ __('message.no_products_in_group') }}
             </div>
             <PricingTable
                 v-else

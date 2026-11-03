@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="380" viewBox="0 0 560 380" font-family="Roboto, 'Segoe UI', Arial, sans-serif">
+  <circle cx="290" cy="196" r="172" fill="none" stroke="#CFE3F1" stroke-width="2" stroke-dasharray="3 9"/>
+  <circle cx="430" cy="58" r="6" fill="#6BB8E0"/>
+  <circle cx="452" cy="58" r="6" fill="#6BB8E0"/>
+  <circle cx="96" cy="96" r="7" fill="#FDC84A"/>
+  <circle cx="528" cy="150" r="5" fill="#1B2B3A"/>
+  <circle cx="70" cy="214" r="4" fill="#1B2B3A"/>
+  <circle cx="404" cy="350" r="5" fill="#FDC84A"/>
+  <g transform="rotate(-7 190 220)">
+    <rect x="88" y="104" width="210" height="246" rx="12" fill="#FFFFFF" stroke="#D6E5F0" stroke-width="1.5"/>
+    <text x="112" y="142" font-size="15" font-weight="700" fill="#1B2B3A">Invoice</text>
+    <rect x="112" y="156" width="70" height="7" rx="3.5" fill="#D6E5F0"/>
+    <rect x="112" y="190" width="162" height="1.5" fill="#E6EEF5"/>
+    <rect x="112" y="204" width="96" height="8" rx="4" fill="#D6E5F0"/>
+    <rect x="234" y="204" width="40" height="8" rx="4" fill="#D6E5F0"/>
+    <rect x="112" y="226" width="80" height="8" rx="4" fill="#D6E5F0"/>
+    <rect x="234" y="226" width="40" height="8" rx="4" fill="#D6E5F0"/>
+    <rect x="112" y="248" width="104" height="8" rx="4" fill="#D6E5F0"/>
+    <rect x="234" y="248" width="40" height="8" rx="4" fill="#D6E5F0"/>
+    <rect x="112" y="276" width="162" height="1.5" fill="#E6EEF5"/>
+    <rect x="112" y="292" width="50" height="10" rx="5" fill="#8FC3E0"/>
+    <rect x="214" y="290" width="60" height="14" rx="7" fill="#157EA6"/>
+  </g>
+  <rect x="226" y="80" width="284" height="176" rx="14" fill="#1B2B3A" opacity="0.06" transform="translate(6 10)"/>
+  <rect x="226" y="80" width="284" height="176" rx="14" fill="#FFFFFF" stroke="#D6E5F0" stroke-width="1.5"/>
+  <path d="M240 80 h256 a14 14 0 0 1 14 14 v36 h-284 v-36 a14 14 0 0 1 14 -14 z" fill="#157EA6"/>
+  <circle cx="254" cy="105" r="13" fill="#FFFFFF" opacity="0.18"/>
+  <circle cx="250" cy="105" r="5" fill="none" stroke="#FFFFFF" stroke-width="2.2"/>
+  <path d="M254 107 l9 0 m-3 0 v4 m-3 -4 v3" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <text x="276" y="110" font-size="15" font-weight="500" fill="#FFFFFF">Faveo Helpdesk</text>
+  <text x="244" y="156" font-size="11" fill="#5F6B78">LICENSE KEY</text>
+  <text x="244" y="180" font-size="16" font-weight="500" fill="#1B2B3A" letter-spacing="1">FHD-••••-••••-7F3A</text>
+  <rect x="244" y="202" width="62" height="24" rx="12" fill="#E8F5EE"/>
+  <circle cx="257" cy="214" r="4" fill="#1E7B45"/>
+  <text x="266" y="218" font-size="12" font-weight="500" fill="#17603A">Active</text>
+  <text x="318" y="218" font-size="12" fill="#5F6B78">Renews automatically</text>
+  <g transform="rotate(8 120 300)">
+    <rect x="52" y="262" width="138" height="86" rx="10" fill="#2E9BD6"/>
+    <rect x="68" y="282" width="24" height="18" rx="3" fill="#FDC84A"/>
+    <rect x="68" y="318" width="70" height="6" rx="3" fill="#FFFFFF" opacity="0.8"/>
+    <rect x="146" y="318" width="28" height="6" rx="3" fill="#FFFFFF" opacity="0.8"/>
+  </g>
+  <circle cx="470" cy="290" r="40" fill="#FDC84A"/>
+  <path d="M454 284 a17 17 0 0 1 30 -6" stroke="#1B2B3A" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <polyline points="485,268 485,279 474,279" stroke="#1B2B3A" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M486 296 a17 17 0 0 1 -30 6" stroke="#1B2B3A" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <polyline points="455,312 455,301 466,301" stroke="#1B2B3A" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="166" cy="62" r="26" fill="#FFFFFF" stroke="#D6E5F0" stroke-width="1.5"/>
+  <polyline points="154,62 163,71 179,54" stroke="#1E7B45" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

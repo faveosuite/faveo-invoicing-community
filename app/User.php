@@ -432,6 +432,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             ->value('id');
     }
 
+    /**
+     * A client with no billing details yet (sign-up doesn't ask for them): after
+     * login they're sent to /account-setup first. Invoices print these details.
+     */
+    public function needsAccountSetup(): bool
+    {
+        return $this->role === 'user'
+            && (trim((string) $this->company) === '' || trim((string) $this->address) === '');
+    }
+
     #[Override]
     public function save(array $options = []): bool
     {

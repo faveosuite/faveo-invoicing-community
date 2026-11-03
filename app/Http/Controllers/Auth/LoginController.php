@@ -62,8 +62,6 @@ class LoginController extends BaseAuthController
             }
 
             $apiKeys = ApiKey::select('nocaptcha_sitekey', 'terms_url')->first();
-            $location = getLocation();
-
             // `type` is stored capitalised (Google, Github, ...); the SPA looks the keys up in lowercase.
             $social = SocialLogin::whereIn('type', ['google', 'github', 'twitter', 'linkedin'])
                 ->pluck('status', 'type')
@@ -73,7 +71,6 @@ class LoginController extends BaseAuthController
             return successResponse('login-config', [
                 'status' => $status,
                 'apiKeys' => $apiKeys,
-                'location' => $location,
                 'social' => $social,
             ]);
         } catch (Exception $exception) {
@@ -237,7 +234,16 @@ class LoginController extends BaseAuthController
             // Admin pages would only 403 for a user; their default page instead.
             $userCanOpen = $intended !== null && ! preg_match('#^/admin(?:[/?]|\z)#', substr($intended, strlen(url('/'))));
 
-            return $userCanOpen ? $intended : (DefaultPage::value('page_url') ?? url('/'));
+            $target = $userCanOpen ? $intended : (DefaultPage::value('page_url') ?? url('/'));
+
+            // Billing details first; setup then continues to where they were going.
+            if ($auth->needsAccountSetup()) {
+                redirect()->setIntendedUrl($target);
+
+                return url('account-setup');
+            }
+
+            return $target;
         }
 
         return $intended ?? url('/admin');

@@ -55,11 +55,11 @@ describe('SocialButtons.vue', () => {
 
     it('renders the "or" divider when providers are enabled', async () => {
         await wrapper.setProps({ social: { google: 1, github: 0, twitter: 0, linkedin: 0, facebook: 0 } })
-        expect(wrapper.find('.divider').exists()).toBeTruthy()
+        expect(wrapper.find('hr').exists()).toBeTruthy()
     })
 
     it('does not render the divider when no providers are enabled', () => {
-        expect(wrapper.find('.divider').exists()).toBeFalsy()
+        expect(wrapper.find('hr').exists()).toBeFalsy()
     })
 
     it('calls GET /auth/redirect/google when google button is clicked', async () => {

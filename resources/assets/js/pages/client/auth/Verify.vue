@@ -1,89 +1,74 @@
 <template>
-    <div class="container-fluid">
-        <div class="row justify-content-center">
-            <div class="col-12 col-sm-11 col-md-10 col-lg-9 col-xl-8 mt-3 mb-2">
-                <div class="card border-0 rounded-3">
-                    <div class="card-body p-4 p-md-5">
+    <div>
+        <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
-                        <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
+        <template v-else>
+            <!-- Step progress: numbered circles joined by a line (tick once a step is done) -->
+            <ol v-if="progressSteps.length > 1" class="list-unstyled d-flex align-items-center gap-2 mb-4" :aria-label="__('message.verify_account')">
+                <template v-for="(s, i) in progressSteps" :key="i">
+                    <li v-if="i > 0" class="flex-grow-1 border-top border-2" :class="{ 'border-success': progressSteps[i - 1].done }" aria-hidden="true"></li>
+                    <li class="d-flex align-items-center gap-2 text-nowrap text-2 font-weight-semibold"
+                        :class="s.active || s.done ? 'text-color-dark' : 'text-muted'" :aria-current="s.active ? 'step' : undefined">
+                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center text-1 fw-bold"
+                              style="width: 1.75rem; height: 1.75rem"
+                              :class="s.done ? 'bg-success text-white' : s.active ? 'bg-color-primary text-white' : 'border'">
+                            <i v-if="s.done" class="fas fa-check" aria-hidden="true"></i>
+                            <template v-else>{{ i + 1 }}</template>
+                        </span>
+                        {{ s.label }}
+                    </li>
+                </template>
+            </ol>
 
-                        <template v-else>
-                            <!-- Step progress -->
-                            <div class="d-flex justify-content-center align-items-start mb-4">
-                                <template v-for="(s, i) in progressSteps" :key="i">
-                                    <!-- connector -->
-                                    <div v-if="i > 0" class="flex-grow-1 border-top border-2 mt-4 step-connector"
-                                         :class="(s.done || s.active) ? 'border-primary' : ''"></div>
+            <!-- OTP entry -->
+            <form v-if="current" @submit.prevent="verify" novalidate>
+                <h1 class="font-weight-bold text-color-dark text-7 line-height-2 mb-1">
+                    {{ current.type === 'mobile' ? __('message.verify_mobile') : __('message.verify_email') }}
+                </h1>
+                <!-- Where the code went, masked (the user may have typed it wrong). -->
+                <p class="text-3 mb-4">
+                    {{ __('message.otp_enter_code_sent_to', { destination: maskedTarget }) }}
+                    <template v-if="current.type === 'email'">{{ __('message.otp_check_spam') }}</template>
+                </p>
 
-                                    <div class="text-center px-2 step-item" :aria-current="s.active ? 'step' : undefined">
-                                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center mb-2 step-circle"
-                                              :class="(s.done || s.active) ? 'bg-primary text-white' : 'bg-light text-muted border'">
-                                            <i class="fas fa-lg" :class="s.icon" aria-hidden="true"></i>
-                                        </span>
-                                        <div class="fw-semibold"
-                                             :class="(s.done || s.active) ? 'text-primary' : 'text-muted'">
-                                            {{ s.label }}
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
+                <OtpInput :label="__('message.verification_code')" :model-value="form.otp" :error="errors.otp"
+                          :disabled="locked" @update:modelValue="onOtpInput" />
 
-                            <!-- OTP entry -->
-                            <form v-if="current" @submit.prevent="verify" novalidate>
-                                <ClientField name="otp" type="text" :label="__('message.enter_code')" required
-                                             :autocomplete="'one-time-code'" inputmode="numeric" :spellcheck="false"
-                                             digits-only :maxlength="6"
-                                             :placeholder="__('message.otp_placeholder')"
-                                             :model-value="form.otp" :error="errors.otp"
-                                             @update:modelValue="onOtpInput" />
+                <RecaptchaField ref="captchaRef" :action="captchaAction" class="mb-3" />
 
-                                <p class="text-muted mt-3 mb-4">
-                                    {{ current.type === 'mobile' ? __('message.otp_description') : __('message.email_otp_description') }}
-                                </p>
+                <button type="submit" class="btn btn-primary btn-modern w-100" :disabled="saving || redirecting || locked">
+                    <i v-if="saving || redirecting" class="fas fa-circle-notch fa-spin me-1" aria-hidden="true"></i>
+                    {{ (saving || redirecting) ? __('message.verifying') : __('message.verify') }}
+                </button>
 
-                                <!-- Captcha full-width above, so Resend (left) and Verify (right) share one row. -->
-                                <div class="row align-items-center g-2">
-                                    <div class="col-12 mb-2">
-                                        <RecaptchaField ref="captchaRef" :action="captchaAction" />
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <button type="button"
-                                                    class="btn btn-link text-primary text-decoration-none fw-semibold p-0"
-                                                    :disabled="cooldown > 0 || locked" @click="resend('text')">
-                                                <i class="fas fa-sync-alt me-1" aria-hidden="true"></i>{{ __('message.resend_otp') }}
-                                            </button>
-                                            <span v-if="cooldown > 0" class="text-muted fw-semibold">
-                                                {{ String(cooldown).padStart(2, '0') }}s
-                                            </span>
-                                        </div>
-                                        <button v-if="current.type === 'mobile'" type="button"
-                                                class="btn btn-link text-primary text-decoration-none fw-semibold p-0 mt-1"
-                                                :disabled="cooldown > 0 || locked" @click="resend('voice')">
-                                            <i class="fas fa-phone-alt me-1" aria-hidden="true"></i>{{ __('message.otp_call') }}
-                                        </button>
-                                    </div>
-                                    <div class="col-6 text-end">
-                                        <button type="submit" class="btn btn-primary btn-lg" :disabled="saving || redirecting || locked">
-                                            <i v-if="saving || redirecting" class="fas fa-circle-notch fa-spin me-1" aria-hidden="true"></i>
-                                            {{ (saving || redirecting) ? __('message.verifying') : __('message.verify') }}
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-
-                            <div class="mt-3 text-2">
-                                {{ __('message.trouble_logging_in') }}
-                                <a :href="`${baseUrl}/contact-us`" class="text-decoration-none" target="_blank">
-                                    {{ __('message.click_here') }}
-                                </a>
-                            </div>
+                <!-- Resend (with countdown) and, for mobile, a voice call -->
+                <div class="d-flex flex-wrap justify-content-center align-items-center gap-2 mt-3 text-2" aria-live="polite">
+                    <span v-if="cooldown === 0">{{ __('message.didnt_get_code') }}</span>
+                    <button type="button" class="btn btn-link text-decoration-none font-weight-semibold p-0 text-2"
+                            :class="cooldown > 0 ? 'text-muted' : 'text-color-primary'"
+                            :disabled="cooldown > 0 || locked" @click="resend('text')">
+                        <template v-if="cooldown > 0">
+                            <i class="far fa-clock me-1" aria-hidden="true"></i>{{ __('message.resend_code_in', { time: countdown }) }}
                         </template>
-
-                    </div>
+                        <template v-else>{{ __('message.resend_code') }}</template>
+                    </button>
+                    <template v-if="current.type === 'mobile'">
+                        <span class="vr" aria-hidden="true"></span>
+                        <button type="button" class="btn btn-link text-color-primary text-decoration-none font-weight-semibold p-0 text-2"
+                                :disabled="cooldown > 0 || locked" @click="resend('voice')">
+                            <i class="fas fa-phone-alt me-1" aria-hidden="true"></i>{{ __('message.otp_call') }}
+                        </button>
+                    </template>
                 </div>
-            </div>
-        </div>
+            </form>
+
+            <p class="text-center text-2 mt-4 pt-3 border-top mb-0">
+                <i class="far fa-circle-question me-1" aria-hidden="true"></i>{{ __('message.need_help') }}
+                <a :href="`${baseUrl}/contact-us`" class="text-color-primary font-weight-semibold text-decoration-none" target="_blank">
+                    {{ __('message.contact_support') }}
+                </a>
+            </p>
+        </template>
     </div>
 </template>
 
@@ -96,6 +81,7 @@ import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { otpSchema } from '@/validations/client/authSchemas.js'
 import { RecaptchaField } from '@recaptcha'
+import OtpInput from './partials/OtpInput.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import { useCooldown } from '@/core/composables/useCooldown'
 
@@ -118,17 +104,25 @@ const { cooldown, start: startCooldown, stop: stopCooldown } = useCooldown(COOLD
 
 const current = computed(() => steps.value[stepIndex.value] ?? null)
 
-// Steps for the progress bar: each pending verification + a final "all set".
-const progressSteps = computed(() => {
-    const list = steps.value.map((s, i) => ({
-        label:  s.type === 'mobile' ? __('message.verify_mobile') : __('message.verify_email'),
-        icon:   s.type === 'mobile' ? 'fa-mobile-alt' : 'fa-envelope',
-        done:   i < stepIndex.value,
-        active: i === stepIndex.value,
-    }))
-    list.push({ label: __('message.all_set'), icon: 'fa-check', done: false, active: false })
-    return list
+// "jo•••@gmail.com" / "•••• 3210": enough to recognise, not enough to leak.
+const maskedTarget = computed(() => {
+    const t = String(current.value?.target ?? '')
+    if (current.value?.type === 'email') {
+        const [user, domain] = t.split('@')
+        return domain ? `${user.slice(0, 2)}•••@${domain}` : t
+    }
+    return t.length > 4 ? `•••• ${t.slice(-4)}` : t
 })
+
+// Steps for the progress bar: each pending verification + a final "all set".
+const progressSteps = computed(() => steps.value.map((s, i) => ({
+    label:  s.type === 'mobile' ? __('message.mobile') : __('message.email'),
+    done:   i < stepIndex.value,
+    active: i === stepIndex.value,
+})))
+
+// Resend cooldown as m:ss.
+const countdown = computed(() => `${Math.floor(cooldown.value / 60)}:${String(cooldown.value % 60).padStart(2, '0')}`)
 
 onMounted(async () => {
     try {
@@ -251,11 +245,3 @@ async function verify() {
     }
 }
 </script>
-
-<style scoped>
-/* Only the fixed dimensions Bootstrap can't express as utilities — everything
-   else (colours, layout, icons) uses Porto/Bootstrap classes. */
-.step-circle    { width: 50px; height: 50px; }
-.step-item      { min-width: 96px; }
-.step-connector { max-width: 90px; }
-</style>

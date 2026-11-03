@@ -82,6 +82,7 @@
                                target="_blank" rel="noopener">{{ company }}</a>
                             <span v-else>{{ company }}</span>.
                             {{ __('message.all_rights') }}
+                            <span class="font-weight-semibold" translate="no">Faveo</span>
                         </p>
                     </div>
                 </div>

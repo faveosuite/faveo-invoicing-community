@@ -10,7 +10,7 @@
            class="d-flex flex-column align-items-center justify-content-center text-center py-6">
         <i class="fas fa-exclamation-circle fa-3x text-danger mb-3 d-block" aria-hidden="true"></i>
         <p class="text-color-grey mb-4" role="alert">{{ cartStore.error }}</p>
-        <router-link to="/store" class="btn btn-dark btn-modern text-uppercase border-radius-0 btn-px-4 py-3">
+        <router-link to="/store" class="btn btn-primary btn-modern btn-px-4 py-3">
           {{ __('message.browse_products') }}
         </router-link>
       </div>
@@ -20,7 +20,7 @@
            class="d-flex flex-column align-items-center justify-content-center text-center py-6">
         <i class="fas fa-shopping-cart fa-3x text-color-grey-lighten mb-3 d-block" aria-hidden="true"></i>
         <p class="text-color-grey mb-4">{{ __('message.cart_empty') }}</p>
-        <router-link to="/store" class="btn btn-dark btn-modern text-uppercase border-radius-0 btn-px-4 py-3">
+        <router-link to="/store" class="btn btn-primary btn-modern btn-px-4 py-3">
           {{ __('message.browse_products') }}
         </router-link>
       </div>
@@ -30,7 +30,19 @@
 
         <!-- Items table -->
         <div class="col-lg-8 mb-4 mb-lg-0">
-          <div class="table-responsive">
+          <!-- Phones: one card per item (the 6-column table is too cramped there) -->
+          <div class="d-md-none">
+            <CartItemRow
+              v-for="item in cartStore.items"
+              :key="item.id"
+              :item="item"
+              layout="card"
+              @update="onUpdate"
+              @remove="cartStore.removeItem($event)"
+            />
+          </div>
+
+          <div class="table-responsive d-none d-md-block">
             <table class="shop_table cart">
               <thead>
                 <tr class="text-color-dark">
@@ -96,7 +108,7 @@
                 </div>
                 <div class="col-12 col-md-auto px-0">
                   <button type="button"
-                          class="btn btn-dark btn-modern w-100 text-2 text-uppercase checkout"
+                          class="btn btn-primary btn-modern w-100 text-2 checkout"
                           @click="checkout">
                     {{ __('message.checkout') }} <i class="fas fa-arrow-right ms-2" aria-hidden="true"></i>
                   </button>

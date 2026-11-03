@@ -38,7 +38,6 @@ describe('ForgotPassword.vue', () => {
             global: {
                 plugins: [createTestingPinia()],
                 stubs: {
-                    AuthLayout: { template: '<div><slot /></div>' },
                     ClientField: { template: '<div />', props: ['name', 'label', 'type', 'modelValue', 'error', 'required', 'autocomplete'] },
                     Honeypot: { template: '<div />', props: ['name', 'modelValue'], emits: ['update:modelValue', 'ready'] },
                     RecaptchaField: { template: '<div />', props: ['action'], methods: { getPayload: () => Promise.resolve({ 'g-recaptcha-response': 'token' }), reset: jest.fn(), triggerFallback: jest.fn() } },
@@ -101,34 +100,32 @@ describe('ForgotPassword.vue', () => {
         expect(postCalled).toBe(false)
     })
 
-    it('calls successHandler when API returns 200', async () => {
-        const fakeRes = { data: { message: 'sent' } }
-        axiosMock.onPost('/password/email').reply(200, fakeRes)
-
-        // Force hpReady so the button is not disabled
+    it('shows the "Check your email" state with the address after sending', async () => {
+        axiosMock.onPost('/password/email').reply(200, { message: 'sent' })
+        wrapper.vm.form.email = 'jane@example.com'
         wrapper.vm.hpReady = true
         await wrapper.vm.$nextTick()
 
         await wrapper.find('form').trigger('submit')
         await flushPromises()
 
-        expect(successHandler).toHaveBeenCalled()
+        expect(wrapper.find('form').exists()).toBe(false)
+        expect(wrapper.find('[role="status"]').text()).toContain('message.check_your_email')
+        expect(wrapper.vm.sentTo).toBe('jane@example.com')
     })
 
-    it('redirects to login only after the success message clears', async () => {
-        const alertStore = useAlertStore()
-        successHandler.mockImplementationOnce(() => { alertStore.message = 'sent' })
+    it('"Resend link" returns to the form with the email kept', async () => {
         axiosMock.onPost('/password/email').reply(200, { message: 'sent' })
+        wrapper.vm.form.email = 'jane@example.com'
         wrapper.vm.hpReady = true
         await wrapper.vm.$nextTick()
-
         await wrapper.find('form').trigger('submit')
         await flushPromises()
-        expect(mockPush).not.toHaveBeenCalled()
 
-        alertStore.message = ''
-        await flushPromises()
-        expect(mockPush).toHaveBeenCalledWith('/login')
+        await wrapper.find('[role="status"] button').trigger('click')
+
+        expect(wrapper.find('form').exists()).toBe(true)
+        expect(wrapper.vm.form.email).toBe('jane@example.com')
     })
 
     it('calls errorHandler when API returns 500', async () => {

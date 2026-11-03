@@ -1,7 +1,7 @@
 <template>
     <div class="mb-3">
         <label v-if="label" class="form-label fw-bold" :for="name">
-            {{ label }}<span v-if="required" class="text-danger ms-1">*</span>
+            {{ label }}<span v-if="required && !hideRequiredMark" class="text-danger ms-1">*</span>
             <ToolTip v-if="tooltip" :message="tooltip" size="small" />
         </label>
         <v-select
@@ -64,7 +64,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick, inject } from 'vue'
+
+// Hidden where every field is required (auth pages, see AuthLayout).
+const hideRequiredMark = inject('hideRequiredMark', false)
 import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
 import http from '@/plugins/axios'

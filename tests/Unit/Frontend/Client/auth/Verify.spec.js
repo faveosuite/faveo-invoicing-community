@@ -91,9 +91,11 @@ describe('Verify.vue', () => {
         expect(wrapper.find('button[type="submit"]').exists()).toBeTruthy()
     })
 
-    it('renders progress steps after config loads', async () => {
+    it('shows the step heading and masked destination after config loads (one step = no step bar)', async () => {
         await flushPromises()
-        expect(wrapper.find('.step-circle').exists()).toBeTruthy()
+        expect(wrapper.find('h1').text()).toBe('message.verify_mobile')
+        expect(wrapper.find('ol').exists()).toBe(false)
+        expect(wrapper.vm.maskedTarget).toMatch(/^•••• \d{4}$/)
     })
 
     it('calls validateForm on OTP form submit', async () => {

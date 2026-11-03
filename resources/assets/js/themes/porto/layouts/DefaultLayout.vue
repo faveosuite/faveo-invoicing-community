@@ -1,7 +1,9 @@
 <template>
     <RecaptchaProvider>
+    <!-- Guest auth pages use their own full-screen layout -->
+    <AuthLayout v-if="route.meta?.layout === 'auth'" />
     <!-- Standalone pages (e.g. open-payment) bypass the full shell -->
-    <RouterView v-if="isStandalone" />
+    <RouterView v-else-if="isStandalone" />
     <div v-else class="body">
         <a href="#main-content" class="visually-hidden-focusable skip-link" @click.prevent="focusMain">{{ __('message.skip_to_content') }}</a>
 
@@ -92,6 +94,7 @@ import { useBreadcrumb }             from '@/core/composables/useBreadcrumb.js'
 import { useStickyHeader }           from '../composables/useStickyHeader.js'
 import { useAnalyticsScripts }       from '@/core/composables/useAnalyticsScripts.js'
 import { RecaptchaProvider }         from '@recaptcha'
+import AuthLayout                    from './AuthLayout.vue'
 import { useBaseUrl }                from '@/core/composables/useBaseUrl'
 
 useStickyHeader()

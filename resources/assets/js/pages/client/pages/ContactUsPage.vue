@@ -25,7 +25,7 @@
                 :aria-invalid="errors.name ? 'true' : undefined"
                 :aria-describedby="errors.name ? 'contact-name-error' : undefined"
                 maxlength="100"
-                class="form-control form-control-lg text-4"
+                class="form-control"
                 :class="{ 'is-invalid': errors.name }"
                 v-model="form.name"
                 @input="setFieldError('name', undefined)"
@@ -45,7 +45,7 @@
                 :aria-invalid="errors.email ? 'true' : undefined"
                 :aria-describedby="errors.email ? 'contact-email-error' : undefined"
                 maxlength="100"
-                class="form-control form-control-lg text-4"
+                class="form-control"
                 :class="{ 'is-invalid': errors.email }"
                 v-model="form.email"
                 @input="setFieldError('email', undefined)"
@@ -81,7 +81,7 @@
                 :aria-describedby="errors.message ? 'contact-message-error' : undefined"
                 maxlength="5000"
                 rows="8"
-                class="form-control form-control-lg text-4"
+                class="form-control"
                 :class="{ 'is-invalid': errors.message }"
                 v-model="form.message"
                 @input="setFieldError('message', undefined)"
@@ -100,7 +100,7 @@
             <div class="form-group col">
               <button
                 type="submit"
-                class="btn btn-dark btn-modern"
+                class="btn btn-primary btn-modern"
                 :disabled="submitting"
               >
                 <span v-if="submitting" class="spinner-border spinner-border-sm me-1" aria-hidden="true" />
