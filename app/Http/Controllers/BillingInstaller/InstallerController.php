@@ -268,7 +268,7 @@ class InstallerController extends Controller
             'email' => 'required|string|max:50|email|unique:users,email',
             'password' => [
                 'required',
-                'regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[~*!@$#%_+.?:,{ }])[A-Za-z\d~*!@$#%_+.?:,{ }]{8,16}$/',
+                'regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z\d\s]).{8,64}$/u',
             ],
             'cache_driver' => 'required|string',
             'redis_host' => 'nullable|required_if:cache_driver,redis|string',

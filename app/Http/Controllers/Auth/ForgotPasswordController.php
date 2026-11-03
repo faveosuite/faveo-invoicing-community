@@ -47,13 +47,13 @@ class ForgotPasswordController extends Controller
     public function sendResetLinkEmail(Request $request): JsonResponse
     {
         $this->validate($request,
-            ['email' => 'required|email|exists:users,email',
+            // No `exists` rule: the reply must not reveal whether an account exists.
+            ['email' => 'required|email',
                 'forgot' => [new Honeypot],
             ],
             [
                 'email.required' => __('validation.custom_email.required'),
                 'email.email' => __('validation.custom_email.email'),
-                'email.exists' => __('validation.custom_email.exists'),
             ]);
 
         try {
@@ -63,6 +63,12 @@ class ForgotPasswordController extends Controller
 
             if ($rateLimit['status']) {
                 return errorResponse(__('message.too_many_forgot_attempts', ['time' => $rateLimit['remainingTime']]));
+            }
+
+            // Unknown email: same reply as a sent link, and no reset token is stored.
+            $user = User::where('email', $email)->first();
+            if (! $user) {
+                return successResponse(__('validation.forgot_email_validation'));
             }
 
             $token = Str::random(40);
@@ -75,9 +81,6 @@ class ForgotPasswordController extends Controller
             $token = $activate->token;
 
             $url = route('password.reset', ['token' => $token]);
-
-            $user = new User;
-            $user = $user->where('email', $email)->firstOrFail();
 
             // check in the settings
             /** @var Setting $setting */

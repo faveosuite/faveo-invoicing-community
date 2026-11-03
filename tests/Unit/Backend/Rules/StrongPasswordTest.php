@@ -43,14 +43,15 @@ class StrongPasswordTest extends TestCase
         $this->assertFalse($this->fails('Secure@1'));
     }
 
-    public function test_password_at_maximum_length_16_passes(): void
+    public function test_password_at_maximum_length_64_passes(): void
     {
-        $this->assertFalse($this->fails('Secure@Pass1Word')); // exactly 16 chars
+        $this->assertFalse($this->fails('Secure@1'.str_repeat('x', 56))); // exactly 64 chars
     }
 
     public function test_password_with_various_specials_passes(): void
     {
-        foreach (['~', '*', '!', '@', '$', '#', '%', '_', '+', '.', '?', ':', ','] as $special) {
+        // Any non-alphanumeric symbol counts, incl. ones password managers use (&, ^, -, ...).
+        foreach (['~', '*', '!', '@', '$', '#', '%', '_', '+', '.', '?', ':', ',', '&', '^', '-', '(', ')', '/', '"'] as $special) {
             $this->assertFalse($this->fails("SecureA1{$special}"), "Failed with special: $special");
         }
     }
@@ -92,14 +93,13 @@ class StrongPasswordTest extends TestCase
         $this->assertTrue($this->fails('Sec@r1x'));
     }
 
-    public function test_too_long_17_chars_fails(): void
+    public function test_too_long_65_chars_fails(): void
     {
-        $this->assertTrue($this->fails('Secure@Pass1WordX!'));
+        $this->assertTrue($this->fails('Secure@1'.str_repeat('x', 57)));
     }
 
-    public function test_unicode_outside_allowed_charset_fails(): void
+    public function test_space_does_not_count_as_the_symbol(): void
     {
-        // The pattern only allows ASCII chars in [A-Za-z\d~*!@$#%_+.?:,{ }]
-        $this->assertTrue($this->fails('Sécure@Pass1'));
+        $this->assertTrue($this->fails('Secure Pass1'));
     }
 }

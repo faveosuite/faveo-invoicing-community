@@ -41,14 +41,17 @@ class ForgotPasswordControllerTest extends DBTestCase
         $response->assertJsonValidationErrors(['email'], 'message');
     }
 
-    public function test_send_reset_link_nonexistent_email_returns_422(): void
+    public function test_send_reset_link_unknown_email_gets_same_reply_and_stores_no_token(): void
     {
-        // 'exists:users,email' rule fails when email not in DB
+        // Must not reveal whether an account exists (no `exists` rule, generic success).
+        $email = 'nobody_'.uniqid().'@example.com';
         $response = $this->postJson('/password/email', [
-            'email' => 'nobody_'.uniqid().'@example.com',
+            'email' => $email,
+            'forgot' => $this->honeypot(),
         ]);
-        $response->assertStatus(412);
-        $response->assertJsonValidationErrors(['email'], 'message');
+        $response->assertOk();
+        $response->assertJson(['success' => true, 'message' => __('validation.forgot_email_validation')]);
+        $this->assertDatabaseMissing('password_resets', ['email' => $email]);
     }
 
     public function test_send_reset_link_for_known_user_covers_controller_body(): void
