@@ -37,6 +37,21 @@ class PhpMailControllerTest extends DBTestCase
     }
 
     // -------------------------------------------------------------------------
+    // sendEmail — a failed mail-log write must not abort the caller
+    // -------------------------------------------------------------------------
+
+    public function test_send_email_still_queues_the_mail_when_the_log_write_fails(): void
+    {
+        // Registration once broke here: logging returned null, then ->id on null threw.
+        \App\Facades\Log::partialMock()->shouldReceive('logMailByCategory')->once()->andReturnNull();
+        \Illuminate\Support\Facades\Bus::fake();
+
+        $this->mailer->sendEmail('noreply@test.local', 'user@test.local', '<p>Hi</p>', 'Subject', 'test', []);
+
+        \Illuminate\Support\Facades\Bus::assertDispatched(\App\Jobs\SendEmail::class);
+    }
+
+    // -------------------------------------------------------------------------
     // payment_log — logs payment info
     // -------------------------------------------------------------------------
 

@@ -56,8 +56,9 @@ class PhpMailController extends Controller
         array $attach = [],
         bool $autoReply = false
     ): void {
-        // Step 1: Log email entry
-        /** @var Model $logIdentifier */
+        // Step 1: Log email entry. Null if logging failed (already reported by the logger):
+        // still send the mail — a missing log row must not abort the caller (e.g. registration).
+        /** @var Model|null $logIdentifier */
         $logIdentifier = Logger::logMailByCategory(
             $from,
             $to,
@@ -83,12 +84,12 @@ class PhpMailController extends Controller
             $toname,
             $cc,
             $attach,
-            $logIdentifier->id,
+            $logIdentifier?->id,
             $autoReply
         );
 
         // Step 3: Update log with encrypted job payload
-        $logIdentifier->update([
+        $logIdentifier?->update([
             'job_payload' => Crypt::encrypt(new QueueTrait()->getPayloadData($job)),
         ]);
 

@@ -2,7 +2,6 @@
 
 namespace App;
 
-use File;
 use HTMLPurifier;
 use HTMLPurifier_Config;
 use Illuminate\Database\Eloquent\Model;
@@ -43,16 +42,11 @@ class BaseModel extends Model
     #[Override]
     public function setAttribute($property, $value): void
     {
-        //     .DIRECTORY_SEPARATOR.'library'.DIRECTORY_SEPARATOR.'HTMLPurifier.auto.php');
-        $path = base_path('vendor'.DIRECTORY_SEPARATOR.'htmlpurifier'
-            .DIRECTORY_SEPARATOR.'library'.DIRECTORY_SEPARATOR.
-            'HTMLPurifier'.DIRECTORY_SEPARATOR.'DefinitionCache'
-            .DIRECTORY_SEPARATOR.'Serializer');
-        if (! File::exists($path)) {
-            File::makeDirectory($path, 0777, true, true);
-        }
-
         $config = HTMLPurifier_Config::createDefault();
+        // No on-disk definition cache: its default dir lives under vendor/, which the
+        // web user can't write when composer ran as root — the write warning then
+        // aborted the save (e.g. registration). Purify only runs on values with HTML.
+        $config->set('Cache.DefinitionImpl', null);
         $purifier = new HTMLPurifier($config);
         if (! is_array($value) && ! in_array($property, $this->purifyExcept) && $value != strip_tags((string) $value)) {
             $value = $purifier->purify($value);
