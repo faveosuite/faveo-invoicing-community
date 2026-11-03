@@ -48,7 +48,6 @@ describe('ResetPassword.vue', () => {
             global: {
                 plugins: [createTestingPinia()],
                 stubs: {
-                    AuthLayout: { template: '<div><slot /></div>' },
                     ClientField: { template: '<div />', props: ['name', 'label', 'type', 'modelValue', 'error', 'required'] },
                     Honeypot: { template: '<div />', props: ['name', 'modelValue'], emits: ['update:modelValue', 'ready'] },
                     RecaptchaField: { template: '<div />', props: ['action'], methods: { getPayload: () => Promise.resolve({ 'g-recaptcha-response': 'token' }), reset: jest.fn(), triggerFallback: jest.fn() } },
@@ -93,7 +92,6 @@ describe('ResetPassword.vue', () => {
             global: {
                 plugins: [createTestingPinia()],
                 stubs: {
-                    AuthLayout: { template: '<div><slot /></div>' },
                     ClientField: { template: '<div />', props: ['name', 'label', 'type', 'modelValue', 'error', 'required'] },
                     Honeypot: { template: '<div />', props: ['name', 'modelValue'], emits: ['update:modelValue', 'ready'] },
                     RecaptchaField: { template: '<div />', props: ['action'], methods: { getPayload: () => Promise.resolve({}), reset: jest.fn() } },

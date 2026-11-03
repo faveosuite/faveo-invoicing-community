@@ -98,7 +98,6 @@ class SocialAuthController extends BaseAuthController
             'provider' => $signup['provider'],
             'terms' => (int) StatusSetting::value('terms'),
             'terms_url' => ApiKey::value('terms_url'),
-            'location' => getLocation(),
         ]);
     }
 
@@ -115,11 +114,12 @@ class SocialAuthController extends BaseAuthController
             'first_name' => ['required', 'min:2', 'max:30'],
             'last_name' => ['required', 'max:30'],
             'email' => ['required', 'email', 'unique:users', 'unique:users,user_name', 'unique:settings,email', 'unique:settings,company_email'],
-            'company' => ['required', 'max:50'],
+            // Company/address/country aren't asked at sign-up (same as the register form); still validated if sent.
+            'company' => ['nullable', 'max:50'],
             'mobile' => ['required', 'unique:users', new PhoneNumber($request->input('mobile_country_iso'))],
             'mobile_code' => ['required'],
-            'address' => ['required', 'string', 'regex:/^[^<>]*$/'],
-            'country' => ['required', 'exists:countries,country_code_char2'],
+            'address' => ['nullable', 'string', 'regex:/^[^<>]*$/'],
+            'country' => ['nullable', 'exists:countries,country_code_char2'],
             'terms' => [StatusSetting::value('terms') ? 'accepted' : 'sometimes'],
         ]);
 
@@ -253,7 +253,7 @@ class SocialAuthController extends BaseAuthController
             'user_name' => strip_tags((string) $request->input('email')),
             'company' => strip_tags((string) $request->input('company')),
             'address' => strip_tags((string) $request->input('address')),
-            'country' => $request->input('country'),
+            'country' => $request->input('country') ?: ($location['iso_code'] ?? null),
             'mobile' => ltrim((string) $request->input('mobile'), '0'),
             'mobile_code' => $request->input('mobile_code'),
             'mobile_country_iso' => $request->input('mobile_country_iso'),

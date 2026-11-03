@@ -34,6 +34,8 @@ return [
     'place-order' => ['title' => 'message.place_order', 'description' => 'Confirm and place your order.'],
     'payment-success' => ['title' => 'Payment Successful', 'description' => 'Your payment was successful.'],
     'pricing' => ['title' => 'message.pricing', 'description' => 'Review pricing and plans.'],
+    'account-setup' => ['title' => 'message.account_setup_title', 'description' => 'Add your billing details.'],
+    'register' => ['title' => 'message.register', 'description' => 'Create an account to buy and manage your licenses.'],
     'verify' => ['title' => 'message.verify_email', 'description' => 'Verify your email address.'],
     'verify-2fa' => ['title' => 'message.two_factor_authentication', 'description' => 'Verify your identity with two-factor authentication.'],
     'pay' => ['title' => 'message.pay', 'description' => 'Secure payment page.'],

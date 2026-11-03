@@ -397,6 +397,12 @@ class LoginTest extends DBTestCase
         $response->assertJsonStructure(['success', 'data' => ['status', 'apiKeys', 'social']]);
     }
 
+    public function test_login_config_has_no_location_lookup(): void
+    {
+        $this->withoutMiddleware();
+        $this->getJson('/auth/login-config')->assertOk()->assertJsonMissingPath('data.location');
+    }
+
     // -------------------------------------------------------------------------
     // getLoginRateLimitKey — MD5 of ip:email
     // -------------------------------------------------------------------------

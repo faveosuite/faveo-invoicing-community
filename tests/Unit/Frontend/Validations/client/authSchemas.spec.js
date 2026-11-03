@@ -1,6 +1,7 @@
 import {
     loginSchema,
     registerSchema,
+    socialCompleteSchema,
     forgotSchema,
     resetSchema,
     otpSchema,
@@ -39,9 +40,6 @@ describe('registerSchema', () => {
         first_name:            'John',
         last_name:             'Doe',
         email:                 'john@example.com',
-        company:               'Acme',
-        address:               '123 Main St',
-        country:               { id: 1, name: 'USA' },
         mobile:                '+1234567890',
         password:              'Secure@123',
         password_confirmation: 'Secure@123',
@@ -75,12 +73,8 @@ describe('registerSchema', () => {
         await expect(registerSchema.validate({ ...valid, email: 'notanemail' })).rejects.toThrow()
     })
 
-    it('fails when company is empty', async () => {
-        await expect(registerSchema.validate({ ...valid, company: '' })).rejects.toThrow()
-    })
-
-    it('fails when country is null', async () => {
-        await expect(registerSchema.validate({ ...valid, country: null })).rejects.toThrow()
+    it('does not ask for company, address or country (collected later)', async () => {
+        await expect(registerSchema.validate({ ...valid, company: '', address: '', country: null })).resolves.toBeTruthy()
     })
 
     it('fails when password does not meet strength requirements', async () => {
@@ -89,6 +83,18 @@ describe('registerSchema', () => {
 
     it('fails when password_confirmation does not match password', async () => {
         await expect(registerSchema.validate({ ...valid, password_confirmation: 'Secure@999' })).rejects.toThrow()
+    })
+})
+
+describe('socialCompleteSchema', () => {
+    const valid = { first_name: 'John', last_name: 'Doe', email: 'john@example.com', mobile: '+1234567890' }
+
+    it('passes with name, email and mobile only (no company/address/country)', async () => {
+        await expect(socialCompleteSchema.validate(valid)).resolves.toBeTruthy()
+    })
+
+    it.each(['first_name', 'email', 'mobile'])('fails when %s is empty', async (field) => {
+        await expect(socialCompleteSchema.validate({ ...valid, [field]: '' })).rejects.toThrow()
     })
 })
 
@@ -202,10 +208,11 @@ describe('passwordChecks', () => {
         expect(result.special).toBe(false)
     })
 
-    it('detects length requirement (8–16 chars)', () => {
+    it('detects length requirement (8–64 chars)', () => {
         expect(passwordChecks('abcdefgh').length).toBe(true)
         expect(passwordChecks('abc').length).toBe(false)
-        expect(passwordChecks('a'.repeat(17)).length).toBe(false)
+        expect(passwordChecks('a'.repeat(64)).length).toBe(true)
+        expect(passwordChecks('a'.repeat(65)).length).toBe(false)
     })
 
     it('detects lowercase letters', () => {
@@ -223,9 +230,12 @@ describe('passwordChecks', () => {
         expect(passwordChecks('abcd').number).toBe(false)
     })
 
-    it('detects special characters', () => {
+    it('detects special characters (any symbol, not spaces)', () => {
         expect(passwordChecks('abc@').special).toBe(true)
+        expect(passwordChecks('abc&').special).toBe(true)
+        expect(passwordChecks('abc-').special).toBe(true)
         expect(passwordChecks('abcd').special).toBe(false)
+        expect(passwordChecks('ab cd').special).toBe(false)
     })
 
     it('returns all true for a fully compliant password', () => {

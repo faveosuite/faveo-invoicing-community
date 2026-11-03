@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\Common\AuthBrandController;
 use App\Http\Controllers\Common\BaseSettingsController;
 use App\Http\Controllers\Common\CacheSettingsController;
 use App\Http\Controllers\Common\ChatScriptController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Front;
+use App\Http\Controllers\Front\AccountSetupController;
 use App\Http\Controllers\Front\AutoRenewalController;
 use App\Http\Controllers\Front\Cart\CartApiController;
 use App\Http\Controllers\Front\ClientController;
@@ -375,6 +377,10 @@ Route::middleware('installAgora')->group(function (): void {
     Route::patch('my-profile', [ClientController::class, 'postProfile']);
     Route::patch('my-password', [ClientController::class, 'postPassword']);
 
+    // One-time billing details after login (GET /account-setup itself is the SPA page)
+    Route::get('account-setup/details', [AccountSetupController::class, 'show']);
+    Route::post('account-setup', [AccountSetupController::class, 'store']);
+
     // Profile OTP verification
     Route::middleware(['blockFailedVerifications:verify'])->group(function (): void {
         Route::post('profile/email/send-otp', [ProfileVerificationController::class, 'sendEmailOtp']);
@@ -541,6 +547,10 @@ Route::middleware('installAgora')->group(function (): void {
         Route::get('settings', [SeoSettingsController::class, 'show']);
         Route::post('settings', [SeoSettingsController::class, 'update']);
     });
+
+    // Auth pages brand panel (login/register/... left panel). POST: multipart image upload.
+    Route::get('auth-brand', [AuthBrandController::class, 'show']);
+    Route::post('auth-brand', [AuthBrandController::class, 'update']);
 
     // Widget management
     Route::prefix('widgets')->group(function (): void {
@@ -900,6 +910,7 @@ Route::middleware('installAgora')->group(function (): void {
         Route::get('my-profile', $clientShell);
         Route::get('my-profile/change-password', $clientShell);
         Route::get('my-profile/2fa', $clientShell);
+        Route::get('account-setup', $clientShell);
         Route::get('checkout', $clientShell);
         Route::get('place-order', $clientShell);
         Route::get('payment-success', $clientShell);

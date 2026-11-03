@@ -1,21 +1,15 @@
 <template>
-    <AuthLayout>
+    <div>
         <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
         <form v-else @submit.prevent="submit" novalidate>
-            <ClientField name="password" type="password" :label="__('message.new_password')" required
-                         autocomplete="new-password"
-                         v-model="form.password" :error="errors.password"
-                         @focus="passwordFocused = true" @blur="passwordFocused = false"
-                         @update:modelValue="setFieldError('password', undefined)" />
-
-            <div v-if="passwordFocused || errors.password" class="mb-3 text-1">
-                <strong class="d-block mb-1 text-dark">{{ __('message.password_requirements') }}</strong>
-                <ul class="list-unstyled mb-0" aria-live="polite">
-                    <li v-for="c in checklist" :key="c.key" :class="c.ok ? 'text-success' : 'text-danger'">
-                        <i class="fas" :class="c.ok ? 'fa-check' : 'fa-times'" aria-hidden="true"></i> {{ c.label }}
-                    </li>
-                </ul>
+            <div class="position-relative">
+                <ClientField name="password" type="password" :label="__('message.new_password')" required
+                             autocomplete="new-password"
+                             v-model="form.password" :error="errors.password"
+                             @focus="passwordFocused = true" @blur="passwordFocused = false"
+                             @update:modelValue="setFieldError('password', undefined)" />
+                <PasswordHints :password="form.password" :show="passwordFocused" :strict="!!errors.password" />
             </div>
 
             <ClientField name="password_confirmation" type="password" :label="__('message.confirm_password')" required
@@ -28,26 +22,26 @@
             <RecaptchaField ref="captchaRef" action="reset" class="mb-3" />
 
             <button type="submit"
-                    class="btn btn-dark btn-modern w-100 text-uppercase rounded-0 font-weight-bold text-3 py-3"
+                    class="btn btn-primary btn-modern w-100"
                     :disabled="saving || !hpReady">
                 <i v-if="saving" class="fas fa-circle-notch fa-spin me-1" aria-hidden="true"></i>
                 {{ __('message.reset_password') }}
             </button>
         </form>
-    </AuthLayout>
+    </div>
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { resetSchema, passwordChecks } from '@/validations/client/authSchemas.js'
-import AuthLayout from './partials/AuthLayout.vue'
+import { resetSchema } from '@/validations/client/authSchemas.js'
 import Honeypot from '@/components/Reusable/Honeypot.vue'
+import PasswordHints from './partials/PasswordHints.vue'
 import { RecaptchaField } from '@recaptcha'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
@@ -64,18 +58,7 @@ const loading        = ref(true)
 const saving         = ref(false)
 const hpReady        = ref(false)
 
-const checklist = computed(() => {
-    const c = passwordChecks(form.password)
-    return [
-        { key: 'length',  ok: c.length,  label: __('message.pwd_req_length') },
-        { key: 'upper',   ok: c.upper,   label: __('message.pwd_req_upper') },
-        { key: 'lower',   ok: c.lower,   label: __('message.pwd_req_lower') },
-        { key: 'number',  ok: c.number,  label: __('message.pwd_req_number') },
-        { key: 'special', ok: c.special, label: __('message.pwd_req_special') },
-    ]
-})
-
-// Requirements list: shown while typing, and kept after a failed submit so it shows which rule failed.
+// Password hints popover is shown while the password field has focus.
 const passwordFocused = ref(false)
 
 onMounted(async () => {

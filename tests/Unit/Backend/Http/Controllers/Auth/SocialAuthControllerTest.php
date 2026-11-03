@@ -204,6 +204,25 @@ class SocialAuthControllerTest extends TestCase
         $this->assertNull(session('social_signup'));
     }
 
+    public function test_complete_without_company_address_country_defaults_country_from_location(): void
+    {
+        $email = 'social-'.uniqid().'@example.com';
+        StatusSetting::query()->update(['terms' => 0, 'emailverification_status' => 0, 'msg91_status' => 0]);
+
+        $this->withSession(['social_signup' => [
+            'provider' => 'google', 'provider_id' => 'pid-'.uniqid(), 'first_name' => 'Jane', 'last_name' => 'Doe',
+            'email' => $email, 'email_verified' => true,
+        ]])->postJson('/auth/social-complete', [
+            'first_name' => 'Jane', 'last_name' => 'Doe',
+            'mobile' => '98'.random_int(10000000, 99999999), 'mobile_code' => '91', 'mobile_country_iso' => 'in',
+        ])->assertOk();
+
+        $user = User::where('email', $email)->firstOrFail();
+        $this->assertSame('', $user->company);
+        $this->assertSame('', $user->address);
+        $this->assertSame(getLocation()['iso_code'], $user->country);
+    }
+
     public function test_complete_validates_required_fields(): void
     {
         $this->withSession(['social_signup' => [

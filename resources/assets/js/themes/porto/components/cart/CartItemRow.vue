@@ -1,5 +1,5 @@
 <template>
-  <tr class="cart_table_item">
+  <tr v-if="layout === 'row'" class="cart_table_item">
     <td class="product-thumbnail">
       <div class="product-thumbnail-wrapper">
         <button type="button" class="product-thumbnail-remove p-0" :title="__('message.remove')" :aria-label="__('message.remove')" @click="remove">
@@ -54,12 +54,70 @@
       <span class="amount text-color-dark font-weight-bold text-4">{{ item.currency_symbol }}{{ item.line_total }}</span>
     </td>
   </tr>
+  <!-- Phone layout: same data and controls as the table row, stacked -->
+  <div v-else class="card border mb-3">
+    <div class="card-body d-flex gap-3">
+      <span class="flex-shrink-0">
+        <img v-if="item.image" :src="item.image" width="64" height="64" alt="" class="img-fluid rounded" />
+        <span v-else class="d-inline-flex align-items-center justify-content-center bg-light rounded" style="width: 64px; height: 64px">
+          <i class="fas fa-box text-color-grey fa-lg" aria-hidden="true"></i>
+        </span>
+      </span>
+      <div class="flex-grow-1 min-w-0">
+        <div class="d-flex justify-content-between align-items-start gap-2">
+          <span class="font-weight-semi-bold text-color-dark">{{ item.name }}</span>
+          <button type="button" class="btn btn-link text-color-grey p-0" :title="__('message.remove')" :aria-label="__('message.remove')" @click="remove">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="text-2 text-color-grey mb-2">{{ item.currency_symbol }}{{ item.plan_price ?? item.unit_price }}</div>
+        <dl class="row g-2 align-items-center text-2 mb-2">
+          <dt class="col-5 fw-normal text-color-grey mb-0">{{ __('message.quantity') }}</dt>
+          <dd class="col-7 mb-0">
+            <div v-if="item.can_modify_quantity" class="quantity float-none m-0">
+              <input type="button" class="minus text-color-hover-light bg-color-hover-primary border-color-hover-primary"
+                     value="−" :aria-label="__('message.decrease')" :disabled="item.quantity <= 1" @click="step('quantity', -1)">
+              <input type="text" class="input-text qty text" :value="item.quantity" :aria-label="__('message.quantity')" readonly>
+              <input type="button" class="plus text-color-hover-light bg-color-hover-primary border-color-hover-primary"
+                     value="+" :aria-label="__('message.increase')" @click="step('quantity', 1)">
+            </div>
+            <span v-else class="text-color-dark">{{ item.quantity }}</span>
+          </dd>
+          <dt class="col-5 fw-normal text-color-grey mb-0">{{ __('message.agents') }}</dt>
+          <dd class="col-7 mb-0">
+            <template v-if="!item.show_agent">
+              <span class="text-color-grey">—</span>
+            </template>
+            <template v-else-if="!item.agents">
+              <span class="text-color-grey">{{ __('message.unlimited_agents') }}</span>
+            </template>
+            <div v-else-if="item.can_modify_agent" class="quantity float-none m-0">
+              <input type="button" class="minus text-color-hover-light bg-color-hover-primary border-color-hover-primary"
+                     value="−" :aria-label="__('message.decrease')" :disabled="item.agents <= 1" @click="step('agents', -1)">
+              <input type="text" class="input-text qty text" :value="item.agents" :aria-label="__('message.agents')" readonly>
+              <input type="button" class="plus text-color-hover-light bg-color-hover-primary border-color-hover-primary"
+                     value="+" :aria-label="__('message.increase')" @click="step('agents', 1)">
+            </div>
+            <span v-else class="text-color-dark">{{ item.agents }}</span>
+          </dd>
+        </dl>
+        <div class="d-flex justify-content-between border-top pt-2">
+          <span class="text-color-grey text-2">{{ __('message.subtotal') }}</span>
+          <span class="amount text-color-dark font-weight-bold">{{ item.currency_symbol }}{{ item.line_total }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { __ } from '@/plugins/i18n'
 
-const props = defineProps({ item: { type: Object, required: true } })
+const props = defineProps({
+  item:   { type: Object, required: true },
+  // 'row' = table row (tablet+), 'card' = stacked card for phones.
+  layout: { type: String, default: 'row' },
+})
 const emit = defineEmits(['update', 'remove'])
 
 function remove() {

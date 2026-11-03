@@ -171,7 +171,8 @@ class RegisterController extends Controller
             $user->mobile = ltrim((string) $request->input('mobile'), '0');
             $user->mobile_code = $request->input('mobile_code');
             $user->mobile_country_iso = $request->input('mobile_country_iso');
-            $user->country = $request->input('country');
+            // Not asked at sign-up: default to the visitor's geo country (state/town above come from it too).
+            $user->country = $request->input('country') ?: $location['iso_code'];
             $user->company = strip_tags((string) $request->input('company'));
             $user->address = strip_tags((string) $request->input('address'));
             $user->email = strip_tags((string) $request->input('email'));

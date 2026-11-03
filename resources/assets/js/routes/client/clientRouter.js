@@ -18,18 +18,25 @@ try {
     routeSeo = JSON.parse(el?.dataset?.routeSeo || '{}')
 } catch { /* ignore malformed/missing data */ }
 
+// Guest auth pages: full-screen AuthLayout instead of the site header/footer.
+const AUTH = { requiresAuth: false, sidebar: false, layout: 'auth' }
+
 const routes = [
     { path: '/', redirect: '/client-dashboard' },
 
     // ── Guest auth pages (served at app root: /login, /verify, …) ────────────
     // These load on hard navigation from the client.blade shell; the server
     // guard bounces already-authenticated users to their panel.
-    { path: '/login',                 meta: { requiresAuth: false, guestOnly: true,  sidebar: false, title: 'Sign in or Register', titleKey: 'message.sign_lr' }, component: () => import('@/pages/client/auth/LoginRegister.vue') },
-    { path: '/password/reset',        meta: { requiresAuth: false, guestOnly: true,  sidebar: false, title: 'Forgot Password', titleKey: 'message.forgot-password' }, component: () => import('@/pages/client/auth/ForgotPassword.vue') },
-    { path: '/password/reset/:token', meta: { requiresAuth: false, guestOnly: true,  sidebar: false, title: 'Reset Password', titleKey: 'message.reset_password', breadcrumb: [{ title: 'Reset Password', titleKey: 'message.reset_password' }] }, component: () => import('@/pages/client/auth/ResetPassword.vue') },
-    { path: '/verify',                meta: { requiresAuth: false, sidebar: false, title: 'Verify Your Account', titleKey: 'message.verify_account' }, component: () => import('@/pages/client/auth/Verify.vue') },
-    { path: '/social/complete',       meta: { requiresAuth: false, guestOnly: true,  sidebar: false, title: 'Complete your profile', titleKey: 'message.social_complete_title' }, component: () => import('@/pages/client/auth/SocialComplete.vue') },
-    { path: '/verify-2fa',            meta: { requiresAuth: false, sidebar: false, title: 'Two-Factor Authentication', titleKey: 'message.two_factor_authentication' }, component: () => import('@/pages/client/auth/Verify2FA.vue') },
+    { path: '/login',                 meta: { ...AUTH, guestOnly: true, title: 'Login', titleKey: 'message.welcome_back', subtitleKey: 'message.login_subtitle' }, component: () => import('@/pages/client/auth/Login.vue') },
+    { path: '/register',              meta: { ...AUTH, guestOnly: true, title: 'Register', titleKey: 'message.create_account_title', subtitleKey: 'message.register_subtitle' }, component: () => import('@/pages/client/auth/Register.vue') },
+    { path: '/password/reset',        meta: { ...AUTH, guestOnly: true, title: 'Forgot Password', titleKey: 'message.forgot_password_title', subtitleKey: 'message.forgot_password_subtitle' }, component: () => import('@/pages/client/auth/ForgotPassword.vue') },
+    { path: '/password/reset/:token', meta: { ...AUTH, guestOnly: true, title: 'Reset Password', titleKey: 'message.reset_password', subtitleKey: 'message.reset_password_subtitle' }, component: () => import('@/pages/client/auth/ResetPassword.vue') },
+    // Verify and 2FA render their own heading (it changes per step / mode), so no titleKey.
+    { path: '/verify',                meta: { ...AUTH, title: 'Verify Your Account' }, component: () => import('@/pages/client/auth/Verify.vue') },
+    { path: '/social/complete',       meta: { ...AUTH, guestOnly: true, title: 'Complete your profile', titleKey: 'message.social_complete_title' }, component: () => import('@/pages/client/auth/SocialComplete.vue') },
+    // After login, clients with no billing details yet (sign-up doesn't ask) land here first.
+    { path: '/account-setup',         meta: { ...AUTH, requiresAuth: true, title: 'Account setup', titleKey: 'message.account_setup_title', subtitleKey: 'message.account_setup_subtitle' }, component: () => import('@/pages/client/auth/AccountSetup.vue') },
+    { path: '/verify-2fa',            meta: { ...AUTH, title: 'Two-Factor Authentication' }, component: () => import('@/pages/client/auth/Verify2FA.vue') },
 
     // Client panel pages use the pre-Vue-conversion (legacy) URLs so existing
     // links/emails keep working and they don't collide with the admin data APIs
@@ -76,6 +83,10 @@ router.beforeEach((to) => { // NOSONAR - vue-router guard: a redirect location, 
 
     if (guestOnly && auth.isAuthenticated) return { path: '/client-dashboard' }
     if (requiresAuth && !auth.isAuthenticated) return { path: '/login', query: { redirect: to.fullPath } }
+    // Server flag (client.blade): billing details missing → finish setup before any signed-in page.
+    // Read per navigation; setup itself reloads the page, which clears it.
+    const needsSetup = document.getElementById('app-client')?.dataset?.needsSetup === 'true'
+    if (needsSetup && requiresAuth && to.path !== '/account-setup') return { path: '/account-setup' }
     return true
 })
 

@@ -83,16 +83,16 @@ class ProfileRequest extends Request
                 'first_name' => ['required', 'min:2', 'max:30'],
                 'last_name' => ['required', 'max:30'],
                 'email' => ['required', 'email', 'unique:users', 'unique:users,user_name', 'unique:settings,email', 'unique:settings,company_email'],
-                'company' => ['required', 'max:50'],
+                // Company/address/country aren't asked at sign-up (collected later); still validated if sent.
+                'company' => ['nullable', 'max:50'],
                 'mobile' => ['required', 'unique:users', new PhoneNumber($this->mobile_country_iso)],
-                'address' => ['required', 'string', 'regex:/^[^<>]*$/'],
+                'address' => ['nullable', 'string', 'regex:/^[^<>]*$/'],
                 'terms' => ['sometimes'],
                 'password' => [
                     'required',
                     new StrongPassword,
                 ],
                 'password_confirmation' => ['required', 'same:password'],
-                // 'country'               => 'required|exists:countries,country_code_char2',
             ];
         }
 

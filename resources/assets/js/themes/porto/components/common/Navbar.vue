@@ -147,7 +147,7 @@
 
                         <!-- Sign-up (guest) -->
                         <li v-else>
-                          <RouterLink class="nav-link" to="/login">{{ __('message.sign-up') }}</RouterLink>
+                          <RouterLink class="nav-link" to="/register">{{ __('message.sign-up') }}</RouterLink>
                         </li>
 
                         <!-- Free Trial / Demo (mobile only, shown in collapsed nav) -->
@@ -349,10 +349,10 @@
 
 <script setup>
 import {computed, onMounted, onUnmounted, ref} from 'vue'
-import http from '@/plugins/axios'
 import {useCartStore} from '@/core/stores/cart'
 import {useAlertStore} from '@/core/stores/alert'
 import {isStickyActive} from '../../composables/useStickyHeader.js'
+import { useLanguages } from '../../composables/useLanguages.js'
 import CloudTrialModal, { PENDING_TRIAL_KEY } from '../store/CloudTrialModal.vue'
 import BookDemoModal from '../store/BookDemoModal.vue'
 import { RouterLink, useRouter } from 'vue-router'
@@ -485,34 +485,7 @@ function resolveSocialFaClass(media) {
   return `fab fa-${name}`
 }
 
-// Maps language locale codes → ISO 3166-1 alpha-2 country codes used by flag-icons.
-const localeMap = {
-  ar: 'sa', bsn: 'ba', bs: 'ba', de: 'de', en: 'us', 'en-gb': 'gb', 'en-us': 'us', es: 'es',
-  fr: 'fr', id: 'id', it: 'it', ko: 'kr', kr: 'kr', mt: 'mt', nl: 'nl', no: 'no',
-  pt: 'pt', 'pt-br': 'br', ru: 'ru', vi: 'vn', zh: 'cn', 'zh-hans': 'cn', 'zh-hant': 'tw', 'zh-cn': 'cn', 'zh-tw': 'tw',
-  ja: 'jp', ta: 'in', hi: 'in', he: 'il', tr: 'tr', pl: 'pl', sv: 'se', da: 'dk', cs: 'cz', uk: 'ua',
-}
-
-function flagCodeFor(loc) {
-  const lc = String(loc ?? '').toLowerCase()
-  return localeMap[lc] ?? localeMap[lc.slice(0, 2)] ?? 'un'
-}
-
-const currentLocale = computed(() => (el?.dataset?.locale ?? 'en').toLowerCase())
-
-const languages = ref(
-  (JSON.parse(el?.dataset?.languages ?? '[]')).filter(l => Number(l.status) === 1)
-)
-
-async function selectLang(lang) {
-  try {
-    await http.post('lang/update', {language: lang.locale})
-    globalThis.location.reload()
-  } catch (e) {
-    console.error('Language switch failed', e)
-    alertStore.setAlert({ message: __('message.error_occurred'), type: 'danger', component_name: 'client-page' })
-  }
-}
+const { currentLocale, languages, selectLang, flagCodeFor } = useLanguages()
 
 const productGroups = ref(
   Object.entries(JSON.parse(el?.dataset?.productGroups ?? '{}')).map(([id, g]) => ({ id: parseInt(id), ...g }))

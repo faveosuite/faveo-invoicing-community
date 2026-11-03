@@ -2,13 +2,13 @@
     <div class="mb-3">
         <label v-if="label" :for="fieldId" class="form-label text-dark">
             {{ label }}
-            <span v-if="required" class="text-danger">*</span>
+            <span v-if="required && !hideRequiredMark" class="text-danger">*</span>
         </label>
 
         <!-- password (with show / hide toggle) -->
         <div v-if="type === 'password'" class="input-group">
             <input :id="fieldId"
-                   class="form-control form-control-lg text-4"
+                   class="form-control"
                    :class="{ 'is-invalid': error }"
                    :type="revealed ? 'text' : 'password'"
                    :value="modelValue"
@@ -34,7 +34,7 @@
 
         <!-- select -->
         <select v-else-if="type === 'select'" :id="fieldId"
-                class="form-control form-control-lg text-4"
+                class="form-control"
                 :class="{ 'is-invalid': error }"
                 :value="modelValue"
                 :name="name"
@@ -49,7 +49,7 @@
 
         <!-- textarea -->
         <textarea v-else-if="type === 'textarea'" :id="fieldId"
-                  class="form-control form-control-lg text-4"
+                  class="form-control"
                   :class="{ 'is-invalid': error }"
                   :rows="rows"
                   :value="modelValue"
@@ -67,7 +67,7 @@
         <!-- text / email / number / tel / … (with optional append slot) -->
         <div v-else :class="$slots.append ? 'input-group' : ''">
             <input :id="fieldId"
-                   class="form-control form-control-lg text-4"
+                   class="form-control"
                    :class="{ 'is-invalid': error }"
                    :type="type"
                    :value="modelValue"
@@ -92,7 +92,7 @@
 </template>
 
 <script setup>
-import { ref, computed, useId } from 'vue'
+import { ref, computed, useId, inject } from 'vue'
 
 const props = defineProps({
     label:        { type: String,  default: '' },
@@ -117,6 +117,8 @@ const emit = defineEmits(['update:modelValue', 'change', 'focus', 'blur'])
 
 const revealed = ref(false)
 const uid = useId()
+// A layout where every field is required (auth pages) hides the star; aria-required stays.
+const hideRequiredMark = inject('hideRequiredMark', false)
 const fieldId = computed(() => `field-${props.name}-${uid}`)
 const errorId = computed(() => `${fieldId.value}-error`)
 const spellcheckAttr = computed(() => props.spellcheck

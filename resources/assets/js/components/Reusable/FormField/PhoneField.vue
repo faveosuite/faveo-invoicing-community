@@ -1,7 +1,7 @@
 <template>
     <div class="mb-3">
         <label v-if="label" class="form-label fw-bold" :for="name">
-            {{ label }}<span v-if="required" class="text-danger ms-1">*</span>
+            {{ label }}<span v-if="required && !hideRequiredMark" class="text-danger ms-1">*</span>
         </label>
         <input
             ref="phoneRef"
@@ -18,7 +18,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, inject } from 'vue'
+
+// Hidden where every field is required (auth pages, see AuthLayout).
+const hideRequiredMark = inject('hideRequiredMark', false)
 import intlTelInput from 'intl-tel-input/intlTelInputWithUtils'
 
 const props = defineProps({

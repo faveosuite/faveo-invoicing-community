@@ -247,6 +247,7 @@ const sections = computed(() => [
             { to: '/settings/widgets/footer',       icon: 'fas fa-list-ul',     label: __('message.footer_widget') },
             { to: '/settings/widgets/social-media', icon: 'fas fa-share-nodes', label: __('message.social_media') },
             { to: '/settings/widgets/analytics',    icon: 'fas fa-chart-bar',   label: __('message.analytics') },
+            { to: '/settings/widgets/login-page',   icon: 'fas fa-right-to-bracket', label: __('message.login_page') },
         ],
     },
 ])

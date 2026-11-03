@@ -42,4 +42,14 @@ describe('client router guard', () => {
         mockAuthenticated = true
         expect(guard('/client-dashboard')).toBe(true)
     })
+
+    it('sends signed-in clients without billing details to account setup first', () => {
+        mockAuthenticated = true
+        document.body.innerHTML = '<div id="app-client" data-needs-setup="true"></div>'
+        expect(guard('/client-dashboard')).toEqual({ path: '/account-setup' })
+        expect(guard('/checkout')).toEqual({ path: '/account-setup' })
+        expect(guard('/account-setup')).toBe(true)
+        expect(guard('/store')).toBe(true) // public pages stay open
+        document.body.innerHTML = ''
+    })
 })

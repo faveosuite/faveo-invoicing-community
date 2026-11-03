@@ -251,6 +251,32 @@ class RegistrationTest extends DBTestCase
         $this->assertEquals(expected: true, actual: $content['success']);
     }
 
+    #[Group('postRegister')]
+    public function test_post_register_without_company_address_country_defaults_country_from_location(): void
+    {
+        $this->withoutMiddleware();
+        $this->setUpServerVariable('192.168.12.12', 'someaddress', 'IN');
+        StatusSetting::where('id', 1)->update(['email_validation_status' => 0, 'mobile_validation_status' => 0]);
+
+        $response = $this->call('POST', 'auth/register', [
+            'first_name' => 'Noaddress',
+            'last_name' => 'User',
+            'email' => 'noaddress.user@example.com',
+            'mobile_code' => '91',
+            'mobile' => '9901541299',
+            'mobile_country_iso' => 'IN',
+            'password' => 'Santhanu@12',
+            'password_confirmation' => 'Santhanu@12',
+            'registerForm' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
+        ]);
+
+        $response->assertStatus(200);
+        $user = User::where('email', 'noaddress.user@example.com')->firstOrFail();
+        $this->assertSame('', $user->company);
+        $this->assertSame('', $user->address);
+        $this->assertSame(getLocation()['iso_code'], $user->country);
+    }
+
     // -------------------------------------------------------------------------
     // emailVerification — exception path (provider not in DB → fail open)
     // -------------------------------------------------------------------------
