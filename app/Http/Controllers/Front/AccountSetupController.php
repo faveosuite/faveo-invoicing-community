@@ -20,11 +20,6 @@ use Illuminate\Validation\Rule;
  */
 class AccountSetupController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     public function show(): JsonResponse
     {
         /** @var User $user */

@@ -24,7 +24,7 @@ class LoginTest extends DBTestCase
         $user = User::factory()->create(['password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
-        $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'password', 'login' => [
+        $response = $this->postJson('/login', ['login' => $user->email, 'password' => 'password', 'honeypot' => [
             'pot_field' => '',     // valid
             'time_field' => encrypt(time() - 10), // valid
         ]]);
@@ -53,7 +53,7 @@ class LoginTest extends DBTestCase
         $user = User::factory()->create(['role' => 'admin', 'password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
-        $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'password', 'login' => [
+        $response = $this->postJson('/login', ['login' => $user->email, 'password' => 'password', 'honeypot' => [
             'pot_field' => '',     // valid
             'time_field' => encrypt(time() - 10), // valid
         ]]);
@@ -85,7 +85,7 @@ class LoginTest extends DBTestCase
             ['msg91_status' => 1, 'mobileverification_status' => 1, 'emailverification_status' => 0]
         );
         $this->withoutMiddleware();
-        $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'password', 'login' => [
+        $response = $this->postJson('/login', ['login' => $user->email, 'password' => 'password', 'honeypot' => [
             'pot_field' => '',     // valid
             'time_field' => encrypt(time() - 10), // valid
         ]]);
@@ -108,7 +108,7 @@ class LoginTest extends DBTestCase
             ['emailverification_status' => 1, 'msg91_status' => 0]
         );
         $this->withoutMiddleware();
-        $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'password', 'login' => [
+        $response = $this->postJson('/login', ['login' => $user->email, 'password' => 'password', 'honeypot' => [
             'pot_field' => '',     // valid
             'time_field' => encrypt(time() - 10), // valid
         ]]);
@@ -132,7 +132,7 @@ class LoginTest extends DBTestCase
             ['emailverification_status' => 1, 'msg91_status' => 1, 'mobileverification_status' => 1]
         );
         VerificationAttempt::create(['user_id' => $user->id, 'mobile_attempt' => 2, 'email_attempt' => 3]);
-        $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'password',  'login' => [
+        $response = $this->postJson('/login', ['login' => $user->email, 'password' => 'password',  'honeypot' => [
             'pot_field' => '',     // valid
             'time_field' => encrypt(time() - 10), // valid
         ]]);
@@ -150,7 +150,7 @@ class LoginTest extends DBTestCase
         User::factory()->create(['password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 1, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
-        $response = $this->postJson('/login', ['email_username' => 'santhanuchakrapa@gmail.com', 'password1' => 'password', 'login' => [
+        $response = $this->postJson('/login', ['login' => 'santhanuchakrapa@gmail.com', 'password' => 'password', 'honeypot' => [
             'pot_field' => '',     // valid
             'time_field' => encrypt(time() - 10), // valid
         ]]);
@@ -166,7 +166,7 @@ class LoginTest extends DBTestCase
         $user = User::factory()->create(['password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
-        $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'passwor', 'login' => [
+        $response = $this->postJson('/login', ['login' => $user->email, 'password' => 'passwor', 'honeypot' => [
             'pot_field' => '',     // valid
             'time_field' => encrypt(time() - 10), // valid
         ]]);
@@ -183,9 +183,9 @@ class LoginTest extends DBTestCase
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
         $response = $this->postJson('/login', [
-            'email_username' => $user->email,
-            'password1' => 'password',
-            'login' => [
+            'login' => $user->email,
+            'password' => 'password',
+            'honeypot' => [
                 'pot_field' => '',     // valid
                 'time_field' => encrypt(time() - 10), // valid
             ],
@@ -206,10 +206,10 @@ class LoginTest extends DBTestCase
         $this->withoutMiddleware();
 
         $response = $this->postJson('/login', [
-            'email_username' => 'user@example.com',
-            'password1' => 'password',
+            'login' => 'user@example.com',
+            'password' => 'password',
             'g-recaptcha-response' => 'dummy-token',
-            'login' => [
+            'honeypot' => [
                 'pot_field' => 'asdfghjk',     // valid
                 'time_field' => encrypt(time() - 10), // valid
             ],
@@ -238,10 +238,10 @@ class LoginTest extends DBTestCase
         $this->withoutMiddleware([Install::class]);
 
         $response = $this->postJson('/login', [
-            'email_username' => 'user@example.com',
-            'password1' => 'password',
+            'login' => 'user@example.com',
+            'password' => 'password',
             // this is a honeypot field, it should be empty
-            'login' => [
+            'honeypot' => [
                 'pot_field' => '',     // valid
                 'time_field' => encrypt(time() - 10), // valid
             ],
@@ -264,10 +264,10 @@ class LoginTest extends DBTestCase
         $this->withoutMiddleware();
 
         $response = $this->postJson('/login', [
-            'email_username' => 'user@example.com',
-            'password1' => 'password',
+            'login' => 'user@example.com',
+            'password' => 'password',
             'g-recaptcha-response' => 'test-bypass',
-            'login' => [
+            'honeypot' => [
                 'pot_field' => '',     // valid
                 'time_field' => encrypt(time() - 10), // valid
             ],
@@ -298,8 +298,8 @@ class LoginTest extends DBTestCase
         // (RequestJsonValidation always returns JSON, even for a plain non-JSON POST)
         // before the controller ever checks the credentials.
         $response = $this->post('/login', [
-            'email_username' => 'invaliduser',
-            'password1' => 'wrongpassword',
+            'login' => 'invaliduser',
+            'password' => 'wrongpassword',
         ]);
 
         $response->assertStatus(412);
@@ -317,9 +317,9 @@ class LoginTest extends DBTestCase
 
         // Attempt login with email
         $response = $this->post('/login', [
-            'email_username' => $user->email,
-            'password1' => 'password123',
-            'login' => [
+            'login' => $user->email,
+            'password' => 'password123',
+            'honeypot' => [
                 'pot_field' => '',     // valid
                 'time_field' => encrypt(time() - 10), // valid
             ],
@@ -346,9 +346,9 @@ class LoginTest extends DBTestCase
         ]);
         // Attempt login with username
         $response = $this->post('/login', [
-            'email_username' => $user->user_name,
-            'password1' => 'password123',
-            'login' => [
+            'login' => $user->user_name,
+            'password' => 'password123',
+            'honeypot' => [
                 'pot_field' => '',
                 'time_field' => encrypt(time() - 10),
             ],
@@ -377,9 +377,9 @@ class LoginTest extends DBTestCase
         ]);
 
         $response = $this->post('/login', [
-            'email_username' => 'old-address@example.com',
-            'password1' => 'password123',
-            'login' => [
+            'login' => 'old-address@example.com',
+            'password' => 'password123',
+            'honeypot' => [
                 'pot_field' => '',
                 'time_field' => encrypt(time() - 10),
             ],
@@ -417,24 +417,48 @@ class LoginTest extends DBTestCase
     }
 
     // -------------------------------------------------------------------------
-    // logActivityLogin — simple activity log
+    // Login event: activity log + no early login before verify/2FA
     // -------------------------------------------------------------------------
 
-    public function test_log_activity_login_does_not_throw(): void
+    public function test_completed_login_is_logged_through_the_login_event(): void
     {
-        $this->withoutMiddleware();
         $user = User::factory()->create();
-        $controller = new LoginController;
-        $controller->logActivityLogin($user);
-        $this->assertTrue(true);
+        $before = \DB::table('activity_log')->where('event', 'login')->count();
+
+        auth()->login($user); // any login path: password, 2FA, social
+
+        $this->assertSame($before + 1, \DB::table('activity_log')->where('event', 'login')->count());
     }
 
-    public function test_log_activity_login_returns_early_for_null(): void
+    public function test_2fa_user_is_not_signed_in_before_the_2fa_step(): void
     {
         $this->withoutMiddleware();
-        $controller = new LoginController;
-        $controller->logActivityLogin(user: null);
-        $this->assertTrue(true);
+        \Illuminate\Support\Facades\Event::fake([\Illuminate\Auth\Events\Login::class]);
+        StatusSetting::query()->update(['emailverification_status' => 0, 'msg91_status' => 0]);
+        $user = User::factory()->create(['is_2fa_enabled' => 1, 'active' => 1, 'password' => \Hash::make('Secret@123')]);
+
+        $this->postJson('/login', ['login' => $user->email, 'password' => 'Secret@123', 'honeypot' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)]])
+            ->assertJsonPath('data.redirect', url('verify-2fa'));
+
+        $this->assertGuest();
+        \Illuminate\Support\Facades\Event::assertNotDispatched(\Illuminate\Auth\Events\Login::class); // no cart merge / log yet
+    }
+
+    public function test_user_locked_out_of_verification_is_stopped_at_login(): void
+    {
+        $this->withoutMiddleware();
+        StatusSetting::updateOrCreate(['id' => 1], ['msg91_status' => 1, 'mobileverification_status' => 1, 'emailverification_status' => 0]);
+        $user = User::factory()->create(['mobile_verified' => 0, 'password' => Hash::make('password')]);
+        foreach (range(1, 3) as $_) {
+            \RateLimiter::hit('mobile-verify:'.$user->id, 600); // 3 wrong codes = locked
+        }
+
+        $this->postJson('/login', ['login' => $user->email, 'password' => 'password', 'honeypot' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)]])
+            ->assertStatus(429)
+            ->assertJsonPath('success', false);
+
+        // Not sent on to /verify: no verification session was started.
+        $this->assertNull(session('verification_user_id'));
     }
 
     // -------------------------------------------------------------------------
@@ -475,4 +499,47 @@ class LoginTest extends DBTestCase
 
         $this->assertIsString($path);
     }
+
+    // -------------------------------------------------------------------------
+    // Account-wide failed-login limit (any IP)
+    // -------------------------------------------------------------------------
+
+    private function loginFrom(string $ip, string $login, string $password)
+    {
+        return $this->withoutMiddleware(\App\Http\Middleware\Install::class)
+            ->withServerVariables(['REMOTE_ADDR' => $ip])->postJson('/login', [
+            'login' => $login, 'password' => $password,
+            'honeypot' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
+        ]);
+    }
+
+    public function test_failures_spread_over_many_ips_lock_the_account(): void
+    {
+        StatusSetting::query()->update(['emailverification_status' => 0, 'msg91_status' => 0]);
+        $user = User::factory()->create(['active' => 1, 'is_2fa_enabled' => 0, 'password' => \Hash::make('Right@Pass1')]);
+
+        foreach (range(1, 10) as $i) {
+            $this->loginFrom("10.0.0.$i", $user->email, 'wrong')->assertStatus(400);
+        }
+
+        // Even the right password, from a fresh IP, is refused while the account is locked.
+        $this->loginFrom('10.0.1.1', $user->email, 'Right@Pass1')
+            ->assertStatus(429)
+            ->assertJsonPath('data.retry_after', fn ($s) => $s > 0 && $s <= 3600);
+        $this->assertGuest();
+    }
+
+    public function test_a_successful_login_clears_the_account_counter(): void
+    {
+        StatusSetting::query()->update(['emailverification_status' => 0, 'msg91_status' => 0]);
+        $user = User::factory()->create(['active' => 1, 'is_2fa_enabled' => 0, 'role' => 'user', 'password' => \Hash::make('Right@Pass1')]);
+
+        foreach (range(1, 4) as $i) {
+            $this->loginFrom("10.0.2.$i", $user->email, 'wrong');
+        }
+        $this->loginFrom('10.0.2.9', $user->email, 'Right@Pass1')->assertOk();
+
+        $this->assertSame(0, \RateLimiter::attempts('login-account:'.md5(strtolower($user->email))));
+    }
 }
+

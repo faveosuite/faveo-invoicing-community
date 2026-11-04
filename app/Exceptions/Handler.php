@@ -7,6 +7,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Exceptions\PostTooLargeException;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
@@ -57,6 +58,12 @@ class Handler extends ExceptionHandler
     #[Override]
     public function render($request, Throwable $exception)
     {
+        // Already carries the finished response (abort(response(...)), a throttle limiter's
+        // custom ->response()): return it as Laravel does, not as a generic 500.
+        if ($exception instanceof HttpResponseException) {
+            return $exception->getResponse();
+        }
+
         if ($this->isApiRequest($request)) {
             return $this->responseForApi($request, $exception);
         }

@@ -14,12 +14,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ReportController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('admin');
-    }
-
     public function getAllReports(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search-query', '');

@@ -24,8 +24,6 @@ class LicensePermissionsController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware('admin');
 
         $licensePermission = new LicensePermission;
         $this->licensePermission = $licensePermission;

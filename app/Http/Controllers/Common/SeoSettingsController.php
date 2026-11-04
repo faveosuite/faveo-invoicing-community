@@ -41,12 +41,6 @@ class SeoSettingsController extends Controller
      */
     private const BOOLEAN_FIELDS = ['general_og_same_as_meta'];
 
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('admin');
-    }
-
     public function show(): JsonResponse
     {
         try {

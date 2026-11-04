@@ -45,11 +45,6 @@ class SocialAuthController extends BaseAuthController
     /** LinkedIn retired its old API; apps created now only get "Sign In with LinkedIn using OpenID Connect". */
     private const DRIVERS = ['linkedin' => 'linkedin-openid'];
 
-    public function __construct()
-    {
-        $this->middleware('guest');
-    }
-
     public function redirect(Request $request, string $provider): JsonResponse
     {
         try {
@@ -311,10 +306,7 @@ class SocialAuthController extends BaseAuthController
         Auth::login($user);
         Session::regenerate();
 
-        $login = resolve(LoginController::class);
-        $login->logActivityLogin($user);
-
-        return (string) $login->redirectPath(); // @phpstan-ignore cast.string
+        return (string) resolve(LoginController::class)->redirectPath(); // @phpstan-ignore cast.string
     }
 
     private function errorUrl(string $reason): string

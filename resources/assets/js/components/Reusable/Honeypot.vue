@@ -21,7 +21,7 @@ import http from '@/plugins/axios'
 
 defineProps({
     // The form field name the backend App\Rules\Honeypot is attached to
-    // (e.g. 'login', 'registerForm', 'forgot', 'reset').
+    // ('honeypot' on the auth forms).
     name:       { type: String, required: true },
     modelValue: { type: [Object, String], default: () => ({}) },
     label:      { type: String, default: 'Do not fill this field' },

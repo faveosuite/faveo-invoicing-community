@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Controllers\Auth;
 
 use App\Events\UserRegisteredEvent;
-use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
 use App\Http\Middleware\Install;
 use App\Model\Common\StatusSetting;
@@ -39,9 +38,9 @@ class AuthControllerTest extends DBTestCase
         $user = User::factory()->create(['password' => bcrypt('P@ssw0rd!')]);
 
         $response = $this->postJson('/login', [
-            'email_username' => $user->email,
-            'password1' => 'P@ssw0rd!',
-            'login' => $this->honeypot(),
+            'login' => $user->email,
+            'password' => 'P@ssw0rd!',
+            'honeypot' => $this->honeypot(),
         ]);
 
         $response->assertStatus(200);
@@ -60,9 +59,9 @@ class AuthControllerTest extends DBTestCase
         $user = User::factory()->create(['password' => bcrypt('correct')]);
 
         $response = $this->postJson('/login', [
-            'email_username' => $user->email,
-            'password1' => 'wrong',
-            'login' => $this->honeypot(),
+            'login' => $user->email,
+            'password' => 'wrong',
+            'honeypot' => $this->honeypot(),
         ]);
 
         $response->assertStatus(400);
@@ -80,9 +79,9 @@ class AuthControllerTest extends DBTestCase
     public function test_nonexistent_user_returns_400_without_revealing_existence(): void
     {
         $response = $this->postJson('/login', [
-            'email_username' => 'nobody@example.com',
-            'password1' => 'password',
-            'login' => $this->honeypot(),
+            'login' => 'nobody@example.com',
+            'password' => 'password',
+            'honeypot' => $this->honeypot(),
         ]);
 
         $response->assertStatus(400);
@@ -101,12 +100,12 @@ class AuthControllerTest extends DBTestCase
     public function test_missing_password_field_returns_412_with_password_error(): void
     {
         $response = $this->postJson('/login', [
-            'email_username' => 'user@test.com',
-            'login' => $this->honeypot(),
+            'login' => 'user@test.com',
+            'honeypot' => $this->honeypot(),
         ]);
 
         $response->assertStatus(412);
-        $this->assertArrayHasKey('password1', $response->json('message'));
+        $this->assertArrayHasKey('password', $response->json('message'));
     }
 
     // =========================================================================
@@ -119,8 +118,8 @@ class AuthControllerTest extends DBTestCase
         // Expected: 422 with email_username error. Actual: 500.
         // This test documents the bug so any accidental fix is caught.
         $response = $this->postJson('/login', [
-            'password1' => 'secret',
-            'login' => $this->honeypot(),
+            'password' => 'secret',
+            'honeypot' => $this->honeypot(),
         ]);
 
         $response->assertStatus(500); // BUG — should be 422
@@ -133,9 +132,9 @@ class AuthControllerTest extends DBTestCase
     public function test_filled_honeypot_returns_412_blocking_bot_submission(): void
     {
         $response = $this->postJson('/login', [
-            'email_username' => 'user@test.com',
-            'password1' => 'pass',
-            'login' => ['pTestKey' => 'bot-filled', 'tTestKey' => Crypt::encrypt(time() - 2)],
+            'login' => 'user@test.com',
+            'password' => 'pass',
+            'honeypot' => ['pTestKey' => 'bot-filled', 'tTestKey' => Crypt::encrypt(time() - 2)],
         ]);
 
         $response->assertStatus(412);
@@ -203,7 +202,7 @@ class AuthControllerTest extends DBTestCase
     public function test_resend_otp_missing_eid_returns_422(): void
     {
         $this->withoutMiddleware();
-        $response = $this->postJson('/resend_otp', ['default_type' => 'mobile', 'type' => 'text']);
+        $response = $this->postJson('/resend_otp', ['channel' => 'mobile', 'method' => 'text']);
         $response->assertStatus(412);
         $response->assertJsonValidationErrors(['eid'], 'message');
     }
@@ -213,11 +212,11 @@ class AuthControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $user = User::factory()->create();
         $response = $this->postJson('/resend_otp', [
-            'default_type' => 'mobile',
+            'channel' => 'mobile',
             'eid' => Crypt::encrypt($user->email),
         ]);
         $response->assertStatus(412);
-        $response->assertJsonValidationErrors(['type'], 'message');
+        $response->assertJsonValidationErrors(['method'], 'message');
     }
 
     public function test_resend_otp_invalid_type_value_returns_422(): void
@@ -225,21 +224,21 @@ class AuthControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $user = User::factory()->create();
         $response = $this->postJson('/resend_otp', [
-            'default_type' => 'mobile',
+            'channel' => 'mobile',
             'eid' => Crypt::encrypt($user->email),
-            'type' => 'fax',
+            'method' => 'fax',
         ]);
         $response->assertStatus(412);
-        $response->assertJsonValidationErrors(['type'], 'message');
+        $response->assertJsonValidationErrors(['method'], 'message');
     }
 
     public function test_resend_otp_with_invalid_encrypted_eid_returns_400(): void
     {
         $this->withoutMiddleware();
         $response = $this->postJson('/resend_otp', [
-            'default_type' => 'mobile',
+            'channel' => 'mobile',
             'eid' => 'bad-crypt',
-            'type' => 'text',
+            'method' => 'text',
         ]);
         $response->assertStatus(400);
         $response->assertJson(['success' => false]);
@@ -494,7 +493,7 @@ class AuthControllerTest extends DBTestCase
 
         $eid = Crypt::encrypt($user->email);
         $response = $this->postJson('/resend_otp', [
-            'default_type' => 'email',
+            'channel' => 'email',
             'eid' => $eid,
         ]);
         // sendEmail validates and processes OTP resend
@@ -607,44 +606,6 @@ class AuthControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // salesManagerMail — throws when no template found → no assertion needed
-    // =========================================================================
-
-    public function test_sales_manager_mail_throws_when_template_not_found(): void
-    {
-        $this->withoutMiddleware();
-        $user = User::factory()->create(['email' => 'sales-mgr-'.uniqid().'@test.local']);
-
-        $controller = new AuthController;
-        try {
-            $controller->salesManagerMail($user);
-        } catch (\Throwable $throwable) {
-            // Template not found → null->data throws Error
-        }
-
-        $this->assertTrue(true);
-    }
-
-    // =========================================================================
-    // accountManagerMail — same: throws when template not found
-    // =========================================================================
-
-    public function test_account_manager_mail_throws_when_template_not_found(): void
-    {
-        $this->withoutMiddleware();
-        $user = User::factory()->create(['email' => 'acct-mgr-'.uniqid().'@test.local']);
-
-        $controller = new AuthController;
-        try {
-            $controller->accountManagerMail($user);
-        } catch (\Throwable $throwable) {
-            // Template/manager not found → Error
-        }
-
-        $this->assertTrue(true);
-    }
-
-    // =========================================================================
     // verifyConfig — session branches
     // =========================================================================
 
@@ -667,5 +628,70 @@ class AuthControllerTest extends DBTestCase
         $response->assertStatus(200)
             ->assertJson(['success' => true])
             ->assertJsonStructure(['data' => ['eid', 'mobile', 'email']]);
+    }
+
+    // =========================================================================
+    // Resend wait (server-side) and per-IP send limit
+    // =========================================================================
+
+    private function sendMobileCode(User $user)
+    {
+        return $this->withSession(['verification_user_id' => $user->id])
+            ->postJson('/otp/send', ['eid' => Crypt::encrypt($user->email)]);
+    }
+
+    public function test_reloading_the_page_does_not_send_a_second_code(): void
+    {
+        $user = User::factory()->create(['mobile_verified' => 0, 'active' => 1]);
+        $this->mock(SmsOtpController::class)->shouldReceive('sendOtp')->once()
+            ->andReturn(['type' => 'success', 'message' => 'sent']);
+
+        $this->sendMobileCode($user)->assertOk()->assertJsonPath('data.retry_after', 60);
+
+        // Reload during the wait: no SMS, the page gets what's left of the wait.
+        $reload = $this->sendMobileCode($user)->assertOk();
+        $this->assertGreaterThan(0, $reload->json('data.retry_after'));
+        $this->assertLessThanOrEqual(60, $reload->json('data.retry_after'));
+
+        // Reload after the wait: still no SMS (the code is valid for 10 minutes), Resend is open.
+        RateLimiter::clear('otp-wait:mobile:'.$user->id);
+        $this->sendMobileCode($user)->assertOk()->assertJsonPath('data.retry_after', 0);
+
+        // Reloads don't use up any of the 3 allowed sends.
+        $this->assertSame(1, RateLimiter::attempts('mobile-otp:'.$user->id));
+    }
+
+    public function test_resend_within_60_seconds_is_refused_with_retry_after(): void
+    {
+        $user = User::factory()->create(['mobile_verified' => 0, 'active' => 1]);
+        $this->mock(SmsOtpController::class)->shouldReceive('sendOtp')->once()
+            ->andReturn(['type' => 'success', 'message' => 'sent']);
+        $this->sendMobileCode($user)->assertOk();
+
+        $wait = $this->withSession(['verification_user_id' => $user->id])->postJson('/resend_otp', [
+            'eid' => Crypt::encrypt($user->email), 'channel' => 'mobile', 'method' => 'text',
+        ])->assertStatus(429);
+        $this->assertGreaterThan(0, $wait->json('data.retry_after'));
+    }
+
+    public function test_the_wait_is_per_channel(): void
+    {
+        $user = User::factory()->create(['mobile_verified' => 0, 'email_verified' => 0, 'active' => 1]);
+        $this->mock(SmsOtpController::class)->shouldReceive('sendOtp')->andReturn(['type' => 'success', 'message' => 'sent']);
+        \Illuminate\Support\Facades\Bus::fake(); // the verification email
+
+        $this->sendMobileCode($user)->assertOk();
+        // The email step is not blocked by the mobile wait.
+        $this->assertNotSame(429, $this->withSession(['verification_user_id' => $user->id])
+            ->postJson('/send-email', ['eid' => Crypt::encrypt($user->email)])->status());
+    }
+
+    public function test_eleventh_code_send_from_one_ip_in_an_hour_is_blocked(): void
+    {
+        $this->withoutMiddleware([\App\Http\Middleware\BlockFailedVerifications::class, \App\Http\Middleware\SessionTimeout::class]);
+        foreach (range(1, 10) as $_) {
+            $this->assertNotSame(429, $this->postJson('/otp/send', ['eid' => 'x'])->status());
+        }
+        $this->postJson('/otp/send', ['eid' => 'x'])->assertStatus(429)->assertJsonPath('data.retry_after', fn ($s) => $s > 0);
     }
 }

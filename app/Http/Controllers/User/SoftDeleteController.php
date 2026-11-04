@@ -16,12 +16,6 @@ use Illuminate\Http\Request;
 
 class SoftDeleteController extends ClientController
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('admin');
-    }
-
     public function softDeletedUsers(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search-query', '');

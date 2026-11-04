@@ -19,7 +19,6 @@ class LanguageController extends Controller
         // getLanguageFile serves the public translation strings (window.translator)
         // consumed by every SPA page, including the guest login/register/verify
         // pages — so it must not require auth/admin.
-        $this->middleware(['auth', 'admin'], ['except' => ['getLanguageFile']]);
     }
 
     public function getLanguageFile(): void

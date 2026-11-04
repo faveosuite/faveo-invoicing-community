@@ -38,12 +38,8 @@ class WhatsappController extends Controller
     public function __construct()
     {
         // The Meta webhook is a public callback (also CSRF-exempt) — never behind auth/admin.
-        $this->middleware('auth', ['except' => ['whatsappWebhook']]);
         // Endpoints reachable by clients (acting on their own numbers / embedded-signup) are
         // exempt from the admin gate; ownership is enforced per-method below.
-        $this->middleware('admin', [
-            'except' => ['whatsappWebhook', 'urlSave', 'saveWabaId', 'getWebhookUrl', 'webhookUrlEdit', 'whatsappClientNumbers', 'deregister'],
-        ]);
 
         $this->base_url = config('whatsappurl.base_url');
         $this->api_version = config('whatsappurl.api_version');

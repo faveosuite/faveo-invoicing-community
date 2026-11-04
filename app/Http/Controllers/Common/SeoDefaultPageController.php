@@ -16,12 +16,6 @@ use Throwable;
 
 class SeoDefaultPageController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('admin');
-    }
-
     /**
      * List the fixed default-page SEO rows, in their stable display order.
      */

@@ -4,5 +4,7 @@
 // routes/web.php (Front\PaymentController -> App\Services\Payment\InvoicePaymentService
 // -> App\Plugins\Payment\Gateways\RazorpayGateway), with verification at
 // POST /payment/{invoice} (RazorpayController@payment).
-Route::get('get-razorpay-settings', 'App\Plugins\Razorpay\Controllers\SettingsController@getSettings');
-Route::post('update-api-key/payment-gateway/razorpay', 'App\Plugins\Razorpay\Controllers\SettingsController@updateApiKey');
+Route::middleware(['auth', 'admin'])->group(function (): void {
+    Route::get('get-razorpay-settings', 'App\Plugins\Razorpay\Controllers\SettingsController@getSettings');
+    Route::post('update-api-key/payment-gateway/razorpay', 'App\Plugins\Razorpay\Controllers\SettingsController@updateApiKey');
+});

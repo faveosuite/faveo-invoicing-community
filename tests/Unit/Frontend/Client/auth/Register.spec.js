@@ -6,7 +6,8 @@ jest.mock('@/helpers/responseHandler', () => ({
 jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)), scrollToFirstError: jest.fn() }))
 // Mutable so a test can set ?redirect=; reset in afterEach.
 const mockRoute = { params: {}, query: {} }
-jest.mock('vue-router', () => ({ useRouter: () => ({ push: jest.fn() }), useRoute: () => mockRoute, RouterLink: { template: '<a><slot/></a>' } }))
+const mockPush = jest.fn()
+jest.mock('vue-router', () => ({ useRouter: () => ({ push: mockPush }), useRoute: () => mockRoute, RouterLink: { template: '<a><slot/></a>' } }))
 jest.mock('@/validations/client/authSchemas.js', () => ({
     loginSchema: {},
     registerSchema: { validateSync: jest.fn(() => ({ inner: [] })) },
@@ -95,6 +96,7 @@ describe('Register.vue', () => {
         await flushPromises()
 
         expect(successHandler).not.toHaveBeenCalled()
+        expect(mockPush).toHaveBeenCalledWith('/verify')
     })
 
     it('calls errorHandler with setErrors on register API error', async () => {

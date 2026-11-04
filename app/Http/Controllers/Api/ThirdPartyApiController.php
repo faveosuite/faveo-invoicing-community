@@ -16,11 +16,6 @@ class ThirdPartyApiController extends Controller
     use AppliesBuildToProducts;
     use ChunkUpload;
 
-    public function __construct()
-    {
-        $this->middleware('validateThirdParty');
-    }
-
     public function chunkUploadFile(Request $request): JsonResponse
     {
         try {

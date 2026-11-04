@@ -23,12 +23,6 @@ use Validator;
  */
 class TaxController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth', ['except' => 'getState']);
-        $this->middleware('admin', ['except' => 'getState']);
-    }
-
     /** Options + tax classes + countries for the settings/forms screens. */
     public function getTaxOptionsApi(): JsonResponse
     {

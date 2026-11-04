@@ -22,18 +22,18 @@ try {
 const AUTH = { requiresAuth: false, sidebar: false, layout: 'auth' }
 
 const routes = [
-    { path: '/', redirect: '/client-dashboard' },
+    { path: '/', redirect: () => (useAuthStore().isAuthenticated ? '/client-dashboard' : '/store') },
 
     // ── Guest auth pages (served at app root: /login, /verify, …) ────────────
     // These load on hard navigation from the client.blade shell; the server
     // guard bounces already-authenticated users to their panel.
     { path: '/login',                 meta: { ...AUTH, guestOnly: true, title: 'Login', titleKey: 'message.welcome_back', subtitleKey: 'message.login_subtitle' }, component: () => import('@/pages/client/auth/Login.vue') },
     { path: '/register',              meta: { ...AUTH, guestOnly: true, title: 'Register', titleKey: 'message.create_account_title', subtitleKey: 'message.register_subtitle' }, component: () => import('@/pages/client/auth/Register.vue') },
-    { path: '/password/reset',        meta: { ...AUTH, guestOnly: true, title: 'Forgot Password', titleKey: 'message.forgot_password_title', subtitleKey: 'message.forgot_password_subtitle' }, component: () => import('@/pages/client/auth/ForgotPassword.vue') },
+    { path: '/password/reset',        meta: { ...AUTH, guestOnly: true, title: 'Forgot Password' }, component: () => import('@/pages/client/auth/ForgotPassword.vue') },
     { path: '/password/reset/:token', meta: { ...AUTH, guestOnly: true, title: 'Reset Password', titleKey: 'message.reset_password', subtitleKey: 'message.reset_password_subtitle' }, component: () => import('@/pages/client/auth/ResetPassword.vue') },
     // Verify and 2FA render their own heading (it changes per step / mode), so no titleKey.
     { path: '/verify',                meta: { ...AUTH, title: 'Verify Your Account' }, component: () => import('@/pages/client/auth/Verify.vue') },
-    { path: '/social/complete',       meta: { ...AUTH, guestOnly: true, title: 'Complete your profile', titleKey: 'message.social_complete_title' }, component: () => import('@/pages/client/auth/SocialComplete.vue') },
+    { path: '/social/complete',       meta: { ...AUTH, guestOnly: true, title: 'Complete your profile' }, component: () => import('@/pages/client/auth/SocialComplete.vue') },
     // After login, clients with no billing details yet (sign-up doesn't ask) land here first.
     { path: '/account-setup',         meta: { ...AUTH, requiresAuth: true, title: 'Account setup', titleKey: 'message.account_setup_title', subtitleKey: 'message.account_setup_subtitle' }, component: () => import('@/pages/client/auth/AccountSetup.vue') },
     { path: '/verify-2fa',            meta: { ...AUTH, title: 'Two-Factor Authentication' }, component: () => import('@/pages/client/auth/Verify2FA.vue') },

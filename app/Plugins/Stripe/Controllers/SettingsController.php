@@ -35,12 +35,6 @@ class SettingsController extends Controller
 {
     use PostPaymentHandle;
 
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('admin', ['except' => []]);
-    }
-
     public function getSettings(): JsonResponse
     {
         try {

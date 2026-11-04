@@ -4,19 +4,17 @@ namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
 use App\Events\UserRegisteredEvent;
-use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
-use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
-use App\Model\Common\Template;
-use App\Model\Common\TemplateType;
 use App\Model\User\AccountActivate;
 use App\User;
 use App\VerificationAttempt;
 use Auth;
 use Exception;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Date;
 use RateLimiter;
@@ -24,25 +22,42 @@ use Session;
 
 class AuthController extends BaseAuthController
 {
-    /*
-      |--------------------------------------------------------------------------
-      | Registration & Login Controller
-      |--------------------------------------------------------------------------
-      |
-      | This controller handles the registration of new users, as well as the
-      | authentication of existing users. By default, this controller uses
-      | a simple trait to add these behaviors. Why don't you explore it?
-      |
+    /** Minimum wait between two codes on the same channel (email / mobile) for a user. */
+    private const int RESEND_WAIT_SECONDS = 60;
+
+    /** How long a sent code stays valid (MSG91 otp_expiry / email token lifetime). */
+    private const int CODE_VALID_MINUTES = 10;
+
+    /**
+     * Server-side resend wait: a 429 with `retry_after` (seconds) while it's running,
+     * otherwise null and the wait starts. The Verify page's countdown uses `retry_after`,
+     * so it survives reloads and can't be skipped by calling the API directly.
+     * (Separate from the 3-per-10-minutes limit in BlockFailedVerifications.)
      */
-
-    protected mixed $pipedrive = null;
-
-    public function __construct()
+    private function resendWait(string $channel, User $user): ?JsonResponse
     {
-        $this->middleware('guest', ['except' => 'getLogout']);
-        $this->middleware('blockFailedVerifications:verify,mobile-verify,email-verify,email-verify-new,email-verify-old,email-verify-mobile')->only(['verifyOtp', 'verifyEmail']);
-        $this->middleware('recaptcha:mobile_verify')->only('verifyOtp');
-        $this->middleware('recaptcha:email_verify')->only('verifyEmail');
+        $key = $this->waitKey($channel, $user);
+        if (RateLimiter::tooManyAttempts($key, 1)) {
+            $seconds = RateLimiter::availableIn($key);
+
+            return errorResponse(__('message.otp_resend_wait', ['seconds' => $seconds]), 429, ['retry_after' => $seconds]);
+        }
+        RateLimiter::hit($key, self::RESEND_WAIT_SECONDS);
+
+        return null;
+    }
+
+    /** Seconds left on the resend wait (0 when over), without starting a new one. */
+    private function resendWaitLeft(string $channel, User $user): int
+    {
+        $key = $this->waitKey($channel, $user);
+
+        return RateLimiter::tooManyAttempts($key, 1) ? RateLimiter::availableIn($key) : 0;
+    }
+
+    private function waitKey(string $channel, User $user): string
+    {
+        return sprintf('otp-wait:%s:%s', $channel, $user->id);
     }
 
     public function requestOtp(Request $request): JsonResponse
@@ -55,84 +70,78 @@ class AuthController extends BaseAuthController
                 'eid.string' => __('validation.eid_string'),
             ]);
 
-        try {
-            // Decrypt the email
-            $email = Crypt::decrypt($request->eid);
+        $failure = __('message.otp_verification.send_failure');
 
-            // Find the user by email
-            // eid must belong to the user in this session: attempt limits are counted for that user.
-            $user = User::where('email', $email)->where('id', Session::get('verification_user_id'))->firstOrFail();
+        try {
+            $user = $this->verificationUser($request->eid);
+            if (! $user) {
+                return errorResponse($failure);
+            }
 
             if ($user->mobile_verified) {
                 return errorResponse(__('message.mobile_already_verified'));
             }
 
-            RateLimiter::hit('mobile-otp:'.$user->id, 600);
-
-            $response = resolve(SmsOtpController::class)->sendOtp($user->mobile_code.$user->mobile, $user->id, 'registration-verify');
-
-            if ($response['type'] === 'error') {
-                return errorResponse($response['message']);
+            // Initial send (page load / refresh): the last code is still valid, so don't send another;
+            // the page just shows the remaining wait and the user can use Resend.
+            if (Cache::has('otp-sent:mobile:'.$user->id)) {
+                return successResponse(__('message.otp_verification.already_sent'), ['retry_after' => $this->resendWaitLeft('mobile', $user)]);
             }
 
-            $this->updateVerificationAttempts($user, 'mobile');
+            return $this->sendMobileCode($user, __('message.otp_verification.send_success'));
+        } catch (Exception $e) {
+            report($e);
 
-            return successResponse(__('message.otp_verification.send_success'));
-        } catch (Exception) {
-            return errorResponse(__('message.otp_verification.send_failure'));
+            return errorResponse($failure);
         }
     }
 
-    public function retryOTP(Request $request): mixed
+    public function retryOTP(Request $request): JsonResponse
     {
-        $default_type = $request->input('default_type');
-
-        return match ($default_type) { // @phpstan-ignore match.unhandled
-            'email' => $this->sendEmail($request, 'GET'),
+        // channel: which verification step (email / mobile); method: SMS text or voice call.
+        return match ($request->input('channel')) { // @phpstan-ignore match.unhandled
+            'email' => $this->sendEmail($request, resend: true),
             'mobile' => $this->resendOTP($request),
         };
     }
 
-    public function resendOTP(mixed $request): JsonResponse
+    public function resendOTP(Request $request): JsonResponse
     {
         $request->validate([
             'eid' => 'required|string',
-            'type' => 'required|string|in:text,voice',
+            'method' => 'required|string|in:text,voice',
         ], [
             'eid.required' => __('validation.resend_otp.eid_required'),
             'eid.string' => __('validation.resend_otp.eid_string'),
-            'type.required' => __('validation.resend_otp.type_required'),
-            'type.string' => __('validation.resend_otp.type_string'),
-            'type.in' => __('validation.resend_otp.type_in'),
+            'method.required' => __('validation.resend_otp.type_required'),
+            'method.string' => __('validation.resend_otp.type_string'),
+            'method.in' => __('validation.resend_otp.type_in'),
         ]);
+
+        $failure = __('message.otp_verification.resend_send_failure');
+
         try {
-            $email = Crypt::decrypt($request->eid);
-            $type = $request->input('type');
-
-            // eid must belong to the user in this session: attempt limits are counted for that user.
-            $user = User::where('email', $email)->where('id', Session::get('verification_user_id'))->firstOrFail();
-
-            RateLimiter::hit('mobile-otp:'.$user->id, 600);
-
-            $response = resolve(SmsOtpController::class)->sendForReOtp($user->mobile_code.$user->mobile, $type, $user->id, 'registration-verify');
-
-            if ($response['type'] === 'error') {
-                return errorResponse($response['message']);
+            $user = $this->verificationUser($request->eid);
+            if (! $user) {
+                return errorResponse($failure);
             }
 
-            $this->updateVerificationAttempts($user, 'mobile');
+            $method = $request->input('method');
 
-            if ($type === 'voice') {
-                return successResponse(__('message.otp_verification.resend_voice_send_success'));
-            }
+            return $this->sendMobileCode(
+                $user,
+                __($method === 'voice' ? 'message.otp_verification.resend_voice_send_success' : 'message.otp_verification.resend_send_success'),
+                $method
+            );
+        } catch (Exception $e) {
+            report($e);
 
-            return successResponse(__('message.otp_verification.resend_send_success'));
-        } catch (Exception) {
-            return errorResponse(__('message.otp_verification.resend_send_failure'));
+            return errorResponse($failure);
         }
     }
 
-    public function sendEmail(Request $request, mixed $method = 'POST'): JsonResponse
+    /** $resend: the user clicked Resend (always a fresh code) rather than the page's first send. */
+    public function sendEmail(Request $request, bool $resend = false): JsonResponse
     {
         $request->validate([
             'eid' => ['required', 'string'],
@@ -140,30 +149,42 @@ class AuthController extends BaseAuthController
             'eid.required' => __('validation.eid_required'),
             'eid.string' => __('validation.eid_string'),
         ]);
+
+        $failure = __('message.email_verification.send_failure');
+
         try {
-            $email = Crypt::decrypt($request->eid);
+            $user = $this->verificationUser($request->eid);
+            if (! $user) {
+                return errorResponse($failure);
+            }
 
-            // eid must belong to the user in this session: attempt limits are counted for that user.
-            $user = User::where('email', $email)->where('id', Session::get('verification_user_id'))->firstOrFail();
+            // Initial send (page load / refresh): the last code is still valid, so don't send another
+            // and don't restart the wait; the page shows what's left of it.
+            $existingToken = AccountActivate::where('email', $user->email)->latest()->first();
+            if ($existingToken && ! $resend && ! $existingToken->updated_at?->addMinutes(self::CODE_VALID_MINUTES)->isPast()) {
+                return successResponse(__('message.email_verification.already_sent'), ['retry_after' => $this->resendWaitLeft('email', $user)]);
+            }
 
-            $existingToken = AccountActivate::where('email', $email)->latest()->first();
-            if ($existingToken && $method !== 'GET' && ! $existingToken->updated_at?->addMinutes(10)->isPast()) {
-                return successResponse(__('message.email_verification.already_sent'));
+            if ($wait = $this->resendWait('email', $user)) {
+                return $wait;
             }
 
             RateLimiter::hit('email-otp:'.$user->id, 600);
 
-            $this->sendActivation($email, $method);
+            $this->sendActivation($user->email, $resend ? 'GET' : 'POST');
 
             $this->updateVerificationAttempts($user, 'email');
 
             return successResponse(
-                $method === 'GET'
+                $resend
                     ? __('message.email_verification.resend_success')
-                    : __('message.email_verification.send_success')
+                    : __('message.email_verification.send_success'),
+                ['retry_after' => self::RESEND_WAIT_SECONDS]
             );
-        } catch (Exception) {
-            return errorResponse(__('message.email_verification.send_failure'));
+        } catch (Exception $e) {
+            report($e);
+
+            return errorResponse($failure);
         }
     }
 
@@ -179,17 +200,17 @@ class AuthController extends BaseAuthController
                 'otp.required' => __('validation.verify_otp.otp_required'),
                 'otp.size' => __('validation.verify_otp.otp_size'),
             ]);
+
+        $failure = __('message.error_occurred_while_verify');
+
         try {
-            // Decrypt the email
-            $email = Crypt::decrypt($request->eid);
-            $otp = $request->otp;
+            $user = $this->verificationUser($request->eid);
+            if (! $user) {
+                return errorResponse($failure);
+            }
 
-            // Find the user by email
-            // eid must belong to the user in this session: attempt limits are counted for that user.
-            $user = User::where('email', $email)->where('id', Session::get('verification_user_id'))->firstOrFail();
-
-            // Validate OTP
-            if (! is_numeric($request->otp)) {
+            $otp = (string) $request->input('otp');
+            if (! is_numeric($otp)) {
                 RateLimiter::hit('mobile-verify:'.$user->id, 600);
 
                 return errorResponse(__('message.otp_invalid_format'));
@@ -202,20 +223,13 @@ class AuthController extends BaseAuthController
                 return errorResponse($response['message']);
             }
 
-            $user->mobile_verified = 1;
-
-            $user->save();
-
-            if (! Auth::check() && $this->userNeedVerified($user)) {
-                // dispatch the job to add user to external services
-                UserRegisteredEvent::dispatchSafely($user, 'verify');
-
-                Session::flash('success', __('message.registration_complete'));
-            }
+            $this->markVerified($user, 'mobile_verified');
 
             return successResponse(__('message.otp_verified'));
-        } catch (Exception) {
-            return errorResponse(__('message.error_occurred_while_verify'));
+        } catch (Exception $e) {
+            report($e);
+
+            return errorResponse($failure);
         }
     }
 
@@ -232,126 +246,97 @@ class AuthController extends BaseAuthController
                 'otp.digits' => __('message.otp_must_be_6_digits'),
             ]);
 
+        $invalid = __('message.email_verification.invalid_token');
+
         try {
-            $otp = $request->input('otp');
-            // Decrypt the email
-            $email = Crypt::decrypt($request->eid);
-
-            // eid must belong to the user in this session: attempt limits are counted for that user.
-            $user = User::where('email', $email)->where('id', Session::get('verification_user_id'))->firstOrFail();
-
-            $account = AccountActivate::where('email', $email)->latest()->firstOrFail(['token', 'updated_at']);
-
-            if (! hash_equals((string) $account->token, (string) $otp)) {
-                RateLimiter::hit('email-verify:'.$user->id, 600);
-
-                return errorResponse(__('message.email_verification.invalid_token'));
+            $user = $this->verificationUser($request->eid);
+            $account = $user ? AccountActivate::where('email', $user->email)->latest()->first(['token', 'updated_at']) : null;
+            if (! $user || ! $account) {
+                return errorResponse($invalid);
             }
 
-            if ($account->updated_at?->addMinutes(10) < Date::now()) {
+            if (! $account->matches($request->input('otp'))) {
+                RateLimiter::hit('email-verify:'.$user->id, 600);
+
+                return errorResponse($invalid);
+            }
+
+            if ($account->updated_at?->addMinutes(self::CODE_VALID_MINUTES) < Date::now()) {
                 RateLimiter::hit('email-verify:'.$user->id, 600);
 
                 return errorResponse(__('message.email_verification.token_expired'));
             }
 
-            AccountActivate::where('email', $email)->delete();
+            AccountActivate::where('email', $user->email)->delete();
 
-            $user->email_verified = 1;
-            $user->save();
-
-            if (! Auth::check() && $this->userNeedVerified($user)) {
-                // dispatch the job to add user to external services
-                UserRegisteredEvent::dispatchSafely($user, 'verify');
-
-                Session::flash('success', __('message.registration_complete'));
-            }
+            $this->markVerified($user, 'email_verified');
 
             return successResponse(__('message.email_verification.email_verified'));
-        } catch (Exception) {
-            return errorResponse(__('message.email_verification.invalid_token'));
+        } catch (Exception $e) {
+            report($e);
+
+            return errorResponse($invalid);
         }
     }
 
     /**
-     * @param  array<mixed>  $bcc
+     * The user this verification session belongs to, or null when the eid is tampered with
+     * or belongs to someone else (attempt limits are counted for the session's user).
      */
-    public function salesManagerMail(mixed $user, array $bcc = []): void
+    private function verificationUser(string $eid): ?User
     {
-        $contact = getContactData();
-        $manager = $user->manager()
+        try {
+            $email = Crypt::decrypt($eid);
+        } catch (DecryptException) {
+            return null;
+        }
 
-            ->where('position', 'manager')
-            ->select('first_name', 'last_name', 'email', 'mobile_code', 'mobile', 'skype')
-            ->first();
-        $settings = new Setting;
-        /** @var Setting $setting */
-        $setting = $settings->first();
-        $from = $setting->email;
-        $to = $user->email;
-        $templates = new Template;
-        /** @var Template $template */
-        $template = $templates
-            ->join('template_types', 'templates.type', '=', 'template_types.id')
-            ->where('template_types.name', '=', 'sales_manager_email')
-            ->select('templates.data', 'templates.name', 'type')
-            ->first();
-        $template_data = $template->data;
-        $template_name = $template->name;
-        $replace = [
-            'name' => $user->first_name.' '.$user->last_name,
-            'manager_first_name' => $manager->first_name,
-            'manager_last_name' => $manager->last_name,
-            'manager_email' => $manager->email,
-            'manager_code' => '+'.$manager->mobile_code,
-            'manager_mobile' => $manager->mobile,
-            'manager_skype' => $manager->skype,
-            'contact' => $contact['contact'],
-            'logo' => $contact['logo'],
-            'reply_email' => $setting->company_email,
-        ];
-        $mail = new PhpMailController;
-        $mail->SendEmail($from, $to, $template_data, $template_name, 'sales-manager-mail', $replace, TemplateType::where('id', $template->type)->value('name'), $bcc);
+        return is_string($email)
+            ? User::where('email', $email)->where('id', Session::get('verification_user_id'))->first()
+            : null;
+    }
+
+    /** Send an SMS code ($method null = first send, else 'text' / 'voice' resend) behind the resend wait. */
+    private function sendMobileCode(User $user, string $successMessage, ?string $method = null): JsonResponse
+    {
+        if ($wait = $this->resendWait('mobile', $user)) {
+            return $wait;
+        }
+
+        RateLimiter::hit('mobile-otp:'.$user->id, 600);
+
+        $sms = resolve(SmsOtpController::class);
+        $mobile = $user->mobile_code.$user->mobile;
+        $response = $method === null
+            ? $sms->sendOtp($mobile, $user->id, 'registration-verify')
+            : $sms->sendForReOtp($mobile, $method, $user->id, 'registration-verify');
+
+        if ($response['type'] === 'error') {
+            return errorResponse($response['message']);
+        }
+
+        Cache::put('otp-sent:mobile:'.$user->id, true, now()->addMinutes(self::CODE_VALID_MINUTES));
+
+        $this->updateVerificationAttempts($user, 'mobile');
+
+        return successResponse($successMessage, ['retry_after' => self::RESEND_WAIT_SECONDS]);
     }
 
     /**
-     * @param  array<mixed>  $bcc
+     * @param  User  $user
+     * @param  'mobile_verified'|'email_verified' $field
      */
-    public function accountManagerMail(mixed $user, array $bcc = []): void
+    private function markVerified(User $user, string $field): void
     {
-        $contact = getContactData();
-        $manager = $user->accountManager()
+        $user->{$field} = 1;
+        $user->save();
 
-            ->where('position', 'account_manager')
-            ->select('first_name', 'last_name', 'email', 'mobile_code', 'mobile', 'skype')
-            ->first();
-        $settings = new Setting;
-        /** @var Setting $setting */
-        $setting = $settings->first();
-        $from = $setting->email;
-        $to = $user->email;
-        $templates = new Template;
-        /** @var Template $template */
-        $template = $templates
-            ->join('template_types', 'templates.type', '=', 'template_types.id')
-            ->where('template_types.name', '=', 'account_manager_email')
-            ->select('templates.data', 'templates.name', 'type')
-            ->first();
-        $template_data = $template->data;
-        $template_name = $template->name;
-        $replace = [
-            'name' => $user->first_name.' '.$user->last_name,
-            'manager_first_name' => $manager->first_name,
-            'manager_last_name' => $manager->last_name,
-            'manager_email' => $manager->email,
-            'manager_code' => '+'.$manager->mobile_code,
-            'manager_mobile' => $manager->mobile,
-            'manager_skype' => $manager->skype,
-            'contact' => $contact['contact'],
-            'logo' => $contact['logo'],
-            'reply_email' => $setting->company_email,
-        ];
-        $mail = new PhpMailController;
-        $mail->SendEmail($from, $to, $template_data, $template_name, 'account-manager-mail', $replace, TemplateType::where('id', $template->type)->value('name'), $bcc);
+        if (! Auth::check() && $this->userNeedVerified($user)) {
+            // dispatch the job to add user to external services
+            UserRegisteredEvent::dispatchSafely($user, 'verify');
+
+            Session::flash('success', __('message.registration_complete'));
+        }
     }
 
     /**
@@ -374,10 +359,12 @@ class AuthController extends BaseAuthController
         $eid = Crypt::encrypt($user->email);
 
         /** @var StatusSetting $setting */
-        $setting = StatusSetting::select('emailverification_status', 'msg91_status', 'mobileverification_status')->first();
+        $setting = StatusSetting::select(['emailverification_status', 'msg91_status', 'mobileverification_status'])->first();
 
-        $isMobileVerified = ! $setting->mobileVerificationEnabled() || $user->mobile_verified == 1;
-        $isEmailVerified = $setting->emailverification_status != 1 || $user->email_verified == 1;
+        $mobileRequired = $setting->mobileVerificationEnabled();
+        $emailRequired = $setting->emailverification_status == 1;
+        $isMobileVerified = ! $mobileRequired || $user->mobile_verified == 1;
+        $isEmailVerified = ! $emailRequired || $user->email_verified == 1;
 
         $verification_preference = ApiKey::value('verification_preference') ?? ($isEmailVerified ? 'email' : 'mobile');
 
@@ -385,24 +372,23 @@ class AuthController extends BaseAuthController
             'eid' => $eid,
             'mobile' => $user->mobile_code.$user->mobile,
             'email' => $user->email,
-            'setting' => $setting,
             'isMobileVerified' => $isMobileVerified,
             'isEmailVerified' => $isEmailVerified,
+            // Which steps exist at all, so the page can show one already done as done.
+            'mobileRequired' => $mobileRequired,
+            'emailRequired' => $emailRequired,
             'verification_preference' => $verification_preference,
         ]);
     }
 
-    private function updateVerificationAttempts(mixed $user, string $type = 'email'): void
+    /**
+     * @param  User  $user
+     * @param  'email'|'mobile' $type
+     */
+    private function updateVerificationAttempts(User $user, string $type): void
     {
-        if (! in_array($type, ['email', 'mobile'], strict: true)) {
-            return;
-        }
-
         $verificationAttempt = VerificationAttempt::firstOrCreate(['user_id' => $user->id]);
-
-        $field = $type.'_attempt';
-        $verificationAttempt->{$field}++;
-
+        $verificationAttempt->{$type.'_attempt'}++;
         $verificationAttempt->save();
     }
 }

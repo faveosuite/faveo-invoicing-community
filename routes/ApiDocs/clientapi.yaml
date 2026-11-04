@@ -70,10 +70,10 @@ paths:
             schema:
               type: object
               required:
-                - email_username
+                - login
                 - password
               properties:
-                email_username:
+                login:
                   type: string
                   description: User's email or username
                 password:
@@ -380,9 +380,9 @@ paths:
             schema:
               type: object
               required:
-                - totp
+                - code
               properties:
-                totp:
+                code:
                   type: string
       responses:
         '200':
@@ -415,9 +415,9 @@ paths:
             schema:
               type: object
               required:
-                - rec_code
+                - recovery_code
               properties:
-                rec_code:
+                recovery_code:
                   type: string
       responses:
         '200':
@@ -492,9 +492,9 @@ paths:
             schema:
               type: object
               required:
-                - totp
+                - code
               properties:
-                totp:
+                code:
                   type: string
       responses:
         '200':
@@ -596,9 +596,9 @@ paths:
             schema:
               type: object
               required:
-                - totp
+                - code
               properties:
-                totp:
+                code:
                   type: string
       responses:
         '200':

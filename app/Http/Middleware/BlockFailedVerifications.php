@@ -107,12 +107,27 @@ class BlockFailedVerifications
         }
 
         foreach ($limits as $type => $max) {
-            if ($response = $this->enforce($context, $type, $identifier, $max, $request)) {
-                return $response;
+            if ($message = $this->enforce($context, $type, $identifier, $max)) {
+                return $this->respond($request, $message);
             }
         }
 
         return $next($request);
+    }
+
+    /**
+     * The lockout message when $identifier is blocked in $context (any type), else null.
+     * Lets login refuse up front instead of sending a locked user to a page that bounces them.
+     */
+    public function lockoutMessage(string $context, string $identifier): ?string
+    {
+        foreach (self::CONFIGS[$context]['limits'] as $type => $max) {
+            if ($message = $this->enforce($context, $type, $identifier, $max)) {
+                return $message;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -122,7 +137,7 @@ class BlockFailedVerifications
     private function getIdentifier(string $context): ?string
     {
         return match ($context) {
-            'login' => (new LoginController)->getLoginRateLimitKey(request()->input('email_username')),
+            'login' => (new LoginController)->getLoginRateLimitKey(request()->input('login')),
             'verify', '2fa' => (string) (auth()->id() ?? Session::get('verification_user_id')) ?: null,
             default => request()->ip(),
         };
@@ -130,9 +145,9 @@ class BlockFailedVerifications
 
     /**
      * Checks if the given rate limit type has been exceeded.
-     * If yes, applies a progressive penalty (if not already applied) and returns a 429 response.
+     * If yes, applies a progressive penalty (if not already applied) and returns the lockout message.
      */
-    private function enforce(string $context, string $type, string $identifier, int $maxAttempts, Request $request): mixed
+    private function enforce(string $context, string $type, string $identifier, int $maxAttempts): ?string
     {
         $key = sprintf('%s:%s', $type, $identifier);
 
@@ -144,7 +159,7 @@ class BlockFailedVerifications
 
         $waitTime = formatDuration(RateLimiter::availableIn($key));
 
-        return $this->respond($request, $type, $waitTime);
+        return __($this->getMessageKey($type), ['time' => $waitTime]);
     }
 
     /**
@@ -185,10 +200,8 @@ class BlockFailedVerifications
      * Returns a 429 JSON error for AJAX requests, or redirects to login with
      * an error flash message for standard page requests.
      */
-    private function respond(Request $request, string $type, string $waitTime): JsonResponse|RedirectResponse
+    private function respond(Request $request, string $message): JsonResponse|RedirectResponse
     {
-        $message = __($this->getMessageKey($type), ['time' => $waitTime]);
-
         if ($request->expectsJson()) {
             return errorResponse($message, 429);
         }

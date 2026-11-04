@@ -33,7 +33,6 @@ class DeployController extends Controller
 
     public function __construct(protected ProductBundleStampingService $stampingService)
     {
-        $this->middleware('auth');
     }
 
     public function getVersions(int $orderId): JsonResponse

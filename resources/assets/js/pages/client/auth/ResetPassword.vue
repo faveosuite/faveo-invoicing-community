@@ -17,17 +17,22 @@
                          v-model="form.password_confirmation" :error="errors.password_confirmation"
                          @update:modelValue="setFieldError('password_confirmation', undefined)" />
 
-            <Honeypot name="reset" v-model="form.reset" @ready="hpReady = $event" />
+            <Honeypot name="honeypot" v-model="form.honeypot" @ready="hpReady = $event" />
 
             <RecaptchaField ref="captchaRef" action="reset" class="mb-3" />
 
             <button type="submit"
-                    class="btn btn-primary btn-modern w-100"
+                    class="btn btn-primary w-100 py-2 fw-medium"
                     :disabled="saving || !hpReady">
                 <i v-if="saving" class="fas fa-circle-notch fa-spin me-1" aria-hidden="true"></i>
                 {{ __('message.reset_password') }}
             </button>
         </form>
+
+        <p class="text-center mt-4 mb-0">
+            {{ __('message.remember_password') }}
+            <RouterLink to="/login" class="text-color-primary fw-medium text-decoration-none">{{ __('message.log_in') }}</RouterLink>
+        </p>
     </div>
 </template>
 
@@ -52,7 +57,7 @@ const router  = useRouter()
 
 const { errors, setErrors, setFieldError } = useForm()
 const captchaRef = ref(null)
-const form = reactive({ token: route.params.token, email: '', password: '', password_confirmation: '', reset: {} })
+const form = reactive({ token: route.params.token, email: '', password: '', password_confirmation: '', honeypot: {} })
 
 const loading        = ref(true)
 const saving         = ref(false)
@@ -63,7 +68,8 @@ const passwordFocused = ref(false)
 
 onMounted(async () => {
     try {
-        const res  = await http.get(`/auth/reset-validate/${route.params.token}`)
+        // The link carries the email: reset tokens are stored hashed, so they're looked up by email.
+        const res  = await http.get(`/auth/reset-validate/${route.params.token}`, { params: { email: route.query.email } })
         const data = res.data?.data
 
         // 2FA-protected reset → backend tells us to verify first.
@@ -97,7 +103,7 @@ async function submit() {
             email: form.email,
             password: form.password,
             password_confirmation: form.password_confirmation,
-            reset: form.reset,
+            honeypot: form.honeypot,
             ...captchaPayload,
         })
         successHandler(res, COMPONENT)
@@ -109,7 +115,7 @@ async function submit() {
             return
         }
         captchaRef.value?.reset()
-        errorHandler(e, COMPONENT, { setErrors, excludeFields: ['reset'] })
+        errorHandler(e, COMPONENT, { setErrors, excludeFields: ['honeypot'] })
     } finally {
         saving.value = false
     }

@@ -62,7 +62,6 @@ class ClientController extends BaseClientController
 
     public function __construct()
     {
-        $this->middleware('auth');
         $user = new User;
         $this->user = $user;
 

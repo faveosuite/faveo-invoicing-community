@@ -11,11 +11,6 @@ use Illuminate\Http\Request;
 
 class GithubController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'admin']);
-    }
-
     /**
      * Validate and persist GitHub credentials + integration status.
      */

@@ -23,8 +23,6 @@ class TemplateController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware('admin');
 
         $template = new Template;
         $this->template = $template;

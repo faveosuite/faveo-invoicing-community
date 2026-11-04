@@ -237,4 +237,27 @@ describe('Verify.vue', () => {
         expect(reqs.length).toBe(1)
         emailWrapper.unmount()
     })
+
+    // ── Resend countdown comes from the server (retry_after) ─────────────
+    const mountWithSend = (reply) => {
+        axiosMock.reset()
+        axiosMock.onGet('/auth/verify-config').reply(200, verifyConfigResponse)
+        reply(axiosMock.onPost('/otp/send'))
+        return mount(Verify, { global: { plugins: [createTestingPinia()], stubs: ['client-field', 'recaptcha-field', 'loader'] } })
+    }
+
+    it('starts the countdown from the server retry_after', async () => {
+        const w = mountWithSend(r => r.reply(200, { data: { retry_after: 45 } }))
+        await flushPromises()
+        expect(w.vm.cooldown).toBe(45)
+    })
+
+    it('shows the remaining wait, not an error or lockout, when a code was sent moments ago', async () => {
+        const w = mountWithSend(r => r.reply(429, { success: false, message: 'Please wait', data: { retry_after: 20 } }))
+        await flushPromises()
+        expect(w.vm.cooldown).toBe(20)
+        expect(w.vm.locked).toBe(false)
+        expect(errorHandler).not.toHaveBeenCalled()
+    })
 })
+

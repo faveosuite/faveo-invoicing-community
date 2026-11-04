@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Front;
 
 use App\Facades\Attach;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\User\ProfileRequest;
+use App\Http\Requests\User\ChangePasswordRequest;
+use App\Http\Requests\User\ClientProfileRequest;
 use App\Model\Order\Invoice;
 use App\User;
 use Auth;
@@ -19,7 +20,7 @@ class BaseClientController extends Controller
     /**
      *  This function is to update profile.
      */
-    public function postProfile(ProfileRequest $request): JsonResponse
+    public function postProfile(ClientProfileRequest $request): JsonResponse
     {
         try {
             /** @var User $user */
@@ -55,7 +56,7 @@ class BaseClientController extends Controller
     /**
      *  This function is to update password.
      */
-    public function postPassword(ProfileRequest $request): JsonResponse
+    public function postPassword(ChangePasswordRequest $request): JsonResponse
     {
         try {
             /** @var User $user */
@@ -74,7 +75,7 @@ class BaseClientController extends Controller
             deleteUserSessions($user->id, $newPassword);
 
             // Remove password reset records
-            DB::table('password_resets')->where('email', $user->email)->delete();
+            \Illuminate\Support\Facades\Password::broker()->deleteToken($user);
 
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {

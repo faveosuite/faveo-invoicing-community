@@ -24,8 +24,6 @@ class LocalizedLicenseController extends Controller
         protected InstallationService $installationService,
         protected LicenseFileService $licenseFileService,
     ) {
-        $this->middleware('auth');
-        $this->middleware('admin', ['except' => ['downloadFile', 'submitLicenseBinding', 'pluginsForOrder']]);
     }
 
     /**

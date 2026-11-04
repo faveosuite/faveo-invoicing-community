@@ -21,12 +21,6 @@ use RateLimiter;
 
 class ProfileVerificationController extends BaseAuthController
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('blockFailedVerifications:verify,mobile-verify,email-verify,email-verify-new,email-verify-old,email-verify-mobile')->only(['verifyEmailOtp', 'verifyMobileOtp']);
-    }
-
     /**
      * Send verification code for email change.
      * Handles: initial submission (with new_email), sending OTP to old/new email, and resend.
@@ -91,7 +85,7 @@ class ProfileVerificationController extends BaseAuthController
 
             $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
 
-            if (! $account || ! hash_equals((string) $account->token, (string) $otp)) {
+            if (! $account || ! $account->matches($otp)) {
                 $this->hitVerifyRateLimit($verifyType);
 
                 return errorResponse(__('message.email_verification.invalid_token'));

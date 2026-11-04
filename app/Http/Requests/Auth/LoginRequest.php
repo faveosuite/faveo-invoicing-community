@@ -22,16 +22,17 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * `login` = email or username.
      *
      * @return array<mixed>
      */
     public function rules(): array
     {
         return [
-            'email_username' => ['required', 'string'],
-            'password1' => ['required', 'string'],
-            'login' => [new Honeypot],
+            'login' => ['required', 'string'],
+            'password' => ['required', 'string'],
+            'remember' => ['sometimes', 'boolean'],
+            'honeypot' => [new Honeypot],
         ];
     }
 
@@ -46,8 +47,8 @@ class LoginRequest extends FormRequest
     public function messages()
     {
         return [
-            'email_username.required' => __('message.password_email'),
-            'password1.required' => __('message.please_enter_password'),
+            'login.required' => __('message.password_email'),
+            'password.required' => __('message.please_enter_password'),
         ];
     }
 }

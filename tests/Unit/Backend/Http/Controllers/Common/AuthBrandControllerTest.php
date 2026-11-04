@@ -25,7 +25,7 @@ class AuthBrandControllerTest extends DBTestCase
     {
         // Empty text + null image = the client uses the translated defaults and built-in illustration.
         $this->assertSame(
-            ['show' => true, 'title' => '', 'description' => '', 'tagline' => '', 'image' => null],
+            ['show' => true, 'form_position' => 'left', 'title' => '', 'description' => '', 'tagline' => '', 'image' => null],
             AuthBrandController::settings()
         );
         $this->getJson('/auth-brand')->assertOk()->assertJsonPath('data.show', true);
@@ -43,6 +43,20 @@ class AuthBrandControllerTest extends DBTestCase
         $this->assertSame('Desc', $settings['description']);
         $this->assertSame('', $settings['tagline']);
         $this->assertNull($settings['image']);
+    }
+
+    public function test_form_position_is_saved_and_kept_when_not_sent(): void
+    {
+        $this->post('/auth-brand', ['show' => 1, 'form_position' => 'right'])->assertOk();
+        $this->assertSame('right', AuthBrandController::settings()['form_position']);
+
+        // An update without the field (older admin form) leaves it alone.
+        $this->post('/auth-brand', ['show' => 1])->assertOk();
+        $this->assertSame('right', AuthBrandController::settings()['form_position']);
+
+        $this->withHeaders(['Accept' => 'application/json'])
+            ->post('/auth-brand', ['show' => 1, 'form_position' => 'top'])
+            ->assertStatus(412);
     }
 
     public function test_uploaded_image_is_stored_and_resolved_to_a_url(): void

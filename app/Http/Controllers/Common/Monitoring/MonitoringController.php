@@ -8,11 +8,6 @@ use Illuminate\Http\Request;
 
 class MonitoringController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'admin']);
-    }
-
     /**
      * API endpoint: returns JSON indicating whether Pulse/Horizon is accessible.
      */

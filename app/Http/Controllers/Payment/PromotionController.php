@@ -49,8 +49,6 @@ class PromotionController extends BasePromotionController
 
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware('admin');
 
         $promotion = new Promotion;
         $this->promotion = $promotion;

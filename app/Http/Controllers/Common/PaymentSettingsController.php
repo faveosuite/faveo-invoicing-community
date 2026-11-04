@@ -11,12 +11,6 @@ use Illuminate\Http\Request;
 
 class PaymentSettingsController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('admin');
-    }
-
     /**
      * @return array<mixed>
      */

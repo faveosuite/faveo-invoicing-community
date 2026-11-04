@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\EmailValidationResults;
 use App\Events\UserRegisteredEvent;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\User\ProfileRequest;
+use App\Http\Requests\User\RegisterRequest;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\ManagerSetting;
 use App\Model\Common\StatusSetting;
@@ -26,12 +26,6 @@ class RegisterController extends Controller
     use RegistersUsers;
 
     protected string $redirectTo = '/';
-
-    public function __construct()
-    {
-        $this->middleware('guest');
-        $this->middleware('recaptcha:register')->only('postRegister');
-    }
 
     /**
      * @return array<mixed>
@@ -123,10 +117,10 @@ class RegisterController extends Controller
         return $this->abstractPhoneVerification($provider, $phone);
     }
 
-    public function postRegister(ProfileRequest $request, User $user): JsonResponse
+    public function postRegister(RegisterRequest $request, User $user): JsonResponse
     {
         $this->validate($request, [
-            'registerForm' => [new Honeypot],
+            'honeypot' => [new Honeypot],
         ]);
         try {
             /** @var StatusSetting $status */

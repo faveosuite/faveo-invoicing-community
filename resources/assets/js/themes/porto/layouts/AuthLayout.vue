@@ -1,23 +1,26 @@
 <template>
-    <div class="d-flex flex-column min-vh-100 bg-white">
+    <div class="auth-shell d-flex flex-column min-vh-100 bg-white">
         <div class="row g-0 flex-grow-1">
 
             <!-- Brand panel (desktop only). Admin: Settings › Widgets › Login page; empty text = translated default. -->
-            <aside v-if="brand.show" class="col-lg-7 col-xl-8 d-none d-lg-flex flex-column bg-color-grey p-5" :aria-label="appCompany || undefined">
-                <h2 class="font-weight-bold text-color-dark text-9 line-height-2 mb-3">{{ brand.title || __('message.auth_brand_title') }}</h2>
-                <p class="text-4 mb-0">{{ brand.description || __('message.auth_brand_description') }}</p>
+            <!-- Admin picks the form's side (form_position); the panel takes the other half. -->
+            <aside v-if="brand.show" class="col-lg-6 d-none d-lg-flex flex-column bg-color-grey p-5"
+                   :class="{ 'order-lg-last': brand.form_position !== 'right' }" :aria-label="appCompany || undefined">
+                <h2 class="fw-bold text-body-emphasis display-6 lh-sm mb-3">{{ brand.title || __('message.auth_brand_title') }}</h2>
+                <p class="fs-5 mb-0">{{ brand.description || __('message.auth_brand_description') }}</p>
                 <div class="flex-grow-1 d-flex align-items-center justify-content-center py-5">
                     <img :src="brand.image || `${baseUrl}/images/auth-brand.svg`" alt="" class="img-fluid" width="560" height="380">
                 </div>
-                <p class="text-5 font-weight-semibold text-color-dark text-center mb-0">{{ brand.tagline || __('message.auth_brand_tagline') }}</p>
+                <p class="fs-5 fw-medium text-body-emphasis text-center mb-0">{{ brand.tagline || __('message.auth_brand_tagline') }}</p>
             </aside>
 
             <!-- Form column (full width, form centred, when the brand panel is off) -->
-            <main id="main-content" class="col-12 d-flex flex-column px-3 px-md-5 py-3 py-md-4" :class="{ 'col-lg-5 col-xl-4': brand.show }">
+            <main id="main-content" class="col-12 d-flex flex-column px-3 px-md-5 py-3 py-md-4" :class="{ 'col-lg-6': brand.show }">
+                <!-- Logo centred over the form; language switcher in the column's top-right corner. -->
                 <div class="position-relative d-flex justify-content-center align-items-center mb-5">
                     <RouterLink to="/" class="d-inline-flex text-decoration-none">
                         <img v-if="logoUrl" :src="logoUrl" :alt="appCompany || __('message.logo')" height="56">
-                        <span v-else class="fw-bold text-dark text-5">{{ appCompany }}</span>
+                        <span v-else class="fw-bold text-body-emphasis fs-5">{{ appCompany }}</span>
                     </RouterLink>
 
                     <div v-if="languages.length" class="dropdown position-absolute top-0 end-0">
@@ -25,7 +28,7 @@
                                 data-bs-toggle="dropdown" aria-expanded="false"
                                 :aria-label="__('message.change_language_current', { locale: currentLocale })">
                             <span :class="`fi fi-${flagCodeFor(currentLocale)}`" aria-hidden="true"></span>
-                            <span class="text-2 font-weight-semibold">{{ currentLocale.toUpperCase() }}</span>
+                            <span class="small fw-medium">{{ currentLocale.toUpperCase() }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li v-for="lang in languages" :key="lang.locale">
@@ -41,11 +44,14 @@
                     </div>
                 </div>
 
-                <div class="row justify-content-center">
-                    <div class="col-12 col-md-8" :class="brand.show ? 'col-lg-12' : 'col-lg-6 col-xl-4'">
+                <!-- Form block sits vertically centred in the space below the logo (long forms just fill it). -->
+                <div class="row justify-content-center align-items-center flex-grow-1 pb-5">
+                    <!-- Half-screen column: cap the form so fields don't stretch on wide monitors. -->
+                    <div class="col-12 col-md-8" :class="brand.show ? 'col-lg-12' : 'col-lg-6 col-xl-4'"
+                         :style="brand.show ? { maxWidth: '34rem' } : undefined">
                         <div v-if="route.meta?.titleKey" class="mb-4">
-                            <h1 class="font-weight-bold text-color-dark text-7 line-height-2 mb-1">{{ __(route.meta.titleKey) }}</h1>
-                            <p v-if="route.meta?.subtitleKey" class="text-3 mb-0">{{ __(route.meta.subtitleKey) }}</p>
+                            <h1 class="fw-bold text-body-emphasis fs-3 lh-sm mb-1">{{ __(route.meta.titleKey) }}</h1>
+                            <p v-if="route.meta?.subtitleKey" class="text-body-secondary mb-0">{{ __(route.meta.subtitleKey) }}</p>
                         </div>
 
                         <AppAlert componentName="client-page" />
@@ -65,12 +71,12 @@
             </main>
         </div>
 
-        <footer class="bg-color-grey border-top px-4 py-3 text-2 text-center text-lg-start">
+        <footer class="bg-color-grey border-top px-4 py-3 small text-center text-lg-start">
             {{ __('message.copyright') }} © {{ currentYear }}
             <a v-if="website" :href="website" class="text-color-primary text-decoration-none" target="_blank" rel="noopener">{{ appCompany }}</a>
             <span v-else>{{ appCompany }}</span>.
             {{ __('message.all_rights') }}
-            <span class="font-weight-semibold" translate="no">Faveo</span>
+            <span class="fw-medium" translate="no">Faveo</span>
         </footer>
     </div>
 </template>
@@ -93,7 +99,7 @@ const website = el?.dataset?.website ?? ''
 const currentYear = new Date().getFullYear()
 
 // Brand panel settings from the server; any missing/broken value falls back to the defaults.
-let brand = { show: true, title: '', description: '', tagline: '', image: null }
+let brand = { show: true, form_position: 'left', title: '', description: '', tagline: '', image: null }
 try {
     brand = { ...brand, ...JSON.parse(el?.dataset?.authBrand || '{}') }
 } catch { /* keep defaults */ }

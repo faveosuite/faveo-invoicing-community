@@ -335,7 +335,7 @@
                         placehold="Enter Passcode..."
                         :max="6"
                     />
-                    <Honeypot name="2fa_code" v-model="totp2faCode" @ready="totpHpReady = $event" />
+                    <Honeypot name="honeypot" v-model="totp2faCode" @ready="totpHpReady = $event" />
                 </template>
 
                 <!-- Step: Done -->
@@ -762,7 +762,7 @@ async function verify2fa() {
     clearModalAlert()
     verifying2fa.value = true
     try {
-        const res = await http.post(`/2fa/setupValidate`, { totp: totp.value, '2fa_code': totp2faCode.value })
+        const res = await http.post(`/2fa/setupValidate`, { code: totp.value, honeypot: totp2faCode.value })
         successHandler(res, COMPONENT)
         twoFaStep.value = 'done'
     } catch (e) {

@@ -57,7 +57,8 @@ class ProfileVerificationControllerTest extends DBTestCase
         // OTP should be stored in DB
         $record = AccountActivate::where('email', $newEmail)->first();
         $this->assertNotNull($record, 'OTP record not created');
-        $otp = $record->token;
+        $record->update(['token' => '482913']); // codes are stored hashed; set a known one
+        $otp = '482913';
 
         // Verify OTP — should auto-update email
         $this->postJson('/profile/email/verify-otp', [
@@ -227,7 +228,8 @@ class ProfileVerificationControllerTest extends DBTestCase
 
         $record = AccountActivate::where('email', $user->email)->first();
         $this->assertNotNull($record, 'OTP record not created');
-        $otp = $record->token;
+        $record->update(['token' => '482913']); // codes are stored hashed; set a known one
+        $otp = '482913';
 
         // Step 4: Verify email OTP — mobile data comes from session, not request
         $this->postJson('/profile/email/verify-otp', [
@@ -264,7 +266,8 @@ class ProfileVerificationControllerTest extends DBTestCase
 
         $record = AccountActivate::where('email', $user->email)->first();
         $this->assertNotNull($record, 'OTP record not created');
-        $otp = $record->token;
+        $record->update(['token' => '482913']); // codes are stored hashed; set a known one
+        $otp = '482913';
 
         // Try to verify with mobile_email type without prior mobile OTP — should fail
         $this->postJson('/profile/email/verify-otp', [
@@ -391,7 +394,7 @@ class ProfileVerificationControllerTest extends DBTestCase
         // Send invalid verify_type — should be rejected by validation
         $this->postJson('/profile/email/verify-otp', [
             'email_to_verify' => $newEmail,
-            'otp' => $record->token,
+            'otp' => '482913',
             'verify_type' => 'hacked_type',
         ])->assertStatus(412);
     }

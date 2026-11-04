@@ -122,8 +122,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware('admin', ['except' => ['pdf', 'getInvoice']]);
 
         $invoice = new Invoice;
         $this->invoice = $invoice;

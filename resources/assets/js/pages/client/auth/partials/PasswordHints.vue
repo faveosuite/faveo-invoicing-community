@@ -4,8 +4,8 @@
         <div class="popover-arrow" style="inset-inline-start: 1.5rem"></div>
         <div class="popover-body">
             <!-- Strength: label + 4-segment meter -->
-            <div class="d-flex justify-content-between align-items-center gap-2 text-1 mb-2">
-                <span class="font-weight-semibold text-color-dark">{{ __('message.pwd_strength') }}</span>
+            <div class="d-flex justify-content-between align-items-center gap-2 small mb-2">
+                <span class="fw-medium text-body-emphasis">{{ __('message.pwd_strength') }}</span>
                 <strong :class="level.text">{{ level.label }}</strong>
             </div>
             <div class="d-flex gap-1" aria-hidden="true">
@@ -14,7 +14,7 @@
             </div>
 
             <!-- Rules -->
-            <ul class="list-unstyled mb-0 mt-3 pt-3 border-top text-1" aria-live="polite">
+            <ul class="list-unstyled mb-0 mt-3 pt-3 border-top small" aria-live="polite">
                 <li v-for="c in checklist" :key="c.key" class="d-flex align-items-center gap-2 mb-1"
                     :class="c.ok ? 'text-success' : (strict ? 'text-danger' : 'text-body-secondary')">
                     <i class="fa-fw" :class="c.ok ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle-xmark'"

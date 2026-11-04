@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 use Override;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,6 +25,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+
+        // One password policy everywhere (sign-up, reset, profile, installer). The client mirrors
+        // it in validations/client/authSchemas.js (STRONG_PASS / passwordChecks).
+        PasswordRule::defaults(fn () => PasswordRule::min(8)->max(64)->mixedCase()->numbers()->symbols());
 
         Validator::extend('no_http', fn ($attribute, $value, $parameters, $validator): bool => ! str_contains((string) $value, 'http://') && ! str_contains((string) $value, 'https://'));
 

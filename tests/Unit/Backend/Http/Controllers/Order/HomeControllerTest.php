@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Controllers\Order;
 
 use App\Http\Controllers\Order\RenewController;
+use App\Http\Middleware\Install;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
@@ -19,6 +20,7 @@ class HomeControllerTest extends DBTestCase
      */
     public function test_validation_when_given_url_empty(): void
     {
+        $this->withoutMiddleware(Install::class);
         $response = $this->post('/renewurl', [
             'domain' => '',
         ]);

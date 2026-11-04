@@ -9,11 +9,6 @@ use Illuminate\Http\Request;
 
 class WelcomeController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth', ['except' => ['getCode']]);
-    }
-
     /**
      * Get country list with user count.
      */

@@ -1,0 +1,1 @@
+import{H as e,ft as t,t as n}from"./vue.esm-bundler-BlAC_QyS.js";n();function r(n=120){let r=t(0),i=null;function a(e=n){r.value=Math.max(0,Math.round(Number(e)||0)),r.value&&(clearInterval(i),i=setInterval(()=>{r.value--,r.value<=0&&clearInterval(i)},1e3))}function o(){clearInterval(i),r.value=0}return e(()=>clearInterval(i)),{cooldown:r,start:a,stop:o}}export{r as t};

@@ -123,6 +123,25 @@ class RouteServiceProvider extends ServiceProvider
     {
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
 
+        // Verification codes (email/SMS): 10 sends per hour per IP across all accounts, on top of
+        // the per-user 60s resend wait (AuthController) and 3-per-10-minutes lockout.
+        RateLimiter::for('otp-send', fn (Request $request) => Limit::perHour(10)
+            ->by($request->ip())
+            ->response(fn (Request $request, array $headers) => errorResponse(
+                __('message.too_many_attempts'),
+                429,
+                ['retry_after' => (int) ($headers['Retry-After'] ?? 0)]
+            )));
+
+        // Forgot password: 3 requests per 6 minutes per email + IP (the broker also allows
+        // only one new link per email per auth.passwords.users.throttle seconds).
+        RateLimiter::for('forgot-password', fn (Request $request) => Limit::perMinutes(6, 3)
+            ->by(strtolower((string) $request->input('email')).'|'.$request->ip())
+            ->response(fn (Request $request, array $headers) => errorResponse(
+                __('message.too_many_forgot_attempts', ['time' => formatDuration((int) ($headers['Retry-After'] ?? 0))]),
+                429
+            )));
+
         // Web Rate Limiting
         RateLimiter::for('web', function (Request $request): array {
             $maxAttempts = 600;

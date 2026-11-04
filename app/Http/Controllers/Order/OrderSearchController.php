@@ -16,11 +16,6 @@ class OrderSearchController extends Controller
     /** An installation counts as active if it checked in within this many days (Status/Version badges too). */
     public const int ACTIVE_INSTALL_DAYS = 7;
 
-    public function __construct()
-    {
-        $this->middleware(['auth', 'admin']);
-    }
-
     /**
      * @return Builder<Order>
      */

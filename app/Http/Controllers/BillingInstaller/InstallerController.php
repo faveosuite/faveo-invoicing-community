@@ -266,10 +266,7 @@ class InstallerController extends Controller
                 'unique:users,user_name',
             ],
             'email' => 'required|string|max:50|email|unique:users,email',
-            'password' => [
-                'required',
-                'regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z\d\s]).{8,64}$/u',
-            ],
+            'password' => ['required', \Illuminate\Validation\Rules\Password::defaults()],
             'cache_driver' => 'required|string',
             'redis_host' => 'nullable|required_if:cache_driver,redis|string',
             'redis_password' => 'nullable|string',
@@ -277,7 +274,6 @@ class InstallerController extends Controller
             'environment' => 'required|string',
         ], [
             'user_name.regex' => \Lang::get('installer_messages.user_name_regex'),
-            'password.regex' => \Lang::get('installer_messages.password_regex'),
             'redis_host.required_if' => \Lang::get('installer_messages.redis_host_required'),
             'redis_port.required_if' => \Lang::get('installer_messages.redis_port_required'),
         ]);

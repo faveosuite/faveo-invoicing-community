@@ -15,8 +15,6 @@ class LicenseSettingsController extends LicensePermissionsController
 
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware('admin');
 
         $licenseType = new LicenseType;
         $this->licenseType = $licenseType;

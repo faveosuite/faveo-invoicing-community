@@ -6,7 +6,8 @@ jest.mock('@/helpers/responseHandler', () => ({
 jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)), scrollToFirstError: jest.fn() }))
 // Mutable so a test can set ?redirect=; reset in afterEach.
 const mockRoute = { params: {}, query: {} }
-jest.mock('vue-router', () => ({ useRouter: () => ({ push: jest.fn() }), useRoute: () => mockRoute, RouterLink: { template: '<a><slot/></a>' } }))
+const mockPush = jest.fn()
+jest.mock('vue-router', () => ({ useRouter: () => ({ push: mockPush }), useRoute: () => mockRoute, RouterLink: { template: '<a><slot/></a>' } }))
 jest.mock('@/validations/client/authSchemas.js', () => ({
     loginSchema: {},
     registerSchema: { validateSync: jest.fn(() => ({ inner: [] })) },
@@ -62,7 +63,7 @@ describe('Login.vue', () => {
         const { useAlertStore } = await import('@/core/stores/alert.js')
         const verified = mountLogin()
 
-        expect(useAlertStore().setAlert).toHaveBeenCalledWith(expect.objectContaining({ type: 'success', message: 'message.registration_complete' }))
+        expect(useAlertStore().setAlert).toHaveBeenCalledWith(expect.objectContaining({ type: 'success', message: 'message.account_created_login' }))
         expect(globalThis.location.search).toBe('') // flag stripped so a refresh doesn't repeat it
         verified.unmount()
     })
@@ -104,7 +105,7 @@ describe('Login.vue', () => {
     })
 
     it('calls errorHandler with setErrors on login API error', async () => {
-        axiosMock.onPost('/login').reply(422, { errors: { email_username: ['Invalid credentials.'] } })
+        axiosMock.onPost('/login').reply(422, { errors: { login: ['Invalid credentials.'] } })
         await wrapper.find('form').trigger('submit')
         await flushPromises()
         expect(errorHandler).toHaveBeenCalledWith(
@@ -149,16 +150,24 @@ describe('Login.vue', () => {
             expect(JSON.parse(axiosMock.history.post[0].data)).not.toHaveProperty('redirect')
         })
 
-        it.each([
-            'http://localhost/store?group=1',
-            'http://localhost/verify-2fa',
-            'http://localhost/verify',
-        ])('always follows the backend redirect (%s), even with ?redirect= set', async (target) => {
+        it('always follows the backend redirect, even with ?redirect= set', async () => {
             mockRoute.query = { redirect: '/store?group=1' }
-            axiosMock.onPost('/login').reply(200, { data: { redirect: target } })
+            axiosMock.onPost('/login').reply(200, { data: { redirect: 'http://localhost/store?group=1' } })
             await wrapper.find('form').trigger('submit')
             await flushPromises()
-            expect(globalThis.location.href).toBe(target)
+            expect(globalThis.location.href).toBe('http://localhost/store?group=1')
+        })
+
+        it.each(['/verify', '/verify-2fa'])('opens %s in place, without reloading the app', async (step) => {
+            const root = document.getElementById('app-root')
+            root.dataset.baseUrl = 'http://localhost'
+            const login = mountLogin() // reads the base URL on setup
+            axiosMock.onPost('/login').reply(200, { data: { redirect: `http://localhost${step}` } })
+            await login.find('form').trigger('submit')
+            await flushPromises()
+            root.dataset.baseUrl = ''
+            expect(mockPush).toHaveBeenCalledWith(step)
+            expect(globalThis.location.href).toBe('')
         })
     })
 })

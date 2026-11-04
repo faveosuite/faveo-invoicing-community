@@ -76,7 +76,6 @@ class TenantController extends Controller
         $this->client = $client; // @phpstan-ignore property.notFound
         $this->cloud = $cloud->first();
 
-        $this->middleware('auth', ['except' => ['verifyThirdPartyToken']]);
     }
 
     private function cloudApi(): CloudApi

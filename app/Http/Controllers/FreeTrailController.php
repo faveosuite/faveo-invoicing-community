@@ -18,7 +18,6 @@ class FreeTrailController extends Controller
     public function __construct(
         private readonly FreeTrialService $freeTrialService,
     ) {
-        $this->middleware('auth')->except('getCloudProducts');
     }
 
     public function startTrial(Request $request): JsonResponse

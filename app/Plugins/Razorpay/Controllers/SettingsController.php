@@ -15,12 +15,6 @@ use Razorpay\Api\Errors\BadRequestError;
 
 class SettingsController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('admin');
-    }
-
     public function getSettings(): JsonResponse
     {
         try {
