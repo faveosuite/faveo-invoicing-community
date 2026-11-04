@@ -14,7 +14,6 @@ class ChatScriptController extends Controller
 {
     public function __construct()
     {
-
         $script = new ChatScript;
         $this->script = $script; // @phpstan-ignore property.notFound
     }

@@ -58,7 +58,6 @@ class SettingsController extends BaseSettingsController
 
     public function __construct()
     {
-
         $apikey = new ApiKey;
         $this->apikey = $apikey;
 

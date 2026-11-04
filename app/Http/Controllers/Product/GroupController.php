@@ -39,7 +39,6 @@ class GroupController extends Controller
 
     public function __construct()
     {
-
         $group = new ProductGroup;
         $this->group = $group;
 

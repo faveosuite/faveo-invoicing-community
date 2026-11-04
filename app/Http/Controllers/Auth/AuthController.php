@@ -32,7 +32,7 @@ class AuthController extends BaseAuthController
      * Server-side resend wait: a 429 with `retry_after` (seconds) while it's running,
      * otherwise null and the wait starts. The Verify page's countdown uses `retry_after`,
      * so it survives reloads and can't be skipped by calling the API directly.
-     * (Separate from the 3-per-10-minutes limit in BlockFailedVerifications.)
+     * (Separate from the 3-per-10-minutes limit in BlockFailedVerifications.).
      */
     private function resendWait(string $channel, User $user): ?JsonResponse
     {
@@ -324,7 +324,7 @@ class AuthController extends BaseAuthController
 
     /**
      * @param  User  $user
-     * @param  'mobile_verified'|'email_verified' $field
+     * @param  'mobile_verified'|'email_verified'  $field
      */
     private function markVerified(User $user, string $field): void
     {
@@ -383,7 +383,7 @@ class AuthController extends BaseAuthController
 
     /**
      * @param  User  $user
-     * @param  'email'|'mobile' $type
+     * @param  'email'|'mobile'  $type
      */
     private function updateVerificationAttempts(User $user, string $type): void
     {
