@@ -14,7 +14,6 @@ class ThirdPartyAppController extends Controller
 
     public function __construct()
     {
-
         $thirdParty = new ThirdPartyApp;
         $this->thirdParty = $thirdParty;
     }

@@ -49,7 +49,6 @@ class PromotionController extends BasePromotionController
 
     public function __construct()
     {
-
         $promotion = new Promotion;
         $this->promotion = $promotion;
 

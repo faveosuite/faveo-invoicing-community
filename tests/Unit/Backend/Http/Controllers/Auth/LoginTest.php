@@ -508,9 +508,9 @@ class LoginTest extends DBTestCase
     {
         return $this->withoutMiddleware(\App\Http\Middleware\Install::class)
             ->withServerVariables(['REMOTE_ADDR' => $ip])->postJson('/login', [
-            'login' => $login, 'password' => $password,
-            'honeypot' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
-        ]);
+                'login' => $login, 'password' => $password,
+                'honeypot' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
+            ]);
     }
 
     public function test_failures_spread_over_many_ips_lock_the_account(): void
@@ -542,4 +542,3 @@ class LoginTest extends DBTestCase
         $this->assertSame(0, \RateLimiter::attempts('login-account:'.md5(strtolower($user->email))));
     }
 }
-

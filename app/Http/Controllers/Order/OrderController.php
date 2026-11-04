@@ -83,7 +83,6 @@ class OrderController extends BaseOrderController
 
     public function __construct()
     {
-
         $order = new Order;
         $this->order = $order;
 

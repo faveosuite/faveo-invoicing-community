@@ -15,7 +15,6 @@ class LicenseSettingsController extends LicensePermissionsController
 
     public function __construct()
     {
-
         $licenseType = new LicenseType;
         $this->licenseType = $licenseType;
     }

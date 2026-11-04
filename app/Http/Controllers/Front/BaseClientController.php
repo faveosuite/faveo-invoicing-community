@@ -9,7 +9,6 @@ use App\Http\Requests\User\ClientProfileRequest;
 use App\Model\Order\Invoice;
 use App\User;
 use Auth;
-use DB;
 use Exception;
 use Hash;
 use Illuminate\Http\JsonResponse;

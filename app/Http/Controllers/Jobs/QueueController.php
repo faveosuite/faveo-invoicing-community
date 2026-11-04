@@ -17,7 +17,6 @@ class QueueController extends Controller
 
     public function __construct()
     {
-
         $this->queue = new QueueService;
     }
 

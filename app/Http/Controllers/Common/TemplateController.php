@@ -23,7 +23,6 @@ class TemplateController extends Controller
 
     public function __construct()
     {
-
         $template = new Template;
         $this->template = $template;
 

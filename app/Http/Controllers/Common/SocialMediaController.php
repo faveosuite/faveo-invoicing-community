@@ -15,7 +15,6 @@ class SocialMediaController extends Controller
 
     public function __construct()
     {
-
         $social = new SocialMedia;
         $this->social = $social;
     }
