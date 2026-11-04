@@ -3,16 +3,13 @@
 namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
-use App\Model\Common\State;
-use App\Rules\PhoneNumber;
-use App\Rules\StrongPassword;
 use App\Traits\RequestJsonValidation;
-use App\User;
-use Auth;
-use Illuminate\Validation\Rule;
 use Override;
 
-class ProfileRequest extends Request
+/**
+ * Shared base for the user forms: authorisation, JSON error format and field messages.
+ */
+abstract class ProfileRequest extends Request
 {
     use RequestJsonValidation;
 
@@ -25,79 +22,11 @@ class ProfileRequest extends Request
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Rules for the endpoint; each subclass is one form (sign-up, profiles, password change).
      *
      * @return array<mixed>
      */
-    public function rules(): array
-    {
-        if ($this->segment(1) == 'profile') {
-            /** @var User $authUser */
-            $authUser = Auth::user();
-            $userid = $authUser->id;
-
-            return [
-                'first_name' => ['required'],
-                'last_name' => ['required'],
-                'company' => ['required', 'max:50'],
-                'email' => ['required'],
-                'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
-                'address' => ['required'],
-                'user_name' => 'required|unique:users,user_name,'.$userid.'|unique:users,email,'.$userid.'|unique:settings,email|unique:settings,company_email',
-                'timezone_id' => ['required', 'exists:timezone,id'],
-                'profile_pic' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
-                'country' => ['required'],
-                'state' => [Rule::requiredIf(fn () => State::where('country_code', $this->country)->exists())],
-                'gstin' => ['nullable', 'regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/'],
-            ];
-        }
-
-        if ($this->segment(1) == 'my-profile') {
-            return [
-                'first_name' => ['required', 'min:3', 'max:30'],
-                'last_name' => ['required', 'max:30'],
-                // Email & mobile are not saved here (OTP flow only), so not validated either.
-                'company' => ['required', 'max:50'],
-                'address' => ['required'],
-                'country' => ['required', 'exists:countries,country_code_char2'],
-                'profile_pic' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
-                'timezone_id' => ['required', 'exists:timezone,id'],
-
-            ];
-        }
-
-        if ($this->segment(1) == 'password' || $this->segment(1) == 'my-password') {
-            return [
-                'old_password' => ['required', 'min:6'],
-                'new_password' => [
-                    'required',
-                    new StrongPassword,
-                    'different:old_password',
-                ],
-                'confirm_password' => ['required', 'same:new_password'],
-            ];
-        }
-
-        if ($this->segment(1) == 'auth') {
-            return [
-                'first_name' => ['required', 'min:2', 'max:30'],
-                'last_name' => ['required', 'max:30'],
-                'email' => ['required', 'email', 'unique:users', 'unique:users,user_name', 'unique:settings,email', 'unique:settings,company_email'],
-                // Company/address/country aren't asked at sign-up (collected later); still validated if sent.
-                'company' => ['nullable', 'max:50'],
-                'mobile' => ['required', 'unique:users', new PhoneNumber($this->mobile_country_iso)],
-                'address' => ['nullable', 'string', 'regex:/^[^<>]*$/'],
-                'terms' => ['sometimes'],
-                'password' => [
-                    'required',
-                    new StrongPassword,
-                ],
-                'password_confirmation' => ['required', 'same:password'],
-            ];
-        }
-
-        return [];
-    }
+    abstract public function rules(): array;
 
     #[Override]
     public function messages()

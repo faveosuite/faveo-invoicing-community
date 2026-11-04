@@ -55,7 +55,6 @@ class CloudExtraActivities extends Controller
     {
         $this->client = $client;
         $this->cloud = $cloud->first();
-        $this->middleware('auth', ['except' => ['verifyThirdPartyToken']]);
     }
 
     private function cloudApi(): CloudApi

@@ -25,29 +25,29 @@ class LoginRequestTest extends TestCase
     public function test_rules_define_email_username_required(): void
     {
         $rules = $this->req->rules();
-        $this->assertArrayHasKey('email_username', $rules);
-        $this->assertContains('required', $rules['email_username']);
+        $this->assertArrayHasKey('login', $rules);
+        $this->assertContains('required', $rules['login']);
     }
 
     public function test_rules_define_password_required(): void
     {
         $rules = $this->req->rules();
-        $this->assertArrayHasKey('password1', $rules);
-        $this->assertContains('required', $rules['password1']);
+        $this->assertArrayHasKey('password', $rules);
+        $this->assertContains('required', $rules['password']);
     }
 
     public function test_validation_fails_when_email_username_missing(): void
     {
-        $v = validator(['password1' => 'secret'], $this->req->rules());
+        $v = validator(['password' => 'secret'], $this->req->rules());
         $this->assertTrue($v->fails());
-        $this->assertArrayHasKey('email_username', $v->errors()->toArray());
+        $this->assertArrayHasKey('login', $v->errors()->toArray());
     }
 
     public function test_validation_fails_when_password_missing(): void
     {
-        $v = validator(['email_username' => 'user@test.com'], $this->req->rules());
+        $v = validator(['login' => 'user@test.com'], $this->req->rules());
         $this->assertTrue($v->fails());
-        $this->assertArrayHasKey('password1', $v->errors()->toArray());
+        $this->assertArrayHasKey('password', $v->errors()->toArray());
     }
 
     public function test_messages_returns_non_empty_array(): void

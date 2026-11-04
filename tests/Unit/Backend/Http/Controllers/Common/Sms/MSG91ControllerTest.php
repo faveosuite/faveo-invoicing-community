@@ -6,6 +6,7 @@ use App\ApiKey;
 use App\Http\Controllers\Common\Sms\MSG91Controller;
 use App\Model\Common\Msg91Status;
 use App\Model\Common\MsgDeliveryReports;
+use App\Model\Common\StatusSetting;
 use App\ThirdPartyApp;
 use App\User;
 use DB;
@@ -21,6 +22,19 @@ class MSG91ControllerTest extends DBTestCase
     {
         parent::setUp();
         $this->withoutMiddleware();
+        StatusSetting::query()->update(['msg91_status' => 1]);
+    }
+
+    public function test_handle_reports_is_refused_while_msg91_is_off(): void
+    {
+        StatusSetting::query()->update(['msg91_status' => 0]);
+
+        try {
+            new MSG91Controller()->handleReports(Request::create('/', 'POST'), 'x', 'y');
+            $this->fail('Expected a 403 while MSG91 is off.');
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            $this->assertSame(403, $e->getStatusCode());
+        }
     }
 
     public function test_validate_third_party_request_returns_false_for_invalid_credentials(): void

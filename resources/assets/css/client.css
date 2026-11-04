@@ -325,20 +325,24 @@ html:not(.dark) #app-client .text-muted { color: #6c757d !important; }
 }
 
 /* ── Form fields: one look for every field type ────────────────────────────── */
-/* ClientField (form-control-lg + text-4) is the client-panel standard. The
-   shared DynamicSelect (vue-select) and PhoneField (intl-tel-input) bring their
-   own sizes, so match them to it here. .modal is listed because Modal.vue
-   teleports to <body>, outside #app-client; this file only loads on client pages. */
+/* Client-panel standard: Bootstrap's normal field size (16px). Porto shrinks every
+   non-lg .form-control to 12px, so restore Bootstrap's size here; the shared
+   DynamicSelect (vue-select) and PhoneField (intl-tel-input) bring their own sizes,
+   so match them to it. .modal is listed because Modal.vue teleports to <body>,
+   outside #app-client; this file only loads on client pages. */
+:is(#app-client, .modal) .form-control:not(.form-control-lg):not(.form-control-sm) {
+    font-size: 1rem;
+}
 :is(#app-client, .modal) .faveo-dynamic-select,
 :is(#app-client, .modal) .iti .form-control {
-    font-size: 1.2em;
+    font-size: 1rem;
     --vs-font-size: 1em;
 }
 :is(#app-client, .modal) .faveo-dynamic-select .vs__dropdown-toggle {
-    min-height: calc(1.5em + 1rem + 2px);
+    min-height: calc(1.5em + .75rem + 2px);
     padding: 0 0 0 .5rem;
     border: 1px solid #ced4da;
-    border-radius: var(--bs-border-radius-lg);
+    border-radius: var(--bs-border-radius);
     background-color: #fff;
 }
 :is(#app-client, .modal) .faveo-dynamic-select .vs__selected,
@@ -356,9 +360,9 @@ html:not(.dark) #app-client .text-muted { color: #6c757d !important; }
 }
 :is(#app-client, .modal) .iti .form-control {
     line-height: 1.5;
-    padding-top: .5rem;
-    padding-bottom: .5rem;
-    border-radius: var(--bs-border-radius-lg);
+    padding-top: .375rem;
+    padding-bottom: .375rem;
+    border-radius: var(--bs-border-radius);
 }
 
 /* Field border: Porto's rgba(0,0,0,.09) is too faint on white. Leaves focus and
@@ -431,3 +435,67 @@ html:not(.dark) #app-client .text-muted { color: #6c757d !important; }
 :is(#app-client, .modal) .text-center i.d-block[class*="fa-"] {
     margin-inline: auto;
 }
+
+/* ── Guest auth pages (AuthLayout .auth-shell) ─────────────────────────────── */
+/* Type & colour matched to the design, set through Bootstrap's own CSS variables so
+   Bootstrap utilities (text-body-secondary, text-body-emphasis, ...) follow. The rest
+   undoes Porto's site-wide defaults there: light-grey 14px text, squeezed headings,
+   70% <small>, tiny uppercase buttons, and the heavier client label style above. */
+#app-client .auth-shell {
+    --bs-body-color: #3B4856;      --bs-body-color-rgb: 59, 72, 86;
+    --bs-secondary-color: #5F6B78; --bs-secondary-color-rgb: 95, 107, 120;
+    --bs-emphasis-color: #1B2B3A;  --bs-emphasis-color-rgb: 27, 43, 58;
+    color: var(--bs-body-color);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+#app-client .auth-shell p { color: inherit; line-height: inherit; }
+#app-client .auth-shell :is(small, .small) { font-size: .875em; }
+#app-client .auth-shell :is(h1, h2) { color: var(--bs-emphasis-color); letter-spacing: normal; }
+#app-client .auth-shell :is(.form-label, .col-form-label),
+#app-client .auth-shell .mb-3:has(> .faveo-dynamic-select, > .iti) > .form-label {
+    font-size: .875rem;
+    font-weight: 500 !important;
+    line-height: 1.43;
+    color: var(--bs-emphasis-color) !important;
+}
+#app-client .auth-shell .form-check-label { color: var(--bs-body-color); }
+#app-client .auth-shell .btn { font-size: 1rem; letter-spacing: normal; text-transform: none; }
+/* 6-digit code boxes: compact like the design, not stretched across the form. */
+#app-client .auth-shell .otp-boxes { max-width: 22.5rem; }
+#app-client .auth-shell .otp-boxes .form-control { height: 3.25rem; }
+
+
+/* ── Alerts (components/Reusable/Alert.vue) ───────────────────────────────────── */
+/* Client panel: a floating toast fixed at the top centre — white card, a top border
+   and icon in the type colour — instead of an inline box that pushes the page down.
+   Admin keeps Bootstrap's inline alert (these rules are #app-client only). */
+#app-client .app-alert {
+    --app-alert-accent: #3da6d7;
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1090; /* above the header and modals' backdrop */
+    width: max-content;
+    min-width: min(340px, calc(100vw - 2rem));
+    max-width: min(520px, calc(100vw - 2rem));
+    margin: 0;
+    padding: .625rem 1.25rem;
+    gap: .75rem;
+    background: #fff;
+    color: #4a5565;
+    border: 0;
+    border-top: 3px solid var(--app-alert-accent);
+    border-radius: 10px;
+    box-shadow: 0 5px 24px rgba(18, 52, 77, .14);
+    font-size: .875rem;
+    font-weight: 600;
+}
+#app-client .app-alert-success { --app-alert-accent: #54a900; }
+#app-client .app-alert-warning { --app-alert-accent: #f59e0b; }
+#app-client .app-alert-danger  { --app-alert-accent: #ef4444; }
+#app-client .app-alert .app-alert-icon { margin: 0 !important; font-size: 1rem; color: var(--app-alert-accent); flex-shrink: 0; }
+#app-client .app-alert .app-alert-message { flex: 1; min-width: 0; max-height: 40vh; overflow-y: auto; overflow-wrap: anywhere; }
+#app-client .app-alert .btn-close { position: static; padding: 0; margin: 0; flex-shrink: 0; font-size: .625rem; opacity: .45; }
+#app-client .app-alert .btn-close:hover { opacity: .8; }

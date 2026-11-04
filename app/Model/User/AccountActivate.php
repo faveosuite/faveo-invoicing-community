@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Model\User;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Carbon;
 
 /**
@@ -30,4 +32,24 @@ class AccountActivate extends Model
     protected $fillable = ['email', 'token'];
 
     protected $primaryKey = 'email';
+
+    /**
+     * Email verification codes are stored hashed (like passwords): reading the table
+     * doesn't reveal a pending code. Callers keep the plain code only to email it.
+     *
+     * @return Attribute<string, string>
+     */
+    protected function token(): Attribute
+    {
+        return Attribute::make(set: fn (mixed $value): string => Hash::make((string) $value));
+    }
+
+    /** Whether the code the user typed is this record's code. */
+    public function matches(mixed $code): bool
+    {
+        $hash = (string) $this->getRawOriginal('token', $this->getAttributes()['token'] ?? '');
+
+        // A pre-hashing (plain) row never matches: the user just requests a new code.
+        return $hash !== '' && password_get_info($hash)['algo'] !== null && Hash::check((string) $code, $hash);
+    }
 }

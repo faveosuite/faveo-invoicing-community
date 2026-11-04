@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Events\UserRegisteredEvent;
+use App\Listeners\LogSuccessfulLogin;
 use App\Listeners\MergeGuestCartOnLogin;
 use App\Listeners\SyncUserToPipedrive;
 use Illuminate\Auth\Events\Login;
@@ -19,6 +20,7 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Login::class => [
             MergeGuestCartOnLogin::class,
+            LogSuccessfulLogin::class,
         ],
         UserRegisteredEvent::class => [
             SyncUserToPipedrive::class,

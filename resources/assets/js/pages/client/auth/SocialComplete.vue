@@ -1,17 +1,19 @@
 <template>
     <div>
-        <!-- Page title comes from AuthLayout (route titleKey); this explains why we're asking. -->
-        <p class="text-3 mb-4">{{ __('message.social_complete_hint', { provider }) }}</p>
+        <!-- Own heading (not the route titleKey): the explanation names the provider, so it can't be a
+             route subtitle, and this keeps it tight under the title like the other pages. -->
+        <h1 class="fw-bold text-body-emphasis fs-3 lh-sm mb-1">{{ __('message.social_complete_title') }}</h1>
+        <p class="text-body-secondary mb-4">{{ __('message.social_complete_hint', { provider }) }}</p>
 
         <form @submit.prevent="submit" novalidate>
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <ClientField name="first_name" type="text" :label="__('message.first_name')" required
                                  autocomplete="given-name"
                                  v-model="form.first_name" :error="errors.first_name"
                                  @update:modelValue="setFieldError('first_name', undefined)"/>
                 </div>
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <ClientField name="last_name" type="text" :label="__('message.last_name')" required
                                  autocomplete="family-name"
                                  v-model="form.last_name" :error="errors.last_name"
@@ -19,20 +21,16 @@
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-6">
-                    <ClientField name="email" type="email" :label="__('message.email_address')" required
-                                 :disabled="emailLocked" autocomplete="email" :spellcheck="false"
-                                 v-model="form.email" :error="errors.email"
-                                 @update:modelValue="setFieldError('email', undefined)"/>
-                </div>
-                <div class="col-md-6">
-                    <PhoneField name="mobile" :label="__('message.mobile')" required
-                                :value="form.mobile" :error="errors.mobile"
-                                :onChange="onMobileInput"
-                                @countryChange="onMobileCountryChange"/>
-                </div>
-            </div>
+            <!-- Full width: side by side, the email and phone number get cut off in the form column. -->
+            <ClientField name="email" type="email" :label="__('message.email_address')" required
+                         :disabled="emailLocked" autocomplete="email" :spellcheck="false"
+                         v-model="form.email" :error="errors.email"
+                         @update:modelValue="setFieldError('email', undefined)"/>
+
+            <PhoneField name="mobile" :label="__('message.mobile')" required
+                        :value="form.mobile" :error="errors.mobile"
+                        :onChange="onMobileInput"
+                        @countryChange="onMobileCountryChange"/>
 
             <ClientCheckbox v-if="termsEnabled" v-model="form.terms" :error="errors.terms" class="mb-3"
                             @update:modelValue="setFieldError('terms', undefined)">
@@ -41,9 +39,9 @@
             </ClientCheckbox>
 
             <button type="submit"
-                    class="btn btn-primary btn-modern w-100"
+                    class="btn btn-primary w-100 py-2 fw-medium"
                     :disabled="saving">
-                <i v-if="saving" class="fas fa-circle-notch fa-spin me-1" aria-hidden="true"></i>{{ __('message.register') }}
+                <i v-if="saving" class="fas fa-circle-notch fa-spin me-1" aria-hidden="true"></i>{{ __('message.create_account') }}
             </button>
         </form>
     </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
 use App\DefaultPage;
+use App\Http\Middleware\BlockFailedVerifications;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Model\Common\StatusSetting;
 use App\SocialLogin;
@@ -39,15 +40,6 @@ class LoginController extends BaseAuthController
      * @var string
      */
     protected $redirectTo = '/';
-
-    /**
-     * Create a new controller instance.
-     */
-    public function __construct()
-    {
-        $this->middleware('guest')->except(['logout', 'loginConfig']);
-        $this->middleware(['blockFailedVerifications:login', 'recaptcha:login'])->only('login');
-    }
 
     /**
      * JSON config consumed by the Vue guest login/register SPA page.
@@ -116,37 +108,64 @@ class LoginController extends BaseAuthController
     public function login(LoginRequest $request): JsonResponse // 2. Type-hint the LoginRequest
     {
         try {
+            // Account-wide limit (any IP): stops guesses spread over many IPs. Checked before the
+            // password, so a locked account can't be probed further.
+            $accountKey = self::accountLimitKey((string) $request->input('login'));
+            if (RateLimiter::tooManyAttempts($accountKey, self::ACCOUNT_MAX_FAILURES)) {
+                $seconds = RateLimiter::availableIn($accountKey);
+
+                return errorResponse(
+                    __('message.too_many_login_attempts_account', ['minutes' => max(1, (int) ceil($seconds / 60))]),
+                    429,
+                    ['retry_after' => $seconds]
+                );
+            }
+
             // 1. Prepare credentials for both email and username login
             $credentials = $this->buildCredentials($request);
 
-            // 2. Attempt to authenticate the user
-            if (! Auth::attempt($credentials, $request->boolean('remember'))) {
-                $rateLimitKey = $this->getLoginRateLimitKey($request->input('email_username'));
+            // 2. Sign in only when the account may log in right away; a verify or 2FA step
+            //    first means no login yet (no Login event: cart merge, activity log).
+            $pendingStep = null;
+            $loggedIn = Auth::attemptWhen($credentials, function (User $user) use (&$pendingStep): bool {
+                $pendingStep = match (true) {
+                    ! $this->userNeedVerified($user) => 'verify',
+                    (bool) $user->is_2fa_enabled => '2fa',
+                    default => null,
+                };
+
+                return $pendingStep === null;
+            }, $request->boolean('remember'));
+
+            if (! $loggedIn && $pendingStep === null) {
+                $rateLimitKey = $this->getLoginRateLimitKey($request->input('login'));
                 RateLimiter::hit('login-attempt:'.$rateLimitKey, 600);
+                RateLimiter::hit($accountKey, self::ACCOUNT_LOCK_SECONDS);
 
                 return errorResponse(__('message.enter_valid_credentials'));
             }
 
             /** @var User $user */
-            $user = Auth::user();
+            $user = Auth::getLastAttempted();
 
-            // Before the verify/2FA checks: the session keeps it until redirectPath() runs after them.
+            // Before the verify/2FA steps: the session keeps it until redirectPath() runs after them.
             self::rememberRedirect($request->input('redirect'));
 
-            // 3. Handle post-authentication checks (Verification)
-            if (! $this->userNeedVerified($user)) {
-                return $this->handleUnverifiedUser($user);
+            // Locked out of that step (too many codes / wrong codes): say so here rather than
+            // sending them to a page that can only bounce them back to login.
+            if ($pendingStep !== null && ($lockout = resolve(BlockFailedVerifications::class)->lockoutMessage($pendingStep, (string) $user->id))) {
+                return errorResponse($lockout, 429);
             }
 
-            // 4. Check if the user has 2FA enabled
-            if ($user->is_2fa_enabled) {
+            if ($pendingStep === 'verify') {
+                return $this->handleUnverifiedUser($user);
+            }
+            if ($pendingStep === '2fa') {
                 return $this->handleTwoFactorAuthentication($request, $user);
             }
 
-            // 5. Regenerate session for security
+            // 3. Fresh session id for the signed-in user.
             Session::regenerate();
-
-            $this->logActivityLogin($user);
 
             return successResponse('', ['redirect' => $this->redirectPath()]);
         } catch (Exception $exception) {
@@ -164,7 +183,7 @@ class LoginController extends BaseAuthController
      */
     private function buildCredentials(Request $request): array
     {
-        $loginInput = $request->input('email_username');
+        $loginInput = $request->input('login');
         // A username can itself be an email (it starts as a copy of the email and doesn't follow
         // later email changes), so an email-shaped input matching no email is tried as a username.
         $loginType = filter_var($loginInput, FILTER_VALIDATE_EMAIL) && User::where('email', $loginInput)->exists()
@@ -173,7 +192,7 @@ class LoginController extends BaseAuthController
 
         return [
             $loginType => $loginInput,
-            'password' => $request->input('password1'),
+            'password' => $request->input('password'),
             'active' => 1,
         ];
     }
@@ -183,8 +202,6 @@ class LoginController extends BaseAuthController
      */
     private function handleUnverifiedUser(User $user): JsonResponse
     {
-        Auth::logout();
-
         Session::put([
             'justStarted' => true,
             'verification_user_id' => $user->id,
@@ -200,8 +217,6 @@ class LoginController extends BaseAuthController
      */
     private function handleTwoFactorAuthentication(Request $request, User $user): JsonResponse
     {
-        Auth::logout();
-
         Session::put([
             'justStarted' => true,
             'verification_user_id' => $user->id,
@@ -290,12 +305,23 @@ class LoginController extends BaseAuthController
         return md5(request()->ip().':'.strtolower($emailOrUsername));
     }
 
+    /** Failed logins allowed per account (any IP) within ACCOUNT_LOCK_SECONDS; fixed, not escalating. */
+    private const ACCOUNT_MAX_FAILURES = 10;
+
+    private const ACCOUNT_LOCK_SECONDS = 3600;
+
+    private static function accountLimitKey(string $login): string
+    {
+        return 'login-account:'.md5(strtolower(trim($login)));
+    }
+
     private function clearRateLimit(string $context, User $user): void
     {
         switch ($context) {
             case 'login':
                 $identifier = $this->getLoginRateLimitKey($user->email ?? $user->username); // @phpstan-ignore property.notFound
-                $keys = ['login-attempt:'.$identifier];
+                // The account-wide counter too, under whichever name (email / username) was typed.
+                $keys = ['login-attempt:'.$identifier, self::accountLimitKey((string) $user->email), self::accountLimitKey((string) $user->user_name)];
                 break;
 
             case '2fa':
@@ -316,24 +342,5 @@ class LoginController extends BaseAuthController
 
         Cache::forget(sprintf('penalty_level:%s:%s', $context, $identifier));
         Cache::forget(sprintf('penalty_applied:%s:%s', $context, $identifier));
-    }
-
-    public function logActivityLogin(mixed $user): void
-    {
-        if (! $user) {
-            return;
-        }
-
-        $userUrl = url('admin/users/'.$user->id);
-
-        $name = e($user->first_name.' '.$user->last_name);
-        $message = 'User <a href="'.e($userUrl).'"><strong>'.e($name).'</strong></a> logged in successfully.';
-
-        logActivity(
-            $message,
-            'login',
-            'Authentication',
-            $user,
-        );
     }
 }

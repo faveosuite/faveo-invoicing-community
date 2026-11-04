@@ -11,27 +11,27 @@ import {
 } from '@/validations/client/authSchemas'
 
 describe('loginSchema', () => {
-    const valid = { email_username: 'user@example.com', password1: 'password123' }
+    const valid = { login: 'user@example.com', password: 'password123' }
 
     it('passes with valid data', async () => {
         await expect(loginSchema.validate(valid)).resolves.toBeTruthy()
     })
 
-    it('fails when email_username is empty', async () => {
-        await expect(loginSchema.validate({ ...valid, email_username: '' })).rejects.toThrow()
+    it('fails when login is empty', async () => {
+        await expect(loginSchema.validate({ ...valid, login: '' })).rejects.toThrow()
     })
 
-    it('fails when email_username is missing', async () => {
-        const { email_username: _o, ...rest } = valid // NOSONAR
+    it('fails when login is missing', async () => {
+        const { login: _o, ...rest } = valid // NOSONAR
         await expect(loginSchema.validate(rest)).rejects.toThrow()
     })
 
-    it('fails when password1 is empty', async () => {
-        await expect(loginSchema.validate({ ...valid, password1: '' })).rejects.toThrow()
+    it('fails when password is empty', async () => {
+        await expect(loginSchema.validate({ ...valid, password: '' })).rejects.toThrow()
     })
 
     it('passes with a username (non-email)', async () => {
-        await expect(loginSchema.validate({ ...valid, email_username: 'myusername' })).resolves.toBeTruthy()
+        await expect(loginSchema.validate({ ...valid, login: 'myusername' })).resolves.toBeTruthy()
     })
 })
 
@@ -164,37 +164,37 @@ describe('otpSchema', () => {
 
 describe('twoFaSchema', () => {
     it('passes with a 6-digit TOTP', async () => {
-        await expect(twoFaSchema.validate({ totp: '654321' })).resolves.toBeTruthy()
+        await expect(twoFaSchema.validate({ code: '654321' })).resolves.toBeTruthy()
     })
 
-    it('fails when totp is empty', async () => {
-        await expect(twoFaSchema.validate({ totp: '' })).rejects.toThrow()
+    it('fails when code is empty', async () => {
+        await expect(twoFaSchema.validate({ code: '' })).rejects.toThrow()
     })
 
-    it('fails when totp has only 5 digits', async () => {
-        await expect(twoFaSchema.validate({ totp: '12345' })).rejects.toThrow()
+    it('fails when code has only 5 digits', async () => {
+        await expect(twoFaSchema.validate({ code: '12345' })).rejects.toThrow()
     })
 
-    it('fails when totp contains letters', async () => {
-        await expect(twoFaSchema.validate({ totp: 'abc123' })).rejects.toThrow()
+    it('fails when code contains letters', async () => {
+        await expect(twoFaSchema.validate({ code: 'abc123' })).rejects.toThrow()
     })
 })
 
 describe('recoverySchema', () => {
     it('passes with a valid recovery code', async () => {
-        await expect(recoverySchema.validate({ rec_code: 'REC-ABC-123' })).resolves.toBeTruthy()
+        await expect(recoverySchema.validate({ recovery_code: 'REC-ABC-123' })).resolves.toBeTruthy()
     })
 
-    it('fails when rec_code is empty', async () => {
-        await expect(recoverySchema.validate({ rec_code: '' })).rejects.toThrow()
+    it('fails when recovery_code is empty', async () => {
+        await expect(recoverySchema.validate({ recovery_code: '' })).rejects.toThrow()
     })
 
-    it('fails when rec_code is missing', async () => {
+    it('fails when recovery_code is missing', async () => {
         await expect(recoverySchema.validate({})).rejects.toThrow()
     })
 
-    it('fails when rec_code is only whitespace', async () => {
-        await expect(recoverySchema.validate({ rec_code: '   ' })).rejects.toThrow()
+    it('fails when recovery_code is only whitespace', async () => {
+        await expect(recoverySchema.validate({ recovery_code: '   ' })).rejects.toThrow()
     })
 })
 
@@ -230,12 +230,12 @@ describe('passwordChecks', () => {
         expect(passwordChecks('abcd').number).toBe(false)
     })
 
-    it('detects special characters (any symbol, not spaces)', () => {
+    it('detects special characters (any symbol or space, as Laravel does)', () => {
         expect(passwordChecks('abc@').special).toBe(true)
         expect(passwordChecks('abc&').special).toBe(true)
         expect(passwordChecks('abc-').special).toBe(true)
         expect(passwordChecks('abcd').special).toBe(false)
-        expect(passwordChecks('ab cd').special).toBe(false)
+        expect(passwordChecks('ab cd').special).toBe(true) // like Laravel's symbols(): spaces count
     })
 
     it('returns all true for a fully compliant password', () => {

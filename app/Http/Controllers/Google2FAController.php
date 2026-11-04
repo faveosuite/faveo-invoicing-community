@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Requests\ValidateSecretRequest;
-use App\Model\User\Password;
+use Illuminate\Support\Facades\Password;
 use App\Rules\Honeypot;
 use App\User;
 use App\UserBackupCodes;
@@ -27,17 +27,6 @@ class Google2FAController extends Controller
 
     /** Session key holding the user who is mid-way through 2FA. */
     private const TWO_FA_USER_KEY = '2fa:user:id';
-
-    /**
-     * Create a new authentication controller instance.
-     */
-    public function __construct()
-    {
-        $this->middleware('web');
-        $this->middleware('auth', ['only' => ['enableTwoFactor', 'disableTwoFactor', 'generateRecoveryCode', 'verifyPassword']]);
-        $this->middleware('recaptcha:login_2fa')->only('postLoginValidateToken');
-        $this->middleware('recaptcha:login_recovery')->only('verifyRecoveryCode');
-    }
 
     public function verify2fa(): JsonResponse
     {
@@ -85,7 +74,7 @@ class Google2FAController extends Controller
         $user = $request->user();
         $secret = Crypt::decrypt((string) $user->google2fa_secret);
 
-        if (! new Google2FA()->verifyKey($secret, $request->totp)) {
+        if (! new Google2FA()->verifyKey($secret, (string) $request->input('code'))) {
             return errorResponse(__('message.invalid_passcode'));
         }
 
@@ -106,7 +95,7 @@ class Google2FAController extends Controller
 
             return $this->handleTwoFactorLogin($request, $user, '2fa-code', function ($user, $request): void {
                 $secret = Crypt::decrypt((string) $user->google2fa_secret);
-                $isValid = new Google2FA()->verifyKey($secret, $request->totp);
+                $isValid = new Google2FA()->verifyKey($secret, (string) $request->input('code'));
 
                 if (! $isValid) {
                     // MUST throw — handleTwoFactorLogin proceeds to Auth::login unless
@@ -197,10 +186,10 @@ class Google2FAController extends Controller
     public function verifyRecoveryCode(Request $request): JsonResponse
     {
         $this->validate($request, [
-            'rec_code' => 'required',
-            'recovery_code' => [new Honeypot],
+            'recovery_code' => 'required',
+            'honeypot' => [new Honeypot],
         ], [
-            'rec_code.required' => __('validation.please_enter_recovery_code'),
+            'recovery_code.required' => __('validation.please_enter_recovery_code'),
         ]);
 
         try {
@@ -211,7 +200,7 @@ class Google2FAController extends Controller
 
             return $this->handleTwoFactorLogin($request, $user, 'recovery-code', function ($user, $request): void {
                 $code = UserBackupCodes::where('user_id', $user->id)
-                    ->where('backup_codes', $request->rec_code)
+                    ->where('backup_codes', $request->input('recovery_code'))
                     ->first();
 
                 if (! $code) {
@@ -243,20 +232,17 @@ class Google2FAController extends Controller
         // If it's part of password reset flow — only for the reset link's own user: 2FA passed
         // for any other account in this session (someone logging in as themselves) must not unlock it.
         $token = $session->get('reset_token');
-        if ($token && Password::where('token', $token)->where('email', $user->email)->exists()) {
+        if ($token && Password::broker()->tokenExists($user, $token)) {
             // The token itself, not `true`: 2FA passed for this link must not unlock any other link.
             $session->put('2fa_verified', value: $token);
 
-            return successResponse('', ['redirect' => route('password.reset', ['token' => $token])]);
+            return successResponse('', ['redirect' => route('password.reset', ['token' => $token, 'email' => $user->email])]);
         }
 
         // Normal login flow
         $request->session()->regenerate();
         Auth::login($user, $remember);
 
-        $loginController = new LoginController;
-        $loginController->logActivityLogin($user);
-
-        return successResponse('', ['redirect' => $loginController->redirectPath()]);
+        return successResponse('', ['redirect' => new LoginController()->redirectPath()]);
     }
 }

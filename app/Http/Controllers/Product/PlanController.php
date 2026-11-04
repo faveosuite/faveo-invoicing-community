@@ -29,8 +29,6 @@ class PlanController extends ExtendedPlanController
 
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware('admin');
         $plan = new Plan;
         $this->plan = $plan; // @phpstan-ignore property.notFound
 

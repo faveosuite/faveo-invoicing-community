@@ -4,7 +4,8 @@ namespace App\Http\Controllers\User;
 
 use App\Facades\Attach;
 use App\Http\Controllers\Auth\BaseAuthController;
-use App\Http\Requests\User\ProfileRequest;
+use App\Http\Requests\User\AdminProfileRequest;
+use App\Http\Requests\User\ChangePasswordRequest;
 use App\Model\Common\Bussiness;
 use App\Model\Common\Timezone;
 use App\User;
@@ -17,12 +18,6 @@ use Illuminate\Http\RedirectResponse;
 
 class ProfileController extends BaseAuthController
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('admin');
-    }
-
     public function profile(): JsonResponse|RedirectResponse
     {
         try {
@@ -57,7 +52,7 @@ class ProfileController extends BaseAuthController
         }
     }
 
-    public function updateProfile(ProfileRequest $request): JsonResponse|RedirectResponse
+    public function updateProfile(AdminProfileRequest $request): JsonResponse|RedirectResponse
     {
         try {
             /** @var User $user */
@@ -84,7 +79,7 @@ class ProfileController extends BaseAuthController
         }
     }
 
-    public function updatePassword(ProfileRequest $request): JsonResponse|RedirectResponse
+    public function updatePassword(ChangePasswordRequest $request): JsonResponse|RedirectResponse
     {
         try {
             /** @var User $user */
@@ -98,7 +93,7 @@ class ProfileController extends BaseAuthController
 
                 deleteUserSessions($user->id, $newpassword);
 
-                DB::table('password_resets')->where('email', $user->email)->delete();
+                \Illuminate\Support\Facades\Password::broker()->deleteToken($user);
 
                 if ($request->expectsJson()) {
                     return successResponse(__('message.updated-successfully'));

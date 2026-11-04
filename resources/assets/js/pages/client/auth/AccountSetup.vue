@@ -44,13 +44,13 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-modern w-100" :disabled="saving">
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-medium" :disabled="saving">
                 <i v-if="saving" class="fas fa-circle-notch fa-spin me-1" aria-hidden="true"></i>{{ __('message.save_and_continue') }}
             </button>
         </form>
 
-        <p class="text-center text-2 mt-4 mb-0">
-            <a :href="`${baseUrl}/auth/logout`" class="text-color-primary font-weight-semibold text-decoration-none">{{ __('message.logout') }}</a>
+        <p class="text-center small mt-4 mb-0">
+            <a :href="`${baseUrl}/auth/logout`" class="text-color-primary fw-medium text-decoration-none">{{ __('message.logout') }}</a>
         </p>
     </div>
 </template>

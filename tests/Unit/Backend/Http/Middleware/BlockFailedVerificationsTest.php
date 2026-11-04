@@ -85,7 +85,7 @@ class BlockFailedVerificationsTest extends TestCase
 
     public function test_login_context_uses_ip_based_identifier(): void
     {
-        $request = Request::create('/login', 'POST', ['email_username' => 'test@example.com']);
+        $request = Request::create('/login', 'POST', ['login' => 'test@example.com']);
         // Bind the request so LoginController::getLoginRateLimitKey() reads it
         $this->app->instance('request', $request);
 

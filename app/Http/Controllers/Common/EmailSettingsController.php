@@ -19,12 +19,6 @@ class EmailSettingsController extends Controller
 
     protected mixed $error = null;
 
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('admin');
-    }
-
     protected function checkSConnection(Setting $emailConfig): ?bool
     {
         try {

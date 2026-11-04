@@ -43,14 +43,6 @@ class HomeController extends BaseHomeController
      | controller as you wish. It is just here to get your app started!
      |
     */
-    /**
-     * Create a new controller instance.
-     */
-    public function __construct()
-    {
-        $this->middleware('auth', ['only' => ['index']]);
-        $this->middleware('admin', ['only' => ['index']]);
-    }
 
     public function serialV2(Request $request, Order $order): string
     {

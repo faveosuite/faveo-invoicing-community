@@ -10,12 +10,6 @@ use Illuminate\Validation\Rule;
 
 class SocialLoginsController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('admin');
-    }
-
     public function getSocialLogin(Request $request): JsonResponse
     {
         $search = $request->input('search-query', '');

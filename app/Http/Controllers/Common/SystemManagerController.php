@@ -13,12 +13,6 @@ use Illuminate\Http\Request;
 
 class SystemManagerController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('admin');
-    }
-
     public function getSystemManagers(): JsonResponse
     {
         try {

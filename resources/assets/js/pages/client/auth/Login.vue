@@ -1,28 +1,28 @@
 <template>
   <div>
     <form @submit.prevent="submit" novalidate>
-      <ClientField name="email_username" type="text" :label="__('message.email_or_username')" required
+      <ClientField name="login" type="text" :label="__('message.email_or_username')" required
                    autocomplete="username" :spellcheck="false"
-                   v-model="form.email_username" :error="errors.email_username"
-                   @update:modelValue="setFieldError('email_username', undefined)"/>
+                   v-model="form.login" :error="errors.login"
+                   @update:modelValue="setFieldError('login', undefined)"/>
 
-      <ClientField name="password1" type="password" :label="__('message.password')" required
+      <ClientField name="password" type="password" :label="__('message.password')" required
                    autocomplete="current-password"
-                   v-model="form.password1" :error="errors.password1"
-                   @update:modelValue="setFieldError('password1', undefined)"/>
+                   v-model="form.password" :error="errors.password"
+                   @update:modelValue="setFieldError('password', undefined)"/>
 
       <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <ClientCheckbox v-model="form.remember" :label="__('message.remember_me')"/>
-        <RouterLink class="text-decoration-none text-color-primary font-weight-semibold text-2" to="/password/reset">
-          {{ __('message.forgot-password') }}
+        <RouterLink class="text-decoration-none text-color-primary fw-medium small" to="/password/reset">
+          {{ __('message.forgot_password_link') }}
         </RouterLink>
       </div>
 
-      <Honeypot name="login" v-model="form.login" @ready="hpReady = $event" />
+      <Honeypot name="honeypot" v-model="form.honeypot" @ready="hpReady = $event" />
 
       <RecaptchaField ref="captchaRef" action="login" class="mb-3" />
 
-      <button type="submit" class="btn btn-primary btn-modern w-100"
+      <button type="submit" class="btn btn-primary w-100 py-2 fw-medium"
               :disabled="saving || !hpReady">
         <i v-if="saving" class="fas fa-circle-notch fa-spin me-1" aria-hidden="true"></i>{{ __('message.log_in') }}
       </button>
@@ -30,16 +30,16 @@
 
     <SocialButtons :social="social" :base-url="baseUrl" :redirect="redirect"/>
 
-    <p class="text-center text-3 mt-4 mb-0">
+    <p class="text-center mt-4 mb-0">
       {{ __('message.dont_have_account') }}
-      <RouterLink to="/register" class="text-color-primary font-weight-semibold text-decoration-none">{{ __('message.create_account') }}</RouterLink>
+      <RouterLink to="/register" class="text-color-primary fw-medium text-decoration-none">{{ __('message.create_account') }}</RouterLink>
     </p>
   </div>
 </template>
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
@@ -54,11 +54,13 @@ import { useAlertStore } from '@/core/stores/alert.js'
 
 const COMPONENT = 'client-page'
 const route = useRoute()
+const router = useRouter()
 const baseUrl = useBaseUrl()
 const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : ''
 
 const { errors, setErrors, setFieldError } = useForm()
-const form = reactive({ email_username: '', password1: '', remember: false, login: {} })
+// login = email or username
+const form = reactive({ login: '', password: '', remember: false, honeypot: {} })
 const captchaRef = ref(null)
 const saving = ref(false)
 const hpReady = ref(false)
@@ -70,7 +72,7 @@ const social = ref({ google: 0, github: 0, twitter: 0, linkedin: 0 })
 const FLASH = {
   session_expired: ['warning', () => __('message.session_expired')],
   reset_expired:   ['warning', () => __('message.reset_link_expired')],
-  verified:        ['success', () => __('message.registration_complete')],
+  verified:        ['success', () => __('message.account_created_login')],
   registered:      ['success', () => __('message.account_created_login')],
   social_error:    ['danger',  (reason) => __(`message.social_error.${reason}`)],
 }
@@ -87,7 +89,7 @@ function showFlash() {
 
 onMounted(async () => {
   showFlash()
-  globalThis.document.querySelector('[name="email_username"]')?.focus()
+  globalThis.document.querySelector('[name="login"]')?.focus()
   try {
     const res = await http.get('/auth/login-config')
     social.value = res.data?.data?.social ?? social.value
@@ -104,16 +106,21 @@ async function submit() {
       return
     }
     const res = await http.post('/login', {
-      email_username: form.email_username,
-      password1: form.password1,
-      remember: form.remember ? 'on' : '',
       login: form.login,
+      password: form.password,
+      remember: form.remember,
+      honeypot: form.honeypot,
       // The backend checks it's a same-site path and sends the user there once fully logged in (after any verify/2FA step).
       redirect: route.query.redirect,
       ...captchaPayload,
     })
     const target = res.data?.data?.redirect
-    if (target) {
+    // Verify / 2FA pages are part of this app and nobody is signed in yet: switch in place.
+    // A finished login reloads, so the app boots with the signed-in user.
+    const step = target?.startsWith(baseUrl) ? target.slice(baseUrl.length) : ''
+    if (step === '/verify' || step === '/verify-2fa') {
+      router.push(step)
+    } else if (target) {
       globalThis.location.href = target
     } else {
       errorHandler({ response: { status: 400, data: { message: __('message.something_wrong') } } }, COMPONENT)
@@ -124,7 +131,7 @@ async function submit() {
       return
     }
     captchaRef.value?.reset()
-    errorHandler(e, COMPONENT, { setErrors, excludeFields: ['login'] })
+    errorHandler(e, COMPONENT, { setErrors, excludeFields: ['honeypot'] })
   } finally {
     saving.value = false
   }

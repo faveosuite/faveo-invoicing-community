@@ -10,11 +10,6 @@ use Illuminate\Http\JsonResponse;
 
 class RecaptchaSettingsController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'admin']);
-    }
-
     public function getSettings(): JsonResponse
     {
         $status = StatusSetting::first();

@@ -4,12 +4,13 @@ import { __ } from '@/plugins/i18n'
 // Mirrors the client-side rules used by the legacy blade auth forms.
 export const NAME_RE     = /^[a-zA-Z][a-zA-Z' -]{0,98}$/
 export const EMAIL_RE    = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-export const STRONG_PASS = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z\d\s]).{8,64}$/u
+// Mirrors Laravel's Password::defaults() (AppServiceProvider): 8–64 chars, upper + lower, a number, a symbol.
+export const STRONG_PASS = /^(?=.*\p{Lu})(?=.*\p{Ll})(?=.*\p{N})(?=.*[\p{Z}\p{S}\p{P}]).{8,64}$/u
 const OTP_RE      = /^\d{6}$/
 
 export const loginSchema = yup.object({
-    email_username: yup.string().trim().required(() => __('message.error_email_address')),
-    password1:      yup.string().required(() => __('message.login_validation.password_required')),
+    login:    yup.string().trim().required(() => __('message.password_email')), // email or username
+    password: yup.string().required(() => __('message.login_validation.password_required')),
 })
 
 const nameEmailMobile = {
@@ -61,20 +62,20 @@ export const otpSchema = yup.object({
 })
 
 export const twoFaSchema = yup.object({
-    totp: yup.string()
+    code: yup.string()
         .required(() => __('message.otp_required'))
         .matches(OTP_RE, () => __('message.otp_must_be_6_digits')),
 })
 
 export const recoverySchema = yup.object({
-    rec_code: yup.string().trim().required(() => __('validation.please_enter_recovery_code')),
+    recovery_code: yup.string().trim().required(() => __('validation.please_enter_recovery_code')),
 })
 
 // Live password-requirement checklist (used by Register/Reset pages).
 export const passwordChecks = (pwd = '') => ({
     length:  pwd.length >= 8 && pwd.length <= 64,
-    lower:   /[a-z]/.test(pwd),
-    upper:   /[A-Z]/.test(pwd),
-    number:  /\d/.test(pwd),
-    special: /[^A-Za-z\d\s]/.test(pwd),
+    lower:   /\p{Ll}/u.test(pwd),
+    upper:   /\p{Lu}/u.test(pwd),
+    number:  /\p{N}/u.test(pwd),
+    special: /[\p{Z}\p{S}\p{P}]/u.test(pwd),
 })

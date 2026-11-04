@@ -63,7 +63,7 @@ class RegistrationTest extends DBTestCase
             'password_confirmation' => $user->password,
         ]);
         $response->assertStatus(412);
-        $this->assertSame('Email is required.', $response->json('message.email'));
+        $this->assertSame(__('validation.profile_form.email.required'), $response->json('message.email'));
     }
 
     #[Group('postRegister')]
@@ -146,7 +146,7 @@ class RegistrationTest extends DBTestCase
             'zip' => $user->zip,
             'password' => $user->password,
             'password_confirmation' => $user->password,
-            'registerForm' => [
+            'honeypot' => [
                 'pot_field' => '',     // valid
                 'time_field' => encrypt(time() - 10), // valid
             ],
@@ -201,7 +201,7 @@ class RegistrationTest extends DBTestCase
             'zip' => $user->zip,
             'password' => $user->password,
             'password_confirmation' => $user->password,
-            'registerForm' => [
+            'honeypot' => [
                 'pot_field' => '',     // valid
                 'time_field' => encrypt(time() - 10), // valid
             ],
@@ -239,7 +239,7 @@ class RegistrationTest extends DBTestCase
             'password' => 'Santhanu@12',
             'password_confirmation' => 'Santhanu@12',
             'terms' => 'on',
-            'registerForm' => [
+            'honeypot' => [
                 'pot_field' => '',     // valid
                 'time_field' => encrypt(time() - 10), // valid
             ],
@@ -267,7 +267,7 @@ class RegistrationTest extends DBTestCase
             'mobile_country_iso' => 'IN',
             'password' => 'Santhanu@12',
             'password_confirmation' => 'Santhanu@12',
-            'registerForm' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
+            'honeypot' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
         ]);
 
         $response->assertStatus(200);

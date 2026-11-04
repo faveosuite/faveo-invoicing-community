@@ -3,54 +3,50 @@
         <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
         <template v-else>
-            <!-- Icon + heading change with the mode (authenticator app / recovery code) -->
-            <span class="d-inline-flex align-items-center justify-content-center rounded-3 bg-color-light text-color-primary border mb-3"
-                  style="width: 3rem; height: 3rem" aria-hidden="true">
-                <i class="fas text-5" :class="useRecovery ? 'fa-key' : 'fa-mobile-screen'"></i>
-            </span>
-            <h1 class="font-weight-bold text-color-dark text-7 line-height-2 mb-1">
-                {{ useRecovery ? __('message.use_recovery_code_title') : __('message.two_factor_authentication') }}
+            <!-- Heading changes with the mode (authenticator app / recovery code) -->
+            <h1 class="fw-bold text-body-emphasis fs-3 lh-sm mb-1">
+                {{ useRecovery ? __('message.use_recovery_code_title') : __('message.two_factor_check') }}
             </h1>
-            <p class="text-3 mb-4">{{ useRecovery ? __('message.enter_recovery_code_hint') : __('message.open_two_factor') }}</p>
+            <p class="text-body-secondary mb-4">{{ useRecovery ? __('message.enter_recovery_code_hint') : __('message.open_two_factor') }}</p>
 
             <!-- Authenticator code -->
             <form v-if="!useRecovery" @submit.prevent="submitTotp" novalidate>
-                <OtpInput :label="__('message.authentication_code')" :model-value="form.totp" :error="errors.totp"
+                <OtpInput :label="__('message.authentication_code')" :model-value="form.code" :error="errors.code"
                           @update:modelValue="onTotpInput" />
 
-                <Honeypot name="2fa_code" v-model="form.code2fa" @ready="totpHpReady = $event" />
+                <Honeypot name="honeypot" v-model="form.honeypot" @ready="totpHpReady = $event" />
 
                 <RecaptchaField ref="totpCaptchaRef" action="login_2fa" class="mb-3" />
 
-                <button type="submit" class="btn btn-primary btn-modern w-100" :disabled="saving || !totpHpReady">
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-medium" :disabled="saving || !totpHpReady">
                     <i v-if="saving" class="fas fa-circle-notch fa-spin me-1" aria-hidden="true"></i>{{ __('message.verify') }}
                 </button>
             </form>
 
             <!-- Recovery code -->
             <form v-else @submit.prevent="submitRecovery" novalidate>
-                <ClientField name="rec_code" type="text" :label="__('message.recovery_code_label')"
+                <ClientField name="recovery_code" type="text" :label="__('message.recovery_code_label')"
                              autocomplete="off" :spellcheck="false"
-                             v-model="form.rec_code" :error="errors.rec_code"
-                             @update:modelValue="setFieldError('rec_code', undefined)" />
-                <p class="text-2 text-muted mt-n2 mb-3">{{ __('message.recovery_code_once') }}</p>
+                             v-model="form.recovery_code" :error="errors.recovery_code"
+                             @update:modelValue="setFieldError('recovery_code', undefined)" />
 
-                <Honeypot name="recovery_code" v-model="form.recovery" @ready="recHpReady = $event" />
+                <Honeypot name="honeypot" v-model="form.honeypot" @ready="recHpReady = $event" />
 
                 <RecaptchaField ref="recCaptchaRef" action="login_recovery" class="mb-3" />
 
-                <button type="submit" class="btn btn-primary btn-modern w-100" :disabled="saving || !recHpReady">
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-medium" :disabled="saving || !recHpReady">
                     <i v-if="saving" class="fas fa-circle-notch fa-spin me-1" aria-hidden="true"></i>{{ __('message.verify') }}
                 </button>
             </form>
 
-            <div class="d-flex flex-column align-items-center gap-2 mt-4 text-3">
-                <button type="button" class="btn btn-link text-color-primary text-decoration-none font-weight-semibold p-0"
+            <!-- Secondary actions, one quiet row -->
+            <div class="d-flex flex-wrap justify-content-center align-items-center gap-2 mt-4 small">
+                <button type="button" class="border-0 bg-transparent p-0 text-color-primary fw-medium"
                         @click="toggleMode(!useRecovery)">
-                    <i class="fas me-1" :class="useRecovery ? 'fa-mobile-screen' : 'fa-key'" aria-hidden="true"></i>
-                    {{ useRecovery ? __('message.use_authentication_code') : __('message.login_recovery_code') }}
+                    {{ useRecovery ? __('message.use_authentication_code') : __('message.use_recovery_code_title') }}
                 </button>
-                <a :href="`${baseUrl}/login`" class="text-decoration-none">{{ __('message.back_to_login') }}</a>
+                <span class="vr" aria-hidden="true"></span>
+                <a :href="`${baseUrl}/login`" class="text-body-secondary text-decoration-none">{{ __('message.back_to_login') }}</a>
             </div>
         </template>
     </div>
@@ -75,7 +71,8 @@ const baseUrl = useBaseUrl()
 const { errors, setErrors, setFieldError } = useForm()
 const totpCaptchaRef = ref(null)
 const recCaptchaRef  = ref(null)
-const form        = reactive({ totp: '', rec_code: '', code2fa: {}, recovery: {} })
+// code = 6-digit authenticator code; one honeypot (only one form is shown at a time)
+const form        = reactive({ code: '', recovery_code: '', honeypot: {} })
 const totpHpReady = ref(false)
 const recHpReady  = ref(false)
 const loading     = ref(true)
@@ -100,8 +97,8 @@ onMounted(async () => {
 })
 
 function onTotpInput(value) {
-    form.totp = String(value).replace(/\D/g, '').slice(0, 6)
-    setFieldError('totp', undefined)
+    form.code = String(value).replace(/\D/g, '').slice(0, 6)
+    setFieldError('code', undefined)
 }
 
 function toggleMode(recovery) {
@@ -110,17 +107,17 @@ function toggleMode(recovery) {
 }
 
 async function submitTotp() {
-    if (!await validateForm(twoFaSchema, { totp: form.totp }, setErrors)) return
+    if (!await validateForm(twoFaSchema, { code: form.code }, setErrors)) return
     const captchaPayload = await totpCaptchaRef.value?.getPayload()
     if (!totpCaptchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) return
-    await postVerify(`${baseUrl}/2fa/loginValidate`, { totp: form.totp, '2fa_code': form.code2fa, ...captchaPayload }, totpCaptchaRef)
+    await postVerify(`${baseUrl}/2fa/loginValidate`, { code: form.code, honeypot: form.honeypot, ...captchaPayload }, totpCaptchaRef)
 }
 
 async function submitRecovery() {
-    if (!await validateForm(recoverySchema, { rec_code: form.rec_code }, setErrors)) return
+    if (!await validateForm(recoverySchema, { recovery_code: form.recovery_code }, setErrors)) return
     const captchaPayload = await recCaptchaRef.value?.getPayload()
     if (!recCaptchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) return
-    await postVerify(`${baseUrl}/verify-recovery-code`, { rec_code: form.rec_code, recovery_code: form.recovery, ...captchaPayload }, recCaptchaRef)
+    await postVerify(`${baseUrl}/verify-recovery-code`, { recovery_code: form.recovery_code, honeypot: form.honeypot, ...captchaPayload }, recCaptchaRef)
 }
 
 async function postVerify(url, payload, captchaRef) {

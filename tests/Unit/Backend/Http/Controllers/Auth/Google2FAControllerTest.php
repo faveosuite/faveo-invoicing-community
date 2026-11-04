@@ -197,7 +197,7 @@ class Google2FAControllerTest extends DBTestCase
         // No 2fa:user:id in session → findOrFail(null) throws → errorResponse 400
         // OR ValidateSecretRequest validation fails → 412 (RequestJsonValidation)
         $response = $this->postJson('/2fa/loginValidate', [
-            'totp' => '000000',
+            'code' => '000000',
             'validate_2fa' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
         ]);
 
@@ -214,11 +214,11 @@ class Google2FAControllerTest extends DBTestCase
         session(['2fa:user:id' => $user->id]);
 
         $response = $this->postJson('/2fa/loginValidate', [
-            'totp' => '000000',
+            'code' => '000000',
             'validate_2fa' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
         ]);
 
-        // ValidateSecretRequest requires 'totp' — 412 if validation fails (RequestJsonValidation), 400 from errorResponse if it runs
+        // ValidateSecretRequest requires 'code' — 412 if validation fails (RequestJsonValidation), 400 from errorResponse if it runs
         $this->assertContains($response->getStatusCode(), [200, 400, 412]);
         $this->assertFalse($response->json('success') ?? false);
     }
@@ -231,8 +231,8 @@ class Google2FAControllerTest extends DBTestCase
     {
         // No session → errorResponse (400) or findOrFail throws
         $response = $this->postJson('/verify-recovery-code', [
-            'rec_code' => 'invalid_code',
-            'recovery_code' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
+            'recovery_code' => 'invalid_code',
+            'honeypot' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
         ]);
 
         $this->assertContains($response->getStatusCode(), [200, 400, 422]);
@@ -244,8 +244,8 @@ class Google2FAControllerTest extends DBTestCase
         session(['2fa:user:id' => $user->id]);
 
         $response = $this->postJson('/verify-recovery-code', [
-            'rec_code' => 'nonexistent_code_xyzzy',
-            'recovery_code' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
+            'recovery_code' => 'nonexistent_code_xyzzy',
+            'honeypot' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
         ]);
 
         $this->assertContains($response->getStatusCode(), [200, 400, 422]);
@@ -258,8 +258,8 @@ class Google2FAControllerTest extends DBTestCase
         session(['2fa:user:id' => $user->id]);
 
         $response = $this->postJson('/verify-recovery-code', [
-            'rec_code' => 'valid_test_code_abc123',
-            'recovery_code' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
+            'recovery_code' => 'valid_test_code_abc123',
+            'honeypot' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
         ]);
 
         // 200 success OR errorResponse if redirect path fails

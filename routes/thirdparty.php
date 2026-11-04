@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Route;
  * third-party twin of the admin screen's `product/upload-build/apply`.
  */
 
-Route::post('api/chunk-upload', [ThirdPartyApiController::class, 'chunkUploadFile']);
+Route::post('api/chunk-upload', [ThirdPartyApiController::class, 'chunkUploadFile'])
+    ->middleware('validateThirdParty');
 
-Route::post('api/upload/save', [ThirdPartyApiController::class, 'applyBuildToProducts']);
+Route::post('api/upload/save', [ThirdPartyApiController::class, 'applyBuildToProducts'])
+    ->middleware('validateThirdParty');

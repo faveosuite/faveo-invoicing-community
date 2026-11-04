@@ -2,10 +2,14 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Auth;
 
-use App\Model\User\Password;
+use App\Http\Middleware\Install;
+use App\Model\Common\StatusSetting;
 use App\User;
 use Crypt;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Password;
 use Tests\DBTestCase;
 
 class ForgotPasswordControllerTest extends DBTestCase
@@ -41,16 +45,17 @@ class ForgotPasswordControllerTest extends DBTestCase
         $response->assertJsonValidationErrors(['email'], 'message');
     }
 
-    public function test_send_reset_link_unknown_email_gets_same_reply_and_stores_no_token(): void
+    public function test_unknown_and_known_emails_get_the_same_reply_and_no_token_for_unknown(): void
     {
-        // Must not reveal whether an account exists (no `exists` rule, generic success).
+        // Must not reveal whether an account exists (no `exists` rule; same reply either way).
+        Bus::fake();
         $email = 'nobody_'.uniqid().'@example.com';
-        $response = $this->postJson('/password/email', [
-            'email' => $email,
-            'forgot' => $this->honeypot(),
-        ]);
-        $response->assertOk();
-        $response->assertJson(['success' => true, 'message' => __('validation.forgot_email_validation')]);
+        $unknown = $this->postJson('/password/email', ['email' => $email, 'honeypot' => $this->honeypot()]);
+        $known = $this->postJson('/password/email', ['email' => User::factory()->create()->email, 'honeypot' => $this->honeypot()]);
+
+        $this->assertSame($known->status(), $unknown->status());
+        $this->assertSame($known->json(), $unknown->json());
+        $unknown->assertJsonPath('message', __('validation.forgot_email_validation'));
         $this->assertDatabaseMissing('password_resets', ['email' => $email]);
     }
 
@@ -59,46 +64,41 @@ class ForgotPasswordControllerTest extends DBTestCase
         $user = User::factory()->create();
         $response = $this->postJson('/password/email', [
             'email' => $user->email,
-            'forgot' => $this->honeypot(),
+            'honeypot' => $this->honeypot(),
         ]);
         $this->assertContains($response->status(), [200, 400]);
     }
 
-    public function test_send_reset_link_deletes_existing_token_before_creating_new(): void
+    public function test_a_new_link_replaces_the_old_token_and_is_stored_hashed(): void
     {
-        // Covers line 72: existing password reset record gets deleted before new one is created
+        Bus::fake(); // the reset mail job
+        \App\Model\Common\Setting::where('id', 1)->update(['sending_status' => 1]);
         $user = User::factory()->create();
+        Password::broker()->createToken($user);
+        // Past the broker's per-email throttle window, so a new token is created.
+        DB::table('password_resets')->where('email', $user->email)->update(['created_at' => now()->subMinutes(5)]);
+        $old = DB::table('password_resets')->where('email', $user->email)->value('token');
 
-        // Create an existing reset token
-        Password::create(['email' => $user->email, 'token' => 'old-token', 'created_at' => now()]);
+        $this->postJson('/password/email', ['email' => $user->email, 'honeypot' => $this->honeypot()])->assertOk();
 
-        $response = $this->postJson('/password/email', [
-            'email' => $user->email,
-            'forgot' => $this->honeypot(),
-        ]);
-
-        $this->assertContains($response->status(), [200, 400]);
-        // Old token should be gone
-        $this->assertDatabaseMissing('password_resets', ['token' => 'old-token']);
+        $rows = DB::table('password_resets')->where('email', $user->email)->pluck('token');
+        $this->assertCount(1, $rows);
+        $this->assertNotSame($old, $rows[0]);
+        $this->assertStringStartsWith('$2y$', $rows[0]); // bcrypt hash, never the raw token
     }
 
-    public function test_send_reset_link_returns_error_when_rate_limited(): void
+    public function test_fourth_request_in_six_minutes_is_rate_limited(): void
     {
-        // Covers line 66: rate limit exceeded via session-based ArrayStore rate limiting
-        $user = User::factory()->create();
-        $ip = '127.0.0.1';
-        $sessionKey = 'forgot_password'.$user->email.':'.$ip;
+        Bus::fake();
+        $this->withMiddleware()->withoutMiddleware(Install::class);
+        StatusSetting::query()->update(['recaptcha_status' => 0]);
+        $email = 'nobody_'.uniqid().'@example.com';
+        $send = fn () => $this->postJson('/password/email', ['email' => $email, 'honeypot' => $this->honeypot()]);
 
-        // Simulate 3 prior attempts (maxAttempts = 3) in session
-        session()->put($sessionKey, 3);
-        session()->put($sessionKey.'_time', time());
-
-        $response = $this->postJson('/password/email', [
-            'email' => $user->email,
-            'forgot' => $this->honeypot(),
-        ]);
-
-        $response->assertStatus(400);
-        $response->assertJson(['success' => false]);
+        foreach (range(1, 3) as $_) {
+            $this->assertNotSame(429, $send()->status());
+        }
+        $send()->assertStatus(429)->assertJson(['success' => false])
+            ->assertJsonPath('message', fn (string $m) => str_contains($m, ' ') && $m !== 'Too Many Attempts.');
     }
 }

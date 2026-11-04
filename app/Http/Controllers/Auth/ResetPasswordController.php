@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Model\User\Password;
 use App\Rules\Honeypot;
-use App\Rules\StrongPassword;
 use App\User;
 use DB;
 use Exception;
@@ -14,7 +12,9 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Date;
+use Illuminate\Auth\Passwords\PasswordBroker;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 use Session;
 
 class ResetPasswordController extends Controller
@@ -43,15 +43,6 @@ class ResetPasswordController extends Controller
     protected $redirectTo = '/home';
 
     /**
-     * Create a new controller instance.
-     */
-    public function __construct()
-    {
-        $this->middleware('guest');
-        $this->middleware(['recaptcha:reset'])->only('reset');
-    }
-
-    /**
      * SPA shell for the reset link. The 2FA session keys are written here, in the page
      * request itself: the SPA's reset-validate XHR runs in parallel with other app-shell
      * XHRs, and sessions aren't locked, so a slower one would save its stale copy over them.
@@ -66,26 +57,21 @@ class ResetPasswordController extends Controller
     public function showResetForm(Request $request, mixed $token = null): JsonResponse
     {
         try {
-            $reset = DB::table('password_resets')->select('email', 'created_at')->where('token', $token)->first();
-
-            if ($reset && Date::parse($reset->created_at)->addMinutes(config('auth.passwords.users.expire')) > Date::now()) {
-                $user = User::where('email', $reset->email)->first();
-
-                if ($user && $user->is_2fa_enabled && Session::get(self::TWO_FA_VERIFIED_KEY) !== $token) {
-                    Session::put('2fa:user:id', $user->id);
-                    Session::put('verification_user_id', $user->id);
-                    Session::put('justStarted', true);
-                    Session::put('reset_token', $token);
-
-                    return successResponse('', ['redirect' => url('verify-2fa')]);
-                }
-
-                $data = ['reset_token' => $token, 'email' => $reset->email];
-
-                return successResponse('Reset page', [$data]);
+            $user = $this->resetUser((string) $request->query('email', ''), (string) $token);
+            if (! $user) {
+                return errorResponse(__('message.reset_link_expired'));
             }
 
-            return errorResponse(__('message.reset_link_expired'));
+            if ($user->is_2fa_enabled && Session::get(self::TWO_FA_VERIFIED_KEY) !== $token) {
+                Session::put('2fa:user:id', $user->id);
+                Session::put('verification_user_id', $user->id);
+                Session::put('justStarted', true);
+                Session::put('reset_token', $token);
+
+                return successResponse('', ['redirect' => url('verify-2fa')]);
+            }
+
+            return successResponse('Reset page', [['reset_token' => $token, 'email' => $user->email]]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
 
@@ -94,16 +80,16 @@ class ResetPasswordController extends Controller
     }
 
     /**
-     * Reset the given user's password.
+     * Reset the given user's password (Laravel's password broker checks the hashed
+     * token and its expiry, then deletes it).
      */
     public function reset(Request $request): JsonResponse
     {
-        // Validate request
         $request->validate([
             'token' => ['required'],
             'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', new StrongPassword],
-            'reset' => [new Honeypot],
+            'password' => ['required', 'confirmed', PasswordRule::defaults()],
+            'honeypot' => [new Honeypot],
         ], [
             'token.required' => __('validation.token_validation.token_required'),
             'email.required' => __('validation.custom_email.required'),
@@ -113,44 +99,31 @@ class ResetPasswordController extends Controller
         ]);
 
         try {
-            $email = $request->input('email');
-            $token = $request->input('token');
-            $newPassword = $request->input('password');
-
-            $passwordToken = Password::where('email', $email)->first();
-
-            if (! $passwordToken || ! hash_equals((string) $passwordToken->token, (string) $token)) {
-                return errorResponse(__('message.cannot_reset_password_invalid'));
-            }
-
-            // showResetForm() checks expiry too, but this endpoint can be posted to directly.
-            if (Date::parse($passwordToken->created_at)->addMinutes((int) config('auth.passwords.users.expire')) <= Date::now()) {
+            $token = (string) $request->input('token');
+            $user = $this->resetUser((string) $request->input('email'), $token);
+            if (! $user) {
                 return errorResponse(__('message.reset_link_expired'));
             }
 
-            $user = User::where('email', $email)->first();
-            if (! $user) {
-                return errorResponse(__('message.user_cannot_identifer'));
-            }
-
-            // Same reason: 2FA must be passed for *this* link, not just on page load.
+            // 2FA must be passed for *this* link (checked on page load too, but this endpoint can be posted to directly).
             if ($user->is_2fa_enabled && Session::get(self::TWO_FA_VERIFIED_KEY) !== $token) {
                 return errorResponse(__('message.reset_link_expired'));
             }
 
-            // Begin atomic transaction
-            DB::transaction(function () use ($user, $newPassword): void {
-                Session::forget([self::TWO_FA_VERIFIED_KEY, 'reset_token']);
+            $status = DB::transaction(fn () => Password::broker()->reset(
+                $request->only('email', 'password', 'password_confirmation', 'token'),
+                function (User $user, string $password): void {
+                    Session::forget([self::TWO_FA_VERIFIED_KEY, 'reset_token']);
+                    $user->password = Hash::make($password);
+                    $user->save();
+                    // Log out all other sessions.
+                    deleteUserSessions($user->id, $password);
+                }
+            ));
 
-                $user->password = Hash::make($newPassword);
-                $user->save();
-
-                // Logout all other sessions
-                deleteUserSessions($user->id, $newPassword);
-
-                // Delete password reset token
-                DB::table('password_resets')->where('email', $user->email)->delete();
-            });
+            if ($status !== PasswordBroker::PASSWORD_RESET) {
+                return errorResponse(__('message.reset_link_expired'));
+            }
 
             Session::flash('success', __('message.password_changed_successfully'));
 
@@ -160,5 +133,19 @@ class ResetPasswordController extends Controller
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
+    }
+
+    /**
+     * The user a reset link belongs to, if the link (email + token) is valid and not expired.
+     */
+    private function resetUser(string $email, string $token): ?User
+    {
+        if ($email === '' || $token === '') {
+            return null;
+        }
+        $broker = Password::broker();
+        $user = $broker->getUser(['email' => $email]);
+
+        return $user instanceof User && $broker->tokenExists($user, $token) ? $user : null;
     }
 }

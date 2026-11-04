@@ -2,13 +2,14 @@
     <!-- 6 single-digit boxes (Bootstrap form-controls) behaving like one field: typing moves on,
          Backspace moves back, arrows navigate, and a pasted/autofilled code fills every box. -->
     <div class="mb-3">
-        <span :id="labelId" class="form-label d-block text-dark">{{ label }}</span>
-        <div class="d-flex gap-2" role="group" :aria-labelledby="labelId" dir="ltr">
+        <!-- The page heading/sentence already explains the boxes; the label stays for screen readers. -->
+        <span :id="labelId" class="visually-hidden">{{ label }}</span>
+        <div class="d-flex gap-2 otp-boxes" role="group" :aria-labelledby="labelId" dir="ltr">
             <input v-for="i in LENGTH" :key="i" :ref="el => { boxes[i - 1] = el }"
                    type="text" inputmode="numeric"
                    :autocomplete="i === 1 ? 'one-time-code' : 'off'"
-                   class="form-control text-center text-5 font-weight-semibold px-0"
-                   :class="{ 'is-invalid': error }" style="height: 3.25rem"
+                   class="form-control text-center fs-5 fw-medium px-0"
+                   :class="{ 'is-invalid': error }"
                    :value="digits[i - 1]" :disabled="disabled"
                    :aria-label="`${label} ${i}/${LENGTH}`"
                    :aria-invalid="error ? 'true' : undefined" :aria-describedby="error ? errorId : undefined"

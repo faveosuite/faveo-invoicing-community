@@ -12,8 +12,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Brand panel on the guest auth pages (login, register, ...): show/hide, title,
- * description, tagline and image. Stored as option_name='auth_brand' rows in
+ * Brand panel on the guest auth pages (login, register, ...): show/hide, which side
+ * the form sits on, title, description, tagline and image. Stored as option_name='auth_brand' rows in
  * common_settings. Empty text / no image = the client falls back to the
  * translated defaults and the built-in illustration.
  */
@@ -26,16 +26,10 @@ class AuthBrandController extends Controller
      */
     private const TEXT_FIELDS = ['title', 'description', 'tagline'];
 
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('admin');
-    }
-
     /**
      * Current values, shared by the admin form and the client SPA shell (client.blade.php).
      *
-     * @return array{show: bool, title: string, description: string, tagline: string, image: ?string}
+     * @return array{show: bool, form_position: 'left'|'right', title: string, description: string, tagline: string, image: ?string}
      */
     public static function settings(): array
     {
@@ -44,6 +38,7 @@ class AuthBrandController extends Controller
 
         return [
             'show' => $rows->get('show', '1') !== '0',
+            'form_position' => $rows->get('form_position') === 'right' ? 'right' : 'left',
             'title' => (string) $rows->get('title', ''),
             'description' => (string) $rows->get('description', ''),
             'tagline' => (string) $rows->get('tagline', ''),
@@ -60,6 +55,7 @@ class AuthBrandController extends Controller
     {
         $request->validate([
             'show' => ['required', 'boolean'],
+            'form_position' => ['sometimes', 'in:left,right'],
             'title' => ['nullable', 'string', 'max:255'], // NOSONAR - Laravel validation rule, repeated by design
             'description' => ['nullable', 'string', 'max:255'],
             'tagline' => ['nullable', 'string', 'max:255'],
@@ -70,6 +66,9 @@ class AuthBrandController extends Controller
 
         try {
             $rows = [['option_name' => self::OPTION, 'optional_field' => 'show', 'option_value' => $request->boolean('show') ? '1' : '0', 'status' => '']];
+            if ($request->has('form_position')) {
+                $rows[] = ['option_name' => self::OPTION, 'optional_field' => 'form_position', 'option_value' => (string) $request->input('form_position'), 'status' => ''];
+            }
             foreach (self::TEXT_FIELDS as $field) {
                 $rows[] = ['option_name' => self::OPTION, 'optional_field' => $field, 'option_value' => trim((string) $request->input($field, '')), 'status' => ''];
             }

@@ -148,7 +148,7 @@ class ProfileTest extends DBTestCase
             'address' => $user->address,
         ]);
         $response->assertStatus(412);
-        $this->assertSame('First name is required.', $response->json('message.first_name'));
+        $this->assertSame(__('validation.profile_form.first_name.required'), $response->json('message.first_name'));
     }
 
     public function test_invalid_stored_mobile_does_not_block_profile_save(): void

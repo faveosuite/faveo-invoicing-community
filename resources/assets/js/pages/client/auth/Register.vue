@@ -16,20 +16,16 @@
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-sm-6">
-          <ClientField name="email" type="email" :label="__('message.email_address')" required
-                       autocomplete="email" :spellcheck="false"
-                       v-model="form.email" :error="errors.email"
-                       @update:modelValue="setFieldError('email', undefined)"/>
-        </div>
-        <div class="col-sm-6">
-          <PhoneField name="mobile" :label="__('message.mobile')" required
-                      :value="form.mobile" :error="errors.mobile"
-                      :onChange="onMobileInput"
-                      @countryChange="onMobileCountryChange"/>
-        </div>
-      </div>
+      <!-- Full width: side by side, the email and phone number get cut off in the form column. -->
+      <ClientField name="email" type="email" :label="__('message.email_address')" required
+                   autocomplete="email" :spellcheck="false"
+                   v-model="form.email" :error="errors.email"
+                   @update:modelValue="setFieldError('email', undefined)"/>
+
+      <PhoneField name="mobile" :label="__('message.mobile')" required
+                  :value="form.mobile" :error="errors.mobile"
+                  :onChange="onMobileInput"
+                  @countryChange="onMobileCountryChange"/>
 
       <div class="row">
         <div class="col-sm-6">
@@ -56,11 +52,11 @@
         <a :href="termsUrl" target="_blank" class="text-decoration-none">{{ __('message.terms_and_conditions') }}</a>
       </ClientCheckbox>
 
-      <Honeypot name="registerForm" v-model="form.registerForm" @ready="hpReady = $event" />
+      <Honeypot name="honeypot" v-model="form.honeypot" @ready="hpReady = $event" />
 
       <RecaptchaField ref="captchaRef" action="register" class="mb-3" />
 
-      <button type="submit" class="btn btn-primary btn-modern w-100"
+      <button type="submit" class="btn btn-primary w-100 py-2 fw-medium"
               :disabled="saving || !hpReady">
         <i v-if="saving" class="fas fa-circle-notch fa-spin me-1" aria-hidden="true"></i>{{ __('message.create_account') }}
       </button>
@@ -68,15 +64,16 @@
 
     <SocialButtons :social="social" :base-url="baseUrl"/>
 
-    <p class="text-center text-3 mt-4 mb-0">
+    <p class="text-center mt-4 mb-0">
       {{ __('message.already_have_account') }}
-      <RouterLink to="/login" class="text-color-primary font-weight-semibold text-decoration-none">{{ __('message.log_in') }}</RouterLink>
+      <RouterLink to="/login" class="text-color-primary fw-medium text-decoration-none">{{ __('message.log_in') }}</RouterLink>
     </p>
   </div>
 </template>
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
@@ -91,12 +88,13 @@ import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'client-page'
 const baseUrl = useBaseUrl()
+const router = useRouter()
 
 const { errors, setErrors, setFieldError } = useForm()
 const form = reactive({
   first_name: '', last_name: '', email: '',
   mobile: '', mobile_code: '', mobile_country_iso: '',
-  password: '', password_confirmation: '', terms: false, registerForm: {},
+  password: '', password_confirmation: '', terms: false, honeypot: {},
 })
 const captchaRef = ref(null)
 const saving = ref(false)
@@ -162,12 +160,12 @@ async function submit() {
       password: form.password,
       password_confirmation: form.password_confirmation,
       terms: termsEnabled.value ? form.terms : undefined,
-      registerForm: form.registerForm,
+      honeypot: form.honeypot,
       ...captchaPayload,
     })
     // "You're all set!" contradicts a verify step that follows — the verify page is the next step itself.
     if (Number(res.data?.data?.need_verify) === 1) {
-      globalThis.location.href = `${baseUrl}/verify`
+      router.push('/verify')
       return
     }
     // No verification step: go straight to log in, which says the account was created.
@@ -178,7 +176,7 @@ async function submit() {
       return
     }
     captchaRef.value?.reset()
-    errorHandler(e, COMPONENT, { setErrors, excludeFields: ['registerForm'] })
+    errorHandler(e, COMPONENT, { setErrors, excludeFields: ['honeypot'] })
   } finally {
     saving.value = false
   }

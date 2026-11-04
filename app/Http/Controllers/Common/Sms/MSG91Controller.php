@@ -19,24 +19,14 @@ use Logger;
 
 class MSG91Controller extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (StatusSetting::value('msg91_status') != 1) {
-                abort(403, (string) __('message.sms_service_disabled'));
-            }
-
-            return $next($request);
-        });
-
-        $this->middleware(['auth', 'admin'])->except('handleReports');
-    }
-
     /**
      * Handle MSG91 webhook delivery reports.
      */
     public function handleReports(Request $request, mixed $app_key, mixed $app_secret): void
     {
+        // Stop accepting delivery reports while MSG91 is switched off.
+        abort_unless(StatusSetting::value('msg91_status') == 1, 403, (string) __('message.sms_service_disabled'));
+
         if (! $this->validateThirdPartyRequest($app_key, $app_secret)) {
             return;
         }

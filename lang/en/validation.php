@@ -103,10 +103,10 @@ return [
     'not_regex' => 'The :attribute format is invalid.',
     'numeric' => 'The :attribute must be a number.',
     'password' => [
-        'letters' => 'The :attribute must contain at least one letter.',
-        'mixed' => 'The :attribute must contain at least one uppercase and one lowercase letter.',
-        'numbers' => 'The :attribute must contain at least one number.',
-        'symbols' => 'The :attribute must contain at least one symbol.',
+        'letters' => 'Your password needs at least one letter.',
+        'mixed' => 'Your password needs an uppercase and a lowercase letter.',
+        'numbers' => 'Your password needs at least one number.',
+        'symbols' => 'Your password needs at least one symbol.',
         'uncompromised' => 'The given :attribute has appeared in a data leak. Please choose a different :attribute.',
     ],
     'present' => 'The :attribute field must be present.',
@@ -658,31 +658,31 @@ return [
 
     'profile_form' => [
         'first_name' => [
-            'required' => 'First name is required.',
+            'required' => 'Enter your first name.',
             'min' => 'First name must be at least :min characters.',
             'max' => 'First name may not be greater than :max characters.',
         ],
         'last_name' => [
-            'required' => 'Last name is required.',
+            'required' => 'Enter your last name.',
             'max' => 'Last name may not be greater than :max characters.',
         ],
         'company' => [
-            'required' => 'Company name is required.',
+            'required' => 'Enter your company name.',
             'max' => 'Company name may not be greater than :max characters.',
         ],
         'email' => [
-            'required' => 'Email is required.',
+            'required' => 'Enter your email address.',
             'email' => 'Enter a valid email address.',
-            'unique' => 'The email address has already been taken. Please choose a different email.',
+            'unique' => 'This email address is already in use.',
         ],
         'mobile' => [
-            'required' => 'Mobile number is required.',
+            'required' => 'Enter your mobile number.',
             'regex' => 'Enter a valid mobile number.',
             'min' => 'Mobile number must be at least :min characters.',
             'max' => 'Mobile number may not be greater than :max characters.',
         ],
         'address' => [
-            'required' => 'Address is required.',
+            'required' => 'Enter your address.',
         ],
         'user_name' => [
             'required' => 'Username is required.',
@@ -692,11 +692,11 @@ return [
             'required' => 'Timezone is required.',
         ],
         'country' => [
-            'required' => 'Country is required.',
-            'exists' => 'Selected country is invalid.',
+            'required' => 'Select your country.',
+            'exists' => 'Select a valid country.',
         ],
         'state' => [
-            'required_if' => 'The state field is required for this country.',
+            'required_if' => 'Select your state.',
         ],
         'gstin' => [
             'regex' => 'The GSTIN format is invalid.',
@@ -714,17 +714,17 @@ return [
             'same' => 'Confirm password must match new password.',
         ],
         'terms' => [
-            'required' => 'You must accept the terms.',
+            'required' => 'Accept the terms and conditions to continue.',
         ],
         'password' => [
-            'required' => 'Password is required.',
+            'required' => 'Enter your password.',
         ],
         'password_confirmation' => [
-            'required' => 'Password confirmation is required.',
-            'same' => 'Passwords do not match.',
+            'required' => 'Confirm your password.',
+            'same' => 'Passwords don\'t match.',
         ],
         'mobile_code' => [
-            'required' => 'Enter Country code (mobile)',
+            'required' => 'Select your country code.',
         ],
     ],
 
@@ -983,7 +983,7 @@ return [
         'version_required' => 'The version field is required.',
         'dependencies_required' => 'The dependencies field is required.',
     ],
-    'please_enter_recovery_code' => 'Please enter recovery code',
+    'please_enter_recovery_code' => 'Enter a recovery code.',
     'social_login' => [
         'client_id_required' => 'Client ID is required for Google, Github, or Linkedin.',
         'client_secret_required' => 'Client Secret is required for Google, Github, or Linkedin.',

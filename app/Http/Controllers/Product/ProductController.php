@@ -97,9 +97,6 @@ class ProductController extends BaseProductController
     {
         parent::__construct($stampingService);
 
-        $this->middleware('auth');
-        $this->middleware('admin', ['except' => ['userDownload']]);
-
         $product = new Product;
         $this->product = $product;
 

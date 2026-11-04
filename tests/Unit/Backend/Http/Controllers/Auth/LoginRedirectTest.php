@@ -41,9 +41,9 @@ class LoginRedirectTest extends DBTestCase
     private function login(User $user, mixed $redirect = null, string $password = 'password'): TestResponse
     {
         return $this->postJson('/login', array_filter([
-            'email_username' => $user->email,
-            'password1' => $password,
-            'login' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
+            'login' => $user->email,
+            'password' => $password,
+            'honeypot' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
             'redirect' => $redirect,
         ], fn ($value): bool => $value !== null));
     }
@@ -200,8 +200,8 @@ class LoginRedirectTest extends DBTestCase
         $this->assertGuest();
 
         $this->postJson('/verify-recovery-code', [
-            'rec_code' => 'recovery-abc123',
-            'recovery_code' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
+            'recovery_code' => 'recovery-abc123',
+            'honeypot' => ['pot_field' => '', 'time_field' => encrypt(time() - 10)],
         ])->assertOk()->assertJsonPath('data.redirect', url('/store?group=1'));
 
         $this->assertAuthenticatedAs($user);
