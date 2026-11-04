@@ -75,7 +75,6 @@ class TenantController extends Controller
     {
         $this->client = $client; // @phpstan-ignore property.notFound
         $this->cloud = $cloud->first();
-
     }
 
     private function cloudApi(): CloudApi

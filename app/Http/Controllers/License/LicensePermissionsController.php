@@ -24,7 +24,6 @@ class LicensePermissionsController extends Controller
 
     public function __construct()
     {
-
         $licensePermission = new LicensePermission;
         $this->licensePermission = $licensePermission;
     }

@@ -18,7 +18,6 @@ class WidgetController extends Controller
 
     public function __construct()
     {
-
         $widget = new Widgets;
         $this->widget = $widget;
     }

@@ -10,7 +10,6 @@ use App\Model\Common\Bussiness;
 use App\Model\Common\Timezone;
 use App\User;
 use Auth;
-use DB;
 use Exception;
 use Hash;
 use Illuminate\Http\JsonResponse;

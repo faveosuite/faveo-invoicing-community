@@ -122,7 +122,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
     public function __construct()
     {
-
         $invoice = new Invoice;
         $this->invoice = $invoice;
 

@@ -102,7 +102,6 @@ class PipedriveController extends Controller
      */
     public function __construct()
     {
-
         $token = ApiKey::value('pipedrive_api_key');
 
         $config = new PipedriveConfiguration;
