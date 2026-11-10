@@ -6,8 +6,8 @@ Only versions with a check mark receive security patches.
 
 | Version   | Supported          |
 | --------- | ------------------ |
-| 4.0.2.6   | :white_check_mark: |
-| < 4.0.2.6 | :x:                |
+| 4.0.2.7   | :white_check_mark: |
+| < 4.0.2.7 | :x:                |
 
 ## Security Updates
 
