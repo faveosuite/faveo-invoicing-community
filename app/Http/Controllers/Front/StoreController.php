@@ -44,7 +44,6 @@ class StoreController extends Controller
         $groupMetaTitle = $formatter->resolveShortcodes($group->meta_title, $group->name) ?: $formatter->title($group->name);
         $groupMetaDescription = $formatter->resolveShortcodes($group->meta_description, $group->name) ?: $formatter->description($group->name);
 
-
         return successResponse('', [
             'group' => array_merge(
                 $group->only(['id', 'name', 'headline', 'tagline']),
