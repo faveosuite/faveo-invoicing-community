@@ -44,7 +44,41 @@ class StoreController extends Controller
         $groupMetaTitle = $formatter->resolveShortcodes($group->meta_title, $group->name) ?: $formatter->title($group->name);
         $groupMetaDescription = $formatter->resolveShortcodes($group->meta_description, $group->name) ?: $formatter->description($group->name);
 
-        $products = Product::with([
+
+        return successResponse('', [
+            'group' => array_merge(
+                $group->only(['id', 'name', 'headline', 'tagline']),
+                [
+                    // The page's <h1>. headline is the customer-facing title
+                    // ("Helpdesk Pricing"); name is the internal one the Store
+                    // dropdown links by ("Helpdesk Perpetual").
+                    'heading' => $group->headline ?: $group->name,
+                    'status' => (bool) $group->status,
+                    'meta_title' => $groupMetaTitle,
+                    'meta_description' => $groupMetaDescription,
+                ]
+            ),
+            'currency' => $currency,
+            'currency_symbol' => $symbol,
+            'cloud_subdomain' => cloudSubDomain() ?? '',
+            'data_centers' => CloudDataCenters::select('id', 'cloud_countries', 'cloud_state', 'cloud_city')->get()
+                ->map(fn ($dc): array => [
+                    'id' => $dc->id,
+                    'name' => implode(', ', array_filter([$dc->cloud_city, $dc->cloud_state, $dc->cloud_countries])),
+                ])->values(),
+            'products' => $this->storeProducts($groupId, $currency),
+        ]);
+    }
+
+    /**
+     * A group's product cards in one currency, exactly as the store shows them. The marketing (WordPress) site's
+     * pricing feed (HomeController::getPricingData) is built from this too, so both always list the same thing.
+     *
+     * @return Collection<int, array<mixed>>
+     */
+    public function storeProducts(int $groupId, string $currency): Collection
+    {
+        return Product::with([
             'planRelation' => fn ($q) => $q
                 ->where('status', 1)
                 ->with([
@@ -68,31 +102,8 @@ class StoreController extends Controller
                 fn ($a, $b): int => $this->storePrices($a)->min() <=> $this->storePrices($b)->min(),
                 fn ($a, $b): int => ($this->storePrices($a)->filter()->min() ?? 0) <=> ($this->storePrices($b)->filter()->min() ?? 0),
             ])
-            ->values();
-
-        return successResponse('', [
-            'group' => array_merge(
-                $group->only(['id', 'name', 'headline', 'tagline']),
-                [
-                    // The page's <h1>. headline is the customer-facing title
-                    // ("Helpdesk Pricing"); name is the internal one the Store
-                    // dropdown links by ("Helpdesk Perpetual").
-                    'heading' => $group->headline ?: $group->name,
-                    'status' => (bool) $group->status,
-                    'meta_title' => $groupMetaTitle,
-                    'meta_description' => $groupMetaDescription,
-                ]
-            ),
-            'currency' => $currency,
-            'currency_symbol' => $symbol,
-            'cloud_subdomain' => cloudSubDomain() ?? '',
-            'data_centers' => CloudDataCenters::select('id', 'cloud_countries', 'cloud_state', 'cloud_city')->get()
-                ->map(fn ($dc): array => [
-                    'id' => $dc->id,
-                    'name' => implode(', ', array_filter([$dc->cloud_city, $dc->cloud_state, $dc->cloud_countries])),
-                ])->values(),
-            'products' => $products->map(fn (Product $p): array => $this->transformProduct($p, $currency))->values(),
-        ]);
+            ->values()
+            ->map(fn (Product $p): array => $this->transformProduct($p, $currency));
     }
 
     /**
@@ -122,7 +133,7 @@ class StoreController extends Controller
         return getCurrencyForClient($iso ? (string) findCountryByGeoip($iso) : '');
     }
 
-    private function getCurrencySymbol(string $currency): string
+    public function getCurrencySymbol(string $currency): string
     {
         return Currency::where('code', $currency)->value('symbol') ?? $currency;
     }
