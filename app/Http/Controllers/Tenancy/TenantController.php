@@ -390,7 +390,6 @@ class TenantController extends Controller
             $user = Auth::user()->email ?? self::AUTO_DELETION; // also runs from the expiry cron, with no logged-in user
 
             if (($responseArray['status'] ?? null) == 'success') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
-                $this->deleteCronForTenant($request->input('id'));
                 DB::table('free_trial_allowed')->where('domain', $request->input('id'))->delete();
                 if (! empty($request->orderId)) {
                     $this->statusChange($request->orderId);
@@ -415,6 +414,14 @@ class TenantController extends Controller
                 );
 
                 $this->googleChat('Hello, it has come to my notice that '.$user.' has deleted this cloud instance '.$request->input('id'));
+
+                // Last: the tenant is already gone, so a failed cron cleanup must not undo the records above.
+                try {
+                    $this->deleteCronForTenant($request->input('id'));
+                } catch (Throwable $throwable) {
+                    Logger::exception($throwable);
+                    $this->googleChat('Cloud instance '.$request->input('id').' deleted, but removing its cron job failed: '.$throwable->getMessage());
+                }
 
                 return successResponse(__('message.cloud_deleted_successfully'));
             }
