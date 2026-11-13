@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Common\CronController;
-use App\Http\Controllers\Front\PageController;
+use App\Http\Controllers\Front\StoreController;
 use App\Http\Controllers\Order\RenewController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Requests\ProductRenewalRequest;
 use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Services\LicenseService;
+use App\Model\Common\Country;
+use App\Model\Common\Setting;
 use App\Model\Configure\PluginCompatibleWithProducts;
 use App\Model\Configure\ProductPluginGroup;
 use App\Model\Order\Invoice;
@@ -18,6 +20,7 @@ use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
+use App\Model\Product\ProductGroup;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\User;
@@ -26,6 +29,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Logger;
 use Symfony\Component\HttpFoundation\Response;
 use Validator;
@@ -502,96 +506,82 @@ class HomeController extends BaseHomeController
     }
 
     /**
-     * Public pricing feed for the marketing (WordPress) site: a group's visible products with plan prices
-     * in the visitor's currency, which is worked out from `ipAddress`.
+     * Public pricing feed for the marketing (WordPress) site, which fetches it about once an hour and then shows
+     * each visitor the store's pricing in their currency. Built from the store itself (StoreController::storeProducts),
+     * so the site lists the same products, order, plans and labels as /store/{group}; it adds the country → currency
+     * map (the rule getCurrencyForClient() applies) so the site can pick the currency without calling back.
      * The response shape is consumed as-is by that site, so it is deliberately not wrapped in successResponse().
      */
-    public function getPricingData(Request $request): JsonResponse
+    public function getPricingData(StoreController $store): JsonResponse
     {
-        $validator = Validator::make($request->query(), [
-            'group' => 'required|integer|exists:product_groups,id',
-            'ipAddress' => 'required|ip',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()->first()], 422);
-        }
-
         try {
-            $location = getLocation((string) $request->query('ipAddress'));
-            $currency = (string) getCurrencyForClient(findCountryByGeoip((string) ($location['iso_code'] ?? '')));
+            $default = (string) Setting::value('default_currency');
+            if ($default === '') {
+                throw new Exception('Pricing feed: no default currency is set.');
+            }
 
-            $products = Product::query()
-                ->join('plans', 'products.id', '=', 'plans.product')
-                ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
-                ->where('products.group', $request->query('group'))
-                ->where('products.hidden', '!=', 1)
-                ->where('plans.status', 1)
-                ->where('plan_prices.currency', $currency)
-                // A cloud (status 1) product is listed only when it has both a monthly and a yearly price in this currency.
-                ->where(function ($query) use ($currency): void {
-                    $query->where('products.status', '!=', 1)
-                        ->orWhere(function ($active) use ($currency): void {
-                            $active->where('products.status', 1)
-                                ->whereExists(fn ($m) => $m->select(DB::raw(1))
-                                    ->from('plans as p1')
-                                    ->join('plan_prices as pp1', 'pp1.plan_id', '=', 'p1.id')
-                                    ->whereColumn('p1.product', 'products.id')
-                                    ->where('p1.status', 1)
-                                    ->whereIn('p1.days', [30, 31])
-                                    ->where('pp1.currency', $currency))
-                                ->whereExists(fn ($y) => $y->select(DB::raw(1))
-                                    ->from('plans as p2')
-                                    ->join('plan_prices as pp2', 'pp2.plan_id', '=', 'p2.id')
-                                    ->whereColumn('p2.product', 'products.id')
-                                    ->where('p2.status', 1)
-                                    ->whereIn('p2.days', [365, 366])
-                                    ->where('pp2.currency', $currency));
-                        });
-                })
-                ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10,2)) ASC')
-                ->orderBy('products.created_at', 'ASC')
-                // Public, unauthenticated feed: list only what a pricing card shows. Never `products.*`,
-                // which would leak product_key, apl_salt, file and server paths.
-                ->select(
-                    'products.id', 'products.name', 'products.description', 'products.short_description', 'products.product_description',
-                    'products.category', 'products.image', 'products.shoping_cart_link', 'products.highlight', 'products.status',
-                    'products.show_agent', 'products.can_modify_agent', 'products.can_modify_quantity', 'products.show_product_quantity',
-                    'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
-                ->get();
+            // Same rule as getCurrencyForClient(): the country's own currency when it is active, else the default.
+            $countryCurrency = Country::whereHas('currency', fn ($query) => $query->where('status', 1))->with('currency')->get()
+                ->mapWithKeys(fn (Country $country): array => [$country->country_code_char2 => $country->currency->code])
+                ->filter();
+            $currencies = collect([$default])->merge($countryCurrency->values())->unique()->values();
 
-            $page = resolve(PageController::class);
-
-            // `days` and `price_description` come from the joined plan tables, not from products.
-            $products->transform(function (Product $product) use ($page): Product {
-                $days = (int) $product->getAttribute('days');
-
-                if ((int) $product->status === 1 && in_array($days, [30, 31, 365, 366], true)) {
-                    $product->setAttribute('price_description', $page->getPriceDescription($product->id, in_array($days, [30, 31], true) ? [30, 31] : [365, 366]));
+            $priced = collect([$default]);
+            $groups = [];
+            foreach (ProductGroup::orderBy('id')->get(['id', 'name', 'headline', 'tagline', 'status']) as $group) {
+                $products = [];
+                $prices = [];
+                foreach ($currencies as $currency) {
+                    $cards = $store->storeProducts($group->id, $currency);
+                    if ($cards->isEmpty()) {
+                        continue;
+                    }
+                    $priced->push($currency);
+                    foreach ($cards as $card) {
+                        // A product's text is the same in every currency, so it is sent once.
+                        $products[$card['id']] ??= Arr::only($card, ['id', 'name', 'short_description', 'description', 'highlighted', 'is_cloud', 'button']);
+                    }
+                    $prices[$currency] = $cards->map(fn (array $card): array => Arr::only($card, ['id', 'display_price', 'display_label', 'plans']))->all();
                 }
 
-                return $product;
-            });
+                if ($prices !== []) {
+                    $groups[] = [
+                        'id' => $group->id,
+                        'name' => $group->name,
+                        'heading' => $group->headline ?: $group->name,
+                        'tagline' => $group->tagline,
+                        // The store's Monthly/Yearly switch is on for this group.
+                        'switcher' => (bool) $group->status,
+                        'products' => array_values($products),
+                        'prices' => $prices,
+                    ];
+                }
+            }
+            $priced = $priced->unique()->values();
 
             return response()->json([
-                'products' => $products,
-                'currency' => $currency,
-                'currency_symbol' => $this->getCurrencySymbol($currency),
+                'generated_at' => now()->toIso8601String(),
+                // Order links go here: {store_url}/pricing?id=… adds to the cart, {store_url}/store/{group} is the store.
+                'store_url' => url('/'),
+                // The store card's wording, in billing's language, so the site says exactly what /store says.
+                'labels' => [
+                    'custom_pricing' => __('message.custom_pricing'),
+                    'free' => __('message.free'),
+                    'monthly' => __('message.monthly'),
+                    'yearly' => __('message.yearly'),
+                    'select_plan' => __('message.select_plan'),
+                ],
+                'default_currency' => $default,
+                'currencies' => (object) $priced->mapWithKeys(fn (string $currency): array => [$currency => $store->getCurrencySymbol($currency)])->all(),
+                // Only countries whose own currency is priced; every other visitor gets the default currency.
+                'countries' => (object) $countryCurrency->filter(fn (string $currency): bool => $currency !== $default && $priced->contains($currency))->all(),
+                'groups' => $groups,
             ]);
         } catch (Exception $exception) {
             Logger::exception($exception);
 
             return response()->json(['error' => __('message.sorry_something_wrong')], 500);
         }
-    }
-
-    private function getCurrencySymbol(string $currency): string
-    {
-        $locale = getLocalesByCurrency($currency);
-
-        return $locale === 'en'
-            ? $currency
-            : (new \NumberFormatter($locale, \NumberFormatter::CURRENCY))->getSymbol(\NumberFormatter::CURRENCY_SYMBOL);
     }
 
     public function getDetailedBillingInfo(Request $request): JsonResponse

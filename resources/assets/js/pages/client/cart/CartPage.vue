@@ -137,10 +137,16 @@ const authStore  = useAuthStore()
 const symbol = computed(() => cartStore.currencySymbol)
 
 onMounted(async () => {
-    const productId = route.query.id
+    // /pricing?id=… (redirected here) adds a product: the marketing site's pricing cards link here,
+    // with plan= and cycle= when the visitor picked a plan, the same as ordering from the store.
+    const { id: productId, plan, cycle } = route.query
     if (productId) {
         try {
-            await cartStore.addItem({ product_id: Number(productId) })
+            await cartStore.addItem({
+                product_id: Number(productId),
+                ...(plan ? { plan_id: Number(plan) } : {}),
+                ...(['monthly', 'yearly', 'onetime'].includes(cycle) ? { billing_cycle: cycle } : {}),
+            })
         } catch {
             await cartStore.fetchCart()
         }

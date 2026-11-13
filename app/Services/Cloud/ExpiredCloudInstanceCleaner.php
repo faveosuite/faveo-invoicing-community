@@ -4,7 +4,6 @@ namespace App\Services\Cloud;
 
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Tenancy\TenantController;
-use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
@@ -13,7 +12,6 @@ use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use Exception;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -44,6 +42,8 @@ class ExpiredCloudInstanceCleaner
                 ->where('is_deleted', 0)
                 ->whereIn('product_id', cloudPopupProducts())
                 ->where('ends_at', '<', $today->copy()->subDays(((int) $day) - 1))
+                // A Terminated order was replaced by a plan change; its tenant lives on under the new order.
+                ->whereDoesntHave('order', fn ($q) => $q->where('order_status', 'Terminated'))
                 ->get();
         } catch (Exception $exception) {
             Logger::exception($exception);
@@ -74,11 +74,13 @@ class ExpiredCloudInstanceCleaner
         }
 
         $domain = $order->installedDomains()->first();
-        if (is_null($domain)) {
+        // Last guard before an irreversible delete: an old order's license rows still resolve to
+        // the tenant's domain, so only the domain's newest order may delete it.
+        if (is_null($domain) || Order::idForDomain($domain) !== $order->id) {
             return;
         }
 
-        $destroy = new TenantController(new Client, new FaveoCloud)->destroyTenant(new Request(['id' => $domain, 'orderId' => $subscription->order_id]));
+        $destroy = resolve(TenantController::class)->destroyTenant(new Request(['id' => $domain, 'orderId' => $subscription->order_id]));
         if ($destroy->status() != 200) {
             return;
         }

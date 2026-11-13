@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers;
 
+use App\Http\Controllers\Front\StoreController;
 use App\Http\Middleware\Install;
+use App\Model\Common\Setting;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
-use Torann\GeoIP\Facades\GeoIP;
-use Torann\GeoIP\Location;
 
 class HomeControllerPricingDataTest extends TestCase
 {
@@ -17,93 +18,92 @@ class HomeControllerPricingDataTest extends TestCase
 
     private int $group;
 
+    // Prices go in the default currency: it is always in the feed, whatever the countries table holds.
+    private string $currency;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->withoutMiddleware(Install::class);
 
-        // GeoIP would call an external service; the visitor is always in the US (currency USD).
-        GeoIP::shouldReceive('getLocation')->andReturn(new Location(['ip' => '8.8.8.8', 'iso_code' => 'US', 'country' => 'United States']));
-
+        $this->currency = (string) Setting::value('default_currency');
         $this->group = DB::table('product_groups')->insertGetId([
-            'name' => 'g-'.uniqid(), 'hidden' => 0,
+            'name' => 'g-test', 'headline' => 'Test Pricing', 'tagline' => 'tag', 'hidden' => 0, 'status' => 1,
             'pricing_templates_id' => DB::table('pricing_templates')->insertGetId(['name' => 't-'.uniqid()]),
         ]);
     }
 
-    private function product(string $name, int $status, int $hidden = 0): int
+    private function product(string $name, int $contactSales = 0): int
     {
         return DB::table('products')->insertGetId([
-            'name' => $name, 'group' => $this->group, 'status' => $status, 'hidden' => $hidden, 'type' => 1, 'created_at' => now(),
+            'name' => $name, 'group' => $this->group, 'status' => 0, 'hidden' => 0, 'type' => 1,
+            'add_to_contact' => $contactSales, 'created_at' => now(),
         ]);
     }
 
-    private function price(int $product, int $days, string $currency = 'USD', string $amount = '10', int $status = 1): void
+    private function price(int $product, string $amount, string $offer = '0'): void
     {
-        $plan = DB::table('plans')->insertGetId(['name' => 'p'.uniqid(), 'product' => $product, 'days' => $days, 'status' => $status]);
-        DB::table('plan_prices')->insert(['plan_id' => $plan, 'currency' => $currency, 'add_price' => $amount, 'renew_price' => $amount, 'price_description' => 'desc']);
+        $plan = DB::table('plans')->insertGetId(['name' => 'p'.uniqid(), 'product' => $product, 'days' => 365, 'status' => 1]);
+        DB::table('plan_prices')->insert([
+            'plan_id' => $plan, 'currency' => $this->currency, 'add_price' => $amount, 'renew_price' => $amount,
+            'offer_price' => $offer, 'price_description' => 'per year',
+        ]);
     }
 
-    private function pricing(array $query): \Illuminate\Testing\TestResponse
+    private function feed(): TestResponse
     {
-        return $this->getJson('/pricing/data?'.http_build_query($query));
+        return $this->getJson('/pricing/data')->assertOk();
     }
 
-    public function test_requires_group_and_ip(): void
+    /** @return array<string, mixed>|null the test group as the feed lists it */
+    private function feedGroup(TestResponse $response): ?array
     {
-        $this->pricing([])->assertStatus(422)->assertJsonStructure(['error']);
-        $this->pricing(['group' => 999999999, 'ipAddress' => '8.8.8.8'])->assertStatus(422);
-        $this->pricing(['group' => $this->group, 'ipAddress' => 'not-an-ip'])->assertStatus(422);
+        return collect($response->json('groups'))->firstWhere('id', $this->group);
     }
 
-    public function test_returns_visible_products_in_visitor_currency(): void
+    public function test_feed_lists_the_store_cards_for_each_group_and_currency(): void
     {
-        $shown = $this->product('shown', 0);
-        $this->price($shown, 365);
-        $this->price($this->product('hidden', 0, hidden: 1), 365);
-        $this->price($this->product('other-currency', 0), 365, 'INR');
+        $this->price($this->product('premium'), '300', offer: '10');
+        $this->price($this->product('basic'), '100');
+        $this->price($this->product('enterprise', contactSales: 1), '999');
 
-        $response = $this->pricing(['group' => $this->group, 'ipAddress' => '8.8.8.8'])->assertOk();
+        $group = $this->feedGroup($this->feed());
 
-        $response->assertJsonPath('currency', 'USD');
-        $response->assertJsonStructure(['products', 'currency', 'currency_symbol']);
-        $this->assertSame(['shown'], array_column($response->json('products'), 'name'));
-        $this->assertSame('desc', $response->json('products.0.price_description'));
-        $this->assertArrayNotHasKey('product_key', $response->json('products.0'));
-        $this->assertArrayNotHasKey('apl_salt', $response->json('products.0'));
+        // Product text once + the per-currency part gives back exactly what /store/{group} shows.
+        $details = collect($group['products'])->keyBy('id');
+        $cards = collect($group['prices'][$this->currency])->map(fn (array $card): array => $details[$card['id']] + $card);
+        $store = resolve(StoreController::class)->storeProducts($this->group, $this->currency);
+        $this->assertEquals($store->map(fn (array $p): array => collect($p)->sortKeys()->all())->all(), $cards->map(fn (array $p): array => collect($p)->sortKeys()->all())->all());
+
+        $this->assertSame(['basic', 'premium', 'enterprise'], $cards->pluck('name')->all());
+        $this->assertSame('contact', $cards->last()['button']['type']);
+        $this->assertSame(['id', 'name', 'heading', 'tagline', 'switcher', 'products', 'prices'], array_keys($group));
+        $this->assertSame('Test Pricing', $group['heading']);
+        $this->assertTrue($group['switcher']);
     }
 
-    public function test_cloud_product_needs_monthly_and_yearly_price(): void
+    public function test_feed_has_the_store_url_currencies_and_the_country_map_checkout_uses(): void
     {
-        $yearlyOnly = $this->product('yearly-only', 1);
-        $this->price($yearlyOnly, 365);
+        $response = $this->feed();
 
-        $both = $this->product('both', 1);
-        $this->price($both, 30, amount: '5');
-        $this->price($both, 365, amount: '4');
+        $response->assertJsonStructure(['generated_at', 'store_url', 'labels' => ['custom_pricing', 'free', 'monthly', 'yearly', 'select_plan'], 'default_currency', 'currencies', 'countries', 'groups']);
+        $response->assertJsonPath('labels.custom_pricing', __('message.custom_pricing'));
+        $response->assertJsonPath('store_url', url('/'));
+        $response->assertJsonPath('default_currency', $this->currency);
+        $this->assertArrayHasKey($this->currency, $response->json('currencies'));
 
-        $response = $this->pricing(['group' => $this->group, 'ipAddress' => '8.8.8.8'])->assertOk();
-
-        $rows = $response->json('products');
-        $this->assertSame(['both', 'both'], array_column($rows, 'name'));
-        $this->assertEqualsCanonicalizing([30, 365], array_map('intval', array_column($rows, 'days')));
-        $this->assertSame('per month', $rows[0]['price_description']);
+        // Each mapped country gets the same currency as checkout's getCurrencyForClient(), and that currency is priced.
+        foreach ($response->json('countries') as $country => $currency) {
+            $this->assertSame((string) getCurrencyForClient($country), $currency, "country $country");
+            $this->assertNotSame($this->currency, $currency);
+            $this->assertArrayHasKey($currency, $response->json('currencies'));
+        }
     }
 
-    public function test_inactive_plans_are_not_listed(): void
+    public function test_groups_with_nothing_to_sell_are_left_out(): void
     {
-        $product = $this->product('with-inactive', 0);
-        $this->price($product, 365);
-        $this->price($product, 14, status: 0);
+        $this->product('no-price-yet');
 
-        // An inactive monthly plan must not make a cloud product look complete.
-        $cloud = $this->product('cloud-inactive-monthly', 1);
-        $this->price($cloud, 30, status: 0);
-        $this->price($cloud, 365);
-
-        $rows = $this->pricing(['group' => $this->group, 'ipAddress' => '8.8.8.8'])->assertOk()->json('products');
-
-        $this->assertSame(['with-inactive'], array_column($rows, 'name'));
-        $this->assertSame([365], array_map('intval', array_column($rows, 'days')));
+        $this->assertNull($this->feedGroup($this->feed()));
     }
 }

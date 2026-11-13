@@ -120,7 +120,7 @@ Route::get('verify/third-party-token', [TenantController::class, 'verifyThirdPar
 
 // --- Billing info / release info (queried by external dashboards) ---
 // --- Pricing feed for the marketing (WordPress) site ---
-Route::get('pricing/data', [HomeController::class, 'getPricingData']);
+Route::get('pricing/data', [HomeController::class, 'getPricingData'])->middleware('throttle:60,1');
 
 Route::get('api/billingInfo', [HomeController::class, 'getDetailedBillingInfo']);
 Route::get('api/pluginInfo', [HomeController::class, 'getDetailsForAClient']);
