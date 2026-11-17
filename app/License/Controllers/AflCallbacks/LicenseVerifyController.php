@@ -9,6 +9,7 @@ use App\License\Models\License;
 use App\License\Services\BannedHostService;
 use App\License\Services\InstallationService;
 use App\Model\Product\Product;
+use App\Services\EntitlementService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -158,6 +159,7 @@ class LicenseVerifyController extends Controller
             'license_support_date' => $license->license_support_date,
             'license_domain' => $license->license_domain,
             'license_ip' => $license->license_ip,
+            'entitlements' => (object) resolve(EntitlementService::class)->resolve($license),
         ];
 
         return $this->notificationResponse('notification_license_ok', $notificationData, $product, $license);

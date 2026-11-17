@@ -17,6 +17,7 @@ use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
 use App\Model\Payment\TaxOption;
 use App\Model\Product\Product;
+use App\Services\EntitlementService;
 use App\Services\Payment\InvoicePaymentService;
 use App\Services\Tax\TaxService;
 use Illuminate\Contracts\Database\Query\Builder;
@@ -341,12 +342,12 @@ class CartAgentsTest extends DBTestCase
 
     // ── H4: a coupon discounts only the products it is linked to ──
 
-    private function coupon(Product $for, string $value, int $type = 1): string
+    private function coupon(Product $for, string $value, int $type = 1, ?string $currency = null): string
     {
         $code = 'T'.strtoupper(uniqid());
         $type = PromotionType::find($type) ? $type : PromotionType::firstOrCreate(['name' => 'Percentage'])->id;
         $promo = Promotion::create([
-            'code' => $code, 'type' => $type, 'uses' => 100, 'value' => $value,
+            'code' => $code, 'type' => $type, 'uses' => 100, 'value' => $value, 'currency' => $currency,
             'start' => now()->subDay()->toDateTimeString(), 'expiry' => now()->addDay()->toDateTimeString(),
         ]);
         PromoProductRelation::create(['promotion_id' => $promo->id, 'product_id' => $for->id]);
@@ -404,6 +405,27 @@ class CartAgentsTest extends DBTestCase
 
         $this->assertNull(Cart::where('user_id', $this->user->id)->value('coupon_code'));
         $this->assertSame(0.0, $this->cartDiscount());
+    }
+
+    public function test_a_fixed_coupon_works_only_in_its_own_currency(): void
+    {
+        // "500 off" in INR must not take 500 USD off a USD cart; a percentage works in any currency.
+        [$a, $aPlan] = $this->product(canModifyAgents: false, planAgents: '1', price: 100);
+        $this->service->addItem($this->request(), ['product_id' => $a->id, 'plan_id' => $aPlan->id]);
+        Cart::where('user_id', $this->user->id)->update(['currency' => 'USD']);
+
+        try {
+            $this->service->applyCoupon($this->request(), $this->coupon(for: $a, value: '50', type: 2, currency: 'INR'));
+            $this->fail('An INR coupon was applied to a USD cart.');
+        } catch (\Exception $exception) {
+            $this->assertSame(__('message.coupon_wrong_currency', ['currency' => 'USD']), $exception->getMessage());
+        }
+
+        $this->service->applyCoupon($this->request(), $this->coupon(for: $a, value: '50', type: 2, currency: 'USD'));
+        $this->assertEqualsWithDelta(50.0, $this->cartDiscount(), 0.001);
+
+        $this->service->applyCoupon($this->request(), $this->coupon(for: $a, value: '10%'));
+        $this->assertEqualsWithDelta(10.0, $this->cartDiscount(), 0.001);
     }
 
     // ── Batch 3 #4: tax is charged on the price after the coupon ──
@@ -589,5 +611,21 @@ class CartAgentsTest extends DBTestCase
 
         $this->expectExceptionMessageIsOrContains(__('message.usage-of-code-completed'));
         $this->service->applyCoupon($this->request(), $code);
+    }
+
+    public function test_a_pay_every_agent_plan_without_an_agent_price_in_the_currency_cannot_be_bought(): void
+    {
+        // Each agent would cost 0 in that currency, so any number of agents would be free.
+        [$product, $plan] = $this->product(canModifyAgents: true, planAgents: '1');
+        $plan->entitlements()->attach(EntitlementService::agents()->id, ['value' => '0']); // 0 included: every agent paid
+        EntitlementService::agents()->prices()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'unit_price' => 500]);
+        $item = new CartItem(['product_id' => $product->id, 'plan_id' => $plan->id, 'agents' => 50]);
+
+        $this->assertTrue($item->isAvailable('INR'));
+        $this->assertFalse($item->isAvailable('USD')); // no USD agent price: the line is dropped, not free
+        $plan->update(['status' => 1, 'days' => 365]);
+        PlanPrice::where('plan_id', $plan->id)->update(['renew_price' => 100]);
+        $this->assertSame(1, Plan::renewableFor($product->id, false, 'INR')->whereKey($plan->id)->count());
+        $this->assertSame(0, Plan::renewableFor($product->id, false, 'USD')->whereKey($plan->id)->count());
     }
 }

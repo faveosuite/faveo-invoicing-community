@@ -8,6 +8,7 @@ export default [
     { path: '/products/plans',              component: () => import('../../pages/admin/products/plans/PlanIndex.vue'),         meta: { title: 'All Plans',    titleKey: 'message.all_plans' } },
     { path: '/products/plans/create',       component: () => import('../../pages/admin/products/plans/PlanCreate.vue'),       meta: { title: 'Create Plan',  titleKey: 'message.create_plan' } },
     { path: '/products/plans/:id/edit',     component: () => import('../../pages/admin/products/plans/PlanEdit.vue'),         meta: { title: 'Edit Plan',    titleKey: 'message.edit_plan' } },
+    { path: '/products/features',           component: () => import('../../pages/admin/products/features/FeatureIndex.vue'),   meta: { title: 'Features',     titleKey: 'message.features' } },
     { path: '/products/coupons',            component: () => import('../../pages/admin/products/coupons/CouponIndex.vue'),       meta: { title: 'All Coupons',  titleKey: 'message.all_coupons' } },
     { path: '/products/coupons/create',     component: () => import('../../pages/admin/products/coupons/CouponCreate.vue'),     meta: { title: 'Create New Coupon', titleKey: 'message.create_new_coupon' } },
     { path: '/products/coupons/:id/edit',   component: () => import('../../pages/admin/products/coupons/CouponEdit.vue'),       meta: { title: 'Edit Coupon',  titleKey: 'message.edit_coupon' } },

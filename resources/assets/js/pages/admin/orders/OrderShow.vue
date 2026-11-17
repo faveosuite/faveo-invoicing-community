@@ -167,6 +167,11 @@
                                                     <i class="fas fa-receipt me-1"></i>{{ __('message.payment_receipts') }}
                                                 </a>
                                             </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" :class="{ active: tab === 'entitlements' }" href="#" @click.prevent="tab = 'entitlements'">
+                                                    <i class="fas fa-list-check me-1"></i>{{ __('message.entitlements') }}
+                                                </a>
+                                            </li>
                                         </ul>
                                     </div>
                                     <div class="card-body table-responsive">
@@ -190,6 +195,9 @@
                                                 :dataColumns="paymentColumns"
                                                 :option="paymentTableOptions"
                                             />
+                                        </div>
+                                        <div v-if="tab === 'entitlements'">
+                                            <OrderEntitlements :orderId="orderId" />
                                         </div>
                                     </div>
                                 </div>
@@ -450,6 +458,7 @@ import { useForm } from 'vee-validate'
 import { validateForm } from '@/helpers/formUtils.js'
 import { licenseDetailsSchema } from '@/validations/admin/orderValidations.js'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
+import OrderEntitlements from './components/OrderEntitlements.vue'
 import Tooltip from '@/components/Reusable/Tooltip.vue'
 import { useDateTime } from '@/core/composables/useDateTime'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'

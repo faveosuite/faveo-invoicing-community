@@ -142,6 +142,9 @@ class PlanController extends ExtendedPlanController
 
             // Insert pricing data
             if ($request->filled('add_price')) {
+                // Empty agents means unlimited. For a product sold by agents, start at 1 so a sale
+                // before the admin sets the real count (Features tab) isn't an unlimited license.
+                $agents = Product::whereKey($plan->product)->value('show_agent') ? 1 : null;
                 $priceData = collect((array) $request->add_price)->map(fn ($addPrice, $key): array => [
                     'plan_id' => $plan->id,
                     'currency' => $request->currency[$key],
@@ -149,14 +152,14 @@ class PlanController extends ExtendedPlanController
                     'renew_price' => $request->renew_price[$key],
                     'offer_price' => $request->offer_price[$key] ?: null,
                     'price_description' => $request->price_description,
-                    'product_quantity' => $request->product_quantity,
-                    'no_of_agents' => $request->no_of_agents,
+                    'no_of_agents' => $agents,
                 ])->all();
 
                 $plan->planPrice()->insert($priceData);
             }
 
-            return successResponse(__('message.saved-successfully'));
+            // Next: the plan's features (and agents) are set on its edit page.
+            return successResponse(__('message.saved-successfully'), ['id' => $plan->id]);
         } catch (Exception $exception) {
             \Logger::exception($exception);
 
@@ -173,15 +176,6 @@ class PlanController extends ExtendedPlanController
                 'productRelation:id,name',
                 'periods:id,name',
             ])->findOrFail($planId);
-
-            $firstPrice = $plan->planPrice->first();
-            $plan->no_of_agents = $firstPrice?->no_of_agents; // @phpstan-ignore property.notFound
-            $plan->product_quantity = $firstPrice?->product_quantity; // @phpstan-ignore property.notFound
-
-            // Remove these fields from each planPrice item
-            foreach ($plan->planPrice as $price) {
-                unset($price->no_of_agents, $price->product_quantity);
-            }
 
             return successResponse('', $plan);
         } catch (ModelNotFoundException $exception) {
@@ -209,6 +203,8 @@ class PlanController extends ExtendedPlanController
 
             // Update plan prices
             if ($request->filled('add_price')) {
+                // Agents included are set in the plan's Features table: keep them across a price edit.
+                $agents = $plan->planPrice()->value('no_of_agents');
                 $plan->planPrice()->delete();
 
                 $priceData = collect((array) $request->add_price)->map(fn ($addPrice, $key): array => [
@@ -218,8 +214,7 @@ class PlanController extends ExtendedPlanController
                     'renew_price' => $request->renew_price[$key],
                     'offer_price' => $request->offer_price[$key] ?? null,
                     'price_description' => $request->price_description,
-                    'product_quantity' => $request->product_quantity,
-                    'no_of_agents' => $request->no_of_agents,
+                    'no_of_agents' => $agents,
                 ])->all();
 
                 $plan->planPrice()->insert($priceData);

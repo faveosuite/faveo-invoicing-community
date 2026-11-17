@@ -28,6 +28,7 @@ use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Front;
+use App\Http\Controllers\Front\OrderExtrasController;
 use App\Http\Controllers\Front\AccountSetupController;
 use App\Http\Controllers\Front\AutoRenewalController;
 use App\Http\Controllers\Front\Cart\CartApiController;
@@ -59,6 +60,7 @@ use App\Http\Controllers\Product\BaseProductController;
 use App\Http\Controllers\Product\GroupController;
 use App\Http\Controllers\Product\PlanController;
 use App\Http\Controllers\Product\ProductController;
+use App\Http\Controllers\Product\EntitlementController;
 use App\Http\Controllers\Product\ProductPluginController;
 use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\SocialLoginsController;
@@ -163,7 +165,8 @@ Route::middleware('installAgora')->group(function (): void {
         Route::post('create', [OpenPaymentController::class, 'createOrder'])
             ->name('open-payment.create')
             ->middleware(['throttle:10,1', 'recaptcha:open_payment']);
-        Route::get('order/{id}', [OpenPaymentController::class, 'getOrderDetails'])->name('open-payment.details');
+        Route::get('order/{id}', [OpenPaymentController::class, 'getOrderDetails'])->name('open-payment.details')
+            ->middleware('throttle:30,1'); // public, sequential ids
         Route::post('prepare', [OpenPaymentController::class, 'preparePayment'])->name('open-payment.prepare');
         Route::post('stripe/card-session', [OpenPaymentController::class, 'stripeCardSession'])
             ->name('open-payment.stripe.card-session')
@@ -307,6 +310,10 @@ Route::middleware('installAgora')->group(function (): void {
         // Orders
         Route::get('get-my-orders', [ClientController::class, 'getClientOrder'])->name('get-my-orders');
         Route::get('get-my-order/{id}', [ClientController::class, 'getClientOrderDetail'])->name('get-my-order');
+        Route::get('my-order/{orderId}/extras', [OrderExtrasController::class, 'index'])->whereNumber('orderId');
+        Route::post('my-order/{orderId}/extras/quote', [OrderExtrasController::class, 'quote'])->whereNumber('orderId');
+        Route::post('my-order/{orderId}/extras', [OrderExtrasController::class, 'buy'])->whereNumber('orderId');
+        Route::post('my-order/{orderId}/extras/{entitlementId}/renewal', [OrderExtrasController::class, 'renewal'])->whereNumber(['orderId', 'entitlementId']);
         Route::get('get-my-invoices/{orderid}/{userid}/{admin?}', [ClientController::class, 'getInvoicesByOrderId']);
         Route::get('get-my-payment-client/{orderid}/{userid}', [ClientController::class, 'getPaymentByOrderIdClient'])->name('get-my-payment-client');
         Route::get('get-my-installations/{orderid}', [ClientController::class, 'getOrderInstallations']);
@@ -400,6 +407,15 @@ Route::middleware('installAgora')->group(function (): void {
         Route::patch('product/{productId}', [ProductController::class, 'updateProduct']);
         Route::get('product/{productId}/plugins', [ProductPluginController::class, 'index']);
         Route::post('product/{productId}/plugins', [ProductPluginController::class, 'sync']);
+        Route::get('entitlements', [EntitlementController::class, 'index']);
+        Route::post('entitlements', [EntitlementController::class, 'sync']);
+        Route::delete('entitlements/{entitlementId}', [EntitlementController::class, 'destroy'])->whereNumber('entitlementId');
+        Route::get('order/{orderId}/entitlements', [EntitlementController::class, 'orderIndex'])->whereNumber('orderId');
+        Route::put('order/{orderId}/entitlements/{entitlementId}', [EntitlementController::class, 'orderOverride'])->whereNumber(['orderId', 'entitlementId']);
+        Route::delete('order/{orderId}/entitlements/{entitlementId}', [EntitlementController::class, 'orderReset'])->whereNumber(['orderId', 'entitlementId']);
+        Route::get('plan/{planId}/entitlements', [EntitlementController::class, 'planIndex'])->whereNumber('planId');
+        Route::post('plan/{planId}/entitlements', [EntitlementController::class, 'planSave'])->whereNumber('planId');
+        Route::post('plan/{planId}/entitlements/apply', [EntitlementController::class, 'planApply'])->whereNumber('planId');
         Route::get('product/uploads/{productId}', [ProductController::class, 'getProductUploads']);
         Route::get('product/upload/{productUploadId}', [ProductController::class, 'getProductUpload']);
         Route::patch('product/upload/{productUploadId}', [ProductController::class, 'updateProductUpload']);

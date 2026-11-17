@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
+ * @property list<array{entitlement_id: int, label: string, quantity: int, unit_price: float, renew_price?: float, period_id?: int|null}>|null $extras
  * @property int $invoice_id
  * @property string $product_name
  * @property int|null $product_id
@@ -77,7 +78,16 @@ class InvoiceItem extends BaseModel
 
     protected $fillable = ['invoice_id', 'product_name',
         'regular_price', 'quantity', 'discount', 'tax_name',
-        'tax_percentage', 'tax_code', 'tax_rate_id', 'discount_mode', 'subtotal', 'domain', 'plan_id', 'agents', 'billing_pay', 'product_id'];
+        'tax_percentage', 'tax_code', 'tax_rate_id', 'discount_mode', 'subtotal', 'domain', 'plan_id', 'agents', 'billing_pay', 'product_id', 'extras'];
+
+    /**
+     * @return array<string, string>
+     */
+    #[\Override]
+    protected function casts(): array
+    {
+        return ['extras' => 'array'];
+    }
 
     /**
      * @return HasMany<InvoiceTaxLine, $this>

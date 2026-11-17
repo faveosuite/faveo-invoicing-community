@@ -10,6 +10,7 @@ use App\Http\Controllers\Order\RenewController;
 use App\Http\Controllers\Subscription\SubscriptionController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Http\Controllers\Tenancy\TenantController;
+use App\License\Models\License;
 use App\Model\Cart\Cart;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\StatusSetting;
@@ -21,6 +22,8 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Plugins\Payment\Dto\SubscriptionRequest;
+use App\Services\EntitlementSalesService;
+use App\Services\EntitlementService;
 use App\Traits\Payment\PostPaymentHandle;
 use App\Traits\TaxCalculation;
 use App\User;
@@ -57,6 +60,7 @@ class PostPaymentService
             'agent_alteration' => $this->handleAgentAlteration($invoice, $metadata),
             'upgrade_downgrade' => $this->handleUpgradeDowngrade($invoice, $metadata),
             'renewal' => $this->handleRenewal($invoice),
+            EntitlementSalesService::INVOICE_TYPE => $this->handleEntitlementPurchase($invoice, $metadata),
             default => $this->handlePurchase($invoice, $gateway),
         };
 
@@ -184,6 +188,20 @@ class PostPaymentService
     }
 
     /**
+     * Extras bought for an existing order: add them, then update an active auto-renewal's amount.
+     *
+     * @param  array<mixed>  $metadata
+     * @return array<mixed>
+     */
+    private function handleEntitlementPurchase(Invoice $invoice, array $metadata): array
+    {
+        resolve(EntitlementSalesService::class)->fulfil($invoice);
+        $this->updateSubscriptionPriceIfNeeded($metadata['order_id'], $invoice);
+
+        return ['status' => 'success'];
+    }
+
+    /**
      * @param  array<mixed>  $metadata
      * @return array<mixed>
      */
@@ -250,6 +268,18 @@ class PostPaymentService
         // on every upgrade/downgrade whose new order's license this loaded.
         $licenseCode = $newOrder->serial_key;
         $productId = (int) $newOrder->product;
+
+        // Admin overrides on the old order carry over to the new one.
+        $fromLicense = License::where('license_code', $oldLicense)->first();
+        $toLicense = License::where('license_order_number', $newOrder->number)->first();
+        if ($fromLicense && $toLicense) {
+            resolve(EntitlementService::class)->carryOverrides($fromLicense, $toLicense);
+        }
+        // Bought extras move too (except on/off ones the new plan already includes).
+        $terminatedOrder = Order::find($terminatedOrderId);
+        if ($terminatedOrder) {
+            resolve(EntitlementSalesService::class)->carryExtras($terminatedOrder, $newOrder, resolve(EntitlementService::class));
+        }
 
         $cloud = new CloudExtraActivities(new Client, new FaveoCloud);
         $cloud->doTheProductUpgradeDowngrade(
@@ -328,7 +358,7 @@ class PostPaymentService
                     'rzp_subscription' => $oldSub->rzp_subscription,
                 ]);
                 Auto_renewal::where('order_id', $terminatedOrder->id)->update(['order_id' => $newActiveOrderId]);
-                $this->updateSubscriptionPriceIfNeeded($newActiveOrderId, $invoice); // @phpstan-ignore argument.type
+                $this->updateSubscriptionPriceIfNeeded($newActiveOrderId, $invoice);
             } elseif ($oldSub && (int) $oldSub->is_subscribed === 1) {
                 Subscription::where('order_id', $newActiveOrderId)->update([
                     'is_subscribed' => $oldSub->is_subscribed,
@@ -353,10 +383,10 @@ class PostPaymentService
     /**
      * Check and update the subscription price if necessary.
      *
-     * @param  string  $orderId  The order ID associated with the subscription.
+     * @param  int|string  $orderId  The order ID associated with the subscription.
      * @param  Invoice  $invoice  The invoice object for the subscription.
      */
-    private function updateSubscriptionPriceIfNeeded($orderId, Invoice $invoice): void
+    public function updateSubscriptionPriceIfNeeded($orderId, Invoice $invoice): void
     {
         $subscription = Subscription::where('order_id', $orderId)->first();
 

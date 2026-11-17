@@ -1915,10 +1915,6 @@ components:
             type: string
         price_description:
           type: string
-        product_quantity:
-          type: integer
-        no_of_agents:
-          type: integer
     PlanDetail:
       type: object
       properties:
@@ -1937,10 +1933,6 @@ components:
           type: array
           items:
             type: object
-        no_of_agents:
-          type: integer
-        product_quantity:
-          type: integer
     UpdatePlan:
       type: object
       properties:
@@ -1968,10 +1960,6 @@ components:
             type: string
         price_description:
           type: string
-        product_quantity:
-          type: integer
-        no_of_agents:
-          type: integer
     Promotion:
       type: object
       properties:

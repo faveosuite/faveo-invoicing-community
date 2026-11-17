@@ -222,6 +222,21 @@ class PromotionControllerTest extends DBTestCase
         $response->assertJson(['success' => true]);
     }
 
+    public function test_a_fixed_amount_coupon_needs_a_currency_and_keeps_it(): void
+    {
+        $this->getLoggedInUser('admin');
+        $fixed = ['type' => 2, 'value' => 5] + $this->validPromoPayload();
+
+        $this->postJson('/promotionCreate', $fixed)->assertStatus(412)->assertJsonValidationErrors(['currency'], 'message');
+
+        $this->postJson('/promotionCreate', $fixed + ['currency' => 'USD'])->assertOk();
+        $this->assertSame('USD', Promotion::where('code', $fixed['code'])->value('currency'));
+
+        $percent = $this->validPromoPayload();                  // percentage: no currency, even if one is sent
+        $this->postJson('/promotionCreate', $percent + ['currency' => 'USD'])->assertOk();
+        $this->assertNull(Promotion::where('code', $percent['code'])->value('currency'));
+    }
+
     public function test_update_promotion_code_updates_promotion(): void
     {
         // Covers lines 212-244: updatePromotionCode

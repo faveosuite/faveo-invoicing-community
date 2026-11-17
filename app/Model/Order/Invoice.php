@@ -320,4 +320,23 @@ class Invoice extends BaseModel
             'metadata' => 'array',
         ];
     }
+
+    /**
+     * The order's open renewal invoice for its product, for an auto-renewal charge to settle.
+     * Only a plain renewal: agent-change and other typed invoices are also flagged is_renewed,
+     * and settling one of those with a renewal payment would mark it paid without its change.
+     */
+    public static function openRenewalFor(int $orderId, int $productId): ?self
+    {
+        $latestInvoiceId = OrderInvoiceRelation::where('order_id', $orderId)->latest('id')->value('invoice_id');
+        if (! $latestInvoiceId || ! InvoiceItem::where('invoice_id', $latestInvoiceId)->where('product_id', $productId)->exists()) {
+            return null;
+        }
+
+        return self::whereKey($latestInvoiceId)
+            ->where('status', 'pending')
+            ->where('is_renewed', 1)
+            ->whereNull('metadata->type')
+            ->first();
+    }
 }

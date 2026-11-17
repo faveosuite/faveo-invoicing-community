@@ -52,20 +52,11 @@ class PaymentsAndInvoicesTest extends TestCase
     // getQuantity() – when $qty is truthy, returns immediately (no DB)
     // =========================================================================
 
-    public function test_get_quantity_returns_qty_when_truthy(): void
+    public function test_get_quantity_returns_qty_or_one(): void
     {
-        $result = $this->subject->getQuantity(10, 1, 1);
-        $this->assertSame(10, $result);
-    }
-
-    public function test_get_quantity_returns_fallback_when_qty_is_zero_and_product_not_found(): void
-    {
-        try {
-            $result = $this->subject->getQuantity(0, 999999, 1);
-            $this->assertIsInt($result);
-        } catch (\Throwable $throwable) {
-            $this->assertTrue(true);
-        }
+        $this->assertSame(10, $this->subject->getQuantity(10));
+        $this->assertSame(1, $this->subject->getQuantity(0));
+        $this->assertSame(1, $this->subject->getQuantity(null));
     }
 
     // =========================================================================

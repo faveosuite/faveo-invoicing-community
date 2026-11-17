@@ -23,6 +23,7 @@ use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Services\Cloud\CloudApi;
+use App\Services\EntitlementSalesService;
 use App\Services\Payment\CreditBalanceService;
 use App\Traits\TaxCalculation;
 use App\User;
@@ -432,10 +433,14 @@ class CloudExtraActivities extends Controller
             $planTarget = $product->planRelation->find($planId);
             $currency = userCurrencyAndPrice('', $planTarget);
             $ends_at = (string) $sub->ends_at;
-            $base_price = $currency['plan']?->add_price;
-            if ($base_price === null) {
+            $planPrice = $currency['plan'];
+            if (! $planPrice || $planPrice->add_price === null) {
                 return [];
             }
+            // One agent's price for this plan's currency and period (the product's Agents price
+            // points), falling back to the plan price per included agent.
+            $base_price = resolve(EntitlementSalesService::class)->agentUnitPrice($planPrice, 'list')
+                ?? (float) $planPrice->add_price / max(1, (int) $planPrice->no_of_agents);
 
             $oldAgents = (int) substr($oldLicense, 12, 16);
             $planDays = (int) $plan->days;
@@ -559,7 +564,7 @@ class CloudExtraActivities extends Controller
             }
 
             $currencyOld = userCurrencyAndPrice('', $productOld->planRelation->find($sub->plan_id));
-            $base_priceOld = PlanPrice::where('plan_id', $sub->plan_id)->where('currency', $currencyOld['currency'])->value('add_price') * $agents;
+            $base_priceOld = $this->planValue($order, $planOld, $currencyOld['currency'], $agents);
             $planDaysOld = (int) $planOld->days;
 
             $planNew = Plan::with('productRelation')->find($planIdNew);
@@ -569,7 +574,7 @@ class CloudExtraActivities extends Controller
             }
 
             $currencyNew = userCurrencyAndPrice('', $productNew->planRelation->find($planIdNew));
-            $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->value('add_price') * $agents;
+            $base_price_new = $this->planValue($order, $planNew, $currencyNew['currency'], $agents);
             $planDaysNew = (int) $planNew->days;
 
             if ($base_price_new > $base_priceOld) {
@@ -596,6 +601,23 @@ class CloudExtraActivities extends Controller
 
             return $empty;
         }
+    }
+
+    /**
+     * One full period of $plan for this order, as the shop prices it: the plan with the order's
+     * agents (offer applied, included agents covered) plus the extras the order carries onto it.
+     * Comparing old and new on this footing charges an upgrade for the extras' new term and
+     * credits a downgrade only what was actually paid, not the list price.
+     */
+    private function planValue(Order $order, Plan $plan, string $currency, int $agents): float
+    {
+        $row = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->first();
+        if (! $row) {
+            return 0.0;
+        }
+        $sales = resolve(EntitlementSalesService::class);
+
+        return $sales->planCost($row, $agents, 'purchase') + $sales->extrasValue($order, $currency, $plan);
     }
 
     /**

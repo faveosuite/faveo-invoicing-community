@@ -33,7 +33,7 @@ class AddCartItemRequest extends FormRequest
             'product_id' => ['required', 'integer', 'exists:products,id'],
             'plan_id' => ['nullable', 'integer'],
             'quantity' => ['sometimes', 'integer', 'min:1'],
-            'agents' => ['sometimes', 'integer', 'min:1'],
+            'agents' => ['sometimes', 'integer', 'min:1', 'max:9999'], // 4 license-code digits; more would read as 0000 = unlimited
             'domain' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$/'],
             'data_center_id' => ['nullable', 'integer', 'exists:cloud_data_centers,id'],
             'billing_cycle' => ['sometimes', 'in:monthly,yearly,onetime'],

@@ -14,6 +14,7 @@ describe('CouponCreate.vue', () => {
 
     beforeEach(() => {
         globalThis.mockHttp.onGet(/\/dependency\/promotion-types/).reply(200, { data: { promotion_types: [] } })
+        globalThis.mockHttp.onGet(/\/dependency\/currencies/).reply(200, { data: { currencies: [{ id: 'USD', name: 'USD' }] } })
         globalThis.mockHttp.onGet(/\/getPromotionCode/).reply(200, { data: 'ABC123' })
         globalThis.mockHttp.onPost(/\/promotionCreate/).reply(200, { data: { message: 'Created' } })
         wrapper = mount(CouponCreate, {

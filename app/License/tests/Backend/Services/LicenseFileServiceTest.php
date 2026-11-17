@@ -7,6 +7,7 @@ use App\License\Services\Ed25519SigningService;
 use App\License\Services\LicenseFileService;
 use App\License\tests\Backend\LicenseTestCase;
 use App\Model\Order\Order;
+use App\Model\Product\Entitlement;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -61,8 +62,29 @@ class LicenseFileServiceTest extends LicenseTestCase
         $this->assertSame('MACHINE-1', $payload['license_machine_id']);
         $this->assertArrayHasKey('product_schema', $payload['scheme_query']);
         $this->assertArrayNotHasKey('plugin_create_schema', $payload['scheme_query']);
+        $this->assertSame('{}', json_encode(json_decode($decoded['license'])->entitlements)); // empty list still an object
 
         $this->assertTrue($this->signingService->verify($decoded['license'], $decoded['signature']));
+    }
+
+    #[Test]
+    #[Group('license-file-service')]
+    public function signed_payload_carries_the_license_entitlements(): void
+    {
+        $this->seedLicenseSchemes();
+        $product = $this->createProduct();
+        $orderNumber = random_int(10000000, 99999999);
+        $order = Order::factory()->create(['product' => $product->id, 'number' => $orderNumber]);
+        Entitlement::create(['feature' => 'storage', 'key' => 'gb', 'label' => 'Storage', 'type' => 'number', 'default_value' => '5']);
+        $this->createLicense([
+            'product_id' => $product->id,
+            'license_order_number' => $orderNumber,
+            'entitlement_base' => ['storage' => ['gb' => 25]],
+        ]);
+
+        $payload = json_decode(json_decode($this->service->buildForOrder($order, $product), associative: true)['license'], associative: true);
+
+        $this->assertSame(['storage' => ['gb' => 25]], $payload['entitlements']);
     }
 
     #[Test]

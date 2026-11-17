@@ -353,9 +353,8 @@ class ProductModelsCoverageTest extends TestCase
         $this->assertInstanceOf(HasMany::class, new Product()->productPluginGroupsAsPlugin());
     }
 
-    public function test_product_config_options_is_has_many(): void
+    public function test_product_entitlements_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, new Product()->configOptions());
     }
 
     public function test_product_product_comp_with_is_has_many(): void

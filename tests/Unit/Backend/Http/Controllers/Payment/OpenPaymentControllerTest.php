@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Controllers\Payment;
 
 use App\Http\Middleware\Install;
+use App\Model\Payment\OpenPaymentOrder;
 use Tests\DBTestCase;
 
 class OpenPaymentControllerTest extends DBTestCase
@@ -130,6 +131,21 @@ class OpenPaymentControllerTest extends DBTestCase
     public function test_nonexistent_order_returns_404(): void
     {
         $this->getJson('/pay/order/999999999')->assertStatus(404);
+    }
+
+    public function test_order_details_show_only_the_receipt_of_a_paid_order(): void
+    {
+        // Public endpoint keyed by sequential ids: counting through them must not leak payers.
+        $order = fn (string $status) => OpenPaymentOrder::create([
+            'payment_status' => $status, 'gateway' => 'Stripe', 'amount' => 100, 'currency' => 'USD',
+            'reference' => 'test-ref-'.uniqid(), 'name' => 'Jane Payer', 'email' => 'jane@example.test', 'mobile' => '5550001',
+        ]);
+
+        $paid = $this->getJson('/pay/order/'.$order('completed')->id)->assertOk();
+        $this->assertSame(['id', 'transaction_id', 'currency', 'amount', 'gateway'], array_keys($paid->json('data.order')));
+        $this->assertStringNotContainsString('jane@example.test', (string) $paid->getContent());
+
+        $this->getJson('/pay/order/'.$order('pending')->id)->assertStatus(404);
     }
 
     public function test_sql_injection_in_id_does_not_expose_data(): void

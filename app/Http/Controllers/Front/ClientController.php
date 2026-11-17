@@ -18,6 +18,8 @@ use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\Payment_log;
+use App\Services\EntitlementSalesService;
+use App\Services\EntitlementService;
 use App\Services\Payment\AutoRenewalActivationService;
 use App\User;
 use App\WhatsappIntegration;
@@ -219,7 +221,7 @@ class ClientController extends BaseClientController
             return errorResponse(__('message.unauthorized_action'), 401);
         }
 
-        $license = License::where('license_order_number', $order->number)->first(['license_domain', 'license_ip', 'license_machine_id']);
+        $license = License::where('license_order_number', $order->number)->first(['license_domain', 'license_ip', 'license_machine_id', 'license_code', 'product_id', 'entitlement_base', 'entitlement_overrides']);
 
         // A plan/agent change terminates the old order and creates a new one
         // (see terminated_order_upgrade, written by CloudExtraActivities).
@@ -247,6 +249,8 @@ class ClientController extends BaseClientController
             'license_domain' => $license?->license_domain,
             'license_ip' => $license?->license_ip,
             'license_machine_id' => $license?->license_machine_id,
+            'entitlements' => $license ? resolve(EntitlementService::class)->forDisplay($license) : [],
+            'has_extras' => $order->order_status !== 'Terminated' && resolve(EntitlementSalesService::class)->forOrder($order) !== [],
             'invoice_id' => $latestInvoice?->id,
             'invoice_number' => $latestInvoice?->number,
             'sub_id' => $order->subscription?->id,
@@ -450,14 +454,7 @@ class ClientController extends BaseClientController
             $order = Order::where('client', $user->id)->find($request->integer('order'));
             $isOneTime = (bool) $order?->subscription?->plan?->periods()->where('name', self::ONE_TIME)->exists();
 
-            $plans = Plan::where('product', $productid)
-                ->where('status', 1)
-                ->where('days', '!=', 14)
-                ->when(
-                    $isOneTime,
-                    fn ($q) => $q->whereHas('periods', fn ($p) => $p->where('name', self::ONE_TIME)),
-                    fn ($q) => $q->whereDoesntHave('periods', fn ($p) => $p->where('name', self::ONE_TIME)),
-                )
+            $plans = Plan::renewableFor($productid, $isOneTime, $currency)
                 ->with([
                     'planPrice' => fn ($q) => $q->where('currency', $currency)
                         ->where('renew_price', '!=', '0')])

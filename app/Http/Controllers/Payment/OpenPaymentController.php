@@ -111,8 +111,10 @@ class OpenPaymentController extends Controller
     public function getOrderDetails(mixed $id): JsonResponse
     {
         try {
+            // Public and keyed by a sequential id: only a paid order, and only what the receipt
+            // shows — never the payer's name, email, phone or address.
             /** @var OpenPaymentOrder $order */
-            $order = OpenPaymentOrder::findOrFail($id);
+            $order = OpenPaymentOrder::where('payment_status', 'completed')->findOrFail($id);
             $apiKeys = ApiKey::first();
 
             if (! $apiKeys) {
@@ -120,7 +122,13 @@ class OpenPaymentController extends Controller
             }
 
             return successResponse('', [
-                'order' => $this->formatOrder($order),
+                'order' => [
+                    'id' => $order->id,
+                    'transaction_id' => $order->transaction_id,
+                    'currency' => $order->currency,
+                    'amount' => currencyFormat($order->amount, $order->currency, includeSymbol: false),
+                    'gateway' => $order->gateway,
+                ],
                 'rzp_key' => $apiKeys->rzp_key,
                 'stripe_key' => $this->payments->publishableKey(),
             ]);

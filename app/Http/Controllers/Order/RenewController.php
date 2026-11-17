@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Order;
 
 use App\Enums\OrderAbility;
+use App\License\Models\License;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -10,6 +11,7 @@ use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\EntitlementService;
 use App\Services\Payment\PostPaymentService;
 use App\Services\SubscriptionRenewalService;
 use App\Traits\TaxCalculation;
@@ -153,9 +155,15 @@ class RenewController extends BaseRenewController
 
             $sub = Subscription::where('order_id', $orderId)->firstOrFail();
 
-            if ($newPlanId) {
+            if ($newPlanId && (int) $newPlanId !== (int) $sub->plan_id) {
                 $sub->plan_id = $newPlanId;
                 $sub->save();
+
+                // Renewed onto a different plan: the license now gets that plan's entitlements.
+                $license = License::where('license_order_number', Order::whereKey($orderId)->value('number'))->first();
+                if ($license) {
+                    resolve(EntitlementService::class)->grant($license, (int) $newPlanId);
+                }
             }
 
             $days = Plan::findOrFail($sub->plan_id)->days;
@@ -230,7 +238,16 @@ class RenewController extends BaseRenewController
                 return deniedResponse($access);
             }
 
-            $plan = Plan::findOrFail($planId);
+            // Only a plan the renew popup offers: same product, active, not a trial, priced in
+            // the client's currency, same one-time/recurring kind. Any other id (another product's
+            // cheap or free plan) would renew this license at that plan's price.
+            /** @var User $authUser */
+            $authUser = Auth::user();
+            $oneTime = (bool) $sub->plan?->periods()->where('name', 'One Time')->exists();
+            $plan = Plan::renewableFor((int) $order->product, $oneTime, getCurrencyForClient($authUser->country))->find($planId);
+            if (! $plan instanceof Plan) {
+                return errorResponse(__('message.renew_plan_not_allowed'), 422);
+            }
 
             // Already asked to renew on this plan and not paid yet — send them to that invoice.
             $existingUnpaidInvoice = $this->checkExistingUnpaidInvoice($sub, $planId);
@@ -246,8 +263,6 @@ class RenewController extends BaseRenewController
                 return errorResponse(__('message.renew_blocked_unpaid_invoice', ['number' => $unpaid->number]));
             }
 
-            /** @var User $authUser */
-            $authUser = Auth::user();
             $planDetails = userCurrencyAndPrice($authUser->id, $plan);
             $currency = $planDetails['currency'];
             $agents = $this->orderAgents((int) $sub->order_id);

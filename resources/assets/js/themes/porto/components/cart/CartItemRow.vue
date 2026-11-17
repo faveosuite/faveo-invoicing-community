@@ -1,137 +1,113 @@
 <template>
-  <tr v-if="layout === 'row'" class="cart_table_item">
-    <td class="product-thumbnail">
-      <div class="product-thumbnail-wrapper">
-        <button type="button" class="product-thumbnail-remove p-0" :title="__('message.remove')" :aria-label="__('message.remove')" @click="remove">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </button>
-        <span class="product-thumbnail-image d-inline-block">
-          <img v-if="item.image" :src="item.image" width="90" height="90" alt="" class="img-fluid" />
-          <span v-else class="d-inline-flex align-items-center justify-content-center bg-light product-placeholder">
-            <i class="fas fa-box text-color-grey fa-2x" aria-hidden="true"></i>
+  <!-- One plan in the cart, styled like the order summary next to it. Changes happen in the Customize panel. -->
+  <div class="card border-width-3 border-radius-0 mb-4">
+    <div class="card-body">
+      <!-- Header: product + price -->
+      <div class="d-flex align-items-center gap-3 pb-3 border-bottom">
+        <img v-if="item.image" :src="item.image" width="48" height="48" alt="" class="img-fluid thumb flex-shrink-0" />
+        <span v-else class="d-inline-flex align-items-center justify-content-center bg-light thumb flex-shrink-0" aria-hidden="true">
+          <i class="fas fa-box text-color-grey"></i>
+        </span>
+        <div class="flex-grow-1 min-w-0">
+          <h4 class="font-weight-bold text-uppercase text-4 mb-0">{{ item.name }}</h4>
+          <span class="d-block text-2 text-color-grey">
+            {{ meta }}
           </span>
-        </span>
+        </div>
+        <strong class="text-color-dark text-4 text-nowrap">{{ item.currency_symbol }}{{ item.line_total }}</strong>
       </div>
-    </td>
-    <td class="product-name">
-      <span class="font-weight-semi-bold text-color-dark">{{ item.name }}</span>
-    </td>
-    <td class="product-price">
-      <span class="amount font-weight-medium text-color-grey">{{ item.currency_symbol }}{{ item.plan_price ?? item.unit_price }}</span>
-    </td>
 
-    <!-- Quantity: editable only when the product allows it -->
-    <td class="product-quantity">
-      <div v-if="item.can_modify_quantity" class="quantity float-none m-0">
-        <input type="button" class="minus text-color-hover-light bg-color-hover-primary border-color-hover-primary"
-               value="−" :aria-label="__('message.decrease')" :disabled="item.quantity <= 1" @click="step('quantity', -1)">
-        <input type="text" class="input-text qty text" :value="item.quantity" :aria-label="__('message.quantity')" readonly>
-        <input type="button" class="plus text-color-hover-light bg-color-hover-primary border-color-hover-primary"
-               value="+" :aria-label="__('message.increase')" @click="step('quantity', 1)">
-      </div>
-      <span v-else class="text-color-dark">{{ item.quantity }}</span>
-    </td>
-
-    <!-- Agents: "Unlimited" when 0, editable only when the product allows it -->
-    <td class="product-quantity">
-      <template v-if="!item.show_agent">
-        <span class="text-color-grey">—</span>
+      <!-- Breakdown: only when the price is made of more than the plan -->
+      <template v-if="hasBreakdown">
+        <div class="d-flex justify-content-between py-3 border-bottom">
+          <strong class="text-color-dark">{{ __('message.cart_base_plan') }}<span v-if="item.quantity > 1" class="text-color-grey fw-normal"> × {{ item.quantity }}</span></strong>
+          <span class="amount font-weight-medium">{{ item.currency_symbol }}{{ item.plan_total ?? item.line_total }}</span>
+        </div>
+        <div v-if="item.show_agent && item.agents_total" class="d-flex justify-content-between py-3 border-bottom">
+          <strong class="text-color-dark">{{ __('message.agents') }}<span class="text-color-grey fw-normal"> ({{ agentsText }})</span></strong>
+          <span class="amount font-weight-medium">{{ agentsAmount }}</span>
+        </div>
+        <template v-if="chosen.length > 3">
+          <div class="d-flex justify-content-between py-3 border-bottom">
+            <strong class="text-color-dark">
+              {{ __('message.cart_addons_count', { count: chosen.length }) }}
+              <button type="button" class="btn btn-link p-0 ms-2 text-2 align-baseline" :aria-expanded="showAddons" @click="showAddons = !showAddons">
+                {{ showAddons ? __('message.show_less') : __('message.show_more') }}
+                <i class="fas ms-1" :class="showAddons ? 'fa-chevron-up' : 'fa-chevron-down'" aria-hidden="true"></i>
+              </button>
+            </strong>
+            <span class="amount font-weight-medium">{{ item.currency_symbol }}{{ item.extras_total }}</span>
+          </div>
+          <template v-if="showAddons">
+            <div v-for="extra in chosen" :key="extra.entitlement_id" class="d-flex justify-content-between py-2 ps-3 border-bottom text-2 text-color-grey">
+              <span>{{ extra.label }}<template v-if="extra.type === 'number'"> × {{ extra.quantity }}</template></span>
+              <span class="amount">{{ item.currency_symbol }}{{ extra.line_total }}</span>
+            </div>
+          </template>
+        </template>
+        <template v-else>
+          <div v-for="extra in chosen" :key="extra.entitlement_id" class="d-flex justify-content-between py-3 border-bottom">
+            <strong class="text-color-dark">
+              {{ extra.label }}
+              <span class="text-color-grey fw-normal">({{ extra.type === 'number' ? `${extra.quantity} × ${item.currency_symbol}${extra.unit_price}` : __('message.cart_addon') }})</span>
+            </strong>
+            <span class="amount font-weight-medium">{{ item.currency_symbol }}{{ extra.line_total }}</span>
+          </div>
+        </template>
       </template>
-      <template v-else-if="!item.agents">
-        <span class="text-color-grey">{{ __('message.unlimited_agents') }}</span>
-      </template>
-      <div v-else-if="item.can_modify_agent" class="quantity float-none m-0">
-        <input type="button" class="minus text-color-hover-light bg-color-hover-primary border-color-hover-primary"
-               value="−" :aria-label="__('message.decrease')" :disabled="item.agents <= 1" @click="step('agents', -1)">
-        <input type="text" class="input-text qty text" :value="item.agents" :aria-label="__('message.agents')" readonly>
-        <input type="button" class="plus text-color-hover-light bg-color-hover-primary border-color-hover-primary"
-               value="+" :aria-label="__('message.increase')" @click="step('agents', 1)">
-      </div>
-      <span v-else class="text-color-dark">{{ item.agents }}</span>
-    </td>
 
-    <td class="product-subtotal text-end">
-      <span class="amount text-color-dark font-weight-bold text-4">{{ item.currency_symbol }}{{ item.line_total }}</span>
-    </td>
-  </tr>
-  <!-- Phone layout: same data and controls as the table row, stacked -->
-  <div v-else class="card border mb-3">
-    <div class="card-body d-flex gap-3">
-      <span class="flex-shrink-0">
-        <img v-if="item.image" :src="item.image" width="64" height="64" alt="" class="img-fluid rounded" />
-        <span v-else class="d-inline-flex align-items-center justify-content-center bg-light rounded" style="width: 64px; height: 64px">
-          <i class="fas fa-box text-color-grey fa-lg" aria-hidden="true"></i>
-        </span>
-      </span>
-      <div class="flex-grow-1 min-w-0">
-        <div class="d-flex justify-content-between align-items-start gap-2">
-          <span class="font-weight-semi-bold text-color-dark">{{ item.name }}</span>
-          <button type="button" class="btn btn-link text-color-grey p-0" :title="__('message.remove')" :aria-label="__('message.remove')" @click="remove">
-            <i class="fas fa-times" aria-hidden="true"></i>
+      <!-- Actions -->
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-3">
+        <span v-if="customizable" class="d-flex flex-wrap align-items-center gap-3">
+          <button type="button" class="btn btn-light btn-modern text-2 text-uppercase border-radius-0" @click="emit('customize', item.id)">
+            <i class="fas fa-sliders-h me-1" aria-hidden="true"></i>{{ __('message.cart_customize') }}
           </button>
-        </div>
-        <div class="text-2 text-color-grey mb-2">{{ item.currency_symbol }}{{ item.plan_price ?? item.unit_price }}</div>
-        <dl class="row g-2 align-items-center text-2 mb-2">
-          <dt class="col-5 fw-normal text-color-grey mb-0">{{ __('message.quantity') }}</dt>
-          <dd class="col-7 mb-0">
-            <div v-if="item.can_modify_quantity" class="quantity float-none m-0">
-              <input type="button" class="minus text-color-hover-light bg-color-hover-primary border-color-hover-primary"
-                     value="−" :aria-label="__('message.decrease')" :disabled="item.quantity <= 1" @click="step('quantity', -1)">
-              <input type="text" class="input-text qty text" :value="item.quantity" :aria-label="__('message.quantity')" readonly>
-              <input type="button" class="plus text-color-hover-light bg-color-hover-primary border-color-hover-primary"
-                     value="+" :aria-label="__('message.increase')" @click="step('quantity', 1)">
-            </div>
-            <span v-else class="text-color-dark">{{ item.quantity }}</span>
-          </dd>
-          <dt class="col-5 fw-normal text-color-grey mb-0">{{ __('message.agents') }}</dt>
-          <dd class="col-7 mb-0">
-            <template v-if="!item.show_agent">
-              <span class="text-color-grey">—</span>
-            </template>
-            <template v-else-if="!item.agents">
-              <span class="text-color-grey">{{ __('message.unlimited_agents') }}</span>
-            </template>
-            <div v-else-if="item.can_modify_agent" class="quantity float-none m-0">
-              <input type="button" class="minus text-color-hover-light bg-color-hover-primary border-color-hover-primary"
-                     value="−" :aria-label="__('message.decrease')" :disabled="item.agents <= 1" @click="step('agents', -1)">
-              <input type="text" class="input-text qty text" :value="item.agents" :aria-label="__('message.agents')" readonly>
-              <input type="button" class="plus text-color-hover-light bg-color-hover-primary border-color-hover-primary"
-                     value="+" :aria-label="__('message.increase')" @click="step('agents', 1)">
-            </div>
-            <span v-else class="text-color-dark">{{ item.agents }}</span>
-          </dd>
-        </dl>
-        <div class="d-flex justify-content-between border-top pt-2">
-          <span class="text-color-grey text-2">{{ __('message.subtotal') }}</span>
-          <span class="amount text-color-dark font-weight-bold">{{ item.currency_symbol }}{{ item.line_total }}</span>
-        </div>
+          <span class="text-2 text-color-grey">{{ chosen.length ? __('message.cart_n_addons', { count: chosen.length }) : __('message.cart_customize_hint') }}</span>
+        </span>
+        <span v-else></span>
+        <button type="button" class="btn btn-link btn-remove text-decoration-none text-2 p-0" :aria-label="`${__('message.remove')} ${item.name}`" @click="emit('remove', item.id)">
+          <i class="far fa-trash-alt me-1" aria-hidden="true"></i>{{ __('message.remove') }}
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { computed, ref } from 'vue'
 import { __ } from '@/plugins/i18n'
+import { useCartLine } from './useCartLine'
 
 const props = defineProps({
-  item:   { type: Object, required: true },
-  // 'row' = table row (tablet+), 'card' = stacked card for phones.
-  layout: { type: String, default: 'row' },
+  item: { type: Object, required: true },
 })
-const emit = defineEmits(['update', 'remove'])
+const emit = defineEmits(['remove', 'customize'])
 
-function remove() {
-  emit('remove', props.item.id)
-}
+const { agentsAmount, chosen, customizable } = useCartLine(() => props.item)
 
-// Increment/decrement either `quantity` or `agents`; never below 1.
-function step(field, delta) {
-  const next = props.item[field] + delta
-  if (next < 1) return
-  emit('update', { id: props.item.id, [field]: next })
-}
+const showAddons = ref(false)
+
+// agents = 0 means the plan has no agent limit.
+const agentsText = computed(() => {
+  const n = props.item.agents
+  if (!n) return __('message.plan_agents_unlimited')
+  return n === 1 ? __('message.cart_one_agent') : __('message.cart_n_agents', { count: n })
+})
+
+// "One Time · 1 agent · × 2" under the product name.
+const meta = computed(() => [
+  props.item.period,
+  props.item.show_agent ? agentsText.value : null,
+  props.item.quantity > 1 ? `× ${props.item.quantity}` : null,
+].filter(Boolean).join(' · '))
+
+// With nothing but the plan, the header price already says it all.
+const hasBreakdown = computed(() => props.item.quantity > 1 || !!props.item.agents_total || chosen.value.length > 0)
 </script>
 
 <style scoped>
-.product-placeholder { width: 90px; height: 90px; }
+.thumb { width: 48px; height: 48px; object-fit: contain; }
+.btn-remove { color: #777; }
+.btn-remove:hover, .btn-remove:focus-visible { color: var(--bs-danger, #dc3545); }
+.min-w-0 { min-width: 0; }
 </style>

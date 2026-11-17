@@ -439,6 +439,9 @@ return [
 
     // Payment form
     'coupon_form' => [
+        'currency' => [
+            'required' => 'Choose the currency of the fixed amount.',
+        ],
         'code' => [
             'required' => 'The coupon code field is required.',
             'string' => 'The coupon code must be a string.',

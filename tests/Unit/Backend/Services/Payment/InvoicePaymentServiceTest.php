@@ -162,6 +162,29 @@ class InvoicePaymentServiceTest extends DBTestCase
         $this->assertTrue($result['paid_in_full']);
     }
 
+    public function test_a_failed_fulfilment_after_paying_with_credit_can_be_retried(): void
+    {
+        // It was marked paid before fulfilment ran, so a failure left a "paid" invoice with
+        // nothing delivered and every retry skipped it as already paid.
+        $user = User::factory()->create();
+        $invoice = Invoice::factory()->create(['user_id' => $user->id, 'grand_total' => 90.0, 'currency' => 'USD', 'status' => 'pending']);
+        resolve(CreditBalanceService::class)->grant($user->id, 'USD', 90.0, CreditTransaction::TYPE_DOWNGRADE_PRORATION);
+        $this->postPayment->shouldReceive('handle')->once()->andThrow(new \Exception('cloud API down'));
+        $this->postPayment->shouldReceive('handle')->once()->andReturn([]);
+
+        try {
+            $this->service->applyCredit($invoice);
+            $this->fail('The fulfilment failure was swallowed.');
+        } catch (\Exception $e) {
+            $this->assertSame('cloud API down', $e->getMessage());
+        }
+        $this->assertSame('pending', strtolower((string) $invoice->fresh()->status)); // not stuck as paid
+        $this->assertSame(90.0, $this->service->availableCredit($user->id, 'USD'));     // credit not spent
+
+        $this->assertTrue($this->service->applyCredit($invoice->fresh())['paid_in_full']); // the retry fulfils
+        $this->assertSame('success', strtolower((string) $invoice->fresh()->status));
+    }
+
     public function test_apply_credit_throws_when_outstanding_and_no_credit(): void
     {
         $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'status' => 'pending']);
@@ -534,6 +557,37 @@ class InvoicePaymentServiceTest extends DBTestCase
         $invoice->update(['grand_total' => 1000.0]);
 
         $this->refusesWith($invoice->fresh(), $raw);
+    }
+
+    public function test_a_refused_capture_is_kept_as_an_unapplied_payment_once(): void
+    {
+        // The card was charged $10, then the invoice was rebuilt at $1000: nothing is fulfilled,
+        // but the $10 stays on the customer's account — once, though redirect and webhook both confirm.
+        \Illuminate\Support\Facades\Mail::fake();
+        $user = User::factory()->create();
+        $invoice = $this->pendingInvoice(10.0, $user->id);
+        $raw = $this->captured($invoice, minor: 1000);
+        $invoice->update(['grand_total' => 1000.0]);
+        $result = new PaymentResult(paid: true, gateway: 'NoFeeGateway', reference: 'pi_kept_'.uniqid(), raw: $raw);
+        $this->payments->shouldReceive('capture')->twice()->andReturn($result);
+        $this->postPayment->shouldNotReceive('handle');
+        $unapplied = resolve(\App\Services\Payment\UnappliedPaymentService::class);
+
+        $this->assertFalse($this->service->confirm($invoice->fresh(), 'NoFeeGateway', []));
+        $this->assertFalse($this->service->confirm($invoice->fresh(), 'NoFeeGateway', [])); // the webhook, later
+
+        $this->assertEqualsWithDelta(10.0, $unapplied->balance($user->id, 'USD'), 0.001);
+        $this->assertNotSame('success', $invoice->fresh()->status);
+    }
+
+    public function test_confirm_checks_the_invoice_as_it_is_now_not_as_loaded(): void
+    {
+        // The request loaded the $10 invoice, then "Place order" rebuilt it at $1000 before the
+        // check ran. The check must use the locked, current row — not the stale copy.
+        $loaded = $this->pendingInvoice(10.0);
+        Invoice::whereKey($loaded->id)->update(['grand_total' => 1000.0]);
+
+        $this->refusesWith($loaded, $this->captured($loaded, minor: 1000)); // the stale copy, not ->fresh()
     }
 
     public function test_confirm_accepts_an_exact_payment(): void

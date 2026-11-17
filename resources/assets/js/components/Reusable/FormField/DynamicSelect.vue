@@ -24,6 +24,7 @@
             :noDrop="noDrop"
             :loading="isLoading"
             :dropdownShouldOpen="dropdownShouldOpen"
+            :appendToBody="appendToBody"
             :class="['faveo-dynamic-select', { 'is-invalid': fieldError }]"
             @update:modelValue="onValueChange"
             @search="onSearch"
@@ -106,6 +107,8 @@ const props = defineProps({
     strlength:     { type: [Number, String], default: 60 },
     // vue-select's own: which options can be picked (the rest show greyed out).
     selectable:    { type: Function, default: () => true },
+    // Open the list on top of the page, so a parent that scrolls (e.g. a table) can't cut it off.
+    appendToBody:  { type: Boolean, default: false },
 })
 
 const fieldError = computed(() => props.error ?? '')

@@ -7,6 +7,7 @@ use App\Http\Controllers\Order\InvoiceController;
 use App\Http\Controllers\User\AdvanceSearchController;
 use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
+use App\Model\Payment\GatewayEvent;
 use App\Model\Payment\Promotion;
 use App\Plugins\Payment\Dto\Customer;
 use App\Plugins\Payment\Dto\PaymentRequest;
@@ -14,8 +15,10 @@ use App\Plugins\Payment\Dto\PaymentResult;
 use App\Plugins\Payment\Dto\PaymentSession;
 use App\Plugins\Payment\Exceptions\PaymentException;
 use App\Plugins\Payment\Support\Money;
+use App\Traits\Payment\PostPaymentHandle;
 use App\User;
 use Exception;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Logger;
@@ -41,6 +44,8 @@ use Throwable;
  */
 class InvoicePaymentService
 {
+    use PostPaymentHandle;
+
     public function __construct(
         private readonly PaymentService $payments,
         private readonly PostPaymentService $postPayment,
@@ -109,13 +114,15 @@ class InvoicePaymentService
         // Claim under a row lock: two concurrent "pay with credit" calls on one invoice would
         // otherwise both pass the paid check, both spend and both fulfil (a downgrade's credit
         // granted twice, two orders). The loser waits, then sees it claimed. Fulfilment runs
-        // after the lock, as in confirm().
-        [$claimed, $paidInFull, $invoice] = DB::transaction(function () use ($invoice): array {
+        // inside the same transaction, as in confirm(): if it fails, the claim and the spent
+        // credit roll back with it, so a retry can fulfil — instead of a "paid" invoice with
+        // nothing delivered that every retry skips as already paid.
+        $paidInFull = DB::transaction(function () use ($invoice): bool {
             $invoice = Invoice::whereKey($invoice->id)->lockForUpdate()->firstOrFail();
 
             // Already paid — re-running fulfilment would extend renewals/plans again for free.
             if (strtolower((string) $invoice->status) === 'success') {
-                return [false, true, $invoice];
+                return true;
             }
 
             $this->ensureCouponNotUsedUp($invoice);
@@ -135,14 +142,11 @@ class InvoicePaymentService
             $paidInFull = $this->outstanding($invoice) <= 0;
             if ($paidInFull) {
                 $invoice->update(['status' => 'success']); // the claim
+                $this->postPayment->handle($invoice, 'Credit Balance');
             }
 
-            return [$paidInFull, $paidInFull, $invoice];
+            return $paidInFull;
         });
-
-        if ($claimed) {
-            $this->postPayment->handle($invoice, 'Credit Balance');
-        }
 
         return ['paid_in_full' => $paidInFull];
     }
@@ -244,53 +248,47 @@ class InvoicePaymentService
             return false;
         }
 
-        // The credit this payment was opened with comes from what WE stamped on the gateway
-        // payment at start() — Stripe keeps it in `metadata`, Razorpay in `notes` (it was only
-        // read from `metadata`, so Razorpay credit was never spent). Never from the browser's
-        // payload. Re-clamped to the current balance in case it was spent elsewhere meanwhile.
         $stamped = $result->raw['metadata'] ?? $result->raw['notes'] ?? [];
-        $creditApplied = min(
-            (float) ($stamped['credit_applied'] ?? 0),
-            $this->availableCredit((int) $invoice->user_id, $invoice->currency)
-        );
 
-        // A genuine payment for this invoice can still be for the wrong amount: the invoice
-        // could have been rebuilt bigger after the payment was opened, or the previewed credit
-        // spent on another invoice. Fulfil only if what was captured covers what is due now.
-        if (! $this->capturedCovers($result, $invoice, $gateway, $creditApplied)) {
-            Logger::exception(new Exception(sprintf(
-                'Payment %s (%s) for invoice %d captured %s, less than the %s %s now due — refusing to fulfil; reconcile manually.',
-                $result->reference, $gateway, $invoice->id,
-                json_encode([$result->raw['amount_received'] ?? $result->raw['amount_paid'] ?? $result->raw['amount_total'] ?? null, $result->raw['currency'] ?? null]),
-                $this->amountDue($invoice, $gateway, $creditApplied), $invoice->currency
-            )));
+        // Everything below runs on the invoice locked and re-read: "Place order" rebuilds the same
+        // pending invoice in place (new items, new total). Checked against the copy loaded when
+        // this request began, a payment for a cheap cart could pass and then fulfil the expensive
+        // items rebuilt meanwhile; a rebuild landing after payment could reset a paid invoice.
+        // The rebuild takes the same lock (CartService::reusablePendingInvoice), so one waits.
+        return DB::transaction(function () use ($invoice, $gateway, $result, $stamped): bool {
+            $invoice = Invoice::whereKey($invoice->id)->lockForUpdate()->firstOrFail();
 
-            return false;
-        }
-
-        // Atomically claim this invoice for fulfilment. The client-side confirm
-        // call and the gateway's server-to-server webhook both call confirm()
-        // independently for the very same payment, and can arrive close enough
-        // together that both would otherwise pass every check above before
-        // either one had actually fulfilled anything — recordPayment()'s own
-        // outstanding check and executeOrders()'s "already executed" check are
-        // the same read-then-write shape, so a close-enough race slips past
-        // those too, resulting in duplicate Payment rows and (worse) duplicate
-        // Orders provisioned for one purchase. This UPDATE...WHERE is the only
-        // guard that can't race: only one caller's update can affect a row, so
-        // the loser (affected count 0) safely reports success without
-        // repeating any of the work below.
-        return DB::transaction(function () use ($invoice, $gateway, $result, $creditApplied): true {
-            $claimed = $invoice->newQuery()
-                ->whereKey($invoice->id)
-                ->where('status', '!=', 'success')
-                ->update(['status' => 'success']);
-
-            if (! $claimed) {
+            // Already claimed: the client-side confirm and the gateway webhook both confirm the
+            // same payment; whichever comes second waits on the lock and stops here, so nothing
+            // (payment rows, orders) is done twice.
+            if (strtolower((string) $invoice->status) === 'success') {
                 return true;
             }
 
-            $invoice->refresh();
+            // The credit this payment was opened with comes from what WE stamped on the gateway
+            // payment at start() — Stripe keeps it in `metadata`, Razorpay in `notes`. Never from
+            // the browser's payload. Re-clamped to the current balance in case it was spent elsewhere.
+            $creditApplied = min(
+                (float) ($stamped['credit_applied'] ?? 0),
+                $this->availableCredit((int) $invoice->user_id, $invoice->currency)
+            );
+
+            // A genuine payment for this invoice can still be for the wrong amount: the invoice
+            // could have been rebuilt bigger after the payment was opened, or the previewed credit
+            // spent on another invoice. Fulfil only if what was captured covers what is due now.
+            if (! $this->capturedCovers($result, $invoice, $gateway, $creditApplied)) {
+                Logger::exception(new Exception(sprintf(
+                    'Payment %s (%s) for invoice %d captured %s, less than the %s %s now due — refusing to fulfil; kept as unapplied payment.',
+                    $result->reference, $gateway, $invoice->id,
+                    json_encode([$result->raw['amount_received'] ?? $result->raw['amount_paid'] ?? $result->raw['amount_total'] ?? null, $result->raw['currency'] ?? null]),
+                    $this->amountDue($invoice, $gateway, $creditApplied), $invoice->currency
+                )));
+                $this->keepRefusedCapture($result, $invoice, $gateway);
+
+                return false;
+            }
+
+            $invoice->update(['status' => 'success']); // the claim, under the lock
 
             if ($creditApplied > 0) {
                 $this->spendBalance($invoice, $creditApplied);
@@ -298,8 +296,8 @@ class InvoicePaymentService
                 // Applying credit re-derives the invoice's status from what has
                 // been paid so far, which — with the gateway's own payment not
                 // recorded until fulfilment below — knocks it back to "partially
-                // paid". The transaction-level row lock prevents any concurrent claim
-                // from taking over, and we restore 'success' here before completing.
+                // paid". The row lock keeps any concurrent claim out; restore
+                // 'success' here before completing.
                 $invoice->newQuery()->whereKey($invoice->id)->update(['status' => 'success']);
                 $invoice->refresh();
             }
@@ -415,6 +413,42 @@ class InvoicePaymentService
         }
 
         return (int) $captured >= Money::toMinor($this->amountDue($invoice, $gateway, $creditApplied), (string) $invoice->currency);
+    }
+
+    /**
+     * The card was charged, but the capture can't settle the invoice (it was rebuilt bigger, or in
+     * another currency, after the payment opened). Refusing is right; losing the money is not: it
+     * is kept as an unapplied payment on the customer's account — real money, not credit — which
+     * the admin can apply to an invoice or refund, and the admin is told. Once per gateway payment:
+     * the redirect and the webhook both confirm the same one.
+     */
+    private function keepRefusedCapture(PaymentResult $result, Invoice $invoice, string $gateway): void
+    {
+        $captured = $result->raw['amount_received'] ?? $result->raw['amount_paid'] ?? $result->raw['amount_total'] ?? null;
+        $currency = strtoupper((string) ($result->raw['currency'] ?? ''));
+        if ($captured === null || (int) $captured <= 0 || $currency === '' || (string) $result->reference === '') {
+            return;
+        }
+
+        try {
+            GatewayEvent::create(['gateway' => strtolower($gateway), 'event_id' => 'unapplied:'.$result->reference]);
+        } catch (QueryException) {
+            return; // already kept
+        }
+
+        $amount = Money::fromMinor((int) $captured, $currency);
+        resolve(UnappliedPaymentService::class)->record((int) $invoice->user_id, $currency, $amount, $gateway);
+
+        $user = User::find($invoice->user_id);
+        if ($user instanceof User) {
+            try {
+                self::sendFailedPaymenttoAdmin($invoice, $amount, __('message.payment_kept_unapplied', [
+                    'amount' => $currency.' '.$amount, 'invoice' => $invoice->number,
+                ]), $user);
+            } catch (Throwable $throwable) {
+                Logger::exception($throwable); // the money is recorded; a mail failure mustn't undo that
+            }
+        }
     }
 
     private function referenceBelongsToInvoice(PaymentResult $result, Invoice $invoice): bool

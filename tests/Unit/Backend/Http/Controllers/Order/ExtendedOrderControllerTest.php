@@ -51,10 +51,11 @@ class ExtendedOrderControllerTest extends DBTestCase
         $this->assertStringEndsWith('5000', $key);
     }
 
-    public function test_generate_serial_key_with_large_agents_uses_default(): void
+    public function test_more_agents_than_4_digits_cap_at_9999_not_unlimited(): void
     {
-        $key = $this->controller->generateSerialKey(1, 50000);
-        $this->assertStringEndsWith('0000', $key); // default branch
+        // 0000 means unlimited agents: a 5-digit count must never wrap to it.
+        $this->assertStringEndsWith('9999', $this->controller->generateSerialKey(1, 10000));
+        $this->assertStringEndsWith('9999', $this->controller->generateSerialKey(1, 50000));
     }
 
     // -------------------------------------------------------------------------

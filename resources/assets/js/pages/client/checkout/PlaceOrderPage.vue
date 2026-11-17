@@ -21,7 +21,6 @@
                   <th class="product-thumbnail" style="width:15%">&nbsp;</th>
                   <th class="product-name text-uppercase" style="width:35%">{{ __('message.product') }}</th>
                   <th class="product-quantity text-uppercase" style="width:15%">{{ __('message.quantity') }}</th>
-                  <th class="product-quantity text-uppercase" style="width:20%">{{ __('message.agents') }}</th>
                   <th class="product-subtotal text-uppercase text-end" style="width:15%">{{ __('message.total') }}</th>
                 </tr>
               </thead>
@@ -35,9 +34,13 @@
                       </span>
                     </span>
                   </td>
-                  <td class="product-name"><span class="font-weight-semi-bold text-color-dark">{{ it.product_name }}</span></td>
+                  <td class="product-name">
+                    <span class="font-weight-semi-bold text-color-dark">{{ it.product_name }}</span>
+                    <div v-if="it.agents !== null && it.agents !== undefined" class="text-2 text-color-grey">
+                      {{ it.agents ? __('message.agents_count', { count: it.agents }) : __('message.unlimited_agents') }}
+                    </div>
+                  </td>
                   <td class="product-quantity"><span class="text-color-dark">{{ it.quantity }}</span></td>
-                  <td class="product-quantity"><span class="text-color-grey">{{ it.agents ? it.agents : __('message.unlimited_agents') }}</span></td>
                   <td class="product-subtotal text-end">
                     <span class="amount text-color-dark font-weight-bold text-4">{{ symbol }}{{ it.subtotal }}</span>
                   </td>

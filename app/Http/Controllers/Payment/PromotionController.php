@@ -174,6 +174,7 @@ class PromotionController extends BasePromotionController
                 'value' => $request->input('type') == 2
                     ? intval($request->input('value'))
                     : intval($request->input('value')).'%',
+                'currency' => $request->input('type') == 2 ? $request->input('currency') : null,
                 'uses' => $request->input('uses'),
                 'start' => $start,
                 'expiry' => $expiry,
@@ -212,6 +213,7 @@ class PromotionController extends BasePromotionController
                 'value' => $request->input('type') == 1
                     ? intval($request->input('value')).'%'
                     : intval($request->input('value')),
+                'currency' => $request->input('type') == 2 ? $request->input('currency') : null,
                 'uses' => $request->input('uses'),
                 'start' => $start,
                 'expiry' => $expiry,

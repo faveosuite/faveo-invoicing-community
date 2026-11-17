@@ -103,6 +103,7 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
                 'quantity' => $data['quantity'] ?? null,
                 'agents' => $data['agents'] ?? null,
                 'domain' => $data['domain'] ?? null,
+                'extras' => isset($data['extras']) ? $this->cleanExtras($item, $data['extras']) : null,
             ], fn ($v): bool => $v !== null));
             $this->recalculateCoupon($item->cart);
 
@@ -110,6 +111,34 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
         }
 
         $this->guest->update((int) $itemId, $data);
+    }
+
+    /**
+     * Keeps only extras this line's product sells in the cart's currency, with a valid quantity
+     * (an on/off feature is 0 or 1). Merged into what the line already has; 0 removes one.
+     *
+     * @param  array<int|string, mixed>  $requested
+     * @return array<int|string, int>
+     */
+    private function cleanExtras(CartItem $item, array $requested): array
+    {
+        $currency = $item->cart->currency ?? 'USD';
+        $extras = $item->extras ?? [];
+
+        foreach ($item->availableExtras($currency) as $extra) {
+            $id = $extra['entitlement_id'];
+            if (! array_key_exists($id, $requested)) {
+                continue;
+            }
+            $qty = max(0, min($extra['type'] === 'boolean' ? 1 : 9999, (int) $requested[$id]));
+            if ($qty === 0) {
+                unset($extras[$id]);
+            } else {
+                $extras[$id] = $qty;
+            }
+        }
+
+        return $extras;
     }
 
     public function removeItem(Request $request, int|string $itemId): void
@@ -340,7 +369,10 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
      */
     private function reusablePendingInvoice(Cart $cart): ?Invoice
     {
-        $invoice = $cart->invoice_id ? Invoice::find($cart->invoice_id) : null;
+        // Locked (the caller is in a transaction): a payment confirming this invoice takes the
+        // same lock, so a rebuild never swaps the items or total under a payment in progress, and
+        // one that lands after it sees the invoice paid and starts a new one.
+        $invoice = $cart->invoice_id ? Invoice::whereKey($cart->invoice_id)->lockForUpdate()->first() : null;
 
         if ($invoice && strtolower((string) $invoice->status) === 'pending' && $invoice->paidTotal() <= 0) {
             return $invoice;
@@ -522,8 +554,12 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
             $line = $tax['line'];
             $lineTotal = $line->unitPrice($currency) * $line->quantity;
 
+            $extras = $line->chosenExtras($currency);
+            $extrasText = implode(', ', array_map(fn (array $e): string => $e['label'].' × '.$e['quantity'], $extras));
+
             $items[] = [
-                'product_name' => $line->product?->name,
+                // Extras are charged on the plan's line, so the line says what's included.
+                'product_name' => $line->product?->name.($extrasText !== '' ? ' (+ '.$extrasText.')' : ''),
                 'product_id' => $line->product_id,
                 'regular_price' => $line->unitPrice($currency),
                 'quantity' => $line->quantity,
@@ -537,6 +573,7 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
                 'domain' => in_array($line->product_id, cloudPopupProducts()) ? '' : ($line->domain ?: ''),
                 'plan_id' => $line->plan_id ?? 0,
                 'agents' => $line->agents,
+                'extras' => $extras ?: null,
             ];
 
             // Group taxes per rate (not the combined line label) so multiple
@@ -746,6 +783,12 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
 
         if ($promo->isUsedUp($cart->invoice_id)) {
             throw new Exception(__('message.usage-of-code-completed'));
+        }
+
+        // A Fixed Amount is money in one currency: "500 off" in INR is not 500 off a USD cart.
+        // Re-checked on every refresh, so a coupon drops off if the cart's currency changes.
+        if (! $promo->worksIn((string) $cart->currency)) {
+            throw new Exception(__('message.coupon_wrong_currency', ['currency' => $cart->currency]));
         }
 
         return $promo;

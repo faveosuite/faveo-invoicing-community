@@ -62,9 +62,12 @@ trait CoupCodeAndInvoiceSearch
             // the client's balance) plus orphaned items and order links.
             $invoices = $this->invoice->whereIn('id', $ids)->get(); // @phpstan-ignore property.notFound
 
-            // Deleting an invoice drops its order link but keeps the order and its subscription,
-            // which then breaks renewal. Delete the order first; it unlinks itself.
-            if ($invoices->contains(fn ($invoice) => $invoice->orders()->exists())) {
+            // Deleting an order's purchase invoice drops its link but keeps the order and its
+            // subscription, which then breaks renewal: delete the order first (it unlinks itself).
+            // An unpaid renewal / agent-change invoice is different — the order doesn't depend on
+            // it, and while it's open it blocks renewing again — so that one can go.
+            if ($invoices->contains(fn ($invoice) => $invoice->orders()->exists()
+                && ((int) $invoice->is_renewed !== 1 || $invoice->payments()->exists()))) {
                 return errorResponse(__('message.cannot_delete_invoice_with_order'));
             }
 

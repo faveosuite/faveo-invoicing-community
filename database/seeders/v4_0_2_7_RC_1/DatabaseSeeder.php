@@ -10,6 +10,7 @@ use App\Model\Common\SeoDefaultPage;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
 use App\Plugins\Zoho\Models\ZohoIntegration;
 use App\ReportColumn;
+use App\Services\EntitlementService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -40,6 +41,46 @@ class DatabaseSeeder extends Seeder
         $this->moveCronSettingsToConditions();
         $this->seedMobileVerificationStatus();
         $this->moveExportsOutOfPublicStorage();
+        $this->seedAgentsEntitlements();
+        $this->seedFixedCouponCurrency();
+    }
+
+    /**
+     * Fixed Amount coupons (type 2) now carry the currency their amount is in. Ones made before
+     * get the default currency — the one their amount was most likely written in.
+     */
+    public function seedFixedCouponCurrency(): void
+    {
+        DB::table('promotions')->where('type', 2)->whereNull('currency')
+            ->update(['currency' => (string) DB::table('settings')->value('default_currency')]);
+    }
+
+    /**
+     * Agents are a built-in feature. Each per-agent plan gets its per-agent price in every
+     * currency it's sold in: plan price ÷ its agents (same for the renewal price, same offer %),
+     * so customers pay exactly what they did. Prices an admin already set are left alone.
+     */
+    public function seedAgentsEntitlements(): void
+    {
+        $agents = EntitlementService::agents();
+
+        $rows = DB::table('plan_prices')
+            ->join('plans', 'plans.id', '=', 'plan_prices.plan_id')
+            ->join('products', 'products.id', '=', 'plans.product')
+            ->where('products.show_agent', 1)
+            ->where('plan_prices.no_of_agents', '>', 0)
+            ->get(['plan_prices.plan_id', 'plan_prices.currency', 'plan_prices.add_price', 'plan_prices.renew_price', 'plan_prices.offer_price', 'plan_prices.no_of_agents']);
+
+        foreach ($rows->unique(fn (object $r): string => $r->plan_id.'|'.$r->currency) as $r) {
+            $agents->prices()->firstOrCreate(
+                ['plan_id' => $r->plan_id, 'currency' => $r->currency],
+                [
+                    'unit_price' => round((float) $r->add_price / (int) $r->no_of_agents, 4),
+                    'renew_price' => round((float) $r->renew_price / (int) $r->no_of_agents, 4),
+                    'offer_percent' => (float) $r->offer_price > 0 ? (float) $r->offer_price : null,
+                ],
+            );
+        }
     }
 
     /**

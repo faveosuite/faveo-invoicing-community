@@ -284,7 +284,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             $plan = $request->input('plan');
             $agents = $this->getAgents($agents, $productid, $plan);
-            $qty = $this->getQuantity($qty, $productid, $plan);
+            $qty = $this->getQuantity($qty);
 
             $code = $request->input('code');
             $total = (float) str_replace(',', '', $request->input('price'));

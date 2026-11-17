@@ -38,14 +38,8 @@
                     </div>
                 </div>
 
-                <!-- Row 2: Agents / Quantity / Status -->
+                <!-- Row 2: Status -->
                 <div class="row">
-                    <div class="col-md-4" v-if="productShowAgent !== false">
-                        <TextField name="no_of_agents" :label="__('message.agent')" type="number" :required="productShowAgent === true" :value="form.no_of_agents" :onChange="onChange" :error="errors.no_of_agents" @keydown="blockInvalidKey" />
-                    </div>
-                    <div class="col-md-4" v-if="productShowAgent !== true">
-                        <TextField name="product_quantity" :label="__('message.product_quantity')" type="number" :required="productShowAgent === false" :value="form.product_quantity" :onChange="onChange" :error="errors.product_quantity" @keydown="blockInvalidKey" />
-                    </div>
                     <div class="col-md-4">
                         <DynamicSelect
                             name="status"
@@ -150,9 +144,6 @@ const saving = ref(false)
 const periods = ref([])
 const currencies = ref([])
 const pricingError = ref('')
-// true = product is agent-based (show no_of_agents), false = quantity-based
-// (show product_quantity), null = not known yet (no product picked / still loading).
-const productShowAgent = ref(null)
 
 const statusOptions = [
     { id: 1, name: __('message.active') },
@@ -165,8 +156,6 @@ const form = reactive({
     productObj: null,
     days: '',
     status: 1,
-    no_of_agents: '',
-    product_quantity: '',
     price_description: '',
     prices: [{ currency: '', add_price: '', offer_price: '', renew_price: '' }],
 })
@@ -176,23 +165,8 @@ function onChange(val, name) {
     if (name === 'product') {
         form.productObj = val
         form.product = val ?? null
-        loadProductMode(form.product)
     } else {
         form[name] = val
-    }
-}
-
-// Whether a product takes agents or a plain quantity is set on the product
-// itself (Cart & Display > "Show cart page as") - look it up so the plan
-// form only asks for whichever one actually applies.
-async function loadProductMode(productId) {
-    if (!productId) { productShowAgent.value = null; return }
-    try {
-        const res = await http.get(`/product/${productId}`)
-        const p = res.data?.data?.product ?? res.data?.data ?? res.data
-        productShowAgent.value = Boolean(p.show_agent)
-    } catch {
-        productShowAgent.value = null
     }
 }
 
@@ -225,7 +199,7 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const schemaValid = await validateForm(planSchema, { ...form, show_agent: productShowAgent.value }, setErrors)
+    const schemaValid = await validateForm(planSchema, form, setErrors)
 
     const invalidRow = form.prices.find(p => !p.currency || p.add_price === '' || p.renew_price === '')
     const currencyValues = form.prices.map(p => p.currency).filter(Boolean)
@@ -255,8 +229,6 @@ async function submit() {
             product:           form.product,
             days:              form.days || null,
             status:            form.status,
-            no_of_agents:      form.no_of_agents === '' ? null : form.no_of_agents,
-            product_quantity:  form.product_quantity === '' ? null : form.product_quantity,
             price_description: form.price_description || null,
             currency:          form.prices.map(p => p.currency),
             add_price:         form.prices.map(p => p.add_price),
@@ -265,7 +237,8 @@ async function submit() {
         }
         const res = await http.post(`/plans`, payload)
         successHandler(res, COMPONENT)
-        setTimeout(() => router.push('/products/plans'), 2000)
+        const id = res.data?.data?.id
+        setTimeout(() => router.push(id ? `/products/plans/${id}/edit` : '/products/plans'), 1500)
     } catch (e) {
         errorHandler(e, COMPONENT, { setErrors })
     } finally {
