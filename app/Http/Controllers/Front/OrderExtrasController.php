@@ -18,7 +18,9 @@ use Illuminate\Support\Facades\Auth;
  */
 class OrderExtrasController extends Controller
 {
-    public function __construct(private readonly EntitlementSalesService $sales) {}
+    public function __construct(private readonly EntitlementSalesService $sales)
+    {
+    }
 
     public function index(int $orderId): JsonResponse
     {

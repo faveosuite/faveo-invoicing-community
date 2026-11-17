@@ -22,7 +22,8 @@ class LicenseFileService
     public function __construct(
         protected Ed25519SigningService $signingService,
         protected EntitlementService $entitlements = new EntitlementService,
-    ) {}
+    ) {
+    }
 
     /**
      * Builds the license file for whichever product is being downloaded —

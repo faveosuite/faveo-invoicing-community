@@ -16,8 +16,8 @@ use App\Model\Product\Entitlement;
 use App\Model\Product\Subscription;
 use App\Services\Payment\CreditBalanceService;
 use App\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**

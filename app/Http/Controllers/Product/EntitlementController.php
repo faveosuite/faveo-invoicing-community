@@ -23,7 +23,9 @@ use Illuminate\Validation\ValidationException;
  */
 class EntitlementController extends Controller
 {
-    public function __construct(private readonly EntitlementService $service) {}
+    public function __construct(private readonly EntitlementService $service)
+    {
+    }
 
     public function index(): JsonResponse
     {
