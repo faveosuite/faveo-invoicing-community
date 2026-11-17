@@ -29,11 +29,11 @@ class EntitlementControllerTest extends DBTestCase
 
     public function test_sync_creates_items_and_rejects_duplicates(): void
     {
-        $this->postJson("/entitlements", ['entitlements' => [$this->row()]])
+        $this->postJson('/entitlements', ['entitlements' => [$this->row()]])
             ->assertOk();
         $this->assertDatabaseHas('entitlements', ['feature' => 'sla', 'key' => 'enabled']);
 
-        $this->postJson("/entitlements", ['entitlements' => [$this->row(), $this->row()]])
+        $this->postJson('/entitlements', ['entitlements' => [$this->row(), $this->row()]])
             ->assertStatus(412);
     }
 
@@ -45,10 +45,10 @@ class EntitlementControllerTest extends DBTestCase
             'license_limit' => 1, 'license_status' => 1, 'entitlement_base' => ['sla' => ['enabled' => false]],
         ]);
 
-        $this->postJson("/entitlements", ['entitlements' => [$this->row(['id' => $item->id, 'type' => 'number'])]])
+        $this->postJson('/entitlements', ['entitlements' => [$this->row(['id' => $item->id, 'type' => 'number'])]])
             ->assertStatus(412);
 
-        $this->postJson("/entitlements", ['entitlements' => []])->assertOk();
+        $this->postJson('/entitlements', ['entitlements' => []])->assertOk();
         $this->assertFalse($item->fresh()->is_active);
     }
 
@@ -56,7 +56,7 @@ class EntitlementControllerTest extends DBTestCase
     {
         $item = Entitlement::create([...$this->row()]);
 
-        $this->postJson("/entitlements", ['entitlements' => []])->assertOk();
+        $this->postJson('/entitlements', ['entitlements' => []])->assertOk();
         $this->assertNull($item->fresh());
     }
 
