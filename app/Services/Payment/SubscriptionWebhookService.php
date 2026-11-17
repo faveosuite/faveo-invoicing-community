@@ -303,26 +303,9 @@ class SubscriptionWebhookService
 
     private function findOrCreateRenewalInvoice(Subscription $subscription, Order $order, Product $product, User $user, float $cost, string $currency, string $gateway): Invoice
     {
-        $latestInvoiceId = DB::table('order_invoice_relations')
-            ->where('order_id', $subscription->order_id)
-            ->latest()
-            ->value('invoice_id');
-
-        $existingItem = DB::table('invoice_items')
-            ->where('invoice_id', $latestInvoiceId)
-            ->where('product_id', $subscription->product_id)
-            ->first();
-
-        if ($existingItem) {
-            $unpaid = Invoice::where('id', $existingItem->invoice_id)
-                ->where('status', 'pending')
-                ->where('is_renewed', 1)
-                ->latest()
-                ->first();
-
-            if ($unpaid) {
-                return $unpaid;
-            }
+        $unpaid = Invoice::openRenewalFor((int) $subscription->order_id, (int) $subscription->product_id);
+        if ($unpaid) {
+            return $unpaid;
         }
 
         $taxRate = 0.0;

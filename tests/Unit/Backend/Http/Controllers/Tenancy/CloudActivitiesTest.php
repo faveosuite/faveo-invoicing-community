@@ -13,11 +13,13 @@ use App\Model\Order\CreditTransaction;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Order\OrderEntitlement;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
+use App\Model\Product\Entitlement;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Services\Cloud\CloudApi;
@@ -144,7 +146,7 @@ class CloudActivitiesTest extends DBTestCase
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => '1234567890120003']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => '']);
         $response = $this->call('POST', 'get-agent-inc-dec-cost', ['desiredAgents' => 8, 'orderId' => $order->id]);
@@ -181,7 +183,7 @@ class CloudActivitiesTest extends DBTestCase
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => '1234567890120003']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(30)]);
         $response = $this->call('POST', 'get-agent-inc-dec-cost', ['desiredAgents' => 8, 'orderId' => $order->id]);
@@ -219,7 +221,7 @@ class CloudActivitiesTest extends DBTestCase
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => '1234567890120005']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => '']);
         $response = $this->call('POST', 'get-agent-inc-dec-cost', ['desiredAgents' => 2, 'orderId' => $order->id]);
@@ -256,7 +258,7 @@ class CloudActivitiesTest extends DBTestCase
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => '1234567890120005']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(80)]);
         $response = $this->call('POST', 'get-agent-inc-dec-cost', ['desiredAgents' => 2, 'orderId' => $order->id]);
@@ -328,8 +330,8 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 130]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
-        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 9000]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 9000, 'no_of_agents' => 1]);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
@@ -374,12 +376,12 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 130]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
         // Same add_price as the old plan — with agents always read from the
         // license (server-side) for both, equal add_price is what makes the
         // two plans' total contract value equal, not a client-supplied agent
         // count trick.
-        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
@@ -419,8 +421,8 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 130]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
-        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 1]);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
@@ -458,7 +460,7 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 1]);
         $planPrice2 = PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 5]);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
@@ -498,8 +500,8 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
-        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 1]);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
@@ -555,8 +557,8 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
-        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 1]);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $oldOrder->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
@@ -614,8 +616,8 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000]);
-        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 1]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
 
         $makeOrder = function () use ($user, $product, $plan): Order {
             $invoice = Invoice::factory()->create(['user_id' => $user->id]);
@@ -696,7 +698,7 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 1]);
         PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 5]);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
@@ -1658,7 +1660,7 @@ class CloudActivitiesTest extends DBTestCase
         $product = Product::create(['name' => 'UGCostTest '.uniqid()]);
         $plan = Plan::create(['name' => 'UGCost Plan', 'product' => $product->id, 'days' => 365]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 1000]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 1000, 'no_of_agents' => 1]);
         $order = Order::create([
             'client' => $user->id,
             'order_status' => 'executed',
@@ -1766,8 +1768,8 @@ class CloudActivitiesTest extends DBTestCase
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $oldPlan->id]);
         $newPlan = Plan::create(['name' => 'new', 'product' => $this->planChangeTarget()->id, 'days' => $newDays]);
         foreach (['INR', 'USD'] as $currency) {
-            PlanPrice::factory()->create(['plan_id' => $oldPlan->id, 'currency' => $currency, 'add_price' => $oldPrice, 'offer_price' => 0]);
-            PlanPrice::factory()->create(['plan_id' => $newPlan->id, 'currency' => $currency, 'add_price' => $newPrice, 'offer_price' => 0]);
+            PlanPrice::factory()->create(['plan_id' => $oldPlan->id, 'currency' => $currency, 'add_price' => $oldPrice, 'offer_price' => 0, 'no_of_agents' => 1]);
+            PlanPrice::factory()->create(['plan_id' => $newPlan->id, 'currency' => $currency, 'add_price' => $newPrice, 'offer_price' => 0, 'no_of_agents' => 1]);
         }
 
         Subscription::create(['plan_id' => $oldPlan->id, 'order_id' => $oldOrder->id, 'product_id' => $product->id, 'user_id' => $user->id,
@@ -1781,6 +1783,29 @@ class CloudActivitiesTest extends DBTestCase
         $response = $this->postJson('/upgradeDowngradeCloud', ['id' => $newPlan->id, 'orderId' => $oldOrder->id])->assertOk();
 
         return Invoice::findOrFail($response->json('data.invoice_id'))->metadata;
+    }
+
+    public function test_an_upgrade_charges_the_extras_for_their_new_term(): void
+    {
+        // Monthly → yearly with 10 days left. 10 storage units cost 2 each a month (20/30 days)
+        // and 20 each a year on the new plan. The extras move to the new order, so the upgrade
+        // pays for their new term (200/365 × 345 = 189.04) less their unused part (20/30 × 10 = 6.67).
+        $price = function (bool $withExtras): float {
+            [$oldOrder, $newPlan] = $this->planChangeSetup(oldDays: 30, daysLeft: 10, oldPrice: 100, newDays: 365, newPrice: 1000);
+            if ($withExtras) {
+                $currency = userCurrencyAndPrice('', $newPlan)['currency']; // how the plan change picks it
+                $storage = Entitlement::create(['feature' => 'storage', 'key' => 'gb'.uniqid(), 'label' => 'Storage', 'type' => 'number']);
+                $storage->prices()->create(['plan_id' => $newPlan->id, 'currency' => $currency, 'unit_price' => 20, 'renew_price' => 20]);
+                $monthly = (int) DB::table('periods')->insertGetId(['name' => 'Test 30 days', 'days' => '30']);
+                $newPlan->periods()->attach(DB::table('periods')->insertGetId(['name' => 'Test 365 days', 'days' => '365']));
+                OrderEntitlement::create(['order_id' => $oldOrder->id, 'entitlement_id' => $storage->id, 'quantity' => 10, 'unit_price' => 2, 'currency' => $currency, 'period_id' => $monthly]);
+            }
+            $paid = $this->postJson('get-cloud-upgrade-cost', ['plan' => $newPlan->id, 'orderId' => $oldOrder->id])->assertOk()->json('price_to_be_paid');
+
+            return (float) str_replace(',', '', $paid);
+        };
+
+        $this->assertEqualsWithDelta(189.04 - 6.67, $price(true) - $price(false), 0.05);
     }
 
     public function test_an_upgrade_runs_for_the_remaining_term_not_a_full_new_period(): void

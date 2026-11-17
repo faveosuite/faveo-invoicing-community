@@ -35,7 +35,9 @@ class ExtendedOrderController extends Controller
                 '2' => '00'.$agents,
                 '3' => '0'.$agents,
                 '4' => $agents,
-                default => '0000',
+                // The last 4 digits carry the agents and 0000 means unlimited: never let a bigger
+                // count wrap to 0000 — cap it at the most 4 digits can hold.
+                default => '9999',
             };
             $str = strtoupper(Str::random(12));
 

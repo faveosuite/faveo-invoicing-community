@@ -172,6 +172,13 @@
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
+                                <RouterLink to="/products/features" class="nav-link"
+                                            :class="{ active: isGroupActive('/products/features') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.features') }}</p>
+                                </RouterLink>
+                            </li>
+                            <li class="nav-item">
                                 <RouterLink to="/products/coupons" class="nav-link"
                                             :class="{ active: isGroupActive('/products/coupons') }"
                                             active-class="" exact-active-class="">

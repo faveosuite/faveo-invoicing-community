@@ -6,6 +6,7 @@ use App\License\Models\License;
 use App\License\Models\LicenseScheme;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
+use App\Services\EntitlementService;
 use SodiumException;
 
 /**
@@ -18,9 +19,10 @@ use SodiumException;
  */
 class LicenseFileService
 {
-    public function __construct(protected Ed25519SigningService $signingService)
-    {
-    }
+    public function __construct(
+        protected Ed25519SigningService $signingService,
+        protected EntitlementService $entitlements = new EntitlementService,
+    ) {}
 
     /**
      * Builds the license file for whichever product is being downloaded —
@@ -123,6 +125,8 @@ class LicenseFileService
             'license_ip' => $license->license_ip,
             'license_machine_id' => $license->license_machine_id,
             'scheme_query' => $schemeQuery,
+            // An object even when empty, so the product always decodes it the same way.
+            'entitlements' => (object) $this->entitlements->resolve($license),
         ]);
     }
 }

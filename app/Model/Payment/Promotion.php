@@ -22,6 +22,7 @@ use Spatie\Activitylog\Models\Activity;
  * @property int $type
  * @property int $uses
  * @property string $value
+ * @property string|null $currency The Fixed Amount's currency (null for percentage coupons)
  * @property string|null $start
  * @property string|null $expiry
  * @property Carbon|null $created_at
@@ -60,7 +61,7 @@ class Promotion extends BaseModel
 
     protected $table = 'promotions';
 
-    protected $fillable = ['code', 'type', 'uses', 'value', 'start', 'expiry'];
+    protected $fillable = ['code', 'type', 'uses', 'value', 'currency', 'start', 'expiry'];
 
     protected string $logName = 'promotions';
 
@@ -147,5 +148,11 @@ class Promotion extends BaseModel
             'id',
             'product_id'
         );
+    }
+
+    /** Percentage coupons work in any currency; a Fixed Amount only in its own. */
+    public function worksIn(string $currency): bool
+    {
+        return (int) $this->type === 1 || str_contains((string) $this->value, '%') || $this->currency === null || $this->currency === $currency;
     }
 }

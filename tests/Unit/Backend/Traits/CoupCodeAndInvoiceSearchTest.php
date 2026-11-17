@@ -435,7 +435,7 @@ class CoupCodeAndInvoiceSearchTest extends DBTestCase
     {
         $user = User::factory()->create();
         $free = Invoice::factory()->create(['user_id' => $user->id]);
-        $linked = Invoice::factory()->create(['user_id' => $user->id]);
+        $linked = Invoice::factory()->create(['user_id' => $user->id, 'is_renewed' => 0]); // the order's purchase invoice
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999)]);
         OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $linked->id]);
 
@@ -447,5 +447,27 @@ class CoupCodeAndInvoiceSearchTest extends DBTestCase
         $this->assertNotNull(Invoice::find($free->id));
         $this->assertNotNull(Invoice::find($linked->id));
         $this->assertSame(1, OrderInvoiceRelation::where('invoice_id', $linked->id)->count());
+    }
+
+    public function test_an_unpaid_renewal_invoice_can_be_deleted_but_not_a_paid_one(): void
+    {
+        // The order doesn't depend on an unpaid renewal, and while it's open it blocks renewing.
+        $user = User::factory()->create();
+        $order = Order::create(['client' => $user->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999)]);
+        $unpaid = Invoice::factory()->create(['user_id' => $user->id, 'is_renewed' => 1, 'status' => 'pending']);
+        $paid = Invoice::factory()->create(['user_id' => $user->id, 'is_renewed' => 1, 'status' => 'success']);
+        foreach ([$unpaid, $paid] as $invoice) {
+            OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
+        }
+        $payment = Payment::create(['invoice_id' => 0, 'parent_id' => 0, 'user_id' => $user->id, 'amount' => 10, 'payment_method' => 'cash', 'payment_status' => 'success', 'currency' => 'INR']);
+        $payment->invoices()->attach($paid->id, ['amount' => 10]);
+
+        $this->deleteJson('/invoices', ['invoice_ids' => [$unpaid->id]])->assertOk();
+        $this->assertNull(Invoice::find($unpaid->id));
+        $this->assertNotNull(Order::find($order->id));
+
+        $this->deleteJson('/invoices', ['invoice_ids' => [$paid->id]])
+            ->assertJsonPath('message', __('message.cannot_delete_invoice_with_order'));
+        $this->assertNotNull(Invoice::find($paid->id));
     }
 }

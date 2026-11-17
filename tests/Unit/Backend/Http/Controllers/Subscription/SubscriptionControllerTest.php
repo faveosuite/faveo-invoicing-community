@@ -458,7 +458,7 @@ class SubscriptionControllerTest extends DBTestCase
     public function test_auto_renewal_price_matches_manual_renewal_price(): void
     {
         $user = User::factory()->create();
-        $plan = (object) ['renew_price' => 500, 'no_of_agents' => 3];
+        $plan = new PlanPrice(['renew_price' => 500, 'no_of_agents' => 3, 'currency' => 'USD']);
         $auto = new SubscriptionController($this->instantiateDependencies());
         $manual = new BaseRenewController;
 

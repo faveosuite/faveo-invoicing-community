@@ -28,6 +28,7 @@ const INVOICE_TYPE_BADGE = {
     renewal:           'badge bg-info text-dark',
     upgrade_downgrade: 'badge bg-warning text-dark',
     agent_alteration:  'badge bg-secondary',
+    entitlement_purchase: 'badge bg-success',
 }
 
 /** Type badge (purchase / renewal / …) for an invoice's `type` — same look on every invoice list. */

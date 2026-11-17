@@ -1,9 +1,10 @@
 <template>
-    <div class="mb-3"
-         :class="[classname, 'form-group', 'form-field-template', { 'row': isInlineForm }]"
+    <div :class="[{ 'mb-3': !/\bmb-\d/.test(classname ?? '') }, classname, 'form-group', 'form-field-template', { 'row': isInlineForm }]"
          :id="label">
 
-        <div :class="{ 'col-md-2 flex break': isInlineForm }">
+        <!-- No label line when there is nothing to show in it (e.g. a field inside a table cell). -->
+        <div v-if="label || required || hint || showNewButton || showPreview || isInlineForm || $slots['word-limit-counter']"
+             :class="{ 'col-md-2 flex break': isInlineForm }">
             <label class="form-label" :for="label" :style="labelStyle">{{ label }}</label>
             <span class="is-danger d-inline-block fw-semibold" :style="[{ marginBottom: '5px' }, labelStyle]" v-if="required">*</span>
             <ToolTip v-if="hint !== '' && !tipRule" :message="getHint(hint)" size="small" />

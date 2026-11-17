@@ -37,6 +37,11 @@ class SubscriptionRenewalService
         $sub->support_ends_at = $supportExpiry ? Date::parse($supportExpiry) : null;
         $sub->save();
 
+        // A new period starts: extras the customer reduced or cancelled now take effect.
+        if ($days > 0) {
+            resolve(EntitlementSalesService::class)->applyPendingReductions((int) $sub->order_id);
+        }
+
         $this->syncLicenseServer($sub, $licenseExpiry, $updatesExpiry, $supportExpiry);
     }
 

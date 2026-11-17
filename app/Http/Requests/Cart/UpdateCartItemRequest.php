@@ -29,7 +29,10 @@ class UpdateCartItemRequest extends FormRequest
     {
         return [
             'quantity' => ['sometimes', 'integer', 'min:1'],
-            'agents' => ['sometimes', 'integer', 'min:1'],
+            'agents' => ['sometimes', 'integer', 'min:1', 'max:9999'], // 4 license-code digits; more would read as 0000 = unlimited
+            // {"<entitlement id>": quantity} — extras bought with the plan (0 removes one).
+            'extras' => ['sometimes', 'array'],
+            'extras.*' => ['integer', 'min:0', 'max:9999'],
             // The license validator substring-matches this against the install URL,
             // so it must be a bare host (sub.domain.com) or an IP — no scheme or path.
             'domain' => ['nullable', 'string', 'max:255', function (string $attribute, mixed $value, Closure $fail): void { // NOSONAR - Laravel passes the attribute first

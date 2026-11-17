@@ -8,16 +8,17 @@ use App\License\Services\LicenseService;
 use App\Model\Common\Setting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
-use App\Model\Configure\ProductPluginGroup;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Order\OrderEntitlement;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Plan;
 use App\Model\Product\Price;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
+use App\Services\EntitlementService;
 use App\Traits\Order\UpdateDates;
 use App\User;
 use Carbon\Carbon;
@@ -78,9 +79,19 @@ class BaseOrderController extends ExtendedOrderController
             /** @var Product $productForAddons */
             $productForAddons = Product::find($product);
             $addOnIds = $productForAddons->productPluginGroupsAsProduct->pluck('plugin_id')->toArray();
-            $cfgOptions = $this->formatConfigurableOptions($product);
-            $options = is_array($cfgOptions) ? $cfgOptions : $cfgOptions->toArray();
-            resolve(LicenseService::class)->syncAddons($serialKey, $addOnIds, $options);
+            resolve(LicenseService::class)->syncAddons($serialKey, $addOnIds);
+
+            // Extras bought with the plan at checkout, at the price paid.
+            foreach ($item->extras ?? [] as $extra) {
+                OrderEntitlement::create([
+                    'order_id' => $order->id,
+                    'entitlement_id' => $extra['entitlement_id'],
+                    'quantity' => $extra['quantity'],
+                    'unit_price' => $extra['renew_price'] ?? $extra['unit_price'], // billed at each renewal
+                    'currency' => (string) Invoice::whereKey($item->invoice_id)->value('currency'),
+                    'period_id' => $extra['period_id'] ?? Plan::find($item->plan_id)?->periodId(),
+                ]);
+            }
         }
 
         if (emailSendingStatus()) {
@@ -142,7 +153,7 @@ class BaseOrderController extends ExtendedOrderController
         ]);
 
         $ipAndDomain = LicenseService::parseIpAndDomain($order->domain ?? '');
-        resolve(LicenseService::class)->create([
+        $license = resolve(LicenseService::class)->create([
             'product_id' => $product,
             'user_id' => $order->client,
             'license_code' => $serial_key,
@@ -156,6 +167,8 @@ class BaseOrderController extends ExtendedOrderController
             'license_support_date' => $supportExpiry instanceof Carbon ? $supportExpiry->toDateString() : null,
             'license_status' => 1,
         ]);
+
+        resolve(EntitlementService::class)->grant($license, $plan->id);
     }
 
     /**
@@ -314,37 +327,5 @@ class BaseOrderController extends ExtendedOrderController
         $number = $invoice?->number;
 
         return url('download/'.$userid.'/'.$number);
-    }
-
-    /**
-     * @return array<mixed>|Collection<int, array{product_id: int, option_group: string, option_name: string, key: mixed, value: mixed}>
-     */
-    public function formatConfigurableOptions(int $productId): Collection|array
-    {
-        // Retrieve the product ID and related plugin IDs in one query
-        $productIds = ProductPluginGroup::where('product_id', $productId)
-            ->pluck('plugin_id')
-            ->prepend($productId)
-            ->toArray();
-
-        // Fetch all products with related configurations in one query
-        $products = Product::with('configOptions.configOptionValues')
-            ->whereIn('id', $productIds)
-            ->get();
-
-        // Check if any products were found
-        if ($products->isEmpty()) {
-            return [];
-        }
-
-        // Format the configuration options
-        // @phpstan-ignore return.type, argument.type
-        return $products->flatMap(fn ($product) => $product->configOptions->flatMap(fn ($configOption) => $configOption->configOptionValues->map(fn ($configOptionValue): array => [
-            'product_id' => $product->id,
-            'option_group' => $configOption->configGroup->config_group_name,
-            'option_name' => $configOption->config_option_name,
-            'key' => $configOptionValue->key,
-            'value' => $configOptionValue->value,
-        ])));
     }
 }

@@ -9,128 +9,112 @@ const baseItem = {
     name: 'Product A',
     image: null,
     unit_price: '99.00',
-    line_total: '99.00',
+    plan_price: '99.00',
+    plan_total: '198.00',
+    line_total: '198.00',
     currency_symbol: '$',
     quantity: 2,
     agents: 5,
+    included_agents: 5,
+    agent_price: '10.00',
+    agents_total: null,
+    agents_fewer: false,
+    period: '1 Year',
     can_modify_quantity: true,
     can_modify_agent: true,
     show_agent: true,
+    extras: [],
 }
 
-function makeWrapper(itemOverrides = {}) {
-    return mount(CartItemRow, {
-        props: { item: { ...baseItem, ...itemOverrides } },
-        global: { plugins: [createTestingPinia()] },
-    })
-}
+// Table rows need a table around them to mount.
+const makeWrapper = (overrides = {}, props = { showQuantity: true }) => mount({
+    components: { CartItemRow },
+    props: ['item', 'extra'],
+    template: '<table><tbody><CartItemRow :item="item" v-bind="extra" @update="(e) => $emit(\'update\', e)" @remove="(e) => $emit(\'remove\', e)" /></tbody></table>',
+}, {
+    props: { item: { ...baseItem, ...overrides }, extra: props },
+    global: { plugins: [createTestingPinia()] },
+})
+
+const steppers = w => w.findAllComponents({ name: 'CartQtyStepper' })
+const row = w => w.findComponent(CartItemRow)
 
 describe('CartItemRow.vue', () => {
-    it('is a vue instance', () => {
-        expect(makeWrapper().exists()).toBeTruthy()
+    it('shows the product, its period and the plan price', () => {
+        const w = makeWrapper()
+        expect(w.text()).toContain('Product A')
+        expect(w.text()).toContain('1 Year')
+        expect(w.find('.product-price').text()).toBe('$99.00')
+        expect(w.find('.product-subtotal').text()).toBe('$198.00')
     })
 
-    it('renders the product name', () => {
-        expect(makeWrapper().text()).toContain('Product A')
+    it('renders a placeholder when there is no image', () => {
+        expect(makeWrapper().find('.fa-box').exists()).toBe(true)
+        expect(makeWrapper({ image: 'http://example.com/a.png' }).find('img').exists()).toBe(true)
     })
 
-    it('renders the unit price and currency symbol', () => {
-        expect(makeWrapper().text()).toContain('$99.00')
+    it('has a quantity stepper only when the product allows it', () => {
+        expect(steppers(makeWrapper({ show_agent: false })).length).toBe(1)
+        expect(steppers(makeWrapper({ can_modify_quantity: false, show_agent: false })).length).toBe(0)
     })
 
-    it('shows the plan price in the Price column, not the agent-scaled line', () => {
-        const w = makeWrapper({ plan_price: '7,707.00', unit_price: '15,413.60', line_total: '15,413.60' })
-        expect(w.find('.product-price').text()).toBe('$7,707.00')
+    it('hides the quantity column when the cart has no steppers', () => {
+        const w = makeWrapper({ can_modify_quantity: false, show_agent: false }, { showQuantity: false })
+        expect(w.find('td.product-quantity').exists()).toBe(false)
     })
 
-    // ── Thumbnail branches ───────────────────────────────────────────
-    it('renders an img when item.image is set', () => {
-        const w = makeWrapper({ image: 'http://example.com/img.png' })
-        expect(w.find('img').exists()).toBe(true)
+    it('has an agents row with the extra cost when the customer can choose agents', () => {
+        const w = makeWrapper({ can_modify_quantity: false, agents: 7, agents_total: '20.00' })
+        expect(steppers(w).length).toBe(1)
+        expect(w.text()).toContain('+$20.00')
+        expect(w.text()).toContain('message.cart_agents_included')
     })
 
-    it('renders a placeholder span when item.image is null', () => {
-        const w = makeWrapper({ image: null })
-        expect(w.find('img').exists()).toBe(false)
-        expect(w.find('.fa-box').exists()).toBe(true)
+    it('shows fewer agents than included as a reduction', () => {
+        expect(makeWrapper({ agents: 3, agents_total: '20.00', agents_fewer: true }).text()).toContain('−$20.00')
     })
 
-    // ── Quantity branches ────────────────────────────────────────────
-    it('renders quantity controls when can_modify_quantity is true', () => {
-        const w = makeWrapper({ can_modify_quantity: true })
-        expect(w.find('.quantity').exists()).toBe(true)
+    it('says fixed or unlimited agents under the name instead', () => {
+        expect(makeWrapper({ can_modify_agent: false, agents: 3 }).text()).toContain('message.agents_count')
+        expect(makeWrapper({ agents: 0 }).text()).toContain('message.unlimited_agents')
+        expect(makeWrapper({ show_agent: false }).text()).not.toContain('message.agents')
     })
 
-    it('renders plain quantity text when can_modify_quantity is false', () => {
-        // Override agents too so .quantity is absent entirely
-        const w = makeWrapper({ can_modify_quantity: false, show_agent: false })
-        expect(w.find('.quantity').exists()).toBe(false)
-        expect(w.text()).toContain('2')
-    })
-
-    it('minus button is disabled when quantity is 1', () => {
-        const w = makeWrapper({ quantity: 1 })
-        const minus = w.find('input.minus')
-        expect(minus.element.disabled).toBe(true)
-    })
-
-    it('minus button is enabled when quantity > 1', () => {
-        const w = makeWrapper({ quantity: 3 })
-        const minus = w.find('input.minus')
-        expect(minus.element.disabled).toBe(false)
-    })
-
-    // ── Agents branches ──────────────────────────────────────────────
-    it('renders — when show_agent is false', () => {
+    it('emits quantity changes, never below 1', () => {
         const w = makeWrapper({ show_agent: false })
-        const cells = w.findAll('td')
-        expect(cells[4].text()).toContain('—')
+        steppers(w)[0].vm.$emit('change', 3)
+        expect(row(w).emitted('update')[0][0]).toEqual({ id: 1, quantity: 3 })
+        row(w).vm.step('quantity', 0)
+        expect(row(w).emitted('update').length).toBe(1)
     })
 
-    it('renders "unlimited_agents" when show_agent is true and agents is 0', () => {
-        const w = makeWrapper({ show_agent: true, agents: 0 })
-        expect(w.text()).toContain('message.unlimited_agents')
+    it('lists chosen add-ons as rows and offers the rest', async () => {
+        const extras = [
+            { entitlement_id: 9, label: 'Storage', type: 'number', quantity: 2, unit_price: '1.00', line_total: '4.00' },
+            { entitlement_id: 10, label: 'Chat', type: 'boolean', quantity: 0, unit_price: '5.00', line_total: '0.00' },
+        ]
+        const w = makeWrapper({ extras, show_agent: false })
+        expect(w.findAll('tr').length).toBe(3) // plan, Storage, offers
+        await w.find('button.btn-modern').trigger('click')
+        expect(row(w).emitted('update')[0][0]).toEqual({ id: 1, extras: { 10: 1 } })
     })
 
-    it('renders agent controls when can_modify_agent is true and agents > 0', () => {
-        const w = makeWrapper({ show_agent: true, agents: 5, can_modify_agent: true })
-        const quantities = w.findAll('.quantity')
-        expect(quantities.length).toBeGreaterThan(0)
+    it('every row has the same number of cells as the header', () => {
+        const extras = [{ entitlement_id: 9, label: 'Storage', type: 'number', quantity: 2, unit_price: '1.00', line_total: '4.00' }]
+        const w = makeWrapper({ extras, agents: 7 })
+        for (const tr of w.findAll('tr').slice(0, 3)) expect(tr.findAll('td').length).toBe(5)
     })
 
-    it('renders plain agent count when can_modify_agent is false and agents > 0', () => {
-        const w = makeWrapper({ show_agent: true, agents: 3, can_modify_agent: false })
-        expect(w.text()).toContain('3')
-    })
-
-    // ── step() function ──────────────────────────────────────────────
-    it('step() emits update with incremented quantity', async () => {
-        const w = makeWrapper({ quantity: 2 })
-        await w.find('input[value="+"]').trigger('click')
-        const emitted = w.emitted('update')
-        expect(emitted).toBeTruthy()
-        expect(emitted[0][0]).toEqual({ id: 1, quantity: 3 })
-    })
-
-    it('step() emits update with decremented quantity', async () => {
-        const w = makeWrapper({ quantity: 3 })
-        await w.find('input.minus').trigger('click')
-        const emitted = w.emitted('update')
-        expect(emitted).toBeTruthy()
-        expect(emitted[0][0]).toEqual({ id: 1, quantity: 2 })
-    })
-
-    it('step() does not emit when quantity would go below 1', async () => {
-        const w = makeWrapper({ quantity: 1 })
-        // Direct call since button is disabled in DOM
-        w.vm.step('quantity', -1)
-        expect(w.emitted('update')).toBeFalsy()
-    })
-
-    it('remove button emits "remove" with item.id', async () => {
+    it('remove button emits "remove" with the item id', async () => {
         const w = makeWrapper()
         await w.find('button.product-thumbnail-remove').trigger('click')
-        expect(w.emitted('remove')).toBeTruthy()
-        expect(w.emitted('remove')[0][0]).toBe(1)
+        expect(row(w).emitted('remove')[0][0]).toBe(1)
+    })
+
+    it('phone layout shows the same data as a card', () => {
+        const w = mount(CartItemRow, { props: { item: { ...baseItem, agents: 7, agents_total: '20.00' }, layout: 'card' }, global: { plugins: [createTestingPinia()] } })
+        expect(w.find('.card').exists()).toBe(true)
+        expect(steppers(w).length).toBe(2) // quantity + agents
+        expect(w.text()).toContain('$198.00')
     })
 })

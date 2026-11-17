@@ -118,6 +118,12 @@
                                     <i class="fas fa-rotate fa-fw nav-icon" aria-hidden="true"></i>{{ __('message.auto_renewal') }}
                                 </button>
                             </li>
+                            <li v-if="order.has_extras" class="nav-item">
+                                <button type="button" class="nav-link w-100 text-start" :class="{ active: activeTab === 'extras' }"
+                                   :aria-current="activeTab === 'extras' ? 'true' : undefined" @click="activeTab = 'extras'">
+                                    <i class="fas fa-cart-plus fa-fw nav-icon" aria-hidden="true"></i>{{ __('message.extras') }}
+                                </button>
+                            </li>
                             <li v-if="order.whatsapp_enabled" class="nav-item">
                                 <button type="button" class="nav-link w-100 text-start" :class="{ active: activeTab === 'whatsapp' }"
                                    :aria-current="activeTab === 'whatsapp' ? 'true' : undefined" @click="activeTab = 'whatsapp'">
@@ -214,6 +220,37 @@
                                 <span>{{ formatDate(order.support_ends_at) }}</span>
                             </div>
                         </div>
+
+                        <!-- Features: limits as chips, on/off features as a short checklist — one
+                             full row each turned this tab into a long list (20+ on a busy plan). -->
+                        <template v-if="includedEntitlements.length">
+                            <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                            <div class="row">
+                                <div class="col-sm-5">
+                                    <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                        <span class="fw-bold">{{ __('message.features') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">
+                                    <div v-if="featureLimits.length" class="d-flex flex-wrap gap-2" :class="{ 'mb-3': featureSwitches.length }">
+                                        <span v-for="item in featureLimits" :key="item.label" class="feature-limit">
+                                            {{ item.label }} <strong>{{ item.value === -1 ? __('message.unlimited') : item.value }}</strong>
+                                        </span>
+                                    </div>
+                                    <ul v-if="featureSwitches.length" class="feature-list list-unstyled mb-0">
+                                        <li v-for="item in shownSwitches" :key="item.label">
+                                            <i class="fas fa-check text-success me-2" aria-hidden="true"></i>{{ item.label }}
+                                        </li>
+                                    </ul>
+                                    <button v-if="featureSwitches.length > FEATURES_SHOWN" type="button"
+                                            class="btn btn-link p-0 mt-2 text-2" :aria-expanded="showAllFeatures"
+                                            @click="showAllFeatures = !showAllFeatures">
+                                        {{ showAllFeatures ? __('message.show_less') : __('message.show_all_count', { count: featureSwitches.length }) }}
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
 
                         <template v-if="order.can_use_license_file">
                             <div class="row"><div class="col"><hr class="solid my-3"></div></div>
@@ -472,6 +509,11 @@
                                 </div>
                             </div>
                         </AppCard>
+                    </div>
+
+                    <!-- ── Extras (buy more / change what renews) ───────────── -->
+                    <div v-if="order.has_extras && activeTab === 'extras'">
+                        <ExtrasPanel :orderId="orderId" />
                     </div>
 
                     <!-- ── WhatsApp SignUp ──────────────────────────────── -->
@@ -838,6 +880,7 @@ import Modal from '@/themes/porto/components/common/Modal.vue'
 import AppAlert from '@/components/Reusable/Alert.vue'
 import RenewModal from './components/RenewModal.vue'
 import WhatsappPanel from './components/WhatsappPanel.vue'
+import ExtrasPanel from './components/ExtrasPanel.vue'
 import DeployWizard from './components/DeployWizard.vue'
 import { useDateTime } from '@/core/composables/useDateTime'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
@@ -867,6 +910,15 @@ watch(activeTab, (tab) => {
     router.replace({ query: tab === 'license' ? query : { ...query, tab } })
 })
 
+// Only what the customer has: features that are on, and every limit/choice with a value.
+const includedEntitlements = computed(() => (order.value?.entitlements ?? [])
+    .filter(e => (e.type === 'boolean' ? e.value : e.value !== null && e.value !== '')))
+// Limits (agents, storage…) read as chips; on/off features as a checklist, folded after a few.
+const FEATURES_SHOWN = 8
+const showAllFeatures = ref(false)
+const featureLimits   = computed(() => includedEntitlements.value.filter(e => e.type !== 'boolean'))
+const featureSwitches = computed(() => includedEntitlements.value.filter(e => e.type === 'boolean'))
+const shownSwitches   = computed(() => (showAllFeatures.value ? featureSwitches.value : featureSwitches.value.slice(0, FEATURES_SHOWN)))
 const installationsUrl = computed(() => `/get-my-installations/${orderId.value}`)
 const invoicesUrl      = computed(() => `/get-my-invoices/${orderId.value}/${userId}`)
 const paymentsUrl      = computed(() => `/get-my-payment-client/${orderId.value}/${userId}`)
@@ -1637,6 +1689,10 @@ watch(orderId, async () => {
 }
 .cost-breakdown { background-color: #e7f4fb; }
 .future-credit-callout { background-color: #e6f9ef; border: 1px dashed #1a9d5c; }
+.feature-limit { display: inline-block; padding: .2rem .6rem; border: 1px solid rgba(0, 0, 0, .09); background: #f7f7f7; font-size: .9em; }
+.feature-list { columns: 2; column-gap: 1.5rem; }
+.feature-list li { break-inside: avoid; padding: .15rem 0; }
+@media (max-width: 575px) { .feature-list { columns: 1; } }
 </style>
 
 <!-- Modal.vue teleports to <body>, so scoped styles can't reach its internals -

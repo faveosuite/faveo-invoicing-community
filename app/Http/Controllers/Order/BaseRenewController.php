@@ -7,8 +7,10 @@ use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\EntitlementSalesService;
 use App\Traits\TaxCalculation;
 use App\User;
 use Auth;
@@ -196,9 +198,9 @@ class BaseRenewController extends Controller
      * The one renewal price. Manual renew, the admin renew page, the in-app renew link and
      * auto-renewal (cron, gateway amount) all use it, so the customer pays the same however
      * they renew. Per-agent plans charge for the order's current agents; flat plans and
-     * unlimited licences (0 agents) charge the plan's renew price.
+     * unlimited licences (0 agents) charge the plan's renew price. Bought extras are added on top.
      *
-     * @param  object{renew_price: mixed, no_of_agents: mixed}|null  $planPrice  the plan_prices row in the customer's currency
+     * @param  PlanPrice|null  $planPrice  the plan_prices row in the customer's currency
      */
     public function renewalCost(int $orderId, ?object $planPrice): float
     {
@@ -206,11 +208,11 @@ class BaseRenewController extends Controller
             throw new Exception(__('message.record_not_found')); // no price for this plan in the customer's currency
         }
 
-        $price = (float) $planPrice->renew_price;
-        $agentsPerPlan = (int) $planPrice->no_of_agents;
-        $agents = (int) $this->orderAgents($orderId);
+        $sales = resolve(EntitlementSalesService::class);
+        $planCost = $sales->planCost($planPrice, (int) $this->orderAgents($orderId), 'renewal');
 
-        return ($agents > 0 && $agentsPerPlan > 0) ? $price / $agentsPerPlan * $agents : $price;
+        // Extras the customer bought renew with the order.
+        return $planCost + $sales->renewalCost($orderId, $planPrice->currency, $planPrice->plan);
     }
 
     /**

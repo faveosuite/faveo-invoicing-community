@@ -3,7 +3,7 @@
 namespace App\Model\Payment;
 
 use App\BaseModel;
-use App\Model\Configure\ConfigOption;
+use App\Model\Product\Entitlement;
 use App\Model\Product\Product;
 use App\Traits\SystemActivityLogsTrait;
 use DB;
@@ -32,8 +32,8 @@ use Spatie\Activitylog\Models\Activity;
  * @property Carbon|null $updated_at
  * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read Collection<int, ConfigOption> $configOptions
- * @property-read int|null $config_options_count
+ * @property-read Collection<int, Entitlement> $entitlements
+ * @property-read int|null $entitlements_count
  * @property-read Collection<int, Period> $periods
  * @property-read int|null $periods_count
  * @property-read Collection<int, PlanPrice> $planPrice
@@ -110,6 +110,35 @@ class Plan extends BaseModel
     }
 
     /**
+     * Plans a client may renew onto: the same product, active, not the 14-day trial, with a
+     * renewal price in the currency, and the same kind (one-time stays one-time, recurring
+     * stays recurring). The renew popup lists these and the renew endpoint accepts only these.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function renewableFor(Builder $query, int $productId, bool $oneTime, string $currency): void
+    {
+        $query->where('product', $productId)
+            ->where('status', 1)
+            ->where('days', '!=', 14)
+            ->when(
+                $oneTime,
+                fn ($q) => $q->whereHas('periods', fn ($p) => $p->where('name', 'One Time')),
+                fn ($q) => $q->whereDoesntHave('periods', fn ($p) => $p->where('name', 'One Time')),
+            )
+            ->whereHas('planPrice', fn ($q) => $q->where('currency', $currency)->where('renew_price', '!=', '0'))
+            // A plan charging for every agent needs an agent price in the currency, or agents are free.
+            ->where(fn ($q) => $q
+                ->whereDoesntHave('entitlements', fn ($e) => $e->where('feature', 'agents')->where('key', 'max'))
+                ->orWhereExists(fn ($e) => $e->from('entitlement_prices')
+                    ->join('entitlements', 'entitlements.id', '=', 'entitlement_prices.entitlement_id')
+                    ->where('entitlements.feature', 'agents')->where('entitlements.key', 'max')
+                    ->whereColumn('entitlement_prices.plan_id', 'plans.id')
+                    ->where('entitlement_prices.currency', $currency)));
+    }
+
+    /**
      * Plans a cloud order on $product can switch to: another cloud product that allows agent
      * changes, priced to renew, and not a free plan. The client's plan list and the
      * plan-change endpoints both read this, so only listed plans can be bought.
@@ -151,6 +180,14 @@ class Plan extends BaseModel
         return $this->belongstoMany(Period::class, 'plans_periods_relation')->withTimestamps(); // @phpstan-ignore return.type
     }
 
+    /** The plan's billing period (periods.id); prices for extras are set per period. */
+    public function periodId(): ?int
+    {
+        $id = $this->periods()->value('periods.id');
+
+        return $id === null ? null : (int) $id;
+    }
+
     #[Override]
     public function delete()
     {
@@ -163,10 +200,13 @@ class Plan extends BaseModel
     }
 
     /**
-     * @return HasMany<ConfigOption, $this>
+     * The features this plan includes, with its value (pivot `value`, stored form; null = the
+     * feature's default).
+     *
+     * @return BelongsToMany<Entitlement, $this, Pivot>
      */
-    public function configOptions(): HasMany
+    public function entitlements(): BelongsToMany
     {
-        return $this->hasMany(ConfigOption::class);
+        return $this->belongsToMany(Entitlement::class, 'plan_entitlements')->withPivot('value')->withTimestamps();
     }
 }

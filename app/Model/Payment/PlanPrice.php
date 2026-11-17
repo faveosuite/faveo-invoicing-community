@@ -21,7 +21,6 @@ use Spatie\Activitylog\Models\Activity;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $price_description
- * @property string|null $product_quantity
  * @property string|null $no_of_agents
  * @property string|null $offer_price
  * @property-read Collection<int, Activity> $activitiesAsSubject
@@ -57,7 +56,7 @@ class PlanPrice extends Model
 
     protected $table = 'plan_prices';
 
-    protected $fillable = ['plan_id', 'currency', 'add_price', 'renew_price', 'price_description', 'product_quantity', 'no_of_agents', 'offer_price'];
+    protected $fillable = ['plan_id', 'currency', 'add_price', 'renew_price', 'price_description', 'no_of_agents', 'offer_price'];
 
     protected string $logName = 'plan';
 
@@ -67,7 +66,7 @@ class PlanPrice extends Model
      * @var array<mixed>
      */
     protected array $logAttributes = [
-        'plan_id', 'currency', 'add_price', 'renew_price', 'price_description', 'product_quantity', 'no_of_agents', 'country_id', 'offer_price',
+        'plan_id', 'currency', 'add_price', 'renew_price', 'price_description', 'no_of_agents', 'country_id', 'offer_price',
     ];
 
     /**
@@ -88,7 +87,6 @@ class PlanPrice extends Model
             'add_price' => ['Add Price', fn ($value) => $value],
             'renew_price' => ['Renew Price', fn ($value) => $value],
             'price_description' => ['Price Description', fn ($value) => $value],
-            'product_quantity' => ['Product Quantity', fn ($value) => $value],
             'no_of_agents' => ['Number of Agents', fn ($value) => $value],
             'country_id' => ['Country', fn ($value) => Country::find($value)?->name], // @phpstan-ignore property.notFound
             'offer_price' => ['Offer Price', fn ($value) => $value],

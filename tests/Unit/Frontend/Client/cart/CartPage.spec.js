@@ -96,13 +96,6 @@ describe('CartPage.vue', () => {
         expect(wrapper.find('.cart-discount').exists()).toBeFalsy()
     })
 
-    it('clear cart button is disabled when cartStore is loading', async () => {
-        wrapper = createWrapper({ ...cartWithItem, loading: true })
-        await wrapper.vm.$nextTick()
-        const clearBtn = wrapper.find('button.btn-light')
-        expect(clearBtn.attributes('disabled')).toBeDefined()
-    })
-
     it('checkout button is present when items exist', async () => {
         wrapper = createWrapper(cartWithItem)
         await wrapper.vm.$nextTick()

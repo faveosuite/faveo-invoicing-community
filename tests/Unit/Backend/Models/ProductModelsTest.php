@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Models;
 
-use App\Model\Product\Addon;
 use App\Model\Product\ProductBundle;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Schema\Blueprint;
@@ -58,47 +57,6 @@ class ProductModelsTest extends DBTestCase
         }
 
         parent::tearDown();
-    }
-
-    // =========================================================================
-    // Addon
-    // =========================================================================
-
-    public function test_addon_can_be_created_and_persisted(): void
-    {
-        $addon = Addon::create([
-            'name' => 'Test Addon',
-            'product' => '1',
-            'subscription' => '0',
-        ]);
-
-        $this->assertNotNull($addon->id);
-        $this->assertDatabaseHas('addons', ['id' => $addon->id, 'name' => 'Test Addon']);
-    }
-
-    public function test_addon_relation_returns_has_many(): void
-    {
-        $addon = Addon::create([
-            'name' => 'Relation Addon',
-            'product' => '0',
-        ]);
-
-        $relation = $addon->relation();
-
-        $this->assertInstanceOf(HasMany::class, $relation);
-    }
-
-    public function test_addon_delete_removes_record_from_database(): void
-    {
-        $addon = Addon::create([
-            'name' => 'Delete Addon',
-            'product' => '0',
-        ]);
-
-        $id = $addon->id;
-        $addon->delete();
-
-        $this->assertDatabaseMissing('addons', ['id' => $id]);
     }
 
     // =========================================================================

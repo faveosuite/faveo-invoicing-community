@@ -37,6 +37,8 @@ use Override;
  * @property string|null $license_support_email_date
  * @property string|null $license_comments
  * @property int $license_status
+ * @property array<string, array<string, bool|int|string|null>>|null $entitlement_base
+ * @property array<string, array{value: string, until: string|null}>|null $entitlement_overrides
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Collection<int, Product> $addonProducts
@@ -109,6 +111,8 @@ class License extends Model
         'license_support_email_date',
         'license_comments',
         'license_status',
+        'entitlement_base',
+        'entitlement_overrides',
     ];
 
     /**
@@ -236,6 +240,8 @@ class License extends Model
             'license_require_domain' => 'boolean',
             'license_limit' => 'integer',
             'license_status' => 'integer',
+            'entitlement_base' => 'array',
+            'entitlement_overrides' => 'array',
             'product_id' => 'integer',
             'user_id' => 'integer',
         ];

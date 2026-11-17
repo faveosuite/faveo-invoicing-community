@@ -11,6 +11,7 @@ use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Currency;
 use App\Model\Payment\TaxOption;
 use App\Model\Product\Product;
+use App\Services\EntitlementSalesService;
 use App\Services\Payment\InvoicePaymentService;
 use App\Services\Payment\OpenPaymentService;
 use App\Services\Payment\ProcessingFee;
@@ -70,8 +71,12 @@ class PaymentController extends Controller
             ],
             'items' => $items->map(function ($item) use ($model) {
                 $data = $item->toArray();
-                $data['agents'] = agentCount($item->agents);
-                $data['image'] = Product::find($item->product_id)?->image;
+                $product = Product::find($item->product_id);
+                // Only per-agent products show an agent count (not extras lines or service products).
+                $data['agents'] = $model->type === EntitlementSalesService::INVOICE_TYPE || ! $product?->show_agent
+                    ? null
+                    : agentCount($item->agents);
+                $data['image'] = $product?->image;
                 $data['subtotal'] = currencyFormat($item->subtotal, $model->currency, includeSymbol: false);
 
                 return $data;

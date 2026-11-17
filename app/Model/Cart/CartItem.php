@@ -3,7 +3,10 @@
 namespace App\Model\Cart;
 
 use App\Model\Payment\Plan;
+use App\Model\Product\Entitlement;
 use App\Model\Product\Product;
+use App\Services\EntitlementSalesService;
+use App\Services\EntitlementService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -15,6 +18,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $plan_id
  * @property int $quantity
  * @property int $agents
+ * @property array<int|string, int>|null $extras
  * @property string|null $domain
  * @property int|null $data_center_id
  * @property string $billing_cycle
@@ -47,8 +51,17 @@ class CartItem extends Model
 
     protected $fillable = [
         'cart_id', 'product_id', 'plan_id',
-        'quantity', 'agents', 'domain', 'data_center_id', 'billing_cycle',
+        'quantity', 'agents', 'extras', 'domain', 'data_center_id', 'billing_cycle',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    #[\Override]
+    protected function casts(): array
+    {
+        return ['extras' => 'array'];
+    }
 
     /**
      * @return BelongsTo<Cart, $this>
@@ -83,7 +96,8 @@ class CartItem extends Model
         return $this->product !== null
             && $this->plan !== null
             && (int) $this->plan->product === (int) $this->product_id
-            && $this->plan->planPrice->contains('currency', $currency);
+            && ($row = $this->plan->planPrice->firstWhere('currency', $currency)) !== null
+            && resolve(EntitlementSalesService::class)->canPrice($row);
     }
 
     public function priceFor(string $currency): float
@@ -131,12 +145,101 @@ class CartItem extends Model
      */
     public function unitPrice(string $currency): float
     {
-        $price = $this->priceFor($currency);
-        $planAgents = self::planAgents($this->plan, $currency);
+        $row = $this->plan?->planPrice->firstWhere('currency', $currency);
+        $planPrice = $row ? resolve(EntitlementSalesService::class)->planCost($row, (int) $this->agents, 'purchase') : 0.0;
 
-        return $this->agents > 0 && $planAgents > 0
-            ? $price / $planAgents * $this->agents
-            : $price;
+        return $planPrice + array_sum(array_map(
+            fn (array $extra): float => $extra['unit_price'] * $extra['quantity'],
+            $this->chosenExtras($currency),
+        ));
+    }
+
+    /** Agents the plan price covers: 0 when every agent is paid, null when not priced per agent (or unlimited). */
+    public function includedAgents(string $currency): ?int
+    {
+        if (EntitlementService::paysForEveryAgent($this->plan)) {
+            return 0;
+        }
+        $included = self::planAgents($this->plan, $currency);
+
+        return $included > 0 ? $included : null;
+    }
+
+    /** One agent's price for this line's plan (purchase), or null when the plan isn't priced per agent. */
+    public function agentPrice(string $currency): ?float
+    {
+        $row = $this->plan?->planPrice->firstWhere('currency', $currency);
+        if (! $row || (int) $row->no_of_agents <= 0) {
+            return null;
+        }
+        $sales = resolve(EntitlementSalesService::class);
+
+        return $sales->agentUnitPrice($row, 'purchase') ?? $sales->planCost($row, (int) $row->no_of_agents, 'purchase') / (int) $row->no_of_agents;
+    }
+
+    /** What the chosen extras add to this line (all units of the line). */
+    public function extrasTotal(string $currency): float
+    {
+        return array_sum(array_map(
+            fn (array $extra): float => $extra['unit_price'] * $extra['quantity'],
+            $this->chosenExtras($currency),
+        )) * $this->quantity;
+    }
+
+    /**
+     * Extras the plan sells in the currency, with how many the customer picked.
+     *
+     * @return list<array{entitlement_id: int, label: string, type: string, unit_price: float, renew_price: float, quantity: int, period_id: int|null}>
+     */
+    public function availableExtras(string $currency): array
+    {
+        $chosen = $this->extras ?? [];
+        $periodId = $this->plan?->periodId();
+        $rows = [];
+
+        $items = Entitlement::with('prices')->whereHas('prices', fn ($q) => $q->where('plan_id', $this->plan_id))
+            ->orderBy('sort')->orderBy('id')->get();
+        foreach ($items as $item) {
+            $price = $item->priceIn($currency, $this->plan);
+            $renewPrice = $item->priceIn($currency, $this->plan, 'renewal');
+            if (! $item->canBeSoldOn($this->plan) || $price === null) {
+                continue;
+            }
+            $rows[] = [
+                'entitlement_id' => $item->id,
+                'label' => $item->label,
+                'type' => $item->type,
+                'unit_price' => $price,
+                'renew_price' => (float) $renewPrice,
+                'quantity' => (int) ($chosen[$item->id] ?? 0),
+                'period_id' => $periodId,
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * The extras the customer picked that are still on sale in the currency: these are charged,
+     * written to the invoice line, and given to the order once it's paid.
+     *
+     * @return list<array{entitlement_id: int, label: string, quantity: int, unit_price: float, renew_price: float, period_id: int|null}>
+     */
+    public function chosenExtras(string $currency): array
+    {
+        if (empty($this->extras)) {
+            return [];
+        }
+
+        $rows = [];
+        foreach ($this->availableExtras($currency) as $extra) {
+            if ($extra['quantity'] > 0) {
+                unset($extra['type']);
+                $rows[] = $extra;
+            }
+        }
+
+        return $rows;
     }
 
     public function lineTotal(): float

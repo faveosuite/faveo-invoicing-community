@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Model\Product\Product;
 use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -19,8 +18,6 @@ class PlanRequest extends FormRequest
      */
     public function rules(): array
     {
-        $showAgent = Product::whereKey($this->input('product'))->value('show_agent');
-
         return [
             'name' => ['required'],
 
@@ -40,14 +37,6 @@ class PlanRequest extends FormRequest
 
             'product' => ['required'],
             'days' => ['nullable', 'numeric'],
-            // 'nullable' matters here: once the other field satisfies
-            // required_without, this one is allowed to be legitimately null —
-            // without it, Laravel still runs 'integer' against that null and
-            // rejects it, blocking every Update on a plan with one field unset.
-            // The product decides which one the form shows, so that one is required — a hidden
-            // leftover value of the other no longer satisfies it. Unknown product: either one.
-            'product_quantity' => ['nullable', $showAgent === null ? 'required_without:no_of_agents' : Rule::requiredIf(! $showAgent), 'integer', 'min:0'],
-            'no_of_agents' => ['nullable', $showAgent === null ? 'required_without:product_quantity' : Rule::requiredIf((bool) $showAgent), 'integer', 'min:0'],
             'status' => [
                 'required',
                 Rule::unique('plans')
@@ -66,10 +55,6 @@ class PlanRequest extends FormRequest
     {
         return [
             'name.required' => __('validation.plan_request.name_required'),
-            'product_quantity.required_without' => __('validation.plan_request.product_quant_req'),
-            'no_of_agents.required_without' => __('validation.plan_request.no_agent_req'),
-            'product_quantity.required' => __('validation.plan_request.product_quant_req'),
-            'no_of_agents.required' => __('validation.plan_request.no_agent_req'),
             'product.required' => __('validation.plan_request.pro_req'),
             'add_price.*.max' => trans('message.regular_price_numeric'),
             'add_price.*.required_with' => trans('message.add_price_required'),

@@ -108,6 +108,9 @@ class BasePromotionController extends Controller
             }
 
             $planPrice = $userPlan['plan'];
+            if (! $promotion->worksIn((string) $planPrice->currency)) {
+                throw new Exception(__('message.coupon_wrong_currency', ['currency' => $planPrice->currency]));
+            }
             $cost = (float) $planPrice->add_price;
             $offer = $planPrice->offer_price ?? 0;
             $price = $offer > 0 ? $cost * (1 - $offer / 100) : $cost;

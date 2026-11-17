@@ -154,6 +154,16 @@ class Order extends BaseModel
     }
 
     /**
+     * Extras bought on top of the plan (more units, or features switched on).
+     *
+     * @return HasMany<OrderEntitlement, $this>
+     */
+    public function extras(): HasMany
+    {
+        return $this->hasMany(OrderEntitlement::class);
+    }
+
+    /**
      * Orders the client still can (and should) renew: expired, not replaced by an
      * upgrade (Terminated), and with a cloud instance still behind them. The dashboard's
      * "Order Renewals" count and the list it links to must use this same rule.

@@ -28,6 +28,7 @@ describe('CouponEdit.vue', () => {
     beforeEach(() => {
         globalThis.mockHttp.onGet(/\/promotion\/0/).reply(200, { data: couponResponse })
         globalThis.mockHttp.onGet(/\/dependency\/promotion-types/).reply(200, { data: { promotion_types: [] } })
+        globalThis.mockHttp.onGet(/\/dependency\/currencies/).reply(200, { data: { currencies: [{ id: 'USD', name: 'USD' }] } })
         globalThis.mockHttp.onGet(/\/getPromotionCode/).reply(200, { data: 'NEWCODE' })
         globalThis.mockHttp.onPatch(/\/updatePromotion\/0/).reply(200, { data: { message: 'Updated' } })
         wrapper = mount(CouponEdit, {
@@ -70,6 +71,7 @@ describe('CouponEdit.vue', () => {
         globalThis.mockHttp.reset()
         globalThis.mockHttp.onGet(/\/promotion\/0/).reply(500)
         globalThis.mockHttp.onGet(/\/dependency\/promotion-types/).reply(200, { data: { promotion_types: [] } })
+        globalThis.mockHttp.onGet(/\/dependency\/currencies/).reply(200, { data: { currencies: [{ id: 'USD', name: 'USD' }] } })
         wrapper = mount(CouponEdit, {
             global: {
                 plugins: [createTestingPinia()],

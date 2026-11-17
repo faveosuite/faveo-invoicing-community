@@ -37,25 +37,10 @@ trait PaymentsAndInvoices
         return $agents;
     }
 
-    public function getQuantity(mixed $qty, int $productid, ?int $plan): int
+    /** The quantity asked for, or 1 when the product doesn't let the customer change it. */
+    public function getQuantity(mixed $qty): int
     {
-        if (! $qty) {// If quantity is not received in the request in the case when 'modify quantity' is not allowed for the Product,get the Product qUANTITY from the Plan Table.
-            /** @var Product $productForQty */
-            $productForQty = Product::find($productid);
-            $planForQty = $productForQty->planRelation->find($plan);
-            if ($planForQty) {
-                /** @var Plan $planForQtyObj */
-                $planForQtyObj = $productForQty->planRelation->find($plan);
-                /** @var PlanPrice $planPriceQty */
-                $planPriceQty = $planForQtyObj->planPrice->first();
-                $quantity = $planPriceQty->product_quantity;
-                $qty = $quantity ?: 1; // If no. of Agents is specified then that,else 0(Unlimited Agents)
-            } else {
-                $qty = 1;
-            }
-        }
-
-        return $qty;
+        return (int) $qty ?: 1;
     }
 
     /**

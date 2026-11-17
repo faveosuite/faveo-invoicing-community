@@ -185,6 +185,15 @@ class Subscription extends Model
      * Nothing to renew when license, updates and support never expire —
      * e.g. a one-time (lifetime) plan whose product has no expiring permissions.
      */
+    /**
+     * When the current paid term ends: the license expiry, or — on a one-time (lifetime) plan,
+     * whose license never expires — the updates expiry, which is what a renewal extends there.
+     */
+    public function termEndsAt(): ?Carbon
+    {
+        return $this->ends_at ?? (filled($this->update_ends_at) ? Carbon::parse($this->update_ends_at) : null);
+    }
+
     public function canRenew(): bool
     {
         return filled($this->ends_at) || filled($this->update_ends_at) || filled($this->support_ends_at);

@@ -166,9 +166,9 @@ class PaymentModelsCoverageTest extends TestCase
         $this->assertInstanceOf(BelongsToMany::class, new Plan()->periods());
     }
 
-    public function test_plan_config_options_is_has_many(): void
+    public function test_plan_entitlements_is_belongs_to_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, new Plan()->configOptions());
+        $this->assertInstanceOf(BelongsToMany::class, new Plan()->entitlements());
     }
 
     // =========================================================================

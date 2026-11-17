@@ -7,7 +7,7 @@
 
       <!-- Error -->
       <div v-else-if="cartStore.error"
-           class="d-flex flex-column align-items-center justify-content-center text-center py-6">
+           class="d-flex flex-column align-items-center justify-content-center text-center py-5">
         <i class="fas fa-exclamation-circle fa-3x text-danger mb-3 d-block" aria-hidden="true"></i>
         <p class="text-color-grey mb-4" role="alert">{{ cartStore.error }}</p>
         <router-link to="/store" class="btn btn-primary btn-modern btn-px-4 py-3">
@@ -17,8 +17,8 @@
 
       <!-- Empty -->
       <div v-else-if="cartStore.items.length === 0"
-           class="d-flex flex-column align-items-center justify-content-center text-center py-6">
-        <i class="fas fa-shopping-cart fa-3x text-color-grey-lighten mb-3 d-block" aria-hidden="true"></i>
+           class="d-flex flex-column align-items-center justify-content-center text-center py-5">
+        <i class="fas fa-shopping-cart fa-3x text-color-grey mb-3 d-block" aria-hidden="true"></i>
         <p class="text-color-grey mb-4">{{ __('message.cart_empty') }}</p>
         <router-link to="/store" class="btn btn-primary btn-modern btn-px-4 py-3">
           {{ __('message.browse_products') }}
@@ -28,92 +28,48 @@
       <!-- Cart -->
       <div v-else class="row pb-4 mb-5">
 
-        <!-- Items table -->
+        <!-- Items: one card per plan -->
         <div class="col-lg-8 mb-4 mb-lg-0">
-          <!-- Phones: one card per item (the 6-column table is too cramped there) -->
-          <div class="d-md-none">
-            <CartItemRow
-              v-for="item in cartStore.items"
-              :key="item.id"
-              :item="item"
-              layout="card"
-              @update="onUpdate"
-              @remove="cartStore.removeItem($event)"
-            />
-          </div>
-
-          <div class="table-responsive d-none d-md-block">
-            <table class="shop_table cart">
-              <thead>
-                <tr class="text-color-dark">
-                  <th class="product-thumbnail" style="width:12%">&nbsp;</th>
-                  <th class="product-name text-uppercase" style="width:27%">{{ __('message.product') }}</th>
-                  <th class="product-price text-uppercase" style="width:13%">{{ __('message.price') }}</th>
-                  <th class="product-quantity text-uppercase" style="width:17%">{{ __('message.quantity') }}</th>
-                  <th class="product-quantity text-uppercase" style="width:17%">{{ __('message.agents') }}</th>
-                  <th class="product-subtotal text-uppercase text-end" style="width:14%">{{ __('message.subtotal') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <CartItemRow
-                  v-for="item in cartStore.items"
-                  :key="item.id"
-                  :item="item"
-                  @update="onUpdate"
-                  @remove="cartStore.removeItem($event)"
-                />
-              </tbody>
-            </table>
-          </div>
+          <CartItemRow
+            v-for="item in cartStore.items"
+            :key="item.id"
+            :item="item"
+            @customize="customizeId = $event"
+            @remove="cartStore.removeItem($event)"
+          />
         </div>
-
-        <!-- Cart totals -->
+        <!-- Cart totals (same look as the checkout summary) -->
         <div class="col-lg-4 position-relative">
           <div class="card border-width-3 border-radius-0">
             <div class="card-body">
-              <h4 class="font-weight-bold text-uppercase text-4 mb-3">{{ __('message.cart_totals') }}</h4>
-              <div class="table-responsive">
-                <table class="shop_table cart-totals mb-4">
-                <thead class="visually-hidden"><tr><th>{{ __("message.subtotal") }}</th><th>{{ __("message.amount") }}</th></tr></thead>
-                <tbody>
-                  <tr class="cart-subtotal">
-                    <td class="border-top-0"><strong class="text-color-dark">{{ __('message.subtotal') }}</strong></td>
-                    <td class="border-top-0 text-end">
-                      <strong><span class="amount font-weight-medium">{{ symbol }}{{ cartStore.subtotal }}</span></strong>
-                    </td>
-                  </tr>
-                  <tr v-if="cartStore.couponDiscount > 0" class="cart-discount">
-                    <td><strong class="text-color-dark">{{ __('message.discount') }}</strong></td>
-                    <td class="text-end">
-                      <strong><span class="amount text-success">−{{ symbol }}{{ cartStore.couponDiscount }}</span></strong>
-                    </td>
-                  </tr>
-                  <tr class="total">
-                    <td><strong class="text-color-dark text-3-5">{{ __('message.total') }}</strong></td>
-                    <td class="text-end">
-                      <strong class="text-color-dark"><span class="amount text-color-dark text-5">{{ symbol }}{{ cartStore.total }}</span></strong>
-                    </td>
-                  </tr>
-                </tbody>
-                </table>
+              <h4 class="font-weight-bold text-uppercase text-4 mb-0 pb-3 border-bottom">{{ __('message.cart_totals') }}</h4>
+
+              <!-- Each plan and what it holds -->
+              <div v-for="item in cartStore.items" :key="item.id" class="d-flex justify-content-between gap-3 py-3 border-bottom">
+                <span class="min-w-0">
+                  <strong class="d-block text-color-dark">{{ item.name }}</strong>
+                  <span class="d-block text-2 text-color-grey">{{ addonCount(item) ? __('message.cart_plan_with_addons', { count: addonCount(item) }) : __('message.cart_plan_only') }}</span>
+                </span>
+                <span class="amount font-weight-medium text-nowrap">{{ symbol }}{{ item.line_total }}</span>
               </div>
-              <div class="row justify-content-between align-items-center mx-0 flex-wrap">
-                <div class="col-12 col-md-auto px-0 mb-2 mb-md-0">
-                  <button type="button"
-                          class="btn btn-light btn-modern w-100 text-2 text-uppercase btn-clear-cart"
-                          :disabled="cartStore.loading"
-                          @click="clearCart">
-                    {{ __('message.clear_cart') }}
-                  </button>
-                </div>
-                <div class="col-12 col-md-auto px-0">
-                  <button type="button"
-                          class="btn btn-primary btn-modern w-100 text-2 checkout"
-                          @click="checkout">
-                    {{ __('message.checkout') }} <i class="fas fa-arrow-right ms-2" aria-hidden="true"></i>
-                  </button>
-                </div>
+
+              <!-- Subtotal only differs from the total when a coupon takes something off -->
+              <div v-if="hasDiscount" class="d-flex justify-content-between py-3 border-bottom">
+                <strong class="text-color-dark">{{ __('message.subtotal') }}</strong>
+                <span class="amount font-weight-medium">{{ symbol }}{{ cartStore.subtotal }}</span>
               </div>
+              <div v-if="hasDiscount" class="d-flex justify-content-between py-3 border-bottom">
+                <strong class="text-color-dark">{{ __('message.discount') }}</strong>
+                <span class="amount text-success">−{{ symbol }}{{ cartStore.couponDiscount }}</span>
+              </div>
+              <div class="d-flex justify-content-between py-3 border-bottom mb-4">
+                <strong class="text-color-dark text-4">{{ __('message.total') }}</strong>
+                <strong class="text-color-dark text-4">{{ symbol }}{{ cartStore.total }}</strong>
+              </div>
+
+              <button type="button" class="btn btn-dark btn-modern w-100 text-uppercase border-radius-0 text-3 py-3 checkout" @click="checkout">
+                {{ __('message.checkout') }} <i class="fas fa-arrow-right ms-2" aria-hidden="true"></i>
+              </button>
             </div>
           </div>
         </div>
@@ -121,6 +77,8 @@
       </div>
     </div>
 
+    <CartCustomizeModal :item="customizing" :busy="cartStore.loading"
+                        @close="customizeId = null" @update="onUpdate" />
     <CartDomainModal :show="showDomainModal" :items="domainItems"
                      @close="showDomainModal = false" @save="saveDomains" />
   </div>
@@ -134,6 +92,7 @@ import { useAlertStore } from '@/core/stores/alert'
 import { __ } from '@/plugins/i18n'
 import CartItemRow from '@/themes/porto/components/cart/CartItemRow.vue'
 import CartDomainModal from '@/themes/porto/components/cart/CartDomainModal.vue'
+import CartCustomizeModal from '@/themes/porto/components/cart/CartCustomizeModal.vue'
 import { useAuthStore } from '@/core/stores/auth'
 
 const router     = useRouter()
@@ -147,6 +106,9 @@ const alertStore = useAlertStore()
 const authStore  = useAuthStore()
 
 const symbol = computed(() => cartStore.currencySymbol)
+
+// Money comes formatted ("1,000.00"): strip separators before comparing.
+const hasDiscount = computed(() => (parseFloat(String(cartStore.couponDiscount).replace(/,/g, '')) || 0) > 0)
 
 onMounted(async () => {
     const productId = route.query.id
@@ -162,9 +124,12 @@ onMounted(async () => {
     }
 })
 
-function clearCart() {
-  cartStore.clearCart()
-}
+// How many add-ons a plan holds (order summary).
+const addonCount = item => (item.extras ?? []).filter(e => e.quantity > 0).length
+
+// The line open in the Customize panel (read live from the store so prices update in place).
+const customizeId = ref(null)
+const customizing = computed(() => cartStore.items.find(i => i.id === customizeId.value) ?? null)
 
 // Products whose license is locked to a domain: asked in a modal before checkout.
 const domainItems = computed(() => cartStore.items.filter(item => item.require_domain))
@@ -198,15 +163,12 @@ async function saveDomains(domains) {
   if (!cartStore.error) router.push('/checkout')
 }
 
-// CartItemRow emits { id, quantity } or { id, agents }.
-function onUpdate({ id, quantity, agents }) {
-  const payload = {}
-  if (quantity != null) payload.quantity = quantity
-  if (agents != null) payload.agents = agents
+// The Customize pop-up emits { id, quantity | agents | extras }.
+function onUpdate({ id, ...payload }) {
   cartStore.updateItem(id, payload)
 }
 </script>
 
 <style scoped>
-.btn-clear-cart { background: #F4F4F4; }
+.min-w-0 { min-width: 0; }
 </style>

@@ -24,8 +24,6 @@ const PLAN_RESPONSE = {
         product: 1,
         days: 30,
         status: 1,
-        no_of_agents: 5,
-        product_quantity: 1,
         product_relation: { name: 'My Product' },
         plan_price: [
             {
@@ -47,6 +45,7 @@ describe('PlanEdit.vue', () => {
         globalThis.mockHttp.onGet(/\/dependency\/currencies/).reply(200, CURRENCIES_RESPONSE)
         globalThis.mockHttp.onGet(/\/plan\/0/).reply(200, PLAN_RESPONSE)
         globalThis.mockHttp.onPatch(/\/plan\/0/).reply(200, { data: { message: 'Plan updated' } })
+        globalThis.mockHttp.onPost(/\/plan\/0\/entitlements/).reply(200, { data: { message: 'Saved' } })
 
         wrapper = mount(PlanEdit, {
             global: {
@@ -105,6 +104,14 @@ describe('PlanEdit.vue', () => {
         await wrapper.vm.submit()
         await flushPromises()
         expect(successHandler).toHaveBeenCalled()
+    })
+
+    it('saves the plan, then its features', async () => {
+        await flushPromises()
+        wrapper.vm.form.prices = [{ currency: 1, add_price: '19.99', offer_price: '10', renew_price: '19.99' }]
+        await wrapper.vm.submit()
+        await flushPromises()
+        expect(globalThis.mockHttp.history.post.some(r => /\/plan\/0\/entitlements/.test(r.url))).toBe(true)
     })
 
     it('calls errorHandler on 500 error', async () => {

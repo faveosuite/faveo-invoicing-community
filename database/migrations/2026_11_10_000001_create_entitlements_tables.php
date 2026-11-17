@@ -1,0 +1,142 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+/**
+ * Entitlements (features): what a license lets the customer use (on/off features, numeric
+ * limits, a choice from a list, free text), sent to the installed product in the signed license
+ * file and the license check.
+ *
+ *  - entitlements:        one shared list of features for all products, with each default value.
+ *  - plan_entitlements:   the features a plan includes, and its value when not the default.
+ *  - entitlement_prices:  what one more unit costs on a plan, per currency (renewal price and
+ *                         offer % optional). A feature with a price on a plan can be bought as
+ *                         an extra on that plan; agents use it as the per-agent price.
+ *  - order_entitlements:  extras a customer bought, at the renewal price they keep.
+ *  - licenses.entitlement_base: copy of the plan's values taken at purchase, so a later plan
+ *    edit doesn't change what existing customers already bought.
+ *  - licenses.entitlement_overrides: per-license admin overrides {"feature.key": {value, until}}.
+ *  - cart_items.extras / invoice_items.extras: extras picked at checkout.
+ *
+ * Replaces the configurable-option tables (config_group / config_option / config_option_values):
+ * they had no admin screen, held no rows, and copied every plan's options onto a license instead
+ * of only the plan bought.
+ */
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('entitlements', function (Blueprint $table): void {
+            $table->id();
+            $table->string('feature', 50);
+            $table->string('key', 50);
+            $table->string('label', 100);
+            $table->string('type', 20); // boolean | number | select | text
+            $table->json('options')->nullable(); // choices for a select item
+            $table->string('default_value', 255)->nullable();
+            $table->boolean('is_active')->default(value: true); // false = archived: kept for existing customers, hidden for new
+            $table->unsignedInteger('sort')->default(0);
+            $table->timestamps();
+
+            $table->unique(['feature', 'key']);
+        });
+
+        Schema::create('plan_entitlements', function (Blueprint $table): void {
+            $table->id();
+            $table->unsignedInteger('plan_id');
+            $table->foreignId('entitlement_id')->constrained('entitlements')->cascadeOnDelete();
+            $table->string('value', 255)->nullable();
+            $table->timestamps();
+
+            $table->foreign('plan_id')->references('id')->on('plans')->cascadeOnDelete();
+            $table->unique(['plan_id', 'entitlement_id']);
+        });
+
+        Schema::create('entitlement_prices', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('entitlement_id')->constrained('entitlements')->cascadeOnDelete();
+            $table->unsignedInteger('plan_id');
+            $table->string('currency', 10);
+            $table->decimal('unit_price', 14, 4);
+            $table->decimal('renew_price', 14, 4)->nullable();
+            $table->decimal('offer_percent', 5, 2)->nullable();
+            $table->timestamps();
+
+            $table->foreign('plan_id')->references('id')->on('plans')->cascadeOnDelete();
+            $table->unique(['entitlement_id', 'plan_id', 'currency']);
+        });
+
+        Schema::create('order_entitlements', function (Blueprint $table): void {
+            $table->id();
+            $table->unsignedInteger('order_id');
+            $table->foreignId('entitlement_id')->constrained('entitlements')->restrictOnDelete();
+            $table->unsignedInteger('quantity');
+            $table->unsignedInteger('renew_quantity')->nullable();
+            $table->decimal('unit_price', 14, 4); // renewal price per unit, kept for this customer
+            $table->string('currency', 10);
+            $table->unsignedInteger('period_id')->nullable();
+            $table->timestamps();
+
+            $table->foreign('order_id')->references('id')->on('orders')->cascadeOnDelete();
+            $table->unique(['order_id', 'entitlement_id']);
+        });
+
+        Schema::table('licenses', function (Blueprint $table): void {
+            $table->json('entitlement_base')->nullable()->after('license_status');
+            $table->json('entitlement_overrides')->nullable()->after('entitlement_base');
+        });
+        Schema::table('cart_items', function (Blueprint $table): void {
+            $table->json('extras')->nullable()->after('agents');
+        });
+        Schema::table('invoice_items', function (Blueprint $table): void {
+            $table->json('extras')->nullable()->after('agents');
+        });
+
+        Schema::dropIfExists('config_option_values');
+        Schema::dropIfExists('config_option');
+        Schema::dropIfExists('config_group');
+    }
+
+    public function down(): void
+    {
+        Schema::create('config_group', function (Blueprint $table): void {
+            $table->id();
+            $table->string('config_group_name', 255);
+            $table->binary('description')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('config_option', function (Blueprint $table): void {
+            $table->id();
+            $table->unsignedBigInteger('group_id');
+            $table->string('config_option_name', 255);
+            $table->binary('config_option_description')->nullable();
+            $table->unsignedInteger('plan_id');
+            $table->unsignedInteger('product_id')->nullable();
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('plan_id')->references('id')->on('plans')->onDelete('cascade');
+            $table->foreign('group_id')->references('id')->on('config_group')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('config_option_values', function (Blueprint $table): void {
+            $table->id();
+            $table->unsignedBigInteger('option_id');
+            $table->string('key', 255);
+            $table->string('value', 255);
+            $table->foreign('option_id')->references('id')->on('config_option')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::table('licenses', fn (Blueprint $table) => $table->dropColumn(['entitlement_base', 'entitlement_overrides']));
+        Schema::table('cart_items', fn (Blueprint $table) => $table->dropColumn('extras'));
+        Schema::table('invoice_items', fn (Blueprint $table) => $table->dropColumn('extras'));
+
+        Schema::dropIfExists('order_entitlements');
+        Schema::dropIfExists('entitlement_prices');
+        Schema::dropIfExists('plan_entitlements');
+        Schema::dropIfExists('entitlements');
+    }
+};

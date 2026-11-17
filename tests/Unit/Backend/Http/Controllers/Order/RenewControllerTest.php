@@ -394,9 +394,45 @@ class RenewControllerTest extends DBTestCase
     private function ownSubscription(): Subscription
     {
         $sub = Subscription::factory()->create(['user_id' => $this->user->id]);
-        Order::whereKey($sub->order_id)->update(['client' => $this->user->id, 'order_status' => 'executed']);
+        Order::whereKey($sub->order_id)->update(['client' => $this->user->id, 'order_status' => 'executed', 'product' => $sub->product_id]);
+        $this->makeRenewable($sub->plan_id, $sub->product_id);
 
         return $sub;
+    }
+
+    /** A plan the client may renew onto: active, not a trial, priced in their currency. */
+    private function makeRenewable(int $planId, int $productId): void
+    {
+        Plan::whereKey($planId)->update(['product' => $productId, 'status' => 1, 'days' => 365]);
+        PlanPrice::where('plan_id', $planId)->delete();
+        PlanPrice::factory()->create(['plan_id' => $planId, 'currency' => getCurrencyForClient($this->user->country), 'renew_price' => 50, 'no_of_agents' => 0]);
+    }
+
+    // ── A client can renew only onto a plan the renew popup offers ──
+
+    public function test_a_client_cannot_renew_onto_another_products_plan(): void
+    {
+        $sub = $this->ownSubscription();
+        $cheap = Plan::factory()->create();
+        $this->makeRenewable($cheap->id, Product::factory()->create()->id); // valid plan, wrong product
+        $before = Invoice::count();
+
+        $this->postJson("/client/renew/{$sub->id}", ['plan' => $cheap->id])->assertStatus(422);
+        $this->assertSame($before, Invoice::count());
+    }
+
+    public function test_a_client_cannot_renew_onto_an_inactive_or_unpriced_plan(): void
+    {
+        $sub = $this->ownSubscription();
+        $inactive = Plan::factory()->create();
+        $this->makeRenewable($inactive->id, $sub->product_id);
+        Plan::whereKey($inactive->id)->update(['status' => 0]);
+        $free = Plan::factory()->create();
+        $this->makeRenewable($free->id, $sub->product_id);
+        PlanPrice::where('plan_id', $free->id)->update(['renew_price' => 0]);
+
+        $this->postJson("/client/renew/{$sub->id}", ['plan' => $inactive->id])->assertStatus(422);
+        $this->postJson("/client/renew/{$sub->id}", ['plan' => $free->id])->assertStatus(422);
     }
 
     public function test_renewing_again_on_the_same_plan_returns_the_open_invoice(): void
@@ -412,7 +448,8 @@ class RenewControllerTest extends DBTestCase
     {
         $sub = $this->ownSubscription();
         $open = $this->pendingOn($sub, $sub->plan_id);
-        $otherPlan = Plan::factory()->create(['product' => $sub->product_id]);
+        $otherPlan = Plan::factory()->create();
+        $this->makeRenewable($otherPlan->id, $sub->product_id);
         $before = Invoice::count();
 
         $this->postJson("/client/renew/{$sub->id}", ['plan' => $otherPlan->id])
@@ -429,6 +466,16 @@ class RenewControllerTest extends DBTestCase
 
         $this->assertNotSame($agentChange->id, $response->json('data.invoice_id'));
         $response->assertStatus(400)->assertJson(['message' => __('message.renew_blocked_unpaid_invoice', ['number' => $agentChange->number])]);
+    }
+
+    public function test_an_auto_renewal_payment_never_settles_an_agent_change_invoice(): void
+    {
+        $sub = $this->ownSubscription();
+        $this->pendingOn($sub, $sub->plan_id, ['type' => 'agent_alteration']);
+        $this->assertNull(Invoice::openRenewalFor($sub->order_id, $sub->product_id)); // a new renewal invoice gets made instead
+
+        $renewal = $this->pendingOn($sub, $sub->plan_id);
+        $this->assertSame($renewal->id, Invoice::openRenewalFor($sub->order_id, $sub->product_id)?->id);
     }
 
     public function test_a_terminated_order_cannot_be_renewed(): void

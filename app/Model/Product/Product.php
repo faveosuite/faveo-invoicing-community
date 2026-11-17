@@ -8,7 +8,6 @@ use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseReport;
-use App\Model\Configure\ConfigOption;
 use App\Model\Configure\PluginCompatibleWithProducts;
 use App\Model\Configure\ProductPluginGroup;
 use App\Model\License\LicenseType;
@@ -91,8 +90,7 @@ use Spatie\Activitylog\Models\Activity;
  * @property-read int|null $bundled_plugins_count
  * @property-read Collection<int, Product> $compatiblePlugins
  * @property-read int|null $compatible_plugins_count
- * @property-read Collection<int, ConfigOption> $configOptions
- * @property-read int|null $config_options_count
+ * @property-read int|null $entitlements_count
  * @property-read ProductGroup|null $groupRelation
  * @property-read Collection<int, Installation> $installations
  * @property-read int|null $installations_count
@@ -448,14 +446,6 @@ class Product extends BaseModel
     public function compatiblePlugins(): BelongsToMany
     {
         return $this->belongsToMany(static::class, 'plugin_compatible_with_products', 'product_id', 'plugin_id'); // @phpstan-ignore return.type
-    }
-
-    /**
-     * @return HasMany<ConfigOption, $this>
-     */
-    public function configOptions(): HasMany
-    {
-        return $this->hasMany(ConfigOption::class, 'product_id');
     }
 
     /**

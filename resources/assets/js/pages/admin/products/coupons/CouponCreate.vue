@@ -67,6 +67,19 @@
                     <div class="col-md-4">
                         <DatePicker name="expiry" :label="__('message.expiry')" :required="true" :value="form.expiry" :onChange="onChange" format="YYYY-MM-DD" :error="errors.expiry" />
                     </div>
+                    <!-- A Fixed Amount is money in one currency; percentage coupons work in any -->
+                    <div v-if="String(form.type) === '2'" class="col-md-4">
+                        <DynamicSelect
+                            name="currency"
+                            :label="__('message.currency')"
+                            :required="true"
+                            :elements="currencies"
+                            :value="currencies.find(c => c.id === form.currency) ?? null"
+                            :onChange="(val) => { form.currency = val?.id ?? ''; setFieldError('currency', undefined) }"
+                            :clearable="false"
+                            :error="errors.currency"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -98,11 +111,13 @@ const { errors, setErrors, setFieldError } = useForm()
 const saving = ref(false)
 const generating = ref(false)
 const promotionTypes = ref([])
+const currencies = ref([])
 
 const form = reactive({
     code: '',
     type: '',
     value: '',
+    currency: '',
     applied: null,
     productObj: null,
     uses: '',
@@ -135,8 +150,12 @@ async function generateCode() {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`/dependency/promotion-types`)
+        const [res, cRes] = await Promise.all([
+            http.get(`/dependency/promotion-types`),
+            http.get(`/dependency/currencies`),
+        ])
         promotionTypes.value = res.data?.data?.promotion_types ?? []
+        currencies.value = cRes.data?.data?.currencies ?? []
     } catch (e) {
         errorHandler(e, COMPONENT, { setErrors })
     }
@@ -151,6 +170,7 @@ async function submit() {
             code:   form.code,
             type:   form.type,
             value:  form.value,
+            currency: String(form.type) === '2' ? form.currency : null,
             applied: form.applied,
             uses:   form.uses,
             start:  form.start,

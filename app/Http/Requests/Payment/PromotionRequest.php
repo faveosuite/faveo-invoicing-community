@@ -51,6 +51,8 @@ class PromotionRequest extends Request
             // (direct product pricing or any of its plans, any currency) so a
             // discount can never exceed what the product could ever cost.
             if ((string) $this->input('type') === '2') {
+                // The amount is money in one currency: a cart in another currency can't use it.
+                $rules['currency'] = ['required', 'exists:currencies,code'];
                 $maxPrice = $this->maxProductPrice((int) $this->input('applied'));
                 if ($maxPrice > 0) {
                     $rules['value'][] = 'max:'.(int) $maxPrice;
@@ -98,6 +100,8 @@ class PromotionRequest extends Request
             'value.numeric' => __('validation.coupon_form.value.numeric'),
             'value.between' => __('validation.coupon_form.value.between'),
             'value.max' => __('validation.coupon_form.value.max'),
+            'currency.required' => __('validation.coupon_form.currency.required'),
+            'currency.exists' => __('validation.coupon_form.currency.required'),
         ];
     }
 }

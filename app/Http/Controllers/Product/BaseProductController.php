@@ -35,29 +35,16 @@ class BaseProductController extends ExtendedBaseProductController
         return 'http://'.(is_string($host) ? $host : '').$server['path'];
     }
 
-    /*
-    * Get Product Qty if Product can be modified
-     */
     /**
-     * @return array<mixed>
+     * Whether the customer can change the product quantity; it always starts at 1.
+     *
+     * @return array{can_modify: bool, quantity: int|null}
      */
-    public function getProductQtyCheck(int $productId, Plan $plan, string $currency): array
+    public function getProductQtyCheck(int $productId): array
     {
-        if (! self::checkMultiProduct($productId)) {
-            return [
-                'can_modify' => false,
-                'quantity' => null,
-            ];
-        }
+        $canModify = (bool) self::checkMultiProduct($productId);
 
-        $value = $plan->planPrice
-            ->where('currency', $currency)
-            ->value('product_quantity');
-
-        return [
-            'can_modify' => true,
-            'quantity' => empty($value) ? 1 : (int) $value, // @phpstan-ignore cast.int
-        ];
+        return ['can_modify' => $canModify, 'quantity' => $canModify ? 1 : null];
     }
 
     /*
@@ -216,7 +203,7 @@ class BaseProductController extends ExtendedBaseProductController
                         ? ['domain' => cloudSubDomain()]
                         : false,
                 ],
-                'product_quantity' => $this->getProductQtyCheck($productId, $plan, $currency),
+                'product_quantity' => $this->getProductQtyCheck($productId),
                 'agents' => $this->getAgentQtyCheck($productId, $plan, $currency),
             ];
 
