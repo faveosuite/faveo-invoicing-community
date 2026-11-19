@@ -35,7 +35,6 @@ defineProps({
 const emit = defineEmits(['apply', 'reset', 'close'])
 
 const statusOptions = [
-    { id: 'bundled',        name: __('message.bundled') },
     { id: 'compatible',     name: __('message.compatible') },
     { id: 'not_mapped',     name: __('message.not_mapped') },
 ]

@@ -555,11 +555,10 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
             $lineTotal = $line->unitPrice($currency) * $line->quantity;
 
             $extras = $line->chosenExtras($currency);
-            $extrasText = implode(', ', array_map(fn (array $e): string => $e['label'].' × '.$e['quantity'], $extras));
 
             $items[] = [
-                // Extras are charged on the plan's line, so the line says what's included.
-                'product_name' => $line->product?->name.($extrasText !== '' ? ' (+ '.$extrasText.')' : ''),
+                // Plain name: the add-ons charged on this line are kept in 'extras' and listed under it.
+                'product_name' => $line->product?->name,
                 'product_id' => $line->product_id,
                 'regular_price' => $line->unitPrice($currency),
                 'quantity' => $line->quantity,

@@ -97,9 +97,9 @@ describe('CheckoutPage.vue', () => {
         expect(wrapper.find('.fa-shopping-cart').exists()).toBeTruthy()
     })
 
-    it('shows items table when cart has items', async () => {
+    it('shows the item list when cart has items', async () => {
         await wrapper.vm.$nextTick()
-        expect(wrapper.find('table.shop_table').exists()).toBeTruthy()
+        expect(wrapper.find('li.co-item').exists()).toBeTruthy()
     })
 
     it('shows payment gateway radio buttons', async () => {
@@ -391,7 +391,6 @@ describe('CheckoutPage.vue — displayItems computed (cart mode)', () => {
         expect(items[0]).toMatchObject({
             id: 1,
             name: 'Product A',
-            quantity: 1,
             line_total: 99,
         })
     })

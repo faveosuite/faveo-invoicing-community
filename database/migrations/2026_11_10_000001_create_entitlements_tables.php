@@ -15,10 +15,12 @@ use Illuminate\Support\Facades\Schema;
  *                         offer % optional). A feature with a price on a plan can be bought as
  *                         an extra on that plan; agents use it as the per-agent price.
  *  - order_entitlements:  extras a customer bought, at the renewal price they keep.
- *  - licenses.entitlement_base: copy of the plan's values taken at purchase, so a later plan
+ *  - licenses.entitlement_base: copy of the plan's values ({"code": value}) taken at purchase, so a later plan
  *    edit doesn't change what existing customers already bought.
- *  - licenses.entitlement_overrides: per-license admin overrides {"feature.key": {value, until}}.
+ *  - licenses.entitlement_overrides: per-license admin overrides {"code": {value, until}}.
  *  - cart_items.extras / invoice_items.extras: extras picked at checkout.
+ *  - products.unlocks_entitlement_id: on a plugin product, the feature that unlocks it. A license
+ *    may run and download the plugin when it has that feature.
  *
  * Replaces the configurable-option tables (config_group / config_option / config_option_values):
  * they had no admin screen, held no rows, and copied every plan's options onto a license instead
@@ -30,8 +32,8 @@ return new class extends Migration
     {
         Schema::create('entitlements', function (Blueprint $table): void {
             $table->id();
-            $table->string('feature', 50);
-            $table->string('key', 50);
+            $table->string('code', 50)->unique(); // permanent name products check (sla, agents, api_daily_limit); never renamed
+            $table->string('category', 50)->nullable(); // admin grouping only (Channels, Security)
             $table->string('label', 100);
             $table->string('type', 20); // boolean | number | select | text
             $table->json('options')->nullable(); // choices for a select item
@@ -39,8 +41,6 @@ return new class extends Migration
             $table->boolean('is_active')->default(value: true); // false = archived: kept for existing customers, hidden for new
             $table->unsignedInteger('sort')->default(0);
             $table->timestamps();
-
-            $table->unique(['feature', 'key']);
         });
 
         Schema::create('plan_entitlements', function (Blueprint $table): void {
@@ -90,6 +90,9 @@ return new class extends Migration
         Schema::table('cart_items', function (Blueprint $table): void {
             $table->json('extras')->nullable()->after('agents');
         });
+        Schema::table('products', function (Blueprint $table): void {
+            $table->foreignId('unlocks_entitlement_id')->nullable()->constrained('entitlements')->nullOnDelete();
+        });
         Schema::table('invoice_items', function (Blueprint $table): void {
             $table->json('extras')->nullable()->after('agents');
         });
@@ -132,6 +135,7 @@ return new class extends Migration
 
         Schema::table('licenses', fn (Blueprint $table) => $table->dropColumn(['entitlement_base', 'entitlement_overrides']));
         Schema::table('cart_items', fn (Blueprint $table) => $table->dropColumn('extras'));
+        Schema::table('products', fn (Blueprint $table) => $table->dropConstrainedForeignId('unlocks_entitlement_id'));
         Schema::table('invoice_items', fn (Blueprint $table) => $table->dropColumn('extras'));
 
         Schema::dropIfExists('order_entitlements');

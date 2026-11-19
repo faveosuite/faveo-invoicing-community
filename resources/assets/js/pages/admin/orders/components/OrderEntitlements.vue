@@ -88,7 +88,7 @@ const tableOptions = reactive({
         action:     __('message.action'),
     },
     templates: {
-        label:      (f, row) => h('span', { title: `${row.feature}.${row.key}` }, row.label),
+        label:      (f, row) => h('span', { title: row.code }, row.label),
         plan_value: (f, row) => (row.from_code ? __('message.entitlement_from_agents') : show(row, row.plan_value)),
         extra:      (f, row) => (row.extra ? (row.type === 'boolean' ? __('message.entitlement_on') : `+${row.extra}`) : '—'),
         override:   (f, row) => {

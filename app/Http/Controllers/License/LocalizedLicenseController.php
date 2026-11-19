@@ -10,6 +10,8 @@ use App\License\Services\InstallationService;
 use App\License\Services\LicenseFileService;
 use App\License\Services\LicenseService;
 use App\Model\Order\Order;
+use App\Model\Product\Product;
+use App\Services\EntitlementService;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -179,7 +181,9 @@ class LocalizedLicenseController extends Controller
             return errorResponse(__('message.not_found', ['file' => __('message.localized_license')]), 404);
         }
 
-        return successResponse('', $license->addonProducts()->get(['products.id', 'products.name']));
+        $pluginIds = resolve(EntitlementService::class)->pluginIds($license);
+
+        return successResponse('', Product::whereIn('id', $pluginIds)->get(['id', 'name']));
     }
 
     private function streamFile(?string $file): StreamedResponse|JsonResponse

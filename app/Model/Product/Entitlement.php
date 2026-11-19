@@ -13,11 +13,12 @@ use Override;
 /**
  * One feature a license can grant: an on/off feature, a numeric limit, a choice from a list, or
  * free text. One shared list for all products; plans pick the features they include and set
- * their extra prices. Grouped by `feature` (e.g. sla.enabled, sla.policies).
+ * their extra prices. `code` is the permanent name products check (sla, agents); it never changes —
+ * rename the label instead. `category` only groups features on admin screens.
  *
  * @property int $id
- * @property string $feature
- * @property string $key
+ * @property string $code
+ * @property string|null $category
  * @property string $label
  * @property string $type
  * @property list<string>|null $options
@@ -34,7 +35,7 @@ class Entitlement extends Model
 {
     public const array TYPES = ['boolean', 'number', 'select', 'text'];
 
-    protected $fillable = ['feature', 'key', 'label', 'type', 'options', 'default_value', 'is_active', 'sort'];
+    protected $fillable = ['code', 'category', 'label', 'type', 'options', 'default_value', 'is_active', 'sort'];
 
     /**
      * @return HasMany<EntitlementPrice, $this>
@@ -70,7 +71,7 @@ class Entitlement extends Model
     {
         return $plan !== null && $this->is_active
             && in_array($this->type, ['boolean', 'number'], strict: true)
-            && $this->feature.'.'.$this->key !== 'agents.max'
+            && $this->code !== 'agents'
             && $this->prices->contains(fn (EntitlementPrice $p): bool => $p->plan_id === $plan->id);
     }
 

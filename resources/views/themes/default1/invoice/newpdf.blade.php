@@ -179,7 +179,13 @@
             @foreach($invoiceItems as $item)
                 <tr>
                     <td>{{ $item->order?->number ?? '—' }}</td>
-                    <td>{{ $item->product_name }}</td>
+                    <td>
+                        {{ $item->product_name }}
+                        {{-- Add-ons charged on this line, one per line --}}
+                        @foreach($item->extras ?? [] as $extra)
+                            <div style="font-size: 11px; color: #666;">{{ $extra['label'] }}@if($extra['quantity'] > 1) × {{ $extra['quantity'] }}@endif</div>
+                        @endforeach
+                    </td>
                     <td>{{ currencyFormat($item->regular_price, $symbol) }}</td>
                     <td>{{ $item->agents ?: __('message.unlimited') }}</td>
                     <td>{{ $item->quantity }}</td>

@@ -37,11 +37,11 @@ class CartExtrasTest extends DBTestCase
         $cart = Cart::where('user_id', auth()->id())->firstOrFail();
         $this->assertSame($currency, (string) $cart->currency);
 
-        $storage = Entitlement::create(['feature' => 'storage', 'key' => 'gb', 'label' => 'Storage', 'type' => 'number']);
+        $storage = Entitlement::create(['code' => 'storage', 'label' => 'Storage', 'type' => 'number']);
         $storage->prices()->create(['plan_id' => $plan->id, 'currency' => $currency, 'unit_price' => 2]);
-        $chat = Entitlement::create(['feature' => 'chat', 'key' => 'enabled', 'label' => 'Chat', 'type' => 'boolean']);
+        $chat = Entitlement::create(['code' => 'chat', 'label' => 'Chat', 'type' => 'boolean']);
         $chat->prices()->create(['plan_id' => $plan->id, 'currency' => $currency, 'unit_price' => 10]);
-        $notForSale = Entitlement::create(['feature' => 'sla', 'key' => 'enabled', 'label' => 'SLA', 'type' => 'boolean']); // no price on this plan
+        $notForSale = Entitlement::create(['code' => 'sla', 'label' => 'SLA', 'type' => 'boolean']); // no price on this plan
 
         $line = $cart->items()->firstOrFail();
         $this->putJson("my-cart/items/{$line->id}", ['extras' => [$storage->id => 10, $chat->id => 5, $notForSale->id => 1]])->assertOk();
@@ -56,7 +56,9 @@ class CartExtrasTest extends DBTestCase
         $invoice = Invoice::where('user_id', auth()->id())->latest('id')->firstOrFail();
         $invoiceLine = $invoice->invoiceItem()->firstOrFail();
         $this->assertCount(2, $invoiceLine->extras);
-        $this->assertStringContainsString('Storage × 10', (string) $invoiceLine->product_name);
+        // The name stays the product's own; the add-ons live in extras (listed under it on the invoice).
+        $this->assertStringNotContainsString('(+', (string) $invoiceLine->product_name);
+        $this->assertSame(10, (int) collect($invoiceLine->extras)->firstWhere('entitlement_id', $storage->id)['quantity']);
 
         $order = (new OrderController)->executeOrder($invoice->id)->first();
 

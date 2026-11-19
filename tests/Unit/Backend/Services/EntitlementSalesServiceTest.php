@@ -59,10 +59,10 @@ class EntitlementSalesServiceTest extends DBTestCase
         ]);
     }
 
-    private function item(string $feature, string $key, string $type, float $price = 2): Entitlement
+    private function item(string $code, string $type, float $price = 2): Entitlement
     {
         $item = Entitlement::create([
-            'feature' => $feature, 'key' => $key, 'label' => ucfirst($feature),
+            'code' => $code, 'label' => ucfirst($code),
             'type' => $type, 'default_value' => $type === 'boolean' ? '0' : '10',
         ]);
         $item->prices()->create(['plan_id' => $this->plan->id, 'currency' => $this->currency, 'unit_price' => $price]);
@@ -72,7 +72,7 @@ class EntitlementSalesServiceTest extends DBTestCase
 
     public function test_quote_charges_only_the_days_left(): void
     {
-        $quote = $this->sales->quote($this->order, $this->item('storage', 'gb', 'number'), 10);
+        $quote = $this->sales->quote($this->order, $this->item('storage', 'number'), 10);
 
         $this->assertSame(15, $quote['days_left']);
         $this->assertSame(10.0, $quote['amount']); // 2 × 10 units × 15/30 days
@@ -83,7 +83,7 @@ class EntitlementSalesServiceTest extends DBTestCase
         // One-time plan: the licence never expires (no ends_at); its term is the updates expiry.
         Subscription::where('order_id', $this->order->id)->update(['ends_at' => null, 'update_ends_at' => now()->addDays(15)->addHour()]);
 
-        $quote = $this->sales->quote($this->order->fresh(), $this->item('storage', 'gb', 'number'), 10);
+        $quote = $this->sales->quote($this->order->fresh(), $this->item('storage', 'number'), 10);
 
         $this->assertSame(15, $quote['days_left']);
         $this->assertSame(10.0, $quote['amount']); // 2 × 10 units × 15/30 days — not "order expired"
@@ -91,18 +91,18 @@ class EntitlementSalesServiceTest extends DBTestCase
 
     public function test_quote_refuses_expired_orders_free_trials_and_a_second_feature(): void
     {
-        $chat = $this->item('chat', 'enabled', 'boolean');
+        $chat = $this->item('chat', 'boolean');
         OrderEntitlement::create(['order_id' => $this->order->id, 'entitlement_id' => $chat->id, 'quantity' => 1, 'unit_price' => 2, 'currency' => $this->currency, 'period_id' => $this->periodId]);
         $this->assertRefused(fn () => $this->sales->quote($this->order, $chat, 1));
 
         Subscription::where('order_id', $this->order->id)->update(['ends_at' => now()->subDay()]);
-        $this->assertRefused(fn () => $this->sales->quote($this->order, $this->item('storage', 'gb', 'number'), 1));
+        $this->assertRefused(fn () => $this->sales->quote($this->order, $this->item('storage', 'number'), 1));
     }
 
     public function test_paid_invoice_adds_the_extra_once_and_never_creates_an_order(): void
     {
         Mail::fake();
-        $storage = $this->item('storage', 'gb', 'number');
+        $storage = $this->item('storage', 'number');
         $invoice = $this->sales->createPurchaseInvoice($this->order, $storage, 4);
 
         $this->assertSame(EntitlementSalesService::INVOICE_TYPE, $invoice->type);
@@ -120,7 +120,7 @@ class EntitlementSalesServiceTest extends DBTestCase
     {
         // Priced for 15 days left; the order then renewed. Applying it would give the extra for the
         // whole new term at the 15-day price.
-        $storage = $this->item('storage', 'gb', 'number');
+        $storage = $this->item('storage', 'number');
         $invoice = $this->sales->createPurchaseInvoice($this->order, $storage, 100);
         Subscription::where('order_id', $this->order->id)->update(['ends_at' => now()->addDays(45)]); // renewed
         $payment = Payment::create(['user_id' => $this->customer->id, 'amount' => $invoice->grand_total, 'payment_status' => 'success', 'payment_method' => 'Stripe', 'currency' => $this->currency]);
@@ -139,9 +139,9 @@ class EntitlementSalesServiceTest extends DBTestCase
     {
         $own = fn (Entitlement $item, int $quantity) => OrderEntitlement::create(['order_id' => $this->order->id, 'entitlement_id' => $item->id,
             'quantity' => $quantity, 'unit_price' => 2, 'currency' => $this->currency, 'period_id' => $this->periodId]);
-        $storage = $this->item('storage', 'gb', 'number');
-        $sla = $this->item('sla', 'enabled', 'boolean');
-        $reports = $this->item('reports', 'enabled', 'boolean');
+        $storage = $this->item('storage', 'number');
+        $sla = $this->item('sla', 'boolean');
+        $reports = $this->item('reports', 'boolean');
         $own($storage, 10);
         $own($sla, 1);
         $own($reports, 1);
@@ -154,7 +154,7 @@ class EntitlementSalesServiceTest extends DBTestCase
 
     public function test_an_on_off_extra_is_never_bought_twice(): void
     {
-        $sla = $this->item('sla', 'enabled', 'boolean');
+        $sla = $this->item('sla', 'boolean');
         $first = $this->sales->createPurchaseInvoice($this->order, $sla, 1);
 
         // A second invoice while the first is unpaid is refused…
@@ -181,7 +181,7 @@ class EntitlementSalesServiceTest extends DBTestCase
 
     public function test_renewing_in_another_currency_never_reuses_the_old_amount(): void
     {
-        $storage = $this->item('storage', 'gb', 'number');
+        $storage = $this->item('storage', 'number');
         OrderEntitlement::create(['order_id' => $this->order->id, 'entitlement_id' => $storage->id, 'quantity' => 1, 'unit_price' => 800, 'currency' => $this->currency, 'period_id' => $this->periodId]);
         $other = $this->currency === 'USD' ? 'INR' : 'USD';
 
@@ -200,7 +200,7 @@ class EntitlementSalesServiceTest extends DBTestCase
 
     public function test_extras_are_billed_at_renewal_and_reductions_apply_then(): void
     {
-        $storage = $this->item('storage', 'gb', 'number');
+        $storage = $this->item('storage', 'number');
         OrderEntitlement::create(['order_id' => $this->order->id, 'entitlement_id' => $storage->id, 'quantity' => 10, 'unit_price' => 2, 'currency' => $this->currency, 'period_id' => $this->periodId]);
         $planPrice = PlanPrice::where('plan_id', $this->plan->id)->first();
 
@@ -220,8 +220,8 @@ class EntitlementSalesServiceTest extends DBTestCase
 
     public function test_plan_change_keeps_extras_unless_the_new_plan_includes_the_feature(): void
     {
-        $storage = $this->item('storage', 'gb', 'number');
-        $chat = $this->item('chat', 'enabled', 'boolean');
+        $storage = $this->item('storage', 'number');
+        $chat = $this->item('chat', 'boolean');
         foreach ([$storage, $chat] as $item) {
             OrderEntitlement::create(['order_id' => $this->order->id, 'entitlement_id' => $item->id, 'quantity' => $item->type === 'boolean' ? 1 : 5, 'unit_price' => 2, 'currency' => $this->currency, 'period_id' => $this->periodId]);
         }
@@ -265,7 +265,7 @@ class EntitlementSalesServiceTest extends DBTestCase
 
     public function test_each_plan_sells_extras_at_its_own_price(): void
     {
-        $storage = $this->item('storage', 'gb', 'number', 10);
+        $storage = $this->item('storage', 'number', 10);
         $otherPlan = Plan::factory()->create(['product' => $this->product->id]);
         $storage->prices()->create(['plan_id' => $otherPlan->id, 'currency' => $this->currency, 'unit_price' => 6, 'renew_price' => 5]);
         $storage->refresh();

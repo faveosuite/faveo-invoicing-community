@@ -24,14 +24,14 @@ class EntitlementControllerTest extends DBTestCase
 
     private function row(array $overrides = []): array
     {
-        return ['feature' => 'sla', 'key' => 'enabled', 'label' => 'SLA', 'type' => 'boolean', 'default_value' => '0', 'is_active' => true, ...$overrides];
+        return ['code' => 'sla', 'label' => 'SLA', 'type' => 'boolean', 'default_value' => '0', 'is_active' => true, ...$overrides];
     }
 
     public function test_sync_creates_items_and_rejects_duplicates(): void
     {
-        $this->postJson('/entitlements', ['entitlements' => [$this->row()]])
+        $this->postJson('/entitlements', ['entitlements' => [$this->row(['category' => ' Support '])]])
             ->assertOk();
-        $this->assertDatabaseHas('entitlements', ['feature' => 'sla', 'key' => 'enabled']);
+        $this->assertDatabaseHas('entitlements', ['code' => 'sla', 'category' => 'Support']);
 
         $this->postJson('/entitlements', ['entitlements' => [$this->row(), $this->row()]])
             ->assertStatus(412);
@@ -42,7 +42,7 @@ class EntitlementControllerTest extends DBTestCase
         $item = Entitlement::create([...$this->row()]);
         License::create([
             'product_id' => $this->product->id, 'license_code' => 'ENT'.uniqid(), 'license_order_number' => '444444',
-            'license_limit' => 1, 'license_status' => 1, 'entitlement_base' => ['sla' => ['enabled' => false]],
+            'license_limit' => 1, 'license_status' => 1, 'entitlement_base' => ['sla' => false],
         ]);
 
         $this->postJson('/entitlements', ['entitlements' => [$this->row(['id' => $item->id, 'type' => 'number'])]])
@@ -66,7 +66,7 @@ class EntitlementControllerTest extends DBTestCase
         $this->deleteJson("/entitlements/{$unused->id}")->assertOk();
         $this->assertNull($unused->fresh());
 
-        $used = Entitlement::create([...$this->row(['feature' => 'chat'])]);
+        $used = Entitlement::create([...$this->row(['code' => 'chat'])]);
         $plan = Plan::factory()->create(['product' => $this->product->id]);
         $plan->entitlements()->attach($used->id, ['value' => '1']);
         $this->deleteJson("/entitlements/{$used->id}")->assertOk();
@@ -75,8 +75,8 @@ class EntitlementControllerTest extends DBTestCase
 
     public function test_order_override_can_be_set_and_reset_but_not_for_agents(): void
     {
-        $chat = Entitlement::create([...$this->row(['feature' => 'chat'])]);
-        $agents = Entitlement::create([...$this->row(['feature' => 'agents', 'key' => 'max', 'type' => 'number', 'default_value' => '5'])]);
+        $chat = Entitlement::create([...$this->row(['code' => 'chat'])]);
+        $agents = Entitlement::create([...$this->row(['code' => 'agents', 'type' => 'number', 'default_value' => '5'])]);
         $order = \App\Model\Order\Order::factory()->create(['product' => $this->product->id, 'number' => 88800001]);
         $license = License::create([
             'product_id' => $this->product->id, 'license_code' => 'ENT'.uniqid().'X', 'license_order_number' => '88800001',
@@ -99,8 +99,8 @@ class EntitlementControllerTest extends DBTestCase
 
     public function test_plan_save_includes_features_with_values_and_prices(): void
     {
-        $storage = Entitlement::create([...$this->row(['feature' => 'storage', 'key' => 'gb', 'type' => 'number', 'default_value' => '5'])]);
-        $region = Entitlement::create([...$this->row(['feature' => 'region', 'key' => 'value', 'type' => 'text', 'default_value' => 'US'])]);
+        $storage = Entitlement::create([...$this->row(['code' => 'storage', 'type' => 'number', 'default_value' => '5'])]);
+        $region = Entitlement::create([...$this->row(['code' => 'region', 'type' => 'text', 'default_value' => 'US'])]);
         $plan = Plan::factory()->create(['product' => $this->product->id]);
         \App\Model\Payment\PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR']);
 
@@ -151,7 +151,7 @@ class EntitlementControllerTest extends DBTestCase
 
     public function test_optional_feature_needs_a_price_and_is_sold_but_not_included(): void
     {
-        $chat = Entitlement::create([...$this->row(['feature' => 'chat'])]);
+        $chat = Entitlement::create([...$this->row(['code' => 'chat'])]);
         $plan = Plan::factory()->create(['product' => $this->product->id]);
         \App\Model\Payment\PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR']);
 

@@ -11,7 +11,6 @@ use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Services\LicenseService;
 use App\Model\Configure\PluginCompatibleWithProducts;
-use App\Model\Configure\ProductPluginGroup;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -21,6 +20,7 @@ use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\User;
+use App\Services\EntitlementService;
 use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
@@ -626,7 +626,7 @@ class HomeController extends BaseHomeController
 
         $product = array_intersect($products, $productComp);
 
-        $productsLinked = ProductPluginGroup::where('product_id', $product_id)->pluck('plugin_id')->toArray();
+        $productsLinked = EntitlementService::productPluginIds((int) $product_id);
 
         $uniqueElements = array_merge(array_diff($product, $productsLinked), array_diff($productsLinked, $product));
 

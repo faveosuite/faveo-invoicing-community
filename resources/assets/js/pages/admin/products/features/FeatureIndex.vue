@@ -43,12 +43,11 @@
                                    :type="editing.type === 'number' ? 'number' : 'text'" :value="editing.default_value"
                                    :onChange="set" :error="errors.default_value" classname="col-md-6" />
 
-                        <TextField name="feature" :label="__('message.entitlement_feature')" :value="editing.feature"
+                        <TextField name="code" :label="__('message.entitlement_code')" :value="editing.code"
                                    :placeholder="slugify(editing.label) || 'chat'" :disabled="editing.in_use || editing.system"
-                                   :hint="__('message.entitlement_code_help')" :onChange="set" :error="errors.code" classname="col-md-3" />
-                        <TextField :key="`k-${editing.type}`" name="key" :label="__('message.entitlement_key')" :value="editing.key"
-                                   :placeholder="KEYS[editing.type]" :disabled="editing.in_use || editing.system"
-                                   :onChange="set" classname="col-md-3" />
+                                   :hint="__('message.entitlement_code_help')" :onChange="set" :error="errors.code" classname="col-md-6" />
+                        <TextField name="category" :label="__('message.entitlement_category')" :value="editing.category"
+                                   :hint="__('message.entitlement_category_help')" :onChange="set" classname="col-md-6" />
 
                         <div v-if="editing.id && !editing.system" class="col-md-12">
                             <Checkbox name="is_active" :label="__('message.entitlement_active_label')"
@@ -90,9 +89,9 @@ import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 const COMPONENT = 'features'
 const EDITOR    = 'entitlement-editor'
 const SLUG      = /^[a-z][a-z0-9_]*$/
-const KEYS      = { boolean: 'enabled', number: 'limit', select: 'value', text: 'value' }
+const TYPES     = ['boolean', 'number', 'select', 'text']
 
-const typeOptions = Object.keys(KEYS).map(t => ({ id: t, name: __(`message.entitlement_type_${t}`) }))
+const typeOptions = TYPES.map(t => ({ id: t, name: __(`message.entitlement_type_${t}`) }))
 const onOff       = [{ id: '1', name: __('message.entitlement_on') }, { id: '0', name: __('message.entitlement_off') }]
 
 const loading  = ref(true)
@@ -108,13 +107,14 @@ const showDefault  = i => (i.type === 'boolean'
     ? (i.default_value === '1' ? __('message.entitlement_on') : __('message.entitlement_off'))
     : (i.default_value ?? '—'))
 
-const columns = ['label', 'code', 'type', 'default_value', 'action']
+const columns = ['label', 'code', 'category', 'type', 'default_value', 'action']
 
 const tableOptions = reactive({
     skin: 'table table-hover table-striped table-bordered',
     headings: {
         label:         __('message.entitlement_name'),
         code:          __('message.entitlement_code'),
+        category:      __('message.entitlement_category'),
         type:          __('message.entitlement_type'),
         default_value: __('message.entitlement_default'),
         action:        __('message.action'),
@@ -124,7 +124,8 @@ const tableOptions = reactive({
             row.label,
             row.is_active ? null : h('span', { class: 'badge text-bg-secondary ms-1' }, __('message.entitlement_archived')),
         ]),
-        code:          (f, row) => h('code', {}, `${row.feature}.${row.key}`),
+        code:          (f, row) => h('code', {}, row.code),
+        category:      (f, row) => row.category ?? '—',
         type:          (f, row) => __(`message.entitlement_type_${row.type}`) + (row.type === 'select' ? ` (${(row.options || []).join(', ')})` : ''),
         default_value: (f, row) => showDefault(row),
         action: (f, row) => h('div', { class: 'text-nowrap' }, [
@@ -140,7 +141,7 @@ const tableOptions = reactive({
                 : null,
         ]),
     },
-    sortable:      ['label', 'type'],
+    sortable:      ['label', 'category', 'type'],
     filterable:    false,
     pagination:    { show: false },
     perPage:       1000,
@@ -165,7 +166,7 @@ function openEditor(item = null) {
     Object.keys(errors).forEach(k => delete errors[k])
     editing.value = item
         ? { ...item, optionsText: (item.options ?? []).join(', '), default_value: item.default_value ?? '' }
-        : { id: null, label: '', feature: '', key: '', type: 'boolean', optionsText: '', default_value: '0', is_active: true, in_use: false }
+        : { id: null, label: '', code: '', category: '', type: 'boolean', optionsText: '', default_value: '0', is_active: true, in_use: false }
 }
 
 function closeEditor() {
@@ -184,9 +185,9 @@ function onTypeChange(value) {
 function validate(e) {
     Object.keys(errors).forEach(k => delete errors[k])
     if (!e.label.trim()) errors.label = __('message.entitlement_name_required')
-    if (!SLUG.test(e.feature) || !SLUG.test(e.key)) errors.code = __('message.entitlement_code_invalid')
-    else if (items.value.some(i => i.id !== e.id && i.feature === e.feature && i.key === e.key)) {
-        errors.code = __('message.entitlement_duplicate', { key: `${e.feature}.${e.key}` })
+    if (!SLUG.test(e.code)) errors.code = __('message.entitlement_code_invalid')
+    else if (items.value.some(i => i.id !== e.id && i.code === e.code)) {
+        errors.code = __('message.entitlement_duplicate', { key: e.code })
     }
     if (e.type === 'select' && !splitOptions(e.optionsText).length) errors.options = __('message.entitlement_options_required')
     if (e.type === 'number' && e.default_value !== '' && !(Number.isInteger(Number(e.default_value)) && Number(e.default_value) >= 0)) {
@@ -197,8 +198,8 @@ function validate(e) {
 
 const toPayload = i => ({
     id:            i.id,
-    feature:       i.feature,
-    key:           i.key,
+    code:          i.code,
+    category:      i.category?.trim() || null,
     label:         i.label.trim(),
     type:          i.type,
     options:       i.type === 'select' ? (i.optionsText !== undefined ? splitOptions(i.optionsText) : i.options) : null,
@@ -209,8 +210,7 @@ const toPayload = i => ({
 // The API saves the whole list, so an add or edit sends the list with that one change.
 async function saveEditor() {
     const e = editing.value
-    e.feature ||= slugify(e.label)
-    e.key ||= KEYS[e.type]
+    e.code ||= slugify(e.label)
     if (!validate(e)) return
 
     saving.value = true

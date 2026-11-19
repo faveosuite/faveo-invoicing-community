@@ -76,10 +76,6 @@ class BaseOrderController extends ExtendedOrderController
 
         if ($item->plan_id) {
             $this->addSubscription($order->id, $item->plan_id, $version, $product, $serialKey, $item->invoice_id);
-            /** @var Product $productForAddons */
-            $productForAddons = Product::find($product);
-            $addOnIds = $productForAddons->productPluginGroupsAsProduct->pluck('plugin_id')->toArray();
-            resolve(LicenseService::class)->syncAddons($serialKey, $addOnIds);
 
             // Extras bought with the plan at checkout, at the price paid.
             foreach ($item->extras ?? [] as $extra) {

@@ -6,11 +6,32 @@ use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseNotification;
 use App\License\Models\LicenseReport;
+use App\License\Services\Ed25519SigningService;
 use App\Model\Product\Product;
+use App\Services\EntitlementService;
 use Illuminate\Http\JsonResponse;
 
 trait AflCallbackHelpers
 {
+    /**
+     * The license's features for the online answer, signed with the license-file key. The
+     * response headers aren't covered by the server signature, so the block carries its own:
+     * Ed25519 over "product_id|license_code|root_url|<json>" exactly as the product sent them,
+     * so an answer for one install can't be replayed to another.
+     *
+     * @return array{entitlements: string, entitlements_signature: string}
+     */
+    protected function signedEntitlements(License $license): array
+    {
+        $json = (string) json_encode(resolve(EntitlementService::class)->payload($license), JSON_UNESCAPED_SLASHES);
+        $message = request()->input('product_id').'|'.request()->input('license_code').'|'.request()->input('root_url').'|'.$json;
+
+        return [
+            'entitlements' => $json,
+            'entitlements_signature' => resolve(Ed25519SigningService::class)->sign($message),
+        ];
+    }
+
     /**
      * Build notification response with headers.
      * Original format: empty JSON body + notification_* headers.

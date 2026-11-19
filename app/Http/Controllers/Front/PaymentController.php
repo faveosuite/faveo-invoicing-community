@@ -118,7 +118,7 @@ class PaymentController extends Controller
      * invoice_tax_lines (every invoice — cart, admin, renewal, and historical
      * via backfill — has these). Grouped per tax label.
      *
-     * @return array{subtotal: mixed, subtotal_ex_tax: mixed, prices_include_tax: bool, tax_label: string, taxes: array<int, array{label: string|null, rate: float, amount: mixed}>, tax_total: mixed, discount: mixed, coupon_code: string|null, grand_total: mixed}
+     * @return array{subtotal: mixed, subtotal_ex_tax: mixed, prices_include_tax: bool, tax_label: string, taxes: array<int, array{label: string|null, rate: float, amount: mixed}>, tax_total: mixed, discount: mixed, coupon_code: string|null, processing_fee: mixed, processing_fee_rate: string|null, grand_total: mixed}
      */
     private function invoiceSummary(Invoice $model, mixed $items): array
     {
@@ -144,17 +144,24 @@ class PaymentController extends Controller
             $taxLines
         );
 
+        $subtotalExTax = $pricesIncludeTax ? $subtotal - $taxTotal : $subtotal;
+        // The gateway's fee is added to grand_total once paid (applyProcessingFee); it's
+        // whatever the total holds beyond the other rows, so the summary adds up.
+        $processingFee = $model->processing_fee
+            ? max(0.0, (float) $model->grand_total - ($subtotalExTax + $taxTotal - (float) $model->discount))
+            : 0.0;
+
         return [
             'subtotal' => currencyFormat($subtotal, $currency, includeSymbol: false),
-            'subtotal_ex_tax' => $pricesIncludeTax
-                ? currencyFormat($subtotal - $taxTotal, $currency, includeSymbol: false)
-                : currencyFormat($subtotal, $currency, includeSymbol: false),
+            'subtotal_ex_tax' => currencyFormat($subtotalExTax, $currency, includeSymbol: false),
             'prices_include_tax' => $pricesIncludeTax,
             'tax_label' => collect($taxLines)->pluck('label')->unique()->implode(' + '),
             'taxes' => $taxes,
             'tax_total' => currencyFormat($taxTotal, $currency, includeSymbol: false),
             'discount' => currencyFormat($model->discount, $currency, includeSymbol: false),
             'coupon_code' => $model->coupon_code,
+            'processing_fee' => currencyFormat($processingFee, $currency, includeSymbol: false),
+            'processing_fee_rate' => $processingFee > 0.005 ? $model->processing_fee : null,
             'grand_total' => currencyFormat($model->grand_total, $currency, includeSymbol: false),
         ];
     }
@@ -178,7 +185,7 @@ class PaymentController extends Controller
         $cloudProducts = cloudPopupProducts();
 
         $orders = Order::whereIn('id', $orderIds)->get()->map(function ($order) use ($permissions, $cloudProducts, $model, $linePrices): array {
-            $product = Product::select('id', 'name', 'type')->find($order->product);
+            $product = Product::select('id', 'name', 'type', 'image')->find($order->product);
 
             $downloadable = false;
             try {
@@ -190,9 +197,11 @@ class PaymentController extends Controller
             }
 
             return [
+                'id' => $order->id,
                 'number' => $order->number,
                 'product_id' => $product?->id,
                 'product_name' => $product?->name,
+                'image' => $product?->image,
                 'qty' => $order->qty,
                 'price' => currencyFormat($linePrices[$order->product] ?? $order->price_override, $model->currency, includeSymbol: false),
                 'downloadable' => $downloadable,
@@ -202,6 +211,7 @@ class PaymentController extends Controller
 
         return successResponse('', [
             'invoice' => [
+                'id' => $model->id,
                 'number' => $model->number,
                 'grand_total' => currencyFormat($model->grand_total, $model->currency, includeSymbol: false),
                 'currency' => $model->currency,
@@ -211,6 +221,7 @@ class PaymentController extends Controller
             ],
             'payment_method' => $paymentMethods ?: null,
             'orders' => $orders,
+            'summary' => $this->invoiceSummary($model, $model->invoiceItem()->get()),
         ]);
     }
 

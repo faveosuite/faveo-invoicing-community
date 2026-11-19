@@ -499,3 +499,66 @@ html:not(.dark) #app-client .text-muted { color: #6c757d !important; }
 #app-client .app-alert .app-alert-message { flex: 1; min-width: 0; max-height: 40vh; overflow-y: auto; overflow-wrap: anywhere; }
 #app-client .app-alert .btn-close { position: static; padding: 0; margin: 0; flex-shrink: 0; font-size: .625rem; opacity: .45; }
 #app-client .app-alert .btn-close:hover { opacity: .8; }
+
+/* ── Checkout flow (cart → checkout → payment → success) ──────────────────
+ * One set of pieces shared by every step so the pages read as one flow:
+ * .co-card (box with optional header), .co-item (a product line),
+ * .co-row (a summary line), .co-gateway (payment method tile).
+ * Porto fonts/colours.  */
+#app-client .co-card { background: #fff; border: 1px solid #dfe3e8; box-shadow: 0 1px 3px rgba(16, 24, 40, .06), 0 1px 2px rgba(16, 24, 40, .04); }
+#app-client .co-card + .co-card { margin-top: 1.5rem; }
+#app-client .co-card-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .875rem 1.25rem; background: #f7f8fa; border-bottom: 1px solid #dfe3e8; }
+#app-client .co-card-body { padding: 1.25rem; }
+#app-client .co-title { margin: 0; font-size: 1rem; font-weight: 700; line-height: 1.4; text-transform: uppercase; letter-spacing: 0; color: var(--dark); }
+#app-client .co-note { font-size: .8125rem; color: #6c757d; }
+#app-client .co-summary { position: sticky; top: 1.5rem; }
+
+/* A product line */
+#app-client .co-item { display: flex; gap: 1rem; padding: 1.25rem; border-top: 1px solid #eceff3; }
+#app-client .co-item:first-child { border-top: 0; }
+#app-client .co-thumb { flex: 0 0 56px; width: 56px; height: 56px; display: inline-flex; align-items: center; justify-content: center; background: #f4f4f4; color: #999; overflow: hidden; }
+#app-client .co-thumb img { width: 100%; height: 100%; object-fit: contain; }
+/* The grey box is only for the no-image placeholder; real images sit on white */
+#app-client .co-thumb:has(img) { background: transparent; }
+#app-client .co-name { margin: 0; font-size: 1rem; font-weight: 600; color: var(--dark); line-height: 1.4; text-transform: none; letter-spacing: 0; }
+#app-client .co-price { font-weight: 700; color: var(--dark); white-space: nowrap; font-variant-numeric: tabular-nums; }
+#app-client .co-meta { display: flex; flex-wrap: wrap; gap: .25rem .5rem; font-size: .8125rem; color: #6c757d; }
+#app-client .co-chip { display: inline-block; padding: .125rem .5rem; background: #f4f4f4; color: #555; font-size: .75rem; }
+#app-client .co-link { display: inline-flex; align-items: center; gap: .35rem; padding: 0; border: 0; background: none; font-size: .875rem; font-weight: 600; color: var(--primary-100, #0077b3); text-decoration: none; }
+#app-client .co-link:hover, #app-client .co-link:focus-visible { text-decoration: underline; }
+#app-client .co-link-danger { color: #6c757d; }
+#app-client .co-link-danger:hover, #app-client .co-link-danger:focus-visible { color: #b02a37; }
+
+/* A summary line: label left, amount right */
+#app-client .co-row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: .5rem 0; font-size: .875rem; color: #444; }
+#app-client .co-row .co-amt { color: var(--dark); white-space: nowrap; font-variant-numeric: tabular-nums; }
+#app-client .co-row.is-discount .co-amt { color: #198754; }
+#app-client .co-row.is-total { margin-top: .5rem; padding-top: 1rem; border-top: 1px solid #dfe3e8; font-size: 1rem; font-weight: 700; color: var(--dark); }
+#app-client .co-row.is-total .co-amt { font-size: 1.25rem; }
+#app-client .co-breakdown { margin-top: .75rem; padding: .25rem .875rem; background: #f7f8fa; border: 1px solid #eceff3; }
+#app-client .co-breakdown .co-row { padding: .35rem 0; font-size: .8125rem; }
+#app-client .co-busy { opacity: .55; transition: opacity .15s; }
+
+/* Payment method tile: the whole tile is the radio's label */
+#app-client .co-gateway { display: flex; align-items: center; gap: 1rem; padding: .875rem 1rem; margin: 0; border: 1px solid #dfe3e8; cursor: pointer; transition: border-color .15s, background-color .15s; }
+#app-client .co-gateway + .co-gateway { margin-top: .5rem; }
+#app-client .co-gateway:hover { border-color: rgba(0, 0, 0, .25); }
+#app-client .co-gateway.is-selected { border-color: var(--primary); background: var(--primary-rgba-10, #f0f7fc); }
+#app-client .co-gateway .form-check-input { flex: none; margin: 0; }
+/* Fixed logo box so every gateway's description starts at the same place, whatever the logo file's size */
+#app-client .co-gateway img { flex: 0 0 100px; width: 100px; height: 24px; object-fit: contain; object-position: left center; }
+
+@media (max-width: 991px) { #app-client .co-summary { position: static; } }
+
+/* One blue everywhere: Bootstrap's own blue (#0d6efd) leaks into radios,
+   checkboxes and outline buttons — use the theme's primary instead. */
+#app-client .co-card .form-check-input:checked { background-color: var(--primary); border-color: var(--primary); }
+#app-client .co-card .form-check-input:focus { border-color: var(--primary); box-shadow: 0 0 0 .2rem var(--primary-rgba-20, rgba(0, 136, 204, .2)); }
+#app-client .co-card .btn-outline-primary { color: var(--primary-100, #0077b3); border-color: var(--primary); }
+#app-client .co-card .btn-outline-primary:hover:not(:disabled) { color: #fff; background: var(--primary); border-color: var(--primary); }
+#app-client .co-card .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 .2rem var(--primary-rgba-20, rgba(0, 136, 204, .2)); }
+/* Main buttons: readable label size */
+#app-client .co-card .btn-primary.btn-modern, #app-client .co-card .btn-outline-primary.btn-modern { font-size: .875rem; letter-spacing: .03em; }
+/* Credit balance opt-in */
+#app-client .co-credit { display: flex; align-items: flex-start; gap: .625rem; margin-bottom: 1rem; padding: .75rem; background: var(--primary-rgba-10, #f0f7fc); cursor: pointer; font-size: .875rem; color: var(--dark); }
+#app-client .co-credit .form-check-input { flex: none; margin: .15rem 0 0; }

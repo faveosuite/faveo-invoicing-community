@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Database\Seeders\v4_0_2_7_RC_1;
 
 use App\License\Database\Seeders\LicenseModuleSeeder;
+use App\License\Models\License;
 use App\Model\Common\CommonSettings;
 use App\Model\Common\SeoDefaultPage;
+use App\Model\Product\Entitlement;
+use App\Model\Product\Product;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
 use App\Plugins\Zoho\Models\ZohoIntegration;
 use App\ReportColumn;
@@ -43,6 +46,95 @@ class DatabaseSeeder extends Seeder
         $this->moveExportsOutOfPublicStorage();
         $this->seedAgentsEntitlements();
         $this->seedFixedCouponCurrency();
+        $this->stripExtrasFromInvoiceItemNames();
+        $this->seedPluginFeatures();
+    }
+
+    /**
+     * Plugins become features, so one rule decides access. Each plugin product gets the feature
+     * that unlocks it; a product's bundled plugins become features its plans include; every
+     * license without a feature list gets its plan's, keeping only the plugins it was linked to;
+     * and a plugin link no plan explains (added by hand, or a license with no order here) becomes
+     * a permanent override. Every customer keeps exactly the plugins they had. Safe to run again. Verify with `php artisan license:check-plugin-features`.
+     */
+    public function seedPluginFeatures(): void
+    {
+        $this->seedPluginFeatureItems();
+        $features = DB::table('products')->whereNotNull('unlocks_entitlement_id')->pluck('unlocks_entitlement_id', 'id');
+        $codes = Entitlement::whereIn('id', $features)->pluck('code', 'id');
+
+        // Bundled plugins → features every plan of the product includes.
+        foreach (DB::table('product_plugin_group')->get(['product_id', 'plugin_id']) as $bundle) {
+            if (isset($features[$bundle->plugin_id])) {
+                DB::table('plan_entitlements')->insertOrIgnore(DB::table('plans')->where('product', $bundle->product_id)->pluck('id')
+                    ->map(fn ($planId): array => ['plan_id' => $planId, 'entitlement_id' => $features[$bundle->plugin_id], 'value' => '1', 'created_at' => now(), 'updated_at' => now()])
+                    ->all());
+            }
+        }
+
+        // Licenses without a feature list get their plan's (one lookup per plan), minus plugins the
+        // license was never linked to: nobody gains a plugin from the move. "Apply to existing
+        // licenses" on the plan, or a plan change, gives them later, like linking used to.
+        $service = resolve(EntitlementService::class);
+        $planValues = [];
+        DB::table('licenses as l')
+            ->join('orders as o', 'o.number', '=', 'l.license_order_number')
+            ->join('subscriptions as s', 's.order_id', '=', 'o.id')
+            ->whereNull('l.entitlement_base')
+            ->select('l.id', 'l.product_id', 's.plan_id')
+            ->chunkById(500, function ($rows) use ($service, &$planValues, $features, $codes): void {
+                $linked = DB::table('license_plugins')->whereIn('license_id', $rows->pluck('id'))->get(['license_id', 'product_id'])
+                    ->groupBy('license_id')
+                    ->map(fn ($links) => $links->map(fn ($link) => $codes[$features[$link->product_id] ?? 0] ?? null)->filter()->all());
+                foreach ($rows as $row) {
+                    $key = $row->product_id.'|'.$row->plan_id;
+                    $planValues[$key] ??= $service->forPlan((int) $row->product_id, (int) $row->plan_id);
+                    $notLinked = array_diff($codes->all(), $linked[$row->id] ?? []);
+                    $base = array_diff_key($planValues[$key], array_flip($notLinked));
+                    DB::table('licenses')->where('id', $row->id)->update(['entitlement_base' => json_encode($base)]);
+                }
+            }, 'l.id', 'id');
+
+        // Plugin links the plan doesn't cover → permanent override.
+        License::whereIn('id', DB::table('license_plugins')->select('license_id'))
+            ->select('id', 'entitlement_base', 'entitlement_overrides')
+            ->chunkById(500, function ($licenses) use ($features, $codes): void {
+                $links = DB::table('license_plugins')->whereIn('license_id', $licenses->modelKeys())->get(['license_id', 'product_id'])->groupBy('license_id');
+                foreach ($licenses as $license) {
+                    $base = $license->entitlement_base ?? [];
+                    $overrides = $license->entitlement_overrides ?? [];
+                    foreach ($links[$license->id] ?? [] as $link) {
+                        $code = $codes[$features[$link->product_id] ?? 0] ?? null;
+                        if ($code !== null && ($base[$code] ?? null) !== true && ($overrides[$code]['value'] ?? null) !== '1') {
+                            $overrides[$code] = ['value' => '1', 'until' => null];
+                        }
+                    }
+                    if ($overrides !== ($license->entitlement_overrides ?? [])) {
+                        $license->entitlement_overrides = $overrides;
+                        $license->save();
+                    }
+                }
+            });
+    }
+
+    /** One on/off feature per plugin product (see EntitlementService::pluginFeature). */
+    private function seedPluginFeatureItems(): void
+    {
+        Product::where(fn ($q) => $q->whereIn('id', DB::table('license_plugins')->select('product_id'))
+            ->orWhereIn('id', DB::table('product_plugin_group')->select('plugin_id'))
+            ->orWhere('product_type', 'addon'))
+            ->orderBy('id')
+            ->each(fn (Product $plugin) => EntitlementService::pluginFeature($plugin));
+    }
+
+    /**
+     * Invoice lines used to carry their add-ons in the name ("Plan (+ Storage × 4, …)").
+     * The add-ons are listed from the line's extras now, so keep just the product name.
+     */
+    public function stripExtrasFromInvoiceItemNames(): void
+    {
+        DB::table('invoice_items')->whereNotNull('extras')->where('product_name', 'like', '% (+ %')
+            ->update(['product_name' => DB::raw("SUBSTRING_INDEX(product_name, ' (+ ', 1)")]);
     }
 
     /**

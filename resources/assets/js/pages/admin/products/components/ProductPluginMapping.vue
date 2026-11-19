@@ -61,29 +61,25 @@ const activeFilter = ref({})
 const searchStr    = ref('')
 const tableRef     = ref(null)
 const allPlugins   = ref([])
-const bundled      = ref([])
 const compatible   = ref([])
 
-const bundledSet    = computed(() => new Set(bundled.value))
 const compatibleSet = computed(() => new Set(compatible.value))
 
+// Which plugins work with this product. Who may use one is set on the plan's features.
 const tableData = computed(() => {
     const rows = allPlugins.value.map(p => ({
         id:            p.id,
         name:          p.name,
-        is_bundled:    bundledSet.value.has(p.id),
         is_compatible: compatibleSet.value.has(p.id),
     }))
 
     const status = activeFilter.value.status
-    if (!status) return rows
-    if (status === 'bundled')    return rows.filter(p => p.is_bundled)
     if (status === 'compatible') return rows.filter(p => p.is_compatible)
-    if (status === 'not_mapped') return rows.filter(p => !p.is_bundled && !p.is_compatible)
+    if (status === 'not_mapped') return rows.filter(p => !p.is_compatible)
     return rows
 })
 
-const columns = ['name', 'is_compatible', 'is_bundled']
+const columns = ['name', 'is_compatible']
 
 const tableOptions = reactive({
     skin: 'table table-hover table-striped table-bordered',
@@ -93,18 +89,12 @@ const tableOptions = reactive({
             __('message.compatible'),
             h(Tooltip, { message: __('message.plugin_compatible_tooltip') }),
         ]),
-        is_bundled: () => h('span', {}, [
-            __('message.bundled'),
-            h(Tooltip, { message: __('message.plugin_bundled_tooltip') }),
-        ]),
     },
     columnsClasses: {
-        is_bundled:    'text-center',
         is_compatible: 'text-center',
     },
     templates: {
-        is_bundled:    (f, row) => h('input', { type: 'checkbox', class: 'form-check-input', checked: row.is_bundled,    onChange: () => toggle('bundled', row.id) }),
-        is_compatible: (f, row) => h('input', { type: 'checkbox', class: 'form-check-input', checked: row.is_compatible, disabled: row.is_bundled, onChange: () => toggle('compatible', row.id) }),
+        is_compatible: (f, row) => h('input', { type: 'checkbox', class: 'form-check-input', checked: row.is_compatible, onChange: () => toggle(row.id) }),
     },
     sortable:      ['name'],
     filterable:    ['name'],
@@ -130,17 +120,10 @@ function onFilterReset() {
     tableOptions.perPage    = allPlugins.value.length || 1
 }
 
-function toggle(type, id) {
-    const list = type === 'bundled' ? bundled : compatible
-    const idx  = list.value.indexOf(id)
-    if (idx === -1) {
-        list.value.push(id)
-        if (type === 'bundled' && !compatibleSet.value.has(id)) {
-            compatible.value.push(id)
-        }
-    } else {
-        list.value.splice(idx, 1)
-    }
+function toggle(id) {
+    const idx = compatible.value.indexOf(id)
+    if (idx === -1) compatible.value.push(id)
+    else compatible.value.splice(idx, 1)
 }
 
 onMounted(async () => {
@@ -148,7 +131,6 @@ onMounted(async () => {
         const res     = await http.get(`${props.baseUrl}/product/${props.productId}/plugins`)
         const plugins = res.data?.data?.plugins ?? []
         allPlugins.value     = plugins
-        bundled.value        = plugins.filter(p => p.is_bundled).map(p => p.id)
         compatible.value     = plugins.filter(p => p.is_compatible).map(p => p.id)
         tableOptions.perPage = plugins.length || 1
     } catch (e) {
@@ -162,7 +144,6 @@ async function save() {
     saving.value = true
     try {
         const res = await http.post(`${props.baseUrl}/product/${props.productId}/plugins`, {
-            bundled:    bundled.value,
             compatible: compatible.value,
         })
         successHandler(res, COMPONENT)

@@ -5,6 +5,9 @@ namespace Tests;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use ReflectionClass;
+use App\License\Models\License;
+use App\Model\Product\Product;
+use App\Services\EntitlementService;
 
 /**
  * Base class for test cases with DB testing.
@@ -18,6 +21,12 @@ class DBTestCase extends TestCase
     protected $token;
 
     protected $organization;
+
+    /** Gives a license a plugin: switches the plugin's feature on for it (an admin override). */
+    protected function grantPlugin(License $license, Product $plugin): void
+    {
+        resolve(EntitlementService::class)->setOverride($license, EntitlementService::pluginFeature($plugin), '1', null);
+    }
 
     // NOTE: For logging into api, we require token but for web we don't need any
 

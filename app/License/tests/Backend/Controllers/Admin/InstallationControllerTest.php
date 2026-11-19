@@ -4,7 +4,6 @@ namespace App\License\tests\Backend\Controllers\Admin;
 
 use App\License\Controllers\Admin\InstallationController;
 use App\License\Models\Installation;
-use App\License\Models\LicensePlugin;
 use App\License\tests\Backend\LicenseTestCase;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -83,7 +82,7 @@ class InstallationControllerTest extends LicenseTestCase
     {
         $license = $this->createLicense();
         $plugin = $this->createProduct();
-        LicensePlugin::create(['license_id' => $license->id, 'product_id' => $plugin->id]);
+        $this->grantPlugin($license, $plugin);
         $installation = $this->createInstallation(['license' => $license]);
         $pluginInstallation = $this->createInstallation([
             'license' => $license,

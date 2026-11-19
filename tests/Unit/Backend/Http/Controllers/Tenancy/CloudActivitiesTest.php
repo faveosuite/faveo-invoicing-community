@@ -1794,7 +1794,7 @@ class CloudActivitiesTest extends DBTestCase
             [$oldOrder, $newPlan] = $this->planChangeSetup(oldDays: 30, daysLeft: 10, oldPrice: 100, newDays: 365, newPrice: 1000);
             if ($withExtras) {
                 $currency = userCurrencyAndPrice('', $newPlan)['currency']; // how the plan change picks it
-                $storage = Entitlement::create(['feature' => 'storage', 'key' => 'gb'.uniqid(), 'label' => 'Storage', 'type' => 'number']);
+                $storage = Entitlement::create(['code' => 'storage_'.uniqid(), 'label' => 'Storage', 'type' => 'number']);
                 $storage->prices()->create(['plan_id' => $newPlan->id, 'currency' => $currency, 'unit_price' => 20, 'renew_price' => 20]);
                 $monthly = (int) DB::table('periods')->insertGetId(['name' => 'Test 30 days', 'days' => '30']);
                 $newPlan->periods()->attach(DB::table('periods')->insertGetId(['name' => 'Test 365 days', 'days' => '365']));

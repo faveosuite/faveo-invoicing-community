@@ -44,7 +44,7 @@ describe('PaymentSuccessPage.vue', () => {
         wrapper = mount(PaymentSuccessPage, {
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['loader', 'router-link'],
+                stubs: { loader: true, 'router-link': { template: '<a><slot /></a>' } },
             },
         })
     })
@@ -65,7 +65,7 @@ describe('PaymentSuccessPage.vue', () => {
 
     it('renders success banner after data loads', async () => {
         await flushPromises()
-        expect(wrapper.find('.border-color-success').exists()).toBeTruthy()
+        expect(wrapper.text()).toContain('message.co_payment_confirmed')
     })
 
     it('displays invoice number after load', async () => {
@@ -89,7 +89,7 @@ describe('PaymentSuccessPage.vue', () => {
         wrapper = mount(PaymentSuccessPage, {
             global: {
                 plugins: [createTestingPinia()],
-                stubs: ['loader', 'router-link'],
+                stubs: { loader: true, 'router-link': { template: '<a><slot /></a>' } },
             },
         })
 
@@ -117,7 +117,7 @@ describe('PaymentSuccessPage.vue — no invoice query param', () => {
         const w = localMount(Page, {
             global: {
                 plugins: [localPinia()],
-                stubs: ['loader', 'router-link'],
+                stubs: { loader: true, 'router-link': { template: '<a><slot /></a>' } },
             },
         })
 

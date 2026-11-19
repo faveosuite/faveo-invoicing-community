@@ -3,7 +3,6 @@
 namespace Tests\Unit\Backend\Http\Controllers\License;
 
 use App\License\Models\License;
-use App\License\Models\LicensePlugin;
 use App\License\Services\Ed25519SigningService;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
@@ -261,7 +260,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $addon = $this->createProduct();
         $order = $this->createOrder($this->user->id, ['product' => $product->id]);
         $license = $this->createLicense($order->number, $product->id);
-        LicensePlugin::create(['license_id' => $license->id, 'product_id' => $addon->id]);
+        $this->grantPlugin($license, $addon);
 
         $response = $this->get('/LocalizedLicense/'.$order->number.'/plugins');
 

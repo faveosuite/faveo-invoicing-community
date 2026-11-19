@@ -7,7 +7,7 @@ use App\License\Console\Commands\CrackReportsCleanup;
 use App\License\Console\Commands\InstallationLogsCommand;
 use App\License\Console\Commands\LicenseDataMigration;
 use App\License\Console\Commands\LicenseReportsCleanup;
-use App\License\Console\Commands\LinkLicenseToPlugin;
+use App\License\Console\Commands\CheckPluginFeatures;
 use App\License\Console\Commands\SystemReportsCleanup;
 use App\License\Console\Commands\VersionsCleanup;
 use App\License\Helpers\LicenseValidator;
@@ -57,7 +57,7 @@ class LicenseServiceProvider extends ServiceProvider
                 CrackReportsCleanup::class,
                 SystemReportsCleanup::class,
                 VersionsCleanup::class,
-                LinkLicenseToPlugin::class,
+                CheckPluginFeatures::class,
             ]);
         }
     }

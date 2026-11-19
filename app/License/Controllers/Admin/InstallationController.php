@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\Installation;
 use App\License\Models\License;
-use App\License\Models\LicensePlugin;
+use App\Services\EntitlementService;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -80,8 +80,8 @@ class InstallationController extends Controller
             return 0;
         }
 
-        $licenseId = License::where('license_code', $installation->license_code)->value('id');
-        $pluginProductIds = LicensePlugin::where('license_id', $licenseId)->pluck('product_id');
+        $license = License::where('license_code', $installation->license_code)->first();
+        $pluginProductIds = $license ? resolve(EntitlementService::class)->pluginIds($license) : [];
 
         return Installation::where('license_code', $installation->license_code)
             ->where(function ($query) use ($id, $pluginProductIds): void {

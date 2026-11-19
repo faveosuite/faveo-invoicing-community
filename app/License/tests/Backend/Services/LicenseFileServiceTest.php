@@ -62,7 +62,9 @@ class LicenseFileServiceTest extends LicenseTestCase
         $this->assertSame('MACHINE-1', $payload['license_machine_id']);
         $this->assertArrayHasKey('product_schema', $payload['scheme_query']);
         $this->assertArrayNotHasKey('plugin_create_schema', $payload['scheme_query']);
-        $this->assertSame('{}', json_encode(json_decode($decoded['license'])->entitlements)); // empty list still an object
+        $entitlements = json_decode($decoded['license'], associative: true)['entitlements'];
+        $this->assertSame([], $entitlements['features']); // nothing granted: the product denies everything
+        $this->assertArrayHasKey('license', $entitlements['expires']);
 
         $this->assertTrue($this->signingService->verify($decoded['license'], $decoded['signature']));
     }
@@ -75,16 +77,18 @@ class LicenseFileServiceTest extends LicenseTestCase
         $product = $this->createProduct();
         $orderNumber = random_int(10000000, 99999999);
         $order = Order::factory()->create(['product' => $product->id, 'number' => $orderNumber]);
-        Entitlement::create(['feature' => 'storage', 'key' => 'gb', 'label' => 'Storage', 'type' => 'number', 'default_value' => '5']);
+        Entitlement::create(['code' => 'storage', 'label' => 'Storage', 'type' => 'number', 'default_value' => '5']);
         $this->createLicense([
             'product_id' => $product->id,
             'license_order_number' => $orderNumber,
-            'entitlement_base' => ['storage' => ['gb' => 25]],
+            'entitlement_base' => ['storage' => 25],
         ]);
 
         $payload = json_decode(json_decode($this->service->buildForOrder($order, $product), associative: true)['license'], associative: true);
 
-        $this->assertSame(['storage' => ['gb' => 25]], $payload['entitlements']);
+        $this->assertSame(1, $payload['entitlements']['v']);
+        $this->assertSame(['storage' => 25], $payload['entitlements']['limits']);
+        $this->assertSame([], $payload['entitlements']['features']);
     }
 
     #[Test]
@@ -100,7 +104,7 @@ class LicenseFileServiceTest extends LicenseTestCase
             'product_id' => $mainProduct->id,
             'license_order_number' => $orderNumber,
         ]);
-        $license->addonProducts()->attach($plugin->id);
+        $this->grantPlugin($license, $plugin);
 
         $file = $this->service->buildForOrder($order, $plugin);
 
@@ -127,7 +131,7 @@ class LicenseFileServiceTest extends LicenseTestCase
             'product_id' => $mainProduct->id,
             'license_order_number' => $orderNumber,
         ]);
-        // $unattachedPlugin is intentionally never attached via addonProducts().
+        // $unattachedPlugin's feature is intentionally never granted.
 
         $this->assertNull($this->service->buildForOrder($order, $unattachedPlugin));
     }
@@ -166,7 +170,7 @@ class LicenseFileServiceTest extends LicenseTestCase
         $product = $this->createProduct();
         $plugin = $this->createProduct();
         $license = $this->createLicense(['product_id' => $product->id]);
-        $license->addonProducts()->attach($plugin->id);
+        $this->grantPlugin($license, $plugin);
 
         $this->assertNull($this->service->buildSignedLicenseFile($license, $plugin->id));
     }
