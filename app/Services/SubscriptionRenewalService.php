@@ -18,7 +18,8 @@ class SubscriptionRenewalService
     }
 
     /**
-     * Extend subscription dates by the plan's days, then sync with the license server.
+     * Extend the subscription by the plan's days; each date feature (updates, support, …) then
+     * renews as its plan sets it (DateRules). Then sync with the license server.
      *
      * @param  bool  $fromNowIfExpired  true for auto-renewal: if the date has already passed,
      *                                  extend from now() instead of the expired date.
@@ -29,12 +30,22 @@ class SubscriptionRenewalService
         $permissions = LicensePermissionsController::getPermissionsForProduct($sub->product_id);
 
         $licenseExpiry = $this->computeExpiry($permissions['generateLicenseExpiryDate'], $sub->ends_at, $days, $fromNowIfExpired);
-        $updatesExpiry = $this->computeExpiry($permissions['generateUpdatesxpiryDate'], $sub->update_ends_at, $days, $fromNowIfExpired);
-        $supportExpiry = $this->computeExpiry($permissions['generateSupportExpiryDate'], $sub->support_ends_at, $days, $fromNowIfExpired);
-
         $sub->ends_at = $licenseExpiry ? Date::parse($licenseExpiry) : null;
-        $sub->update_ends_at = $updatesExpiry ? Date::parse($updatesExpiry) : null;
-        $sub->support_ends_at = $supportExpiry ? Date::parse($supportExpiry) : null;
+
+        $dates = [];
+        if ($days > 0) {
+            $entitlements = resolve(EntitlementService::class);
+            $license = $this->licenseService->findByCode((string) $sub->order?->serial_key);
+            $current = [];
+            foreach (LegacyDates::COLUMNS as $code => [, $column]) {
+                $current[$code] = EntitlementService::day($sub->{$column});
+            }
+            $current = [...$current, ...($license instanceof License ? $entitlements->currentDates($license) : [])];
+            $dates = $entitlements->dateEnds((int) $sub->plan_id, 'renewal', $licenseExpiry ? Date::parse($licenseExpiry)->toDateTimeString() : null, $current);
+            foreach (LegacyDates::forSubscription($dates) as $column => $end) {
+                $sub->{$column} = $end !== null ? Date::parse($end) : null;
+            }
+        }
         $sub->save();
 
         // A new period starts: extras the customer reduced or cancelled now take effect.
@@ -42,7 +53,7 @@ class SubscriptionRenewalService
             resolve(EntitlementSalesService::class)->applyPendingReductions((int) $sub->order_id);
         }
 
-        $this->syncLicenseServer($sub, $licenseExpiry, $updatesExpiry, $supportExpiry);
+        $this->syncLicenseServer($sub, $licenseExpiry, $sub->update_ends_at, $sub->support_ends_at, $dates);
     }
 
     private function computeExpiry(bool $permission, mixed $currentDate, int $days, bool $fromNowIfExpired): ?string
@@ -127,7 +138,10 @@ class SubscriptionRenewalService
      * may have already recorded a real gateway charge (e.g. a renewal invoice
      * marked paid), and a license-server hiccup must not undo that.
      */
-    private function syncLicenseServer(Subscription $sub, mixed $licenseExpiry, mixed $updatesExpiry, mixed $supportExpiry): void
+    /**
+     * @param  array<string, string|null>  $dates  new date feature ends to save as grants
+     */
+    private function syncLicenseServer(Subscription $sub, mixed $licenseExpiry, mixed $updatesExpiry, mixed $supportExpiry, array $dates = []): void
     {
         try {
             /** @var Order $subOrder */
@@ -151,6 +165,9 @@ class SubscriptionRenewalService
                 'license_updates_date' => $updatesExpiry ? Date::parse($updatesExpiry)->format('Y-m-d') : null,
                 'license_support_date' => $supportExpiry ? Date::parse($supportExpiry)->format('Y-m-d') : null,
             ]);
+            if ($dates !== []) {
+                resolve(EntitlementService::class)->writeDates($existingLicense, $dates);
+            }
         } catch (Throwable $throwable) {
             Logger::exception($throwable);
         }

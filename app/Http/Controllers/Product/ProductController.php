@@ -512,6 +512,8 @@ class ProductController extends BaseProductController
             'parent' => ['nullable', 'integer'],
             'shoping_cart_link' => ['nullable', 'string', 'max:255'],
             'github_owner' => ['nullable', 'string', 'max:225'],
+            // The date feature whose end stops new downloads; empty = no limit.
+            'downloads_limited_by' => ['sometimes', 'nullable', 'string', Rule::exists('entitlements', 'code')->where('type', 'date')],
             'github_repository' => ['nullable', 'string', 'max:225', $this->githubRepositoryRule($request)],
             'version' => ['nullable', 'string', 'max:225'],
         ], [
@@ -612,6 +614,8 @@ class ProductController extends BaseProductController
             'parent' => ['nullable', 'integer'],
             'shoping_cart_link' => ['nullable', 'string', 'max:255'],
             'github_owner' => ['nullable', 'string', 'max:225'],
+            // The date feature whose end stops new downloads; empty = no limit.
+            'downloads_limited_by' => ['sometimes', 'nullable', 'string', Rule::exists('entitlements', 'code')->where('type', 'date')],
             'github_repository' => ['nullable', 'string', 'max:225', $this->githubRepositoryRule($request)],
             'version' => ['nullable', 'string', 'max:225'],
         ], [

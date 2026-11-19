@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Model\Product;
 
 use App\Model\Payment\Plan;
+use App\Services\DateRules;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
@@ -33,7 +34,7 @@ use Override;
  */
 class Entitlement extends Model
 {
-    public const array TYPES = ['boolean', 'number', 'select', 'text'];
+    public const array TYPES = ['boolean', 'number', 'select', 'text', 'date'];
 
     protected $fillable = ['code', 'category', 'label', 'type', 'options', 'default_value', 'is_active', 'sort'];
 
@@ -104,6 +105,7 @@ class Entitlement extends Model
                 : (in_array($value, [false, 0, '0', 'false'], strict: true) ? '0' : false),
             'number' => filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]) !== false ? (string) (int) $value : false,
             'select' => is_string($value) && in_array($value, $this->options ?? [], strict: true) ? $value : false,
+            'date' => DateRules::normalize($value), // how the plan ends it, not a value
             default => is_scalar($value) && mb_strlen((string) $value) <= 255 ? (string) $value : false,
         };
     }

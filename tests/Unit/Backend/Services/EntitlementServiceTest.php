@@ -219,14 +219,13 @@ class EntitlementServiceTest extends DBTestCase
         $this->assertNotEmpty($payload['issued_at']);
     }
 
-    public function test_license_dates_are_grants_and_each_change_counts_the_version_up(): void
+    public function test_old_date_columns_feed_date_grants_and_each_change_counts_the_version_up(): void
     {
         $chat = $this->item('chat', 'boolean', '0');
         $license = $this->license(999004);
-        $license->update(['license_expire_date' => '2027-05-01 00:00:00', 'license_support_date' => '0000-00-00 00:00:00']);
+        $license->update(['license_updates_date' => '2027-05-01 00:00:00', 'license_support_date' => '0000-00-00 00:00:00']);
 
-        $dates = Grant::where('license_id', $license->id)->where('source', Grant::LICENSE)->get()->mapWithKeys(fn (Grant $g) => [$g->code => $g->ends_at?->toDateString()]);
-        $this->assertEquals(['run' => '2027-05-01', 'updates' => null, 'support' => null], $dates->all()); // 0000-00-00 = never
+        $this->assertSame(['support' => null, 'updates' => '2027-05-01'], $this->sorted($this->service->currentDates($license))); // 0000-00-00 = never
         $version = (int) $license->fresh()->version;
 
         $license->update(['license_comments' => 'no date change']);
@@ -234,9 +233,61 @@ class EntitlementServiceTest extends DBTestCase
         $this->service->setOverride($license, $chat, '1', null); // same again: nothing changed
         $this->assertSame($version + 1, (int) $license->fresh()->version);
 
-        $license->update(['license_expire_date' => '2028-05-01 00:00:00']);
+        $license->update(['license_updates_date' => '2028-05-01 00:00:00']);
         $this->assertSame($version + 2, (int) $license->fresh()->version);
-        $this->assertSame('2028-05-01', $this->service->payload($license->fresh())['expires']['license']);
+        $this->assertSame('2028-05-01', $this->service->payload($license->fresh())['expires']['updates']);
+    }
+
+    public function test_plan_date_rules_set_every_date_feature_and_its_renewal(): void
+    {
+        \Illuminate\Support\Carbon::setTestNow('2026-11-19 10:00:00');
+        $support = $this->item('support', 'date', null);
+        $priority = $this->item('priority_sla', 'date', null); // a new date feature: no code knows it
+        $plan = Plan::factory()->create(['product' => $this->product->id]);
+        $plan->entitlements()->attach($support->id, ['value' => '{"ends":"custom","every":90,"unit":"day"}']);
+        $plan->entitlements()->attach($priority->id, ['value' => '{"ends":"month_end"}']);
+
+        $ends = $this->service->dateEnds($plan->id, 'purchase', '2027-11-19 10:00:00');
+        $this->assertSame(['support' => '2027-02-17', 'priority_sla' => '2026-11-30'], $ends);
+        $this->assertArrayNotHasKey('support', $this->service->forPlan($this->product->id, $plan->id)); // dates aren't plan values
+
+        $license = $this->license(999006);
+        $this->service->writeDates($license, $ends);
+        $expires = $this->service->payload($license->fresh())['expires'];
+        $this->assertSame('2026-11-30', $expires['priority_sla']);
+        $this->assertSame('2027-02-17', $expires['support']);
+
+        // Renewing before they end continues from the current end.
+        $renewed = $this->service->dateEnds($plan->id, 'renewal', null, $this->service->currentDates($license));
+        $this->assertSame(['support' => '2027-05-18', 'priority_sla' => '2026-12-31'], $renewed);
+        \Illuminate\Support\Carbon::setTestNow();
+    }
+
+    public function test_downloads_stop_at_the_end_of_the_date_the_product_limits_them_by(): void
+    {
+        $order = Order::factory()->create(['product' => $this->product->id, 'number' => 999007]);
+        $license = $this->license(999007);
+        $this->service->writeDates($license, ['updates' => '2027-03-01']);
+
+        Product::whereKey($this->product->id)->update(['downloads_limited_by' => null]);
+        $this->assertNull($this->service->downloadsEndAt($order->fresh()));
+
+        Product::whereKey($this->product->id)->update(['downloads_limited_by' => 'updates']);
+        $this->assertSame('2027-03-01 23:59:59', $this->service->downloadsEndAt($order->fresh())?->toDateTimeString());
+
+        $this->service->writeDates($license, ['updates' => null]); // never ends
+        $this->assertNull($this->service->downloadsEndAt($order->fresh()));
+    }
+
+    /**
+     * @param  array<string, mixed>  $values
+     * @return array<string, mixed>
+     */
+    private function sorted(array $values): array
+    {
+        ksort($values);
+
+        return $values;
     }
 
     public function test_extras_follow_order_entitlements(): void

@@ -238,7 +238,8 @@ class HomeController extends BaseHomeController
             return errorResponse(__('message.no_order_exists_invoice'));
         }
 
-        if ($subscription->update_ends_at && now()->gt($subscription->update_ends_at)) {
+        $downloadsEnd = resolve(EntitlementService::class)->downloadsEndAt($order);
+        if ($downloadsEnd && now()->gt($downloadsEnd)) {
             return errorResponse(__('message.renew_subscription_download'));
         }
 

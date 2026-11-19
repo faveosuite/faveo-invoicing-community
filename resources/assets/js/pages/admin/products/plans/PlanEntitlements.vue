@@ -51,6 +51,18 @@
                         <span v-if="row.type === 'boolean'">{{ __('message.entitlement_on') }}</span>
                         <StaticSelect v-else-if="row.type === 'select'" :name="`val_${row.id}`" classname="mb-0" :value="row.value ?? ''"
                                       :elements="choices(row)" :hideEmptySelect="true" :onChange="(v) => set(row, 'value', v)" />
+                        <div v-else-if="row.type === 'date'" class="d-flex flex-wrap gap-2">
+                            <StaticSelect :name="`ends_${row.id}`" classname="mb-0" :value="row.value?.ends ?? 'subscription'"
+                                          :elements="endOptions" :hideEmptySelect="true" :onChange="(v) => setEnds(row, { ends: v })" />
+                            <template v-if="row.value?.ends === 'custom'">
+                                <TextField :name="`every_${row.id}`" classname="mb-0" type="number" :value="row.value.every ?? ''"
+                                           :onChange="(v) => setEnds(row, { every: v })" />
+                                <StaticSelect :name="`unit_${row.id}`" classname="mb-0" :value="row.value.unit ?? 'day'"
+                                              :elements="unitOptions" :hideEmptySelect="true" :onChange="(v) => setEnds(row, { unit: v })" />
+                            </template>
+                            <TextField v-if="row.value?.ends === 'fixed'" :name="`date_${row.id}`" classname="mb-0" type="date"
+                                       :value="row.value.date ?? ''" :onChange="(v) => setEnds(row, { date: v })" />
+                        </div>
                         <TextField v-else :name="`val_${row.id}`" classname="mb-0" :type="row.type === 'number' ? 'number' : 'text'"
                                    :value="row.value ?? ''" :onChange="(v) => set(row, 'value', v)" />
                     </template>
@@ -149,6 +161,25 @@ function set(row, field, value) {
     items.value.find(i => i.id === row.id)[field] = value
 }
 
+// A date feature's value is how the plan ends it: { ends, every?, unit?, date? }.
+const END_KINDS = ['subscription', 'custom', 'month_end', 'year_end', 'fixed', 'never']
+const endOptions = END_KINDS.map(k => ({ id: k, name: __(`message.plan_date_ends_${k}`) }))
+const unitOptions = ['day', 'month', 'year'].map(u => ({ id: u, name: __(`message.plan_date_unit_${u}`) }))
+
+function setEnds(row, patch) {
+    const item = items.value.find(i => i.id === row.id)
+    const next = { ...(item.value ?? {}), ...patch }
+    if (patch.ends === 'custom') next.unit ??= 'day'
+    item.value = next
+}
+
+function endsText(value) {
+    const rule = value ?? { ends: 'subscription' }
+    if (rule.ends === 'custom') return `${rule.every ?? '?'} ${__(`message.plan_date_unit_${rule.unit ?? 'day'}`)}`
+    if (rule.ends === 'fixed') return rule.date ?? '—'
+    return __(`message.plan_date_ends_${rule.ends}`)
+}
+
 const TABLE = { skin: 'table align-middle mb-2', sortable: [], filterable: false, pagination: { show: false }, perPage: 1000, perPageValues: [] }
 const featureColumns = ['label', 'mode', 'value', 'price', 'action']
 const featureTableOptions = {
@@ -190,6 +221,7 @@ const summary = computed(() => {
         lines.push({
             label: item.label,
             value: item.mode === 'optional' ? __('message.plan_mode_optional_short')
+                : item.type === 'date' ? endsText(item.value)
                 : (item.type === 'boolean' ? __('message.entitlement_on') : (item.value || item.default_value || '—')),
             extra: each ? `${each[0]} ${each[1].unit_price}` : '',
         })
@@ -201,7 +233,7 @@ function addFeature(option) {
     const item = option && items.value.find(i => i.id === option.id)
     if (item) {
         item.mode = 'included'
-        item.value ??= item.type === 'boolean' ? '1' : (item.default_value ?? '')
+        item.value ??= item.type === 'boolean' ? '1' : item.type === 'date' ? { ends: 'subscription' } : (item.default_value ?? '')
     }
     addKey.value++ // reset the picker
 }
@@ -268,7 +300,7 @@ async function load() {
         items.value = (res.data?.data?.entitlements ?? []).map(i => ({
             ...i,
             // Show what the plan actually includes, not a placeholder.
-            value: i.mode === 'included' && !i.agents && (i.value === null || i.value === undefined) ? (i.default_value ?? '') : i.value,
+            value: i.mode === 'included' && !i.agents && i.type !== 'date' && (i.value === null || i.value === undefined) ? (i.default_value ?? '') : i.value,
         }))
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -283,6 +315,7 @@ async function save() {
         id:        i.id,
         mode:      i.mode,
         value:     i.type === 'boolean' && i.mode === 'included' ? '1'
+            : i.type === 'date' ? (i.mode === 'included' ? i.value : null)
             : (i.value === '' || i.value === null || i.value === undefined ? null : String(i.value)),
         unlimited: !!i.unlimited,
         prices:    Object.fromEntries(Object.entries(i.prices ?? {}).filter(([cur]) => props.currencies.includes(cur))),

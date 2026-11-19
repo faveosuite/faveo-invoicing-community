@@ -86,6 +86,7 @@ use Spatie\Activitylog\Models\Activity;
  * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property int|null $unlocks_entitlement_id
+ * @property string|null $downloads_limited_by
  * @property-read Entitlement|null $unlocksEntitlement
  * @property-read Collection<int, Product> $compatiblePlugins
  * @property-read int|null $compatible_plugins_count
@@ -211,7 +212,7 @@ class Product extends BaseModel
         'github_repository',
         'deny_after_subscription', 'version', 'parent', 'subscription', 'product_sku', 'perpetual_license', 'product_description', 'invoice_hidden',
         'status', 'whatsapp_integration', 'apl_salt', 'product_key', 'product_type', 'config_file_path', 'license_file_path', 'product_path',
-        'highlight', 'add_to_contact',
+        'highlight', 'add_to_contact', 'downloads_limited_by',
     ];
 
     protected string $logName = 'product';

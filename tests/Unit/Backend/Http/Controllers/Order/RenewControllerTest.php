@@ -100,59 +100,6 @@ class RenewControllerTest extends DBTestCase
     }
 
     // -------------------------------------------------------------------------
-    // getExpiryDate / getUpdatesExpiryDate / getSupportExpiryDate
-    // -------------------------------------------------------------------------
-
-    public function test_get_expiry_date_returns_empty_when_days_zero(): void
-    {
-        $sub = new Subscription(['ends_at' => now()->toDateString()]);
-        $result = $this->controller->getExpiryDate(1, $sub, 0);
-        $this->assertEquals('', $result);
-    }
-
-    public function test_get_expiry_date_returns_empty_when_permissions_zero(): void
-    {
-        $sub = new Subscription(['ends_at' => now()->toDateString()]);
-        $result = $this->controller->getExpiryDate(0, $sub, 30);
-        $this->assertEquals('', $result);
-    }
-
-    public function test_get_expiry_date_adds_days_when_permissions_set(): void
-    {
-        $sub = new Subscription(['ends_at' => now()->toDateString()]);
-        $result = $this->controller->getExpiryDate(1, $sub, 30);
-        $this->assertNotEmpty($result);
-    }
-
-    public function test_get_updates_expiry_date_returns_empty_when_days_zero(): void
-    {
-        $sub = new Subscription(['update_ends_at' => now()->toDateString()]);
-        $result = $this->controller->getUpdatesExpiryDate(1, $sub, 0);
-        $this->assertEquals('', $result);
-    }
-
-    public function test_get_updates_expiry_date_adds_days(): void
-    {
-        $sub = new Subscription(['update_ends_at' => now()->toDateString()]);
-        $result = $this->controller->getUpdatesExpiryDate(1, $sub, 15);
-        $this->assertNotEmpty($result);
-    }
-
-    public function test_get_support_expiry_date_returns_empty_when_permissions_zero(): void
-    {
-        $sub = new Subscription(['support_ends_at' => now()->toDateString()]);
-        $result = $this->controller->getSupportExpiryDate(0, $sub, 30);
-        $this->assertEquals('', $result);
-    }
-
-    public function test_get_support_expiry_date_adds_days(): void
-    {
-        $sub = new Subscription(['support_ends_at' => now()->toDateString()]);
-        $result = $this->controller->getSupportExpiryDate(1, $sub, 7);
-        $this->assertNotEmpty($result);
-    }
-
-    // -------------------------------------------------------------------------
     // renewByClient — HTTP endpoint
     // -------------------------------------------------------------------------
 

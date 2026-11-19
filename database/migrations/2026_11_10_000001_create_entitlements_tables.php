@@ -21,8 +21,12 @@ use Illuminate\Support\Facades\Schema;
  *                                     doesn't change what existing customers bought
  *                           extra   - units bought on top of the plan (mirrors order_entitlements)
  *                           admin   - an admin override, optionally until a date
- *                           license - the built-in dates: run, updates, support (ends_at = end date,
- *                                     null = never), kept in step with the license's date columns
+ *                           date    - a date feature (updates, support, …): ends_at = its end,
+ *                                     null = never. The plan sets how it ends (DateRules, stored as
+ *                                     JSON in plan_entitlements.value); the license itself ends
+ *                                     with its subscription.
+ *  - products.downloads_limited_by: the date feature code whose end limits which releases the
+ *    product's customers can download; null = no limit.
  *  - licenses.version:    goes up on every grant change, so a product can tell a newer record.
  *  - cart_items.extras / invoice_items.extras: extras picked at checkout.
  *  - products.unlocks_entitlement_id: on a plugin product, the feature that unlocks it. A license
@@ -41,7 +45,7 @@ return new class extends Migration
             $table->string('code', 50)->unique(); // permanent name products check (sla, agents, api_daily_limit); never renamed
             $table->string('category', 50)->nullable(); // admin grouping only (Channels, Security)
             $table->string('label', 100);
-            $table->string('type', 20); // boolean | number | select | text
+            $table->string('type', 20); // boolean | number | select | text | date
             $table->json('options')->nullable(); // choices for a select item
             $table->string('default_value', 255)->nullable();
             $table->boolean('is_active')->default(value: true); // false = archived: kept for existing customers, hidden for new
@@ -95,7 +99,7 @@ return new class extends Migration
             $table->unsignedInteger('user_id')->nullable()->index(); // customer-level grants (services); license_id null
             $table->string('code', 50); // entitlements.code, or run / updates / support
             $table->string('value', 255)->nullable();
-            $table->string('source', 20); // plan | extra | admin | license
+            $table->string('source', 20); // plan | extra | admin | date
             $table->date('starts_at')->nullable();
             $table->date('ends_at')->nullable();
             $table->timestamps();
@@ -112,6 +116,7 @@ return new class extends Migration
         });
         Schema::table('products', function (Blueprint $table): void {
             $table->foreignId('unlocks_entitlement_id')->nullable()->constrained('entitlements')->nullOnDelete();
+            $table->string('downloads_limited_by', 50)->nullable();
         });
         Schema::table('invoice_items', function (Blueprint $table): void {
             $table->json('extras')->nullable()->after('agents');
@@ -156,7 +161,10 @@ return new class extends Migration
         Schema::table('licenses', fn (Blueprint $table) => $table->dropColumn('version'));
         Schema::dropIfExists('grants');
         Schema::table('cart_items', fn (Blueprint $table) => $table->dropColumn('extras'));
-        Schema::table('products', fn (Blueprint $table) => $table->dropConstrainedForeignId('unlocks_entitlement_id'));
+        Schema::table('products', function (Blueprint $table): void {
+            $table->dropConstrainedForeignId('unlocks_entitlement_id');
+            $table->dropColumn('downloads_limited_by');
+        });
         Schema::table('invoice_items', fn (Blueprint $table) => $table->dropColumn('extras'));
 
         Schema::dropIfExists('order_entitlements');

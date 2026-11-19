@@ -11,6 +11,7 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Entitlement;
 use App\Model\Product\Grant;
 use App\Model\Product\Product;
+use App\Services\DateRules;
 use App\Services\EntitlementService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -53,7 +54,7 @@ class EntitlementController extends Controller
         $rows = $request->validate([
             'entitlements' => ['present', 'array'],
             'entitlements.*.id' => ['nullable', 'integer'],
-            'entitlements.*.code' => [...$slug, Rule::notIn(array_keys(Grant::DATES))], // run / updates / support are the license dates
+            'entitlements.*.code' => [...$slug, Rule::notIn(['license'])], // expires.license is the subscription end
             'entitlements.*.category' => ['nullable', 'string', 'max:50'],
             'entitlements.*.label' => ['required', 'string', 'max:100'],
             'entitlements.*.type' => ['required', Rule::in(Entitlement::TYPES)],
@@ -169,7 +170,11 @@ class EntitlementController extends Controller
                     ...$item->only(['id', 'code', 'category', 'label', 'type', 'options', 'default_value', 'is_active']),
                     'agents' => $agents,
                     'mode' => $mode,
-                    'value' => $agents ? $this->includedAgents($plan) : ($included->get($item->id)),
+                    'value' => match (true) {
+                        $agents => $this->includedAgents($plan),
+                        $item->type === 'date' => DateRules::decode($included->get($item->id)), // how the plan ends it
+                        default => $included->get($item->id),
+                    },
                     'unlimited' => $agents && EntitlementService::planAgents($plan) === EntitlementService::UNLIMITED,
                     'sellable' => in_array($item->type, ['boolean', 'number'], strict: true),
                     'prices' => $item->prices->mapWithKeys(fn ($p): array => [$p->currency => [
@@ -327,7 +332,7 @@ class EntitlementController extends Controller
         // Features the plan doesn't include can be given by an override too.
         $shown = array_column($items, 'id');
         foreach (Entitlement::where('is_active', true)->whereNotIn('id', $shown)->orderBy('sort')->orderBy('id')->get() as $item) {
-            if (EntitlementService::isAgents($item)) {
+            if (EntitlementService::isAgents($item) || $item->type === 'date') { // dates come from the plan, not overrides
                 continue;
             }
             $items[] = [
@@ -352,6 +357,9 @@ class EntitlementController extends Controller
 
         if (EntitlementService::isAgents($item)) {
             throw ValidationException::withMessages(['value' => __('message.entitlement_agents_locked')]);
+        }
+        if ($item->type === 'date') {
+            throw ValidationException::withMessages(['value' => __('message.entitlement_invalid_value', ['key' => $item->code])]);
         }
 
         $value = $item->normalize($data['value']);

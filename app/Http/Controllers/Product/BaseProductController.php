@@ -10,6 +10,7 @@ use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
+use App\Services\EntitlementService;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -120,11 +121,11 @@ class BaseProductController extends ExtendedBaseProductController
                 return $this->download($product, tag: $this->allowedGithubTag($order, $product, (string) $version_id), order: $order);
             }
 
-            // Only releases from before the updates period ended (OrderPolicy::downloadVersion).
-            $updateEndsAt = $order->subscription?->update_ends_at;
+            // Only releases from before downloads stopped (OrderPolicy::downloadVersion).
+            $downloadsEnd = resolve(EntitlementService::class)->downloadsEndAt($order);
             $version = ProductUpload::where('product_id', $order->product)
                 ->when($version_id, fn ($q) => $q->where('id', $version_id))
-                ->when($updateEndsAt && $updateEndsAt !== '0000-00-00 00:00:00', fn ($q) => $q->where('created_at', '<', $updateEndsAt))
+                ->when($downloadsEnd, fn ($q) => $q->where('created_at', '<', $downloadsEnd))
                 ->where('is_private', 0)
                 ->latest()
                 ->first();

@@ -37,10 +37,8 @@ class Grant extends Model
 
     public const string ADMIN = 'admin';
 
-    public const string LICENSE = 'license';
-
-    /** Built-in date codes (source LICENSE): when the license, updates and support end. */
-    public const array DATES = ['run' => 'license_expire_date', 'updates' => 'license_updates_date', 'support' => 'license_support_date'];
+    /** A date feature (updates, support, …): ends_at is when it ends, null = never. */
+    public const string DATE = 'date';
 
     protected $fillable = ['license_id', 'user_id', 'code', 'value', 'source', 'starts_at', 'ends_at'];
 

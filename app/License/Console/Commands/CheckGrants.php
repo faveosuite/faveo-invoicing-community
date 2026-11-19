@@ -7,6 +7,7 @@ namespace App\License\Console\Commands;
 use App\License\Models\License;
 use App\Model\Product\Grant;
 use App\Services\EntitlementService;
+use App\Services\LegacyDates;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\DB;
  *
  *  - lost:   linked to a plugin (license_plugins) but its feature isn't granted — the customer
  *            would lose the plugin. Must be 0.
- *  - dates:  the run / updates / support grants differ from the license's date columns (or are
+ *  - dates:  the updates / support grants differ from the license's old date columns (or are
  *            missing). Must be 0.
  *  - gained: a plugin feature is granted with no link (e.g. a plan that bundles it) — shown for review.
  *
@@ -40,13 +41,13 @@ class CheckGrants extends Command
         License::chunkById(500, function ($licenses) use ($service, $features, $pluginOf, &$checked, &$lost, &$gained, &$dates): void {
             $ids = $licenses->modelKeys();
             $links = DB::table('license_plugins')->whereIn('license_id', $ids)->get(['license_id', 'product_id'])->groupBy('license_id');
-            $dateGrants = Grant::whereIn('license_id', $ids)->where('source', Grant::LICENSE)->get()->groupBy('license_id');
-            $withGrants = Grant::whereIn('license_id', $ids)->where('source', '!=', Grant::LICENSE)->distinct()->pluck('license_id')->flip();
+            $dateGrants = Grant::whereIn('license_id', $ids)->where('source', Grant::DATE)->get()->groupBy('license_id');
+            $withGrants = Grant::whereIn('license_id', $ids)->where('source', '!=', Grant::DATE)->distinct()->pluck('license_id')->flip();
 
             foreach ($licenses as $license) {
                 $checked++;
                 $have = collect($dateGrants[$license->id] ?? [])->mapWithKeys(fn (Grant $g): array => [$g->code => $g->ends_at?->toDateString()]);
-                foreach (Grant::DATES as $code => $column) {
+                foreach (LegacyDates::COLUMNS as $code => [$column]) {
                     $expected = EntitlementService::day($license->{$column});
                     if (! $have->has($code) || $have[$code] !== $expected) {
                         $dates[] = "license {$license->id} ({$license->license_code}): {$code} ".($have->has($code) ? "grant {$have[$code]}" : 'grant missing').", column {$expected}";

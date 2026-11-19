@@ -19,6 +19,7 @@ use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\Services\EntitlementService;
+use App\Services\LegacyDates;
 use App\Traits\Order\UpdateDates;
 use App\User;
 use Carbon\Carbon;
@@ -115,16 +116,11 @@ class BaseOrderController extends ExtendedOrderController
 
         $meta = $invoiceId ? (Invoice::find($invoiceId)->metadata ?? []) : [];
 
+        // The subscription term; every date feature (updates, support, …) ends as the plan sets it.
         if (isset($meta['increase-decrease-days'])) {
-            $days = $meta['increase-decrease-days'];
-            $licenseExpiry = $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $days);
-            $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $days);
-            $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $days);
+            $licenseExpiry = $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], (int) $meta['increase-decrease-days']);
         } elseif (isset($meta['increase-decrease-days-dont-cloud'])) {
-            $sub = Subscription::where('order_id', $meta['increase-decrease-days-dont-cloud'])->first();
-            $licenseExpiry = $sub?->ends_at;
-            $updatesExpiry = $sub?->ends_at;
-            $supportExpiry = $sub?->ends_at;
+            $licenseExpiry = Subscription::where('order_id', $meta['increase-decrease-days-dont-cloud'])->value('ends_at');
         } else {
             $isOneTime = $plan->periods()->where('name', 'One Time')->exists();
             // plans.days is a varchar column; some plans (per-issue support,
@@ -132,17 +128,18 @@ class BaseOrderController extends ExtendedOrderController
             // weakly-coerce to int and crashed here (QA bug #42) — cast like
             // every other caller of $plan->days already does.
             $licenseExpiry = $isOneTime ? null : $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], (int) $plan->days);
-            $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], (int) $plan->days);
-            $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], (int) $plan->days);
         }
+        $subscriptionEnd = $licenseExpiry !== null ? Date::parse($licenseExpiry)->toDateTimeString() : null;
+        $entitlements = resolve(EntitlementService::class);
+        $planChange = isset($meta['increase-decrease-days']) || isset($meta['increase-decrease-days-dont-cloud']);
+        $dates = $entitlements->dateEnds($plan->id, $planChange ? 'change' : 'purchase', $subscriptionEnd);
 
         Subscription::create([
             'user_id' => $order->client,
             'plan_id' => $plan->id,
             'order_id' => $orderid,
-            'update_ends_at' => $updatesExpiry,
-            'ends_at' => $licenseExpiry,
-            'support_ends_at' => $supportExpiry,
+            'ends_at' => $subscriptionEnd,
+            ...LegacyDates::forSubscription($dates),
             'version' => $version,
             'product_id' => $product,
             'is_subscribed' => '0',
@@ -158,13 +155,13 @@ class BaseOrderController extends ExtendedOrderController
             'license_ip' => $ipAndDomain['ip'],
             'license_require_domain' => $ipAndDomain['requireDomain'],
             'license_limit' => 1,
-            'license_expire_date' => $licenseExpiry instanceof Carbon ? $licenseExpiry->toDateString() : null,
-            'license_updates_date' => $updatesExpiry instanceof Carbon ? $updatesExpiry->toDateString() : null,
-            'license_support_date' => $supportExpiry instanceof Carbon ? $supportExpiry->toDateString() : null,
+            'license_expire_date' => EntitlementService::day($subscriptionEnd),
+            ...array_map(EntitlementService::day(...), LegacyDates::forLicense($dates)),
             'license_status' => 1,
         ]);
 
-        resolve(EntitlementService::class)->grant($license, $plan->id);
+        $entitlements->grant($license, $plan->id);
+        $entitlements->writeDates($license, $dates);
     }
 
     /**
@@ -183,42 +180,6 @@ class BaseOrderController extends ExtendedOrderController
         }
 
         return $ends_at;
-    }
-
-    /**
-     *  Get the Expiry Date for Updates.
-     *
-     * @param  bool  $permissions  [Whether Permissons for generating Updates Expiry Date are there or not]
-     * @param  int  $days  [No of days that would get added to the current date ]
-     * @return Carbon|null [The final Updates Expiry date that is generated, null means no expiry]
-     */
-    protected function getUpdatesExpiryDate(bool $permissions, int $days): ?Carbon
-    {
-        $update_ends_at = null;
-        if ($days > 0 && $permissions == 1) {
-            $dt = Date::now();
-            $update_ends_at = $dt->addDays($days);
-        }
-
-        return $update_ends_at;
-    }
-
-    /**
-     *  Get the Expiry Date for Support.
-     *
-     * @param  bool  $permissions  [Whether Permissons for generating Updates Expiry Date are there or not]
-     * @param  int  $days  [No of days that would get added to the current date ]
-     * @return Carbon|null [The final Suport Expiry date that is generated, null means no expiry]
-     */
-    protected function getSupportExpiryDate(bool $permissions, int $days): ?Carbon
-    {
-        $support_ends_at = null;
-        if ($days > 0 && $permissions == 1) {
-            $dt = Date::now();
-            $support_ends_at = $dt->addDays($days);
-        }
-
-        return $support_ends_at;
     }
 
     public function sendOrderMail(int $userid, string $orderid, int $itemid): void

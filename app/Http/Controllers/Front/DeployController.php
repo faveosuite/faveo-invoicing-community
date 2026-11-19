@@ -8,6 +8,7 @@ use App\License\Services\ProductBundleStampingService;
 use App\Model\Common\Setting;
 use App\Model\Order\Order;
 use App\Model\Product\ProductUpload;
+use App\Services\EntitlementService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -408,13 +409,13 @@ class DeployController extends Controller
     /** @return Builder<ProductUpload> */
     private function deployableUploads(Order $order): Builder
     {
-        $updateEndsAt = $order->subscription?->update_ends_at;
+        $downloadsEnd = resolve(EntitlementService::class)->downloadsEndAt($order);
 
         return ProductUpload::where('product_id', $order->getRawOriginal('product'))
             ->where('is_private', 0)
             ->whereNotNull('file')
             ->where('file', '!=', '')
-            ->when($updateEndsAt, fn ($q) => $q->where('created_at', '<', $updateEndsAt));
+            ->when($downloadsEnd, fn ($q) => $q->where('created_at', '<', $downloadsEnd));
     }
 
     /**

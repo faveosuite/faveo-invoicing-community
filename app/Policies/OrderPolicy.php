@@ -9,6 +9,7 @@ use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\EntitlementService;
 use App\Services\Payment\AutoRenewalActivationService;
 use App\User;
 use Illuminate\Auth\Access\Response;
@@ -220,12 +221,10 @@ class OrderPolicy
         return strcasecmp((string) $order->order_status, 'Terminated') === 0;
     }
 
-    /** The updates end date, or null when updates never end. */
+    /** When downloads stop (the end of the date the product limits them by), or null for no limit. */
     private function updatesEnd(Order $order): ?string
     {
-        $end = (string) $order->subscription?->update_ends_at;
-
-        return $end !== '' && $end !== '0000-00-00 00:00:00' ? $end : null;
+        return resolve(EntitlementService::class)->downloadsEndAt($order)?->toDateTimeString();
     }
 
     private function updatesEnded(Order $order): bool
