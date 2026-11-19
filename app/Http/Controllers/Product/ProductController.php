@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Product;
 use App\Facades\Attach;
 use App\Http\Controllers\AutoUpdate\AutoUpdateController;
 use App\Http\Controllers\Github\GithubApiController;
-use App\Http\Controllers\License\LicensePermissionsController;
 use App\License\Services\ProductBundleStampingService;
 use App\Model\Common\StatusSetting;
 use App\Model\License\LicenseType;
@@ -199,10 +198,7 @@ class ProductController extends BaseProductController
             ->paginate($limit);
 
         $products->getCollection()->transform(function ($product): array {
-            $permissions = LicensePermissionsController::getPermissionsForProduct($product->id);
-            $download_url = (empty($permissions['downloadPermission']))
-                ? null
-                : url('product/download/'.$product->id);
+            $download_url = Product::whereKey($product->id)->value('downloadable') ? url('product/download/'.$product->id) : null;
 
             return [
                 'id' => $product->id,
@@ -559,6 +555,8 @@ class ProductController extends BaseProductController
                 $validated['hidden'] = $request->boolean('hidden');
                 $validated['invoice_hidden'] = $request->boolean('invoice_hidden');
                 $validated['whatsapp_integration'] = $request->boolean('whatsapp_integration');
+                $validated['downloadable'] = $request->boolean('downloadable', default: true);
+                $validated['keep_old_downloads'] = $request->boolean('keep_old_downloads', default: true);
 
                 // Filter only fillable fields
                 $data = array_intersect_key($validated, array_flip((new Product)->getFillable()));
@@ -671,6 +669,8 @@ class ProductController extends BaseProductController
                 $validated['hidden'] = $request->boolean('hidden');
                 $validated['invoice_hidden'] = $request->boolean('invoice_hidden');
                 $validated['whatsapp_integration'] = $request->boolean('whatsapp_integration');
+                $validated['downloadable'] = $request->boolean('downloadable', default: true);
+                $validated['keep_old_downloads'] = $request->boolean('keep_old_downloads', default: true);
 
                 // Update product with only fillable fields
                 $fillableData = array_intersect_key($validated, array_flip($product->getFillable()));

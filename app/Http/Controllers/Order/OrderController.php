@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Order;
 
 use App\Enums\OrderAbility;
 use App\Events\UserOrderDelete;
-use App\Http\Controllers\License\LicensePermissionsController;
 use App\Jobs\ReportExport;
 use App\License\Services\LicenseService;
 use App\Model\Mailjob\QueueService;
@@ -278,11 +277,6 @@ class OrderController extends BaseOrderController
                 'license_ip' => $license?->license_ip,
                 'license_machine_id' => $license?->license_machine_id,
             ],
-            // Lets the edit-license-details UI hide/disable date fields this
-            // product's license type isn't permitted to change (see
-            // SubscriptionRenewalService::setDate — the write side of the
-            // same permission check).
-            'permissions' => LicensePermissionsController::getPermissionsForProduct((int) $order->product),
             'is_subscribed' => $order->subscription?->is_subscribed,
             'auto_renew_state' => $order->subscription?->autoRenewState() ?? 'inactive',
             ...$this->renewFlags($order),

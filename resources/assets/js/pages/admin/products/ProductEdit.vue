@@ -170,6 +170,14 @@
                                                 />
                                                 <small class="text-muted">{{ __('message.downloads_limited_by_help') }}</small>
                                             </div>
+                                            <div class="mb-3 d-flex align-items-center gap-1">
+                                                <Checkbox name="downloadable" :label="__('message.product_downloadable')" :value="form.downloadable" :onChange="(val) => form.downloadable = val" />
+                                                <Tooltip :message="__('message.product_downloadable_help')" />
+                                            </div>
+                                            <div v-if="form.downloadable" class="mb-3 d-flex align-items-center gap-1">
+                                                <Checkbox name="keep_old_downloads" :label="__('message.product_keep_old_downloads')" :value="form.keep_old_downloads" :onChange="(val) => form.keep_old_downloads = val" />
+                                                <Tooltip :message="__('message.product_keep_old_downloads_help')" />
+                                            </div>
 
                                             <div class="mb-3" v-if="githubEnabled">
                                                 <DynamicSelect
@@ -613,6 +621,8 @@ const form = reactive({
     require_domain: false,
     hidden: false,
     invoice_hidden: false,
+    downloadable: true,
+    keep_old_downloads: true,
     whatsapp_integration: false,
     tax_status: 1,
     tax_class_id: '',
@@ -679,6 +689,8 @@ onMounted(async () => {
         form.can_modify_quantity  = Boolean(p.can_modify_quantity)
         form.require_domain       = Boolean(p.require_domain)
         form.hidden               = Boolean(p.hidden)
+        form.downloadable         = p.downloadable ?? true
+        form.keep_old_downloads   = p.keep_old_downloads ?? true
         form.invoice_hidden       = Boolean(p.invoice_hidden)
         form.whatsapp_integration = String(p.whatsapp_integration) === '1'
         // type/group stay null if the linked record was deleted, so the empty
@@ -717,6 +729,7 @@ onMounted(async () => {
 const SWITCH_FIELDS = [
     'show_agent', 'highlight', 'add_to_contact', 'can_modify_agent', 'can_modify_quantity',
     'require_domain', 'hidden', 'invoice_hidden', 'whatsapp_integration', 'tax_status',
+    'downloadable', 'keep_old_downloads',
 ]
 
 async function submit() {

@@ -68,7 +68,6 @@ return [
     'settings/system' => ['title' => 'message.system-settings', 'description' => 'Configure system-wide settings.'],
     'settings/cron' => ['title' => 'message.cron-setting', 'description' => 'Configure scheduled tasks.'],
     'settings/license-type' => ['title' => 'message.license_types', 'description' => 'Manage license types.'],
-    'settings/license-permissions' => ['title' => 'message.license_permission', 'description' => 'Configure license permissions.'],
     'settings/file-storage' => ['title' => 'message.file_system', 'description' => 'Configure file storage settings.'],
     'settings/payment-gateway' => ['title' => 'message.payment_gateways', 'description' => 'Manage payment gateways.'],
     'settings/payment-gateway/*/edit' => ['title' => 'message.edit_payment_gateway', 'description' => 'Edit a payment gateway.'],

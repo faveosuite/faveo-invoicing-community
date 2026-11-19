@@ -5,8 +5,6 @@ namespace Tests\Unit\Backend\Http\Controllers\Front;
 use App\Http\Controllers\Github\GithubApiController;
 use App\License\Models\InstallationLog;
 use App\License\Models\License;
-use App\Model\License\LicensePermission;
-use App\Model\License\LicenseType;
 use App\Model\Order\CreditTransaction;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
@@ -363,15 +361,13 @@ class ClientControllerTest extends DBTestCase
     }
 
     /**
-     * An order whose versions the client may list: "Allow downloads" on and updates that never end.
+     * An order whose versions the client may list: a downloadable product and updates that never end.
      *
      * @return array{0: Product, 1: Order}
      */
     private function downloadableOrder(): array
     {
-        $type = LicenseType::factory()->create();
-        $type->permissions()->attach(LicensePermission::firstOrCreate(['permissions' => 'Can be Downloaded'])->id);
-        $product = Product::create(['name' => 'Test Product '.uniqid(), 'type' => $type->id]);
+        $product = Product::create(['name' => 'Test Product '.uniqid(), 'downloadable' => true]);
         $order = Order::create(['client' => $this->user->id, 'order_status' => 'executed', 'product' => $product->id, 'number' => random_int(100000000, 999999999)]);
         Subscription::factory()->create([
             'order_id' => $order->id, 'product_id' => $product->id, 'user_id' => $this->user->id, 'update_ends_at' => null, 'is_deleted' => 0,

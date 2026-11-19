@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Services;
 
 use App\License\Models\License;
-use App\Model\License\LicensePermission;
-use App\Model\License\LicenseType;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
@@ -35,38 +33,7 @@ class SubscriptionRenewalServiceTest extends DBTestCase
         ], $attrs));
     }
 
-    /**
-     * Grants the given license-permission display names on a product, so
-     * LicensePermissionsController::getPermissionsForProduct() reports them
-     * as enabled (mirrors the pattern used in BaseOrderControllerTest).
-     */
-    private function grantPermissions(int $productId, array $permissionNames): void
-    {
-        $licenseType = LicenseType::updateOrCreate(['id' => 1], ['name' => 'Download Perpetual']);
-
-        foreach ($permissionNames as $name) {
-            LicensePermission::firstOrCreate(['permissions' => $name]);
-        }
-
-        $permissionIds = LicensePermission::whereIn('permissions', $permissionNames)->pluck('id');
-        $licenseType->permissions()->sync($permissionIds);
-
-        Product::where('id', $productId)->update(['type' => $licenseType->id]);
-    }
-
-    // --- computeExpiry via setDate ---
-
-    public function test_set_date_returns_early_when_permission_not_granted(): void
-    {
-        $sub = $this->makeSubscription();
-
-        // LicensePermissionsController::getPermissionsForProduct returns false for the permission
-        // When permission is false, setDate returns without updating
-        $this->service->setDate($sub, 'ends_at', now()->addDays(60)->toDateTimeString());
-
-        // Reload and check — either updated or not depending on permissions
-        $this->assertTrue(true); // no exception thrown
-    }
+    // --- setDate ---
 
     public function test_set_date_skips_update_when_subscription_has_no_order(): void
     {
@@ -85,7 +52,6 @@ class SubscriptionRenewalServiceTest extends DBTestCase
             'serial_key' => 'LIC-RENEW-CODE',
         ])->create();
 
-        $this->grantPermissions((int) $order->product, ['Generate License Expiry Date']);
 
         $license = License::create([
             'product_id' => $order->product,

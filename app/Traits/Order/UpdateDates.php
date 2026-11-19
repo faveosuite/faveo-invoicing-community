@@ -25,24 +25,11 @@ trait UpdateDates
             $service = resolve(SubscriptionRenewalService::class);
             $sub = Subscription::where('order_id', $request->input('orderid'))->firstOrFail();
 
-            $requested = 0;
-            $skipped = [];
-
-            // input => [subscription column, label when the license type blocks it]
-            $dateFields = [
-                'update_end' => ['update_ends_at', 'message.updates_expiry'],
-                'subscription_end' => ['ends_at', 'message.license_expiry'],
-                'support_end' => ['support_ends_at', 'message.support_expiry'],
-            ];
-
-            foreach ($dateFields as $input => [$column, $label]) {
-                if (! $request->filled($input)) {
-                    continue;
-                }
-
-                $requested++;
-                if (! $service->setDate($sub, $column, $this->parseDate($request->input($input)))) {
-                    $skipped[] = __($label);
+            // input => subscription column
+            $dateFields = ['update_end' => 'update_ends_at', 'subscription_end' => 'ends_at', 'support_end' => 'support_ends_at'];
+            foreach ($dateFields as $input => $column) {
+                if ($request->filled($input)) {
+                    $service->setDate($sub, $column, $this->parseDate($request->input($input)));
                 }
             }
 
@@ -57,16 +44,6 @@ trait UpdateDates
                 if ($failure !== null) {
                     return errorResponse($failure);
                 }
-            }
-
-            // Every requested date field was blocked by this product's license
-            // type — nothing actually changed, so this must not read as success.
-            if ($skipped && count($skipped) === $requested) {
-                return errorResponse(__('message.fields_not_permitted', ['fields' => implode(', ', $skipped)]));
-            }
-
-            if ($skipped !== []) {
-                return successResponse(__('message.some_fields_not_permitted', ['fields' => implode(', ', $skipped)]));
             }
 
             return successResponse(__('message.updated-successfully'));

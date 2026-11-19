@@ -528,7 +528,7 @@ class ClientController extends BaseClientController
     {
         try {
             $order = Order::with([
-                'productRelation:id,github_owner,github_repository,type',
+                'productRelation:id,github_owner,github_repository,type,downloadable,keep_old_downloads',
                 'subscription:id,order_id,product_id,update_ends_at,is_deleted',
                 'invoices' => fn ($q) => $q->select('invoices.id', 'invoices.number')->latest('invoices.id'),
             ])->where('id', $orderid)->where('client', Auth::id())->first();
@@ -723,8 +723,7 @@ class ClientController extends BaseClientController
     public function getClientPanelOrdersData(): \Illuminate\Database\Eloquent\Builder
     {
         return Order::with([
-            'productRelation:id,name,github_owner,github_repository,type,whatsapp_integration',
-            'productRelation.licenseType.permissions', // OrderPolicy reads these per row
+            'productRelation:id,name,github_owner,github_repository,type,whatsapp_integration,downloadable,keep_old_downloads', // OrderPolicy reads these per row
             'subscription:id,order_id,plan_id,version,update_ends_at,ends_at,support_ends_at,is_subscribed,is_deleted,autoRenew_status,rzp_subscription',
             'subscription.plan:id,name',
             'invoiceItem:id,agents',

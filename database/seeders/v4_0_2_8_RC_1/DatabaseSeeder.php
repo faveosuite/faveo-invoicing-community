@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Seeders\v4_0_2_8_RC_1;
 
-use App\Http\Controllers\License\LicensePermissionsController;
 use App\License\Models\License;
 use App\Model\Payment\Plan;
 use App\Model\Product\Entitlement;
@@ -15,6 +14,7 @@ use App\Services\LegacyDates;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
 {
@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
         $this->seedPluginFeatures();
         $this->seedDateFeatures();
         $this->seedLicenseDateGrants();
+        $this->moveLicensePermissionsToProducts();
     }
 
     public function packageRemoval(): void
@@ -218,7 +219,7 @@ class DatabaseSeeder extends Seeder
         }
 
         Product::orderBy('id')->each(function (Product $product) use ($items, $permissionOf): void {
-            $permissions = LicensePermissionsController::permissionsFor($product);
+            $permissions = $this->oldPermissions($product);
             DB::table('products')->where('id', $product->id)
                 ->update(['downloads_limited_by' => $permissions['generateUpdatesxpiryDate'] ? 'updates' : null]);
 
@@ -239,6 +240,73 @@ class DatabaseSeeder extends Seeder
                 }
             }
         });
+    }
+
+    /**
+     * License-type permissions go: "Can be Downloaded" and "Allow Downloads Before Updates
+     * Expire" become the product's downloadable / keep_old_downloads; the expiry permissions are
+     * already plan date rules (seedDateFeatures), and the license now ends with its plan period.
+     * Plans whose licenses never expired but have a recurring period are listed, since their
+     * licenses will now end each period. Runs after seedDateFeatures, which reads the same tables.
+     */
+    public function moveLicensePermissionsToProducts(): void
+    {
+        if (! Schema::hasTable('license_license_permissions')) {
+            return;
+        }
+
+        Product::orderBy('id')->each(function (Product $product): void {
+            $permissions = $this->oldPermissions($product);
+            DB::table('products')->where('id', $product->id)->update([
+                'downloadable' => $permissions['downloadPermission'],
+                'keep_old_downloads' => $permissions['allowDownloadTillExpiry'],
+            ]);
+
+            if ($permissions['generateLicenseExpiryDate']) {
+                return;
+            }
+            foreach (Plan::where('product', $product->id)->get() as $plan) {
+                if ((int) $plan->days > 0 && ! $plan->periods()->where('name', 'One Time')->exists()) {
+                    $this->command?->warn("Plan {$plan->id} ({$plan->name}) of {$product->name}: its licenses never expired; they now end with each {$plan->days}-day period.");
+                }
+            }
+        });
+
+        Schema::dropIfExists('license_license_permissions');
+        Schema::dropIfExists('license_permissions');
+    }
+
+    /**
+     * The product's old license-type permissions, read straight from the tables
+     * moveLicensePermissionsToProducts() drops; all off once they are gone.
+     *
+     * @return array<string, bool>
+     */
+    private function oldPermissions(Product $product): array
+    {
+        $map = [
+            'Generate Updates Expiry Date' => 'generateUpdatesxpiryDate',
+            'Generate License Expiry Date' => 'generateLicenseExpiryDate',
+            'Generate Support Expiry Date' => 'generateSupportExpiryDate',
+            'Can be Downloaded' => 'downloadPermission',
+            'Allow Downloads Before Updates Expire' => 'allowDownloadTillExpiry',
+        ];
+        $result = array_fill_keys(array_values($map), false);
+        if (! Schema::hasTable('license_license_permissions')) {
+            return $result;
+        }
+
+        $labels = DB::table('license_license_permissions as lp')
+            ->join('license_permissions as p', 'p.id', '=', 'lp.license_permission_id')
+            ->where('lp.license_type_id', $product->getRawOriginal('type'))
+            ->pluck('p.permissions');
+        foreach ($labels as $label) {
+            if (isset($map[$label])) {
+                $result[$map[$label]] = true;
+            }
+        }
+
+        return $result;
     }
 
     /**

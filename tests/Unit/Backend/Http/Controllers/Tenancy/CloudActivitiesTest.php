@@ -6,7 +6,6 @@ use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\License\Models\Installation;
 use App\License\Models\License;
 use App\Model\Common\FaveoCloud;
-use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Mailjob\Condition;
 use App\Model\Order\CreditTransaction;
@@ -124,18 +123,6 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid = [
-            0 => '1',
-            1 => '2',
-            2 => '3',
-            3 => '4',
-            6 => '6',
-        ];
-        $licensetype->permissions()->attach($permissionid);
 
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
@@ -163,18 +150,6 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid = [
-            0 => '1',
-            1 => '2',
-            2 => '3',
-            3 => '4',
-            6 => '6',
-        ];
-        $licensetype->permissions()->attach($permissionid);
 
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
@@ -200,18 +175,6 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid = [
-            0 => '1',
-            1 => '2',
-            2 => '3',
-            3 => '4',
-            6 => '6',
-        ];
-        $licensetype->permissions()->attach($permissionid);
 
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
@@ -238,18 +201,6 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid = [
-            0 => '1',
-            1 => '2',
-            2 => '3',
-            3 => '4',
-            6 => '6',
-        ];
-        $licensetype->permissions()->attach($permissionid);
 
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
@@ -309,18 +260,6 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid = [
-            0 => '1',
-            1 => '2',
-            2 => '3',
-            3 => '4',
-            6 => '6',
-        ];
-        $licensetype->permissions()->attach($permissionid);
 
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
@@ -355,18 +294,6 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid = [
-            0 => '1',
-            1 => '2',
-            2 => '3',
-            3 => '4',
-            6 => '6',
-        ];
-        $licensetype->permissions()->attach($permissionid);
 
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
@@ -401,18 +328,6 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid = [
-            0 => '1',
-            1 => '2',
-            2 => '3',
-            3 => '4',
-            6 => '6',
-        ];
-        $licensetype->permissions()->attach($permissionid);
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
@@ -440,18 +355,6 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid = [
-            0 => '1',
-            1 => '2',
-            2 => '3',
-            3 => '4',
-            6 => '6',
-        ];
-        $licensetype->permissions()->attach($permissionid);
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
@@ -486,12 +389,6 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid = [0 => '1', 1 => '2', 2 => '3', 3 => '4', 6 => '6'];
-        $licensetype->permissions()->attach($permissionid);
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
@@ -543,12 +440,6 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid = [0 => '1', 1 => '2', 2 => '3', 3 => '4', 6 => '6'];
-        $licensetype->permissions()->attach($permissionid);
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
@@ -606,12 +497,6 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid = [0 => '1', 1 => '2', 2 => '3', 3 => '4', 6 => '6'];
-        $licensetype->permissions()->attach($permissionid);
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
@@ -678,18 +563,6 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid = [
-            0 => '1',
-            1 => '2',
-            2 => '3',
-            3 => '4',
-            6 => '6',
-        ];
-        $licensetype->permissions()->attach($permissionid);
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
@@ -719,18 +592,6 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid = [
-            0 => '1',
-            1 => '2',
-            2 => '3',
-            3 => '4',
-            6 => '6',
-        ];
-        $licensetype->permissions()->attach($permissionid);
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
@@ -764,18 +625,6 @@ class CloudActivitiesTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid = [
-            0 => '1',
-            1 => '2',
-            2 => '3',
-            3 => '4',
-            6 => '6',
-        ];
-        $licensetype->permissions()->attach($permissionid);
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
