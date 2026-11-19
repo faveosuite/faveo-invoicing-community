@@ -169,7 +169,7 @@ const bulkVersionInput = ref('') // transient — stamps whatever is currently v
 
 onMounted(async () => {
     try {
-        const res = await http.get('/dependency/products', { params: { permission: 'downloadPermission' } })
+        const res = await http.get('/dependency/products', { params: { downloadable: 1 } })
         const groups = res.data?.data?.products ?? []
         rawGroups.value = groups.map(g => ({ groupName: g.name, products: g.children ?? [] }))
         activeGroup.value = rawGroups.value[0]?.groupName ?? ''

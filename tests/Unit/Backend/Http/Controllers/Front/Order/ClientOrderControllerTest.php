@@ -6,7 +6,6 @@ use App\ApiKey;
 use App\Http\Controllers\Github\GithubApiController;
 use App\License\Services\InstallationService;
 use App\Model\Common\Setting;
-use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
@@ -43,11 +42,6 @@ class ClientOrderControllerTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $licensetype->permissions()->attach([0 => '1', 1 => '2', 2 => '3', 3 => '4', 6 => '6']);
 
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
@@ -136,11 +130,6 @@ class ClientOrderControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $date = '2025-03-02 18:15:02';
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $licensetype->permissions()->attach([0 => '1', 1 => '2', 2 => '3', 3 => '4', 6 => '6']);
 
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
@@ -177,11 +166,6 @@ class ClientOrderControllerTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $licensetype->permissions()->attach([0 => '1', 1 => '2', 2 => '3', 3 => '4', 6 => '6']);
 
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
@@ -276,7 +260,7 @@ class ClientOrderControllerTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
 
-        $product = Product::create(['name' => 'TestProduct-'.uniqid(), 'description' => 'Test']);
+        $product = Product::create(['name' => 'TestProduct-'.uniqid(), 'description' => 'Test', 'downloadable' => false]);
         $order = Order::create([
             'client' => $user->id,
             'order_status' => 'executed',
@@ -284,7 +268,7 @@ class ClientOrderControllerTest extends DBTestCase
             'number' => mt_rand(100000, 999999),
         ]);
 
-        // A product with no license type has no "Allow downloads" permission (OrderPolicy::download).
+        // The product isn't downloadable (OrderPolicy::download).
         $this->getJson('/get-versions/'.$order->id)
             ->assertStatus(400)
             ->assertJson(['success' => false, 'message' => __('message.no_permission_for_action')]);
@@ -357,15 +341,13 @@ class ClientOrderControllerTest extends DBTestCase
     // Action rules (OrderPolicy) — buttons and endpoints agree
     // =========================================================================
 
-    /** @param  list<string>  $permissions */
-    private function policyOrder(User $user, array $permissions, array $productAttributes = [], array $subscription = []): Order
+    /** @param  list<string>  $switches  product download switches that are on: downloadable, keep_old_downloads */
+    private function policyOrder(User $user, array $switches, array $productAttributes = [], array $subscription = []): Order
     {
-        $type = LicenseType::factory()->create();
-        foreach ($permissions as $name) {
-            $type->permissions()->attach(LicensePermission::firstOrCreate(['permissions' => $name])->id);
-        }
-
-        $product = Product::factory()->create(['type' => $type->id] + $productAttributes);
+        $product = Product::factory()->create([
+            'downloadable' => in_array('downloadable', $switches, true),
+            'keep_old_downloads' => in_array('keep_old_downloads', $switches, true),
+        ] + $productAttributes);
         $order = Order::factory()->create(['client' => $user->id, 'product' => $product->id, 'order_status' => 'executed']);
         Subscription::factory()->create($subscription + [
             'order_id' => $order->id, 'product_id' => $product->id, 'user_id' => $user->id, 'is_deleted' => 0,
@@ -398,7 +380,7 @@ class ClientOrderControllerTest extends DBTestCase
         $user = User::factory()->create(['role' => 'user']);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $order = $this->policyOrder($user, ['Can be Downloaded'], subscription: ['update_ends_at' => now()->subDay()]);
+        $order = $this->policyOrder($user, ['downloadable'], subscription: ['update_ends_at' => now()->subDay()]);
 
         $this->getJson('/get-versions/'.$order->id)
             ->assertStatus(400)
@@ -410,7 +392,7 @@ class ClientOrderControllerTest extends DBTestCase
         $user = User::factory()->create(['role' => 'user']);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $order = $this->policyOrder($user, ['Can be Downloaded', 'Allow Downloads Before Updates Expire'], subscription: ['update_ends_at' => now()->subDays(10)]);
+        $order = $this->policyOrder($user, ['downloadable', 'keep_old_downloads'], subscription: ['update_ends_at' => now()->subDays(10)]);
         $productId = $order->getRawOriginal('product');
         ProductUpload::factory()->create(['product_id' => $productId, 'version' => 'v1.0.0', 'release_type' => 'official', 'is_private' => 0, 'created_at' => now()->subDays(20)]);
         ProductUpload::factory()->create(['product_id' => $productId, 'version' => 'v2.0.0', 'release_type' => 'official', 'is_private' => 0, 'created_at' => now()->subDays(5)]);

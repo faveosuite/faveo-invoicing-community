@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\License;
 
+use App\Http\Controllers\Controller;
 use App\Model\License\LicenseType;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -9,7 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-class LicenseSettingsController extends LicensePermissionsController
+class LicenseSettingsController extends Controller
 {
     private LicenseType $licenseType;
 

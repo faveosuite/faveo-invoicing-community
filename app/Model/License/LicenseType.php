@@ -21,8 +21,6 @@ use Spatie\Activitylog\Models\Activity;
  * @property Carbon|null $updated_at
  * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read LicensePermissionPivot|null $pivot
- * @property-read Collection<int, LicensePermission> $permissions
  * @property-read int|null $permissions_count
  * @property-read Collection<int, Product> $products
  * @property-read int|null $products_count
@@ -80,28 +78,10 @@ class LicenseType extends Model
     }
 
     /**
-     * @return BelongsToMany<LicensePermission, $this, LicensePermissionPivot>
-     */
-    public function permissions(): BelongsToMany
-    {
-        return $this->belongsToMany(LicensePermission::class, LicensePermissionPivot::class)
-            ->using(LicensePermissionPivot::class)
-            ->withTimestamps();
-    }
-
-    /**
      * @return HasMany<Product, $this>
      */
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'type');
-    }
-
-    #[Override]
-    public function delete()
-    {
-        $this->permissions()->detach();
-
-        return parent::delete();
     }
 }

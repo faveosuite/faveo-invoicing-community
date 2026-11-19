@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Common;
 
-use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Order\Invoice;
 use App\Model\Payment\Period;
@@ -92,16 +91,12 @@ class DependencyControllerTest extends DBTestCase
             ->all();
     }
 
-    public function test_products_dependency_filters_by_permission(): void
+    public function test_products_dependency_filters_to_downloadable_products(): void
     {
-        $permission = LicensePermission::create(['permissions' => 'Can be Downloaded']);
-        $type = LicenseType::factory()->create();
-        $type->permissions()->attach($permission->id);
+        $withPermission = Product::factory()->create(['invoice_hidden' => 0, 'downloadable' => true, 'name' => 'Downloadable '.uniqid()]);
+        $withoutPermission = Product::factory()->create(['invoice_hidden' => 0, 'downloadable' => false, 'name' => 'Not Downloadable '.uniqid()]);
 
-        $withPermission = Product::factory()->create(['invoice_hidden' => 0, 'type' => $type->id, 'name' => 'Downloadable '.uniqid()]);
-        $withoutPermission = Product::factory()->create(['invoice_hidden' => 0, 'name' => 'Not Downloadable '.uniqid()]);
-
-        $response = $this->getJson('/dependency/products?permission=downloadPermission');
+        $response = $this->getJson('/dependency/products?downloadable=1');
 
         $response->assertStatus(200);
 

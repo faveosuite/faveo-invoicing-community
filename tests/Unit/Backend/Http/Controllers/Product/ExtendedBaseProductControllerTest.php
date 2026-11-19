@@ -6,8 +6,6 @@ use App\Facades\Attach;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\Product\ExtendedBaseProductController;
 use App\License\Services\ProductBundleStampingService;
-use App\Model\License\LicensePermission;
-use App\Model\License\LicenseType;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
@@ -119,10 +117,9 @@ class ExtendedBaseProductControllerTest extends DBTestCase
         $this->controller($stampingService)->download($product, $version, order: $order);
     }
 
-    public function test_admin_download_returns_error_when_download_permission_is_denied(): void
+    public function test_admin_download_returns_error_when_the_product_is_not_downloadable(): void
     {
-        $product = Product::factory()->create();
-        // No license type / permissions attached, so downloadPermission resolves to 0.
+        $product = Product::factory()->create(['downloadable' => false]);
 
         $response = $this->controller()->adminDownload($product->id);
 
@@ -130,13 +127,9 @@ class ExtendedBaseProductControllerTest extends DBTestCase
         $this->assertFalse($data['success']);
     }
 
-    public function test_admin_download_delegates_to_download_when_permission_is_granted(): void
+    public function test_admin_download_delegates_to_download_when_the_product_is_downloadable(): void
     {
-        $permission = LicensePermission::create(['permissions' => 'Can be Downloaded']);
-        $type = LicenseType::factory()->create();
-        $type->permissions()->attach($permission->id);
-
-        $product = Product::factory()->create(['type' => $type->id]);
+        $product = Product::factory()->create(['downloadable' => true]);
         ProductUpload::factory()->create(['product_id' => $product->id, 'file' => 'release.zip', 'release_type' => 'official', 'is_private' => 0]);
 
         Attach::shouldReceive('exists')->once()->with('products/release.zip')->andReturn(true);
@@ -156,10 +149,7 @@ class ExtendedBaseProductControllerTest extends DBTestCase
      */
     private function fileServedFor(string $release, array $uploads): string
     {
-        $permission = LicensePermission::create(['permissions' => 'Can be Downloaded']);
-        $type = LicenseType::factory()->create();
-        $type->permissions()->attach($permission->id);
-        $product = Product::factory()->create(['type' => $type->id]);
+        $product = Product::factory()->create(['downloadable' => true]);
 
         foreach ($uploads as $file => $releaseType) {
             ProductUpload::factory()->create(['product_id' => $product->id, 'file' => $file, 'release_type' => $releaseType, 'is_private' => 0]);
@@ -200,10 +190,7 @@ class ExtendedBaseProductControllerTest extends DBTestCase
      */
     private function githubTagServedFor(string $release): string
     {
-        $permission = LicensePermission::create(['permissions' => 'Can be Downloaded']);
-        $type = LicenseType::factory()->create();
-        $type->permissions()->attach($permission->id);
-        $product = Product::factory()->create(['type' => $type->id, 'github_owner' => 'faveo', 'github_repository' => 'helpdesk']);
+        $product = Product::factory()->create(['downloadable' => true, 'github_owner' => 'faveo', 'github_repository' => 'helpdesk']);
 
         $served = null;
         $github = Mockery::mock(GithubApiController::class);

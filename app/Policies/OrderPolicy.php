@@ -3,7 +3,6 @@
 namespace App\Policies;
 
 use App\Enums\OrderAbility;
-use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Common\Setting;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
@@ -76,18 +75,18 @@ class OrderPolicy
     /** Downloads for the order as a whole; which releases fall inside them is {@see downloadVersion}. */
     public function download(User $user, Order $order): Response
     {
-        $permissions = LicensePermissionsController::permissionsFor($order->productRelation);
+        $product = $order->productRelation;
 
         return match (true) {
             ! $this->owns($user, $order) && $user->role !== 'admin' => Response::denyWithStatus(403, __('message.no_permission_for_action')),
             $this->isTerminated($order) => Response::deny(__('message.no_permission_for_action')),
             // Cloud is hosted for the client; the self-hosted build is never theirs to download,
-            // whatever the product's download permission says.
+            // whatever the product's Downloadable setting says.
             $this->isCloud($order) => Response::deny(__('message.no_permission_for_action')),
-            ($permissions['downloadPermission'] ?? 0) != 1 => Response::deny(__('message.no_permission_for_action')),
+            ! $product?->downloadable => Response::deny(__('message.no_permission_for_action')),
             ! $order->subscription instanceof Subscription => Response::deny(__('message.no_order_exists_invoice')),
             // "Keep old downloads" off: everything stops once the updates period is over.
-            $this->updatesEnded($order) && ! ($permissions['allowDownloadTillExpiry'] ?? 0) => Response::deny(__('message.renew_subscription_download')),
+            $this->updatesEnded($order) && ! $product->keep_old_downloads => Response::deny(__('message.renew_subscription_download')),
             default => Response::allow(),
         };
     }

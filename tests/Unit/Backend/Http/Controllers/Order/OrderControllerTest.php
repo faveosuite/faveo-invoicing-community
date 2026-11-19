@@ -11,8 +11,6 @@ use App\Http\Middleware\Install;
 use App\License\Models\Installation;
 use App\License\Models\InstallationLog;
 use App\License\Models\License;
-use App\Model\License\LicensePermission;
-use App\Model\License\LicenseType;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
@@ -340,31 +338,6 @@ class OrderControllerTest extends DBTestCase
         $response = $this->getJson('/order/'.$order->id);
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
-    }
-
-    public function test_get_order_includes_the_products_license_permissions(): void
-    {
-        // The edit-license-details UI needs these to hide/disable date fields
-        // this license type isn't permitted to change.
-        $this->getLoggedInUser('admin');
-        $order = Order::factory()->withRelations()->create();
-
-        $type = LicenseType::factory()->create();
-        $permission = LicensePermission::firstOrCreate(['permissions' => 'Generate Updates Expiry Date']);
-        $type->permissions()->attach($permission->id);
-        Product::where('id', $order->product)->update(['type' => $type->id]);
-
-        $response = $this->getJson('/order/'.$order->id);
-
-        $response->assertStatus(200);
-
-        $permissions = $response->json('data.permissions');
-        $this->assertIsArray($permissions);
-        $this->assertArrayHasKey('generateUpdatesxpiryDate', $permissions);
-        $this->assertArrayHasKey('downloadPermission', $permissions);
-        $this->assertArrayHasKey('allowDownloadTillExpiry', $permissions);
-        $this->assertEquals(1, $permissions['generateUpdatesxpiryDate']);
-        $this->assertEquals(0, $permissions['generateLicenseExpiryDate']);
     }
 
     public function test_get_order_includes_license_domain_and_machine_id_from_the_matching_license(): void

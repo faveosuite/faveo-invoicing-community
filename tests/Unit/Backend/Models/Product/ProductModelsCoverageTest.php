@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Models\Product;
 
-use App\Model\License\LicensePermissionPivot;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\ProductCategory;
@@ -448,37 +447,4 @@ class ProductModelsCoverageTest extends TestCase
         $this->assertTrue(method_exists(Type::class, 'delete'));
     }
 
-    // =========================================================================
-    // LicensePermissionPivot – getMappings + getLogNameColumn
-    // =========================================================================
-
-    public function test_license_permission_pivot_table_is_correct(): void
-    {
-        $this->assertSame('license_license_permissions', new LicensePermissionPivot()->getTable());
-    }
-
-    public function test_license_permission_pivot_fillable_contains_expected_fields(): void
-    {
-        $fillable = new LicensePermissionPivot()->getFillable();
-        $this->assertContains('license_type_id', $fillable);
-        $this->assertContains('license_permission_id', $fillable);
-    }
-
-    public function test_license_permission_pivot_get_mappings_returns_expected_keys(): void
-    {
-        $model = new LicensePermissionPivot;
-        $ref = new \ReflectionMethod($model, 'getMappings');
-        $mappings = $ref->invoke($model);
-        $this->assertIsArray($mappings);
-        $this->assertArrayHasKey('license_permission_id', $mappings);
-    }
-
-    public function test_license_permission_pivot_get_log_name_column_returns_string(): void
-    {
-        $model = new LicensePermissionPivot;
-        // license_type_id = null → LicenseType::find(null) = null
-        $model->getLogNameColumn();
-        // Returns null-coalesced string or integer; just ensure it runs without error
-        $this->assertTrue(true);
-    }
 }

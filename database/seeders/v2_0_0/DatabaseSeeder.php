@@ -10,7 +10,6 @@ use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Github\Github;
-use App\Model\License\LicensePermission;
 use App\Model\Mailjob\Condition;
 use App\Model\Payment\Period;
 use App\Model\Payment\Promotion;
@@ -836,12 +835,14 @@ class LicensePermissionTableSeeder extends Seeder
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('license_permissions')->truncate();
-        LicensePermission::create(['id' => 1, 'permissions' => 'Can be Downloaded']);
-        LicensePermission::create(['id' => 2, 'permissions' => 'Generate License Expiry Date']);
-        LicensePermission::create(['id' => 3, 'permissions' => 'Generate Updates Expiry Date']);
-        LicensePermission::create(['id' => 4, 'permissions' => 'Generate Support Expiry Date']);
-        LicensePermission::create(['id' => 5, 'permissions' => 'No Permissions']);
-        LicensePermission::create(['id' => 6, 'permissions' => 'Allow Downloads Before Updates Expire']);
+        DB::table('license_permissions')->insert([
+            ['id' => 1, 'permissions' => 'Can be Downloaded'],
+            ['id' => 2, 'permissions' => 'Generate License Expiry Date'],
+            ['id' => 3, 'permissions' => 'Generate Updates Expiry Date'],
+            ['id' => 4, 'permissions' => 'Generate Support Expiry Date'],
+            ['id' => 5, 'permissions' => 'No Permissions'],
+            ['id' => 6, 'permissions' => 'Allow Downloads Before Updates Expire'],
+        ]);
     }
 }
 

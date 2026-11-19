@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceTaxLine;
 use App\Model\Order\Order;
@@ -181,20 +180,12 @@ class PaymentController extends Controller
         // price, so a renewal at a different price showed the wrong amount.
         $linePrices = $model->invoiceItem()->pluck('subtotal', 'product_id');
         $orderIds = OrderInvoiceRelation::where('invoice_id', $model->id)->pluck('order_id');
-        $permissions = resolve(LicensePermissionsController::class);
         $cloudProducts = cloudPopupProducts();
 
-        $orders = Order::whereIn('id', $orderIds)->get()->map(function ($order) use ($permissions, $cloudProducts, $model, $linePrices): array {
-            $product = Product::select('id', 'name', 'type', 'image')->find($order->product);
+        $orders = Order::whereIn('id', $orderIds)->get()->map(function ($order) use ($cloudProducts, $model, $linePrices): array {
+            $product = Product::select('id', 'name', 'type', 'image', 'downloadable')->find($order->product);
 
-            $downloadable = false;
-            try {
-                $downloadable = $product
-                    && ! in_array($product->id, $cloudProducts)
-                    && ($permissions->getPermissionsForProduct((int) $order->product)['downloadPermission'] ?? 0) == 1;
-            } catch (Throwable) {
-                $downloadable = false;
-            }
+            $downloadable = $product && ! in_array($product->id, $cloudProducts) && $product->downloadable;
 
             return [
                 'id' => $order->id,

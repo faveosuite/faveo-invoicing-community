@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Http\Controllers\License\LicensePermissionsController;
 use App\License\Models\License;
 use App\License\Services\LicenseService;
 use App\Model\Order\Order;
@@ -27,9 +26,7 @@ class SubscriptionRenewalService
      */
     public function extendDates(Subscription $sub, int $days, bool $fromNowIfExpired = false): void
     {
-        $permissions = LicensePermissionsController::getPermissionsForProduct($sub->product_id);
-
-        $licenseExpiry = $this->computeExpiry($permissions['generateLicenseExpiryDate'], $sub->ends_at, $days, $fromNowIfExpired);
+        $licenseExpiry = $this->computeExpiry($sub->ends_at, $days, $fromNowIfExpired);
         $sub->ends_at = $licenseExpiry ? Date::parse($licenseExpiry) : null;
 
         $dates = [];
@@ -56,9 +53,10 @@ class SubscriptionRenewalService
         $this->syncLicenseServer($sub, $licenseExpiry, $sub->update_ends_at, $sub->support_ends_at, $dates);
     }
 
-    private function computeExpiry(bool $permission, mixed $currentDate, int $days, bool $fromNowIfExpired): ?string
+    /** A subscription that never ends (no date) stays that way. */
+    private function computeExpiry(mixed $currentDate, int $days, bool $fromNowIfExpired): ?string
     {
-        if (! $permission || $days <= 0 || ! $currentDate) {
+        if ($days <= 0 || ! $currentDate) {
             return $currentDate;
         }
 
@@ -71,33 +69,13 @@ class SubscriptionRenewalService
         return $date->addDays($days)->toDateTimeString();
     }
 
-    private const array PERMISSION_MAP = [
-        'ends_at' => 'generateLicenseExpiryDate',
-        'update_ends_at' => 'generateUpdatesxpiryDate',
-        'support_ends_at' => 'generateSupportExpiryDate',
-    ];
-
-    /**
-     * Set a specific date field manually (admin panel).
-     * Checks permission, saves, and syncs license server.
-     *
-     * @return bool Whether the field was actually permitted and written —
-     *              callers must surface this, not assume success.
-     */
-    public function setDate(Subscription $sub, string $field, string $date): bool
+    /** Sets one date (ends_at, update_ends_at or support_ends_at) from the admin panel and syncs the license. */
+    public function setDate(Subscription $sub, string $field, string $date): void
     {
-        $permissions = LicensePermissionsController::getPermissionsForProduct($sub->product_id);
-
-        if (! ($permissions[self::PERMISSION_MAP[$field]] ?? false)) {
-            return false;
-        }
-
         $sub->$field = $date;
         $sub->save();
 
         $this->syncLicense($sub);
-
-        return true;
     }
 
     public function updateInstallationLimit(Subscription $sub, int $limit): void

@@ -27,6 +27,11 @@ use Illuminate\Support\Facades\Schema;
  *                                     with its subscription.
  *  - products.downloads_limited_by: the date feature code whose end limits which releases the
  *    product's customers can download; null = no limit.
+ *  - products.downloadable: customers can download the product at all (SaaS products can't).
+ *  - products.keep_old_downloads: after that date ends, releases from before it stay
+ *    downloadable; off = every download stops.
+ *    These replace the license-type permissions (license_permissions tables, dropped by the
+ *    v4.0.2.8.RC.1 seeder after copying them here).
  *  - licenses.version:    goes up on every grant change, so a product can tell a newer record.
  *  - cart_items.extras / invoice_items.extras: extras picked at checkout.
  *  - products.unlocks_entitlement_id: on a plugin product, the feature that unlocks it. A license
@@ -117,6 +122,8 @@ return new class extends Migration
         Schema::table('products', function (Blueprint $table): void {
             $table->foreignId('unlocks_entitlement_id')->nullable()->constrained('entitlements')->nullOnDelete();
             $table->string('downloads_limited_by', 50)->nullable();
+            $table->boolean('downloadable')->default(true);
+            $table->boolean('keep_old_downloads')->default(true);
         });
         Schema::table('invoice_items', function (Blueprint $table): void {
             $table->json('extras')->nullable()->after('agents');
@@ -163,7 +170,7 @@ return new class extends Migration
         Schema::table('cart_items', fn (Blueprint $table) => $table->dropColumn('extras'));
         Schema::table('products', function (Blueprint $table): void {
             $table->dropConstrainedForeignId('unlocks_entitlement_id');
-            $table->dropColumn('downloads_limited_by');
+            $table->dropColumn(['downloads_limited_by', 'downloadable', 'keep_old_downloads']);
         });
         Schema::table('invoice_items', fn (Blueprint $table) => $table->dropColumn('extras'));
 

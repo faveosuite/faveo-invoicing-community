@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Common\Dependency;
 
-use App\Http\Controllers\License\LicensePermissionsController;
 use App\License\Models\InstallationLog;
 use App\Model\Common\Bussiness;
 use App\Model\Common\PricingTemplate;
@@ -125,12 +124,7 @@ class NonPublicDependencies extends BaseDependencyController
         $products = Product::query()
             ->when(! $this->request->boolean('include_hidden'), fn ($q) => $q->where('invoice_hidden', 0))
             ->when($this->searchQuery, fn ($q, string $s) => $q->where('name', 'like', "%{$s}%"))
-            ->when($this->request->input('permission'), function ($query, string $permission): void {
-                $label = array_search($permission, LicensePermissionsController::permissionMap(), strict: true) ?: $permission;
-                $query->whereHas('licenseType.permissions', function (Builder $q) use ($label): void {
-                    $q->where('permissions', $label);
-                });
-            })
+            ->when($this->request->boolean('downloadable'), fn ($q) => $q->where('downloadable', true))
             ->with(['groupRelation:id,name', 'licenseType:id,name'])
             ->orderBy('group')
             ->orderBy('name')

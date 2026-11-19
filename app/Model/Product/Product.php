@@ -87,6 +87,8 @@ use Spatie\Activitylog\Models\Activity;
  * @property-read int|null $activities_as_subject_count
  * @property int|null $unlocks_entitlement_id
  * @property string|null $downloads_limited_by
+ * @property bool $downloadable
+ * @property bool $keep_old_downloads
  * @property-read Entitlement|null $unlocksEntitlement
  * @property-read Collection<int, Product> $compatiblePlugins
  * @property-read int|null $compatible_plugins_count
@@ -212,7 +214,7 @@ class Product extends BaseModel
         'github_repository',
         'deny_after_subscription', 'version', 'parent', 'subscription', 'product_sku', 'perpetual_license', 'product_description', 'invoice_hidden',
         'status', 'whatsapp_integration', 'apl_salt', 'product_key', 'product_type', 'config_file_path', 'license_file_path', 'product_path',
-        'highlight', 'add_to_contact', 'downloads_limited_by',
+        'highlight', 'add_to_contact', 'downloads_limited_by', 'downloadable', 'keep_old_downloads',
     ];
 
     protected string $logName = 'product';
@@ -412,6 +414,15 @@ class Product extends BaseModel
                 \App\Services\EntitlementService::pluginFeature($product);
             }
         });
+    }
+
+    #[Override]
+    protected function casts(): array
+    {
+        return [
+            'downloadable' => 'boolean',
+            'keep_old_downloads' => 'boolean',
+        ];
     }
 
     /**

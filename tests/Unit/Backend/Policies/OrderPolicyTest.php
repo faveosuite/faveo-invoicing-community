@@ -5,7 +5,6 @@ namespace Tests\Unit\Backend\Policies;
 use App\Enums\OrderAbility;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
-use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
@@ -36,14 +35,14 @@ class OrderPolicyTest extends DBTestCase
     }
 
     /** @param  list<string>  $permissions  stored permission names */
-    private function order(array $permissions = ['Can be Downloaded'], array $subscription = [], array $order = []): Order
+    /** @param  list<string>  $switches  product download switches that are on: downloadable, keep_old_downloads */
+    private function order(array $switches = ['downloadable'], array $subscription = [], array $order = []): Order
     {
-        $type = LicenseType::factory()->create();
-        foreach ($permissions as $name) {
-            $type->permissions()->attach(LicensePermission::firstOrCreate(['permissions' => $name])->id);
-        }
-
-        $product = Product::factory()->create(['type' => $type->id]);
+        $product = Product::factory()->create([
+            'type' => LicenseType::factory()->create()->id,
+            'downloadable' => in_array('downloadable', $switches, true),
+            'keep_old_downloads' => in_array('keep_old_downloads', $switches, true),
+        ]);
 
         $model = Order::factory()->create($order + ['product' => $product->id, 'client' => $this->owner->id, 'order_status' => 'executed']);
         if ($subscription !== []) {
@@ -103,7 +102,7 @@ class OrderPolicyTest extends DBTestCase
 
     public function test_download_needs_the_allow_downloads_permission(): void
     {
-        $allowed = $this->order(['Can be Downloaded'], ['update_ends_at' => now()->addMonth()]);
+        $allowed = $this->order(['downloadable'], ['update_ends_at' => now()->addMonth()]);
         $notAllowed = $this->order([], ['update_ends_at' => now()->addMonth()]);
 
         $this->assertTrue($this->policy->download($this->owner, $allowed)->allowed());
@@ -112,7 +111,7 @@ class OrderPolicyTest extends DBTestCase
 
     public function test_cloud_orders_can_never_download_even_with_the_permission_on(): void
     {
-        $order = $this->order(['Can be Downloaded', 'Allow Downloads Before Updates Expire'], ['update_ends_at' => now()->addMonth()]);
+        $order = $this->order(['downloadable', 'keep_old_downloads'], ['update_ends_at' => now()->addMonth()]);
         $plan = Plan::factory()->create(['product' => $order->getRawOriginal('product')]);
         CloudProducts::create(['cloud_product' => $order->getRawOriginal('product'), 'cloud_free_plan' => $plan->id]);
 
@@ -132,8 +131,8 @@ class OrderPolicyTest extends DBTestCase
     {
         $ended = ['update_ends_at' => now()->subDay()];
 
-        $stop = $this->order(['Can be Downloaded'], $ended);
-        $keep = $this->order(['Can be Downloaded', 'Allow Downloads Before Updates Expire'], $ended);
+        $stop = $this->order(['downloadable'], $ended);
+        $keep = $this->order(['downloadable', 'keep_old_downloads'], $ended);
 
         $this->assertSame(__('message.renew_subscription_download'), $this->policy->download($this->owner, $stop)->message());
         $this->assertTrue($this->policy->download($this->owner, $keep)->allowed());
@@ -151,7 +150,7 @@ class OrderPolicyTest extends DBTestCase
 
     public function test_only_releases_from_before_the_updates_end_can_be_downloaded(): void
     {
-        $order = $this->order(['Can be Downloaded', 'Allow Downloads Before Updates Expire'], ['update_ends_at' => now()->subDays(10)]);
+        $order = $this->order(['downloadable', 'keep_old_downloads'], ['update_ends_at' => now()->subDays(10)]);
 
         $this->assertTrue($this->policy->downloadVersion($this->owner, $order, now()->subDays(20)->toDateTimeString())->allowed());
         $this->assertTrue($this->policy->downloadVersion($this->owner, $order, now()->subDays(5)->toDateTimeString())->denied());

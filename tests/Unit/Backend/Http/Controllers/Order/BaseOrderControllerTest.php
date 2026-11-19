@@ -4,8 +4,6 @@ namespace Tests\Unit\Backend\Http\Controllers\Order;
 
 use App\Http\Controllers\License\LicenseController;
 use App\Model\Common\StatusSetting;
-use App\Model\License\LicensePermission;
-use App\Model\License\LicenseType;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
@@ -36,42 +34,6 @@ class BaseOrderControllerTest extends DBTestCase
         return Date::now()->addDays(30)->format('m/d/Y');
     }
 
-    private function mockPermissions(int $productId, array $permissionNames): void
-    {
-        $licenseType = LicenseType::updateOrCreate(
-            ['id' => 1],
-            ['name' => 'Download Perpetual']
-        );
-
-        $map = [
-            'Generate Updates Expiry Date' => 'generateUpdatesxpiryDate',
-            'Generate License Expiry Date' => 'generateLicenseExpiryDate',
-            'Generate Support Expiry Date' => 'generateSupportExpiryDate',
-            'Can be Downloaded' => 'downloadPermission',
-            'No Permissions' => 'noPermissions',
-            'Allow Downloads Before Updates Expire' => 'allowDownloadTillExpiry',
-        ];
-
-        // Ensure permission records exist
-        foreach ($map as $displayName => $slug) {
-            LicensePermission::firstOrCreate(['permissions' => $displayName]);
-        }
-
-        $permissionDisplayNames = collect($map)
-            ->filter(fn ($key): bool => isset($permissionNames[$key]) && $permissionNames[$key] == 1)
-            ->keys()
-            ->all();
-
-        $permissionIds = LicensePermission::whereIn('permissions', $permissionDisplayNames)
-            ->pluck('id');
-
-        $licenseType->permissions()->sync($permissionIds);
-
-        Product::where('id', $productId)->update([
-            'type' => $licenseType->id,
-        ]);
-    }
-
     private function mockLicenseController(): void
     {
         $this->mock(LicenseController::class, function (MockInterface $mock): void {
@@ -96,7 +58,6 @@ class BaseOrderControllerTest extends DBTestCase
     public function test_edit_update_expiry_success(): void
     {
         $order = Order::factory()->withRelations()->create();
-        $this->mockPermissions($order->product, ['generateUpdatesxpiryDate' => 1]);
         $this->mockLicenseController();
 
         $date = $this->date();
@@ -116,31 +77,11 @@ class BaseOrderControllerTest extends DBTestCase
         $response->assertStatus(412);
     }
 
-    public function test_edit_update_expiry_reports_failure_and_leaves_date_unchanged_when_permission_is_off(): void
-    {
-        $order = Order::factory()->withRelations()->create();
-        $this->mockPermissions($order->product, []); // no permissions attached at all
-        $this->mockLicenseController();
-
-        $before = Subscription::where('order_id', $order->id)->first()?->update_ends_at;
-
-        $response = $this->postJson('/update-license-details', [
-            'orderid' => $order->id,
-            'update_end' => $this->date(),
-        ]);
-
-        $response->assertJson(['success' => false]);
-
-        $after = Subscription::where('order_id', $order->id)->first()?->update_ends_at;
-        $this->assertEquals($before, $after);
-    }
-
     // ========================================================= LICENSE EXPIRY
 
     public function test_edit_license_expiry_success(): void
     {
         $order = Order::factory()->withRelations()->create();
-        $this->mockPermissions($order->product, ['generateLicenseExpiryDate' => 1]);
         $this->mockLicenseController();
 
         $date = $this->date();
@@ -165,7 +106,6 @@ class BaseOrderControllerTest extends DBTestCase
     public function test_edit_support_expiry_success(): void
     {
         $order = Order::factory()->withRelations()->create();
-        $this->mockPermissions($order->product, ['generateSupportExpiryDate' => 1]);
         $this->mockLicenseController();
 
         $date = $this->date();
@@ -185,47 +125,19 @@ class BaseOrderControllerTest extends DBTestCase
         $response->assertStatus(412);
     }
 
-    public function test_partial_update_reports_success_but_names_the_field_that_was_not_permitted(): void
+    public function test_all_three_dates_can_be_set_together(): void
     {
         $order = Order::factory()->withRelations()->create();
-        // Only updates-expiry is permitted; license-expiry is not.
-        $this->mockPermissions($order->product, ['generateUpdatesxpiryDate' => 1]);
         $this->mockLicenseController();
-
-        $updateDate = $this->date();
-        $licenseBefore = Subscription::where('order_id', $order->id)->first()?->ends_at;
-
-        $response = $this->postJson('/update-license-details', [
-            'orderid' => $order->id,
-            'update_end' => $updateDate,
-            'subscription_end' => $this->date(),
-        ]);
-
-        $response->assertStatus(200)->assertJson(['success' => true]);
-        $this->assertStringContainsString(__('message.license_expiry'), (string) $response->json('message'));
-        $this->assertExpiryUpdated('update_ends_at', $order->id, $updateDate);
-
-        $licenseAfter = Subscription::where('order_id', $order->id)->first()?->ends_at;
-        $this->assertEquals($licenseBefore, $licenseAfter);
-    }
-
-    public function test_all_requested_dates_blocked_is_an_error_naming_them_in_order(): void
-    {
-        $order = Order::factory()->withRelations()->create();
-        $this->mockPermissions($order->product, []);
-        $this->mockLicenseController();
+        [$update, $license, $support] = [$this->date(), $this->date(), $this->date()];
 
         $this->postJson('/update-license-details', [
-            'orderid' => $order->id,
-            'support_end' => $this->date(),
-            'update_end' => $this->date(),
-            'subscription_end' => $this->date(),
-        ])->assertJson([
-            'success' => false,
-            'message' => __('message.fields_not_permitted', ['fields' => implode(', ', [
-                __('message.updates_expiry'), __('message.license_expiry'), __('message.support_expiry'),
-            ])]),
-        ]);
+            'orderid' => $order->id, 'update_end' => $update, 'subscription_end' => $license, 'support_end' => $support,
+        ])->assertOk()->assertJson(['success' => true]);
+
+        $this->assertExpiryUpdated('update_ends_at', $order->id, $update);
+        $this->assertExpiryUpdated('ends_at', $order->id, $license);
+        $this->assertExpiryUpdated('support_ends_at', $order->id, $support);
     }
 
     // ========================================================= INSTALLATION LIMIT

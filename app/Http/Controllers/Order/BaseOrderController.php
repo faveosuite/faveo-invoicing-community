@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\Common\PhpMailController;
-use App\Http\Controllers\License\LicensePermissionsController;
 use App\License\Services\LicenseService;
 use App\Model\Common\Setting;
 use App\Model\Common\Template;
@@ -108,7 +107,6 @@ class BaseOrderController extends ExtendedOrderController
      */
     public function addSubscription(int $orderid, int $planid, string $version, int $product, string $serial_key, ?int $invoiceId = null): void
     {
-        $permissions = LicensePermissionsController::getPermissionsForProduct($product);
         $version ??= ''; // @phpstan-ignore nullCoalesce.variable
 
         $plan = Plan::findOrFail($planid);
@@ -118,7 +116,7 @@ class BaseOrderController extends ExtendedOrderController
 
         // The subscription term; every date feature (updates, support, …) ends as the plan sets it.
         if (isset($meta['increase-decrease-days'])) {
-            $licenseExpiry = $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], (int) $meta['increase-decrease-days']);
+            $licenseExpiry = $this->getLicenseExpiryDate((int) $meta['increase-decrease-days']);
         } elseif (isset($meta['increase-decrease-days-dont-cloud'])) {
             $licenseExpiry = Subscription::where('order_id', $meta['increase-decrease-days-dont-cloud'])->value('ends_at');
         } else {
@@ -127,7 +125,7 @@ class BaseOrderController extends ExtendedOrderController
             // non-expiring add-ons) store it as '' rather than '0', which can't
             // weakly-coerce to int and crashed here (QA bug #42) — cast like
             // every other caller of $plan->days already does.
-            $licenseExpiry = $isOneTime ? null : $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], (int) $plan->days);
+            $licenseExpiry = $isOneTime ? null : $this->getLicenseExpiryDate((int) $plan->days);
         }
         $subscriptionEnd = $licenseExpiry !== null ? Date::parse($licenseExpiry)->toDateTimeString() : null;
         $entitlements = resolve(EntitlementService::class);
@@ -164,22 +162,10 @@ class BaseOrderController extends ExtendedOrderController
         $entitlements->writeDates($license, $dates);
     }
 
-    /**
-     *  Get the Expiry Date for License.
-     *
-     * @param  bool  $permissions  [Whether Permissons for generating License Expiry Date are there or not]
-     * @param  int  $days  [No of days that would get addeed to the current date ]
-     * @return Carbon|null [The final License Expiry date that is generated, null means no expiry]
-     */
-    protected function getLicenseExpiryDate(bool $permissions, int $days): ?Carbon
+    /** The subscription end: the plan's days from now, or null (never) for 0 days. */
+    protected function getLicenseExpiryDate(int $days): ?Carbon
     {
-        $ends_at = null;
-        if ($days > 0 && $permissions == 1) {
-            $dt = Date::now();
-            $ends_at = $dt->addDays($days);
-        }
-
-        return $ends_at;
+        return $days > 0 ? Date::now()->addDays($days) : null;
     }
 
     public function sendOrderMail(int $userid, string $orderid, int $itemid): void

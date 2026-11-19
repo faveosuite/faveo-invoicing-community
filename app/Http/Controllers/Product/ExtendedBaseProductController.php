@@ -6,7 +6,6 @@ use App\Facades\Attach;
 use App\Http\Controllers\AutoUpdate\AutoUpdateController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Github\GithubApiController;
-use App\Http\Controllers\License\LicensePermissionsController;
 use App\License\Services\ProductBundleStampingService;
 use App\Model\Order\Order;
 use App\Model\Payment\TaxProductRelation;
@@ -77,8 +76,7 @@ class ExtendedBaseProductController extends Controller
     public function adminDownload(mixed $id, mixed $release = 'official', ?Order $order = null): Response|JsonResponse
     {
         try {
-            $permissions = LicensePermissionsController::getPermissionsForProduct($id);
-            if (($permissions['downloadPermission'] ?? 0) != 1) {
+            if (! Product::whereKey($id)->value('downloadable')) {
                 throw new Exception(__('message.no_permission_for_action'));
             }
 

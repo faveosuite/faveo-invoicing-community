@@ -5,8 +5,6 @@ namespace Tests\Unit\Backend\Http\Controllers\Front;
 use App\Http\Controllers\Front\DeployController;
 use App\License\Services\ProductBundleStampingService;
 use App\Model\Common\Setting;
-use App\Model\License\LicensePermission;
-use App\Model\License\LicenseType;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
@@ -33,17 +31,10 @@ class DeployControllerTest extends DBTestCase
         return new DeployController($stampingService ?? Mockery::mock(ProductBundleStampingService::class));
     }
 
-    /** @param  array<int, string>  $permissionLabels */
-    private function productWithPermissions(array $permissionLabels = ['Can be Downloaded']): Product
+    /** A downloadable product; old releases stay downloadable after updates end only when asked. */
+    private function downloadableProduct(bool $keepOldDownloads = false): Product
     {
-        $type = LicenseType::factory()->create();
-
-        foreach ($permissionLabels as $label) {
-            $permission = LicensePermission::firstOrCreate(['permissions' => $label]);
-            $type->permissions()->attach($permission->id);
-        }
-
-        return Product::factory()->create(['type' => $type->id]);
+        return Product::factory()->create(['downloadable' => true, 'keep_old_downloads' => $keepOldDownloads]);
     }
 
     /** @param  array<string, mixed>  $subscriptionOverrides */
@@ -84,7 +75,7 @@ class DeployControllerTest extends DBTestCase
     {
         $owner = User::factory()->create(['role' => 'user']);
         $stranger = User::factory()->create(['role' => 'user']);
-        $order = $this->orderWithSubscription($this->productWithPermissions(), $owner);
+        $order = $this->orderWithSubscription($this->downloadableProduct(), $owner);
 
         $this->be($stranger);
 
@@ -96,7 +87,7 @@ class DeployControllerTest extends DBTestCase
     public function test_get_versions_returns_only_public_versions_with_a_file(): void
     {
         $owner = User::factory()->create(['role' => 'user']);
-        $product = $this->productWithPermissions();
+        $product = $this->downloadableProduct();
         $order = $this->orderWithSubscription($product, $owner);
 
         $visible = ProductUpload::factory()->create(['product_id' => $product->id, 'is_private' => 0, 'file' => 'release.zip']);
@@ -114,7 +105,7 @@ class DeployControllerTest extends DBTestCase
     public function test_get_versions_hides_versions_released_after_updates_expired(): void
     {
         $owner = User::factory()->create(['role' => 'user']);
-        $product = $this->productWithPermissions(['Can be Downloaded', 'Allow Downloads Before Updates Expire']);
+        $product = $this->downloadableProduct(keepOldDownloads: true);
         $order = $this->orderWithSubscription($product, $owner, ['update_ends_at' => now()->subDays(5)]);
 
         $before = ProductUpload::factory()->create(['product_id' => $product->id, 'is_private' => 0, 'file' => 'old.zip', 'created_at' => now()->subDays(10)]);
@@ -130,7 +121,7 @@ class DeployControllerTest extends DBTestCase
     public function test_get_versions_blocks_an_expired_order_without_download_till_expiry(): void
     {
         $owner = User::factory()->create(['role' => 'user']);
-        $order = $this->orderWithSubscription($this->productWithPermissions(), $owner, ['update_ends_at' => now()->subDay()]);
+        $order = $this->orderWithSubscription($this->downloadableProduct(), $owner, ['update_ends_at' => now()->subDay()]);
 
         $this->be($owner);
 
@@ -144,7 +135,7 @@ class DeployControllerTest extends DBTestCase
     {
         Setting::where('id', 1)->update(['deployment_enabled' => 0]);
         $owner = User::factory()->create(['role' => 'user']);
-        $order = $this->orderWithSubscription($this->productWithPermissions(), $owner);
+        $order = $this->orderWithSubscription($this->downloadableProduct(), $owner);
 
         $this->be($owner);
 
@@ -159,7 +150,7 @@ class DeployControllerTest extends DBTestCase
     {
         $owner = User::factory()->create(['role' => 'user']);
         $stranger = User::factory()->create(['role' => 'user']);
-        $order = $this->orderWithSubscription($this->productWithPermissions(), $owner);
+        $order = $this->orderWithSubscription($this->downloadableProduct(), $owner);
 
         $this->be($stranger);
 
@@ -169,7 +160,7 @@ class DeployControllerTest extends DBTestCase
     public function test_deploy_step_rejects_private_and_loopback_hosts(): void
     {
         $owner = User::factory()->create(['role' => 'user']);
-        $order = $this->orderWithSubscription($this->productWithPermissions(), $owner);
+        $order = $this->orderWithSubscription($this->downloadableProduct(), $owner);
 
         $this->be($owner);
 
@@ -193,7 +184,7 @@ class DeployControllerTest extends DBTestCase
     public function test_deploy_step_requires_install_fields_for_the_install_step(): void
     {
         $owner = User::factory()->create(['role' => 'user']);
-        $order = $this->orderWithSubscription($this->productWithPermissions(), $owner);
+        $order = $this->orderWithSubscription($this->downloadableProduct(), $owner);
 
         $this->be($owner);
 
@@ -209,7 +200,7 @@ class DeployControllerTest extends DBTestCase
     public function test_step_upload_errors_when_resolved_file_is_not_found_in_storage(): void
     {
         $owner = User::factory()->create(['role' => 'user']);
-        $product = $this->productWithPermissions();
+        $product = $this->downloadableProduct();
         $order = $this->orderWithSubscription($product, $owner);
         ProductUpload::factory()->create(['product_id' => $product->id, 'is_private' => 0, 'file' => 'release.zip']);
 
@@ -229,7 +220,7 @@ class DeployControllerTest extends DBTestCase
     public function test_step_upload_errors_when_stamping_throws(): void
     {
         $owner = User::factory()->create(['role' => 'user']);
-        $product = $this->productWithPermissions();
+        $product = $this->downloadableProduct();
         $order = $this->orderWithSubscription($product, $owner);
         $upload = ProductUpload::factory()->create(['product_id' => $product->id, 'is_private' => 0, 'file' => 'release.zip']);
 
