@@ -127,7 +127,7 @@ class LicenseFileService
             'license_machine_id' => $license->license_machine_id,
             'scheme_query' => $schemeQuery,
             // An object even when empty, so the product always decodes it the same way.
-            'entitlements' => $this->entitlements->payload($license),
+            'entitlements' => $this->entitlements->payload($license, offline: true),
         ]);
     }
 }

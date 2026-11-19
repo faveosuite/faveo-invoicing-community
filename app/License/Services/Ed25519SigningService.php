@@ -51,6 +51,17 @@ class Ed25519SigningService
     }
 
     /**
+     * Short id of the signing key ("kid"), sent with every signed record so a product holding
+     * several public keys (e.g. during a key change) knows which one to verify with.
+     *
+     * @throws SodiumException
+     */
+    public function keyId(): string
+    {
+        return substr(hash('sha256', $this->publicKey()), 0, 16);
+    }
+
+    /**
      * @throws SodiumException
      */
     private function getOrCreateKeyPair(): LicenseSigningKey
