@@ -10,7 +10,7 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Grant;
 use App\Model\Product\Subscription;
 use App\Services\EntitlementService;
-use Database\Seeders\v4_0_2_7_RC_1\DatabaseSeeder;
+use Database\Seeders\v4_0_2_8_RC_1\DatabaseSeeder;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
