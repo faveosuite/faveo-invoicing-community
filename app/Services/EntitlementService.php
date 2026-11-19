@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\License\Models\License;
+use App\License\Services\Ed25519SigningService;
 use App\Model\Order\Order;
 use App\Model\Order\OrderEntitlement;
 use App\Model\Payment\Plan;
@@ -37,6 +38,12 @@ class EntitlementService
 
     /** Version of the payload() block. Bump only for a change old products can't read. */
     public const int PAYLOAD_VERSION = 1;
+
+    /** A product asks for a fresh record (the verify call) once this much time has passed. */
+    public const int RENEW_AFTER_HOURS = 24;
+
+    /** A product keeps working on its saved record this long when billing can't be reached. */
+    public const int VALID_DAYS = 30;
 
     /** Number value meaning "no limit" (agents: 0000 in the license code). */
     public const int UNLIMITED = -1;
@@ -291,6 +298,13 @@ class EntitlementService
         return $rows;
     }
 
+    private function offlineValidUntil(License $license): ?string
+    {
+        $end = self::day($license->license_expire_date);
+
+        return $end !== null ? Carbon::parse($end)->endOfDay()->toAtomString() : null;
+    }
+
     /**
      * The license's final value per feature code.
      *
@@ -313,12 +327,18 @@ class EntitlementService
      *  - values:   select / text choices
      *  - ends:     an on/off feature given only by an override until a date (Y-m-d); the product
      *              switches it off after that day without waiting for a new license
-     *  - expires:  license / updates / support end dates (Y-m-d, null = never)
+     *  - expires:  license end and every date feature (Y-m-d, null = never)
+     *  - version:     goes up whenever the license's rights change; a product keeps the newest
+     *  - renew_after: when the product should fetch a fresh record (the verify call); null in an
+     *                 offline file, which can't be renewed
+     *  - valid_until: how long the product may keep using this record without reaching billing;
+     *                 in an offline file, the end of the license day (null = never)
+     *  - kid:         which signing key signed it
      * Anything not listed is off (deny by default).
      *
-     * @return array{v: int, features: list<string>, limits: array<string, int|null>, values: array<string, string>, ends: array<string, string>, expires: array<string, string|null>, issued_at: string}
+     * @return array{v: int, features: list<string>, limits: array<string, int|null>, values: array<string, string>, ends: array<string, string>, expires: array<string, string|null>, version: int, renew_after: string|null, valid_until: string|null, kid: string, issued_at: string}
      */
-    public function payload(License $license): array
+    public function payload(License $license, bool $offline = false): array
     {
         $features = [];
         $limits = [];
@@ -353,6 +373,11 @@ class EntitlementService
             'values' => $values,
             'ends' => $ends,
             'expires' => $this->dates($license),
+            'version' => (int) License::whereKey($license->id)->value('version'),
+            // An offline file can't be renewed: it holds until the license ends (null = never).
+            'renew_after' => $offline ? null : now()->addHours(self::RENEW_AFTER_HOURS)->toAtomString(),
+            'valid_until' => $offline ? $this->offlineValidUntil($license) : now()->addDays(self::VALID_DAYS)->toAtomString(),
+            'kid' => resolve(Ed25519SigningService::class)->keyId(),
             'issued_at' => now()->toAtomString(),
         ];
     }

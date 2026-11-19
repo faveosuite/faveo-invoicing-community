@@ -88,6 +88,7 @@ class LicenseFileServiceTest extends LicenseTestCase
         $this->assertSame(1, $payload['entitlements']['v']);
         $this->assertSame(['storage' => 25], $payload['entitlements']['limits']);
         $this->assertSame([], $payload['entitlements']['features']);
+        $this->assertNull($payload['entitlements']['renew_after']); // offline: no renewal
     }
 
     #[Test]

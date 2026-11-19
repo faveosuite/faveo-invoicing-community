@@ -217,6 +217,18 @@ class EntitlementServiceTest extends DBTestCase
         $this->assertSame(['chat' => $until], $payload['ends']); // sla comes from the plan: no end
         $this->assertSame(['license' => '2027-01-31', 'updates' => null, 'support' => null], $payload['expires']);
         $this->assertNotEmpty($payload['issued_at']);
+
+        // The record: renew in a day, keep working 30 days without billing, newest version, signing key.
+        $this->assertSame((int) $license->fresh()->version, $payload['version']);
+        $this->assertSame(now()->addDay()->toDateString(), substr($payload['renew_after'], 0, 10));
+        $this->assertSame(now()->addDays(30)->toDateString(), substr($payload['valid_until'], 0, 10));
+        $this->assertSame(resolve(\App\License\Services\Ed25519SigningService::class)->keyId(), $payload['kid']);
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{16}$/', $payload['kid']);
+
+        // An offline file can't renew: it holds until the license's last day.
+        $offline = $this->service->payload($license->fresh(), offline: true);
+        $this->assertNull($offline['renew_after']);
+        $this->assertStringStartsWith('2027-01-31T23:59:59', (string) $offline['valid_until']);
     }
 
     public function test_old_date_columns_feed_date_grants_and_each_change_counts_the_version_up(): void
