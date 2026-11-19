@@ -9,20 +9,22 @@ use App\Model\Order\Order;
 use App\Model\Order\OrderEntitlement;
 use App\Model\Payment\Plan;
 use App\Model\Product\Entitlement;
+use App\Model\Product\Grant;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Works out what a license lets the customer use: one value per feature code,
  * ['sla' => true, 'agents' => 25, 'data_region' => 'eu']. payload() turns that into the block
  * the installed product reads.
  *
- * The plan's features (its value, or the feature default) → bought extras (order_entitlements)
- * → admin override. Features the plan doesn't include aren't sent. The plan's values are copied onto the license at
- * purchase (licenses.entitlement_base), so editing a plan later doesn't change what existing
- * customers bought until an admin applies it to them. Overrides (licenses.entitlement_overrides)
- * are per license and can end on a date, after which the plan value applies again.
+ * Every right is a grant (see Grant): the plan's value (copied at purchase, so editing a plan
+ * later doesn't change what existing customers bought until an admin applies it to them) →
+ * bought extras → admin override, which can end on a date, after which the plan value applies
+ * again. Features with no grant aren't sent. The license's dates are grants too (run, updates,
+ * support), kept in step with its date columns. Each change bumps licenses.version.
  *
  * `agents` is special: the plan's Pricing sets how many are included, the agent count lives
  * in the license code's last four digits (installed helpdesks read it there) and changes only
@@ -100,11 +102,43 @@ class EntitlementService
         );
     }
 
-    /** Copies the plan's values onto the license. Called when the license is created and when its plan changes. */
+    /** Copies the plan's values onto the license, and its order's extras. Called when the license is created and when its plan changes. */
     public function grant(License $license, ?int $planId): void
     {
-        $license->entitlement_base = $this->forPlan($license->product_id, $planId);
-        $license->save();
+        $changed = $this->writePlan($license, $this->forPlan($license->product_id, $planId));
+        $this->bumpIf($license, $this->writeExtras($license) || $changed);
+    }
+
+    /** Re-reads the license's bought extras (order_entitlements) into its grants. */
+    public function syncExtras(License $license): void
+    {
+        $this->bumpIf($license, $this->writeExtras($license));
+    }
+
+    /** Keeps the run / updates / support grants equal to the license's date columns. */
+    public function syncDates(License $license): void
+    {
+        $rows = [];
+        foreach (Grant::DATES as $code => $column) {
+            $rows[$code] = ['value' => null, 'ends_at' => self::day($license->{$column})];
+        }
+        $this->bumpIf($license, $this->replace($license, Grant::LICENSE, $rows));
+    }
+
+    /**
+     * When the license, its updates and its support end (Y-m-d, null = never). Read from the date
+     * grants; a license without them yet falls back to its columns.
+     *
+     * @return array{license: string|null, updates: string|null, support: string|null}
+     */
+    public function dates(License $license): array
+    {
+        $grants = Grant::where('license_id', $license->id)->where('source', Grant::LICENSE)->get()->keyBy('code');
+        $date = fn (string $code): ?string => ($grant = $grants->get($code)) !== null
+            ? $grant->ends_at?->toDateString()
+            : self::day($license->{Grant::DATES[$code]});
+
+        return ['license' => $date('run'), 'updates' => $date('updates'), 'support' => $date('support')];
     }
 
     /**
@@ -114,16 +148,17 @@ class EntitlementService
      */
     public function rows(License $license): array
     {
-        $base = $license->entitlement_base ?? [];
-        $overrides = $this->activeOverrides($license);
-        $extras = OrderEntitlement::whereHas('order', fn ($q) => $q->where('number', $license->license_order_number))
-            ->where('quantity', '>', 0)
-            ->pluck('quantity', 'entitlement_id');
+        $grants = Grant::where('license_id', $license->id)->where('source', '!=', Grant::LICENSE)->active()->get()->groupBy('source');
+        $base = ($grants[Grant::PLAN] ?? collect())->pluck('value', 'code')->all();
+        $extras = ($grants[Grant::EXTRA] ?? collect())->pluck('value', 'code')->all();
+        $overrides = ($grants[Grant::ADMIN] ?? collect())->mapWithKeys(fn (Grant $g): array => [
+            $g->code => ['value' => (string) $g->value, 'until' => $g->ends_at?->toDateString()],
+        ])->all();
         $agents = $this->agentsFromCode($license->license_code);
-        $codes = [...array_keys($base), ...array_keys($overrides), ...($agents !== null ? [self::AGENTS] : [])];
+        $codes = [...array_keys($base), ...array_keys($extras), ...array_keys($overrides), ...($agents !== null ? [self::AGENTS] : [])];
         $rows = [];
 
-        foreach ($this->items($codes, $extras->keys()->all()) as $item) {
+        foreach ($this->items($codes) as $item) {
             $code = $item->code;
             $inBase = array_key_exists($code, $base);
 
@@ -133,10 +168,10 @@ class EntitlementService
             }
 
             // Not in the plan: starts empty (off / 0), so only what was bought or overridden counts.
-            $plan = $inBase ? $base[$code] : $item->cast(null);
+            $plan = $item->cast($inBase ? $base[$code] : null);
             $locked = $code === self::AGENTS && $agents !== null;
             $override = $locked ? null : ($overrides[$code] ?? null);
-            $extra = (int) ($extras[$item->id] ?? 0);
+            $extra = (int) ($extras[$code] ?? 0);
 
             // Bought units add to the plan's number; a bought on/off feature is on.
             $withExtra = match (true) {
@@ -215,19 +250,13 @@ class EntitlementService
             }
         }
 
-        $day = fn (?string $date): ?string => $date && ! str_starts_with($date, '0000') ? substr($date, 0, 10) : null;
-
         return [
             'v' => self::PAYLOAD_VERSION,
             'features' => $features,
             'limits' => $limits,
             'values' => $values,
             'ends' => $ends,
-            'expires' => [
-                'license' => $day($license->license_expire_date),
-                'updates' => $day($license->license_updates_date),
-                'support' => $day($license->license_support_date),
-            ],
+            'expires' => $this->dates($license),
             'issued_at' => now()->toAtomString(),
         ];
     }
@@ -249,18 +278,16 @@ class EntitlementService
     /** Sets one item to a value for this license only, optionally until a date (Y-m-d). */
     public function setOverride(License $license, Entitlement $item, string $value, ?string $until): void
     {
-        $overrides = $license->entitlement_overrides ?? [];
-        $overrides[$item->code] = ['value' => $value, 'until' => $until];
-        $license->entitlement_overrides = $overrides;
-        $license->save();
+        $rows = $this->current($license, Grant::ADMIN);
+        $rows[$item->code] = ['value' => $value, 'ends_at' => $until];
+        $this->bumpIf($license, $this->replace($license, Grant::ADMIN, $rows));
     }
 
     public function removeOverride(License $license, Entitlement $item): void
     {
-        $overrides = $license->entitlement_overrides ?? [];
-        unset($overrides[$item->code]);
-        $license->entitlement_overrides = $overrides ?: null;
-        $license->save();
+        $rows = $this->current($license, Grant::ADMIN);
+        unset($rows[$item->code]);
+        $this->bumpIf($license, $this->replace($license, Grant::ADMIN, $rows));
     }
 
     /**
@@ -269,11 +296,12 @@ class EntitlementService
      */
     public function carryOverrides(License $from, License $to): void
     {
-        $kept = $this->activeOverrides($from);
+        $kept = Grant::where('license_id', $from->id)->where('source', Grant::ADMIN)->active()->get()
+            ->mapWithKeys(fn (Grant $g): array => [$g->code => ['value' => $g->value, 'ends_at' => $g->ends_at?->toDateString()]])
+            ->all();
 
         if ($kept !== []) {
-            $to->entitlement_overrides = [...($to->entitlement_overrides ?? []), ...$kept];
-            $to->save();
+            $this->bumpIf($to, $this->replace($to, Grant::ADMIN, [...$this->current($to, Grant::ADMIN), ...$kept]));
         }
     }
 
@@ -286,11 +314,10 @@ class EntitlementService
         $values = $this->forPlan((int) $plan->product, $plan->id);
         $count = 0;
 
-        // ponytail: one UPDATE per chunk of license ids would be faster; fine at current plan sizes.
+        // ponytail: one write per license; batch per chunk if plans grow to tens of thousands of licenses.
         $this->liveLicenses($plan)
             ->each(function (License $license) use ($values, &$count): void {
-                $license->entitlement_base = $values;
-                $license->save();
+                $this->bumpIf($license, $this->writePlan($license, $values));
                 $count++;
             });
 
@@ -372,18 +399,89 @@ class EntitlementService
     }
 
     /**
-     * Overrides whose end date hasn't passed.
+     * Replaces the license's plan grants with these values.
      *
-     * @return array<string, array{value: string, until: string|null}>
+     * @param  array<string, bool|int|string|null>  $values
      */
-    private function activeOverrides(License $license): array
+    private function writePlan(License $license, array $values): bool
     {
-        $today = now()->toDateString();
+        return $this->replace($license, Grant::PLAN, array_map(fn ($value): array => [
+            'value' => match (true) {
+                $value === null => null,
+                is_bool($value) => $value ? '1' : '0',
+                default => (string) $value,
+            },
+            'ends_at' => null,
+        ], $values));
+    }
 
-        return array_filter(
-            $license->entitlement_overrides ?? [],
-            fn (array $o): bool => $o['until'] === null || $o['until'] >= $today,
-        );
+    private function writeExtras(License $license): bool
+    {
+        $rows = [];
+        if ($license->license_order_number !== null) {
+            $bought = OrderEntitlement::with('entitlement:id,code')
+                ->whereHas('order', fn ($q) => $q->where('number', $license->license_order_number))
+                ->where('quantity', '>', 0)->get();
+            foreach ($bought as $extra) {
+                $rows[$extra->entitlement->code] = ['value' => (string) $extra->quantity, 'ends_at' => null];
+            }
+        }
+
+        return $this->replace($license, Grant::EXTRA, $rows);
+    }
+
+    /**
+     * The license's grants from one source, as code => {value, ends_at}.
+     *
+     * @return array<string, array{value: string|null, ends_at: string|null}>
+     */
+    private function current(License $license, string $source): array
+    {
+        return Grant::where('license_id', $license->id)->where('source', $source)->get()
+            ->mapWithKeys(fn (Grant $g): array => [$g->code => ['value' => $g->value, 'ends_at' => $g->ends_at?->toDateString()]])
+            ->all();
+    }
+
+    /**
+     * Makes the license's grants from one source exactly these rows. Returns whether anything changed.
+     *
+     * @param  array<string, array{value: string|null, ends_at: string|null}>  $rows
+     */
+    private function replace(License $license, string $source, array $rows): bool
+    {
+        $current = $this->current($license, $source);
+        ksort($current);
+        ksort($rows);
+        if ($current === $rows) {
+            return false;
+        }
+
+        DB::transaction(function () use ($license, $source, $rows): void {
+            Grant::where('license_id', $license->id)->where('source', $source)->delete();
+            $now = now();
+            Grant::insert(array_map(fn (string $code, array $row): array => [
+                'license_id' => $license->id, 'code' => $code, 'value' => $row['value'], 'source' => $source,
+                'ends_at' => $row['ends_at'], 'created_at' => $now, 'updated_at' => $now,
+            ], array_keys($rows), $rows));
+        });
+
+        return true;
+    }
+
+    /** A product compares versions to tell a newer record, so every grant change counts one up. */
+    private function bumpIf(License $license, bool $changed): void
+    {
+        if ($changed) {
+            DB::table('licenses')->where('id', $license->id)->increment('version');
+        }
+    }
+
+    /** A stored date as Y-m-d; empty or 0000-00-00 means never (null). */
+    public static function day(mixed $date): ?string
+    {
+        $date = (string) $date;
+
+        return $date !== '' && ! str_starts_with($date, '0000') ? substr($date, 0, 10) : null;
     }
 
     /** Agent count from the license code's last four digits (0000 = unlimited → UNLIMITED), or null for codes without them. */
@@ -398,20 +496,14 @@ class EntitlementService
     }
 
     /**
-     * The features with these codes or ids, archived included, in display order.
+     * The features with these codes, archived included, in display order.
      *
      * @param  list<string>  $codes
-     * @param  array<int, mixed>  $ids
      * @return Collection<int, Entitlement>
      */
-    private function items(array $codes, array $ids): Collection
+    private function items(array $codes): Collection
     {
-        if ($codes === [] && $ids === []) {
-            return new Collection;
-        }
-
-        return Entitlement::query()
-            ->where(fn ($q) => $q->whereIn('id', $ids)->orWhereIn('code', $codes))
-            ->orderBy('sort')->orderBy('id')->get();
+        return $codes === [] ? new Collection
+            : Entitlement::whereIn('code', array_unique($codes))->orderBy('sort')->orderBy('id')->get();
     }
 }

@@ -6,6 +6,7 @@ use App\License\Models\License;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Product\Entitlement;
+use App\Model\Product\Grant;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Services\EntitlementService;
@@ -96,8 +97,8 @@ class EntitlementServiceTest extends DBTestCase
         $plan->entitlements()->attach($storage->id, ['value' => '40']);
 
         $this->assertSame(1, $this->service->applyPlanToLicenses($plan));
-        $this->assertEquals(['storage' => 40, 'agents' => EntitlementService::UNLIMITED], $liveLicense->fresh()->entitlement_base);
-        $this->assertNull($deadLicense->fresh()->entitlement_base);
+        $this->assertEquals(['storage' => '40', 'agents' => '-1'], $this->grantsOf($liveLicense, 'plan'));
+        $this->assertSame([], $this->grantsOf($deadLicense, 'plan'));
     }
 
     public function test_override_wins_until_its_end_date_and_agents_come_from_the_code(): void
@@ -130,7 +131,7 @@ class EntitlementServiceTest extends DBTestCase
 
         $this->service->carryOverrides($old->fresh(), $new);
 
-        $this->assertEquals(['chat' => ['value' => '1', 'until' => null]], $new->fresh()->entitlement_overrides);
+        $this->assertEquals(['chat' => ['value' => '1', 'until' => null]], $this->grantsOf($new, 'admin'));
     }
 
     public function test_bought_extras_add_to_the_plan_and_overrides_still_win(): void
@@ -141,7 +142,7 @@ class EntitlementServiceTest extends DBTestCase
 
         $order = Order::factory()->create(['product' => $this->product->id, 'number' => 999001]);
         $license = $this->license(999001);
-        $license->update(['entitlement_base' => ['storage' => 10]]); // the plan includes 10 GB
+        $this->planGrants($license, ['storage' => '10']); // the plan includes 10 GB
         foreach ([[$storage, 15], [$chat, 1], [$sla, 1]] as [$item, $qty]) {
             \App\Model\Order\OrderEntitlement::create([
                 'order_id' => $order->id, 'entitlement_id' => $item->id, 'quantity' => $qty, 'unit_price' => 2, 'currency' => 'USD',
@@ -199,8 +200,8 @@ class EntitlementServiceTest extends DBTestCase
         EntitlementService::agents();
 
         $license = $this->license(999003, 'ABCDEFGHIJKL0025');
+        $this->planGrants($license, ['sla' => '1', 'reports' => '0', 'storage' => null, 'region' => 'eu']);
         $license->update([
-            'entitlement_base' => ['sla' => true, 'reports' => false, 'storage' => null, 'region' => 'eu'],
             'license_expire_date' => '2027-01-31 00:00:00',
             'license_updates_date' => '0000-00-00 00:00:00',
         ]);
@@ -216,5 +217,43 @@ class EntitlementServiceTest extends DBTestCase
         $this->assertSame(['chat' => $until], $payload['ends']); // sla comes from the plan: no end
         $this->assertSame(['license' => '2027-01-31', 'updates' => null, 'support' => null], $payload['expires']);
         $this->assertNotEmpty($payload['issued_at']);
+    }
+
+    public function test_license_dates_are_grants_and_each_change_counts_the_version_up(): void
+    {
+        $chat = $this->item('chat', 'boolean', '0');
+        $license = $this->license(999004);
+        $license->update(['license_expire_date' => '2027-05-01 00:00:00', 'license_support_date' => '0000-00-00 00:00:00']);
+
+        $dates = Grant::where('license_id', $license->id)->where('source', Grant::LICENSE)->get()->mapWithKeys(fn (Grant $g) => [$g->code => $g->ends_at?->toDateString()]);
+        $this->assertEquals(['run' => '2027-05-01', 'updates' => null, 'support' => null], $dates->all()); // 0000-00-00 = never
+        $version = (int) $license->fresh()->version;
+
+        $license->update(['license_comments' => 'no date change']);
+        $this->service->setOverride($license, $chat, '1', null);
+        $this->service->setOverride($license, $chat, '1', null); // same again: nothing changed
+        $this->assertSame($version + 1, (int) $license->fresh()->version);
+
+        $license->update(['license_expire_date' => '2028-05-01 00:00:00']);
+        $this->assertSame($version + 2, (int) $license->fresh()->version);
+        $this->assertSame('2028-05-01', $this->service->payload($license->fresh())['expires']['license']);
+    }
+
+    public function test_extras_follow_order_entitlements(): void
+    {
+        $storage = $this->item('storage', 'number', '10');
+        $order = Order::factory()->create(['product' => $this->product->id, 'number' => 999005]);
+        $license = $this->license(999005);
+
+        $extra = \App\Model\Order\OrderEntitlement::create([
+            'order_id' => $order->id, 'entitlement_id' => $storage->id, 'quantity' => 5, 'unit_price' => 2, 'currency' => 'USD',
+        ]);
+        $this->assertSame(['storage' => '5'], $this->grantsOf($license, Grant::EXTRA));
+
+        $extra->update(['quantity' => 8]);
+        $this->assertSame(['storage' => '8'], $this->grantsOf($license, Grant::EXTRA));
+
+        $extra->delete();
+        $this->assertSame([], $this->grantsOf($license, Grant::EXTRA));
     }
 }

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Model\Order;
 
+use App\License\Models\License;
 use App\Model\Product\Entitlement;
+use App\Services\EntitlementService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -32,6 +34,20 @@ use Override;
 class OrderEntitlement extends Model
 {
     protected $fillable = ['order_id', 'entitlement_id', 'quantity', 'renew_quantity', 'unit_price', 'currency', 'period_id'];
+
+    #[Override]
+    protected static function booted(): void
+    {
+        // The order's license grants follow what was bought.
+        $sync = function (OrderEntitlement $extra): void {
+            $number = Order::whereKey($extra->order_id)->value('number');
+            if ($number !== null) {
+                License::where('license_order_number', $number)->each(fn (License $license) => resolve(EntitlementService::class)->syncExtras($license));
+            }
+        };
+        static::saved($sync);
+        static::deleted($sync);
+    }
 
     /**
      * @return BelongsTo<Entitlement, $this>
