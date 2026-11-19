@@ -39,7 +39,7 @@
                                       :label="__('message.entitlement_default')" :value="editing.default_value"
                                       :elements="splitOptions(editing.optionsText).map(o => ({ id: o, name: o }))"
                                       :onChange="set" classname="col-md-6" />
-                        <TextField v-else :key="`d-${editing.type}`" name="default_value" :label="__('message.entitlement_default')"
+                        <TextField v-else-if="editing.type !== 'date'" :key="`d-${editing.type}`" name="default_value" :label="__('message.entitlement_default')"
                                    :type="editing.type === 'number' ? 'number' : 'text'" :value="editing.default_value"
                                    :onChange="set" :error="errors.default_value" classname="col-md-6" />
 
@@ -89,7 +89,7 @@ import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 const COMPONENT = 'features'
 const EDITOR    = 'entitlement-editor'
 const SLUG      = /^[a-z][a-z0-9_]*$/
-const TYPES     = ['boolean', 'number', 'select', 'text']
+const TYPES     = ['boolean', 'number', 'select', 'text', 'date'] // date: each plan sets how it ends
 
 const typeOptions = TYPES.map(t => ({ id: t, name: __(`message.entitlement_type_${t}`) }))
 const onOff       = [{ id: '1', name: __('message.entitlement_on') }, { id: '0', name: __('message.entitlement_off') }]

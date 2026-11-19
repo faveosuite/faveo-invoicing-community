@@ -11,6 +11,7 @@ use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\EntitlementService;
 use Crypt;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -144,11 +145,10 @@ class BaseHomeController extends Controller
         try {
             $orderId = $this->orderIdForUpdateCheck($request);
             if ($orderId) {
-                $expiryDate = Subscription::where('order_id', $orderId)->value('update_ends_at');
                 /** @var Subscription $subscription */
-                $subscription = Subscription::where('order_id', $orderId)->select('id', 'support_ends_at', 'version', 'update_ends_at', 'product_id', 'plan_id', 'ends_at')->first();
+                $subscription = Subscription::where('order_id', $orderId)->select('id', 'order_id', 'support_ends_at', 'version', 'update_ends_at', 'product_id', 'plan_id', 'ends_at')->first();
                 $data = $this->getData($subscription);
-                if (Date::now()->toDateTimeString() < $expiryDate) {
+                if ($data !== null) {
                     return ['status' => 'success', 'message' => 'New version available', 'data' => $data];
                 }
             }
@@ -203,7 +203,8 @@ class BaseHomeController extends Controller
     {
         $productName = Product::where('id', $subscription->product_id)->value('name');
         $plan = Plan::where('id', $subscription->plan_id)->value('name');
-        if (Date::now()->toDateTimeString() < $subscription->update_ends_at) {
+        $downloadsEnd = resolve(EntitlementService::class)->downloadsEndForSubscription($subscription);
+        if ($downloadsEnd === null || $downloadsEnd->isFuture()) {
             return [
                 'product' => $productName,
                 'plan' => $plan,

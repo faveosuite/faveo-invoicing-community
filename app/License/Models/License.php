@@ -6,6 +6,7 @@ use App\Model\Order\Order;
 use App\Model\Product\Grant;
 use App\Model\Product\Product;
 use App\Services\EntitlementService;
+use App\Services\LegacyDates;
 use App\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -111,10 +112,11 @@ class License extends Model
     #[Override]
     protected static function booted(): void
     {
-        // Date columns are written in many places; the run / updates / support grants follow them here.
+        // The old update/support columns are still written in many places; their grants follow here.
         static::saved(function (License $license): void {
-            if ($license->wasRecentlyCreated || $license->wasChanged(array_values(Grant::DATES))) {
-                resolve(EntitlementService::class)->syncDates($license);
+            $columns = array_column(LegacyDates::COLUMNS, 0);
+            if ($license->wasRecentlyCreated || $license->wasChanged($columns)) {
+                resolve(EntitlementService::class)->syncLegacyDates($license);
             }
         });
     }

@@ -301,40 +301,4 @@ class RenewController extends BaseRenewController
         Session::put('subscription_id', $sub_id);
         Session::put('plan_id', $planid);
     }
-
-    // Update License Expiry Date
-    public function getExpiryDate(mixed $permissions, Subscription $sub, int $days): string|Carbon
-    {
-        $expiry_date = '';
-        if ($days > 0 && $permissions == 1) {
-            $date = Date::parse($sub->ends_at);
-            $expiry_date = $date->addDays($days);
-        }
-
-        return $expiry_date;
-    }
-
-    // Update Updates Expiry Date
-    public function getUpdatesExpiryDate(mixed $permissions, Subscription $sub, int $days): string|Carbon
-    {
-        $expiry_date = '';
-        if ($days > 0 && $permissions == 1) {
-            $date = Date::parse($sub->update_ends_at);
-            $expiry_date = $date->addDays($days);
-        }
-
-        return $expiry_date;
-    }
-
-    // Update Support Expiry Date
-    public function getSupportExpiryDate(mixed $permissions, Subscription $sub, int $days): string|Carbon
-    {
-        $expiry_date = '';
-        if ($days > 0 && $permissions == 1) {
-            $date = Date::parse($sub->support_ends_at);
-            $expiry_date = $date->addDays($days);
-        }
-
-        return $expiry_date;
-    }
 }

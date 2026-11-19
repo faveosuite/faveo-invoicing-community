@@ -29,6 +29,7 @@ class ProductFactory extends Factory
             'require_domain' => 1,
             'show_agent' => 1,
             'product_sku' => 'FAVEOCLOUDBETA',
+            'downloads_limited_by' => 'updates', // like most real products: downloads stop when updates end
         ];
     }
 }

@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Database\Seeders\v4_0_2_8_RC_1;
 
+use App\Http\Controllers\License\LicensePermissionsController;
 use App\License\Models\License;
+use App\Model\Payment\Plan;
 use App\Model\Product\Entitlement;
 use App\Model\Product\Grant;
 use App\Model\Product\Product;
 use App\Services\EntitlementService;
+use App\Services\LegacyDates;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -25,6 +28,7 @@ class DatabaseSeeder extends Seeder
         $this->seedFixedCouponCurrency();
         $this->stripExtrasFromInvoiceItemNames();
         $this->seedPluginFeatures();
+        $this->seedDateFeatures();
         $this->seedLicenseDateGrants();
     }
 
@@ -193,16 +197,61 @@ class DatabaseSeeder extends Seeder
     }
 
     /**
-     * Each license's run / updates / support dates become grants (ends_at = the date, null =
-     * never). Afterwards the License model keeps them in step. Safe to run again.
+     * Updates and support become date features that every plan includes, with the rule that
+     * gives today's dates: they used to run for the plan's days when the product's license type
+     * had "Generate Updates/Support Expiry Date" on, and never end otherwise. Products limit
+     * downloads by updates unless that setting was off. Runs once: an admin's later choices
+     * aren't overwritten.
+     */
+    public function seedDateFeatures(): void
+    {
+        $permissionOf = ['updates' => 'generateUpdatesxpiryDate', 'support' => 'generateSupportExpiryDate'];
+        $items = [];
+        foreach (['updates' => 'Updates', 'support' => 'Support'] as $code => $label) {
+            $items[$code] = Entitlement::firstOrCreate(['code' => $code], [
+                'label' => $label, 'type' => 'date', 'category' => 'Dates', 'default_value' => null,
+                'is_active' => true, 'sort' => (int) Entitlement::max('sort') + 1,
+            ]);
+        }
+        if (! $items['updates']->wasRecentlyCreated) {
+            return;
+        }
+
+        Product::orderBy('id')->each(function (Product $product) use ($items, $permissionOf): void {
+            $permissions = LicensePermissionsController::permissionsFor($product);
+            DB::table('products')->where('id', $product->id)
+                ->update(['downloads_limited_by' => $permissions['generateUpdatesxpiryDate'] ? 'updates' : null]);
+
+            foreach (Plan::where('product', $product->id)->get() as $plan) {
+                $days = (int) $plan->days;
+                $followsTerm = $permissions['generateLicenseExpiryDate'] && $days > 0
+                    && ! $plan->periods()->where('name', 'One Time')->exists();
+                foreach ($items as $code => $item) {
+                    $rule = match (true) {
+                        ! $permissions[$permissionOf[$code]] || $days <= 0 => ['ends' => 'never'],
+                        $followsTerm => ['ends' => 'subscription'],
+                        default => ['ends' => 'custom', 'every' => $days, 'unit' => 'day'],
+                    };
+                    DB::table('plan_entitlements')->insertOrIgnore([
+                        'plan_id' => $plan->id, 'entitlement_id' => $item->id, 'value' => json_encode($rule),
+                        'created_at' => now(), 'updated_at' => now(),
+                    ]);
+                }
+            }
+        });
+    }
+
+    /**
+     * Each license's update and support dates become date grants (ends_at = the date, null =
+     * never). Afterwards the License model keeps them in step with the old columns. Safe to run again.
      */
     public function seedLicenseDateGrants(): void
     {
-        foreach (Grant::DATES as $code => $column) {
+        foreach (LegacyDates::COLUMNS as $code => [$column]) {
             DB::statement("
                 INSERT IGNORE INTO grants (license_id, code, value, source, ends_at, created_at, updated_at)
                 SELECT l.id, ?, NULL, ?, CASE WHEN l.{$column} IS NULL OR CAST(l.{$column} AS CHAR) LIKE '0000%' THEN NULL ELSE DATE(l.{$column}) END, NOW(), NOW()
-                FROM licenses l", [$code, Grant::LICENSE]);
+                FROM licenses l", [$code, Grant::DATE]);
         }
     }
 

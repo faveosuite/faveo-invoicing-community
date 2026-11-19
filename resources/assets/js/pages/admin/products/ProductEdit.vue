@@ -158,6 +158,19 @@
                                                 />
                                             </div>
 
+                                            <div class="mb-3">
+                                                <DynamicSelect
+                                                    name="downloads_limited_by"
+                                                    :label="__('message.downloads_limited_by')"
+                                                    :elements="downloadLimitOptions"
+                                                    :value="downloadLimitOptions.find(o => o.id === form.downloads_limited_by) ?? downloadLimitOptions[0]"
+                                                    :onChange="(val) => form.downloads_limited_by = val?.id ?? ''"
+                                                    :clearable="false"
+                                                    :searchable="false"
+                                                />
+                                                <small class="text-muted">{{ __('message.downloads_limited_by_help') }}</small>
+                                            </div>
+
                                             <div class="mb-3" v-if="githubEnabled">
                                                 <DynamicSelect
                                                     name="file_source"
@@ -423,6 +436,12 @@ const loading = ref(true)
 const saving = ref(false)
 const selectedImage = ref(null)
 const taxClasses = ref([])
+const dateFeatures = ref([])
+// Releases after the chosen date feature ends can't be downloaded; '' = no limit.
+const downloadLimitOptions = computed(() => [
+    { id: '', name: __('message.downloads_no_limit') },
+    ...dateFeatures.value.map(f => ({ id: f.code, name: f.label })),
+])
 const tab = ref(route.query.tab === 'versions' ? 'versions' : 'details')
 const githubEnabled = ref(false)
 
@@ -599,6 +618,7 @@ const form = reactive({
     tax_class_id: '',
     file_source: 'filesystem',
     github_owner: '',
+    downloads_limited_by: '',
     github_repository: '',
     shoping_cart_link: '',
 })
@@ -626,6 +646,10 @@ function onImageChange(value) {
 
 onMounted(async () => {
     try {
+        // The date features list only fills the Downloads dropdown: its failure mustn't block the page.
+        http.get('/entitlements')
+            .then(res => { dateFeatures.value = (res.data?.data?.entitlements ?? []).filter(f => f.type === 'date' && f.is_active) })
+            .catch(() => {})
         const [taxRes, productRes] = await Promise.all([
             http.get(`/dependency/tax-classes`, { params: { limit: 'all' } }),
             http.get(`/product/${route.params.id}`),
@@ -669,6 +693,7 @@ onMounted(async () => {
         const standard    = taxClasses.value.find(c => c.name === 'Standard') ?? taxClasses.value[0]
         form.tax_class_id = assigned[0]?.id ?? standard?.id ?? ''
         form.github_owner         = p.github_owner ?? ''
+        form.downloads_limited_by = p.downloads_limited_by ?? ''
         form.github_repository    = p.github_repository ?? ''
         form.file_source          = p.github_owner ? 'github' : 'filesystem'
         form.shoping_cart_link    = p.shoping_cart_link || `${baseUrl}/pricing?id=${route.params.id}`
@@ -703,6 +728,7 @@ async function submit() {
         fd.append('name', form.name)
         fd.append('type', form.type ?? '')
         fd.append('product_type', form.product_type)
+        fd.append('downloads_limited_by', form.downloads_limited_by ?? '')
         fd.append('config_file_path', form.config_file_path ?? '')
         fd.append('license_file_path', form.license_file_path ?? '')
         fd.append('product_path', form.product_type === 'addon' ? (form.product_path ?? '') : '')

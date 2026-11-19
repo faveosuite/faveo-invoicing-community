@@ -45,6 +45,9 @@ describe('ProductEdit.vue', () => {
             data: { tax_classes: [{ id: 1, name: 'Standard' }] },
         })
         globalThis.mockHttp.onGet(/\/product\/0/).reply(200, productResponse)
+        globalThis.mockHttp.onGet('/entitlements').reply(200, {
+            data: { entitlements: [{ code: 'updates', label: 'Updates', type: 'date', is_active: true }, { code: 'sla', label: 'SLA', type: 'boolean', is_active: true }] },
+        })
         globalThis.mockHttp.onGet(/\/dependency\/product-plans/).reply(200, { data: { data: [], total: 0 } })
         globalThis.mockHttp.onGet(/\/product\/uploads\/0/).reply(200, { data: { data: [], total: 0 } })
         globalThis.mockHttp.onPost(/\/product\/0/).reply(200, { data: { id: 1 } })
@@ -77,6 +80,11 @@ describe('ProductEdit.vue', () => {
         const urls = globalThis.mockHttp.history.get.map(r => r.url)
         expect(urls.some(u => /\/dependency\/tax-classes/.test(u))).toBe(true)
         expect(urls.some(u => /\/product\/0/.test(u))).toBe(true)
+    })
+
+    it('offers the date features as the download limit, plus no limit', async () => {
+        await flushPromises()
+        expect(wrapper.vm.downloadLimitOptions.map(o => o.id)).toEqual(['', 'updates'])
     })
 
     it('populates form with fetched product data', async () => {
@@ -206,7 +214,7 @@ describe('ProductEdit.vue', () => {
     }
 
     const COMMON = [
-        ['name', 'P'], ['type', 'x'], ['product_type', 'product'], ['config_file_path', ''], ['license_file_path', 'l'],
+        ['name', 'P'], ['type', 'x'], ['product_type', 'product'], ['downloads_limited_by', ''], ['config_file_path', ''], ['license_file_path', 'l'],
         ['product_path', ''], ['group', ''], ['parent', '4'], ['description', 'd'], ['short_description', 's'],
         ['product_description', 'pd'], ['product_sku', 'SKU'],
         ['show_agent', '0'], ['highlight', '1'], ['add_to_contact', '0'], ['can_modify_agent', '1'],

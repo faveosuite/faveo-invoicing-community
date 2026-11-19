@@ -12,6 +12,7 @@ use App\Model\Order\Order;
 use App\Model\Payment\TaxProductRelation;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
+use App\Services\EntitlementService;
 use App\User;
 use Auth;
 use Carbon\Carbon;
@@ -173,7 +174,8 @@ class ExtendedBaseProductController extends Controller
         }
 
         if ($checkSubscription) {
-            if (strtotime((string) $checkSubscription->update_ends_at) > 1 && $checkSubscription->update_ends_at < new Carbon()->toDateTimeString()) {
+            $downloadsEnd = $checkSubscription->order ? resolve(EntitlementService::class)->downloadsEndAt($checkSubscription->order) : null;
+            if ($downloadsEnd && $downloadsEnd->isPast()) {
                 throw new Exception(__('message.renew_subscription_download'));
             }
         } else {

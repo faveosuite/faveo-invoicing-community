@@ -644,13 +644,12 @@ class ClientController extends BaseClientController
                 : [$latest];
         }
 
-        $updatesEnd = $subscription?->update_ends_at;
-        $ended = $updatesEnd && $updatesEnd !== '0000-00-00 00:00:00' && strtotime((string) $updatesEnd) < time();
+        $downloadsEnd = $subscription?->order ? resolve(EntitlementService::class)->downloadsEndAt($subscription->order) : null;
 
         return [
             'featured' => $featured,
             'has_previous' => $hasPrevious,
-            'updates_ended_on' => $ended ? $updatesEnd : null,
+            'updates_ended_on' => $downloadsEnd?->isPast() ? $downloadsEnd->toDateString() : null,
         ];
     }
 

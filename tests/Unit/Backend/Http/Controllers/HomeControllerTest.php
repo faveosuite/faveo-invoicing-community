@@ -608,7 +608,7 @@ class HomeControllerTest extends DBTestCase
      */
     private function orderWithUpdatesEnding(string $updateEnds, ?string $serialKey = null): Order
     {
-        $product = Product::create(['name' => 'CUE Product '.uniqid()]);
+        $product = Product::create(['name' => 'CUE Product '.uniqid(), 'downloads_limited_by' => 'updates']);
         $plan = Plan::create(['name' => 'CUE Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
         $order = Order::create([
             'client' => User::factory()->create()->id,
@@ -618,7 +618,7 @@ class HomeControllerTest extends DBTestCase
             'serial_key' => $serialKey,
         ]);
         if ($serialKey) {
-            License::create(['product_id' => $product->id, 'license_code' => $serialKey, 'license_order_number' => $order->number]);
+            License::create(['product_id' => $product->id, 'license_code' => $serialKey, 'license_order_number' => $order->number, 'license_updates_date' => $updateEnds]);
         }
 
         Subscription::create([
@@ -719,7 +719,7 @@ class HomeControllerTest extends DBTestCase
 
     public function test_get_data_returns_product_and_plan_when_not_expired(): void
     {
-        $product = Product::first() ?? Product::create(['name' => 'Test Product '.uniqid()]);
+        $product = Product::create(['name' => 'Test Product '.uniqid(), 'downloads_limited_by' => 'updates']);
         $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $subscription = new Subscription;
@@ -742,7 +742,7 @@ class HomeControllerTest extends DBTestCase
 
     public function test_get_data_returns_null_when_subscription_expired(): void
     {
-        $product = Product::first() ?? Product::create(['name' => 'Test Product '.uniqid()]);
+        $product = Product::create(['name' => 'Test Product '.uniqid(), 'downloads_limited_by' => 'updates']);
         $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $subscription = new Subscription;

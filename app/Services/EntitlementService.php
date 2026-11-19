@@ -13,6 +13,7 @@ use App\Model\Product\Grant;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -56,7 +57,7 @@ class EntitlementService
         $values = $plan->entitlements()->pluck('plan_entitlements.value', 'entitlements.id');
         $result = [];
         foreach (Entitlement::whereIn('id', $values->keys())->where('is_active', true)->orderBy('sort')->orderBy('id')->get() as $item) {
-            if (! self::isAgents($item)) {
+            if (! self::isAgents($item) && $item->type !== 'date') { // dates are grants of their own (dateEnds)
                 $result[$item->code] = $item->cast($values[$item->id] ?? $item->default_value);
             }
         }
@@ -115,30 +116,125 @@ class EntitlementService
         $this->bumpIf($license, $this->writeExtras($license));
     }
 
-    /** Keeps the run / updates / support grants equal to the license's date columns. */
-    public function syncDates(License $license): void
+    /**
+     * The plan's date features and how each one ends (see DateRules).
+     *
+     * @return array<string, array{ends: string, every?: int, unit?: string, date?: string}>
+     */
+    public function dateRules(?int $planId): array
     {
-        $rows = [];
-        foreach (Grant::DATES as $code => $column) {
-            $rows[$code] = ['value' => null, 'ends_at' => self::day($license->{$column})];
+        if (! $planId) {
+            return [];
         }
-        $this->bumpIf($license, $this->replace($license, Grant::LICENSE, $rows));
+
+        return DB::table('plan_entitlements as pe')
+            ->join('entitlements as e', 'e.id', '=', 'pe.entitlement_id')
+            ->where('pe.plan_id', $planId)->where('e.type', 'date')->where('e.is_active', true)
+            ->orderBy('e.sort')->orderBy('e.id')
+            ->pluck('pe.value', 'e.code')
+            ->map(fn ($value): array => DateRules::decode($value))
+            ->all();
     }
 
     /**
-     * When the license, its updates and its support end (Y-m-d, null = never). Read from the date
-     * grants; a license without them yet falls back to its columns.
+     * New end dates for the plan's date features after a purchase, renewal or plan change.
      *
-     * @return array{license: string|null, updates: string|null, support: string|null}
+     * @param  'purchase'|'renewal'|'change'  $event
+     * @param  string|null  $subscriptionEnd  the subscription's new end (null = never)
+     * @param  array<string, string|null>  $current  code => end today, for renewals
+     * @return array<string, string|null> code => end (null = never)
+     */
+    public function dateEnds(?int $planId, string $event, ?string $subscriptionEnd, array $current = []): array
+    {
+        $ends = [];
+        foreach ($this->dateRules($planId) as $code => $rule) {
+            $ends[$code] = DateRules::ends($rule, $event, $current[$code] ?? null, $subscriptionEnd);
+        }
+
+        return $ends;
+    }
+
+    /**
+     * The license's date grants as code => Y-m-d (null = never).
+     *
+     * @return array<string, string|null>
+     */
+    public function currentDates(License $license): array
+    {
+        return array_map(fn (array $row): ?string => $row['ends_at'], $this->current($license, Grant::DATE));
+    }
+
+    /**
+     * Saves new end dates as the license's date grants. Old update/support dates not on the
+     * plan stay as their columns say.
+     *
+     * @param  array<string, string|null>  $ends  code => end (null = never)
+     */
+    public function writeDates(License $license, array $ends): void
+    {
+        $rows = array_intersect_key($this->current($license, Grant::DATE), LegacyDates::COLUMNS);
+        foreach ($ends as $code => $end) {
+            $rows[$code] = ['value' => null, 'ends_at' => self::day($end)];
+        }
+        $this->bumpIf($license, $this->replace($license, Grant::DATE, $rows));
+    }
+
+    /** The old update/support columns were written directly: their grants follow. */
+    public function syncLegacyDates(License $license): void
+    {
+        $rows = $this->current($license, Grant::DATE);
+        foreach (LegacyDates::COLUMNS as $code => [$column]) {
+            $rows[$code] = ['value' => null, 'ends_at' => self::day($license->{$column})];
+        }
+        $this->bumpIf($license, $this->replace($license, Grant::DATE, $rows));
+    }
+
+    /**
+     * When things end (Y-m-d, null = never): license = the subscription end (kept on the
+     * license), then every date grant by its code. Old update/support dates without a grant yet
+     * come from their columns.
+     *
+     * @return array<string, string|null>
      */
     public function dates(License $license): array
     {
-        $grants = Grant::where('license_id', $license->id)->where('source', Grant::LICENSE)->get()->keyBy('code');
-        $date = fn (string $code): ?string => ($grant = $grants->get($code)) !== null
-            ? $grant->ends_at?->toDateString()
-            : self::day($license->{Grant::DATES[$code]});
+        $dates = ['license' => self::day($license->license_expire_date)];
+        foreach (LegacyDates::COLUMNS as $code => [$column]) {
+            $dates[$code] = self::day($license->{$column});
+        }
 
-        return ['license' => $date('run'), 'updates' => $date('updates'), 'support' => $date('support')];
+        return [...$dates, ...$this->currentDates($license)];
+    }
+
+    /**
+     * Releases published after this moment can't be downloaded for the order: the end of the
+     * date its product limits downloads by. Null = no limit.
+     */
+    public function downloadsEndAt(Order $order): ?Carbon
+    {
+        return $this->downloadsEnd((int) $order->getRawOriginal('product'), $order->number, $order->subscription);
+    }
+
+    /** As downloadsEndAt(), for a subscription (its order may be missing). */
+    public function downloadsEndForSubscription(Subscription $subscription): ?Carbon
+    {
+        return $this->downloadsEnd((int) $subscription->product_id, $subscription->order?->number, $subscription);
+    }
+
+    private function downloadsEnd(int $productId, int|string|null $orderNumber, ?Subscription $subscription): ?Carbon
+    {
+        $code = Product::whereKey($productId)->value('downloads_limited_by');
+        if (! $code) {
+            return null;
+        }
+
+        $license = $orderNumber !== null ? License::where('license_order_number', $orderNumber)->first() : null;
+        $grant = $license ? Grant::where('license_id', $license->id)->where('source', Grant::DATE)->where('code', $code)->first() : null;
+        $end = $grant !== null
+            ? $grant->ends_at?->toDateString()
+            : self::day($subscription?->{LegacyDates::COLUMNS[$code][1] ?? 'ends_at'});
+
+        return $end !== null ? Carbon::parse($end)->endOfDay() : null;
     }
 
     /**
@@ -148,7 +244,7 @@ class EntitlementService
      */
     public function rows(License $license): array
     {
-        $grants = Grant::where('license_id', $license->id)->where('source', '!=', Grant::LICENSE)->active()->get()->groupBy('source');
+        $grants = Grant::where('license_id', $license->id)->where('source', '!=', Grant::DATE)->active()->get()->groupBy('source');
         $base = ($grants[Grant::PLAN] ?? collect())->pluck('value', 'code')->all();
         $extras = ($grants[Grant::EXTRA] ?? collect())->pluck('value', 'code')->all();
         $overrides = ($grants[Grant::ADMIN] ?? collect())->mapWithKeys(fn (Grant $g): array => [
