@@ -1,22 +1,14 @@
 <template>
-  <!-- Porto's quantity stepper, as used across the cart -->
-  <div class="quantity float-none m-0">
-    <input type="button"
-           class="minus text-color-hover-light bg-color-hover-primary border-color-hover-primary"
-           value="−"
-           :aria-label="__('message.decrease')"
-           :disabled="value <= min"
-           @click="emit('change', value - 1)">
-    <input type="text"
-           class="input-text qty text"
-           :value="value"
-           :aria-label="label"
-           readonly>
-    <input type="button"
-           class="plus text-color-hover-light bg-color-hover-primary border-color-hover-primary"
-           value="+"
-           :aria-label="__('message.increase')"
-           @click="emit('change', value + 1)">
+  <!-- − value + (Bootstrap input group) -->
+  <div class="input-group input-group-sm co-stepper">
+    <button type="button" class="btn btn-outline-secondary"
+            :aria-label="`${__('message.decrease')} ${label}`"
+            :disabled="value <= min"
+            @click="emit('change', value - 1)">−</button>
+    <input type="text" class="form-control text-center" :value="value" :aria-label="label" readonly>
+    <button type="button" class="btn btn-outline-secondary"
+            :aria-label="`${__('message.increase')} ${label}`"
+            @click="emit('change', value + 1)">+</button>
   </div>
 </template>
 
@@ -30,3 +22,10 @@ defineProps({
 })
 const emit = defineEmits(['change'])
 </script>
+
+<style scoped>
+.co-stepper { width: 128px; flex-wrap: nowrap; }
+.co-stepper .btn { width: 36px; min-height: 36px; padding: 0; border-color: #ced4da; color: var(--dark); background: #fff; }
+.co-stepper .btn:hover:not(:disabled) { background: #f4f4f4; }
+.co-stepper .form-control { background: #fff; border-color: #ced4da; font-weight: 600; }
+</style>

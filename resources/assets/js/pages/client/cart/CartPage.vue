@@ -26,51 +26,61 @@
       </div>
 
       <!-- Cart -->
-      <div v-else class="row pb-4 mb-5">
-
-        <!-- Items: one card per plan -->
-        <div class="col-lg-8 mb-4 mb-lg-0">
-          <CartItemRow
-            v-for="item in cartStore.items"
-            :key="item.id"
-            :item="item"
-            @customize="customizeId = $event"
-            @remove="cartStore.removeItem($event)"
-          />
-        </div>
-        <!-- Cart totals (same look as the checkout summary) -->
-        <div class="col-lg-4 position-relative">
-          <div class="card border-width-3 border-radius-0">
-            <div class="card-body">
-              <h4 class="font-weight-bold text-uppercase text-4 mb-0 pb-3 border-bottom">{{ __('message.cart_totals') }}</h4>
-
-              <!-- Each plan and what it holds -->
-              <div v-for="item in cartStore.items" :key="item.id" class="d-flex justify-content-between gap-3 py-3 border-bottom">
-                <span class="min-w-0">
-                  <strong class="d-block text-color-dark">{{ item.name }}</strong>
-                  <span class="d-block text-2 text-color-grey">{{ addonCount(item) ? __('message.cart_plan_with_addons', { count: addonCount(item) }) : __('message.cart_plan_only') }}</span>
-                </span>
-                <span class="amount font-weight-medium text-nowrap">{{ symbol }}{{ item.line_total }}</span>
+      <div v-else class="pb-5">
+        <div class="row g-4">
+          <!-- Items -->
+          <div class="col-lg-8">
+            <section class="co-card" aria-labelledby="cart-h">
+              <div class="co-card-header">
+                <h2 id="cart-h" class="co-title">{{ __('message.cart_your_cart') }}</h2>
+                <span class="co-note">{{ cartStore.items.length === 1 ? __('message.cart_one_plan') : __('message.cart_n_plans', { count: cartStore.items.length }) }}</span>
               </div>
+              <ul class="list-unstyled mb-0">
+                <CartItemRow
+                  v-for="item in cartStore.items"
+                  :key="item.id"
+                  :item="item"
+                  @customize="customizeId = $event"
+                  @remove="cartStore.removeItem($event)"
+                />
+              </ul>
+            </section>
+            <router-link to="/store" class="co-link mt-3">
+              <i class="fas fa-arrow-left" aria-hidden="true"></i>{{ __('message.cart_continue_shopping') }}
+            </router-link>
+          </div>
 
-              <!-- Subtotal only differs from the total when a coupon takes something off -->
-              <div v-if="hasDiscount" class="d-flex justify-content-between py-3 border-bottom">
-                <strong class="text-color-dark">{{ __('message.subtotal') }}</strong>
-                <span class="amount font-weight-medium">{{ symbol }}{{ cartStore.subtotal }}</span>
+          <!-- Order summary -->
+          <div class="col-lg-4">
+            <aside class="co-card co-summary" aria-labelledby="sum-h">
+              <div class="co-card-header"><h2 id="sum-h" class="co-title">{{ __('message.cart_totals') }}</h2></div>
+              <div class="co-card-body" :class="{ 'co-busy': cartStore.loading }" :aria-busy="cartStore.loading">
+                <div v-for="item in cartStore.items" :key="item.id" class="co-row">
+                  <span class="min-w-0">
+                    <span class="d-block fw-semibold text-color-dark">{{ item.name }}<template v-if="item.quantity > 1"> × {{ item.quantity }}</template></span>
+                    <span class="co-note">{{ addonCount(item) ? __('message.cart_plan_with_addons', { count: addonCount(item) }) : __('message.cart_plan_only') }}</span>
+                  </span>
+                  <span class="co-amt">{{ symbol }}{{ item.line_total }}</span>
+                </div>
+                <!-- Subtotal only differs from the total when a coupon takes something off -->
+                <div v-if="hasDiscount" class="co-row">
+                  <span>{{ __('message.subtotal') }}</span>
+                  <span class="co-amt">{{ symbol }}{{ cartStore.subtotal }}</span>
+                </div>
+                <div v-if="hasDiscount" class="co-row is-discount">
+                  <span>{{ __('message.coupon') }}: <strong>{{ cartStore.couponCode }}</strong></span>
+                  <span class="co-amt">−{{ symbol }}{{ cartStore.couponDiscount }}</span>
+                </div>
+                <div class="co-row is-total">
+                  <span>{{ __('message.total') }}</span>
+                  <span class="co-amt">{{ symbol }}{{ cartStore.total }}</span>
+                </div>
+                <p class="co-note mb-3">{{ __('message.cart_tax_note') }}</p>
+                <button type="button" class="btn btn-primary btn-modern w-100 text-uppercase py-3 checkout" @click="checkout">
+                  <i class="fas fa-lock me-2" aria-hidden="true"></i>{{ __('message.checkout') }}
+                </button>
               </div>
-              <div v-if="hasDiscount" class="d-flex justify-content-between py-3 border-bottom">
-                <strong class="text-color-dark">{{ __('message.discount') }}</strong>
-                <span class="amount text-success">−{{ symbol }}{{ cartStore.couponDiscount }}</span>
-              </div>
-              <div class="d-flex justify-content-between py-3 border-bottom mb-4">
-                <strong class="text-color-dark text-4">{{ __('message.total') }}</strong>
-                <strong class="text-color-dark text-4">{{ symbol }}{{ cartStore.total }}</strong>
-              </div>
-
-              <button type="button" class="btn btn-dark btn-modern w-100 text-uppercase border-radius-0 text-3 py-3 checkout" @click="checkout">
-                {{ __('message.checkout') }} <i class="fas fa-arrow-right ms-2" aria-hidden="true"></i>
-              </button>
-            </div>
+            </aside>
           </div>
         </div>
 

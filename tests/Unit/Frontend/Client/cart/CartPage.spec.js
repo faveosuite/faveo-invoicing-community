@@ -78,22 +78,22 @@ describe('CartPage.vue', () => {
         expect(wrapper.find('.fa-shopping-cart').exists()).toBeTruthy()
     })
 
-    it('shows cart table when items are present', async () => {
+    it('shows the cart card when items are present', async () => {
         wrapper = createWrapper(cartWithItem)
         await wrapper.vm.$nextTick()
-        expect(wrapper.find('table.shop_table').exists()).toBeTruthy()
+        expect(wrapper.find('#cart-h').exists()).toBeTruthy()
     })
 
     it('shows coupon discount row when couponDiscount is greater than 0', async () => {
         wrapper = createWrapper(cartWithCoupon)
         await wrapper.vm.$nextTick()
-        expect(wrapper.find('.cart-discount').exists()).toBeTruthy()
+        expect(wrapper.find('.co-row.is-discount').exists()).toBeTruthy()
     })
 
     it('does not show coupon discount row when couponDiscount is 0', async () => {
         wrapper = createWrapper(cartWithItem)
         await wrapper.vm.$nextTick()
-        expect(wrapper.find('.cart-discount').exists()).toBeFalsy()
+        expect(wrapper.find('.co-row.is-discount').exists()).toBeFalsy()
     })
 
     it('checkout button is present when items exist', async () => {

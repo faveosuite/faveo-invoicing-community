@@ -5,7 +5,6 @@ namespace App\License\tests\Backend\Controllers\AfuCallbacks;
 use App\License\Controllers\AfuCallbacks\LicensedPluginsController;
 use App\License\Helpers\LicenseValidator;
 use App\License\Models\License;
-use App\License\Models\LicensePlugin;
 use App\License\Services\LicenseService;
 use App\License\tests\Backend\LicenseTestCase;
 use App\Model\Product\Product;
@@ -29,7 +28,7 @@ class LicensedPluginsControllerTest extends LicenseTestCase
         $this->addon = $this->createProduct(['product_type' => 'addon', 'product_key' => 'ADDONKEY', 'product_path' => 'Calendar']);
         $this->createVersion($this->addon, ['version' => 'v2.0.1', 'status' => 1]);
         $this->license = $this->createLicense(['product_id' => $this->product->id, 'license_status' => 1]);
-        LicensePlugin::create(['license_id' => $this->license->id, 'product_id' => $this->addon->id]);
+        $this->grantPlugin($this->license, $this->addon);
     }
 
     private function requestPlugins(string $licenseCode): mixed

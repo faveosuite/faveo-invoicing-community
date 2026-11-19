@@ -13,195 +13,164 @@
         <template v-else>
           <i class="fas fa-shopping-cart fa-3x text-color-grey-lighten mb-3 d-block" aria-hidden="true"></i>
           <p class="text-color-grey mb-4">{{ __('message.cart_empty') }}</p>
-          <a :href="`${baseUrl}/store`" class="btn btn-dark btn-modern text-uppercase border-radius-0 btn-px-4 py-3">
+          <a :href="`${baseUrl}/store`" class="btn btn-primary btn-modern btn-px-4 py-3">
             {{ __('message.browse_products') }}
           </a>
         </template>
       </div>
 
       <!-- Checkout -->
-      <div v-else class="row pb-4 mb-5">
-
-        <!-- Items + coupon -->
-        <div class="col-lg-7 mb-4 mb-lg-0">
-          <div class="table-responsive">
-            <table class="shop_table cart">
-              <thead>
-                <tr class="text-color-dark">
-                  <th class="product-thumbnail" style="width:15%">&nbsp;</th>
-                  <th class="product-name text-uppercase" style="width:35%">{{ __('message.product') }}</th>
-                  <th class="product-quantity text-uppercase" style="width:15%">{{ __('message.quantity') }}</th>
-                  <th class="product-subtotal text-uppercase text-end" style="width:15%">{{ __('message.total') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in displayItems" :key="item.id" class="cart_table_item">
-                  <td class="product-thumbnail">
-                    <div class="product-thumbnail-wrapper">
-                      <button v-if="mode === 'cart'" type="button" class="product-thumbnail-remove p-0" :title="__('message.remove')" :aria-label="__('message.remove')" @click="remove(item.id)">
-                        <i class="fas fa-times" aria-hidden="true"></i>
-                      </button>
-                      <span class="product-thumbnail-image d-inline-block">
-                        <img v-if="item.image" :src="item.image" alt="" width="90" height="90" class="img-fluid" />
-                        <span v-else class="d-inline-flex align-items-center justify-content-center bg-light product-placeholder">
-                          <i class="fas fa-box text-color-grey fa-2x" aria-hidden="true"></i>
-                        </span>
-                      </span>
-                    </div>
-                  </td>
-                  <td class="product-name">
-                    <span class="font-weight-semi-bold text-color-dark">{{ item.name }}</span>
-                    <div v-if="item.agents !== null && item.agents !== undefined" class="text-2 text-color-grey">
-                      {{ item.agents ? __('message.agents_count', { count: item.agents }) : __('message.unlimited_agents') }}
-                    </div>
-                  </td>
-                  <td class="product-quantity">
-                    <span class="text-color-dark">{{ item.quantity }}</span>
-                  </td>
-                  <td class="product-subtotal text-end">
-                    <span class="amount text-color-dark font-weight-bold text-4">{{ symbol }}{{ item.line_total }}</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Coupon input (cart mode only; once applied it shows in the Discount
-               summary row, where it can also be removed — an invoice's totals are final).
-               Hidden for an all-free cart: there's nothing for a coupon to take off. -->
-          <div v-if="mode === 'cart' && !cartStore.couponCode && toNumber(cartStore.subtotal) > 0" class="d-flex align-items-center mt-3">
-            <input v-model="couponInput" type="text" name="coupon_code" autocomplete="off" :spellcheck="false"
-                   class="form-control h-auto border-radius-0 line-height-1 py-3 coupon-input"
-                   :aria-label="__('message.coupon_code')"
-                   :placeholder="`${__('message.coupon_code')}…`" @keyup.enter="applyCode" />
-            <button type="button"
-                    class="btn btn-light btn-modern text-2 text-uppercase ms-2 btn-apply-coupon"
-                    :disabled="!couponInput || cartStore.loading"
-                    @click="applyCode">
-              {{ __('message.apply') }}
-            </button>
-          </div>
-
-          <!-- Credit balance toggle. A single yes/no choice, like ticking a box —
-               not an amount to type. Re-fetches the totals below when changed
-               (invoice mode) or is simply carried forward to checkout (cart mode). -->
-          <div v-if="availableCreditNumber > 0 && toNumber(grandTotal) > 0" class="form-check mt-3">
-            <input id="use-credit" v-model="useCredit" type="checkbox" class="form-check-input" @change="onToggleCredit" />
-            <label for="use-credit" class="form-check-label">
-              {{ __('message.use_credit_balance', { amount: symbol + availableCredit }) }}
-            </label>
-          </div>
-
-        </div>
-
-        <!-- Order summary -->
-        <div class="col-lg-5 position-relative">
-          <div class="card border-width-3 border-radius-0">
-            <div class="card-body">
-              <h4 class="font-weight-bold text-uppercase text-4 mb-0 pb-3 border-bottom">{{ __('message.your_order') }}</h4>
-
-              <!-- Cart-mode breakdown -->
-              <template v-if="mode === 'cart'">
-                <div class="d-flex justify-content-between py-3 border-bottom">
-                  <strong class="text-color-dark">
-                    {{ __('message.cart_subtotal') }}
-                    <small v-if="toNumber(cartStore.taxTotal) > 0 && cartStore.taxLabel" class="text-color-grey fw-normal">(ex. {{ cartStore.taxLabel }})</small>
-                  </strong>
-                  <span class="amount font-weight-medium">{{ symbol }}{{ cartStore.subtotalExTax }}</span>
+      <div v-else class="pb-5">
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <!-- Items -->
+            <section class="co-card" aria-labelledby="items-h">
+              <div class="co-card-header">
+                <div v-if="mode === 'invoice'">
+                  <h2 id="items-h" class="co-title">{{ __('message.co_pay_invoice', { number: invoice.number }) }}</h2>
                 </div>
-
-                <div v-if="toNumber(cartStore.couponDiscount) > 0" class="d-flex justify-content-between align-items-center py-3 border-bottom">
-                  <strong class="text-color-dark">{{ __('message.coupon') }} :
-                    <span class="text-color-grey fw-normal"> {{ cartStore.couponCode }} </span>
-                  </strong>
-                  <span class="d-flex align-items-center">
-                    <span class="amount text-success">−{{ symbol }}{{ cartStore.couponDiscount }}</span>
-                    <button type="button"
-                            v-tooltip="__('message.remove')"
-                            class="btn ms-2 p-0 lh-1 border-0"
-                            :aria-label="__('message.remove')"
-                            @click="removeCoupon">
-                      <i class="fas fa-times-circle text-color-dark fa-lg" aria-hidden="true"></i>
-                    </button>
-                  </span>
-                </div>
-
-                <div v-for="tax in cartStore.taxes" :key="tax.label" class="d-flex justify-content-between py-3 border-bottom">
-                  <strong class="text-color-dark">{{ tax.label }}<span v-if="tax.rate" class="text-color-grey fw-normal"> ({{ tax.rate }}%)</span></strong>
-                  <span class="amount font-weight-medium">{{ symbol }}{{ tax.amount }}</span>
-                </div>
-
-                <div v-if="toNumber(cartCreditPreview) > 0" class="d-flex justify-content-between py-3 border-bottom">
-                  <strong class="text-color-dark">{{ __('message.credit_to_apply') }}</strong>
-                  <span class="amount text-success">−{{ symbol }}{{ cartCreditPreview }}</span>
-                </div>
-
-                <div class="d-flex justify-content-between py-3 border-bottom">
-                  <strong class="text-color-dark text-4">{{ __('message.total') }}</strong>
-                  <strong class="text-color-dark text-4">{{ symbol }}{{ cartTotalPreview }}</strong>
-                </div>
-              </template>
-
-              <!-- Invoice-mode: totals already finalised on the invoice -->
-              <template v-else>
-                <div v-if="invSummary.subtotal_ex_tax !== undefined" class="d-flex justify-content-between py-3 border-bottom">
-                  <strong class="text-color-dark">
-                    {{ __('message.sub_total') }}
-                    <small v-if="toNumber(invSummary.tax_total) > 0 && invSummary.tax_label" class="text-color-grey fw-normal">(ex. {{ invSummary.tax_label }})</small>
-                  </strong>
-                  <span class="amount font-weight-medium">{{ symbol }}{{ invSummary.subtotal_ex_tax }}</span>
-                </div>
-                <div v-for="(tax, i) in (invSummary.taxes || [])" :key="i" class="d-flex justify-content-between py-3 border-bottom">
-                  <strong class="text-color-dark">{{ tax.label }}<span v-if="tax.rate" class="text-color-grey fw-normal"> ({{ tax.rate }}%)</span></strong>
-                  <span class="amount font-weight-medium">{{ symbol }}{{ tax.amount }}</span>
-                </div>
-                <div v-if="toNumber(invSummary.discount) > 0" class="d-flex justify-content-between py-3 border-bottom">
-                  <strong class="text-color-dark">{{ invSummary.coupon_code ? __('message.coupon') : __('message.discount') }}<span v-if="invSummary.coupon_code" class="text-color-grey fw-normal"> : {{ invSummary.coupon_code }}</span></strong>
-                  <span class="amount text-success">−{{ symbol }}{{ invSummary.discount }}</span>
-                </div>
-                <div v-if="invPaidNumber > 0" class="d-flex justify-content-between py-3 border-bottom">
-                  <strong class="text-color-dark">{{ __('message.credit_applied') }}</strong>
-                  <span class="amount text-success">−{{ symbol }}{{ invPaid }}</span>
-                </div>
-                <div v-if="invCreditAppliedNumber > 0" class="d-flex justify-content-between py-3 border-bottom">
-                  <strong class="text-color-dark">{{ __('message.credit_to_apply') }}</strong>
-                  <span class="amount text-success">−{{ symbol }}{{ invCreditApplied }}</span>
-                </div>
-                <div class="d-flex justify-content-between py-3 border-bottom">
-                  <strong class="text-color-dark text-4">{{ __('message.amount_due') }}</strong>
-                  <strong class="text-color-dark text-4">{{ symbol }}{{ grandTotal }}</strong>
-                </div>
-              </template>
-
-              <!-- Payment methods — nothing to show when there's nothing to charge (free/trial item, or credit covers it all) -->
-              <div v-if="requiresGateway" class="py-3">
-                <strong class="d-block text-color-dark text-uppercase mb-3">{{ __('message.payment_methods') }}</strong>
-
-                <p v-if="!gateways.length" class="text-color-grey text-2 mb-0">
-                  {{ __('message.no_payment_gateway') }}
-                </p>
-
-                <div v-for="gateway in gateways" :key="gateway.name" class="mb-3">
-                  <label class="d-flex align-items-center mb-0 clickable" :for="`gw_${gateway.name}`">
-                    <input :id="`gw_${gateway.name}`" v-model="selectedGateway" type="radio"
-                           class="me-2" name="payment_gateway" :value="gateway.name" />
-                    <img :src="`${baseUrl}/images/logo/${gateway.name}.png`" :alt="gateway.name" height="22"
-                         @error="onLogoError($event, gateway.name)" />
-                  </label>
-                  <p v-if="selectedGateway === gateway.name && gateway.processing_fee"
-                     class="text-color-grey text-2 mt-2 mb-0 ms-4">
-                    {{ __('message.processing_fee_note', { fee: gateway.processing_fee }) }}
-                  </p>
-                </div>
+                <h2 v-else id="items-h" class="co-title">{{ __('message.checkout') }}</h2>
+                <span v-if="mode === 'invoice'" class="badge rounded-pill" :class="statusBadge.cls">{{ statusBadge.label }}</span>
+                <router-link v-else to="/cart" class="co-link">{{ __('message.co_edit_cart') }}</router-link>
               </div>
+              <ul class="list-unstyled mb-0">
+                <li v-for="item in displayItems" :key="item.id" class="co-item align-items-center">
+                  <span class="co-thumb" aria-hidden="true">
+                    <img v-if="item.image" :src="item.image" alt="" width="56" height="56" />
+                    <i v-else class="fas fa-box"></i>
+                  </span>
+                  <div class="flex-grow-1 min-w-0">
+                    <div class="fw-semibold text-color-dark">{{ item.name }}</div>
+                    <div v-if="item.meta.length" class="co-meta">{{ item.meta.join(' · ') }}</div>
+                    <div v-for="e in (item.extras || [])" :key="e.entitlement_id" class="co-note">{{ e.label }}<template v-if="e.quantity > 1"> × {{ e.quantity }}</template></div>
+                  </div>
+                  <span class="co-price">{{ symbol }}{{ item.line_total }}</span>
+                  <button v-if="mode === 'cart'" type="button" class="btn btn-sm border-0 text-color-grey px-2"
+                          :aria-label="`${__('message.remove')} ${item.name}`" :disabled="cartStore.loading" @click="remove(item.id)">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                  </button>
+                </li>
+              </ul>
+              <div v-if="mode === 'invoice'" class="co-card-body border-top py-3">
+                <p class="co-note mb-0"><i class="fas fa-lock me-1" aria-hidden="true"></i>{{ __('message.co_invoice_final') }}</p>
+              </div>
+            </section>
 
-              <button type="button"
-                      class="btn btn-dark btn-modern w-100 text-uppercase border-radius-0 text-3 py-3"
-                      :disabled="placing || (requiresGateway && !selectedGateway)"
-                      @click="proceed">
-                {{ placing ? __('message.please_wait') : __('message.proceed') }} <i v-if="!placing" class="fas fa-arrow-right ms-2" aria-hidden="true"></i>
-              </button>
-            </div>
+            <!-- Payment method: hidden when nothing is left to charge (free / trial / credit covers it) -->
+            <section v-if="requiresGateway" class="co-card" aria-labelledby="pay-h">
+              <div class="co-card-header"><h2 id="pay-h" class="co-title">{{ __('message.co_payment_method') }}</h2></div>
+              <fieldset class="co-card-body">
+                <legend class="visually-hidden">{{ __('message.co_choose_payment') }}</legend>
+                <p v-if="!gateways.length" class="co-note mb-0">{{ __('message.no_payment_gateway') }}</p>
+                <label v-for="gateway in gateways" :key="gateway.name" class="co-gateway" :class="{ 'is-selected': selectedGateway === gateway.name }">
+                  <input v-model="selectedGateway" type="radio" class="form-check-input" name="payment_gateway" :value="gateway.name" />
+                  <img :src="`${baseUrl}/images/logo/${gateway.name}.png`" :alt="gateway.name" @error="onLogoError($event, gateway.name)" />
+                  <span class="flex-grow-1 co-note">{{ gatewayNote(gateway.name) }}</span>
+                </label>
+                <p v-if="selectedFee" class="co-note mt-3 mb-0" role="status">
+                  <i class="fas fa-info-circle me-1" aria-hidden="true"></i>{{ __('message.co_fee_note', { fee: selectedFee }) }}
+                </p>
+              </fieldset>
+            </section>
+          </div>
+
+          <!-- Order summary -->
+          <div class="col-lg-4">
+            <aside class="co-card co-summary" aria-labelledby="sum-h">
+              <div class="co-card-header"><h2 id="sum-h" class="co-title">{{ __('message.cart_totals') }}</h2></div>
+              <div class="co-card-body">
+                <!-- Coupon (cart mode; once applied it shows as a summary row, removable there) -->
+                <div v-if="mode === 'cart' && !cartStore.couponCode && toNumber(cartStore.subtotal) > 0" class="mb-3">
+                  <label for="coupon" class="form-label fw-semibold text-2 mb-1">{{ __('message.coupon_code') }}</label>
+                  <div class="input-group has-validation">
+                    <input id="coupon" v-model="couponInput" type="text" name="coupon_code" autocomplete="off" :spellcheck="false"
+                           class="form-control" :class="{ 'is-invalid': couponError }" :placeholder="__('message.co_enter_code')"
+                           :aria-invalid="!!couponError" aria-describedby="coupon-err" :disabled="couponBusy"
+                           @input="couponError = ''" @keyup.enter="applyCode" />
+                    <button type="button" class="btn btn-outline-primary" :disabled="!couponInput || couponBusy" @click="applyCode">
+                      <span v-if="couponBusy" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                      {{ couponBusy ? __('message.co_applying') : __('message.apply') }}
+                    </button>
+                    <div id="coupon-err" class="invalid-feedback">{{ couponError }}</div>
+                  </div>
+                </div>
+
+                <!-- Credit balance: all or nothing -->
+                <label v-if="availableCreditNumber > 0 && toNumber(grandTotal) > 0" class="co-credit" for="use-credit">
+                  <input id="use-credit" v-model="useCredit" type="checkbox" class="form-check-input" :disabled="loading" @change="onToggleCredit" />
+                  <span>{{ __('message.co_use_credit') }} <span class="co-note d-block">{{ __('message.co_available', { amount: symbol + availableCredit }) }}</span></span>
+                </label>
+
+                <div aria-live="polite" :aria-busy="loading" :class="{ 'co-busy': loading }">
+                  <!-- Cart mode -->
+                  <template v-if="mode === 'cart'">
+                    <div class="co-row">
+                      <span>{{ __('message.subtotal') }} <span v-if="toNumber(cartStore.taxTotal) > 0 && cartStore.taxLabel" class="co-note">(ex. {{ cartStore.taxLabel }})</span></span>
+                      <span class="co-amt">{{ symbol }}{{ cartStore.subtotalExTax }}</span>
+                    </div>
+                    <div v-if="toNumber(cartStore.couponDiscount) > 0" class="co-row is-discount align-items-center">
+                      <span class="d-inline-flex align-items-center gap-1">
+                        {{ __('message.coupon') }}: <strong>{{ cartStore.couponCode }}</strong>
+                        <button type="button" class="btn btn-sm p-0 px-1 border-0 text-color-grey" :aria-label="`${__('message.remove')} ${cartStore.couponCode}`" @click="removeCoupon">
+                          <i class="fas fa-times" aria-hidden="true"></i>
+                        </button>
+                      </span>
+                      <span class="co-amt">−{{ symbol }}{{ cartStore.couponDiscount }}</span>
+                    </div>
+                    <div v-for="tax in cartStore.taxes" :key="tax.label" class="co-row">
+                      <span>{{ tax.rate ? `${tax.label} ${tax.rate}%` : tax.label }}</span>
+                      <span class="co-amt">{{ symbol }}{{ tax.amount }}</span>
+                    </div>
+                    <div v-if="toNumber(cartCreditPreview) > 0" class="co-row is-discount">
+                      <span>{{ __('message.co_credit_balance') }}</span>
+                      <span class="co-amt">−{{ symbol }}{{ cartCreditPreview }}</span>
+                    </div>
+                    <div class="co-row is-total">
+                      <span>{{ __('message.total') }}</span>
+                      <span class="co-amt">{{ symbol }}{{ cartTotalPreview }}</span>
+                    </div>
+                  </template>
+
+                  <!-- Invoice mode: totals are final -->
+                  <template v-else>
+                    <div v-if="invSummary.subtotal_ex_tax !== undefined" class="co-row">
+                      <span>{{ __('message.subtotal') }} <span v-if="toNumber(invSummary.tax_total) > 0 && invSummary.tax_label" class="co-note">(ex. {{ invSummary.tax_label }})</span></span>
+                      <span class="co-amt">{{ symbol }}{{ invSummary.subtotal_ex_tax }}</span>
+                    </div>
+                    <div v-if="toNumber(invSummary.discount) > 0" class="co-row is-discount">
+                      <span>{{ invSummary.coupon_code ? __('message.coupon') + ':' : __('message.discount') }} <strong v-if="invSummary.coupon_code">{{ invSummary.coupon_code }}</strong></span>
+                      <span class="co-amt">−{{ symbol }}{{ invSummary.discount }}</span>
+                    </div>
+                    <div v-for="(tax, i) in (invSummary.taxes || [])" :key="i" class="co-row">
+                      <span>{{ tax.rate ? `${tax.label} ${tax.rate}%` : tax.label }}</span>
+                      <span class="co-amt">{{ symbol }}{{ tax.amount }}</span>
+                    </div>
+                    <div v-if="invPaidNumber > 0" class="co-row is-discount">
+                      <span>{{ __('message.co_already_paid') }}</span>
+                      <span class="co-amt">−{{ symbol }}{{ invPaid }}</span>
+                    </div>
+                    <div v-if="invCreditAppliedNumber > 0" class="co-row is-discount">
+                      <span>{{ __('message.co_credit_balance') }}</span>
+                      <span class="co-amt">−{{ symbol }}{{ invCreditApplied }}</span>
+                    </div>
+                    <div class="co-row is-total">
+                      <span>{{ __('message.amount_due') }}</span>
+                      <span class="co-amt">{{ symbol }}{{ grandTotal }}</span>
+                    </div>
+                  </template>
+                </div>
+
+                <button type="button" class="btn btn-primary btn-modern w-100 text-uppercase py-3 mt-3"
+                        :disabled="!canProceed" :aria-describedby="needsGatewayChoice ? 'proceed-hint' : undefined" @click="proceed">
+                  <span v-if="placing" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                  {{ placing ? __('message.please_wait') : __('message.proceed') }}
+                </button>
+                <p v-if="needsGatewayChoice" id="proceed-hint" class="co-note text-center mt-2 mb-0">{{ __('message.co_choose_payment_hint') }}</p>
+                <p v-if="mode === 'cart'" class="co-note text-center mt-3 mb-0">
+                  <i class="fas fa-lock me-1" aria-hidden="true"></i>{{ __('message.co_invoice_on_proceed') }}
+                </p>
+              </div>
+            </aside>
           </div>
         </div>
 
@@ -255,6 +224,8 @@ const invoiceId = computed(() => route.query.invoice ?? null)
 const mode = computed(() => (invoiceId.value ? 'invoice' : 'cart'))
 
 const couponInput = ref('')
+const couponBusy = ref(false)
+const couponError = ref('')
 const selectedGateway = ref(null)
 const placing = ref(false)
 // Credit is a single yes/no choice — when on, the full available balance
@@ -309,27 +280,57 @@ const requiresGateway = computed(() =>
   toNumber(mode.value === 'invoice' ? invAmount.value : cartTotalPreview.value) > 0
 )
 
-// One unified item shape for the table, regardless of source.
+// "1 agent" / "12 agents" / "Unlimited agents"; null = not priced per agent.
+function agentsLabel(n) {
+  if (n === null || n === undefined) return null
+  if (!n) return __('message.plan_agents_unlimited')
+  return n === 1 ? __('message.cart_one_agent') : __('message.cart_n_agents', { count: n })
+}
+
+// One unified item shape for the list, regardless of source; meta = the grey line under the name.
 const displayItems = computed(() => {
   if (mode.value === 'invoice') {
     return invItems.value.map((it) => ({
       id: it.id,
       name: it.product_name,
       image: it.image,
-      quantity: it.quantity,
-      agents: it.agents,
       line_total: it.subtotal,
+      extras: it.extras ?? [],
+      meta: [agentsLabel(it.agents), it.quantity > 1 ? __('message.cart_qty', { count: it.quantity }) : null].filter(Boolean),
     }))
   }
-  return cartStore.items.map((it) => ({
-    id: it.id,
-    name: it.name,
-    image: it.image,
-    quantity: it.quantity,
-    agents: it.agents,
-    line_total: it.line_total,
-  }))
+  return cartStore.items.map((it) => {
+    const addons = (it.extras ?? []).filter(e => e.quantity > 0).length
+    return {
+      id: it.id,
+      name: it.name,
+      image: it.image,
+      line_total: it.line_total,
+      meta: [
+        it.period,
+        it.show_agent ? agentsLabel(it.agents) : null,
+        addons ? __('message.cart_n_addons', { count: addons }) : null,
+        it.quantity > 1 ? __('message.cart_qty', { count: it.quantity }) : null,
+      ].filter(Boolean),
+    }
+  })
 })
+
+// Invoice status pill (invoice mode).
+const statusBadge = computed(() => ({
+  success: { label: __('message.paid'), cls: 'text-bg-success' },
+  'partially paid': { label: __('message.partially_paid'), cls: 'text-bg-warning' },
+}[invoice.value.status] ?? { label: __('message.unpaid'), cls: 'text-bg-warning' }))
+
+// One line under each gateway logo.
+const GATEWAY_NOTES = { stripe: 'message.co_gateway_stripe', razorpay: 'message.co_gateway_razorpay' }
+const gatewayNote = name => (GATEWAY_NOTES[name.toLowerCase()] ? __(GATEWAY_NOTES[name.toLowerCase()]) : '')
+
+// Processing fee % of the picked gateway (0 = none).
+const selectedFee = computed(() => gateways.value.find(g => g.name === selectedGateway.value)?.processing_fee || 0)
+
+const needsGatewayChoice = computed(() => requiresGateway.value && !selectedGateway.value)
+const canProceed = computed(() => !placing.value && !loading.value && !couponBusy.value && !needsGatewayChoice.value)
 
 const isEmpty = computed(() =>
   mode.value === 'invoice' ? !invoice.value.id : cartStore.items.length === 0
@@ -389,15 +390,19 @@ watch(gateways, (gws) => {
   if (gws.length && !selectedGateway.value) selectedGateway.value = gws[0].name
 }, { immediate: true })
 
+// Errors show under the coupon field, not as a page alert.
 async function applyCode() {
-  if (!couponInput.value) return
-  alertStore.unsetAlert()
+  if (!couponInput.value || couponBusy.value) return
+  couponBusy.value = true
+  couponError.value = ''
   try {
     await cartStore.applyCoupon(couponInput.value.trim())
     couponInput.value = ''
     await cartStore.fetchCheckout()
   } catch {
-    alertStore.setAlert({ message: cartStore.error, type: 'danger', component_name: 'client-page' })
+    couponError.value = cartStore.error
+  } finally {
+    couponBusy.value = false
   }
 }
 
@@ -464,8 +469,5 @@ async function submitOrder(autoRenewOptIn) {
 </script>
 
 <style scoped>
-.product-placeholder { width: 90px; height: 90px; }
-.coupon-input { max-width: 280px; }
-.btn-apply-coupon { background: #F4F4F4; }
-.clickable { cursor: pointer; }
+.min-w-0 { min-width: 0; }
 </style>

@@ -83,7 +83,11 @@
                                         <router-link v-if="item.order" :to="`/orders/${item.order.id}`">#{{ item.order.number }}</router-link>
                                         <span v-else>—</span>
                                     </td>
-                                    <td>{{ item.product_name }}</td>
+                                    <td>
+                                        {{ item.product_name }}
+                                        <!-- Add-ons charged on this line, one per line -->
+                                        <div v-for="e in (item.extras || [])" :key="e.entitlement_id" class="small text-muted">{{ e.label }}<template v-if="e.quantity > 1"> × {{ e.quantity }}</template></div>
+                                    </td>
                                     <td class="text-end">{{ formatCurrency(item.regular_price) }}</td>
                                     <td class="text-center">{{ item.agents || __('message.unlimited') }}</td>
                                     <td class="text-center">{{ item.quantity }}</td>

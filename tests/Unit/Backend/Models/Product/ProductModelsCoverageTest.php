@@ -293,11 +293,6 @@ class ProductModelsCoverageTest extends TestCase
         $this->assertContains('license_file_path', $fillable);
     }
 
-    public function test_product_plugin_groups_as_product_is_has_many(): void
-    {
-        $this->assertInstanceOf(HasMany::class, new Product()->productPluginGroupsAsProduct());
-    }
-
     public function test_product_order_is_has_many(): void
     {
         $this->assertInstanceOf(HasMany::class, new Product()->order());
@@ -341,16 +336,6 @@ class ProductModelsCoverageTest extends TestCase
     public function test_product_group_relation_is_belongs_to(): void
     {
         $this->assertInstanceOf(BelongsTo::class, new Product()->groupRelation());
-    }
-
-    public function test_product_product_plugin_groups_as_product_is_has_many(): void
-    {
-        $this->assertInstanceOf(HasMany::class, new Product()->productPluginGroupsAsProduct());
-    }
-
-    public function test_product_product_plugin_groups_as_plugin_is_has_many(): void
-    {
-        $this->assertInstanceOf(HasMany::class, new Product()->productPluginGroupsAsPlugin());
     }
 
     public function test_product_entitlements_is_has_many(): void

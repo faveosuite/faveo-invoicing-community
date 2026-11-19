@@ -4,7 +4,6 @@ namespace App\License\tests\Backend\Services;
 
 use App\License\Models\Installation;
 use App\License\Models\LicenseOption;
-use App\License\Models\LicensePlugin;
 use App\License\Services\LicenseService;
 use App\License\tests\Backend\LicenseTestCase;
 use PHPUnit\Framework\Attributes\Group;
@@ -92,30 +91,6 @@ class LicenseServiceTest extends LicenseTestCase
 
     #[Test]
     #[Group('license-service')]
-    public function sync_addons_upserts_plugins_and_current_schema_options(): void
-    {
-        $license = $this->createLicense();
-        $plugin = $this->createProduct();
-
-        $this->service->syncAddons($license->license_code, [$plugin->id, $plugin->id, '', null], [
-            ['key' => 'edition', 'value' => 'enterprise'],
-            ['key' => '', 'value' => 'ignored'],
-        ]);
-        $this->service->syncAddons($license->license_code, [$plugin->id], [
-            ['key' => 'edition', 'value' => 'ultimate'],
-        ]);
-
-        $this->assertSame(1, LicensePlugin::where('license_id', $license->id)->where('product_id', $plugin->id)->count());
-        $this->assertDatabaseHas('license_options', [
-            'option_key' => 'edition',
-            'option_group' => (string) $license->id,
-            'option_value' => 'ultimate',
-        ]);
-        $this->assertDatabaseMissing('license_options', ['option_key' => '']);
-    }
-
-    #[Test]
-    #[Group('license-service')]
     public function individual_info_returns_license_options(): void
     {
         $license = $this->createLicense();
@@ -142,7 +117,7 @@ class LicenseServiceTest extends LicenseTestCase
         $this->createVersion($plugin, ['version' => '1.0.0', 'file' => 'old.zip', 'status' => 1]);
         $latest = $this->createVersion($plugin, ['version' => '2.0.0', 'file' => 'latest.zip', 'status' => 1]);
 
-        LicensePlugin::create(['license_id' => $license->id, 'product_id' => $plugin->id]);
+        $this->grantPlugin($license, $plugin);
 
         $result = $this->service->getPluginLicenses([$license->license_code]);
 

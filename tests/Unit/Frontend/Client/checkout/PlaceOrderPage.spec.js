@@ -64,7 +64,7 @@ describe('PlaceOrderPage.vue', () => {
 
     it('renders items table after data loads', async () => {
         await flushPromises()
-        expect(wrapper.find('table.shop_table').exists()).toBeTruthy()
+        expect(wrapper.find('li.co-item').exists()).toBeTruthy()
     })
 
     it('displays the product name after load', async () => {
@@ -74,12 +74,12 @@ describe('PlaceOrderPage.vue', () => {
 
     it('displays the order summary section after load', async () => {
         await flushPromises()
-        expect(wrapper.find('.card').exists()).toBeTruthy()
+        expect(wrapper.find('#sum-h').exists()).toBeTruthy()
     })
 
     it('shows pay now button after data loads', async () => {
         await flushPromises()
-        const btn = wrapper.find('button.btn-dark.btn-modern')
+        const btn = wrapper.find('aside button.btn-primary')
         expect(btn.exists()).toBeTruthy()
         expect(btn.text()).toContain('message.pay_now')
     })

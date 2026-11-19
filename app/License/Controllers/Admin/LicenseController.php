@@ -9,12 +9,12 @@ use App\License\Models\InstallationLog;
 use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseOption;
-use App\License\Models\LicensePlugin;
 use App\License\Requests\LicenseRequest;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\User;
+use App\Services\EntitlementService;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
@@ -358,12 +358,10 @@ class LicenseController extends Controller
                 return response()->json(['error' => 'License not found'], 404);
             }
 
+            // Plugins given to this license: switch each plugin's feature on for it.
             $ids = collect(explode(',', (string) $request->input('ids')))->filter()->map(fn ($id): int => (int) $id);
-            foreach ($ids as $productId) {
-                LicensePlugin::updateOrCreate(
-                    ['license_id' => $license->id, 'product_id' => $productId],
-                    ['license_id' => $license->id, 'product_id' => $productId]
-                );
+            foreach (Product::where('product_type', 'addon')->whereIn('id', $ids)->get() as $plugin) {
+                resolve(EntitlementService::class)->setOverride($license, EntitlementService::pluginFeature($plugin), '1', null);
             }
 
             $inputOptions = json_decode((string) $request->input('options', '[]'), associative: true);
@@ -431,8 +429,7 @@ class LicenseController extends Controller
                 return null;
             }
 
-            $ids = LicensePlugin::where('license_id', $license->id)->pluck('product_id')->toArray();
-            $ids = empty($ids) ? [$license->product_id] : $ids;
+            $ids = resolve(EntitlementService::class)->pluginIds($license) ?: [$license->product_id];
 
             return collect($ids)->unique()->map(fn ($id): ?array => $this->generateLicenseData((int) $id, $licenseCode))->filter();
         })->filter()->values();

@@ -7,13 +7,13 @@ use App\License\Models\Installation;
 use App\License\Models\InstallationLog;
 use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseOption;
-use App\License\Models\LicensePlugin;
 use App\License\Requests\LicenseRequest;
 use App\License\tests\Backend\LicenseTestCase;
 use App\Model\Order\Order;
 use App\Model\Product\Subscription;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
+use App\Services\EntitlementService;
 
 class LicenseControllerTest extends LicenseTestCase
 {
@@ -332,8 +332,8 @@ class LicenseControllerTest extends LicenseTestCase
     public function sync_creation_adds_plugins_and_options(): void
     {
         $license = $this->createLicense();
-        $pluginOne = $this->createProduct();
-        $pluginTwo = $this->createProduct();
+        $pluginOne = $this->createProduct(['product_type' => 'addon']);
+        $pluginTwo = $this->createProduct(['product_type' => 'addon']);
 
         $response = $this->controller->syncTheCreationOfLicense($this->moduleRequest([
             'license_code' => $license->license_code,
@@ -345,8 +345,7 @@ class LicenseControllerTest extends LicenseTestCase
         ], 'POST'));
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertDatabaseHas('license_plugins', ['license_id' => $license->id, 'product_id' => $pluginOne->id]);
-        $this->assertDatabaseHas('license_plugins', ['license_id' => $license->id, 'product_id' => $pluginTwo->id]);
+        $this->assertEqualsCanonicalizing([$pluginOne->id, $pluginTwo->id], resolve(EntitlementService::class)->pluginIds($license->fresh()));
         $this->assertDatabaseHas('license_options', [
             'option_key' => 'edition',
             'option_group' => (string) $license->id,
@@ -409,7 +408,7 @@ class LicenseControllerTest extends LicenseTestCase
         $license = $this->createLicense(['license_expire_date' => null]);
         $plugin = $this->createProduct(['name' => 'Plugin Product']);
         $version = $this->createVersion($plugin, ['version' => '9.9.9', 'file' => 'plugin.zip']);
-        LicensePlugin::create(['license_id' => $license->id, 'product_id' => $plugin->id]);
+        $this->grantPlugin($license, $plugin);
 
         $response = $this->controller->getPluginInfo($this->moduleRequest([
             'license_code' => json_encode([$license->license_code]),

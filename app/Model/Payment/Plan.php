@@ -130,10 +130,10 @@ class Plan extends BaseModel
             ->whereHas('planPrice', fn ($q) => $q->where('currency', $currency)->where('renew_price', '!=', '0'))
             // A plan charging for every agent needs an agent price in the currency, or agents are free.
             ->where(fn ($q) => $q
-                ->whereDoesntHave('entitlements', fn ($e) => $e->where('feature', 'agents')->where('key', 'max'))
+                ->whereDoesntHave('entitlements', fn ($e) => $e->where('code', 'agents'))
                 ->orWhereExists(fn ($e) => $e->from('entitlement_prices')
                     ->join('entitlements', 'entitlements.id', '=', 'entitlement_prices.entitlement_id')
-                    ->where('entitlements.feature', 'agents')->where('entitlements.key', 'max')
+                    ->where('entitlements.code', 'agents')
                     ->whereColumn('entitlement_prices.plan_id', 'plans.id')
                     ->where('entitlement_prices.currency', $currency)));
     }

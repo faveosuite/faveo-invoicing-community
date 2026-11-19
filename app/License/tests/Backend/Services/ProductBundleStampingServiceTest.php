@@ -8,7 +8,6 @@ use App\License\Services\Ed25519SigningService;
 use App\License\Services\LicenseFileService;
 use App\License\Services\ProductBundleStampingService;
 use App\License\tests\Backend\LicenseTestCase;
-use App\Model\Configure\ProductPluginGroup;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use Illuminate\Support\Facades\File;
@@ -175,38 +174,10 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
     #[Test]
     #[Group('product-bundle-stamping')]
-    public function bundling_a_plugin_via_product_plugin_group_has_no_effect_on_the_zip(): void
-    {
-        $product = $this->createProduct(['product_key' => 'COREKEY789', 'config_file_path' => 'storage/faveoconfig.ini']);
-        $plugin = $this->createProduct(['product_key' => 'PLUGKEY1', 'name' => 'Adhoc Approval', 'config_file_path' => 'config.php']);
-        ProductPluginGroup::create(['product_id' => $product->id, 'plugin_id' => $plugin->id]);
-
-        $sourceZip = $this->makeZip([
-            'storage/faveoconfig.ini' => '',
-            'app/Plugins/adhoc-approval/config.php' => "<?php\nreturn ['product_id' => 999, 'product_key' => 'OLDKEY', 'version' => '0.0.1'];\n",
-        ]);
-        $this->stubAttachToServe($sourceZip);
-
-        $resultPath = $this->service->stampToLocalFile('canonical/path.zip', $product, '2.0.0');
-
-        // product_plugin_group is used elsewhere (storefront bundling), but
-        // the stamping service no longer reads it at all — the plugin's own
-        // file ships exactly as it was in the canonical zip.
-        $pluginConfig = $this->readZipEntry($resultPath, 'app/Plugins/adhoc-approval/config.php');
-        $this->assertStringContainsString("'product_key' => 'OLDKEY'", $pluginConfig);
-        $this->assertStringContainsString("'product_id' => 999", $pluginConfig);
-
-        File::delete($resultPath);
-        File::delete($sourceZip);
-    }
-
-    #[Test]
-    #[Group('product-bundle-stamping')]
     public function no_plugin_folder_is_ever_stripped_regardless_of_bundling(): void
     {
         $product = $this->createProduct(['product_key' => 'COREKEYB']);
         $plugin = $this->createProduct(['product_key' => 'PLUGKEYB', 'name' => 'Bundled One']);
-        ProductPluginGroup::create(['product_id' => $product->id, 'plugin_id' => $plugin->id]);
 
         $sourceZip = $this->makeZip([
             'storage/faveoconfig.ini' => '',
@@ -330,13 +301,12 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
             'name' => 'My Plugin',
             'license_file_path' => 'public/script/signature/license.json',
         ]);
-        ProductPluginGroup::create(['product_id' => $product->id, 'plugin_id' => $plugin->id]);
         $this->seedLicenseSchemes();
 
         $orderNumber = random_int(10000000, 99999999);
         $order = Order::factory()->create(['product' => $product->id, 'number' => $orderNumber, 'license_mode' => 'File']);
         $license = $this->createLicense(['product_id' => $product->id, 'license_order_number' => $orderNumber]);
-        $license->addonProducts()->attach($plugin->id);
+        $this->grantPlugin($license, $plugin);
 
         $sourceZip = $this->makeZip([
             'storage/faveoconfig.ini' => '',

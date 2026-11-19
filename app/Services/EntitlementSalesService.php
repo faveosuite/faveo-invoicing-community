@@ -123,7 +123,7 @@ class EntitlementSalesService
             return null;
         }
 
-        return Entitlement::with('prices')->where('feature', 'agents')->where('key', 'max')->first()
+        return Entitlement::with('prices')->where('code', EntitlementService::AGENTS)->first()
             ?->priceIn((string) $planPrice->currency, $plan, $kind);
     }
 
@@ -342,7 +342,7 @@ class EntitlementSalesService
 
         return OrderEntitlement::with('entitlement.prices')->where('order_id', $orderId)->get()
             ->filter(fn (OrderEntitlement $extra): bool => $extra->entitlement->is_active
-                && ! ($extra->entitlement->type === 'boolean' && ($planValues[$extra->entitlement->feature][$extra->entitlement->key] ?? false) === true))
+                && ! ($extra->entitlement->type === 'boolean' && ($planValues[$extra->entitlement->code] ?? false) === true))
             ->values();
     }
 
@@ -377,7 +377,7 @@ class EntitlementSalesService
 
         foreach (OrderEntitlement::with('entitlement.prices')->where('order_id', $from->id)->get() as $extra) {
             $item = $extra->entitlement;
-            if ($item->type === 'boolean' && ($planValues[$item->feature][$item->key] ?? false) === true) {
+            if ($item->type === 'boolean' && ($planValues[$item->code] ?? false) === true) {
                 continue; // the new plan already includes it
             }
 

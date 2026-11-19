@@ -31,7 +31,7 @@ class OrderExtrasControllerTest extends DBTestCase
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => $currency]);
         $order = Order::factory()->create(['product' => $product->id, 'client' => $customer->id, 'order_status' => 'executed']);
         Subscription::factory()->create(['order_id' => $order->id, 'plan_id' => $plan->id, 'product_id' => $product->id, 'ends_at' => now()->addDays(20)]);
-        $item = Entitlement::create(['feature' => 'storage', 'key' => 'gb', 'label' => 'Storage', 'type' => 'number']);
+        $item = Entitlement::create(['code' => 'storage', 'label' => 'Storage', 'type' => 'number']);
         $item->prices()->create(['plan_id' => $plan->id, 'currency' => $currency, 'unit_price' => 3]);
 
         $this->be(User::factory()->create());
@@ -50,7 +50,7 @@ class OrderExtrasControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $customer = User::factory()->create();
         $order = Order::factory()->create(['client' => $customer->id, 'order_status' => 'executed']);
-        $item = Entitlement::create(['feature' => 'storage', 'key' => 'gb', 'label' => 'Storage', 'type' => 'number']);
+        $item = Entitlement::create(['code' => 'storage', 'label' => 'Storage', 'type' => 'number']);
         $extra = OrderEntitlement::create(['order_id' => $order->id, 'entitlement_id' => $item->id, 'quantity' => 10, 'unit_price' => 3, 'currency' => 'USD']);
         $paid = Invoice::factory()->create(['user_id' => $customer->id, 'status' => 'success']);
         OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $paid->id]);

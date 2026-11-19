@@ -5,12 +5,11 @@ namespace App\License\Services;
 use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Models\LicenseOption;
-use App\License\Models\LicensePlugin;
 use App\Model\Configure\PluginCompatibleWithProducts;
-use App\Model\Configure\ProductPluginGroup;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
+use App\Services\EntitlementService;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -95,16 +94,21 @@ class LicenseService
      */
     public function getPluginLicenses(array $licenseCodes): array
     {
-        $licenses = License::with(['plugins.product', 'product'])
+        $licenses = License::with('product')
             ->whereIn('license_code', $licenseCodes)
             ->get();
+        $entitlements = resolve(EntitlementService::class);
 
-        // A separately bought add-on has its own licence with no linked plugins: the add-on is
-        // the licence's own product. Gated on 'addon' so the main product never lists itself.
-        // @phpstan-ignore nullsafe.neverNull (BelongsTo may return null for orphaned product_id)
-        $productsFor = fn (License $license) => $license->plugins->isEmpty() && $license->product?->product_type === 'addon'
-            ? collect([$license->product])
-            : $license->plugins->pluck('product')->filter();
+        // The plugins a licence's features unlock. A separately bought add-on with none is the
+        // licence's own product. Gated on 'addon' so the main product never lists itself.
+        $productsFor = function (License $license) use ($entitlements) {
+            $ids = $entitlements->pluginIds($license);
+
+            // @phpstan-ignore nullsafe.neverNull (BelongsTo may return null for orphaned product_id)
+            return $ids === [] && $license->product?->product_type === 'addon'
+                ? collect([$license->product])
+                : Product::whereIn('id', $ids)->get();
+        };
 
         $productIds = $licenses->flatMap(fn ($l) => $productsFor($l)->pluck('id'))->unique()->values();
 
@@ -152,24 +156,23 @@ class LicenseService
         $productId = (int) $license->product_id;
         $clientId = $license->order?->client;
 
-        // Add-ons that work with this product: compatible ones plus the product's plugin group.
+        // Add-ons that work with this product: compatible ones plus those its plans include or sell.
         $candidates = array_unique(array_merge(
             Product::where('product_type', 'addon')
                 ->whereIn('id', PluginCompatibleWithProducts::where('product_id', $productId)->pluck('plugin_id'))
                 ->pluck('id')->all(),
-            ProductPluginGroup::where('product_id', $productId)->pluck('plugin_id')->all(),
+            EntitlementService::productPluginIds($productId),
         ));
 
         $codes = $clientId === null ? [] : Order::where('client', $clientId)->whereIn('product', $candidates)->pluck('serial_key')->filter()->all();
 
-        $licenses = License::with('plugins')
-            ->whereIn('license_code', array_unique([$license->license_code, ...$codes]))
+        $licenses = License::whereIn('license_code', array_unique([$license->license_code, ...$codes]))
             ->where(fn (Builder $q) => $q->whereNull('license_expire_date')->orWhere('license_expire_date', '>', now()))
             ->get();
 
         $rows = [];
         foreach ($licenses as $owned) {
-            $ids = $owned->plugins->pluck('product_id')->all() ?: [$owned->product_id];
+            $ids = resolve(EntitlementService::class)->pluginIds($owned) ?: [$owned->product_id];
 
             foreach (array_unique($ids) as $id) {
                 $row = $this->licensedPluginRow((int) $id, $owned->license_code);
@@ -214,50 +217,6 @@ class LicenseService
     {
         return License::where('license_code', $oldCode)
             ->update(['license_code' => $newCode]);
-    }
-
-    /**
-     * Sync addon licenses for a parent license
-     * Mirrors: POST /api/admin/license/syncAddonLicense.
-     *
-     * @param  array<mixed>  $options
-     * @param  array<mixed>  $productIds
-     */
-    public function syncAddons(string $licenseCode, array $productIds, array $options = []): void
-    {
-        $license = License::where('license_code', $licenseCode)->firstOrFail();
-        $licenseId = $license->id;
-
-        // Filter out empty values and deduplicate
-        $productIds = array_unique(array_filter($productIds, fn ($id): bool => ! empty($id)));
-
-        DB::transaction(function () use ($licenseId, $productIds, $options): void {
-            // Insert or update license plugins (upsert like original)
-            foreach ($productIds as $productId) {
-                LicensePlugin::updateOrCreate(
-                    ['license_id' => $licenseId, 'product_id' => $productId],
-                    ['license_id' => $licenseId, 'product_id' => $productId]
-                );
-            }
-
-            // Insert or update license options (upsert like original)
-            foreach ($options as $option) {
-                $key = $option['key'] ?? $option['option_key'] ?? '';
-                if ($key === '') {
-                    continue;
-                }
-
-                LicenseOption::updateOrCreate(
-                    [
-                        'option_key' => $key,
-                        'option_group' => (string) $licenseId,
-                    ],
-                    [
-                        'option_value' => (string) ($option['value'] ?? $option['option_value'] ?? ''),
-                    ]
-                );
-            }
-        });
     }
 
     /**

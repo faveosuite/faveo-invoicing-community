@@ -105,7 +105,11 @@
                                         </RouterLink>
                                         <span v-else>—</span>
                                     </td>
-                                    <td>{{ item.product_name }}</td>
+                                    <td>
+                                        {{ item.product_name }}
+                                        <!-- Add-ons charged on this line, one per line -->
+                                        <div v-for="e in (item.extras || [])" :key="e.entitlement_id" class="small text-muted">{{ e.label }}<template v-if="e.quantity > 1"> × {{ e.quantity }}</template></div>
+                                    </td>
                                     <td class="tabular-nums">{{ item.regular_price_formatted }}</td>
                                     <td class="tabular-nums">{{ item.agents || __('message.unlimited') }}</td>
                                     <td class="tabular-nums">{{ item.quantity }}</td>

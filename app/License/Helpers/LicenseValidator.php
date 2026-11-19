@@ -4,8 +4,8 @@ namespace App\License\Helpers;
 
 use App\License\Models\License;
 use App\License\Models\LicenseBannedHost;
-use App\License\Models\LicensePlugin;
 use App\Model\Product\Product;
+use App\Services\EntitlementService;
 use App\User;
 use Carbon\Exceptions\InvalidFormatException;
 use DateTime;
@@ -297,9 +297,8 @@ class LicenseValidator
     }
 
     /**
-     * Find license by license_code, with LicensePlugin multi-product support.
-     * Original logic: first check license_code + product_id, then check if product_id
-     * is in the LicensePlugin table for that license.
+     * Find license by license_code. A plugin installs on its main license: the license is
+     * returned for the plugin's product when it has the feature that unlocks that plugin.
      */
     public function findLicenseWithPlugins(?string $license_code, int $product_id): ?License
     {
@@ -316,17 +315,13 @@ class LicenseValidator
             return $license;
         }
 
-        // Check LicensePlugin: license may cover this product via plugin
+        // A plugin on its main license: allowed when the license has the plugin's feature.
         $baseLicense = License::where('license_code', $license_code)->first();
         if (! $baseLicense) {
             return null;
         }
 
-        $pluginProductIds = LicensePlugin::where('license_id', $baseLicense->id)
-            ->pluck('product_id')
-            ->toArray();
-
-        if (in_array($product_id, $pluginProductIds)) {
+        if (in_array($product_id, resolve(EntitlementService::class)->pluginIds($baseLicense), strict: true)) {
             // Return the base license but associate it with the requested product_id
             $baseLicense->product_id = $product_id;
 

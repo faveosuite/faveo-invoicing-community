@@ -10,9 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Carbon;
 use Override;
 
@@ -37,12 +35,10 @@ use Override;
  * @property string|null $license_support_email_date
  * @property string|null $license_comments
  * @property int $license_status
- * @property array<string, array<string, bool|int|string|null>>|null $entitlement_base
+ * @property array<string, bool|int|string|null>|null $entitlement_base
  * @property array<string, array{value: string, until: string|null}>|null $entitlement_overrides
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Collection<int, Product> $addonProducts
- * @property-read int|null $addon_products_count
  * @property-read Collection<int, LicenseCallback> $callbacks
  * @property-read int|null $callbacks_count
  * @property-read Collection<int, Installation> $installations
@@ -52,8 +48,6 @@ use Override;
  * @property-read Collection<int, LicenseOption> $options
  * @property-read int|null $options_count
  * @property-read Order|null $order
- * @property-read Collection<int, LicensePlugin> $plugins
- * @property-read int|null $plugins_count
  * @property-read Product $product
  * @property-read User|null $user
  *
@@ -155,22 +149,6 @@ class License extends Model
     public function callbacks(): HasMany
     {
         return $this->hasMany(LicenseCallback::class, 'license_code', 'license_code');
-    }
-
-    /**
-     * @return HasMany<LicensePlugin, $this>
-     */
-    public function plugins(): HasMany
-    {
-        return $this->hasMany(LicensePlugin::class, 'license_id', 'id');
-    }
-
-    /**
-     * @return BelongsToMany<Product, $this, Pivot>
-     */
-    public function addonProducts(): BelongsToMany
-    {
-        return $this->belongsToMany(Product::class, 'license_plugins', 'license_id', 'product_id')->withTimestamps();
     }
 
     /**

@@ -81,12 +81,12 @@ class LicenseFileService
      * carries both the create and update table schemes (scheme_id 2 and 3) —
      * the client decides at install time whether its local plugin_license
      * table already exists. Fails if the product isn't actually attached to
-     * this license.
+     * this license (the license lacks the plugin's feature).
      */
     private function buildLicensePayload(License $license, ?int $pluginProductId = null): string|false
     {
         if ($pluginProductId !== null) {
-            if (! $license->addonProducts()->where('products.id', $pluginProductId)->exists()) {
+            if (! in_array($pluginProductId, $this->entitlements->pluginIds($license), strict: true)) {
                 return false;
             }
 
@@ -127,7 +127,7 @@ class LicenseFileService
             'license_machine_id' => $license->license_machine_id,
             'scheme_query' => $schemeQuery,
             // An object even when empty, so the product always decodes it the same way.
-            'entitlements' => (object) $this->entitlements->resolve($license),
+            'entitlements' => $this->entitlements->payload($license),
         ]);
     }
 }

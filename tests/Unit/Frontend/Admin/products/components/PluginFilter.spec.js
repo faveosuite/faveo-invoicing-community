@@ -56,10 +56,10 @@ describe('PluginFilter.vue', () => {
     })
 
     it('apply emits object-value ids as primitive values', () => {
-        wrapper.vm.form.status = { id: 'bundled' }
+        wrapper.vm.form.status = { id: 'compatible' }
         wrapper.vm.apply()
         const emitted = wrapper.emitted('apply')[0][0]
-        expect(emitted.status).toBe('bundled')
+        expect(emitted.status).toBe('compatible')
     })
 
     it('reset clears form fields back to null', () => {

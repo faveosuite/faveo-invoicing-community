@@ -8,7 +8,6 @@ use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ProductPluginController extends Controller
 {
@@ -18,7 +17,6 @@ class ProductPluginController extends Controller
             /** @var Product $product */
             $product = Product::findOrFail($productId);
 
-            $bundledIds = $product->bundledPlugins()->pluck('products.id')->toArray();
             $compatibleIds = $product->compatiblePlugins()->pluck('products.id')->toArray();
 
             $plugins = Product::where('product_type', 'addon')
@@ -28,7 +26,6 @@ class ProductPluginController extends Controller
                 ->map(fn ($p): array => [
                     'id' => $p->id,
                     'name' => $p->name,
-                    'is_bundled' => in_array($p->id, $bundledIds),
                     'is_compatible' => in_array($p->id, $compatibleIds),
                 ]);
 
@@ -45,8 +42,6 @@ class ProductPluginController extends Controller
     public function sync(Request $request, mixed $productId): JsonResponse
     {
         $request->validate([
-            'bundled' => ['array'],
-            'bundled.*' => ['integer'],
             'compatible' => ['array'],
             'compatible.*' => ['integer'],
         ]);
@@ -59,13 +54,10 @@ class ProductPluginController extends Controller
                 ->where('id', '!=', $productId)
                 ->pluck('id')->toArray();
 
-            $bundledIds = array_values(array_intersect($request->input('bundled', []), $validIds));
             $compatibleIds = array_values(array_intersect($request->input('compatible', []), $validIds));
 
-            DB::transaction(function () use ($product, $bundledIds, $compatibleIds): void {
-                $product->bundledPlugins()->sync($bundledIds);
-                $product->compatiblePlugins()->sync($compatibleIds);
-            });
+            // Which plugins work with the product. Who may use one is the plan's features.
+            $product->compatiblePlugins()->sync($compatibleIds);
 
             return successResponse(__('message.updated-successfully'));
         } catch (ModelNotFoundException $exception) {

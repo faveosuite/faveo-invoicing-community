@@ -9,6 +9,7 @@ use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseNotification;
 use App\License\Models\LicenseReport;
 use App\License\Services\BannedHostService;
+use App\License\Services\Ed25519SigningService;
 use App\License\Services\InstallationService;
 use App\License\tests\Backend\LicenseTestCase;
 use App\Model\Product\Product;
@@ -67,6 +68,14 @@ class LicenseInstallControllerTest extends LicenseTestCase
 
         $this->assertSame('notification_license_ok', $response->headers->get('notification_case'));
         $this->assertSame(1, LicenseCallback::where('license_code', $license->license_code)->count());
+
+        // The features travel signed, over exactly what the product sent, so it can trust them.
+        $data = json_decode((string) $response->headers->get('notification_data'), true);
+        $message = $product->id.'|'.$license->license_code.'|https://example.com/helpdesk|'.$data['entitlements'];
+        $signing = new Ed25519SigningService;
+        $this->assertTrue($signing->verify($message, $data['entitlements_signature']));
+        $this->assertFalse($signing->verify(str_replace('example.com', 'other.com', $message), $data['entitlements_signature'])); // another install
+        $this->assertSame(1, json_decode($data['entitlements'], true)['v']);
     }
 
     #[Test]

@@ -33,7 +33,7 @@ class EntitlementController extends Controller
 
         $items = Entitlement::orderBy('sort')->orderBy('id')->get()
             ->map(fn (Entitlement $item): array => [
-                ...$item->only(['id', 'feature', 'key', 'label', 'type', 'options', 'default_value', 'is_active']),
+                ...$item->only(['id', 'code', 'category', 'label', 'type', 'options', 'default_value', 'is_active']),
                 'in_use' => $this->inUse($item),
                 'system' => EntitlementService::isAgents($item), // built in: agents, can't be removed
             ]);
@@ -43,7 +43,7 @@ class EntitlementController extends Controller
 
     /**
      * Saves the full feature list. A feature left out is deleted, or archived when plans or
-     * customers already use it. A used feature can't change feature, key or type.
+     * customers already use it. A used feature can't change its code or type (products check the code).
      */
     public function sync(Request $request): JsonResponse
     {
@@ -52,8 +52,8 @@ class EntitlementController extends Controller
         $rows = $request->validate([
             'entitlements' => ['present', 'array'],
             'entitlements.*.id' => ['nullable', 'integer'],
-            'entitlements.*.feature' => $slug,
-            'entitlements.*.key' => $slug,
+            'entitlements.*.code' => $slug,
+            'entitlements.*.category' => ['nullable', 'string', 'max:50'],
             'entitlements.*.label' => ['required', 'string', 'max:100'],
             'entitlements.*.type' => ['required', Rule::in(Entitlement::TYPES)],
             'entitlements.*.options' => ['nullable', 'array', 'required_if:entitlements.*.type,select'],
@@ -67,30 +67,30 @@ class EntitlementController extends Controller
 
         DB::transaction(function () use ($rows, $existing, &$seen): void {
             foreach (array_values($rows) as $i => $row) {
-                $path = $row['feature'].'.'.$row['key'];
+                $path = $row['code'];
                 if (isset($seen[$path])) {
-                    throw ValidationException::withMessages(["entitlements.$i.key" => __('message.entitlement_duplicate', ['key' => $path])]);
+                    throw ValidationException::withMessages(["entitlements.$i.code" => __('message.entitlement_duplicate', ['key' => $path])]);
                 }
 
                 $item = isset($row['id'])
                     ? $existing->get($row['id'])
-                    : $existing->first(fn (Entitlement $e): bool => $e->feature === $row['feature'] && $e->key === $row['key']);
+                    : $existing->first(fn (Entitlement $e): bool => $e->code === $row['code']);
                 if (isset($row['id']) && ! $item) {
                     throw ValidationException::withMessages(["entitlements.$i.id" => __('message.record_not_found')]);
                 }
 
-                if ($item && $this->inUse($item) && ($item->feature !== $row['feature'] || $item->key !== $row['key'] || $item->type !== $row['type'])) {
-                    throw ValidationException::withMessages(["entitlements.$i.type" => __('message.entitlement_locked', ['key' => $item->feature.'.'.$item->key])]);
+                if ($item && $this->inUse($item) && ($item->code !== $row['code'] || $item->type !== $row['type'])) {
+                    throw ValidationException::withMessages(["entitlements.$i.type" => __('message.entitlement_locked', ['key' => $item->code])]);
                 }
 
                 if ($path === EntitlementService::AGENTS || ($item && EntitlementService::isAgents($item))) {
-                    $row = [...$row, 'feature' => 'agents', 'key' => 'max', 'type' => 'number', 'is_active' => true]; // built in
+                    $row = [...$row, 'code' => EntitlementService::AGENTS, 'type' => 'number', 'is_active' => true]; // built in
                 }
 
                 $item ??= new Entitlement;
                 $item->fill([
-                    'feature' => $row['feature'],
-                    'key' => $row['key'],
+                    'code' => $row['code'],
+                    'category' => filled($row['category'] ?? null) ? trim((string) $row['category']) : null,
                     'label' => $row['label'],
                     'type' => $row['type'],
                     'options' => $row['type'] === 'select' ? array_values(array_unique($row['options'] ?? [])) : null,
@@ -105,7 +105,7 @@ class EntitlementController extends Controller
                 $item->default_value = $default;
                 $item->save();
 
-                $seen[$item->feature.'.'.$item->key] = $item->id;
+                $seen[$item->code] = $item->id;
             }
 
             foreach ($existing->except(array_values($seen))->reject(fn (Entitlement $e): bool => EntitlementService::isAgents($e)) as $removed) {
@@ -165,7 +165,7 @@ class EntitlementController extends Controller
                 };
 
                 return [
-                    ...$item->only(['id', 'feature', 'key', 'label', 'type', 'options', 'default_value', 'is_active']),
+                    ...$item->only(['id', 'code', 'category', 'label', 'type', 'options', 'default_value', 'is_active']),
                     'agents' => $agents,
                     'mode' => $mode,
                     'value' => $agents ? $this->includedAgents($plan) : ($included->get($item->id)),
@@ -213,7 +213,7 @@ class EntitlementController extends Controller
                 if (! $item) {
                     continue;
                 }
-                $key = $item->feature.'.'.$item->key;
+                $key = $item->code;
                 $fail = fn (string $message) => throw ValidationException::withMessages(["entitlements.$i.value" => $message]);
                 $prices = $this->pricesFrom((array) ($row['prices'] ?? []));
                 $sellable = in_array($item->type, ['boolean', 'number'], strict: true);
@@ -313,14 +313,14 @@ class EntitlementController extends Controller
         $license = $this->orderLicense($orderId);
 
         $items = array_map(fn (array $row): array => [
-            ...$row['item']->only(['id', 'feature', 'key', 'label', 'type', 'options']),
+            ...$row['item']->only(['id', 'code', 'category', 'label', 'type', 'options']),
             'plan_value' => $row['plan'],
             'extra' => $row['extra'],
             'override' => $row['override'],
             'until' => $row['until'],
             'value' => $row['value'],
             'from_code' => $row['locked'],
-            'locked' => $row['locked'] || $row['item']->feature.'.'.$row['item']->key === EntitlementService::AGENTS,
+            'locked' => $row['locked'] || EntitlementService::isAgents($row['item']),
         ], $this->service->rows($license));
 
         // Features the plan doesn't include can be given by an override too.
@@ -330,7 +330,7 @@ class EntitlementController extends Controller
                 continue;
             }
             $items[] = [
-                ...$item->only(['id', 'feature', 'key', 'label', 'type', 'options']),
+                ...$item->only(['id', 'code', 'category', 'label', 'type', 'options']),
                 'plan_value' => null, 'extra' => 0, 'override' => null, 'until' => null, 'value' => null,
                 'from_code' => false, 'locked' => false,
             ];
@@ -349,13 +349,13 @@ class EntitlementController extends Controller
             'until' => ['nullable', 'date', 'after_or_equal:today'],
         ]);
 
-        if ($item->feature.'.'.$item->key === EntitlementService::AGENTS) {
+        if (EntitlementService::isAgents($item)) {
             throw ValidationException::withMessages(['value' => __('message.entitlement_agents_locked')]);
         }
 
         $value = $item->normalize($data['value']);
         if (! is_string($value)) {
-            throw ValidationException::withMessages(['value' => __('message.entitlement_invalid_value', ['key' => $item->feature.'.'.$item->key])]);
+            throw ValidationException::withMessages(['value' => __('message.entitlement_invalid_value', ['key' => $item->code])]);
         }
 
         $until = isset($data['until']) ? date('Y-m-d', (int) strtotime((string) $data['until'])) : null;
@@ -393,6 +393,7 @@ class EntitlementController extends Controller
     {
         return DB::table('plan_entitlements')->where('entitlement_id', $item->id)->exists()
             || DB::table('order_entitlements')->where('entitlement_id', $item->id)->exists()
-            || License::whereNotNull("entitlement_base->{$item->feature}->{$item->key}")->exists();
+            || Product::where('unlocks_entitlement_id', $item->id)->exists()
+            || License::whereNotNull("entitlement_base->{$item->code}")->orWhereNotNull("entitlement_overrides->{$item->code}")->exists();
     }
 }

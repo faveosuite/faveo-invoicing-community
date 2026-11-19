@@ -127,6 +127,7 @@ class LicenseInstallController extends Controller
             'license_support_date' => $license->license_support_date,
             'license_domain' => $license->license_domain,
             'license_ip' => $license->license_ip,
+            ...$this->signedEntitlements($license),
         ], $product, $license);
     }
 

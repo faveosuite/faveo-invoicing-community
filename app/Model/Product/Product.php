@@ -9,7 +9,6 @@ use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseReport;
 use App\Model\Configure\PluginCompatibleWithProducts;
-use App\Model\Configure\ProductPluginGroup;
 use App\Model\License\LicenseType;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
@@ -86,8 +85,8 @@ use Spatie\Activitylog\Models\Activity;
  * @property-read int|null $promo_relation_count
  * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read Collection<int, Product> $bundledPlugins
- * @property-read int|null $bundled_plugins_count
+ * @property int|null $unlocks_entitlement_id
+ * @property-read Entitlement|null $unlocksEntitlement
  * @property-read Collection<int, Product> $compatiblePlugins
  * @property-read int|null $compatible_plugins_count
  * @property-read int|null $entitlements_count
@@ -113,10 +112,6 @@ use Spatie\Activitylog\Models\Activity;
  * @property-read int|null $price_count
  * @property-read Collection<int, PluginCompatibleWithProducts> $productCompWith
  * @property-read int|null $product_comp_with_count
- * @property-read Collection<int, ProductPluginGroup> $productPluginGroupsAsPlugin
- * @property-read int|null $product_plugin_groups_as_plugin_count
- * @property-read Collection<int, ProductPluginGroup> $productPluginGroupsAsProduct
- * @property-read int|null $product_plugin_groups_as_product_count
  * @property-read Collection<int, ProductUpload> $productUpload
  * @property-read int|null $product_upload_count
  * @property-read int|null $subscription_count
@@ -407,36 +402,31 @@ class Product extends BaseModel
         return $this->belongsTo(ProductGroup::class, 'group', 'id');
     }
 
+    /** Every add-on gets the feature that unlocks it, so plans can include or sell it. */
+    #[Override]
+    protected static function booted(): void
+    {
+        static::saved(function (Product $product): void {
+            if ($product->product_type === 'addon' && $product->unlocks_entitlement_id === null) {
+                \App\Services\EntitlementService::pluginFeature($product);
+            }
+        });
+    }
+
+    /**
+     * On a plugin product: the feature that unlocks it. A license may run and download the
+     * plugin when it has this feature.
+     *
+     * @return BelongsTo<Entitlement, $this>
+     */
+    public function unlocksEntitlement(): BelongsTo
+    {
+        return $this->belongsTo(Entitlement::class, 'unlocks_entitlement_id');
+    }
+
     public function plan(): mixed
     {
         return $this->planRelation()->first();
-    }
-
-    // Define the relationship with ProductPluginGroup (as product)
-    /**
-     * @return HasMany<ProductPluginGroup, $this>
-     */
-    public function productPluginGroupsAsProduct(): HasMany
-    {
-        return $this->hasMany(ProductPluginGroup::class, 'product_id');
-    }
-
-    // Define the relationship with ProductPluginGroup (as plugin)
-    /**
-     * @return HasMany<ProductPluginGroup, $this>
-     */
-    public function productPluginGroupsAsPlugin(): HasMany
-    {
-        return $this->hasMany(ProductPluginGroup::class, 'plugin_id');
-    }
-
-    // Plugins bundled with this product (config options / order flow)
-    /**
-     * @return BelongsToMany<Product, $this, Pivot>
-     */
-    public function bundledPlugins(): BelongsToMany
-    {
-        return $this->belongsToMany(static::class, 'product_plugin_group', 'product_id', 'plugin_id'); // @phpstan-ignore return.type
     }
 
     // Plugins compatible with this product (store display / license lookup)

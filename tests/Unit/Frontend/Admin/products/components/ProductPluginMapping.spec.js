@@ -12,9 +12,9 @@ const pluginData = {
     data: {
         data: {
             plugins: [
-                { id: 1, name: 'Plugin A', is_bundled: true,  is_compatible: true  },
-                { id: 2, name: 'Plugin B', is_bundled: false, is_compatible: true  },
-                { id: 3, name: 'Plugin C', is_bundled: false, is_compatible: false },
+                { id: 1, name: 'Plugin A', is_compatible: true  },
+                { id: 2, name: 'Plugin B', is_compatible: true  },
+                { id: 3, name: 'Plugin C', is_compatible: false },
             ],
         },
     },

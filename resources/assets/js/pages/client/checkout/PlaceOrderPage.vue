@@ -10,100 +10,88 @@
         <p class="text-color-grey mb-0">{{ error || __('message.err_msg') }}</p>
       </div>
 
-      <div v-else class="row pb-4 mb-5">
-
-        <!-- Items -->
-        <div class="col-lg-7 mb-4 mb-lg-0">
-          <div class="table-responsive">
-            <table class="shop_table cart">
-              <thead>
-                <tr class="text-color-dark">
-                  <th class="product-thumbnail" style="width:15%">&nbsp;</th>
-                  <th class="product-name text-uppercase" style="width:35%">{{ __('message.product') }}</th>
-                  <th class="product-quantity text-uppercase" style="width:15%">{{ __('message.quantity') }}</th>
-                  <th class="product-subtotal text-uppercase text-end" style="width:15%">{{ __('message.total') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="it in items" :key="it.id" class="cart_table_item">
-                  <td class="product-thumbnail">
-                    <span class="product-thumbnail-image d-inline-block">
-                      <img v-if="it.image" :src="it.image" alt="" width="90" height="90" class="img-fluid" />
-                      <span v-else class="d-inline-flex align-items-center justify-content-center bg-light product-placeholder">
-                        <i class="fas fa-box text-color-grey fa-2x" aria-hidden="true"></i>
-                      </span>
-                    </span>
-                  </td>
-                  <td class="product-name">
-                    <span class="font-weight-semi-bold text-color-dark">{{ it.product_name }}</span>
-                    <div v-if="it.agents !== null && it.agents !== undefined" class="text-2 text-color-grey">
-                      {{ it.agents ? __('message.agents_count', { count: it.agents }) : __('message.unlimited_agents') }}
+      <div v-else class="pb-5">
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <!-- Invoice items -->
+            <section class="co-card" aria-labelledby="inv-h">
+              <div class="co-card-header">
+                <h2 id="inv-h" class="co-title">{{ __('message.co_invoice_number', { number: invoice.number }) }}</h2>
+                <span class="badge rounded-pill" :class="invoice.status === 'partially paid' ? 'text-bg-warning' : 'text-bg-light border'">
+                  {{ invoice.status === 'partially paid' ? __('message.partially_paid') : __('message.unpaid') }}
+                </span>
+              </div>
+              <ul class="list-unstyled mb-0">
+                <li v-for="it in items" :key="it.id" class="co-item align-items-center">
+                  <span class="co-thumb" aria-hidden="true">
+                    <img v-if="it.image" :src="it.image" alt="" width="56" height="56" />
+                    <i v-else class="fas fa-box"></i>
+                  </span>
+                  <div class="flex-grow-1 min-w-0">
+                    <div class="fw-semibold text-color-dark">{{ it.product_name }}</div>
+                    <div v-for="e in (it.extras || [])" :key="e.entitlement_id" class="co-note">{{ e.label }}<template v-if="e.quantity > 1"> × {{ e.quantity }}</template></div>
+                    <div class="co-meta">
+                      <span v-if="it.agents !== null && it.agents !== undefined">{{ it.agents ? (it.agents === 1 ? __('message.cart_one_agent') : __('message.cart_n_agents', { count: it.agents })) : __('message.plan_agents_unlimited') }}</span>
+                      <span v-if="it.quantity > 1">{{ __('message.cart_qty', { count: it.quantity }) }}</span>
                     </div>
-                  </td>
-                  <td class="product-quantity"><span class="text-color-dark">{{ it.quantity }}</span></td>
-                  <td class="product-subtotal text-end">
-                    <span class="amount text-color-dark font-weight-bold text-4">{{ symbol }}{{ it.subtotal }}</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  </div>
+                  <span class="co-price">{{ symbol }}{{ it.subtotal }}</span>
+                </li>
+              </ul>
+            </section>
+
+            <!-- Chosen payment method (picked on checkout) -->
+            <section v-if="amountDueNumber > 0 && selectedGateway" class="co-card" aria-labelledby="pm-h">
+              <div class="co-card-header"><h2 id="pm-h" class="co-title">{{ __('message.co_payment_method') }}</h2></div>
+              <div class="co-card-body d-flex align-items-center gap-3">
+                <img :src="`${baseUrl}/images/logo/${selectedGateway}.png`" :alt="selectedGateway" height="24" class="gateway-logo" @error="$event.target.replaceWith(selectedGateway)" />
+                <span class="flex-grow-1 co-note">{{ gatewayNote(selectedGateway) }}</span>
+                <router-link :to="{ path: '/checkout', query: { invoice: invoice.id } }" class="co-link">{{ __('message.co_change') }}</router-link>
+              </div>
+            </section>
           </div>
-        </div>
 
-        <!-- Order summary + payment -->
-        <div class="col-lg-5 position-relative">
-          <div class="card border-width-3 border-radius-0">
-            <div class="card-body">
-              <h4 class="font-weight-bold text-uppercase text-4 mb-0 pb-3 border-bottom">{{ __('message.your_order') }}</h4>
-
-              <div v-if="summary.subtotal_ex_tax !== undefined" class="d-flex justify-content-between py-3 border-bottom">
-                <strong class="text-color-dark">
-                  {{ __('message.sub_total') }}
-                  <small v-if="toNumber(summary.tax_total) > 0 && summary.tax_label" class="text-color-grey fw-normal">(ex. {{ summary.tax_label }})</small>
-                </strong>
-                <span class="amount font-weight-medium">{{ symbol }}{{ summary.subtotal_ex_tax }}</span>
-              </div>
-
-              <div v-for="(t, i) in (summary.taxes || [])" :key="i" class="d-flex justify-content-between py-3 border-bottom">
-                <strong class="text-color-dark">{{ t.label }}<span v-if="t.rate" class="text-color-grey fw-normal"> ({{ t.rate }}%)</span></strong>
-                <span class="amount font-weight-medium">{{ symbol }}{{ t.amount }}</span>
-              </div>
-
-              <div v-if="toNumber(summary.discount) > 0" class="d-flex justify-content-between py-3 border-bottom">
-                <strong class="text-color-dark">{{ summary.coupon_code ? __('message.coupon') : __('message.discount') }}<span v-if="summary.coupon_code" class="text-color-grey fw-normal"> : {{ summary.coupon_code }}</span></strong>
-                <span class="amount text-success">−{{ symbol }}{{ summary.discount }}</span>
-              </div>
-
-              <div v-if="paidAmountNumber > 0" class="d-flex justify-content-between py-3 border-bottom">
-                <strong class="text-color-dark">{{ __('message.credit_applied') }}</strong>
-                <span class="amount text-success">−{{ symbol }}{{ paidAmount }}</span>
-              </div>
-
-              <div v-if="creditAppliedNumber > 0" class="d-flex justify-content-between py-3 border-bottom">
-                <strong class="text-color-dark">{{ __('message.credit_to_apply') }}</strong>
-                <span class="amount text-success">−{{ symbol }}{{ creditApplied }}</span>
-              </div>
-
-              <div v-if="toNumber(feeAmount) > 0" class="d-flex justify-content-between py-3 border-bottom">
-                <strong class="text-color-dark">{{ __('message.processing_fee') }}<span v-if="feePercent" class="text-color-grey fw-normal"> ({{ feePercent }}%)</span></strong>
-                <span class="amount font-weight-medium">{{ symbol }}{{ feeAmount }}</span>
-              </div>
-
-              <div class="d-flex justify-content-between py-3 border-bottom">
-                <strong class="text-color-dark text-4">{{ __('message.total') }}</strong>
-                <strong class="text-color-dark text-4">{{ symbol }}{{ payable }}</strong>
-              </div>
-
-              <div class="py-3">
-                <button type="button"
-                        class="btn btn-dark btn-modern w-100 text-uppercase border-radius-0 text-3 py-3"
-                        :disabled="busy || (amountDueNumber > 0 && !selectedGateway)"
-                        @click="continuePay">
-                  {{ busy ? __('message.please_wait') : __('message.pay_now') }}
-                  <i v-if="!busy" class="fas fa-arrow-right ms-2" aria-hidden="true"></i>
+          <!-- Summary + pay -->
+          <div class="col-lg-4">
+            <aside class="co-card co-summary" aria-labelledby="sum-h">
+              <div class="co-card-header"><h2 id="sum-h" class="co-title">{{ __('message.cart_totals') }}</h2></div>
+              <div class="co-card-body">
+                <div v-if="summary.subtotal_ex_tax !== undefined" class="co-row">
+                  <span>{{ __('message.subtotal') }} <span v-if="toNumber(summary.tax_total) > 0 && summary.tax_label" class="co-note">(ex. {{ summary.tax_label }})</span></span>
+                  <span class="co-amt">{{ symbol }}{{ summary.subtotal_ex_tax }}</span>
+                </div>
+                <div v-if="toNumber(summary.discount) > 0" class="co-row is-discount">
+                  <span>{{ summary.coupon_code ? __('message.coupon') + ':' : __('message.discount') }} <strong v-if="summary.coupon_code">{{ summary.coupon_code }}</strong></span>
+                  <span class="co-amt">−{{ symbol }}{{ summary.discount }}</span>
+                </div>
+                <div v-for="(t, i) in (summary.taxes || [])" :key="i" class="co-row">
+                  <span>{{ t.rate ? `${t.label} ${t.rate}%` : t.label }}</span>
+                  <span class="co-amt">{{ symbol }}{{ t.amount }}</span>
+                </div>
+                <div v-if="paidAmountNumber > 0" class="co-row is-discount">
+                  <span>{{ __('message.co_already_paid') }}</span>
+                  <span class="co-amt">−{{ symbol }}{{ paidAmount }}</span>
+                </div>
+                <div v-if="creditAppliedNumber > 0" class="co-row is-discount">
+                  <span>{{ __('message.co_credit_balance') }}</span>
+                  <span class="co-amt">−{{ symbol }}{{ creditApplied }}</span>
+                </div>
+                <div v-if="toNumber(feeAmount) > 0" class="co-row">
+                  <span>{{ __('message.processing_fee') }}<template v-if="feePercent"> ({{ feePercent }}%)</template></span>
+                  <span class="co-amt">{{ symbol }}{{ feeAmount }}</span>
+                </div>
+                <div class="co-row is-total">
+                  <span>{{ __('message.co_total_payable') }}</span>
+                  <span class="co-amt">{{ symbol }}{{ payable }}</span>
+                </div>
+                <button type="button" class="btn btn-primary btn-modern w-100 text-uppercase py-3 mt-3"
+                        :disabled="busy || (amountDueNumber > 0 && !selectedGateway)" @click="continuePay">
+                  <span v-if="busy" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                  <i v-else class="fas fa-lock me-2" aria-hidden="true"></i>{{ busy ? __('message.please_wait') : __('message.pay_now') }}
                 </button>
+                <p v-if="amountDueNumber > 0 && selectedGateway" class="co-note text-center mt-3 mb-0">{{ __('message.co_secure_note', { gateway: selectedGateway }) }}</p>
               </div>
-            </div>
+            </aside>
           </div>
         </div>
 
@@ -111,63 +99,48 @@
     </div>
   </div>
 
-  <!-- Stripe card modal (custom card fields) -->
-  <AppModal
-    :showModal="showStripeModal"
-    :onClose="onStripeModalClose"
-    :showCloseBtn="false"
-    :showControls="false"
-    classname="modal-md"
-  >
+  <!-- Stripe card modal: card fields are Stripe iframes, so card data never touches our server -->
+  <AppModal :showModal="showStripeModal" :onClose="onStripeModalClose" :showCloseBtn="false" classname="modal-dialog-centered co-card-modal" footerClass="gap-2">
     <template #title>
-      <div class="d-flex align-items-center justify-content-between w-100 me-3">
-        <h5 class="modal-title fw-bold">{{ __('message.enter_card_details') }}</h5>
-        <div class="d-flex gap-1">
-          <img :src="`${baseUrl}/images/logo/cards/visa.svg`" alt="Visa" height="20" width="30">
-          <img :src="`${baseUrl}/images/logo/cards/mastercard.svg`" alt="Mastercard" height="20" width="30">
-          <img :src="`${baseUrl}/images/logo/cards/amex.svg`" alt="American Express" height="20" width="30">
-        </div>
-      </div>
+      <h2 class="modal-title h5 mb-0">{{ __('message.co_pay_by_card') }}</h2>
+      <p class="co-note mb-0">{{ __('message.co_invoice_number', { number: invoice.number }) }}</p>
     </template>
 
     <template #fields>
-      <div class="px-2 pb-3">
-        <AppAlert componentName="stripe-modal" />
+      <AppAlert componentName="stripe-modal" />
 
-        <!-- Card Number -->
-        <div class="mb-4">
-          <label id="card-number-label" for="card-number" class="form-label mb-1" @click="focusCard('number')">{{ __('message.card_number') }}</label>
-          <div id="card-number" class="form-control h-auto py-3" :class="{ 'is-invalid': cardErrors.number }"></div>
-          <div class="invalid-feedback d-block" aria-live="polite">{{ cardErrors.number }}</div>
-        </div>
-
-        <!-- Expiry + CVC -->
-        <div class="row g-3 mb-4">
-          <div class="col-6">
-            <label id="card-expiry-label" for="card-expiry" class="form-label mb-1" @click="focusCard('expiry')">{{ __('message.expiry_date') }}</label>
-            <div id="card-expiry" class="form-control h-auto py-3" :class="{ 'is-invalid': cardErrors.expiry }"></div>
-            <div class="invalid-feedback d-block" aria-live="polite">{{ cardErrors.expiry }}</div>
-          </div>
-          <div class="col-6">
-            <label id="card-cvc-label" for="card-cvc" class="form-label mb-1" @click="focusCard('cvc')">{{ __('message.cvc') }}</label>
-            <div id="card-cvc" class="form-control h-auto py-3" :class="{ 'is-invalid': cardErrors.cvc }"></div>
-            <div class="invalid-feedback d-block" aria-live="polite">{{ cardErrors.cvc }}</div>
-          </div>
-        </div>
-
-        <!-- Total row -->
-        <div class="d-flex justify-content-between align-items-center border rounded px-2 py-2 mb-3">
-          <span class="fw-bold text-color-dark">{{ __('message.total') }}</span>
-          <span class="fw-bold text-color-dark">{{ symbol }}{{ payable }}</span>
-        </div>
-
-        <!-- Pay Now button -->
-        <button class="btn btn-primary w-100 py-2 fw-bold text-uppercase"
-                :disabled="busy" @click="payStripe">
-          {{ busy ? __('message.please_wait') : __('message.pay_now') }}
-        </button>
-
+      <div class="d-flex align-items-center justify-content-between mb-1">
+        <label id="card-number-label" for="card-number" class="form-label fw-semibold mb-0" @click="focusCard('number')">{{ __('message.card_number') }}</label>
+        <span class="d-flex gap-1">
+          <img :src="`${baseUrl}/images/logo/cards/visa.svg`" alt="Visa" height="20" width="30">
+          <img :src="`${baseUrl}/images/logo/cards/mastercard.svg`" alt="Mastercard" height="20" width="30">
+          <img :src="`${baseUrl}/images/logo/cards/amex.svg`" alt="American Express" height="20" width="30">
+        </span>
       </div>
+      <div id="card-number" class="form-control h-auto py-3" :class="{ 'is-invalid': cardErrors.number }"></div>
+      <div class="invalid-feedback d-block" aria-live="polite">{{ cardErrors.number }}</div>
+
+      <div class="row g-3 mt-0">
+        <div class="col-6">
+          <label id="card-expiry-label" for="card-expiry" class="form-label fw-semibold mb-1" @click="focusCard('expiry')">{{ __('message.expiry_date') }}</label>
+          <div id="card-expiry" class="form-control h-auto py-3" :class="{ 'is-invalid': cardErrors.expiry }"></div>
+          <div class="invalid-feedback d-block" aria-live="polite">{{ cardErrors.expiry }}</div>
+        </div>
+        <div class="col-6">
+          <label id="card-cvc-label" for="card-cvc" class="form-label fw-semibold mb-1" @click="focusCard('cvc')">{{ __('message.cvc') }}</label>
+          <div id="card-cvc" class="form-control h-auto py-3" :class="{ 'is-invalid': cardErrors.cvc }"></div>
+          <div class="invalid-feedback d-block" aria-live="polite">{{ cardErrors.cvc }}</div>
+        </div>
+      </div>
+      <p class="co-note mt-3 mb-0"><i class="fas fa-lock me-1" aria-hidden="true"></i>{{ __('message.co_card_note') }}</p>
+    </template>
+
+    <template #controls>
+      <button type="button" class="btn btn-light btn-modern text-uppercase" :disabled="busy" @click="onStripeModalClose">{{ __('message.cancel') }}</button>
+      <button type="button" class="btn btn-primary btn-modern text-uppercase" :disabled="busy" @click="payStripe">
+        <span v-if="busy" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+        {{ busy ? __('message.co_processing') : __('message.co_pay_amount', { amount: symbol + payable }) }}
+      </button>
     </template>
   </AppModal>
 </template>
@@ -231,6 +204,10 @@ const selectedGatewayData = computed(() =>
 const feeAmount = computed(() => selectedGatewayData.value?.fee_amount ?? 0)
 const feePercent = computed(() => selectedGatewayData.value?.processing_fee ?? 0)
 const payable = computed(() => selectedGatewayData.value?.payable ?? amountDue.value)
+
+// One line next to the gateway logo.
+const GATEWAY_NOTES = { stripe: 'message.co_gateway_stripe', razorpay: 'message.co_gateway_razorpay' }
+const gatewayNote = name => (GATEWAY_NOTES[name.toLowerCase()] ? __(GATEWAY_NOTES[name.toLowerCase()]) : '')
 
 const cardErrors = reactive({ number: '', expiry: '', cvc: '' })
 const cardComplete = reactive({ number: false, expiry: false, cvc: false })
@@ -483,5 +460,10 @@ function onPaid() {
 </script>
 
 <style scoped>
-.product-placeholder { width: 90px; height: 90px; }
+.min-w-0 { min-width: 0; }
+.gateway-logo { width: auto; }
+</style>
+
+<style>
+.modal-dialog.co-card-modal { max-width: 460px; }
 </style>

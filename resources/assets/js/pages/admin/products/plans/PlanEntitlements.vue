@@ -40,7 +40,7 @@
                 <template #label="{ row }">
                     {{ row.label }}
                     <span v-if="!row.is_active" class="badge text-bg-secondary ms-1">{{ __('message.entitlement_archived') }}</span>
-                    <div class="small text-muted">{{ row.feature }}.{{ row.key }}</div>
+                    <div class="small text-muted">{{ row.code }}</div>
                 </template>
                 <template #mode="{ row }">
                     <StaticSelect :name="`mode_${row.id}`" classname="mb-0" :value="row.mode" :elements="modes(row)"
@@ -142,7 +142,7 @@ const agents     = computed(() => items.value.find(i => i.agents) ?? null)
 // Only the features this plan uses are listed; the rest are picked from "Add feature".
 const shown      = computed(() => items.value.filter(i => !i.agents && i.mode !== 'none'))
 const available  = computed(() => items.value.filter(i => !i.agents && i.mode === 'none' && i.is_active)
-    .map(i => ({ id: i.id, name: `${i.label} (${i.feature}.${i.key})` })))
+    .map(i => ({ id: i.id, name: `${i.label} (${i.code})` })))
 
 // Table cells get a copy of the row, so changes go to the item itself.
 function set(row, field, value) {
