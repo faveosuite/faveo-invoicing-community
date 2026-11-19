@@ -3,7 +3,9 @@
 namespace App\License\Models;
 
 use App\Model\Order\Order;
+use App\Model\Product\Grant;
 use App\Model\Product\Product;
+use App\Services\EntitlementService;
 use App\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -35,8 +37,7 @@ use Override;
  * @property string|null $license_support_email_date
  * @property string|null $license_comments
  * @property int $license_status
- * @property array<string, bool|int|string|null>|null $entitlement_base
- * @property array<string, array{value: string, until: string|null}>|null $entitlement_overrides
+ * @property int $version
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Collection<int, LicenseCallback> $callbacks
@@ -105,9 +106,26 @@ class License extends Model
         'license_support_email_date',
         'license_comments',
         'license_status',
-        'entitlement_base',
-        'entitlement_overrides',
     ];
+
+    #[Override]
+    protected static function booted(): void
+    {
+        // Date columns are written in many places; the run / updates / support grants follow them here.
+        static::saved(function (License $license): void {
+            if ($license->wasRecentlyCreated || $license->wasChanged(array_values(Grant::DATES))) {
+                resolve(EntitlementService::class)->syncDates($license);
+            }
+        });
+    }
+
+    /**
+     * @return HasMany<Grant, $this>
+     */
+    public function grants(): HasMany
+    {
+        return $this->hasMany(Grant::class);
+    }
 
     /**
      * @return BelongsTo<Product, $this>
@@ -218,8 +236,7 @@ class License extends Model
             'license_require_domain' => 'boolean',
             'license_limit' => 'integer',
             'license_status' => 'integer',
-            'entitlement_base' => 'array',
-            'entitlement_overrides' => 'array',
+            'version' => 'integer',
             'product_id' => 'integer',
             'user_id' => 'integer',
         ];

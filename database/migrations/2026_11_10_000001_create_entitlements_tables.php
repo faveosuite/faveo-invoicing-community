@@ -15,9 +15,15 @@ use Illuminate\Support\Facades\Schema;
  *                         offer % optional). A feature with a price on a plan can be bought as
  *                         an extra on that plan; agents use it as the per-agent price.
  *  - order_entitlements:  extras a customer bought, at the renewal price they keep.
- *  - licenses.entitlement_base: copy of the plan's values ({"code": value}) taken at purchase, so a later plan
- *    edit doesn't change what existing customers already bought.
- *  - licenses.entitlement_overrides: per-license admin overrides {"code": {value, until}}.
+ *  - grants:              every right a license (or a customer, for services) has: one feature code,
+ *                         its value and dates, and where it came from (source):
+ *                           plan    - the plan's value, copied at purchase so a later plan edit
+ *                                     doesn't change what existing customers bought
+ *                           extra   - units bought on top of the plan (mirrors order_entitlements)
+ *                           admin   - an admin override, optionally until a date
+ *                           license - the built-in dates: run, updates, support (ends_at = end date,
+ *                                     null = never), kept in step with the license's date columns
+ *  - licenses.version:    goes up on every grant change, so a product can tell a newer record.
  *  - cart_items.extras / invoice_items.extras: extras picked at checkout.
  *  - products.unlocks_entitlement_id: on a plugin product, the feature that unlocks it. A license
  *    may run and download the plugin when it has that feature.
@@ -83,9 +89,23 @@ return new class extends Migration
             $table->unique(['order_id', 'entitlement_id']);
         });
 
+        Schema::create('grants', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('license_id')->nullable()->constrained('licenses')->cascadeOnDelete();
+            $table->unsignedInteger('user_id')->nullable()->index(); // customer-level grants (services); license_id null
+            $table->string('code', 50); // entitlements.code, or run / updates / support
+            $table->string('value', 255)->nullable();
+            $table->string('source', 20); // plan | extra | admin | license
+            $table->date('starts_at')->nullable();
+            $table->date('ends_at')->nullable();
+            $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
+            $table->unique(['license_id', 'code', 'source']);
+            $table->index('code');
+        });
         Schema::table('licenses', function (Blueprint $table): void {
-            $table->json('entitlement_base')->nullable()->after('license_status');
-            $table->json('entitlement_overrides')->nullable()->after('entitlement_base');
+            $table->unsignedInteger('version')->default(0)->after('license_status');
         });
         Schema::table('cart_items', function (Blueprint $table): void {
             $table->json('extras')->nullable()->after('agents');
@@ -133,7 +153,8 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::table('licenses', fn (Blueprint $table) => $table->dropColumn(['entitlement_base', 'entitlement_overrides']));
+        Schema::table('licenses', fn (Blueprint $table) => $table->dropColumn('version'));
+        Schema::dropIfExists('grants');
         Schema::table('cart_items', fn (Blueprint $table) => $table->dropColumn('extras'));
         Schema::table('products', fn (Blueprint $table) => $table->dropConstrainedForeignId('unlocks_entitlement_id'));
         Schema::table('invoice_items', fn (Blueprint $table) => $table->dropColumn('extras'));

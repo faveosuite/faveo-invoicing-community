@@ -9,6 +9,7 @@ use App\License\Models\License;
 use App\Model\Common\CommonSettings;
 use App\Model\Common\SeoDefaultPage;
 use App\Model\Product\Entitlement;
+use App\Model\Product\Grant;
 use App\Model\Product\Product;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
 use App\Plugins\Zoho\Models\ZohoIntegration;
@@ -48,14 +49,16 @@ class DatabaseSeeder extends Seeder
         $this->seedFixedCouponCurrency();
         $this->stripExtrasFromInvoiceItemNames();
         $this->seedPluginFeatures();
+        $this->seedLicenseDateGrants();
     }
 
     /**
      * Plugins become features, so one rule decides access. Each plugin product gets the feature
      * that unlocks it; a product's bundled plugins become features its plans include; every
-     * license without a feature list gets its plan's, keeping only the plugins it was linked to;
+     * license without plan grants gets its plan's, keeping only the plugins it was linked to;
      * and a plugin link no plan explains (added by hand, or a license with no order here) becomes
-     * a permanent override. Every customer keeps exactly the plugins they had. Safe to run again. Verify with `php artisan license:check-plugin-features`.
+     * a permanent admin grant. Every customer keeps exactly the plugins they had. Safe to run
+     * again. Verify with `php artisan license:check-grants`.
      */
     public function seedPluginFeatures(): void
     {
@@ -72,7 +75,7 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // Licenses without a feature list get their plan's (one lookup per plan), minus plugins the
+        // Licenses without plan grants get their plan's (one lookup per plan), minus plugins the
         // license was never linked to: nobody gains a plugin from the move. "Apply to existing
         // licenses" on the plan, or a plan change, gives them later, like linking used to.
         $service = resolve(EntitlementService::class);
@@ -80,41 +83,82 @@ class DatabaseSeeder extends Seeder
         DB::table('licenses as l')
             ->join('orders as o', 'o.number', '=', 'l.license_order_number')
             ->join('subscriptions as s', 's.order_id', '=', 'o.id')
-            ->whereNull('l.entitlement_base')
+            ->whereNotExists(fn ($q) => $q->from('grants')->whereColumn('grants.license_id', 'l.id')->where('grants.source', Grant::PLAN))
             ->select('l.id', 'l.product_id', 's.plan_id')
-            ->chunkById(500, function ($rows) use ($service, &$planValues, $features, $codes): void {
-                $linked = DB::table('license_plugins')->whereIn('license_id', $rows->pluck('id'))->get(['license_id', 'product_id'])
-                    ->groupBy('license_id')
-                    ->map(fn ($links) => $links->map(fn ($link) => $codes[$features[$link->product_id] ?? 0] ?? null)->filter()->all());
+            ->chunkById(500, function ($rows) use ($service, &$planValues, $codes): void {
+                $linked = $this->linkedCodes($rows->pluck('id')->all());
+                $grants = [];
                 foreach ($rows as $row) {
                     $key = $row->product_id.'|'.$row->plan_id;
                     $planValues[$key] ??= $service->forPlan((int) $row->product_id, (int) $row->plan_id);
                     $notLinked = array_diff($codes->all(), $linked[$row->id] ?? []);
-                    $base = array_diff_key($planValues[$key], array_flip($notLinked));
-                    DB::table('licenses')->where('id', $row->id)->update(['entitlement_base' => json_encode($base)]);
+                    foreach (array_diff_key($planValues[$key], array_flip($notLinked)) as $code => $value) {
+                        $grants[] = $this->grantRow((int) $row->id, (string) $code, Grant::PLAN, match (true) {
+                            $value === null => null,
+                            is_bool($value) => $value ? '1' : '0',
+                            default => (string) $value,
+                        });
+                    }
+                }
+                foreach (array_chunk($grants, 1000) as $part) {
+                    DB::table('grants')->insertOrIgnore($part);
                 }
             }, 'l.id', 'id');
 
-        // Plugin links the plan doesn't cover → permanent override.
-        License::whereIn('id', DB::table('license_plugins')->select('license_id'))
-            ->select('id', 'entitlement_base', 'entitlement_overrides')
-            ->chunkById(500, function ($licenses) use ($features, $codes): void {
-                $links = DB::table('license_plugins')->whereIn('license_id', $licenses->modelKeys())->get(['license_id', 'product_id'])->groupBy('license_id');
-                foreach ($licenses as $license) {
-                    $base = $license->entitlement_base ?? [];
-                    $overrides = $license->entitlement_overrides ?? [];
-                    foreach ($links[$license->id] ?? [] as $link) {
-                        $code = $codes[$features[$link->product_id] ?? 0] ?? null;
-                        if ($code !== null && ($base[$code] ?? null) !== true && ($overrides[$code]['value'] ?? null) !== '1') {
-                            $overrides[$code] = ['value' => '1', 'until' => null];
-                        }
-                    }
-                    if ($overrides !== ($license->entitlement_overrides ?? [])) {
-                        $license->entitlement_overrides = $overrides;
-                        $license->save();
+        // Plugin links the plan doesn't cover → permanent admin grant.
+        DB::table('license_plugins')->select('license_id')->distinct()->orderBy('license_id')
+            ->chunk(500, function ($rows): void {
+                $ids = $rows->pluck('license_id')->all();
+                $planOn = DB::table('grants')->whereIn('license_id', $ids)->where('source', Grant::PLAN)->where('value', '1')
+                    ->get(['license_id', 'code'])->groupBy('license_id')->map(fn ($g) => $g->pluck('code')->all());
+                $grants = [];
+                foreach ($this->linkedCodes($ids) as $licenseId => $linkedCodes) {
+                    foreach (array_diff($linkedCodes, $planOn[$licenseId] ?? []) as $code) {
+                        $grants[] = $this->grantRow((int) $licenseId, $code, Grant::ADMIN, '1');
                     }
                 }
+                foreach (array_chunk($grants, 1000) as $part) {
+                    DB::table('grants')->insertOrIgnore($part);
+                }
             });
+    }
+
+    /**
+     * Each license's run / updates / support dates become grants (ends_at = the date, null =
+     * never). Afterwards the License model keeps them in step. Safe to run again.
+     */
+    public function seedLicenseDateGrants(): void
+    {
+        foreach (Grant::DATES as $code => $column) {
+            DB::statement("
+                INSERT IGNORE INTO grants (license_id, code, value, source, ends_at, created_at, updated_at)
+                SELECT l.id, ?, NULL, ?, CASE WHEN l.{$column} IS NULL OR CAST(l.{$column} AS CHAR) LIKE '0000%' THEN NULL ELSE DATE(l.{$column}) END, NOW(), NOW()
+                FROM licenses l", [$code, Grant::LICENSE]);
+        }
+    }
+
+    /**
+     * The plugin feature codes each license is linked to (license_plugins).
+     *
+     * @param  array<int, mixed>  $licenseIds
+     * @return array<array-key, array<int, mixed>>
+     */
+    private function linkedCodes(array $licenseIds): array
+    {
+        return DB::table('license_plugins as lp')
+            ->join('products as p', 'p.id', '=', 'lp.product_id')
+            ->join('entitlements as e', 'e.id', '=', 'p.unlocks_entitlement_id')
+            ->whereIn('lp.license_id', $licenseIds)
+            ->get(['lp.license_id', 'e.code'])
+            ->groupBy('license_id')
+            ->map(fn ($links): array => $links->pluck('code')->unique()->values()->all())
+            ->all();
+    }
+
+    /** @return array<string, mixed> */
+    private function grantRow(int $licenseId, string $code, string $source, ?string $value): array
+    {
+        return ['license_id' => $licenseId, 'code' => $code, 'value' => $value, 'source' => $source, 'ends_at' => null, 'created_at' => now(), 'updated_at' => now()];
     }
 
     /** One on/off feature per plugin product (see EntitlementService::pluginFeature). */

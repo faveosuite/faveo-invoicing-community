@@ -9,6 +9,7 @@ use App\License\Models\License;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Product\Entitlement;
+use App\Model\Product\Grant;
 use App\Model\Product\Product;
 use App\Services\EntitlementService;
 use Illuminate\Http\JsonResponse;
@@ -52,7 +53,7 @@ class EntitlementController extends Controller
         $rows = $request->validate([
             'entitlements' => ['present', 'array'],
             'entitlements.*.id' => ['nullable', 'integer'],
-            'entitlements.*.code' => $slug,
+            'entitlements.*.code' => [...$slug, Rule::notIn(array_keys(Grant::DATES))], // run / updates / support are the license dates
             'entitlements.*.category' => ['nullable', 'string', 'max:50'],
             'entitlements.*.label' => ['required', 'string', 'max:100'],
             'entitlements.*.type' => ['required', Rule::in(Entitlement::TYPES)],
@@ -394,6 +395,6 @@ class EntitlementController extends Controller
         return DB::table('plan_entitlements')->where('entitlement_id', $item->id)->exists()
             || DB::table('order_entitlements')->where('entitlement_id', $item->id)->exists()
             || Product::where('unlocks_entitlement_id', $item->id)->exists()
-            || License::whereNotNull("entitlement_base->{$item->code}")->orWhereNotNull("entitlement_overrides->{$item->code}")->exists();
+            || Grant::where('code', $item->code)->exists();
     }
 }

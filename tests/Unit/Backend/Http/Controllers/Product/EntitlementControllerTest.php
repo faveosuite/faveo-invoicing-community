@@ -40,10 +40,10 @@ class EntitlementControllerTest extends DBTestCase
     public function test_used_item_cannot_change_type_and_is_archived_when_removed(): void
     {
         $item = Entitlement::create([...$this->row()]);
-        License::create([
+        $this->planGrants(License::create([
             'product_id' => $this->product->id, 'license_code' => 'ENT'.uniqid(), 'license_order_number' => '444444',
-            'license_limit' => 1, 'license_status' => 1, 'entitlement_base' => ['sla' => false],
-        ]);
+            'license_limit' => 1, 'license_status' => 1,
+        ]), ['sla' => '0']);
 
         $this->postJson('/entitlements', ['entitlements' => [$this->row(['id' => $item->id, 'type' => 'number'])]])
             ->assertStatus(412);
@@ -94,7 +94,7 @@ class EntitlementControllerTest extends DBTestCase
             ->assertJsonCount(1, 'data.entitlements'); // the code has no agent count; agents aren't offered
 
         $this->deleteJson("/order/{$order->id}/entitlements/{$chat->id}")->assertOk();
-        $this->assertNull($license->fresh()->entitlement_overrides);
+        $this->assertSame([], $this->grantsOf($license, 'admin'));
     }
 
     public function test_plan_save_includes_features_with_values_and_prices(): void

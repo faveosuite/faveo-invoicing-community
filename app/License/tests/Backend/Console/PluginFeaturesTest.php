@@ -7,6 +7,7 @@ use App\License\Models\LicensePlugin;
 use App\License\tests\Backend\LicenseTestCase;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
+use App\Model\Product\Grant;
 use App\Model\Product\Subscription;
 use App\Services\EntitlementService;
 use Database\Seeders\v4_0_2_7_RC_1\DatabaseSeeder;
@@ -42,20 +43,21 @@ class PluginFeaturesTest extends LicenseTestCase
 
         $bundledCode = $bundled->fresh()->unlocksEntitlement->code;
         $byHandCode = $byHand->fresh()->unlocksEntitlement->code;
-        $license->refresh();
+        $base = $this->grantsOf($license, 'plan');
+        $admin = $this->grantsOf($license, 'admin');
 
         $this->assertTrue($plan->entitlements()->where('code', $bundledCode)->exists()); // the bundle is now a plan feature
-        $this->assertTrue($license->entitlement_base[$bundledCode]); // the license got its plan's features
-        $this->assertEquals(['value' => '1', 'until' => null], $license->entitlement_overrides[$byHandCode]); // a hand-added link is kept
-        $this->assertArrayNotHasKey($bundledCode, $license->entitlement_overrides);
+        $this->assertSame('1', $base[$bundledCode]); // the license got its plan's features
+        $this->assertEquals(['value' => '1', 'until' => null], $admin[$byHandCode]); // a hand-added link is kept
+        $this->assertArrayNotHasKey($bundledCode, $admin);
         $laterCode = $bundledLater->fresh()->unlocksEntitlement->code;
         $this->assertTrue($plan->entitlements()->where('code', $laterCode)->exists()); // new sales get it
-        $this->assertArrayNotHasKey($laterCode, $license->entitlement_base); // this customer didn't have it: still doesn't
+        $this->assertArrayNotHasKey($laterCode, $base); // this customer didn't have it: still doesn't
 
-        $this->artisan('license:check-plugin-features')->expectsOutputToContain('Lost (must be 0): 0')->assertSuccessful();
+        $this->artisan('license:check-grants')->expectsOutputToContain('Lost (must be 0): 0')->assertSuccessful();
 
-        $license->update(['entitlement_overrides' => null]); // the hand-added plugin is no longer granted
-        $this->artisan('license:check-plugin-features')->expectsOutputToContain('Lost (must be 0): 1')->assertFailed();
+        Grant::where('license_id', $license->id)->where('source', Grant::ADMIN)->delete(); // the hand-added plugin is no longer granted
+        $this->artisan('license:check-grants')->expectsOutputToContain('Lost (must be 0): 1')->assertFailed();
     }
 
     #[Test]

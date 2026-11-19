@@ -28,6 +28,30 @@ class DBTestCase extends TestCase
         resolve(EntitlementService::class)->setOverride($license, EntitlementService::pluginFeature($plugin), '1', null);
     }
 
+    /**
+     * Gives the license these plan values (code => stored value, e.g. '1', '25', null).
+     *
+     * @param  array<string, string|null>  $values
+     */
+    protected function planGrants(License $license, array $values): void
+    {
+        foreach ($values as $code => $value) {
+            \App\Model\Product\Grant::create(['license_id' => $license->id, 'code' => $code, 'value' => $value, 'source' => \App\Model\Product\Grant::PLAN]);
+        }
+    }
+
+    /**
+     * The license's grants from one source: code => value, or code => {value, until} for admin.
+     *
+     * @return array<string, mixed>
+     */
+    protected function grantsOf(License $license, string $source): array
+    {
+        return \App\Model\Product\Grant::where('license_id', $license->id)->where('source', $source)->get()
+            ->mapWithKeys(fn ($g): array => [$g->code => $source === \App\Model\Product\Grant::ADMIN ? ['value' => $g->value, 'until' => $g->ends_at?->toDateString()] : $g->value])
+            ->all();
+    }
+
     // NOTE: For logging into api, we require token but for web we don't need any
 
     /**

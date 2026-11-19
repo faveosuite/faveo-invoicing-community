@@ -78,11 +78,10 @@ class LicenseFileServiceTest extends LicenseTestCase
         $orderNumber = random_int(10000000, 99999999);
         $order = Order::factory()->create(['product' => $product->id, 'number' => $orderNumber]);
         Entitlement::create(['code' => 'storage', 'label' => 'Storage', 'type' => 'number', 'default_value' => '5']);
-        $this->createLicense([
+        $this->planGrants($this->createLicense([
             'product_id' => $product->id,
             'license_order_number' => $orderNumber,
-            'entitlement_base' => ['storage' => 25],
-        ]);
+        ]), ['storage' => '25']);
 
         $payload = json_decode(json_decode($this->service->buildForOrder($order, $product), associative: true)['license'], associative: true);
 
