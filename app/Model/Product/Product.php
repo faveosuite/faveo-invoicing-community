@@ -9,7 +9,6 @@ use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseReport;
 use App\Model\Configure\PluginCompatibleWithProducts;
-use App\Model\License\LicenseType;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PromoProductRelation;
@@ -36,7 +35,6 @@ use Spatie\Activitylog\Models\Activity;
  * @property string $short_description
  * @property string $category
  * @property int $parent
- * @property int|null $type
  * @property int|null $group
  * @property string $welcome_email
  * @property int $require_domain
@@ -101,7 +99,6 @@ use Spatie\Activitylog\Models\Activity;
  * @property-read int|null $license_callbacks_count
  * @property-read Collection<int, LicenseReport> $licenseReports
  * @property-read int|null $license_reports_count
- * @property-read LicenseType|null $licenseType
  * @property-read Collection<int, License> $licenses
  * @property-read int|null $licenses_count
  * @property-read Collection<int, Order> $order
@@ -175,7 +172,6 @@ use Spatie\Activitylog\Models\Activity;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereSubscription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereTaxApply($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereVersion($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereWelcomeEmail($value)
@@ -207,7 +203,7 @@ class Product extends BaseModel
      *                       0 = Inactive — product is visible in the store but monthly/yearly toggle is hidden
      *                       --------------------------------------------------------------------------
      */
-    protected $fillable = ['id', 'name', 'description', 'short_description', 'type', 'group', 'file', 'image', 'require_domain', 'category',
+    protected $fillable = ['id', 'name', 'description', 'short_description', 'group', 'file', 'image', 'require_domain', 'category',
         'can_modify_agent',  'can_modify_quantity', 'show_agent', 'tax_apply', 'show_product_quantity', 'hidden',  'auto_terminate',
         'setup_order_placed', 'setup_first_payment', 'setup_accept_manually',
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
@@ -225,7 +221,7 @@ class Product extends BaseModel
      * @var array<mixed>
      */
     protected array $logAttributes = [
-        'name', 'type', 'group', 'file', 'image', 'require_domain', 'category',
+        'name', 'group', 'file', 'image', 'require_domain', 'category',
         'can_modify_agent',  'can_modify_quantity', 'show_agent', 'tax_apply', 'show_product_quantity', 'hidden',  'auto_terminate',
         'setup_order_placed', 'setup_first_payment', 'setup_accept_manually',
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
@@ -246,7 +242,6 @@ class Product extends BaseModel
     protected function getMappings(): array
     {
         return [
-            'type' => ['License Type', fn ($value) => $value ? LicenseType::find($value)?->name : 'No Type'], // @phpstan-ignore property.notFound
             'group' => ['Product Group', fn ($value) => $value ? ProductGroup::find($value)?->name : 'No Group'], // @phpstan-ignore property.notFound
             'file' => ['Product File', fn ($value) => $value],
             'image' => ['Product Image', fn ($value) => $value],
@@ -294,14 +289,6 @@ class Product extends BaseModel
     public function subscription(): HasMany
     {
         return $this->hasMany(Subscription::class);
-    }
-
-    /**
-     * @return BelongsTo<LicenseType, $this>
-     */
-    public function licenseType(): BelongsTo
-    {
-        return $this->belongsTo(LicenseType::class, 'type');
     }
 
     /**

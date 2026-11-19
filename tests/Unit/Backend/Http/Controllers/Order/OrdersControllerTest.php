@@ -77,15 +77,6 @@ class OrdersControllerTest extends TestCase
         $this->assertSame('', $result);
     }
 
-    public function test_is_downloadable_returns_false_when_no_product(): void
-    {
-        $orders = \Mockery::mock(Orders::class, [null])->makePartial();
-        $orders->shouldReceive('getProduct')->andReturn(null);
-
-        $result = $orders->isDownloadable();
-        $this->assertFalse($result);
-    }
-
     // =========================================================================
     // getOrder() – covers the self::find() line (throws BadMethodCallException)
     // =========================================================================
@@ -198,42 +189,4 @@ class OrdersControllerTest extends TestCase
         $this->assertSame('Test Product', $orders->productName());
     }
 
-    public function test_is_downloadable_returns_true_for_download_type(): void
-    {
-        $typeMock = new \stdClass;
-        $typeMock->name = 'download';
-
-        $productMock = new \stdClass;
-        $productMock->type = $typeMock;
-
-        $orders = \Mockery::mock(Orders::class, [1])->makePartial();
-        $orders->shouldReceive('getProduct')->andReturn($productMock);
-
-        $this->assertTrue($orders->isDownloadable());
-    }
-
-    public function test_is_downloadable_returns_false_for_non_download_type(): void
-    {
-        $typeMock = new \stdClass;
-        $typeMock->name = 'hosted';
-
-        $productMock = new \stdClass;
-        $productMock->type = $typeMock;
-
-        $orders = \Mockery::mock(Orders::class, [1])->makePartial();
-        $orders->shouldReceive('getProduct')->andReturn($productMock);
-
-        $this->assertFalse($orders->isDownloadable());
-    }
-
-    public function test_is_downloadable_returns_false_when_product_has_no_type(): void
-    {
-        $productMock = new \stdClass;
-        $productMock->type = null;
-
-        $orders = \Mockery::mock(Orders::class, [1])->makePartial();
-        $orders->shouldReceive('getProduct')->andReturn($productMock);
-
-        $this->assertFalse($orders->isDownloadable());
-    }
 }

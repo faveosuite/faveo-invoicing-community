@@ -4,7 +4,6 @@ namespace Database\Seeders\v4_0_2;
 
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
-use App\Model\License\LicenseType;
 use App\ReleaseType;
 use DB;
 use Illuminate\Database\Seeder;
@@ -18,7 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         ReleaseType::truncate();
-        LicenseType::where('id', 7)->delete();
+        DB::table('license_types')->where('id', 7)->delete();
 
         $this->call([
             ReleaseTypeSeeder::class,
@@ -50,7 +49,7 @@ class LicenseTypeSeeder extends Seeder
      */
     public function run(): void
     {
-        LicenseType::create(['id' => 7, 'name' => 'Development License']);
+        DB::table('license_types')->insert(['id' => 7, 'name' => 'Development License', 'created_at' => now(), 'updated_at' => now()]);
     }
 }
 

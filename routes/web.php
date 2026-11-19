@@ -44,7 +44,6 @@ use App\Http\Controllers\Google2FAController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Jobs\QueueController;
 use App\Http\Controllers\LanguageController;
-use App\Http\Controllers\License\LicenseSettingsController;
 use App\Http\Controllers\License\LocalizedLicenseController;
 use App\Http\Controllers\Order\BaseOrderController;
 use App\Http\Controllers\Order\ExtendedOrderController;
@@ -494,11 +493,6 @@ Route::middleware('installAgora')->group(function (): void {
         });
 
         // Licence types and permissions
-        Route::get('get-license-type', [LicenseSettingsController::class, 'getLicenseTypes'])->name('get-license-type');
-        Route::get('get-license-type/{id}', [LicenseSettingsController::class, 'getLicenseTypeById']);
-        Route::post('create-license-type', [LicenseSettingsController::class, 'createLicense']);
-        Route::put('update-license-type/{id}', [LicenseSettingsController::class, 'updateLicense']);
-        Route::delete('delete-license-type', [LicenseSettingsController::class, 'deleteLicense'])->name('license-type-delete');
 
         // CMS: pages, widgets, chat scripts, social media, editor uploads
         Route::get('pages', [PageController::class, 'getAllPages']);

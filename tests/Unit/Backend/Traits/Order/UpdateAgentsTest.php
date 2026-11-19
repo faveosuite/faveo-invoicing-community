@@ -56,7 +56,7 @@ class UpdateAgentsTest extends DBTestCase
      */
     private function makeOrder(string $serialKey, bool $cloud = false): array
     {
-        $product = Product::create(['name' => 'Helpdesk '.uniqid(), 'description' => 'p', 'type' => 1]);
+        $product = Product::create(['name' => 'Helpdesk '.uniqid(), 'description' => 'p']);
         $plan = Plan::create(['name' => 'Plan '.uniqid(), 'product' => $product->id, 'days' => 365]);
 
         if ($cloud) {

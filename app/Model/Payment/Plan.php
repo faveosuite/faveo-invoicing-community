@@ -149,7 +149,7 @@ class Plan extends BaseModel
     protected function cloudPlanChangeOptions(Builder $query, Product $product): void
     {
         $query->where('product', '!=', $product->id)
-            ->whereHas('productRelation', fn (\Illuminate\Contracts\Database\Query\Builder $q) => $q->where('type', 4)->where('can_modify_agent', 1))
+            ->whereHas('productRelation', fn (\Illuminate\Contracts\Database\Query\Builder $q) => $q->whereIn('id', cloudPopupProducts())->where('can_modify_agent', 1))
             ->whereHas('planPrice', fn (\Illuminate\Contracts\Database\Query\Builder $q) => $q->where('renew_price', '!=', 0))
             ->where('name', 'not like', '%free%');
     }

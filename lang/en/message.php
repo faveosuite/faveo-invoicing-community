@@ -746,10 +746,6 @@ return [
      * License
      */
 
-    'create-license-type' => 'Create New License Type',
-    'edit-license-type' => 'Edit License Type',
-    'license-type' => 'License Type',
-    'license-type-name' => 'License Type Name',
     'add-permissions' => 'Add Permissions',
     'permissions' => 'Permissions',
     'installation_limit' => 'Installation Limit',
@@ -1036,7 +1032,6 @@ return [
     'Cancelled' => 'Cancelled!',
     'state_field_required' => 'The State field is required when India is selected as the country.',
     'user_delete' => 'Are you sure? Deleting this user permanently will also delete all associated invoices, orders, subscriptions, cloud instances, and comments. This action cannot be undone.',
-    'license_type' => 'Are you sure you want to delete this? All the Products and Permissions related to this License Type would be deleted',
     'central_domain' => 'Please enter domain name(https://example.com).',
     'cloud_name' => 'Please enter cloud cname(example.com)',
     'cloud_popup' => 'Please provide cloud popup heading.',
@@ -2160,7 +2155,6 @@ return [
     'updates_expiry' => 'Updates Expiry',
     'license_expiry' => 'License Expiry',
     'support_expiry' => 'Support Expiry',
-    'some_dates_not_editable' => 'Some dates aren\'t editable for this license type.',
     'switch_localized_license' => 'Switch to localized license?',
     'localized_license_tooltip' => 'When enabled, the license is stored as an encrypted file on the client\'s server instead of being validated online. The client must download and place the license files in the correct directory for Faveo to function.',
     'enter_client_domain_license' => 'Enter client domain and a license file will be downloaded.',
@@ -2670,7 +2664,6 @@ return [
     'month' => 'month',
     'year' => 'year',
     'all_time' => 'All time',
-    'license_types' => 'License Types',
     'caps_go' => 'GO',
     'invoice_due' => 'Due',
     'subscription-error-message' => 'Please select a valid subscription plan',
@@ -2800,7 +2793,6 @@ return [
     'cannot_delete' => 'Can not delete',
     'plan_in_use' => 'Cannot delete :names: subscriptions or a cloud free trial still use this plan.',
     'group_in_use' => 'Cannot delete :names: products are still in this group. Move those products to another group first.',
-    'license_type_in_use' => 'Cannot delete :names: products still use this license type. Move those products to another type first.',
     'payment_deleted_successfully' => 'Payment for invoice no: :invoice_no has been deleted successfully',
     'no-invoice-id' => 'No invoice id',
     'not-saved-successfully' => 'Not saved successfully',

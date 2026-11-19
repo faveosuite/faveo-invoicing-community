@@ -179,7 +179,7 @@ onMounted(async () => {
 })
 
 const allProductsFlat = computed(() =>
-    rawGroups.value.flatMap(g => g.products.map(p => ({ id: p.id, name: p.name, groupName: g.groupName, licenseType: p.license_type })))
+    rawGroups.value.flatMap(g => g.products.map(p => ({ id: p.id, name: p.name, groupName: g.groupName })))
 )
 
 const searchPlaceholder = computed(() => __('message.search') || 'Search')
@@ -204,12 +204,10 @@ const visibleProducts = computed(() => {
     return allProductsFlat.value.filter(p => p.groupName === activeGroup.value)
 })
 
-// Browsing one group at a time, the group is already obvious from the active
-// chip, so the second line is more useful as the product's own license type.
-// Once results span groups (search / the selected tray), the license type is
-// less useful than knowing which group each result actually came from.
+// Browsing one group, the active chip already names it; once results span
+// groups (search / the selected tray), each shows the group it came from.
 function subtitleFor(p) {
-    return viewMode.value === 'group' ? p.licenseType : p.groupName
+    return viewMode.value === 'group' ? '' : p.groupName
 }
 
 // A bulk value typed for one view has no honest meaning once the visible set

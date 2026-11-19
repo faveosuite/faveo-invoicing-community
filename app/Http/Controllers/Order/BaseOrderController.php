@@ -200,7 +200,6 @@ class BaseOrderController extends ExtendedOrderController
             return;
         }
 
-        $value = $product->type;
 
         /** @var Template $template */
         $template = TemplateType::getSelectedTemplate('order_mail');
@@ -213,8 +212,9 @@ class BaseOrderController extends ExtendedOrderController
             : '<p><a class="moz-txt-link-abbreviated" href="'.$knowledgeBaseUrl.'">'.__('message.knowledge_base_with_url').'</a> '.__('message.knowledge_base_help').'</p>
        <p>'.__('message.control_panel_invoice').'</p>';
 
-        $orderHeading = ($value != '4') ? 'Download' : 'Order';
-        $orderUrl = ($value != '4') ? $downloadurl : url('my-order/'.$orderid);
+        // Hosted products have nothing to download: the mail links to the order instead.
+        $orderHeading = $product->downloadable ? 'Download' : 'Order';
+        $orderUrl = $product->downloadable ? $downloadurl : url('my-order/'.$orderid);
         $end = resolve(OrderController::class)->expiry((int) $orderid);
         $end = $end ? Date::parse($end)->format('M d, Y') : '';
 

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Common\Dependency;
 use App\License\Models\InstallationLog;
 use App\Model\Common\Bussiness;
 use App\Model\Common\PricingTemplate;
-use App\Model\License\LicenseType;
 use App\Model\Order\Invoice;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Period;
@@ -36,8 +35,6 @@ class NonPublicDependencies extends BaseDependencyController
                 return $this->currencies();
             case 'invoice-currencies':
                 return $this->invoiceCurrencies();
-            case 'license-types':
-                return $this->licenseTypes();
             case 'product-groups':
                 return $this->productGroups();
             case 'tax-classes':
@@ -125,10 +122,10 @@ class NonPublicDependencies extends BaseDependencyController
             ->when(! $this->request->boolean('include_hidden'), fn ($q) => $q->where('invoice_hidden', 0))
             ->when($this->searchQuery, fn ($q, string $s) => $q->where('name', 'like', "%{$s}%"))
             ->when($this->request->boolean('downloadable'), fn ($q) => $q->where('downloadable', true))
-            ->with(['groupRelation:id,name', 'licenseType:id,name'])
+            ->with(['groupRelation:id,name'])
             ->orderBy('group')
             ->orderBy('name')
-            ->get(['id', 'name', 'group', 'type']);
+            ->get(['id', 'name', 'group']);
 
         $grouped = $products->groupBy(fn ($p) => $p->groupRelation?->id ?? 0); // @phpstan-ignore nullsafe.neverNull
 
@@ -139,7 +136,7 @@ class NonPublicDependencies extends BaseDependencyController
             return [
                 'id' => 'group_'.$groupId,
                 'name' => $group?->name ?? 'Uncategorised', // @phpstan-ignore nullsafe.neverNull
-                'children' => $items->map(fn ($p): array => ['id' => $p->id, 'name' => $p->name, 'license_type' => $p->licenseType?->name])->values()->all(),
+                'children' => $items->map(fn ($p): array => ['id' => $p->id, 'name' => $p->name])->values()->all(),
             ];
         })->values()->all();
 
@@ -195,20 +192,6 @@ class NonPublicDependencies extends BaseDependencyController
             });
 
         return $this->get('plans', $baseQuery, fn ($item): array => ['id' => $item->id, 'name' => $item->name, 'days' => $item->days, 'period' => $item->periodLabel()]);
-    }
-
-    private function licenseTypes(): mixed
-    {
-        $this->sortField = 'name';
-        $this->sortOrder = 'asc';
-
-        $baseQuery = $this->baseQuery(new LicenseType)
-            ->select('id', 'name')
-            ->when($this->searchQuery, function ($query, string $searchQuery): void {
-                $query->where('name', 'like', likePattern($searchQuery));
-            });
-
-        return $this->get('license_types', $baseQuery);
     }
 
     private function productGroups(): mixed
