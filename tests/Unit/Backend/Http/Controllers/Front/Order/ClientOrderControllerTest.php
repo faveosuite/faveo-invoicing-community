@@ -6,7 +6,6 @@ use App\ApiKey;
 use App\Http\Controllers\Github\GithubApiController;
 use App\License\Services\InstallationService;
 use App\Model\Common\Setting;
-use App\Model\License\LicenseType;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -41,9 +40,8 @@ class ClientOrderControllerTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
 
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
@@ -91,7 +89,7 @@ class ClientOrderControllerTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $product = Product::factory()->create(['type' => 4]);
+        $product = Product::factory()->create();
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         $invoiceItem = InvoiceItem::create([
             'invoice_id' => $invoice->id,
@@ -129,9 +127,8 @@ class ClientOrderControllerTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $date = '2025-03-02 18:15:02';
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
 
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
@@ -165,9 +162,8 @@ class ClientOrderControllerTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
 
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',

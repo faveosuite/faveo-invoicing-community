@@ -7,7 +7,6 @@ use App\Http\Controllers\AutoUpdate\AutoUpdateController;
 use App\Http\Controllers\Github\GithubApiController;
 use App\License\Services\ProductBundleStampingService;
 use App\Model\Common\StatusSetting;
-use App\Model\License\LicenseType;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Period;
 use App\Model\Payment\Plan;
@@ -46,11 +45,6 @@ class ProductController extends BaseProductController
      * @var Price
      */
     public $price;
-
-    /**
-     * @var LicenseType
-     */
-    public $type;
 
     /**
      * @var Subscription
@@ -101,9 +95,6 @@ class ProductController extends BaseProductController
 
         $price = new Price;
         $this->price = $price;
-
-        $type = new LicenseType;
-        $this->type = $type;
 
         $subscription = new Subscription;
         $this->subscription = $subscription;
@@ -174,23 +165,16 @@ class ProductController extends BaseProductController
 
         $sortFieldMap = [
             'name' => 'products.name',
-            'license_type' => 'products.type',
             'group' => 'products.group',
             'created_at' => 'products.created_at',
         ];
         $sortField = $sortFieldMap[$request->input('sort-field')] ?? 'products.created_at';
 
-        $products = Product::select('products.id', 'products.name', 'products.image', 'products.group', 'products.type', 'products.created_at')
-            ->with([
-                'groupRelation',
-                'licenseType',
-            ])
+        $products = Product::select('products.id', 'products.name', 'products.image', 'products.group', 'products.downloadable', 'products.created_at')
+            ->with(['groupRelation'])
             ->when($searchQuery, function ($query, string $searchQuery): void {
                 $query->where('products.name', 'like', likePattern($searchQuery))
                     ->orWhereHas('groupRelation', function ($q) use ($searchQuery): void {
-                        $q->where('name', 'like', likePattern($searchQuery));
-                    })
-                    ->orWhereHas('licenseType', function ($q) use ($searchQuery): void {
                         $q->where('name', 'like', likePattern($searchQuery));
                     });
             })
@@ -198,14 +182,13 @@ class ProductController extends BaseProductController
             ->paginate($limit);
 
         $products->getCollection()->transform(function ($product): array {
-            $download_url = Product::whereKey($product->id)->value('downloadable') ? url('product/download/'.$product->id) : null;
+            $download_url = $product->downloadable ? url('product/download/'.$product->id) : null;
 
             return [
                 'id' => $product->id,
                 'name' => $product->name,
                 'image' => $product->image,
                 'group' => $product->groupRelation?->name,
-                'license_type' => $product->licenseType?->name,
                 'action' => [
                     'edit_url' => url('products/'.$product->id.'/edit'),
                     'download_url' => $download_url,
@@ -248,7 +231,6 @@ class ProductController extends BaseProductController
             $product = Product::with([
                 'groupRelation:id,name',
                 'parentRelation:id,name',
-                'licenseType:id,name',
                 'taxes',
                 'planRelation',
             ])->findOrFail($productId);
@@ -492,7 +474,6 @@ class ProductController extends BaseProductController
             // "Helpdesk Enterprise" under Perpetual/Recurring/Cloud), just never
             // twice within the same group.
             'name' => ['required', Rule::unique('products', 'name')->where('group', $request->input('group'))],
-            'type' => ['required', 'exists:license_types,id'],
             'product_type' => ['required', 'in:independent,addon'],
             'config_file_path' => ['nullable', 'string', 'max:255', self::RELATIVE_PATH_RULE],
             'license_file_path' => ['nullable', 'string', 'max:255', self::RELATIVE_PATH_RULE],
@@ -513,7 +494,6 @@ class ProductController extends BaseProductController
             'github_repository' => ['nullable', 'string', 'max:225', $this->githubRepositoryRule($request)],
             'version' => ['nullable', 'string', 'max:225'],
         ], [
-            'type.exists' => __('validation.product_controller.type_required'),
             'group.exists' => __('validation.product_controller.group_required'),
             'product_sku.unique' => __('validation.product_sku_unique'),
             'name.unique' => __('validation.product_name_unique'),
@@ -595,7 +575,6 @@ class ProductController extends BaseProductController
         $validated = $request->validate([
             // Scoped to the group, not global — see productCreate for why.
             'name' => ['required', Rule::unique('products', 'name')->where('group', $request->input('group'))->ignore($productId)],
-            'type' => ['required', 'exists:license_types,id'],
             'product_type' => ['required', 'in:independent,addon'],
             'config_file_path' => ['nullable', 'string', 'max:255', self::RELATIVE_PATH_RULE],
             'license_file_path' => ['nullable', 'string', 'max:255', self::RELATIVE_PATH_RULE],
@@ -619,8 +598,6 @@ class ProductController extends BaseProductController
         ], [
             'name.required' => __('validation.product_controller.name_required'),
             'name.unique' => __('validation.product_name_unique'),
-            'type.required' => __('validation.product_controller.type_required'),
-            'type.exists' => __('validation.product_controller.type_required'),
             'description.required' => __('validation.product_controller.description_required'),
             'product_description.required' => __('validation.product_controller.product_description_required'),
             'image.mimes' => __('validation.product_controller.image_mimes'),

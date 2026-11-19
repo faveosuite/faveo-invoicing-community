@@ -95,21 +95,4 @@ class Orders extends Controller
 
         return $name;
     }
-
-    public function isDownloadable(): mixed
-    {
-        $check = false;
-        $product = $this->getProduct();
-        if ($product) {
-            $type = $product->type;
-            if ($type) {
-                $type_name = $type->name;
-                if ($type_name == 'download') {
-                    $check = true;
-                }
-            }
-        }
-
-        return $check;
-    }
 }

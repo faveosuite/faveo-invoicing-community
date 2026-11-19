@@ -8,7 +8,6 @@ use App\Facades\Attach;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Middleware\Install;
 use App\License\Services\ProductBundleStampingService;
-use App\Model\License\LicenseType;
 use App\Model\Payment\Plan;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
@@ -82,7 +81,7 @@ class ProductControllerTest extends DBTestCase
 
         $errors = $response->json('message');
 
-        foreach (['name', 'type', 'group'] as $field) {
+        foreach (['name', 'group'] as $field) {
             $this->assertArrayHasKey($field, $errors, "Expected '$field' in product errors");
         }
     }
@@ -217,7 +216,6 @@ class ProductControllerTest extends DBTestCase
         Product::factory()->make();
         $response = $this->postJson('/product', [
             'name' => 'Test Product '.uniqid(),
-            'type' => LicenseType::factory()->create()->id,
             'product_type' => 'independent',
             'group' => ProductGroup::factory()->create()->id,
             'require_domain' => 0,
@@ -240,7 +238,6 @@ class ProductControllerTest extends DBTestCase
 
         $response = $this->patchJson('/product/'.$product->id, [
             'name' => 'Updated Product',
-            'type' => LicenseType::factory()->create()->id,
             'product_type' => 'independent',
             'group' => ProductGroup::factory()->create()->id,
             'require_domain' => 0,
@@ -648,16 +645,6 @@ class ProductControllerTest extends DBTestCase
     // getAllProducts — sort field whitelist
     // =========================================================================
 
-    public function test_get_all_products_with_license_type_sort_returns_200(): void
-    {
-        $this->getLoggedInUser('admin');
-
-        $response = $this->getJson('/products?sort-field=license_type&sort-order=asc');
-
-        $response->assertStatus(200)
-            ->assertJson(['success' => true]);
-    }
-
     public function test_get_all_products_with_group_sort_returns_200(): void
     {
         $this->getLoggedInUser('admin');
@@ -801,7 +788,6 @@ class ProductControllerTest extends DBTestCase
     {
         return array_merge([
             'name' => 'Test Product '.uniqid(),
-            'type' => LicenseType::factory()->create()->id,
             'product_type' => 'independent',
             'group' => ProductGroup::factory()->create()->id,
             'require_domain' => 0,

@@ -190,7 +190,6 @@ const sections = computed(() => [
     {
         title: __('message.license_and_access'),
         items: [
-            { to: '/settings/license-type',        icon: 'fas fa-file-lines',      label: __('message.license_types') },
             { to: '/settings/localized-license',   icon: 'fas fa-globe',           label: __('message.localized_license') },
             { to: '/settings/system-managers',     icon: 'fas fa-people-group',    label: __('message.system_manager_settings') },
         ],

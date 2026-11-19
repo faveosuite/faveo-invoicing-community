@@ -114,7 +114,7 @@ class OrderPolicy
         }
 
         // A plugin isn't a standalone app — it goes on top of an install, so there's nothing to deploy.
-        if (strcasecmp(trim((string) $order->productRelation?->licenseType?->name), 'plugin') === 0) {
+        if ($order->productRelation?->product_type === 'addon') {
             return Response::deny(__('message.no_permission_for_action'));
         }
 

@@ -278,7 +278,7 @@ class ProductModelsCoverageTest extends TestCase
         $fillable = new Product()->getFillable();
         $this->assertContains('name', $fillable);
         $this->assertContains('description', $fillable);
-        $this->assertContains('type', $fillable);
+        $this->assertNotContains('type', $fillable); // license types were removed
         $this->assertContains('group', $fillable);
         $this->assertContains('status', $fillable);
     }
@@ -300,11 +300,6 @@ class ProductModelsCoverageTest extends TestCase
     public function test_product_subscription_is_has_many(): void
     {
         $this->assertInstanceOf(HasMany::class, new Product()->subscription());
-    }
-
-    public function test_product_license_type_is_belongs_to(): void
-    {
-        $this->assertInstanceOf(BelongsTo::class, new Product()->licenseType());
     }
 
     public function test_product_price_is_has_many(): void

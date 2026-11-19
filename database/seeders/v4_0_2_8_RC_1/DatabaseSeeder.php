@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
         $this->seedDateFeatures();
         $this->seedLicenseDateGrants();
         $this->moveLicensePermissionsToProducts();
+        $this->dropLicenseTypes();
     }
 
     public function packageRemoval(): void
@@ -274,6 +275,31 @@ class DatabaseSeeder extends Seeder
 
         Schema::dropIfExists('license_license_permissions');
         Schema::dropIfExists('license_permissions');
+    }
+
+    /**
+     * License types go: what they decided now lives on the product (Downloadable, the
+     * downloads date, product_type "addon" for plugins). A product typed "plugin" that isn't
+     * an add-on is listed, since only add-ons are kept from deploying now. Runs after
+     * moveLicensePermissionsToProducts, which reads products.type.
+     */
+    public function dropLicenseTypes(): void
+    {
+        if (! Schema::hasColumn('products', 'type')) {
+            return;
+        }
+
+        if (Schema::hasTable('license_types')) {
+            $plugins = DB::table('products as p')->join('license_types as t', 't.id', '=', 'p.type')
+                ->whereRaw("LOWER(TRIM(t.name)) = 'plugin'")->where(fn ($q) => $q->whereNull('p.product_type')->orWhere('p.product_type', '!=', 'addon'))
+                ->get(['p.id', 'p.name']);
+            foreach ($plugins as $product) {
+                $this->command?->warn("Product {$product->id} ({$product->name}) had license type plugin but isn't an add-on: set its product type to add-on if it must not be deployed.");
+            }
+        }
+
+        Schema::table('products', fn ($table) => $table->dropColumn('type'));
+        Schema::dropIfExists('license_types');
     }
 
     /**

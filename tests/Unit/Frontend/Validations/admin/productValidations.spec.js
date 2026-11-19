@@ -3,7 +3,6 @@ import { productSchema } from '@/validations/admin/productValidations'
 describe('productSchema', () => {
     const valid = {
         name:                'My Product',
-        type:                { id: 1, name: 'Software' },
         product_type:        'independent',
         group:               { id: 2, name: 'Cloud' },
         description:         'A full description',
@@ -24,10 +23,6 @@ describe('productSchema', () => {
     it('fails when name is missing', async () => {
         const { name: _o, ...rest } = valid // NOSONAR
         await expect(productSchema.validate(rest)).rejects.toThrow()
-    })
-
-    it('fails when type is null', async () => {
-        await expect(productSchema.validate({ ...valid, type: null })).rejects.toThrow()
     })
 
     it('fails when group is null', async () => {

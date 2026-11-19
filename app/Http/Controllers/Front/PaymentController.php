@@ -183,7 +183,7 @@ class PaymentController extends Controller
         $cloudProducts = cloudPopupProducts();
 
         $orders = Order::whereIn('id', $orderIds)->get()->map(function ($order) use ($cloudProducts, $model, $linePrices): array {
-            $product = Product::select('id', 'name', 'type', 'image', 'downloadable')->find($order->product);
+            $product = Product::select('id', 'name', 'image', 'downloadable')->find($order->product);
 
             $downloadable = $product && ! in_array($product->id, $cloudProducts) && $product->downloadable;
 

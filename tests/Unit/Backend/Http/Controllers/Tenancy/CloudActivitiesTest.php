@@ -6,7 +6,6 @@ use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\License\Models\Installation;
 use App\License\Models\License;
 use App\Model\Common\FaveoCloud;
-use App\Model\License\LicenseType;
 use App\Model\Mailjob\Condition;
 use App\Model\Order\CreditTransaction;
 use App\Model\Order\Invoice;
@@ -82,7 +81,10 @@ class CloudActivitiesTest extends DBTestCase
      */
     private function planChangeTarget(): Product
     {
-        return Product::factory()->create(['type' => 4, 'can_modify_agent' => 1]);
+        $product = Product::factory()->create(['can_modify_agent' => 1]);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => Plan::factory()->create(['product' => $product->id])->id]);
+
+        return $product;
     }
 
     private function bindMockClientWithResponses(array $responses): void
@@ -122,9 +124,8 @@ class CloudActivitiesTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
 
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         // serial_key's last 4 digits (0003) encode the current agent count —
@@ -149,9 +150,8 @@ class CloudActivitiesTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
 
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
@@ -174,9 +174,8 @@ class CloudActivitiesTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
 
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         // serial_key encodes 5 agents currently; desiredAgents=2 is "remove 3".
@@ -200,9 +199,8 @@ class CloudActivitiesTest extends DBTestCase
         $user = User::factory()->create(['country' => 'IN']);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
 
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
@@ -259,9 +257,8 @@ class CloudActivitiesTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
 
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
@@ -293,9 +290,8 @@ class CloudActivitiesTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
 
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
@@ -327,8 +323,7 @@ class CloudActivitiesTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
@@ -354,8 +349,7 @@ class CloudActivitiesTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
@@ -388,8 +382,7 @@ class CloudActivitiesTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
@@ -439,8 +432,7 @@ class CloudActivitiesTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $oldOrder = Order::create(['client' => $user->id, 'order_status' => 'executed',
@@ -496,8 +488,7 @@ class CloudActivitiesTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
@@ -562,8 +553,7 @@ class CloudActivitiesTest extends DBTestCase
         $user = User::factory()->create(['billing_pay_balance' => 0]);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
@@ -591,8 +581,7 @@ class CloudActivitiesTest extends DBTestCase
         $user = User::factory()->create(['billing_pay_balance' => 0]);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
@@ -624,8 +613,7 @@ class CloudActivitiesTest extends DBTestCase
         $user = User::factory()->create(['billing_pay_balance' => 0]);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',

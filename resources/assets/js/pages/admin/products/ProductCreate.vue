@@ -30,18 +30,6 @@
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <DynamicSelect
-                                                name="type"
-                                                :label="__('message.license-type')"
-                                                :required="true"
-                                                :apiEndpoint="`${baseUrl}/dependency/license-types`"
-                                                dataKey="license_types"
-                                                :value="form.typeObj"
-                                                :onChange="onChange"
-                                                :error="errors.type"
-                                            />
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <DynamicSelect
                                                 name="group"
                                                 :label="__('message.group')"
                                                 :required="true"
@@ -274,8 +262,6 @@ const taxClasses = ref([])
 
 const form = reactive({
     name: '',
-    type: null,
-    typeObj: null,
     product_type: 'independent',
     config_file_path: '',
     license_file_path: '',
@@ -308,10 +294,7 @@ const taxStatusOptions = [
 
 function onChange(val, name) {
     setFieldError(name, undefined)
-    if (name === 'type') {
-        form.typeObj = val
-        form.type = val?.id ?? null
-    } else if (name === 'group') {
+    if (name === 'group') {
         form.groupObj = val
         form.group = val?.id ?? null
     } else if (name === 'parent') {
@@ -352,7 +335,6 @@ async function submit() {
     try {
         const fd = new FormData()
         fd.append('name', form.name)
-        fd.append('type', form.type ?? '')
         fd.append('product_type', form.product_type)
         fd.append('config_file_path', form.config_file_path ?? '')
         fd.append('license_file_path', form.license_file_path ?? '')

@@ -72,7 +72,7 @@ describe('ProductIndex.vue', () => {
         const dt = wrapper.find('data-table-stub')
         expect(dt.exists()).toBe(true)
         const columns = wrapper.vm.columns
-        expect(columns).toEqual(['select', 'name', 'image', 'license_type', 'group', 'action'])
+        expect(columns).toEqual(['select', 'name', 'image', 'group', 'action'])
     })
 })
 
@@ -119,8 +119,6 @@ describe('ProductIndex.vue — branch coverage', () => {
             const vnode = tpl().image(null, { name: 'x', image: 'http://x.com/img.png' })
             expect(vnode).toBeTruthy()
         })
-        it('license_type returns — when falsy', () => { expect(tpl().license_type(null, {})).toBe('—') })
-        it('license_type returns value when set', () => { expect(tpl().license_type(null, { license_type: 'Pro' })).toBe('Pro') })
         it('group returns — when falsy', () => { expect(tpl().group(null, {})).toBe('—') })
         it('group returns value when set', () => { expect(tpl().group(null, { group: 'Enterprise' })).toBe('Enterprise') })
     })

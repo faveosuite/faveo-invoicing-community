@@ -64,14 +64,13 @@ function confirmBulkDelete() {
     pendingBulkDelete.value = { product_ids: [...selectedProducts.value] }
 }
 
-const columns = ['select', 'name', 'image', 'license_type', 'group', 'action']
+const columns = ['select', 'name', 'image', 'group', 'action']
 
 const tableOptions = reactive({
     headings: {
         select:        () => h('input', { type: 'checkbox', checked: allSelected.value, onChange: toggleAll }),
         name:          __('message.name'),
         image:         __('message.image'),
-        license_type:  __('message.license-type'),
         group:         __('message.group'),
         action:        __('message.actions'),
     },
@@ -80,7 +79,6 @@ const tableOptions = reactive({
         select: 'dt-select',
         name: 'dt-name',
         image: 'dt-code',
-        license_type: 'dt-name',
         group: 'dt-name',
         action: 'dt-action',
     },
@@ -89,12 +87,11 @@ const tableOptions = reactive({
         select:       (f, row) => h('input', { type: 'checkbox', checked: selectedProducts.value.includes(row.id), onChange: () => toggleRow(row.id) }),
         name:         (f, row) => row.name || '—',
         image:        (f, row) => row.image ? h('img', { src: row.image, alt: row.name, style: 'width:50px;height:50px;object-fit:cover;border-radius:4px;' }) : '—',
-        license_type: (f, row) => row.license_type || '—',
         group:        (f, row) => row.group || '—',
         action:       (f, row) => h(ProductTableActions, { productId: row.id, downloadUrl: row.action?.download_url, productName: row.name }),
     },
 
-    sortable: ['name', 'license_type', 'group'],
+    sortable: ['name', 'group'],
     filterable: true,
 
     requestAdapter: makeRequestAdapter('created_at'),

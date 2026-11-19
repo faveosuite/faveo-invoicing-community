@@ -35,7 +35,7 @@ class HomeControllerPricingDataTest extends TestCase
     private function product(string $name, int $status, int $hidden = 0): int
     {
         return DB::table('products')->insertGetId([
-            'name' => $name, 'group' => $this->group, 'status' => $status, 'hidden' => $hidden, 'type' => 1, 'created_at' => now(),
+            'name' => $name, 'group' => $this->group, 'status' => $status, 'hidden' => $hidden, 'created_at' => now(),
         ]);
     }
 

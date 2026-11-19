@@ -5,7 +5,6 @@ namespace Tests\Unit\Backend\Policies;
 use App\Enums\OrderAbility;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
-use App\Model\License\LicenseType;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
@@ -39,7 +38,6 @@ class OrderPolicyTest extends DBTestCase
     private function order(array $switches = ['downloadable'], array $subscription = [], array $order = []): Order
     {
         $product = Product::factory()->create([
-            'type' => LicenseType::factory()->create()->id,
             'downloadable' => in_array('downloadable', $switches, true),
             'keep_old_downloads' => in_array('keep_old_downloads', $switches, true),
         ]);
@@ -182,7 +180,7 @@ class OrderPolicyTest extends DBTestCase
     {
         Setting::where('id', 1)->update(['deployment_enabled' => 1]);
         $order = $this->order(subscription: ['update_ends_at' => now()->addMonth()]);
-        $order->productRelation->licenseType->update(['name' => 'plugin']);
+        Product::whereKey($order->product)->update(['product_type' => 'addon']);
         $order = $order->fresh();
 
         $this->assertTrue($this->policy->download($this->owner, $order)->allowed());
@@ -246,7 +244,9 @@ class OrderPolicyTest extends DBTestCase
     {
         $order = $this->cloudOrder();
         $samePlanProduct = Plan::factory()->create(['product' => $order->getRawOriginal('product'), 'name' => 'Yearly']);
-        $offered = Plan::factory()->create(['product' => Product::factory()->create(['type' => 4, 'can_modify_agent' => 1])->id, 'name' => 'Cloud Pro']);
+        $target = Product::factory()->create(['can_modify_agent' => 1]);
+        CloudProducts::create(['cloud_product' => $target->id, 'cloud_free_plan' => Plan::factory()->create(['product' => $target->id])->id]);
+        $offered = Plan::factory()->create(['product' => $target->id, 'name' => 'Cloud Pro']);
         PlanPrice::factory()->create(['plan_id' => $offered->id, 'renew_price' => 100]);
 
         $this->assertTrue($this->policy->changeCloudPlan($this->owner, $order, $offered->id)->allowed());

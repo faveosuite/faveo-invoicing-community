@@ -59,18 +59,6 @@
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
                                                     <DynamicSelect
-                                                        name="type"
-                                                        :label="__('message.license-type')"
-                                                        :required="true"
-                                                        :apiEndpoint="`${baseUrl}/dependency/license-types`"
-                                                        dataKey="license_types"
-                                                        :value="form.typeObj"
-                                                        :onChange="onChange"
-                                                        :error="errors.type"
-                                                    />
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <DynamicSelect
                                                         name="group"
                                                         :label="__('message.group')"
                                                         :required="true"
@@ -598,8 +586,6 @@ const planTableOptions = reactive({
 
 const form = reactive({
     name: '',
-    type: null,
-    typeObj: null,
     product_type: 'independent',
     config_file_path: '',
     license_file_path: '',
@@ -635,10 +621,7 @@ const form = reactive({
 
 function onChange(val, name) {
     setFieldError(name, undefined)
-    if (name === 'type') {
-        form.typeObj = val
-        form.type = val?.id ?? null
-    } else if (name === 'group') {
+    if (name === 'group') {
         form.groupObj = val
         form.group = val?.id ?? null
     } else if (name === 'parent') {
@@ -695,7 +678,6 @@ onMounted(async () => {
         form.whatsapp_integration = String(p.whatsapp_integration) === '1'
         // type/group stay null if the linked record was deleted, so the empty
         // dropdown fails validation instead of silently resubmitting a dead id.
-        form.type                 = (p.license_type ?? p.licenseType) ? p.type : null
         form.product_type         = p.product_type ?? 'independent'
         form.group                = (p.group_relation ?? p.groupRelation) ? p.group : null
         form.parent               = p.parent || null // 0 = no parent
@@ -709,9 +691,6 @@ onMounted(async () => {
         form.github_repository    = p.github_repository ?? ''
         form.file_source          = p.github_owner ? 'github' : 'filesystem'
         form.shoping_cart_link    = p.shoping_cart_link || `${baseUrl}/pricing?id=${route.params.id}`
-
-        const lt = p.license_type ?? p.licenseType
-        if (lt) form.typeObj = { id: p.type, name: lt.name }
 
         const gr = p.group_relation ?? p.groupRelation
         if (gr) form.groupObj = { id: p.group, name: gr.name }
@@ -739,7 +718,6 @@ async function submit() {
     try {
         const fd = new FormData()
         fd.append('name', form.name)
-        fd.append('type', form.type ?? '')
         fd.append('product_type', form.product_type)
         fd.append('downloads_limited_by', form.downloads_limited_by ?? '')
         fd.append('config_file_path', form.config_file_path ?? '')

@@ -3,7 +3,6 @@ import { reqSelect } from '../shared/helpers'
 
 export const productSchema = yup.object({
     name:                yup.string().required(() => __('validation.product.name.required')),
-    type:                reqSelect(() => __('validation.product.type.required')),
     product_type:        yup.string().required(() => __('validation.product.product_type.required')),
     group:               reqSelect(() => __('validation.product.group.required')),
     description:         yup.string().required(() => __('validation.product_controller.description_required')),
