@@ -188,5 +188,4 @@ class OrdersControllerTest extends TestCase
 
         $this->assertSame('Test Product', $orders->productName());
     }
-
 }

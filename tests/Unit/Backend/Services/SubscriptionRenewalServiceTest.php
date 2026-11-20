@@ -6,7 +6,6 @@ namespace Tests\Unit\Backend\Services;
 
 use App\License\Models\License;
 use App\Model\Order\Order;
-use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Services\SubscriptionRenewalService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -51,7 +50,6 @@ class SubscriptionRenewalServiceTest extends DBTestCase
             'license_mode' => 'File',
             'serial_key' => 'LIC-RENEW-CODE',
         ])->create();
-
 
         $license = License::create([
             'product_id' => $order->product,

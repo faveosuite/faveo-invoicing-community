@@ -5,7 +5,6 @@ namespace Tests\Unit\Backend\Http\Controllers\Order;
 use App\Http\Controllers\License\LicenseController;
 use App\Model\Common\StatusSetting;
 use App\Model\Order\Order;
-use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Date;
