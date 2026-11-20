@@ -12,6 +12,7 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Entitlement;
 use App\Model\Product\Grant;
 use App\Model\Product\Product;
+use App\Services\Cloud\CloudEvents;
 use App\Model\Product\Subscription;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
@@ -383,6 +384,23 @@ class EntitlementService
     }
 
     /**
+     * The record as products receive it: payload() as a JSON string, plus billing's Ed25519
+     * signature over "product_id|license_code|root_url|<json>" — the online check sends it, and
+     * so do the cloud events. The product checks it with billing's public key.
+     *
+     * @return array{entitlements: string, entitlements_signature: string}
+     */
+    public function signedRecord(License $license, string $productId, string $licenseCode, string $rootUrl): array
+    {
+        $json = (string) json_encode($this->payload($license), JSON_UNESCAPED_SLASHES);
+
+        return [
+            'entitlements' => $json,
+            'entitlements_signature' => resolve(Ed25519SigningService::class)->sign($productId.'|'.$licenseCode.'|'.$rootUrl.'|'.$json),
+        ];
+    }
+
+    /**
      * The license's list with labels, for showing to the customer.
      *
      * @return list<array{label: string, type: string, value: bool|int|string|null}>
@@ -594,6 +612,7 @@ class EntitlementService
     {
         if ($changed) {
             DB::table('licenses')->where('id', $license->id)->increment('version');
+            resolve(CloudEvents::class)->licenseChanged($license); // a cloud tenant gets the new record
         }
     }
 

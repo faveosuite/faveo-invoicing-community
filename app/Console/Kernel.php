@@ -18,6 +18,7 @@ use App\Console\Commands\moveImages;
 use App\Console\Commands\PostExpiryCron;
 use App\Console\Commands\RenewalCron;
 use App\Console\Commands\ReoonLogsDeletion;
+use App\Console\Commands\SendCloudEvents;
 use App\Console\Commands\SendCloudInstanceEmails;
 use App\Console\Commands\SetupTestEnv;
 use App\Console\Commands\SyncDatabaseToLatestVersion;
@@ -52,6 +53,7 @@ class Kernel extends ConsoleKernel
         GenerateSeoFiles::class,
         CleanupActivityLogs::class,
         SendCloudInstanceEmails::class,
+        SendCloudEvents::class,
     ];
 
     #[Override]
@@ -64,6 +66,9 @@ class Kernel extends ConsoleKernel
 
         // Background: each domain check can take up to 10s and must not hold up the tasks after it.
         $schedule->command('cloud:send-instance-emails')->everyFiveMinutes()->withoutOverlapping(60)->runInBackground();
+        // Faveo Cloud outbox: send what's due each minute; once a day resend every cloud license.
+        $schedule->command('cloud:events')->everyMinute()->withoutOverlapping(10)->onOneServer()->runInBackground();
+        $schedule->command('cloud:events --reconcile')->dailyAt('02:30')->onOneServer();
 
         $this->scheduleConfigurableTasks($schedule);
     }
