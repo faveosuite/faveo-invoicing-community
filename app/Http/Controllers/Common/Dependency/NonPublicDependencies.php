@@ -14,7 +14,6 @@ use App\Model\Payment\TaxClass;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
 use App\User;
-use Illuminate\Contracts\Database\Query\Builder;
 
 class NonPublicDependencies extends BaseDependencyController
 {

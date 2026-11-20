@@ -200,7 +200,6 @@ class BaseOrderController extends ExtendedOrderController
             return;
         }
 
-
         /** @var Template $template */
         $template = TemplateType::getSelectedTemplate('order_mail');
 

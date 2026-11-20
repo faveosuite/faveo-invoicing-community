@@ -11,9 +11,9 @@ use App\License\Requests\LicenseRequest;
 use App\License\tests\Backend\LicenseTestCase;
 use App\Model\Order\Order;
 use App\Model\Product\Subscription;
+use App\Services\EntitlementService;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
-use App\Services\EntitlementService;
 
 class LicenseControllerTest extends LicenseTestCase
 {
