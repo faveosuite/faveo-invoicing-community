@@ -5,6 +5,7 @@ namespace App\License\Helpers;
 use App\License\Models\License;
 use App\License\Models\LicenseBannedHost;
 use App\License\Models\LicensePlugin;
+use App\License\Services\ProductMergeService;
 use App\Model\Product\Product;
 use App\User;
 use Carbon\Exceptions\InvalidFormatException;
@@ -283,11 +284,14 @@ class LicenseValidator
 
     /**
      * Find license by code (with plugin support), falling back to email lookup.
+     *
+     * $old_product_id: the retired product a B.2+ Faveo plugin sends alongside product_id
+     * (see ProductMergeService); null for older clients and for the core product.
      */
-    public function findLicense(?string $license_code, ?string $client_email, int $product_id): ?License
+    public function findLicense(?string $license_code, ?string $client_email, int $product_id, ?int $old_product_id = null): ?License
     {
         if (! in_array($license_code, [null, '', '0'], strict: true)) {
-            $license = $this->findLicenseWithPlugins($license_code, $product_id);
+            $license = $this->findLicenseWithPlugins($license_code, $product_id, $old_product_id);
             if ($license instanceof License) {
                 return $license;
             }
@@ -299,9 +303,10 @@ class LicenseValidator
     /**
      * Find license by license_code, with LicensePlugin multi-product support.
      * Original logic: first check license_code + product_id, then check if product_id
-     * is in the LicensePlugin table for that license.
+     * is in the LicensePlugin table for that license. Last, a license issued for a product
+     * that was merged into another (ProductMergeService).
      */
-    public function findLicenseWithPlugins(?string $license_code, int $product_id): ?License
+    public function findLicenseWithPlugins(?string $license_code, int $product_id, ?int $old_product_id = null): ?License
     {
         if (in_array($license_code, [null, '', '0'], strict: true)) {
             return null;
@@ -333,7 +338,17 @@ class LicenseValidator
             return $baseLicense;
         }
 
-        return null;
+        return resolve(ProductMergeService::class)->resolve($license_code, $product_id, $old_product_id);
+    }
+
+    /**
+     * The old_product_id a B.2+ Faveo plugin sends, or null when absent or not an id.
+     */
+    public static function oldProductId(Request $request): ?int
+    {
+        $old = filter_var($request->input('old_product_id'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+        return $old === false ? null : $old;
     }
 
     /**

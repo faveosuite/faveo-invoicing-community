@@ -59,7 +59,7 @@ class LicenseSchemeController extends Controller
         }
 
         // Find license (with LicensePlugin support)
-        $license = $this->validator->findLicense($license_code, $client_email, $product_id);
+        $license = $this->validator->findLicense($license_code, $client_email, $product_id, LicenseValidator::oldProductId($request));
 
         if (! $license instanceof License) {
             return $this->notificationResponse('notification_license_not_found', [], $product);

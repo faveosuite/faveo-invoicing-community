@@ -37,6 +37,8 @@ use Override;
  * @property string|null $license_support_email_date
  * @property string|null $license_comments
  * @property int $license_status
+ * @property int|null $migrated_from_product_id
+ * @property Carbon|null $product_migrated_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Collection<int, Product> $addonProducts
@@ -109,6 +111,8 @@ class License extends Model
         'license_support_email_date',
         'license_comments',
         'license_status',
+        'migrated_from_product_id',
+        'product_migrated_at',
     ];
 
     /**
@@ -238,6 +242,8 @@ class License extends Model
             'license_status' => 'integer',
             'product_id' => 'integer',
             'user_id' => 'integer',
+            'migrated_from_product_id' => 'integer',
+            'product_migrated_at' => 'datetime',
         ];
     }
 }

@@ -69,7 +69,7 @@ class LicenseInstallController extends Controller
         }
 
         // Find license (with LicensePlugin multi-product support)
-        $license = $this->validator->findLicense($license_code, $client_email, $product_id);
+        $license = $this->validator->findLicense($license_code, $client_email, $product_id, LicenseValidator::oldProductId($request));
 
         if (! $license instanceof License) {
             $this->createReport($product_id, userId: null, licenseCode: $license_code, text: 'License not found');

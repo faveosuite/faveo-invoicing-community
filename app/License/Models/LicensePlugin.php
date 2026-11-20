@@ -11,6 +11,8 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $license_id
  * @property int $product_id
+ * @property int|null $migrated_from_product_id
+ * @property Carbon|null $product_migrated_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read License $license
@@ -34,7 +36,20 @@ class LicensePlugin extends Model
     protected $fillable = [
         'license_id',
         'product_id',
+        'migrated_from_product_id',
+        'product_migrated_at',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'migrated_from_product_id' => 'integer',
+            'product_migrated_at' => 'datetime',
+        ];
+    }
 
     /**
      * @return BelongsTo<License, $this>

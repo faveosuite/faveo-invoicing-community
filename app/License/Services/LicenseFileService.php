@@ -38,6 +38,12 @@ class LicenseFileService
             return null;
         }
 
+        // An add-on license moved onto its merged product (ProductMergeService) is still the
+        // order's own: build it for the order's product, as before it was moved.
+        if ($license->migrated_from_product_id === $product->id) {
+            $license->product_id = $product->id;
+        }
+
         $pluginProductId = $product->id === $license->product_id ? null : $product->id;
 
         return $this->buildSignedLicenseFile($license, $pluginProductId);
