@@ -6,7 +6,6 @@ use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseNotification;
 use App\License\Models\LicenseReport;
-use App\License\Services\Ed25519SigningService;
 use App\Model\Product\Product;
 use App\Services\EntitlementService;
 use Illuminate\Http\JsonResponse;
@@ -23,13 +22,9 @@ trait AflCallbackHelpers
      */
     protected function signedEntitlements(License $license): array
     {
-        $json = (string) json_encode(resolve(EntitlementService::class)->payload($license), JSON_UNESCAPED_SLASHES);
-        $message = request()->input('product_id').'|'.request()->input('license_code').'|'.request()->input('root_url').'|'.$json;
-
-        return [
-            'entitlements' => $json,
-            'entitlements_signature' => resolve(Ed25519SigningService::class)->sign($message),
-        ];
+        return resolve(EntitlementService::class)->signedRecord(
+            $license, (string) request()->input('product_id'), (string) request()->input('license_code'), (string) request()->input('root_url'),
+        );
     }
 
     /**

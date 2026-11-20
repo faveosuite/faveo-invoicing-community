@@ -5,6 +5,7 @@ namespace App\License\Models;
 use App\Model\Order\Order;
 use App\Model\Product\Grant;
 use App\Model\Product\Product;
+use App\Services\Cloud\CloudEvents;
 use App\Services\EntitlementService;
 use App\Services\LegacyDates;
 use App\User;
@@ -117,6 +118,9 @@ class License extends Model
             $columns = array_column(LegacyDates::COLUMNS, 0);
             if ($license->wasRecentlyCreated || $license->wasChanged($columns)) {
                 resolve(EntitlementService::class)->syncLegacyDates($license);
+            }
+            if ($license->wasChanged('license_status')) { // an update, never the first save
+                resolve(CloudEvents::class)->statusChanged($license);
             }
         });
     }
