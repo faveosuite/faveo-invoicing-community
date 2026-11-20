@@ -206,7 +206,7 @@ describe('ProductEdit.vue', () => {
         ['product_description', 'pd'], ['product_sku', 'SKU'],
         ['show_agent', '0'], ['highlight', '1'], ['add_to_contact', '0'], ['can_modify_agent', '1'],
         ['can_modify_quantity', '0'], ['require_domain', '1'], ['hidden', '0'], ['invoice_hidden', '1'],
-        ['whatsapp_integration', '0'], ['tax_status', '0'], ['downloadable', '1'], ['keep_old_downloads', '1'],
+        ['whatsapp_integration', '0'], ['tax_status', '0'], ['downloadable', '1'], ['keep_old_downloads', '1'], ['issues_license', '1'],
     ]
 
     it('sends every field in a fixed order, with GitHub details for a GitHub source', async () => {

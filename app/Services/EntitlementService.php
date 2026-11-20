@@ -111,17 +111,21 @@ class EntitlementService
         );
     }
 
-    /** Copies the plan's values onto the license, and its order's extras. Called when the license is created and when its plan changes. */
-    public function grant(License $license, ?int $planId): void
+    /**
+     * Copies the plan's values, and the order's extras, as the order's grants: delivered to its
+     * license, or kept on the subscription when the product issues none. Called when the order is
+     * created and when its plan changes.
+     */
+    public function grant(License|Subscription $owner, ?int $planId): void
     {
-        $changed = $this->writePlan($license, $this->forPlan($license->product_id, $planId));
-        $this->bumpIf($license, $this->writeExtras($license) || $changed);
+        $changed = $this->writePlan($owner, $this->forPlan((int) $owner->product_id, $planId));
+        $this->bumpIf($owner, $this->writeExtras($owner) || $changed);
     }
 
-    /** Re-reads the license's bought extras (order_entitlements) into its grants. */
-    public function syncExtras(License $license): void
+    /** Re-reads the order's bought extras (order_entitlements) into its grants. */
+    public function syncExtras(License|Subscription $owner): void
     {
-        $this->bumpIf($license, $this->writeExtras($license));
+        $this->bumpIf($owner, $this->writeExtras($owner));
     }
 
     /**
@@ -167,9 +171,9 @@ class EntitlementService
      *
      * @return array<string, string|null>
      */
-    public function currentDates(License $license): array
+    public function currentDates(License|Subscription $owner): array
     {
-        return array_map(fn (array $row): ?string => $row['ends_at'], $this->current($license, Grant::DATE));
+        return array_map(fn (array $row): ?string => $row['ends_at'], $this->current($owner, Grant::DATE));
     }
 
     /**
@@ -178,13 +182,21 @@ class EntitlementService
      *
      * @param  array<string, string|null>  $ends  code => end (null = never)
      */
-    public function writeDates(License $license, array $ends): void
+    public function writeDates(License|Subscription $owner, array $ends): void
     {
-        $rows = array_intersect_key($this->current($license, Grant::DATE), LegacyDates::COLUMNS);
+        $rows = array_intersect_key($this->current($owner, Grant::DATE), LegacyDates::COLUMNS);
         foreach ($ends as $code => $end) {
             $rows[$code] = ['value' => null, 'ends_at' => self::day($end)];
         }
-        $this->bumpIf($license, $this->replace($license, Grant::DATE, $rows));
+        $this->bumpIf($owner, $this->replace($owner, Grant::DATE, $rows));
+    }
+
+    /** Sets one date feature's end (Y-m-d, null = never), keeping the others. */
+    public function setDate(License|Subscription $owner, string $code, ?string $end): void
+    {
+        $rows = $this->current($owner, Grant::DATE);
+        $rows[$code] = ['value' => null, 'ends_at' => self::day($end)];
+        $this->bumpIf($owner, $this->replace($owner, Grant::DATE, $rows));
     }
 
     /** The old update/support columns were written directly: their grants follow. */
@@ -236,8 +248,10 @@ class EntitlementService
             return null;
         }
 
+        // The order's date grant: on its license, or on the subscription when the product issues none.
         $license = $orderNumber !== null ? License::where('license_order_number', $orderNumber)->first() : null;
-        $grant = $license ? Grant::where('license_id', $license->id)->where('source', Grant::DATE)->where('code', $code)->first() : null;
+        $owner = $license ?? $subscription;
+        $grant = $owner !== null ? $this->scope($owner)->where('source', Grant::DATE)->where('code', $code)->first() : null;
         $end = $grant !== null
             ? $grant->ends_at?->toDateString()
             : self::day($subscription?->{LegacyDates::COLUMNS[$code][1] ?? 'ends_at'});
@@ -250,15 +264,17 @@ class EntitlementService
      *
      * @return list<array{item: Entitlement, plan: bool|int|string|null, extra: int, override: string|null, until: string|null, value: bool|int|string|null, locked: bool}>
      */
-    public function rows(License $license): array
+    public function rows(License|Subscription $owner): array
     {
-        $grants = Grant::where('license_id', $license->id)->where('source', '!=', Grant::DATE)->active()->get()->groupBy('source');
+        // A license gets everything delivered to it; an order without one, what its subscription owns.
+        $grants = ($owner instanceof License ? Grant::where('license_id', $owner->id) : $this->scope($owner))
+            ->where('source', '!=', Grant::DATE)->active()->get()->groupBy('source');
         $base = ($grants[Grant::PLAN] ?? collect())->pluck('value', 'code')->all();
         $extras = ($grants[Grant::EXTRA] ?? collect())->pluck('value', 'code')->all();
         $overrides = ($grants[Grant::ADMIN] ?? collect())->mapWithKeys(fn (Grant $g): array => [
             $g->code => ['value' => (string) $g->value, 'until' => $g->ends_at?->toDateString()],
         ])->all();
-        $agents = $this->agentsFromCode($license->license_code);
+        $agents = $owner instanceof License ? $this->agentsFromCode($owner->license_code) : null;
         $codes = [...array_keys($base), ...array_keys($extras), ...array_keys($overrides), ...($agents !== null ? [self::AGENTS] : [])];
         $rows = [];
 
@@ -415,18 +431,18 @@ class EntitlementService
     }
 
     /** Sets one item to a value for this license only, optionally until a date (Y-m-d). */
-    public function setOverride(License $license, Entitlement $item, string $value, ?string $until): void
+    public function setOverride(License|Subscription $owner, Entitlement $item, string $value, ?string $until): void
     {
-        $rows = $this->current($license, Grant::ADMIN);
+        $rows = $this->current($owner, Grant::ADMIN);
         $rows[$item->code] = ['value' => $value, 'ends_at' => $until];
-        $this->bumpIf($license, $this->replace($license, Grant::ADMIN, $rows));
+        $this->bumpIf($owner, $this->replace($owner, Grant::ADMIN, $rows));
     }
 
-    public function removeOverride(License $license, Entitlement $item): void
+    public function removeOverride(License|Subscription $owner, Entitlement $item): void
     {
-        $rows = $this->current($license, Grant::ADMIN);
+        $rows = $this->current($owner, Grant::ADMIN);
         unset($rows[$item->code]);
-        $this->bumpIf($license, $this->replace($license, Grant::ADMIN, $rows));
+        $this->bumpIf($owner, $this->replace($owner, Grant::ADMIN, $rows));
     }
 
     /**
@@ -542,9 +558,9 @@ class EntitlementService
      *
      * @param  array<string, bool|int|string|null>  $values
      */
-    private function writePlan(License $license, array $values): bool
+    private function writePlan(License|Subscription $owner, array $values): bool
     {
-        return $this->replace($license, Grant::PLAN, array_map(fn ($value): array => [
+        return $this->replace($owner, Grant::PLAN, array_map(fn ($value): array => [
             'value' => match (true) {
                 $value === null => null,
                 is_bool($value) => $value ? '1' : '0',
@@ -554,19 +570,19 @@ class EntitlementService
         ], $values));
     }
 
-    private function writeExtras(License $license): bool
+    private function writeExtras(License|Subscription $owner): bool
     {
+        $orderId = $owner instanceof Subscription
+            ? $owner->order_id
+            : ($owner->license_order_number !== null ? Order::where('number', $owner->license_order_number)->value('id') : null);
         $rows = [];
-        if ($license->license_order_number !== null) {
-            $bought = OrderEntitlement::with('entitlement:id,code')
-                ->whereHas('order', fn ($q) => $q->where('number', $license->license_order_number))
-                ->where('quantity', '>', 0)->get();
-            foreach ($bought as $extra) {
+        if ($orderId !== null) {
+            foreach (OrderEntitlement::with('entitlement:id,code')->where('order_id', $orderId)->where('quantity', '>', 0)->get() as $extra) {
                 $rows[$extra->entitlement->code] = ['value' => (string) $extra->quantity, 'ends_at' => null];
             }
         }
 
-        return $this->replace($license, Grant::EXTRA, $rows);
+        return $this->replace($owner, Grant::EXTRA, $rows);
     }
 
     /**
@@ -574,9 +590,9 @@ class EntitlementService
      *
      * @return array<string, array{value: string|null, ends_at: string|null}>
      */
-    private function current(License $license, string $source): array
+    private function current(License|Subscription $owner, string $source): array
     {
-        return Grant::where('license_id', $license->id)->where('source', $source)->get()
+        return $this->scope($owner)->where('source', $source)->get()
             ->mapWithKeys(fn (Grant $g): array => [$g->code => ['value' => $g->value, 'ends_at' => $g->ends_at?->toDateString()]])
             ->all();
     }
@@ -586,33 +602,71 @@ class EntitlementService
      *
      * @param  array<string, array{value: string|null, ends_at: string|null}>  $rows
      */
-    private function replace(License $license, string $source, array $rows): bool
+    private function replace(License|Subscription $owner, string $source, array $rows): bool
     {
-        $current = $this->current($license, $source);
+        $current = $this->current($owner, $source);
         ksort($current);
         ksort($rows);
         if ($current === $rows) {
             return false;
         }
 
-        DB::transaction(function () use ($license, $source, $rows): void {
-            Grant::where('license_id', $license->id)->where('source', $source)->delete();
+        [$licenseId, $subscriptionId] = $this->target($owner);
+        DB::transaction(function () use ($owner, $licenseId, $subscriptionId, $source, $rows): void {
+            $this->scope($owner)->where('source', $source)->delete();
             $now = now();
             Grant::insert(array_map(fn (string $code, array $row): array => [
-                'license_id' => $license->id, 'code' => $code, 'value' => $row['value'], 'source' => $source,
-                'ends_at' => $row['ends_at'], 'created_at' => $now, 'updated_at' => $now,
+                'subscription_id' => $subscriptionId, 'license_id' => $licenseId, 'code' => $code, 'value' => $row['value'],
+                'source' => $source, 'ends_at' => $row['ends_at'], 'created_at' => $now, 'updated_at' => $now,
             ], array_keys($rows), $rows));
         });
 
         return true;
     }
 
-    /** A product compares versions to tell a newer record, so every grant change counts one up. */
-    private function bumpIf(License $license, bool $changed): void
+    /**
+     * Grants are owned by an order's subscription and delivered to its license when it has one:
+     * a license means (its id, its order's subscription), a subscription alone (none, its id).
+     *
+     * @return array{0: int|null, 1: int|null} [license_id, subscription_id]
+     */
+    private function target(License|Subscription $owner): array
     {
-        if ($changed) {
-            DB::table('licenses')->where('id', $license->id)->increment('version');
-            resolve(CloudEvents::class)->licenseChanged($license); // a cloud tenant gets the new record
+        return $owner instanceof License ? [$owner->id, $this->subscriptionIdOf($owner)] : [null, $owner->id];
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Builder<Grant> */
+    private function scope(License|Subscription $owner): \Illuminate\Database\Eloquent\Builder
+    {
+        [$licenseId, $subscriptionId] = $this->target($owner);
+
+        return Grant::query()
+            ->when($licenseId !== null, fn ($q) => $q->where('license_id', $licenseId), fn ($q) => $q->whereNull('license_id'))
+            ->when($subscriptionId !== null, fn ($q) => $q->where('subscription_id', $subscriptionId), fn ($q) => $q->whereNull('subscription_id'));
+    }
+
+    /** @var array<string, int|null> "license id|order number" => that order's subscription id */
+    private array $subscriptionIds = [];
+
+    /** The subscription of the license's order (null: an old license without an order here). */
+    public function subscriptionIdOf(License $license): ?int
+    {
+        $key = $license->id.'|'.$license->license_order_number;
+        if (! array_key_exists($key, $this->subscriptionIds)) {
+            $orderId = $license->license_order_number !== null ? Order::where('number', $license->license_order_number)->value('id') : null;
+            $id = $orderId !== null ? Subscription::where('order_id', $orderId)->value('id') : null;
+            $this->subscriptionIds[$key] = $id !== null ? (int) $id : null;
+        }
+
+        return $this->subscriptionIds[$key];
+    }
+
+    /** A product compares versions to tell a newer record, so every change to a license counts one up. */
+    private function bumpIf(License|Subscription $owner, bool $changed): void
+    {
+        if ($changed && $owner instanceof License) {
+            DB::table('licenses')->where('id', $owner->id)->increment('version');
+            resolve(CloudEvents::class)->licenseChanged($owner); // a cloud tenant gets the new record
         }
     }
 

@@ -11,8 +11,11 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Entitlement;
 use App\Model\Product\Grant;
 use App\Model\Product\Product;
+use App\Model\Product\Subscription;
 use App\Services\DateRules;
 use App\Services\EntitlementService;
+use App\Services\LegacyDates;
+use App\Services\SubscriptionRenewalService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -313,10 +316,15 @@ class EntitlementController extends Controller
         return successResponse(__('message.entitlement_applied', ['count' => $count]));
     }
 
-    /** One order's entitlements: plan value, override (if any) and the final value per item. */
+    /**
+     * One order's rights, for its Features & dates section — with or without a license:
+     *  - entitlements: what the order has (plan, bought extras, overrides), with where it comes from
+     *  - available:    every other active feature, which an override can give
+     *  - dates:        when the license ends (the subscription) and each date feature ends
+     */
     public function orderIndex(int $orderId): JsonResponse
     {
-        $license = $this->orderLicense($orderId);
+        [$owner, $subscription] = $this->orderOwner($orderId);
 
         $items = array_map(fn (array $row): array => [
             ...$row['item']->only(['id', 'code', 'category', 'label', 'type', 'options']),
@@ -327,28 +335,60 @@ class EntitlementController extends Controller
             'value' => $row['value'],
             'from_code' => $row['locked'],
             'locked' => $row['locked'] || EntitlementService::isAgents($row['item']),
-        ], $this->service->rows($license));
+        ], $this->service->rows($owner));
 
-        // Features the plan doesn't include can be given by an override too.
-        $shown = array_column($items, 'id');
-        foreach (Entitlement::where('is_active', true)->whereNotIn('id', $shown)->orderBy('sort')->orderBy('id')->get() as $item) {
-            if (EntitlementService::isAgents($item) || $item->type === 'date') { // dates come from the plan, not overrides
-                continue;
+        $available = Entitlement::where('is_active', true)->whereNotIn('id', array_column($items, 'id'))
+            ->where('code', '!=', EntitlementService::AGENTS)->where('type', '!=', 'date') // dates come from the plan
+            ->orderBy('sort')->orderBy('id')->get(['id', 'code', 'category', 'label', 'type', 'options']);
+
+        $current = $this->service->currentDates($owner);
+        $licenseEnd = $subscription !== null ? $subscription->ends_at : ($owner instanceof License ? $owner->license_expire_date : null);
+        $dates = [['code' => 'license', 'label' => __('message.license_expiry'), 'ends_at' => EntitlementService::day($licenseEnd)]];
+        foreach (Entitlement::where('type', 'date')->where('is_active', true)->orderBy('sort')->orderBy('id')->get(['code', 'label']) as $item) {
+            $column = LegacyDates::COLUMNS[$item->code][1] ?? null;
+            if (array_key_exists($item->code, $current) || $column !== null) {
+                $dates[] = ['code' => $item->code, 'label' => $item->label, 'ends_at' => array_key_exists($item->code, $current) ? $current[$item->code] : EntitlementService::day($subscription?->{$column})];
             }
-            $items[] = [
-                ...$item->only(['id', 'code', 'category', 'label', 'type', 'options']),
-                'plan_value' => null, 'extra' => 0, 'override' => null, 'until' => null, 'value' => null,
-                'from_code' => false, 'locked' => false,
-            ];
         }
 
-        return successResponse('', ['entitlements' => $items]);
+        return successResponse('', [
+            'entitlements' => $items,
+            'available' => $available,
+            'dates' => $dates,
+            'has_license' => $owner instanceof License,
+        ]);
+    }
+
+    /** Sets when the license (code "license") or one date feature ends for this order; empty = never. */
+    public function orderDate(Request $request, int $orderId, string $code): JsonResponse
+    {
+        [$owner, $subscription] = $this->orderOwner($orderId);
+        $date = $request->validate(['date' => ['nullable', 'date_format:Y-m-d']])['date'] ?? null;
+
+        if ($code !== 'license' && ! Entitlement::where('code', $code)->where('type', 'date')->exists()) {
+            throw ValidationException::withMessages(['date' => __('message.entitlement_invalid_value', ['key' => $code])]);
+        }
+
+        // The license end and the old update/support dates live in columns too (old products,
+        // reports): set through the renewal service, which copies them to the license's grants.
+        $column = $code === 'license' ? 'ends_at' : (LegacyDates::COLUMNS[$code][1] ?? null);
+        if ($column !== null && $subscription !== null) {
+            resolve(SubscriptionRenewalService::class)->setDate($subscription, $column, $date);
+        } elseif ($code === 'license' && $owner instanceof License) {
+            $owner->update(['license_expire_date' => $date]); // an old license without a subscription
+        }
+        // The grant itself (unchanged when the license already copied it from its column).
+        if ($code !== 'license') {
+            $this->service->setDate($owner, $code, $date);
+        }
+
+        return successResponse(__('message.updated-successfully'));
     }
 
     /** Overrides one item for this order only, optionally until a date. */
     public function orderOverride(Request $request, int $orderId, int $entitlementId): JsonResponse
     {
-        $license = $this->orderLicense($orderId);
+        [$owner] = $this->orderOwner($orderId);
         $item = Entitlement::findOrFail($entitlementId);
         $data = $request->validate([
             'value' => ['required'],
@@ -368,7 +408,7 @@ class EntitlementController extends Controller
         }
 
         $until = isset($data['until']) ? date('Y-m-d', (int) strtotime((string) $data['until'])) : null;
-        $this->service->setOverride($license, $item, $value, $until);
+        $this->service->setOverride($owner, $item, $value, $until);
 
         return successResponse(__('message.updated-successfully'));
     }
@@ -376,15 +416,28 @@ class EntitlementController extends Controller
     /** Removes an order's override, so the plan value applies again. */
     public function orderReset(int $orderId, int $entitlementId): JsonResponse
     {
-        $license = $this->orderLicense($orderId);
-        $this->service->removeOverride($license, Entitlement::findOrFail($entitlementId));
+        [$owner] = $this->orderOwner($orderId);
+        $this->service->removeOverride($owner, Entitlement::findOrFail($entitlementId));
 
         return successResponse(__('message.entitlement_reset_done'));
     }
 
-    private function orderLicense(int $orderId): License
+    /**
+     * Whose grants an order's page edits: its license, or its subscription when the product issues
+     * none (old orders may have a license without a subscription). 404 when the order has neither.
+     *
+     * @return array{0: License|Subscription, 1: Subscription|null}
+     */
+    private function orderOwner(int $orderId): array
     {
-        return License::where('license_order_number', Order::findOrFail($orderId)->number)->firstOrFail();
+        $order = Order::findOrFail($orderId);
+        $subscription = Subscription::where('order_id', $order->id)->first();
+        $owner = License::where('license_order_number', $order->number)->first() ?? $subscription;
+        if ($owner === null) {
+            abort(404);
+        }
+
+        return [$owner, $subscription];
     }
 
     /** Agents the plan price includes, as the plan page shows it: '' = unlimited, '0' = every agent paid. */

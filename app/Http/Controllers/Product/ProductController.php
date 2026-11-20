@@ -537,6 +537,7 @@ class ProductController extends BaseProductController
                 $validated['whatsapp_integration'] = $request->boolean('whatsapp_integration');
                 $validated['downloadable'] = $request->boolean('downloadable', default: true);
                 $validated['keep_old_downloads'] = $request->boolean('keep_old_downloads', default: true);
+                $validated['issues_license'] = $request->boolean('issues_license', default: true);
 
                 // Filter only fillable fields
                 $data = array_intersect_key($validated, array_flip((new Product)->getFillable()));
@@ -648,6 +649,7 @@ class ProductController extends BaseProductController
                 $validated['whatsapp_integration'] = $request->boolean('whatsapp_integration');
                 $validated['downloadable'] = $request->boolean('downloadable', default: true);
                 $validated['keep_old_downloads'] = $request->boolean('keep_old_downloads', default: true);
+                $validated['issues_license'] = $request->boolean('issues_license', default: true);
 
                 // Update product with only fillable fields
                 $fillableData = array_intersect_key($validated, array_flip($product->getFillable()));

@@ -277,6 +277,7 @@ class OrderController extends BaseOrderController
                 'license_ip' => $license?->license_ip,
                 'license_machine_id' => $license?->license_machine_id,
             ],
+            'has_license' => $license !== null,
             'is_subscribed' => $order->subscription?->is_subscribed,
             'auto_renew_state' => $order->subscription?->autoRenewState() ?? 'inactive',
             ...$this->renewFlags($order),

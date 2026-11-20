@@ -158,15 +158,17 @@ describe('OrderShow.vue', () => {
         expect(wrapper.vm.tab).toBe('installations')
     })
 
-    it('saveLicenseEdit sends every date field', async () => {
+    it('saveLicenseEdit sends only the installation fields (dates moved to Features & dates)', async () => {
         await flushPromises()
         await wrapper.vm.saveLicenseEdit()
         await flushPromises()
         const call = globalThis.mockHttp.history.post.find(r => /\/update-license-details/.test(r.url))
         const body = JSON.parse(call.data)
-        expect(body).toHaveProperty('update_end')
-        expect(body).toHaveProperty('subscription_end')
-        expect(body).toHaveProperty('support_end')
+        expect(body).toHaveProperty('limit')
+        expect(body).toHaveProperty('agents')
+        expect(body).not.toHaveProperty('update_end')
+        expect(body).not.toHaveProperty('subscription_end')
+        expect(body).not.toHaveProperty('support_end')
     })
 
 })

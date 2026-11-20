@@ -411,6 +411,7 @@ Route::middleware('installAgora')->group(function (): void {
         Route::get('order/{orderId}/entitlements', [EntitlementController::class, 'orderIndex'])->whereNumber('orderId');
         Route::put('order/{orderId}/entitlements/{entitlementId}', [EntitlementController::class, 'orderOverride'])->whereNumber(['orderId', 'entitlementId']);
         Route::delete('order/{orderId}/entitlements/{entitlementId}', [EntitlementController::class, 'orderReset'])->whereNumber(['orderId', 'entitlementId']);
+        Route::put('order/{orderId}/dates/{code}', [EntitlementController::class, 'orderDate'])->whereNumber('orderId')->where('code', '[a-z][a-z0-9_]*');
         Route::get('plan/{planId}/entitlements', [EntitlementController::class, 'planIndex'])->whereNumber('planId');
         Route::post('plan/{planId}/entitlements', [EntitlementController::class, 'planSave'])->whereNumber('planId');
         Route::post('plan/{planId}/entitlements/apply', [EntitlementController::class, 'planApply'])->whereNumber('planId');

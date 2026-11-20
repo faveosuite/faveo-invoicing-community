@@ -132,7 +132,7 @@ class BaseOrderController extends ExtendedOrderController
         $planChange = isset($meta['increase-decrease-days']) || isset($meta['increase-decrease-days-dont-cloud']);
         $dates = $entitlements->dateEnds($plan->id, $planChange ? 'change' : 'purchase', $subscriptionEnd);
 
-        Subscription::create([
+        $subscription = Subscription::create([
             'user_id' => $order->client,
             'plan_id' => $plan->id,
             'order_id' => $orderid,
@@ -142,6 +142,14 @@ class BaseOrderController extends ExtendedOrderController
             'product_id' => $product,
             'is_subscribed' => '0',
         ]);
+
+        // A product that issues no license (a service): its rights stay on the subscription.
+        if (! Product::whereKey($product)->value('issues_license')) {
+            $entitlements->grant($subscription, $plan->id);
+            $entitlements->writeDates($subscription, $dates);
+
+            return;
+        }
 
         $ipAndDomain = LicenseService::parseIpAndDomain($order->domain ?? '');
         $license = resolve(LicenseService::class)->create([

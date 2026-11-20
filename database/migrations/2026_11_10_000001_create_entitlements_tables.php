@@ -15,8 +15,9 @@ use Illuminate\Support\Facades\Schema;
  *                         offer % optional). A feature with a price on a plan can be bought as
  *                         an extra on that plan; agents use it as the per-agent price.
  *  - order_entitlements:  extras a customer bought, at the renewal price they keep.
- *  - grants:              every right a license (or a customer, for services) has: one feature code,
- *                         its value and dates, and where it came from (source):
+ *  - grants:              every right an order has: one feature code, its value and dates, and
+ *                         where it came from (source). Owned by the order's subscription; delivered
+ *                         to its license when the product issues one (license_id, else null):
  *                           plan    - the plan's value, copied at purchase so a later plan edit
  *                                     doesn't change what existing customers bought
  *                           extra   - units bought on top of the plan (mirrors order_entitlements)
@@ -28,6 +29,8 @@ use Illuminate\Support\Facades\Schema;
  *  - products.downloads_limited_by: the date feature code whose end limits which releases the
  *    product's customers can download; null = no limit.
  *  - products.downloadable: customers can download the product at all (SaaS products can't).
+ *  - products.issues_license: orders get a license (an installation's code); off for services,
+ *    whose rights stay on the subscription.
  *  - products.keep_old_downloads: after that date ends, releases from before it stay
  *    downloadable; off = every download stops.
  *    These replace the license-type permissions (license_permissions tables, dropped by the
@@ -100,7 +103,8 @@ return new class extends Migration
 
         Schema::create('grants', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('license_id')->nullable()->constrained('licenses')->cascadeOnDelete();
+            $table->unsignedInteger('subscription_id')->nullable()->index(); // owner: the order's subscription
+            $table->foreignId('license_id')->nullable()->constrained('licenses')->cascadeOnDelete(); // delivered to
             $table->unsignedInteger('user_id')->nullable()->index(); // customer-level grants (services); license_id null
             $table->string('code', 50); // entitlements.code, or run / updates / support
             $table->string('value', 255)->nullable();
@@ -110,7 +114,8 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
-            $table->unique(['license_id', 'code', 'source']);
+            $table->foreign('subscription_id')->references('id')->on('subscriptions')->cascadeOnDelete();
+            $table->unique(['subscription_id', 'license_id', 'code', 'source']);
             $table->index('code');
         });
         Schema::table('licenses', function (Blueprint $table): void {
@@ -124,6 +129,7 @@ return new class extends Migration
             $table->string('downloads_limited_by', 50)->nullable();
             $table->boolean('downloadable')->default(true);
             $table->boolean('keep_old_downloads')->default(true);
+            $table->boolean('issues_license')->default(true);
         });
         Schema::table('invoice_items', function (Blueprint $table): void {
             $table->json('extras')->nullable()->after('agents');
@@ -170,7 +176,7 @@ return new class extends Migration
         Schema::table('cart_items', fn (Blueprint $table) => $table->dropColumn('extras'));
         Schema::table('products', function (Blueprint $table): void {
             $table->dropConstrainedForeignId('unlocks_entitlement_id');
-            $table->dropColumn(['downloads_limited_by', 'downloadable', 'keep_old_downloads']);
+            $table->dropColumn(['downloads_limited_by', 'downloadable', 'keep_old_downloads', 'issues_license']);
         });
         Schema::table('invoice_items', fn (Blueprint $table) => $table->dropColumn('extras'));
 

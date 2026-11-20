@@ -30,6 +30,8 @@ class DatabaseSeeder extends Seeder
         $this->seedPluginFeatures();
         $this->seedDateFeatures();
         $this->seedLicenseDateGrants();
+        $this->seedGrantOwners();
+        $this->seedSubscriptionDateGrants();
         $this->moveLicensePermissionsToProducts();
         $this->dropLicenseTypes();
     }
@@ -244,6 +246,38 @@ class DatabaseSeeder extends Seeder
     }
 
     /**
+     * Every grant belongs to its license's order subscription (licenses from the old license
+     * server without an order here keep none). Safe to run again.
+     */
+    public function seedGrantOwners(): void
+    {
+        DB::statement('
+            UPDATE grants g
+            JOIN licenses l ON l.id = g.license_id
+            JOIN orders o ON o.number = l.license_order_number
+            JOIN subscriptions s ON s.order_id = o.id
+            SET g.subscription_id = s.id
+            WHERE g.subscription_id IS NULL');
+    }
+
+    /**
+     * Orders without a license keep their update/support dates as grants of the subscription
+     * (no license to deliver to). Safe to run again.
+     */
+    public function seedSubscriptionDateGrants(): void
+    {
+        foreach (LegacyDates::COLUMNS as $code => [, $column]) {
+            DB::statement("
+                INSERT INTO grants (subscription_id, license_id, code, value, source, ends_at, created_at, updated_at)
+                SELECT s.id, NULL, ?, NULL, ?, CASE WHEN s.{$column} IS NULL OR CAST(s.{$column} AS CHAR) LIKE '0000%' THEN NULL ELSE DATE(s.{$column}) END, NOW(), NOW()
+                FROM subscriptions s
+                JOIN orders o ON o.id = s.order_id
+                WHERE NOT EXISTS (SELECT 1 FROM licenses l WHERE l.license_order_number = o.number)
+                  AND NOT EXISTS (SELECT 1 FROM grants g WHERE g.subscription_id = s.id AND g.license_id IS NULL AND g.code = ? AND g.source = ?)", [$code, Grant::DATE, $code, Grant::DATE]);
+        }
+    }
+
+    /**
      * License-type permissions go: "Can be Downloaded" and "Allow Downloads Before Updates
      * Expire" become the product's downloadable / keep_old_downloads; the expiry permissions are
      * already plan date rules (seedDateFeatures), and the license now ends with its plan period.
@@ -290,6 +324,10 @@ class DatabaseSeeder extends Seeder
         }
 
         if (Schema::hasTable('license_types')) {
+            // "No License" products (services) stop issuing licenses: their rights stay on the subscription.
+            DB::table('products')->whereIn('type', DB::table('license_types')->whereRaw("LOWER(TRIM(name)) = 'no license'")->select('id'))
+                ->update(['issues_license' => false]);
+
             $plugins = DB::table('products as p')->join('license_types as t', 't.id', '=', 'p.type')
                 ->whereRaw("LOWER(TRIM(t.name)) = 'plugin'")->where(fn ($q) => $q->whereNull('p.product_type')->orWhere('p.product_type', '!=', 'addon'))
                 ->get(['p.id', 'p.name']);

@@ -45,8 +45,8 @@
                             <!-- Left column -->
                             <div class="col-lg-8">
 
-                                <!-- License Details -->
-                                <div class="card card-light mb-4">
+                                <!-- License Details: installation only (code, limit, agents, file licence) -->
+                                <div v-if="hasLicense" class="card card-light mb-4">
                                     <div class="card-header">
                                         <h4 class="card-title">
                                             {{ __('message.license_details') }}
@@ -89,35 +89,8 @@
                                                 </div>
                                             </li>
 
-                                            <li class="list-group-item py-3 px-3">
-                                                <div class="row align-items-center">
-                                                    <div class="col-4 fw-semibold">{{ __('message.updates_expiry') }}</div>
-                                                    <div class="col-8">
-                                                        <span :class="expiryStatus('update_end') ? 'text-danger' : ''">{{ expiryDate('update_end') || '—' }}</span>
-                                                        <span v-if="expiryStatus('update_end')" class="badge bg-danger ms-1">{{ expiryStatus('update_end') }}</span>
-                                                    </div>
-                                                </div>
-                                            </li>
 
-                                            <li class="list-group-item py-3 px-3">
-                                                <div class="row align-items-center">
-                                                    <div class="col-4 fw-semibold">{{ __('message.license_expiry') }}</div>
-                                                    <div class="col-8">
-                                                        <span :class="expiryStatus('subscription_end') ? 'text-danger' : 'text-muted'">{{ expiryDate('subscription_end') || __('message.not_set') }}</span>
-                                                        <span v-if="expiryStatus('subscription_end')" class="badge bg-danger ms-1">{{ expiryStatus('subscription_end') }}</span>
-                                                    </div>
-                                                </div>
-                                            </li>
 
-                                            <li class="list-group-item py-3 px-3">
-                                                <div class="row align-items-center">
-                                                    <div class="col-4 fw-semibold">{{ __('message.support_expiry') }}</div>
-                                                    <div class="col-8">
-                                                        <span :class="expiryStatus('support_end') ? 'text-danger' : ''">{{ expiryDate('support_end') || '—' }}</span>
-                                                        <span v-if="expiryStatus('support_end')" class="badge bg-danger ms-1">{{ expiryStatus('support_end') }}</span>
-                                                    </div>
-                                                </div>
-                                            </li>
 
                                             <li v-if="!isCloud" class="list-group-item py-3 px-3">
                                                 <div class="row align-items-center">
@@ -148,6 +121,16 @@
                                     </div>
                                 </div>
 
+                                <!-- Features & dates: every order, licensed or not -->
+                                <div class="card card-light mb-4">
+                                    <div class="card-header">
+                                        <h4 class="card-title">{{ __('message.order_features_dates') }}</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <OrderEntitlements :orderId="orderId" />
+                                    </div>
+                                </div>
+
                                 <!-- Invoice / Payments / Installations tabs -->
                                 <div class="card card-light">
                                     <div class="card-header p-0 border-bottom-0">
@@ -165,11 +148,6 @@
                                             <li class="nav-item">
                                                 <a class="nav-link" :class="{ active: tab === 'payments' }" href="#" @click.prevent="tab = 'payments'">
                                                     <i class="fas fa-receipt me-1"></i>{{ __('message.payment_receipts') }}
-                                                </a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="nav-link" :class="{ active: tab === 'entitlements' }" href="#" @click.prevent="tab = 'entitlements'">
-                                                    <i class="fas fa-list-check me-1"></i>{{ __('message.entitlements') }}
                                                 </a>
                                             </li>
                                         </ul>
@@ -195,9 +173,6 @@
                                                 :dataColumns="paymentColumns"
                                                 :option="paymentTableOptions"
                                             />
-                                        </div>
-                                        <div v-if="tab === 'entitlements'">
-                                            <OrderEntitlements :orderId="orderId" />
                                         </div>
                                     </div>
                                 </div>
@@ -338,27 +313,6 @@
                     <div v-if="errors.agents" class="invalid-feedback">{{ errors.agents }}</div>
                     <small class="text-muted">{{ __('message.agents_unlimited_hint') }}</small>
                 </div>
-                <DatePicker
-                    name="update_end"
-                    :label="__('message.updates_expiry')"
-                    :value="licenseEditModal.update_end"
-                    format="MM/DD/YYYY"
-                    :onChange="(val) => licenseEditModal.update_end = val"
-                />
-                <DatePicker
-                    name="subscription_end"
-                    :label="__('message.license_expiry')"
-                    :value="licenseEditModal.subscription_end"
-                    format="MM/DD/YYYY"
-                    :onChange="(val) => licenseEditModal.subscription_end = val"
-                />
-                <DatePicker
-                    name="support_end"
-                    :label="__('message.support_expiry')"
-                    :value="licenseEditModal.support_end"
-                    format="MM/DD/YYYY"
-                    :onChange="(val) => licenseEditModal.support_end = val"
-                />
             </template>
             <template #controls>
                 <action-button action="save" :loading="saving.licenseEdit" @click="saveLicenseEdit" />
@@ -476,6 +430,7 @@ const loading        = ref(true)
 const copied         = ref(false)
 const order          = ref(null)
 const licenseDetails = ref(null)
+const hasLicense     = ref(true) // false: the product issues no license (a service)
 const isSubscribed   = ref(0)
 const autoRenewState = ref('inactive')
 const canRenew       = ref(false)
@@ -496,9 +451,6 @@ const licenseEditModal = reactive({
     show:             false,
     limit:            null,
     agents:           null,
-    update_end:       null,
-    subscription_end: null,
-    support_end:      null,
 })
 
 
@@ -529,29 +481,6 @@ const agentsLabel = computed(() => {
 // ── Helpers ────────────────────────────────────────────────────────────────
 function capitalize(str) {
     return str ? str.charAt(0).toUpperCase() + str.slice(1) : ''
-}
-
-function expiryEntry(key) {
-    return licenseDetails.value?.expiry_dates?.[key] ?? null
-}
-
-function expiryDate(key) {
-    const d = expiryEntry(key)?.date
-    return d ? formatDate(d) : null
-}
-
-function expiryRaw(key) {
-    const d = expiryEntry(key)?.date
-    if (!d) return null
-    const dt   = new Date(d)
-    const mm   = String(dt.getMonth() + 1).padStart(2, '0')
-    const dd   = String(dt.getDate()).padStart(2, '0')
-    const yyyy = dt.getFullYear()
-    return `${mm}/${dd}/${yyyy}`
-}
-
-function expiryStatus(key) {
-    return expiryEntry(key)?.status ?? null
 }
 
 // ── Actions ────────────────────────────────────────────────────────────────
@@ -696,9 +625,6 @@ async function submitBinding() {
 function openLicenseEditModal() {
     licenseEditModal.limit            = licenseDetails.value?.installation_limit ?? null
     licenseEditModal.agents           = licenseDetails.value?.agents ?? null
-    licenseEditModal.update_end       = expiryRaw('update_end')
-    licenseEditModal.subscription_end = expiryRaw('subscription_end')
-    licenseEditModal.support_end      = expiryRaw('support_end')
     licenseEditModal.show             = true
     resetForm()
 }
@@ -711,9 +637,6 @@ async function saveLicenseEdit() {
             orderid:          orderId,
             limit:            licenseEditModal.limit,
             agents:           licenseEditModal.agents,
-            update_end:       licenseEditModal.update_end,
-            subscription_end: licenseEditModal.subscription_end,
-            support_end:      licenseEditModal.support_end,
         })
         licenseEditModal.show = false
         successHandler(res, COMPONENT)
@@ -731,6 +654,7 @@ async function reload() {
     const d   = res.data?.data ?? res.data
     order.value          = d.order
     licenseDetails.value = d.license_details
+    hasLicense.value     = d.has_license !== false
     isSubscribed.value   = d.is_subscribed
     autoRenewState.value = d.auto_renew_state
     canRenew.value       = !!d.can_renew

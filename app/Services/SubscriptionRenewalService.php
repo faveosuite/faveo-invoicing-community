@@ -30,6 +30,7 @@ class SubscriptionRenewalService
         $sub->ends_at = $licenseExpiry ? Date::parse($licenseExpiry) : null;
 
         $dates = [];
+        $license = null;
         if ($days > 0) {
             $entitlements = resolve(EntitlementService::class);
             $license = $this->licenseService->findByCode((string) $sub->order?->serial_key);
@@ -37,7 +38,7 @@ class SubscriptionRenewalService
             foreach (LegacyDates::COLUMNS as $code => [, $column]) {
                 $current[$code] = EntitlementService::day($sub->{$column});
             }
-            $current = [...$current, ...($license instanceof License ? $entitlements->currentDates($license) : [])];
+            $current = [...$current, ...$entitlements->currentDates($license instanceof License ? $license : $sub)];
             $dates = $entitlements->dateEnds((int) $sub->plan_id, 'renewal', $licenseExpiry ? Date::parse($licenseExpiry)->toDateTimeString() : null, $current);
             foreach (LegacyDates::forSubscription($dates) as $column => $end) {
                 $sub->{$column} = $end !== null ? Date::parse($end) : null;
@@ -51,6 +52,11 @@ class SubscriptionRenewalService
         }
 
         $this->syncLicenseServer($sub, $licenseExpiry, $sub->update_ends_at, $sub->support_ends_at, $dates);
+
+        // No license to deliver to (a service): the subscription keeps its dates itself.
+        if ($dates !== [] && ! $license instanceof License) {
+            resolve(EntitlementService::class)->writeDates($sub, $dates);
+        }
     }
 
     /** A subscription that never ends (no date) stays that way. */
@@ -69,8 +75,8 @@ class SubscriptionRenewalService
         return $date->addDays($days)->toDateTimeString();
     }
 
-    /** Sets one date (ends_at, update_ends_at or support_ends_at) from the admin panel and syncs the license. */
-    public function setDate(Subscription $sub, string $field, string $date): void
+    /** Sets one date (ends_at, update_ends_at or support_ends_at; null = never) from the admin panel and syncs the license. */
+    public function setDate(Subscription $sub, string $field, ?string $date): void
     {
         $sub->$field = $date;
         $sub->save();

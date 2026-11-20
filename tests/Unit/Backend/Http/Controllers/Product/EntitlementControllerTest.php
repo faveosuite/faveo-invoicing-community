@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Product;
 
+use App\Http\Controllers\Order\OrderController;
 use App\License\Models\License;
+use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Product\Entitlement;
+use App\Model\Product\Grant;
 use App\Model\Product\Product;
+use App\Model\Product\Subscription;
+use App\Services\EntitlementService;
 use Tests\DBTestCase;
 
 class EntitlementControllerTest extends DBTestCase
@@ -187,4 +192,56 @@ class EntitlementControllerTest extends DBTestCase
         $row = collect($this->getJson("/plan/{$plan->id}/entitlements")->json('data.entitlements'))->firstWhere('id', $agents->id);
         $this->assertSame('0', $row['value']);
     }
+
+    public function test_a_service_order_keeps_its_features_and_dates_on_the_subscription(): void
+    {
+        \Illuminate\Support\Carbon::setTestNow('2026-11-20 10:00:00');
+        $service = Product::factory()->create(['issues_license' => false]);
+        $support = Entitlement::create([...$this->row(['code' => 'support', 'type' => 'date', 'default_value' => null])]);
+        $chat = Entitlement::create([...$this->row(['code' => 'chat'])]);
+        $plan = Plan::factory()->create(['product' => $service->id, 'days' => 365]);
+        $plan->entitlements()->attach($support->id, ['value' => '{"ends":"custom","every":30,"unit":"day"}']);
+        $order = Order::factory()->create(['product' => $service->id, 'number' => random_int(10000000, 99999999)]);
+
+        resolve(OrderController::class)->addSubscription($order->id, $plan->id, 'v1', $service->id, 'SERVICE'.uniqid());
+
+        $this->assertFalse(License::where('license_order_number', $order->number)->exists()); // no license for a service
+        $subscription = Subscription::where('order_id', $order->id)->firstOrFail();
+        $this->assertSame('2026-12-20', Grant::where('subscription_id', $subscription->id)->whereNull('license_id')->where('code', 'support')->first()?->ends_at?->toDateString());
+
+        $page = $this->getJson("/order/{$order->id}/entitlements")->assertOk();
+        $this->assertFalse($page->json('data.has_license'));
+        $this->assertSame('2026-12-20', collect($page->json('data.dates'))->firstWhere('code', 'support')['ends_at']);
+        $this->assertContains($chat->id, array_column($page->json('data.available'), 'id'));
+
+        // Give a feature and move a date: both stay on the subscription.
+        $this->putJson("/order/{$order->id}/entitlements/{$chat->id}", ['value' => '1'])->assertOk();
+        $this->putJson("/order/{$order->id}/dates/support", ['date' => '2027-01-31'])->assertOk();
+        $this->assertSame('2027-01-31', $subscription->fresh()->support_ends_at ? substr((string) $subscription->fresh()->support_ends_at, 0, 10) : null);
+        $this->assertSame('2027-01-31', Grant::where('subscription_id', $subscription->id)->where('code', 'support')->first()?->ends_at?->toDateString());
+        $this->getJson("/order/{$order->id}/entitlements")->assertJsonPath('data.entitlements.0.code', 'chat')->assertJsonPath('data.entitlements.0.value', true);
+        \Illuminate\Support\Carbon::setTestNow();
+    }
+
+    public function test_order_dates_edit_the_license_grant_and_the_old_columns(): void
+    {
+        $order = Order::factory()->create(['product' => $this->product->id, 'number' => random_int(10000000, 99999999)]);
+        $subscription = Subscription::factory()->create(['order_id' => $order->id, 'product_id' => $this->product->id, 'ends_at' => '2027-05-01 00:00:00']);
+        $license = License::create([
+            'product_id' => $this->product->id, 'license_code' => 'DATE'.uniqid().'X', 'license_order_number' => (string) $order->number,
+            'license_limit' => 1, 'license_status' => 1,
+        ]);
+        Entitlement::create([...$this->row(['code' => 'support', 'type' => 'date', 'default_value' => null])]);
+
+        $this->putJson("/order/{$order->id}/dates/support", ['date' => '2027-08-15'])->assertOk();
+        $this->assertSame('2027-08-15', substr((string) $subscription->fresh()->support_ends_at, 0, 10));
+        $this->assertSame('2027-08-15', resolve(EntitlementService::class)->currentDates($license->fresh())['support']);
+
+        $this->putJson("/order/{$order->id}/dates/license", ['date' => null])->assertOk(); // never
+        $this->assertNull($subscription->fresh()->ends_at);
+
+        $this->putJson("/order/{$order->id}/dates/nonsense", ['date' => '2027-01-01'])->assertStatus(412);
+        $this->assertTrue($this->getJson("/order/{$order->id}/entitlements")->json('data.has_license'));
+    }
 }
+

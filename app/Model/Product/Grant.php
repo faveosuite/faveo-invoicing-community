@@ -12,10 +12,12 @@ use Illuminate\Support\Carbon;
 use Override;
 
 /**
- * One right a license (or a customer) has: a feature code with its value and dates, and where it
- * came from. See the entitlements migration for the sources.
+ * One right an order has: a feature code with its value and dates, and where it came from. Owned
+ * by the order's subscription, delivered to its license when it has one. See the entitlements
+ * migration for the sources.
  *
  * @property int $id
+ * @property int|null $subscription_id
  * @property int|null $license_id
  * @property int|null $user_id
  * @property string $code
@@ -40,7 +42,7 @@ class Grant extends Model
     /** A date feature (updates, support, …): ends_at is when it ends, null = never. */
     public const string DATE = 'date';
 
-    protected $fillable = ['license_id', 'user_id', 'code', 'value', 'source', 'starts_at', 'ends_at'];
+    protected $fillable = ['subscription_id', 'license_id', 'user_id', 'code', 'value', 'source', 'starts_at', 'ends_at'];
 
     /**
      * @return BelongsTo<License, $this>
@@ -68,6 +70,7 @@ class Grant extends Model
     protected function casts(): array
     {
         return [
+            'subscription_id' => 'integer',
             'license_id' => 'integer',
             'user_id' => 'integer',
             'starts_at' => 'date',
