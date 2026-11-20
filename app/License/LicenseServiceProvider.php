@@ -2,12 +2,12 @@
 
 namespace App\License;
 
+use App\License\Console\Commands\CheckGrants;
 use App\License\Console\Commands\CrackCallbackCleanup;
 use App\License\Console\Commands\CrackReportsCleanup;
 use App\License\Console\Commands\InstallationLogsCommand;
 use App\License\Console\Commands\LicenseDataMigration;
 use App\License\Console\Commands\LicenseReportsCleanup;
-use App\License\Console\Commands\CheckGrants;
 use App\License\Console\Commands\SystemReportsCleanup;
 use App\License\Console\Commands\VersionsCleanup;
 use App\License\Helpers\LicenseValidator;

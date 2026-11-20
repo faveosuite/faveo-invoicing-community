@@ -2,12 +2,12 @@
 
 namespace Tests;
 
-use App\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use ReflectionClass;
 use App\License\Models\License;
 use App\Model\Product\Product;
 use App\Services\EntitlementService;
+use App\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use ReflectionClass;
 
 /**
  * Base class for test cases with DB testing.

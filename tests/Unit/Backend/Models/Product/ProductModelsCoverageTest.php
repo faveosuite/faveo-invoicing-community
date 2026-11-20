@@ -441,5 +441,4 @@ class ProductModelsCoverageTest extends TestCase
     {
         $this->assertTrue(method_exists(Type::class, 'delete'));
     }
-
 }

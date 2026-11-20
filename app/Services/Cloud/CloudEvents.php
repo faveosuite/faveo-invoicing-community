@@ -15,7 +15,7 @@ use Throwable;
 /**
  * Billing → Faveo Cloud events, the Standard Webhooks way: every event goes into the outbox
  * (cloud_events) first, `cloud:events` sends what is due to ONE endpoint on cloud central, and
- * retries with growing gaps for 3 days. Each request carries
+ * retries with growing gaps for 3 days. Each request carries.
  *
  *   webhook-id         the event id (the cloud skips ids it has seen)
  *   webhook-timestamp  unix seconds (the cloud refuses anything more than 5 minutes off)
@@ -42,7 +42,9 @@ class CloudEvents
     /** An event not accepted within this many hours is marked failed (an admin can resend it). */
     private const int GIVE_UP_HOURS = 72;
 
-    public function __construct(private readonly ?Client $client = null) {}
+    public function __construct(private readonly ?Client $client = null)
+    {
+    }
 
     /**
      * A cloud license's rights changed. One pending license.updated per license is enough: its
