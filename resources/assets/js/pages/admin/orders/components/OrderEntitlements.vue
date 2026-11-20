@@ -1,27 +1,68 @@
 <template>
     <div>
-        <div v-if="loading" class="text-center py-4"><loader /></div>
-        <template v-else>
-            <!-- Dates: when the license and each date feature (updates, support, …) end -->
-            <h5 class="mb-2">{{ __('message.order_dates') }}</h5>
-            <v-client-table :data="dates" :columns="dateColumns" :options="dateTableOptions" class="mb-4" />
-
-            <!-- Features the order has, by category -->
-            <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-2">
-                <h5 class="mb-0">{{ __('message.entitlements') }}</h5>
-                <div v-if="available.length" style="min-width: 260px">
-                    <StaticSelect :key="pickerKey" name="give" classname="mb-0" :value="''" :elements="availableOptions"
-                                  :label="__('message.entitlement_give')" :onChange="give" />
-                </div>
+        <!-- Toolbar: find a feature, or give one the order doesn't have -->
+        <div class="d-flex flex-wrap align-items-end gap-3 mb-3">
+            <div class="flex-grow-1" style="min-width: 220px; max-width: 360px">
+                <label class="form-label" for="feature-search">{{ __('message.entitlement_search') }}</label>
+                <input id="feature-search" v-model="search" type="search" class="form-control"
+                       :placeholder="__('message.entitlement_search_hint')">
             </div>
-            <p v-if="!items.length" class="text-muted">{{ __('message.entitlement_none_for_order') }}</p>
-            <div v-for="group in groups" :key="group.name" class="mb-3">
-                <h6 class="text-muted text-uppercase small mb-1">{{ group.name }}</h6>
-                <v-client-table :data="group.rows" :columns="columns" :options="tableOptions" />
+            <div v-if="available.length" style="min-width: 240px">
+                <StaticSelect :key="pickerKey" name="give" classname="mb-0" :value="''" :elements="availableOptions"
+                              :label="__('message.entitlement_give')" :onChange="give" />
             </div>
-        </template>
+        </div>
 
-        <!-- Feature override -->
+        <p v-if="!items.length" class="text-muted mb-0">{{ __('message.entitlement_none_for_order') }}</p>
+        <p v-else-if="!groups.length" class="text-muted mb-0">{{ __('message.entitlement_no_match') }}</p>
+
+        <section v-for="(group, i) in groups" :key="group.name" class="mb-3">
+            <button type="button" class="btn btn-link text-body text-decoration-none p-0 mb-2 fw-semibold d-flex align-items-center gap-2"
+                    :aria-expanded="isOpen(group, i)" @click="toggle(group, i)">
+                <i class="fas fa-chevron-right small group-chevron" :class="{ open: isOpen(group, i) }"></i>
+                {{ group.name }} <span class="text-muted fw-normal">({{ group.rows.length }})</span>
+            </button>
+            <div v-show="isOpen(group, i)" class="table-responsive">
+                <table class="table table-sm table-hover align-middle mb-0 order-features">
+                    <colgroup>
+                        <col>
+                        <col style="width: 18%">
+                        <col style="width: 30%">
+                        <col style="width: 4.5rem">
+                    </colgroup>
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">{{ __('message.entitlement_name') }}</th>
+                            <th scope="col" class="text-nowrap">{{ __('message.entitlement_final') }}</th>
+                            <th scope="col">{{ __('message.entitlement_from') }}</th>
+                            <th scope="col" class="text-end"><span class="visually-hidden">{{ __('message.action') }}</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="row in group.rows" :key="row.id">
+                            <td :title="row.code">{{ row.label }}</td>
+                            <td class="fw-semibold text-nowrap" :class="{ 'text-muted': row.value === false }">{{ show(row, row.value) }}</td>
+                            <td>
+                                <span v-for="part in sources(row)" :key="part.text" class="badge me-1" :class="part.class">{{ part.text }}</span>
+                            </td>
+                            <td class="text-end text-nowrap">
+                                <template v-if="!row.locked">
+                                    <button type="button" class="btn btn-link btn-sm p-0 text-muted" v-tooltip="__('message.edit')" :aria-label="`${__('message.edit')} ${row.label}`" @click="openEditor(row)">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button v-if="row.override !== null" type="button" class="btn btn-link btn-sm p-0 ms-2 text-muted" v-tooltip="__('message.entitlement_reset')"
+                                            :aria-label="`${__('message.entitlement_reset')} ${row.label}`" @click="resetting = row">
+                                        <i class="fas fa-rotate-left"></i>
+                                    </button>
+                                </template>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Override editor (also for "Give a feature") -->
         <AppModal :showModal="!!editing" :onClose="closeEditor" classname="modal-md">
             <template #title><h4>{{ editing?.label }}</h4></template>
             <template #alert><AppAlert :componentName="EDITOR" /></template>
@@ -43,22 +84,6 @@
             </template>
         </AppModal>
 
-        <!-- Date edit -->
-        <AppModal :showModal="!!dating" :onClose="closeDate" classname="modal-md">
-            <template #title><h4>{{ dating?.label }}</h4></template>
-            <template #alert><AppAlert :componentName="DATE_EDITOR" /></template>
-            <template #fields>
-                <template v-if="dating">
-                    <Checkbox name="never" :label="__('message.order_date_never')" :value="dating.never" :onChange="v => (dating.never = v)" />
-                    <DatePicker v-if="!dating.never" name="date" :label="__('message.order_date_ends')" :value="dating.date"
-                                :onChange="v => (dating.date = v)" />
-                </template>
-            </template>
-            <template #controls>
-                <action-button action="save" :loading="saving" @click="saveDate" />
-            </template>
-        </AppModal>
-
         <DeleteModal
             v-if="resetting"
             :showModal="true"
@@ -70,37 +95,35 @@
             :btnLabel="__('message.entitlement_reset')"
             btnVariant="primary"
             btnIcon="fa-rotate-left"
-            @deleted="load"
+            @deleted="emit('changed')"
         />
     </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, h, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
 import DatePicker from '@/components/Reusable/FormField/DatePicker.vue'
-import Checkbox from '@/components/Reusable/FormField/Checkbox.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 
+// The order page loads the rights once (GET /order/{id}/entitlements) and passes them in.
 const props = defineProps({
-    orderId: { type: [String, Number], required: true },
+    orderId:   { type: [String, Number], required: true },
+    items:     { type: Array, default: () => [] },
+    available: { type: Array, default: () => [] },
 })
+const emit = defineEmits(['changed'])
 
-const COMPONENT   = 'orders-show'
-const EDITOR      = 'order-entitlement-editor'
-const DATE_EDITOR = 'order-date-editor'
+const COMPONENT = 'orders-show'
+const EDITOR    = 'order-entitlement-editor'
 
 const today     = new Date(new Date().setHours(0, 0, 0, 0))
-const loading   = ref(true)
 const saving    = ref(false)
-const items     = ref([])
-const available = ref([])
-const dates     = ref([])
+const search    = ref('')
 const editing   = ref(null)
-const dating    = ref(null)
 const resetting = ref(null)
 const pickerKey = ref(0)
 
@@ -110,110 +133,67 @@ function show(item, value) {
     return value === null || value === '' ? '—' : String(value)
 }
 
+/** Where the value comes from: the plan, bought units, an admin override (maybe until a date), or the license code. */
+function sources(row) {
+    if (row.from_code) return [{ text: __('message.entitlement_source_code'), class: 'text-bg-light border' }]
+    const parts = []
+    if (row.override !== null) {
+        parts.push({
+            text: row.until ? __('message.entitlement_source_override_until', { date: row.until }) : __('message.entitlement_source_override'),
+            class: 'text-bg-warning',
+        })
+    }
+    if (row.extra) {
+        parts.push({ text: row.type === 'number' ? __('message.entitlement_source_bought_units', { count: row.extra }) : __('message.entitlement_source_bought'), class: 'text-bg-info' })
+    }
+    if (row.plan_value !== null && row.plan_value !== false && row.override === null) {
+        parts.push({ text: __('message.entitlement_source_plan'), class: 'text-bg-light border' })
+    }
+    return parts
+}
+
 function choices(item) {
     return item.type === 'boolean'
         ? [{ id: '1', name: __('message.entitlement_on') }, { id: '0', name: __('message.entitlement_off') }]
         : (item.options ?? []).map(o => ({ id: o, name: o }))
 }
 
-// One table per category, in the order the features come (their sort order).
+// One table per category, in the features' own order; the search matches name or code.
 const groups = computed(() => {
+    const q = search.value.trim().toLowerCase()
     const byName = new Map()
-    for (const row of items.value) {
-        const name = row.category || __('message.entitlements')
+    for (const row of props.items) {
+        if (q && !row.label.toLowerCase().includes(q) && !row.code.includes(q)) continue
+        const name = row.category || __('message.order_features')
         if (!byName.has(name)) byName.set(name, [])
         byName.get(name).push(row)
     }
     return [...byName].map(([name, rows]) => ({ name, rows }))
 })
 
-const availableOptions = computed(() => available.value.map(i => ({
-    id: String(i.id),
-    name: i.category ? `${i.category} — ${i.label}` : i.label,
-})))
-
-const columns = ['label', 'plan_value', 'extra', 'override', 'value', 'action']
-const TABLE = { skin: 'table table-hover table-bordered mb-0', sortable: [], filterable: false, pagination: { show: false }, perPage: 1000, perPageValues: [] }
-
-const tableOptions = reactive({
-    ...TABLE,
-    headings: {
-        label:      __('message.entitlement_name'),
-        plan_value: __('message.entitlement_plan_value'),
-        extra:      __('message.extra_bought'),
-        override:   __('message.entitlement_override'),
-        value:      __('message.entitlement_final'),
-        action:     __('message.action'),
-    },
-    templates: {
-        label:      (f, row) => h('span', { title: row.code }, row.label),
-        plan_value: (f, row) => (row.from_code ? __('message.entitlement_from_agents') : show(row, row.plan_value)),
-        extra:      (f, row) => (row.extra ? (row.type === 'boolean' ? __('message.entitlement_on') : `+${row.extra}`) : '—'),
-        override:   (f, row) => {
-            if (row.override === null) return '—'
-            const value = show(row, row.type === 'boolean' ? row.override === '1' : row.override)
-            return row.until ? `${value} (${__('message.entitlement_until_date', { date: row.until })})` : value
-        },
-        value:  (f, row) => h('strong', {}, show(row, row.value)),
-        action: (f, row) => (row.locked ? '' : h('div', { class: 'text-nowrap' }, [
-            h('button', { type: 'button', class: 'btn btn-light table_btn me-1', title: __('message.edit'), 'aria-label': __('message.edit'), onClick: () => openEditor(row) },
-                h('i', { class: 'fas fa-edit' })),
-            row.override !== null
-                ? h('button', { type: 'button', class: 'btn btn-light table_btn', title: __('message.entitlement_reset'), 'aria-label': __('message.entitlement_reset'), onClick: () => { resetting.value = row } },
-                    h('i', { class: 'fas fa-rotate-left' }))
-                : null,
-        ])),
-    },
-    texts: { noResults: __('message.entitlement_none_for_order') },
-})
-
-const dateColumns = ['label', 'ends_at', 'action']
-
-const dateTableOptions = reactive({
-    ...TABLE,
-    headings: { label: __('message.entitlement_name'), ends_at: __('message.order_date_ends'), action: __('message.action') },
-    templates: {
-        ends_at: (f, row) => {
-            if (!row.ends_at) return __('message.order_date_never')
-            const ended = new Date(`${row.ends_at}T23:59:59`) < new Date()
-            return h('span', { class: ended ? 'text-danger' : '' }, [
-                row.ends_at,
-                ended ? h('span', { class: 'badge bg-danger ms-1' }, __('message.order_date_ended')) : null,
-            ])
-        },
-        action: (f, row) => h('button', { type: 'button', class: 'btn btn-light table_btn', title: __('message.edit'), 'aria-label': __('message.edit'), onClick: () => openDate(row) },
-            h('i', { class: 'fas fa-edit' })),
-    },
-})
-
-async function load() {
-    try {
-        const res = await http.get(`/order/${props.orderId}/entitlements`)
-        const data = res.data?.data ?? {}
-        items.value     = data.entitlements ?? []
-        available.value = data.available ?? []
-        dates.value     = data.dates ?? []
-    } catch (e) {
-        // An order without a subscription simply has nothing to show.
-        if (e?.response?.status !== 404) errorHandler(e, COMPONENT)
-        items.value = []
-        available.value = []
-        dates.value = []
-    } finally {
-        loading.value = false
-    }
+// The first group starts open, and so does any short one; a search opens them all.
+const opened = ref({})
+function isOpen(group, index) {
+    if (search.value.trim()) return true
+    return opened.value[group.name] ?? (index === 0 || group.rows.length <= 8)
+}
+function toggle(group, index) {
+    opened.value = { ...opened.value, [group.name]: !isOpen(group, index) }
 }
 
-onMounted(load)
+const availableOptions = computed(() => props.available.map(i => ({
+    id: String(i.id),
+    name: i.category ? `${i.label} (${i.category})` : i.label,
+})))
 
 function openEditor(row) {
     const current = row.override ?? (row.type === 'boolean' ? (row.plan_value ? '1' : '0') : row.plan_value)
     editing.value = { ...row, value: current === null ? '' : String(current), until: row.until }
 }
 
-// "Give a feature": the same override editor, starting from on / empty.
+// "Give a feature": the same editor, starting switched on / empty.
 function give(id) {
-    const item = available.value.find(i => String(i.id) === String(id))
+    const item = props.available.find(i => String(i.id) === String(id))
     pickerKey.value++ // reset the picker
     if (!item) return
     editing.value = { ...item, plan_value: null, value: item.type === 'boolean' ? '1' : '', until: null }
@@ -236,7 +216,7 @@ async function save() {
         })
         successHandler(res, COMPONENT)
         editing.value = null
-        await load()
+        emit('changed')
     } catch (e) {
         errorHandler(e, EDITOR)
     } finally {
@@ -244,27 +224,12 @@ async function save() {
     }
 }
 
-function openDate(row) {
-    dating.value = { ...row, never: !row.ends_at, date: row.ends_at }
-}
-
-function closeDate() {
-    if (!saving.value) dating.value = null
-}
-
-async function saveDate() {
-    saving.value = true
-    try {
-        const res = await http.put(`/order/${props.orderId}/dates/${dating.value.code}`, {
-            date: dating.value.never ? null : (dating.value.date || null), // DatePicker gives YYYY-MM-DD
-        })
-        successHandler(res, COMPONENT)
-        dating.value = null
-        await load()
-    } catch (e) {
-        errorHandler(e, DATE_EDITOR)
-    } finally {
-        saving.value = false
-    }
-}
+defineExpose({ groups, availableOptions, give, editing, search, sources, isOpen, toggle, save })
 </script>
+
+<style scoped>
+.group-chevron { transition: transform 0.15s ease; }
+.group-chevron.open { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) { .group-chevron { transition: none; } }
+.order-features td, .order-features th { padding-top: 0.45rem; padding-bottom: 0.45rem; }
+</style>

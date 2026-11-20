@@ -154,8 +154,40 @@ describe('OrderShow.vue', () => {
         expect(wrapper.vm.licenseEditModal.show).toBe(true)
     })
 
-    it('tab starts as installations', () => {
-        expect(wrapper.vm.tab).toBe('installations')
+    it('opens on the License tab when the order has a license', async () => {
+        await flushPromises()
+        expect(wrapper.vm.tab).toBe('license')
+    })
+
+    it('opens on Features for an order without a license (a service)', async () => {
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/order\/0\/entitlements/).reply(200, { data: { entitlements: [], available: [], dates: [] } })
+        globalThis.mockHttp.onGet(/\/order\/0$/).reply(200, { data: { ...orderFixture, has_license: false } })
+        globalThis.mockHttp.onGet(/./).reply(200, { data: [] })
+        const service = mount(OrderShow, { global: { plugins: [createTestingPinia()], stubs: ['AppAlert', 'AppModal', 'DataTable', 'DeleteModal', 'action-button', 'inline-loader', 'loader', 'Switch', 'Tooltip', 'DatePicker', 'RouterLink'] } })
+        await flushPromises()
+        expect(service.vm.tab).toBe('features')
+    })
+
+    it('marks a date that ended, one ending soon, and none for never', () => {
+        const ymd = (days) => new Date(Date.now() + days * 86400000).toISOString().slice(0, 10)
+        expect(wrapper.vm.dateHint({ ends_at: ymd(-2) }).text).toBe('message.order_date_ended')
+        expect(wrapper.vm.dateHint({ ends_at: ymd(10) }).class).toContain('warning')
+        expect(wrapper.vm.dateHint({ ends_at: null })).toBeNull()
+    })
+
+    it('saves a date, or never', async () => {
+        await flushPromises()
+        globalThis.mockHttp.onPut('/order/0/dates/support').reply(200, { message: 'ok' })
+        wrapper.vm.openDate({ code: 'support', label: 'Support', ends_at: '2027-11-20' })
+        wrapper.vm.dating.date = '2028-01-31'
+        await wrapper.vm.saveDate()
+        expect(JSON.parse(globalThis.mockHttp.history.put.at(-1).data)).toEqual({ date: '2028-01-31' })
+
+        wrapper.vm.openDate({ code: 'support', label: 'Support', ends_at: '2028-01-31' })
+        wrapper.vm.dating.never = true
+        await wrapper.vm.saveDate()
+        expect(JSON.parse(globalThis.mockHttp.history.put.at(-1).data)).toEqual({ date: null })
     })
 
     it('saveLicenseEdit sends only the installation fields (dates moved to Features & dates)', async () => {

@@ -343,7 +343,7 @@ class EntitlementController extends Controller
 
         $current = $this->service->currentDates($owner);
         $licenseEnd = $subscription !== null ? $subscription->ends_at : ($owner instanceof License ? $owner->license_expire_date : null);
-        $dates = [['code' => 'license', 'label' => __('message.license_expiry'), 'ends_at' => EntitlementService::day($licenseEnd)]];
+        $dates = [['code' => 'license', 'label' => __('message.order_license'), 'ends_at' => EntitlementService::day($licenseEnd)]];
         foreach (Entitlement::where('type', 'date')->where('is_active', true)->orderBy('sort')->orderBy('id')->get(['code', 'label']) as $item) {
             $column = LegacyDates::COLUMNS[$item->code][1] ?? null;
             if (array_key_exists($item->code, $current) || $column !== null) {
