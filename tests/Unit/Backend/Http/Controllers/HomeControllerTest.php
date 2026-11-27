@@ -9,6 +9,7 @@ use App\License\Models\LicensePlugin;
 use App\Model\Configure\PluginCompatibleWithProducts;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
+use App\Model\Product\ProductUpload;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
@@ -94,6 +95,11 @@ class HomeControllerTest extends DBTestCase
         PluginCompatibleWithProducts::create(['product_id' => $coreProduct->id, 'plugin_id' => $addonProduct->id]);
         PluginCompatibleWithProducts::create(['product_id' => $coreProduct->id, 'plugin_id' => $independentProduct->id]);
 
+        // compatible products are listed only once they have a version to download
+        foreach ([$addonProduct, $independentProduct] as $listed) {
+            ProductUpload::create(['product_id' => $listed->id, 'title' => 'v1', 'description' => 'v1', 'version' => '1.0.0', 'file' => 'p.zip', 'status' => 1]);
+        }
+
         $user = User::factory()->create(['email' => 'plugin-client@test.invalid']);
 
         $addonOrder = Order::factory()->create(['client' => $user->id, 'product' => $addonProduct->id, 'serial_key' => 'ADDONSERIAL'.uniqid()]);
@@ -122,6 +128,40 @@ class HomeControllerTest extends DBTestCase
 
         $this->assertContains($addonProduct->id, $productIds);
         $this->assertNotContains($independentProduct->id, $productIds);
+    }
+
+    public function test_get_details_for_client_lists_bundled_with_code_and_compatible_without_code_or_key(): void
+    {
+        $coreProduct = Product::factory()->create();
+        $bundledAddon = Product::factory()->create(['product_type' => 'addon', 'product_key' => 'BUNDLEDKEY']);
+        $compatibleAddon = Product::factory()->create(['product_type' => 'addon', 'product_key' => 'SECRETKEY', 'shoping_cart_link' => 'https://store.test/cart/compatible']);
+        $unrelatedAddon = Product::factory()->create(['product_type' => 'addon']);
+
+        foreach ([$bundledAddon, $compatibleAddon, $unrelatedAddon] as $addon) {
+            ProductUpload::create(['product_id' => $addon->id, 'title' => 'v1', 'description' => 'v1', 'version' => '1.0.0', 'file' => 'p.zip', 'status' => 1]);
+        }
+
+        // bundled is also marked compatible: it must be listed once, as bundled
+        PluginCompatibleWithProducts::create(['product_id' => $coreProduct->id, 'plugin_id' => $bundledAddon->id]);
+        PluginCompatibleWithProducts::create(['product_id' => $coreProduct->id, 'plugin_id' => $compatibleAddon->id]);
+
+        $mainLicense = License::create(['product_id' => $coreProduct->id, 'license_code' => 'MAINLIC'.uniqid(), 'license_status' => 1]);
+        LicensePlugin::create(['license_id' => $mainLicense->id, 'product_id' => $bundledAddon->id]);
+
+        $response = $this->get('/api/pluginInfo?license='.$mainLicense->license_code.'&product_id='.$coreProduct->id);
+        $rows = collect(json_decode((string) $response->getContent(), true))->keyBy('product_id');
+
+        $this->assertEqualsCanonicalizing([$bundledAddon->id, $compatibleAddon->id], $rows->keys()->all());
+
+        $this->assertSame('bundled', $rows[$bundledAddon->id]['type']);
+        $this->assertSame($mainLicense->license_code, $rows[$bundledAddon->id]['license_code']);
+        $this->assertSame('BUNDLEDKEY', $rows[$bundledAddon->id]['product_key']);
+
+        $this->assertSame('compatible', $rows[$compatibleAddon->id]['type']);
+        $this->assertNull($rows[$compatibleAddon->id]['license_code']);
+        $this->assertNull($rows[$compatibleAddon->id]['product_key']);
+        $this->assertSame('https://store.test/cart/compatible', $rows[$compatibleAddon->id]['shoping_cart_link']);
+        $this->assertSame('1.0.0', $rows[$compatibleAddon->id]['version']);
     }
 
     // =========================================================================

@@ -10,8 +10,6 @@ use App\Http\Requests\ProductRenewalRequest;
 use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Services\LicenseService;
-use App\Model\Configure\PluginCompatibleWithProducts;
-use App\Model\Configure\ProductPluginGroup;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -613,35 +611,20 @@ class HomeController extends BaseHomeController
 
     public function getDetailsForAClient(Request $request, LicenseService $licenseService): string
     {
-        $client = $request->input('client');
+        $product_id = (int) $request->input('product_id');
 
-        $license = $request->input('license');
+        // Bundled: the add-ons on the client's own licence (license_plugins, written at order time),
+        // with their licence code, so the client installs them directly.
+        $bundled = array_map(
+            fn (array $plugin) => [...$plugin, 'type' => 'bundled'],
+            $licenseService->getPluginLicenses([(string) $request->input('license')])
+        );
 
-        $product_id = $request->input('product_id');
+        // Compatible: every other add-on that works with the product, so customers can see and buy
+        // it. The client asks for its licence code and verifies it (/api/plugin/verifyLicense).
+        $compatible = $licenseService->getCompatiblePlugins($product_id, array_column($bundled, 'product_id'));
 
-        $user = User::where('email', $client)->value('id');
-
-        $products = Product::where('product_type', 'addon')->pluck('id')->toArray();
-
-        $productComp = PluginCompatibleWithProducts::where('product_id', $product_id)->pluck('plugin_id')->toArray();
-
-        $product = array_intersect($products, $productComp);
-
-        $productsLinked = ProductPluginGroup::where('product_id', $product_id)->pluck('plugin_id')->toArray();
-
-        $uniqueElements = array_merge(array_diff($product, $productsLinked), array_diff($productsLinked, $product));
-
-        $uniqueElements = array_values($uniqueElements);
-
-        $uniqueElements = array_merge($uniqueElements, $product);
-
-        $licenses = Order::where('client', $user)->whereIn('product', $uniqueElements)
-            ->pluck('serial_key')
-            ->toArray();
-
-        $licenses = array_merge([$license], $licenses);
-
-        $pluginLicenses = $licenseService->getPluginLicenses($licenses);
+        $pluginLicenses = [...$bundled, ...$compatible];
 
         $updatedProducts = [];
         foreach ($pluginLicenses as $real) {

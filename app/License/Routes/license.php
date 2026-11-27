@@ -22,6 +22,7 @@ use App\License\Controllers\AfuCallbacks\DownloadFileController;
 use App\License\Controllers\AfuCallbacks\GetAllVersionsController;
 use App\License\Controllers\AfuCallbacks\GetVersionsController;
 use App\License\Controllers\AfuCallbacks\LicensedPluginsController;
+use App\License\Controllers\AfuCallbacks\VerifyPluginLicenseController;
 use App\License\Controllers\LicenseApiController;
 use Illuminate\Support\Facades\Route;
 
@@ -57,6 +58,7 @@ Route::middleware('throttle:60,1')->group(function (): void {
     Route::post('/api/getVersions', [GetVersionsController::class, 'getVersions']);
     Route::post('/api/getAllVersions', [GetAllVersionsController::class, 'getAllVersions']);
     Route::post('/api/licensedPlugins', [LicensedPluginsController::class, 'licensedPlugins']);
+    Route::post('/api/plugin/verifyLicense', [VerifyPluginLicenseController::class, 'verify']);
 });
 
 // File download routes — tighter limit to prevent bandwidth abuse

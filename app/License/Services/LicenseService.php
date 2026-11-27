@@ -136,6 +136,97 @@ class LicenseService
     }
 
     /**
+     * Add-ons that work with a product (plugin_compatible_with_products) and can be bought for it,
+     * for the client's "Available plugins" list. Unlike bundled add-ons they carry no licence code
+     * and no product key: the client asks the admin for the code and gets the key only once
+     * verifyCompatiblePluginLicense() accepts it.
+     *
+     * @param  list<int>  $exceptProductIds  add-ons already listed as bundled
+     * @return list<array<string, mixed>>
+     */
+    public function getCompatiblePlugins(int $productId, array $exceptProductIds = []): array
+    {
+        $plugins = Product::where('product_type', 'addon')
+            ->whereIn('id', PluginCompatibleWithProducts::where('product_id', $productId)->pluck('plugin_id'))
+            ->whereNotIn('id', $exceptProductIds)
+            ->get();
+
+        $latestVersions = ProductUpload::whereIn('product_id', $plugins->pluck('id'))
+            ->active()
+            ->orderByDesc('id')
+            ->get()
+            ->unique('product_id')
+            ->keyBy('product_id');
+
+        $result = [];
+        foreach ($plugins as $product) {
+            $latestVersion = $latestVersions->get($product->id);
+
+            if (! $latestVersion) {
+                continue; // nothing to download yet
+            }
+
+            $result[] = [
+                'product_id' => $product->id,
+                'product_name' => $product->name,
+                'product_key' => null,
+                'product_description' => $product->product_description,
+                'license_code' => null,
+                'path' => $product->product_path,
+                'latest_version' => $latestVersion->version,
+                'type' => 'compatible',
+                'shoping_cart_link' => $product->shoping_cart_link,
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check a licence code the admin entered for a compatible add-on, before the client downloads it.
+     *
+     * The client's own licence must be an active licence of $productId, the add-on must be
+     * compatible with that product, and the code must be an active, unexpired licence of the add-on
+     * itself (not the helpdesk licence, nor a licence of another add-on).
+     *
+     * @return array{product_key: string}|array{error: string}
+     */
+    public function verifyCompatiblePluginLicense(string $mainLicenseCode, int $productId, int $pluginId, string $pluginLicenseCode): array
+    {
+        $isClientLicensed = License::where('license_code', $mainLicenseCode)
+            ->where('product_id', $productId)
+            ->where('license_status', 1)
+            ->exists();
+
+        if (! $isClientLicensed) {
+            return ['error' => __('message.plugin_main_license_invalid')];
+        }
+
+        $plugin = Product::where('product_type', 'addon')
+            ->whereIn('id', PluginCompatibleWithProducts::where('product_id', $productId)->pluck('plugin_id'))
+            ->find($pluginId);
+
+        if (! $plugin) {
+            return ['error' => __('message.plugin_not_compatible_with_product')];
+        }
+
+        $pluginLicense = License::where('license_code', $pluginLicenseCode)
+            ->where('product_id', $plugin->id)
+            ->where('license_status', 1)
+            ->first();
+
+        if (! $pluginLicense) {
+            return ['error' => __('message.plugin_license_code_invalid')];
+        }
+
+        if ($pluginLicense->isExpired()) {
+            return ['error' => __('message.plugin_license_code_expired')];
+        }
+
+        return ['product_key' => (string) $plugin->product_key];
+    }
+
+    /**
      * Add-ons this licence's customer can install, for the client's "install plugin" list.
      * Mirrors: POST /api/licensedPlugins (signed, see LicensedPluginsController).
      *
