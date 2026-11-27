@@ -12,7 +12,6 @@ use App\Model\Common\Timezone;
 use App\Model\Payment\Currency;
 use App\Model\Payment\TaxOption;
 use App\Model\Product\CloudProducts;
-use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\User;
 use Carbon\Carbon;

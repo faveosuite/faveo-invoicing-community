@@ -10,9 +10,9 @@ use App\Model\Order\OrderEntitlement;
 use App\Model\Payment\Plan;
 use App\Model\Product\Subscription;
 use App\Services\EntitlementService;
-use Illuminate\Support\Facades\Date;
 use App\Services\SubscriptionRenewalService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Date;
 use Tests\DBTestCase;
 
 class SubscriptionRenewalServiceTest extends DBTestCase

@@ -410,4 +410,3 @@ class EntitlementControllerTest extends DBTestCase
         $this->assertTrue($this->getJson("/order/{$order->id}/entitlements")->json('data.has_license'));
     }
 }
-
