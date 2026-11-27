@@ -12,13 +12,13 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\TaxOption;
 use App\Model\Product\Product;
 use App\Services\EntitlementSalesService;
+use App\Services\EntitlementService;
 use App\Services\Payment\InvoicePaymentService;
 use App\Services\Payment\OpenPaymentService;
 use App\Services\Payment\ProcessingFee;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Throwable;
-use App\Services\EntitlementService;
 
 /**
  * Invoice-driven SPA payment (HTTP layer).

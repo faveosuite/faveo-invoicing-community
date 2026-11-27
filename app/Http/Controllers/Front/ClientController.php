@@ -354,7 +354,7 @@ class ClientController extends BaseClientController
                 'order_date' => $order->created_at,
                 'license_ends_at' => $order->subscription?->ends_at,
                 // The license's count, 0 = unlimited; null before the order has a license.
-            'agents' => $order->serial_key ? (int) substr((string) $order->serial_key, -4) : null,
+                'agents' => $order->serial_key ? (int) substr((string) $order->serial_key, -4) : null,
                 'current_plan' => $order->subscription?->plan?->name,
                 'product_id' => $order->productRelation?->id,
                 'client_id' => $order->client,

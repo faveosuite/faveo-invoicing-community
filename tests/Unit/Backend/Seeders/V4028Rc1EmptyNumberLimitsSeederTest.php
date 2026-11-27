@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Backend\Seeders;
 
-use App\Model\Payment\Plan;
 use App\License\Models\License;
+use App\Model\Payment\Plan;
 use App\Model\Product\Entitlement;
 use App\Model\Product\Grant;
 use App\Model\Product\Product;

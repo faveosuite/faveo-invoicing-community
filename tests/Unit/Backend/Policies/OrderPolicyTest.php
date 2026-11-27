@@ -14,9 +14,9 @@ use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Policies\OrderPolicy;
+use App\Services\EntitlementService;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use App\Services\EntitlementService;
 use Tests\DBTestCase;
 
 class OrderPolicyTest extends DBTestCase
