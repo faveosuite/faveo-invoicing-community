@@ -67,7 +67,6 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
 
         $currency = $this->resolveGuestCurrency($request);
         $data['plan_id'] = $this->resolvePlanId($data, $currency);
-        $data['agents'] = $this->agentsForNewLine($data, $data['plan_id'], $currency);
 
         $this->guest->add($data, $currency, quantityLocked: ! $this->canModifyQuantity((int) $data['product_id']));
     }
@@ -85,13 +84,7 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
      */
     public function updateItem(Request $request, int|string $itemId, array $data): void
     {
-        // Only products that let the customer pick an agent count may change it — otherwise
-        // the line carries the plan's own count (what its price covers), like development did.
-        if (isset($data['agents']) && ! $this->canModifyAgents($request, $itemId)) {
-            unset($data['agents']);
-        }
-
-        // Same for quantity: fulfilment issues one order/licence for the line however many are
+        // Quantity: fulfilment issues one order/licence for the line however many are
         // "bought", so a product that doesn't allow it must stay at 1.
         if (isset($data['quantity']) && ! $this->canModifyQuantity($this->itemProductId($request, $itemId))) {
             unset($data['quantity']);
@@ -101,9 +94,8 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
             $item = CartItem::findOrFail($itemId);
             $item->update(array_filter([
                 'quantity' => $data['quantity'] ?? null,
-                'agents' => $data['agents'] ?? null,
                 'domain' => $data['domain'] ?? null,
-                'extras' => isset($data['extras']) ? $this->cleanExtras($item, $data['extras']) : null,
+                'extras' => isset($data['extras']) ? $item->cleanExtras($data['extras'], $item->cart->currency ?? 'USD') : null,
             ], fn ($v): bool => $v !== null));
             $this->recalculateCoupon($item->cart);
 
@@ -111,34 +103,6 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
         }
 
         $this->guest->update((int) $itemId, $data);
-    }
-
-    /**
-     * Keeps only extras this line's product sells in the cart's currency, with a valid quantity
-     * (an on/off feature is 0 or 1). Merged into what the line already has; 0 removes one.
-     *
-     * @param  array<int|string, mixed>  $requested
-     * @return array<int|string, int>
-     */
-    private function cleanExtras(CartItem $item, array $requested): array
-    {
-        $currency = $item->cart->currency ?? 'USD';
-        $extras = $item->extras ?? [];
-
-        foreach ($item->availableExtras($currency) as $extra) {
-            $id = $extra['entitlement_id'];
-            if (! array_key_exists($id, $requested)) {
-                continue;
-            }
-            $qty = max(0, min($extra['type'] === 'boolean' ? 1 : 9999, (int) $requested[$id]));
-            if ($qty === 0) {
-                unset($extras[$id]);
-            } else {
-                $extras[$id] = $qty;
-            }
-        }
-
-        return $extras;
     }
 
     public function removeItem(Request $request, int|string $itemId): void
@@ -435,27 +399,6 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
         return (int) $planId;
     }
 
-    /**
-     * Agents for a new cart line: the plan's own count — what its price covers, 0 meaning
-     * unlimited — unless the product lets the customer choose and they sent a count.
-     *
-     * @param  array<mixed>  $data
-     */
-    private function agentsForNewLine(array $data, int $planId, string $currency): int
-    {
-        $planAgents = CartItem::planAgents(Plan::with('planPrice')->find($planId), $currency);
-        $canModify = (bool) Product::whereKey($data['product_id'])->value('can_modify_agent');
-
-        return $canModify && $planAgents > 0 && isset($data['agents'])
-            ? max(1, (int) $data['agents'])
-            : $planAgents;
-    }
-
-    private function canModifyAgents(Request $request, int|string $itemId): bool
-    {
-        return (bool) Product::whereKey($this->itemProductId($request, $itemId))->value('can_modify_agent');
-    }
-
     private function canModifyQuantity(?int $productId): bool
     {
         return (bool) Product::whereKey($productId)->value('can_modify_quantity');
@@ -524,9 +467,6 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
                 'product_id' => $data['product_id'],
                 'plan_id' => $planId,
                 'quantity' => $quantityLocked ? 1 : ($data['quantity'] ?? 1),
-                // Resolved here (not just in addItem) so a guest line merged on login is
-                // re-checked too — rows from before this rule carried a hard-coded 1.
-                'agents' => $this->agentsForNewLine($data, $planId, $cart->currency ?? 'USD'),
                 'domain' => $data['domain'] ?? null,
                 'data_center_id' => $data['data_center_id'] ?? null,
                 'billing_cycle' => $data['billing_cycle'] ?? 'monthly',
@@ -571,7 +511,7 @@ class CartService // NOSONAR - large existing class, kept as is: splitting it is
                 // item so the order/license don't lock to it — that lock blocks a later custom domain.
                 'domain' => in_array($line->product_id, cloudPopupProducts()) ? '' : ($line->domain ?: ''),
                 'plan_id' => $line->plan_id ?? 0,
-                'agents' => $line->agents,
+                'agents' => $line->totalAgents($currency), // the license code's last four digits
                 'extras' => $extras ?: null,
             ];
 

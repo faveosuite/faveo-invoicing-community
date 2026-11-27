@@ -1,7 +1,12 @@
 jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: jest.fn(() => 0) }))
 jest.mock('@/helpers/responseHandler', () => ({ successHandler: jest.fn(), errorHandler: jest.fn() }))
 jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)), scrollToFirstError: jest.fn() }))
-jest.mock('vue-router', () => ({ useRouter: () => ({ push: jest.fn() }), useRoute: () => ({ params: { id: 0 }, query: {} }) }))
+const mockLeaveGuards = []
+jest.mock('vue-router', () => ({
+    useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
+    useRoute: () => ({ params: { id: 0 }, query: {} }),
+    onBeforeRouteLeave: (guard) => mockLeaveGuards.push(guard),
+}))
 jest.mock('@/validations/admin/planValidations', () => ({ planSchema: {} }))
 
 import { mount } from '@vue/test-utils'
@@ -55,7 +60,7 @@ describe('PlanEdit.vue', () => {
                     'DynamicSelect', 'TextField', 'StaticSelect', 'DatePicker', 'RadioButton',
                     'NumberField', 'TinyMCE', 'loader', 'ColumnSelector', 'Switch', 'Checkbox',
                     'Tooltip', 'ImageField', 'DynamicSelect', 'VersionTableActions',
-                    'ProductPluginMapping', 'spinner-loader',
+                    'ProductPluginMapping', 'spinner-loader', 'router-link',
                 ],
             },
         })
@@ -74,6 +79,23 @@ describe('PlanEdit.vue', () => {
         expect(wrapper.find('.card').exists()).toBe(true)
     })
 
+    it('links the live license count to the orders on this plan', async () => {
+        await flushPromises()
+        expect(wrapper.find('router-link-stub').attributes('to')).toBe('/orders?product_id=1&plan_id=0')
+    })
+
+    it('warns before leaving with unsaved changes, and not after saving them', async () => {
+        await flushPromises()
+        const guard = mockLeaveGuards.at(-1)
+        const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(false)
+        expect(guard()).toBe(true) // nothing changed
+
+        wrapper.vm.form.name = 'Renamed'
+        expect(guard()).toBe(false) // asked, and stayed
+        expect(confirmSpy).toHaveBeenCalledWith('message.unsaved_changes_confirm')
+        confirmSpy.mockRestore()
+    })
+
     it('fetches periods, currencies, and plan data on mount', async () => {
         await flushPromises()
         const urls = globalThis.mockHttp.history.get.map(r => r.url)
@@ -88,6 +110,18 @@ describe('PlanEdit.vue', () => {
         expect(wrapper.vm.form.product).toBe(1)
         expect(wrapper.vm.form.days).toBe(30)
         expect(wrapper.vm.form.status).toBe(1)
+    })
+
+    it('shows the status in the header switch and the summary, and the switch changes it', async () => {
+        await flushPromises()
+        const sw = wrapper.findComponent({ name: 'Switch' })
+        expect(sw.props('value')).toBe(true)
+        expect(wrapper.find('#plan-status-label').text()).toBe('message.active')
+        sw.props('onChange')(false)
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.form.status).toBe(0)
+        expect(wrapper.find('#plan-status-label').text()).toBe('message.inactive')
+        expect(wrapper.find('.list-group .badge.bg-secondary').text()).toBe('message.inactive')
     })
 
     it('submits PATCH /plan/0 on valid form', async () => {

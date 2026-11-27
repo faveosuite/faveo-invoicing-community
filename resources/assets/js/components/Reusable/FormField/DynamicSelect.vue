@@ -4,6 +4,8 @@
             {{ label }}<span v-if="required && !hideRequiredMark" class="text-danger ms-1">*</span>
             <ToolTip v-if="tooltip" :message="tooltip" size="small" />
         </label>
+        <!-- No visible label (e.g. in a table cell): still named for screen readers -->
+        <label v-else-if="ariaLabel" class="visually-hidden" :for="name">{{ ariaLabel }}</label>
         <v-select
             ref="vsRef"
             :inputId="name"
@@ -79,6 +81,7 @@ import { getSubStringValue } from '@/helpers/extraLogics'
 const props = defineProps({
     name:          { type: String, required: true },
     label:         { type: String, default: '' },
+    ariaLabel:     { type: String, default: '' },
     tooltip:       { type: String, default: '' },
     createOption:  { type: Function, default: null },
     apiEndpoint:   { type: String, default: null },

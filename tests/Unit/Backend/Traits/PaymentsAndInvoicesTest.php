@@ -27,28 +27,6 @@ class PaymentsAndInvoicesTest extends TestCase
     }
 
     // =========================================================================
-    // getAgents() – when $agents is truthy, returns immediately (no DB)
-    // =========================================================================
-
-    public function test_get_agents_returns_agents_when_truthy(): void
-    {
-        $result = $this->subject->getAgents(5, 1, 1);
-        $this->assertSame(5, $result);
-    }
-
-    public function test_get_agents_returns_zero_when_agents_is_zero_and_product_not_found(): void
-    {
-        // Product 999999 doesn't exist → planRelation is null → returns 0
-        try {
-            $result = $this->subject->getAgents(0, 999999, 1);
-            $this->assertIsInt($result);
-        } catch (\Throwable $throwable) {
-            // DB failure is acceptable; the method body was entered
-            $this->assertTrue(true);
-        }
-    }
-
-    // =========================================================================
     // getQuantity() – when $qty is truthy, returns immediately (no DB)
     // =========================================================================
 

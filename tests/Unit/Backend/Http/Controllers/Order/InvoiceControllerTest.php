@@ -12,7 +12,9 @@ use App\Model\Order\InvoiceItem;
 use App\Model\Order\InvoiceTaxLine;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
+use App\Services\EntitlementService;
 use App\Services\Payment\PostPaymentService;
 use App\User;
 use Tests\DBTestCase;
@@ -355,6 +357,84 @@ class InvoiceControllerTest extends DBTestCase
             $data = $response->json('data');
             $this->assertArrayHasKey('invoice', $data);
         }
+    }
+
+    /** A plan including $included agents ('5', '0'), selling Agents (3) and Storage (2) in INR and USD. */
+    private function planWithExtras(Product $product, string $included): Plan
+    {
+        $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
+        $agents = EntitlementService::agents();
+        $storage = \App\Model\Product\Entitlement::firstOrCreate(['code' => 'storage'], ['label' => 'Storage', 'type' => 'number', 'is_active' => true]);
+        $plan->entitlements()->attach($agents->id, ['value' => $included]);
+        foreach (['INR', 'USD'] as $currency) {
+            PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => 100, 'renew_price' => 100]);
+            $agents->prices()->create(['plan_id' => $plan->id, 'currency' => $currency, 'unit_price' => 3, 'renew_price' => 4]);
+            $storage->prices()->create(['plan_id' => $plan->id, 'currency' => $currency, 'unit_price' => 2]);
+        }
+
+        return $plan;
+    }
+
+    public function test_plan_details_list_the_extras_the_plan_sells(): void
+    {
+        $this->getLoggedInUser('admin');
+        $client = User::factory()->create();
+        $product = Product::factory()->create();
+        $plan = $this->planWithExtras($product, '0');
+
+        $extras = collect($this->postJson('/get-price', ['product' => $product->id, 'plan' => (string) $plan->id, 'user' => $client->id])
+            ->assertOk()->json('data.extras'));
+
+        $agents = $extras->firstWhere('entitlement_id', EntitlementService::agents()->id);
+        $this->assertSame([0, 1, 1], [$agents['included'], $agents['min'], $agents['quantity']]); // every agent paid: at least one
+        $this->assertEquals(3, $agents['unit_price']);
+        $this->assertNotNull($extras->firstWhere('label', 'Storage'));
+    }
+
+    public function test_admin_invoice_extras_go_on_the_invoice_line(): void
+    {
+        $this->getLoggedInUser('admin');
+        $client = User::factory()->create();
+        $product = Product::factory()->create();
+        $plan = $this->planWithExtras($product, '5');
+        $agents = EntitlementService::agents();
+        $storage = \App\Model\Product\Entitlement::where('code', 'storage')->firstOrFail();
+        $line = fn () => InvoiceItem::whereHas('invoice', fn ($q) => $q->where('user_id', $client->id))->latest('id')->firstOrFail();
+
+        $this->postJson('/generate/invoice', ['user' => $client->id, 'date' => now()->toDateString(), 'product' => $product->id,
+            'plan' => $plan->id, 'price' => 100, 'extras' => [$agents->id => 2, $storage->id => 3]])->assertStatus(200);
+
+        $item = $line();
+        $this->assertSame(7, (int) $item->agents); // 5 included + 2: the license code's count
+        $extras = collect($item->extras)->keyBy('entitlement_id');
+        $this->assertSame(2, $extras[$agents->id]['quantity']);
+        $this->assertEquals(4, $extras[$agents->id]['renew_price']);
+        $this->assertSame(3, $extras[$storage->id]['quantity']);
+
+        // A plan including no agents still gets one, never 0000 (unlimited).
+        $this->postJson('/generate/invoice', ['user' => $client->id, 'date' => now()->toDateString(), 'product' => $product->id,
+            'plan' => $this->planWithExtras($product, '0')->id, 'price' => 100])->assertStatus(200);
+        $this->assertSame(1, (int) $line()->agents);
+        $this->assertSame(1, collect($line()->extras)->firstWhere('entitlement_id', $agents->id)['quantity']);
+    }
+
+    public function test_admin_invoice_is_refused_when_a_plan_including_no_agents_cannot_sell_one(): void
+    {
+        // No Agents price in the customer's currency: the line would carry 0 agents, a 0000 (unlimited) license.
+        $this->getLoggedInUser('admin');
+        $client = User::factory()->create();
+        $product = Product::factory()->create();
+        $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
+        $plan->entitlements()->attach(EntitlementService::agents()->id, ['value' => '0']);
+        foreach (['INR', 'USD'] as $currency) {
+            PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => 100, 'renew_price' => 100]);
+        }
+        EntitlementService::agents()->prices()->create(['plan_id' => $plan->id, 'currency' => 'EUR', 'unit_price' => 3]);
+
+        $this->postJson('/generate/invoice', ['user' => $client->id, 'date' => now()->toDateString(), 'product' => $product->id,
+            'plan' => $plan->id, 'price' => 100])
+            ->assertStatus(400)->assertJsonPath('message.0', __('message.entitlement_agents_price_required'));
+        $this->assertFalse(\App\Model\Order\Invoice::where('user_id', $client->id)->exists());
     }
 
     // =========================================================================

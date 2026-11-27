@@ -14,15 +14,8 @@ const baseItem = {
     extras_total: '0.00',
     currency_symbol: '$',
     quantity: 1,
-    agents: 5,
-    included_agents: 5,
-    agent_price: '10.00',
-    agents_total: null,
-    agents_fewer: false,
     period: '1 Year',
     can_modify_quantity: true,
-    can_modify_agent: true,
-    show_agent: true,
     extras: [],
 }
 
@@ -41,29 +34,31 @@ describe('CartItemRow.vue', () => {
         expect(w.find('.co-price').text()).toBe('$99.00')
     })
 
+    it('shows a topped-up limit as the extra and the total, not just units', () => {
+        const w = makeWrapper({ extras: [extra(3, { label: 'Storage', type: 'number', quantity: 5, included: 10, line_total: '10.00' })] })
+        expect(w.find('.co-breakdown').text()).toContain('Storage (message.cart_extra_on_top)')
+        expect(w.find('.co-breakdown').text()).not.toContain('message.cart_units')
+    })
+
     it('renders a placeholder when there is no image', () => {
         expect(makeWrapper().find('.fa-box').exists()).toBe(true)
         expect(makeWrapper({ image: 'http://example.com/a.png' }).find('img').exists()).toBe(true)
     })
 
-    it('says one, many or unlimited agents, and nothing when not priced per agent', () => {
-        expect(makeWrapper({ agents: 1 }).text()).toContain('message.cart_one_agent')
-        expect(makeWrapper({ agents: 3 }).text()).toContain('message.cart_n_agents')
-        expect(makeWrapper({ agents: 0 }).text()).toContain('message.plan_agents_unlimited')
-        expect(makeWrapper({ show_agent: false }).text()).not.toContain('agent')
+    it('has no agents chip: agents show as an extra line like any other', () => {
+        expect(makeWrapper().text()).not.toContain('agent')
     })
 
     it('shows no breakdown when the price is just the plan', () => {
         expect(makeWrapper().find('.co-breakdown').exists()).toBe(false)
     })
 
-    it('breaks down extra agents as an addition and fewer agents as a reduction', () => {
-        const more = makeWrapper({ agents: 7, agents_total: '20.00' })
-        expect(more.find('.co-breakdown').text()).toContain('message.cart_agents_extra')
-        expect(more.find('.co-breakdown').text()).toContain('+$20.00')
-
-        const fewer = makeWrapper({ agents: 3, agents_total: '20.00', agents_fewer: true })
-        expect(fewer.find('.co-row.is-discount').text()).toContain('−$20.00')
+    it('lists extra agents as an Agents extra, with no fewer-agents row', () => {
+        const w = makeWrapper({ extras: [extra(1, { label: 'Agents', type: 'number', quantity: 2, included: 5, line_total: '20.00' })] })
+        expect(w.find('.co-breakdown').text()).toContain('Agents (message.cart_extra_on_top)')
+        expect(w.find('.co-breakdown').text()).toContain('+$20.00')
+        expect(w.find('.co-row.is-discount').exists()).toBe(false)
+        expect(w.text()).not.toContain('message.cart_fewer_agents')
     })
 
     it('lists each chosen add-on, and folds more than 3 into one line that opens up', async () => {
@@ -83,7 +78,7 @@ describe('CartItemRow.vue', () => {
     })
 
     it('offers Customize only when something can change, and emits the item id', async () => {
-        const fixed = makeWrapper({ can_modify_quantity: false, can_modify_agent: false })
+        const fixed = makeWrapper({ can_modify_quantity: false })
         expect(fixed.text()).not.toContain('message.cart_customize')
 
         const w = makeWrapper()

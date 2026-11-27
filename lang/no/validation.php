@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => 'Produktets SKU må være unikt.',
     'product_name_unique' => 'Navnet må være unikt.',
-    'product_show_agent_required' => 'Velg preferanse for handlekurvside.',
     'config_file_path_regex' => 'Må være en relativ bane uten ../-segmenter.',
     'license_file_path_regex' => 'Må være en relativ bane uten ../-segmenter.',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => 'Bildet må ikke være større enn 2048 kilobyte.',
         'product_sku_required' => 'Produktets SKU er påkrevd.',
         'group_required' => 'Produktgruppen er påkrevd.',
-        'show_agent_required' => 'Velg preferanse for handlekurvside.',
     ],
     'current_domain_required' => 'Nåværende domene er påkrevd.',
     'new_domain_required' => 'Nytt domene er påkrevd.',

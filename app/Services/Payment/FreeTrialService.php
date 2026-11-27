@@ -14,6 +14,7 @@ use App\Model\Payment\PlanPrice;
 use App\Model\Payment\TaxOption;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
+use App\Services\EntitlementService;
 use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -113,7 +114,8 @@ class FreeTrialService
     private function createInvoiceItem(Invoice $invoice, Product $product, Plan $plan, string $currency): InvoiceItem
     {
         $price = (float) (PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('add_price') ?? 0);
-        $agents = PlanPrice::where('plan_id', $plan->id)->value('no_of_agents');
+        $agents = EntitlementService::includedAgents($plan);
+        $agents = $agents === null ? null : max(1, $agents); // 0 included would read as unlimited
 
         return InvoiceItem::create([
             'invoice_id' => $invoice->id,

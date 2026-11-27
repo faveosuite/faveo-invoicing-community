@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => 'O SKU do produto deve ser único.',
     'product_name_unique' => 'O nome deve ser único.',
-    'product_show_agent_required' => 'Selecione sua preferência da página do carrinho.',
     'config_file_path_regex' => 'Deve ser um caminho relativo sem segmentos ../.',
     'license_file_path_regex' => 'Deve ser um caminho relativo sem segmentos ../.',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => 'A imagem não pode ter mais de 2048 kilobytes.',
         'product_sku_required' => 'O SKU do produto é obrigatório.',
         'group_required' => 'O grupo do produto é obrigatório.',
-        'show_agent_required' => 'Selecione sua preferência da página do carrinho.',
     ],
     'current_domain_required' => 'O domínio atual é obrigatório.',
     'new_domain_required' => 'O novo domínio é obrigatório.',

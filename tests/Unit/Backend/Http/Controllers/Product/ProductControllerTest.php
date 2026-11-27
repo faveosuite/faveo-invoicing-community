@@ -222,8 +222,6 @@ class ProductControllerTest extends DBTestCase
             'description' => 'Test description',
             'product_description' => 'Full description',
             'product_sku' => 'SKU-'.uniqid(),
-            'show_agent' => 0,
-            'can_modify_agent' => 0,
             'can_modify_quantity' => 0,
         ]);
         $response->assertStatus(200);
@@ -244,8 +242,6 @@ class ProductControllerTest extends DBTestCase
             'description' => 'Updated description',
             'product_description' => 'Updated full description',
             'product_sku' => 'SKU-UPDT-'.uniqid(),
-            'show_agent' => 0,
-            'can_modify_agent' => 0,
             'can_modify_quantity' => 0,
         ]);
         $response->assertStatus(200);
@@ -794,8 +790,6 @@ class ProductControllerTest extends DBTestCase
             'description' => 'Test description',
             'product_description' => 'Full description',
             'product_sku' => 'SKU-'.uniqid(),
-            'show_agent' => 0,
-            'can_modify_agent' => 0,
             'can_modify_quantity' => 0,
         ], $overrides);
     }

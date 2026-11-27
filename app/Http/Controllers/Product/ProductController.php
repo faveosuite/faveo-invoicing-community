@@ -484,7 +484,6 @@ class ProductController extends BaseProductController
             'image' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
             'product_sku' => ['required', 'unique:products,product_sku'],
             'group' => ['required', 'exists:product_groups,id'],
-            'show_agent' => ['required'],
             // Saved only if listed here (validated-only save), so every editable column must be.
             'parent' => ['nullable', 'integer'],
             'shoping_cart_link' => ['nullable', 'string', 'max:255'],
@@ -497,7 +496,6 @@ class ProductController extends BaseProductController
             'group.exists' => __('validation.product_controller.group_required'),
             'product_sku.unique' => __('validation.product_sku_unique'),
             'name.unique' => __('validation.product_name_unique'),
-            'show_agent.required' => __('validation.product_show_agent_required'),
             'config_file_path.regex' => __('validation.config_file_path_regex'),
             'license_file_path.regex' => __('validation.license_file_path_regex'),
         ]);
@@ -526,10 +524,8 @@ class ProductController extends BaseProductController
                     $validated['image'] = basename((string) Attach::put('common/images/', $request->file('image'), null, true));
                 }
 
-                $validated['show_agent'] = $request->boolean('show_agent');
                 $validated['highlight'] = $request->boolean('highlight');
                 $validated['add_to_contact'] = $request->boolean('add_to_contact');
-                $validated['can_modify_agent'] = $request->boolean('can_modify_agent');
                 $validated['can_modify_quantity'] = $request->boolean('can_modify_quantity');
                 $validated['require_domain'] = $request->boolean('require_domain');
                 $validated['hidden'] = $request->boolean('hidden');
@@ -587,7 +583,6 @@ class ProductController extends BaseProductController
             'file' => ['sometimes', 'file', 'max:102400'], // NOSONAR — 100 MB limit is intentional for product file downloads
             'product_sku' => ['required', Rule::unique('products', 'product_sku')->ignore($productId)],
             'group' => ['required', 'exists:product_groups,id'],
-            'show_agent' => ['required'],
             // Saved only if listed here (validated-only save), so every editable column must be.
             'parent' => ['nullable', 'integer'],
             'shoping_cart_link' => ['nullable', 'string', 'max:255'],
@@ -607,7 +602,6 @@ class ProductController extends BaseProductController
             'product_sku.unique' => __('validation.product_sku_unique'),
             'group.required' => __('validation.product_controller.group_required'),
             'group.exists' => __('validation.product_controller.group_required'),
-            'show_agent.required' => __('validation.product_controller.show_agent_required'),
             'config_file_path.regex' => __('validation.config_file_path_regex'),
             'license_file_path.regex' => __('validation.license_file_path_regex'),
         ]);
@@ -638,10 +632,8 @@ class ProductController extends BaseProductController
                 }
 
                 // Cart-related flags
-                $validated['show_agent'] = $request->boolean('show_agent');
                 $validated['highlight'] = $request->boolean('highlight');
                 $validated['add_to_contact'] = $request->boolean('add_to_contact');
-                $validated['can_modify_agent'] = $request->boolean('can_modify_agent');
                 $validated['can_modify_quantity'] = $request->boolean('can_modify_quantity');
                 $validated['require_domain'] = $request->boolean('require_domain');
                 $validated['hidden'] = $request->boolean('hidden');

@@ -5,7 +5,7 @@
         :showCloseBtn="false"
     >
         <template #title>
-            <h5 class="modal-title fw-bold">{{ __('message.renew_your_order') }}</h5>
+            <h2 class="modal-title h5 fw-bold mb-0">{{ __('message.renew_your_order') }}</h2>
         </template>
         <template #fields>
             <!-- In-modal so errors aren't hidden behind the backdrop. -->
@@ -17,10 +17,17 @@
                     <span class="fw-semibold text-dark">{{ __('message.current_plan') }}</span>
                     <span class="text-dark">{{ order?.current_plan || '—' }}</span>
                 </div>
-                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                <!-- Agents only for products sold by agents (from the license code: 0 = unlimited) -->
+                <div v-if="order?.agents != null" class="d-flex justify-content-between align-items-center mb-2">
                     <span class="fw-semibold text-dark">{{ __('message.agents') }}</span>
-                    <span class="text-dark">{{ order?.agents || __('message.unlimited') }}</span>
+                    <span class="text-dark">{{ order.agents || __('message.unlimited') }}</span>
                 </div>
+                <!-- What renews with the plan, so the price below makes sense -->
+                <div v-if="renewing.length" class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                    <span class="fw-semibold text-dark text-nowrap">{{ __('message.renew_addons') }}</span>
+                    <span class="text-dark text-end">{{ renewing.slice(0, 4).map(e => e.label).join(', ') }}<template v-if="renewing.length > 4"> {{ __('message.renew_addons_more', { count: renewing.length - 4 }) }}</template></span>
+                </div>
+                <div class="border-bottom mb-3"></div>
 
                 <DynamicSelect name="plan"
                              :label="__('message.plans')"
@@ -71,6 +78,8 @@ const submitting   = ref(false)
 const plans        = ref([])
 const selectedPlan = ref(null)
 const price        = ref('')
+// The order's add-ons that renew (quantity > 0 at the next renewal)
+const renewing     = ref([])
 
 // Load renewal plans whenever the modal opens.
 watch(() => props.show, async (open) => {
@@ -78,6 +87,7 @@ watch(() => props.show, async (open) => {
     plans.value        = []
     selectedPlan.value = null
     price.value        = ''
+    renewing.value     = []
     if (!props.order?.product_id) return
 
     loading.value = true
@@ -87,6 +97,9 @@ watch(() => props.show, async (open) => {
         })
         plans.value = res.data?.data?.plans ?? []
         if (plans.value.length) await onPlanChange(plans.value[0])
+        // Only an extra: the renewal still works without it
+        renewing.value = await http.get(`/my-order/${props.order.id}/extras`)
+            .then(r => (r.data?.data?.extras ?? []).filter(e => e.renew_quantity > 0), () => [])
     } catch (e) { errorHandler(e, 'renew-modal') }
     finally { loading.value = false }
 })

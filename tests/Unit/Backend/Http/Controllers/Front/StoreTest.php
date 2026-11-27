@@ -114,7 +114,7 @@ class StoreTest extends DBTestCase
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id, 'hidden' => 0]);
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 365, 'status' => 1]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7, 'offer_price' => '100', 'currency' => 'USD']);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'offer_price' => '100', 'currency' => 'USD']);
 
         $response = $this->call('GET', 'store/'.$group->id.'/products');
         $response->assertStatus(200);

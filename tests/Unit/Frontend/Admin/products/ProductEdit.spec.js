@@ -187,7 +187,7 @@ describe('ProductEdit.vue', () => {
     const FIELDS = {
         name: 'P', product_type: 'product', config_file_path: null, license_file_path: 'l', product_path: 'pp',
         group: null, parent: 4, description: 'd', short_description: 's', product_description: 'pd', product_sku: 'SKU',
-        show_agent: 0, highlight: true, add_to_contact: false, can_modify_agent: 1, can_modify_quantity: null,
+        highlight: true, add_to_contact: false, can_modify_quantity: null,
         require_domain: true, hidden: 0, invoice_hidden: 1, whatsapp_integration: false, tax_status: 0, tax_class_id: 7,
         shoping_cart_link: 'cart',
     }
@@ -204,7 +204,7 @@ describe('ProductEdit.vue', () => {
         ['name', 'P'], ['product_type', 'product'], ['downloads_limited_by', ''], ['config_file_path', ''], ['license_file_path', 'l'],
         ['product_path', ''], ['group', ''], ['parent', '4'], ['description', 'd'], ['short_description', 's'],
         ['product_description', 'pd'], ['product_sku', 'SKU'],
-        ['show_agent', '0'], ['highlight', '1'], ['add_to_contact', '0'], ['can_modify_agent', '1'],
+        ['highlight', '1'], ['add_to_contact', '0'],
         ['can_modify_quantity', '0'], ['require_domain', '1'], ['hidden', '0'], ['invoice_hidden', '1'],
         ['whatsapp_integration', '0'], ['tax_status', '0'], ['downloadable', '1'], ['keep_old_downloads', '1'], ['issues_license', '1'],
     ]

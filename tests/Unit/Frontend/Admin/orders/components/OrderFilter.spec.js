@@ -75,6 +75,22 @@ describe('OrderFilter.vue', () => {
         expect(wrapper.emitted('reset')).toBeTruthy()
     })
 
+    it('offers a plan only once a real product is chosen, and clears it when the product changes', async () => {
+        expect(wrapper.find('dynamic-select-stub[name="plan_id"]').exists()).toBe(false)
+        wrapper.vm.form.product_id = { id: 8, name: 'Helpdesk' }
+        await wrapper.vm.$nextTick()
+        const plan = wrapper.find('dynamic-select-stub[name="plan_id"]')
+        expect(plan.attributes('apiendpoint')).toBe('/dependency/product-plans?product_id=8')
+
+        wrapper.vm.form.plan_id = { id: 13, name: 'Pro' }
+        wrapper.vm.apply()
+        expect(wrapper.emitted('apply').at(-1)[0]).toMatchObject({ product_id: 8, plan_id: 13 })
+
+        wrapper.vm.form.product_id = 'paid' // not a product with plans
+        await wrapper.vm.$nextTick()
+        expect(wrapper.find('dynamic-select-stub[name="plan_id"]').exists()).toBe(false)
+    })
+
     it('emits "close" when cancel action-button is clicked', async () => {
         const buttons = wrapper.findAll('action-button-stub')
         const cancelBtn = buttons.find(b => b.attributes('action') === 'cancel')

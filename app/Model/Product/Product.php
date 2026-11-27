@@ -38,9 +38,7 @@ use Spatie\Activitylog\Models\Activity;
  * @property int|null $group
  * @property string $welcome_email
  * @property int $require_domain
- * @property int|null $can_modify_agent
  * @property int|null $can_modify_quantity
- * @property int|null $show_agent
  * @property int|null $show_product_quantity
  * @property int $tax_apply
  * @property int $deny_after_subscription
@@ -205,7 +203,7 @@ class Product extends BaseModel
      *                       --------------------------------------------------------------------------
      */
     protected $fillable = ['id', 'name', 'description', 'short_description', 'group', 'file', 'image', 'require_domain', 'category',
-        'can_modify_agent',  'can_modify_quantity', 'show_agent', 'tax_apply', 'show_product_quantity', 'hidden',  'auto_terminate',
+        'can_modify_quantity', 'tax_apply', 'show_product_quantity', 'hidden',  'auto_terminate',
         'setup_order_placed', 'setup_first_payment', 'setup_accept_manually',
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
@@ -223,7 +221,7 @@ class Product extends BaseModel
      */
     protected array $logAttributes = [
         'name', 'group', 'file', 'image', 'require_domain', 'category',
-        'can_modify_agent',  'can_modify_quantity', 'show_agent', 'tax_apply', 'show_product_quantity', 'hidden',  'auto_terminate',
+        'can_modify_quantity', 'tax_apply', 'show_product_quantity', 'hidden',  'auto_terminate',
         'setup_order_placed', 'setup_first_payment', 'setup_accept_manually',
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
@@ -248,9 +246,7 @@ class Product extends BaseModel
             'image' => ['Product Image', fn ($value) => $value],
             'require_domain' => ['Require Domain', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
             'category' => ['Category', fn ($value) => $value],
-            'can_modify_agent' => ['Can Modify Agent', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
             'can_modify_quantity' => ['Can Modify Quantity', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
-            'show_agent' => ['Show Agent', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
             'tax_apply' => ['Tax Apply', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
             'show_product_quantity' => ['Show Product Quantity', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
             'hidden' => ['Hidden', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],

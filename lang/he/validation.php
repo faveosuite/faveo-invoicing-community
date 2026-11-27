@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => 'SKU של המוצר חייב להיות ייחודי.',
     'product_name_unique' => 'השם חייב להיות ייחודי.',
-    'product_show_agent_required' => 'בחר את העדפת דף הסל שלך.',
     'config_file_path_regex' => 'חייב להיות נתיב יחסי ללא ../ מקטעים.',
     'license_file_path_regex' => 'חייב להיות נתיב יחסי ללא ../ מקטעים.',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => 'התמונה לא יכולה להיות גדולה מ-2048 קילובייט.',
         'product_sku_required' => 'SKU של המוצר נדרש.',
         'group_required' => 'קבוצת המוצר נדרשת.',
-        'show_agent_required' => 'בחר את העדפת דף הסל שלך.',
     ],
     'current_domain_required' => 'הדומיין הנוכחי נדרש.',
     'new_domain_required' => 'הדומיין החדש נדרש.',

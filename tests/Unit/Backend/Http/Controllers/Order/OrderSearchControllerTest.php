@@ -181,6 +181,20 @@ class OrderSearchControllerTest extends DBTestCase
         $this->assertEquals(0, $result->count());
     }
 
+    public function test_plan_filter_keeps_only_orders_on_that_plan(): void
+    {
+        $this->getLoggedInUser('admin');
+        $onPlan = Order::factory()->create();
+        $other = Order::factory()->create();
+        $plan = Subscription::factory()->create(['order_id' => $onPlan->id])->plan_id;
+        Subscription::factory()->create(['order_id' => $other->id, 'plan_id' => $plan + 100000]);
+
+        $ids = $this->controller->advanceOrderSearch(new Request(['plan_id' => $plan]))
+            ->whereIn('orders.id', [$onPlan->id, $other->id])->pluck('orders.id')->all();
+
+        $this->assertSame([$onPlan->id], $ids);
+    }
+
     public function test_active_subscription_filter_includes_lifetime_subscriptions(): void
     {
         $this->getLoggedInUser('admin');

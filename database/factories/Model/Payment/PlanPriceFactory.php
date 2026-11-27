@@ -28,7 +28,6 @@ class PlanPriceFactory extends Factory
             'add_price' => fake()->randomFloat(2, 10, 5000),
             'renew_price' => fake()->randomFloat(2, 10, 5000),
             'price_description' => fake()->sentence(6),
-            'no_of_agents' => fake()->numberBetween(1, 10),
         ];
     }
 }

@@ -11,6 +11,7 @@ use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\AgentCountService;
 use App\Services\EntitlementService;
 use App\Services\Payment\PostPaymentService;
 use App\Services\SubscriptionRenewalService;
@@ -263,10 +264,10 @@ class RenewController extends BaseRenewController
 
             $planDetails = userCurrencyAndPrice($authUser->id, $plan);
             $currency = $planDetails['currency'];
-            $agents = $this->orderAgents((int) $sub->order_id);
+            $agents = resolve(AgentCountService::class)->total($order);
             $cost = $this->renewalCost((int) $sub->order_id, $planDetails['plan']);
 
-            $items = $this->invoiceBySubscriptionId($id, $planId, $cost, $currency, $agents ?: null);
+            $items = $this->invoiceBySubscriptionId($id, $planId, $cost, $currency, $agents);
             $invoiceid = $items->invoice_id; // @phpstan-ignore property.notFound
 
             return successResponse('', ['invoice_id' => $invoiceid]);

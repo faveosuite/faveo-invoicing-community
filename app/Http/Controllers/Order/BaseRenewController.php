@@ -10,12 +10,12 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\AgentCountService;
 use App\Services\EntitlementSalesService;
 use App\Traits\TaxCalculation;
 use App\User;
 use Auth;
 use Exception;
-use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -75,9 +75,7 @@ class BaseRenewController extends Controller
                 throw new Exception(__('message.product_removed_database'));
             }
 
-            if (is_null($agents)) {
-                $agents = $item->agents;
-            }
+            $agents ??= resolve(AgentCountService::class)->total($order); // the order's agents now, not the purchase line's
 
             return $this->generateInvoice($product, $user, $orderid, $planid, $cost, '', $agents, $currency);
         } catch (Exception $exception) {
@@ -172,20 +170,8 @@ class BaseRenewController extends Controller
             $renewController = new RenewController;
             $renewController->createOrderInvoiceRelation($orderid, $invoice->id);
             $items = $controller->createInvoiceItemsByAdmin($invoice->id, (string) $product->id, $renewalPrice, $currency, 1, $agents, $planid, $user->id, $tax_name, (float) $tax_rate, $renewalPrice);
-            if (in_array($product->id, cloudPopupProducts())) {
-                $license_code = Order::where('id', $orderid)->value('serial_key');
-                $installation_path = Order::find($orderid)?->installedDomains()->first();
-                $invoice->update([
-                    'metadata' => [
-                        'renewal_agent' => [
-                            'new_agents' => $agents,
-                            'order_id' => $orderid,
-                            'installation_path' => $installation_path,
-                            'product_id' => $product->id,
-                            'old_license' => $license_code,
-                        ],
-                    ],
-                ]);
+            if ($items instanceof InvoiceItem) {
+                $items->update(['extras' => $this->renewalExtras($orderid, $currency, $planid)]);
             }
 
             return $items;
@@ -195,10 +181,25 @@ class BaseRenewController extends Controller
     }
 
     /**
+     * The extras the renewal line covers, listed under it on the invoice. Display only: an extra
+     * with no price in this currency must not stop an invoice for money already taken (webhooks).
+     *
+     * @return list<array<string, mixed>>|null
+     */
+    private function renewalExtras(int $orderId, string $currency, int $planId): ?array
+    {
+        try {
+            return resolve(EntitlementSalesService::class)->renewalExtras($orderId, $currency, Plan::find($planId)) ?: null;
+        } catch (\RuntimeException) {
+            return null;
+        }
+    }
+
+    /**
      * The one renewal price. Manual renew, the admin renew page, the in-app renew link and
      * auto-renewal (cron, gateway amount) all use it, so the customer pays the same however
-     * they renew. Per-agent plans charge for the order's current agents; flat plans and
-     * unlimited licences (0 agents) charge the plan's renew price. Bought extras are added on top.
+     * they renew: the plan's renew price plus the extras that renew with the order (Agents among
+     * them). A "fewer" extra (less than the plan includes) takes off, but never below 0.
      *
      * @param  PlanPrice|null  $planPrice  the plan_prices row in the customer's currency
      */
@@ -209,22 +210,7 @@ class BaseRenewController extends Controller
         }
 
         $sales = resolve(EntitlementSalesService::class);
-        $planCost = $sales->planCost($planPrice, (int) $this->orderAgents($orderId), 'renewal');
 
-        // Extras the customer bought renew with the order.
-        return $planCost + $sales->renewalCost($orderId, $planPrice->currency, $planPrice->plan);
-    }
-
-    /**
-     * The order's current agent count — from its latest invoice line, whatever plan that was on.
-     * Shared by the renew popup (getCost) and the renewal invoice (renewByClient): the popup used
-     * to look only at lines on the plan just picked, so after a plan switch it showed the full
-     * plan price while the invoice charged for the real agent count.
-     */
-    protected function orderAgents(int $orderId): mixed
-    {
-        return InvoiceItem::whereHas('invoice', fn (Builder $q) => $q->whereHas('orders', fn (Builder $q) => $q->where('orders.id', $orderId)))
-            ->orderByDesc('id')
-            ->value('agents');
+        return max(0.0, $sales->planPrice($planPrice, 'renewal') + $sales->renewalCost($orderId, $planPrice->currency, $planPrice->plan));
     }
 }

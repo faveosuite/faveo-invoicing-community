@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => 'Die Produkt-SKU muss eindeutig sein.',
     'product_name_unique' => 'Der Name muss eindeutig sein.',
-    'product_show_agent_required' => 'Wählen Sie Ihre Cart-Seitenpräferenz.',
     'config_file_path_regex' => 'Muss ein relativer Pfad ohne ../-Segmente sein.',
     'license_file_path_regex' => 'Muss ein relativer Pfad ohne ../-Segmente sein.',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => 'Das Bild darf nicht größer als 2048 Kilobytes sein.',
         'product_sku_required' => 'Die Produkt-SKU ist erforderlich.',
         'group_required' => 'Die Produktgruppe ist erforderlich.',
-        'show_agent_required' => 'Wählen Sie Ihre Cart-Seitenpräferenz.',
     ],
     'current_domain_required' => 'Aktuelle Domain ist erforderlich.',
     'new_domain_required' => 'Neue Domain ist erforderlich.',

@@ -31,7 +31,6 @@
                     <div class="fw-semibold text-color-dark">{{ it.product_name }}</div>
                     <div v-for="e in (it.extras || [])" :key="e.entitlement_id" class="co-note">{{ e.label }}<template v-if="e.quantity > 1"> × {{ e.quantity }}</template></div>
                     <div class="co-meta">
-                      <span v-if="it.agents !== null && it.agents !== undefined">{{ it.agents ? (it.agents === 1 ? __('message.cart_one_agent') : __('message.cart_n_agents', { count: it.agents })) : __('message.plan_agents_unlimited') }}</span>
                       <span v-if="it.quantity > 1">{{ __('message.cart_qty', { count: it.quantity }) }}</span>
                     </div>
                   </div>

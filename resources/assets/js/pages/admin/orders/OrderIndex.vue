@@ -96,7 +96,7 @@ const dtRef = ref(null)
 const { selected: selectedOrders, allSelected, toggleRow, toggleAll } = useTableSelection(dtRef)
 const showFilter = ref(false)
 
-const allowedOrderFilters = ['order_no', 'product_id', 'from', 'till', 'domain', 'act_ins', 'renewal', 'version']
+const allowedOrderFilters = ['order_no', 'product_id', 'plan_id', 'from', 'till', 'domain', 'act_ins', 'renewal', 'version']
 
 function parseOrderQuery(query) {
     const params = {}

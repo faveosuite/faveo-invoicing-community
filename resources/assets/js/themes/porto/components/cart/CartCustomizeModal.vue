@@ -15,26 +15,29 @@
           <CartQtyStepper :value="item.quantity" :label="__('message.quantity')" @change="n => n >= 1 && update({ quantity: n })" />
         </div>
 
-        <!-- Agents -->
-        <div v-if="canChooseAgents" class="opt-row">
+        <!-- Limits the plan includes and sells more of (Storage: 10 included, Agents): start at the
+             plan's amount; the customer can add, never go below it (or below 1 paid agent when
+             the plan includes 0) -->
+        <div v-for="extra in topUps" :key="extra.entitlement_id" class="opt-row">
           <span>
-            <span class="d-block fw-semibold text-color-dark">{{ __('message.agents') }}</span>
+            <span class="d-block fw-semibold text-color-dark">{{ extra.label }}</span>
             <span class="co-note">
-              {{ agentsNote }}<template v-if="item.agent_price"> · {{ __('message.cart_per_extra_agent', { price: item.currency_symbol + item.agent_price }) }}</template>
+              {{ __('message.cart_agents_included', { count: extra.included }) }} · {{ __('message.cart_per_extra_unit', { price: item.currency_symbol + extra.unit_price }) }}
             </span>
           </span>
-          <CartQtyStepper :value="item.agents" :label="__('message.agents')" @change="n => n >= 1 && update({ agents: n })" />
+          <CartQtyStepper :value="extra.included + extra.quantity" :min="extra.included + (extra.min ?? 0)" :max="extra.included + (extra.max ?? 9999)" :label="extra.label"
+                          @change="n => n >= extra.included + (extra.min ?? 0) && setExtra(extra, n - extra.included)" />
         </div>
 
         <!-- Add-ons -->
         <div v-if="!authStore.isAuthenticated" class="alert alert-light border d-flex gap-2 align-items-start mt-3 mb-0">
           <i class="fas fa-info-circle mt-1" aria-hidden="true"></i>
-          <span><router-link to="/login" class="fw-semibold" @click="emit('close')">{{ __('message.login') }}</router-link> {{ __('message.cart_login_for_addons') }}</span>
+          <span><router-link to="/login" class="fw-semibold" @click="emit('close')">{{ __('message.cart_log_in') }}</router-link> {{ __('message.cart_login_for_addons') }}</span>
         </div>
-        <template v-else-if="extras.length">
+        <template v-else-if="addons.length">
           <p class="fw-semibold text-color-dark mt-3 mb-0">{{ __('message.addons') }}</p>
           <p class="co-note mb-1">{{ __('message.cart_addons_billed') }}</p>
-          <div v-for="extra in extras" :key="extra.entitlement_id" class="opt-row">
+          <div v-for="extra in addons" :key="extra.entitlement_id" class="opt-row">
             <div class="form-check mb-0">
               <input :id="tickId(extra)" class="form-check-input" type="checkbox"
                      :checked="extra.quantity > 0" @change="setExtra(extra, $event.target.checked ? 1 : 0)">
@@ -45,7 +48,7 @@
                   : __('message.extra_price_feature', { price: item.currency_symbol + extra.unit_price }) }}
               </div>
             </div>
-            <CartQtyStepper v-if="extra.type === 'number' && extra.quantity > 0" :value="extra.quantity" :label="extra.label" @change="n => n >= 1 && setExtra(extra, n)" />
+            <CartQtyStepper v-if="extra.type === 'number' && extra.quantity > 0" :value="extra.quantity" :max="extra.max ?? 9999" :label="extra.label" @change="n => n >= 1 && setExtra(extra, n)" />
           </div>
         </template>
       </fieldset>
@@ -82,12 +85,14 @@ const props = defineProps({
 })
 const emit = defineEmits(['close', 'update'])
 
-const { canChooseAgents, agentsNote } = useCartLine(() => props.item)
+const { isTopUp } = useCartLine(() => props.item)
 
+// Limits the plan already includes (and sells more of) get a stepper; the rest are add-ons.
+const topUps = computed(() => (props.item?.extras ?? []).filter(isTopUp))
 // Unit add-ons first (they carry a stepper), then on/off ones.
-const extras = computed(() => [...(props.item?.extras ?? [])].sort((a, b) => (b.type === 'number') - (a.type === 'number')))
+const addons = computed(() => (props.item?.extras ?? []).filter(e => !isTopUp(e)).sort((a, b) => (b.type === 'number') - (a.type === 'number')))
 
-// Guests can change quantity/agents only; add-ons need an account.
+// Guests can change quantity only; extras (Agents among them) need an account.
 const authStore = useAuthStore()
 
 const tickId = extra => `extra-${props.item.id}-${extra.entitlement_id}`
@@ -111,4 +116,6 @@ function setExtra(extra, quantity) {
 
 <style>
 .modal-dialog.co-modal { max-width: 560px; }
+/* Scrolling the options stops at their end instead of scrolling the page behind */
+.modal-dialog.co-modal .modal-body { overscroll-behavior: contain; }
 </style>

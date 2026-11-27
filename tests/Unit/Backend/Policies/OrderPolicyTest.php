@@ -16,6 +16,7 @@ use App\Model\Product\Subscription;
 use App\Policies\OrderPolicy;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use App\Services\EntitlementService;
 use Tests\DBTestCase;
 
 class OrderPolicyTest extends DBTestCase
@@ -229,14 +230,14 @@ class OrderPolicyTest extends DBTestCase
     public function test_no_second_cloud_change_while_one_is_unpaid(): void
     {
         $order = $this->cloudOrder();
-        $this->assertTrue($this->policy->changeCloudAgents($this->owner, $order)->allowed());
+        $this->assertTrue($this->policy->changeCloud($this->owner, $order)->allowed());
 
         $invoice = Invoice::factory()->create(['user_id' => $this->owner->id, 'status' => 'pending',
             'metadata' => ['type' => 'agent_alteration', 'order_id' => $order->id]]);
 
         $this->assertSame(
             __('message.order_change_invoice_pending', ['number' => $invoice->number]),
-            $this->policy->changeCloudAgents($this->owner, $order)->message()
+            $this->policy->changeCloud($this->owner, $order)->message()
         );
     }
 
@@ -244,13 +245,19 @@ class OrderPolicyTest extends DBTestCase
     {
         $order = $this->cloudOrder();
         $samePlanProduct = Plan::factory()->create(['product' => $order->getRawOriginal('product'), 'name' => 'Yearly']);
-        $target = Product::factory()->create(['can_modify_agent' => 1]);
+        $target = Product::factory()->create();
         CloudProducts::create(['cloud_product' => $target->id, 'cloud_free_plan' => Plan::factory()->create(['product' => $target->id])->id]);
         $offered = Plan::factory()->create(['product' => $target->id, 'name' => 'Cloud Pro']);
         PlanPrice::factory()->create(['plan_id' => $offered->id, 'renew_price' => 100]);
+        $free = Plan::factory()->create(['product' => $target->id, 'name' => 'Cloud free']);
+        PlanPrice::factory()->create(['plan_id' => $free->id, 'renew_price' => 0]);
 
+        // Any offered plan with a renew price: flat or unlimited too (agents carry by the generic rule).
+        $this->assertTrue($this->policy->changeCloudPlan($this->owner, $order, $offered->id)->allowed());
+        $offered->entitlements()->attach(EntitlementService::agents()->id, ['value' => null]);
         $this->assertTrue($this->policy->changeCloudPlan($this->owner, $order, $offered->id)->allowed());
         $this->assertTrue($this->policy->changeCloudPlan($this->owner, $order, $samePlanProduct->id)->denied());
+        $this->assertTrue($this->policy->changeCloudPlan($this->owner, $order, $free->id)->denied());
     }
 
     // license actions

@@ -164,17 +164,6 @@ class HelpersExtendedTest extends TestCase
     }
 
     // =========================================================================
-    // isAgentAllowed() – covers no-agents-configured path (lines 919-924)
-    // =========================================================================
-
-    public function test_is_agent_allowed_returns_false_for_nonexistent_plan(): void
-    {
-        // PlanPrice for plan 999999 doesn't exist → no_of_agents = null → false
-        $result = isAgentAllowed(1, 999999);
-        $this->assertFalse($result);
-    }
-
-    // =========================================================================
     // currencyFormat() – covers specific branches
     // =========================================================================
 

@@ -947,7 +947,6 @@ return [
     ],
     'product_sku_unique' => 'Product SKU should be unique',
     'product_name_unique' => 'Name should be unique',
-    'product_show_agent_required' => 'Select you Cart Page Preference',
     'config_file_path_regex' => 'Must be a relative path with no ../ segments.',
     'license_file_path_regex' => 'Must be a relative path with no ../ segments.',
     'product_controller' => [
@@ -962,7 +961,6 @@ return [
         'image_max' => 'The image may not be greater than 2048 kilobytes.',
         'product_sku_required' => 'The product SKU is required.',
         'group_required' => 'The product group is required.',
-        'show_agent_required' => 'Select your Cart Page Preference.',
     ],
     'current_domain_required' => 'Current domain is required.',
     'new_domain_required' => 'New domain is required.',

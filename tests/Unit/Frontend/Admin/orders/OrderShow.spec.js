@@ -2,8 +2,9 @@ jest.mock('@vueform/toggle', () => ({ __esModule: true, default: { template: '<d
 jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: jest.fn(() => 0) }))
 jest.mock('@/helpers/responseHandler', () => ({ successHandler: jest.fn(), errorHandler: jest.fn() }))
 jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)), scrollToFirstError: jest.fn() }))
+const mockReplace = jest.fn()
 jest.mock('vue-router', () => ({
-    useRouter: () => ({ push: jest.fn() }),
+    useRouter: () => ({ push: jest.fn(), replace: mockReplace }),
     useRoute: () => ({ params: { id: '0' }, query: {} }),
     RouterLink: { template: '<a><slot /></a>', name: 'RouterLink' },
 }))
@@ -123,6 +124,55 @@ describe('OrderShow.vue', () => {
         expect(successHandler).toHaveBeenCalled()
     })
 
+    it('asks before turning auto renewal off; cancelling sends nothing and resets the switch', async () => {
+        await flushPromises()
+        wrapper.vm.askRenewalOff(true) // turning on is not offered here
+        expect(wrapper.vm.confirming).toBe(null)
+
+        wrapper.vm.askRenewalOff(false)
+        expect(wrapper.vm.confirming.title).toBe('message.order_renew_off_title')
+        const key = wrapper.vm.switchKey
+        wrapper.vm.cancelConfirm()
+        expect(wrapper.vm.confirming).toBe(null)
+        expect(wrapper.vm.switchKey).toBe(key + 1)
+        expect(globalThis.mockHttp.history.post.some(r => /auto-renewal/.test(r.url))).toBe(false)
+
+        wrapper.vm.askRenewalOff(false)
+        await wrapper.vm.runConfirm()
+        await flushPromises()
+        expect(globalThis.mockHttp.history.post.some(r => /\/auto-renewal\/\d+\/disable/.test(r.url))).toBe(true)
+    })
+
+    it('asks before switching the license mode, with wording for each direction', async () => {
+        await flushPromises()
+        wrapper.vm.askLicenseMode(true)
+        expect(wrapper.vm.confirming.label).toBe('message.order_file_on_confirm')
+        wrapper.vm.askLicenseMode(false)
+        expect(wrapper.vm.confirming.label).toBe('message.order_file_off_confirm')
+        await wrapper.vm.runConfirm()
+        await flushPromises()
+        expect(globalThis.mockHttp.history.post.some(r => /\/switch-license-mode/.test(r.url))).toBe(true)
+    })
+
+    it('an empty activation code shows an error instead of a disabled button', async () => {
+        await flushPromises()
+        wrapper.vm.bindingForm.activationCode = '  '
+        await wrapper.vm.submitBinding()
+        expect(wrapper.vm.bindingError).toBe('message.order_activation_code_required')
+        expect(globalThis.mockHttp.history.post.some(r => /license-binding/.test(r.url))).toBe(false)
+    })
+
+    it('arrow keys move between tabs', async () => {
+        await flushPromises()
+        const e = { key: 'ArrowRight', preventDefault: jest.fn() }
+        wrapper.vm.onTabKeys(e, ['billing', 'features'], 'billing', wrapper.vm.selectTab, 'order-tab-')
+        expect(wrapper.vm.tab).toBe('features')
+        wrapper.vm.onTabKeys({ ...e, key: 'ArrowRight' }, ['billing', 'features'], 'features', wrapper.vm.selectTab, 'order-tab-')
+        expect(wrapper.vm.tab).toBe('billing') // wraps around
+        wrapper.vm.onTabKeys({ key: 'a', preventDefault: e.preventDefault }, ['billing', 'features'], 'billing', wrapper.vm.selectTab, 'order-tab-')
+        expect(e.preventDefault).toHaveBeenCalledTimes(2)
+    })
+
     it('toggleLicenseMode sends POST /switch-license-mode', async () => {
         await flushPromises()
         await wrapper.vm.toggleLicenseMode(true)
@@ -154,19 +204,98 @@ describe('OrderShow.vue', () => {
         expect(wrapper.vm.licenseEditModal.show).toBe(true)
     })
 
-    it('opens on the License tab when the order has a license', async () => {
+    it('opens on the Billing tab, with the license and its installs above the tabs', async () => {
         await flushPromises()
-        expect(wrapper.vm.tab).toBe('license')
+        wrapper.vm.installs = [
+            { id: 1, domain: 'support.acme.com', ip: '10.0.0.1', version: 'v9.2.1', active: true, last_active: '2026-11-20' },
+            { id: 2, domain: null, ip: '10.0.0.2', version: null, active: false, last_active: null },
+        ]
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.tab).toBe('billing')
+        expect(wrapper.vm.tabs.map(t => t.key)).toEqual(['billing', 'features'])
+        const rows = wrapper.findAll('.table-striped.mb-0 tbody tr')
+        expect(rows.map(r => r.find('td').text())).toEqual(['support.acme.com 10.0.0.1', '10.0.0.2'])
+        expect(rows[0].find('.badge').classes()).toContain('bg-success')
+        expect(rows[1].find('.badge').classes()).toContain('bg-secondary')
     })
 
-    it('opens on Features for an order without a license (a service)', async () => {
-        globalThis.mockHttp.reset()
-        globalThis.mockHttp.onGet(/\/order\/0\/entitlements/).reply(200, { data: { entitlements: [], available: [], dates: [] } })
-        globalThis.mockHttp.onGet(/\/order\/0$/).reply(200, { data: { ...orderFixture, has_license: false } })
-        globalThis.mockHttp.onGet(/./).reply(200, { data: [] })
-        const service = mount(OrderShow, { global: { plugins: [createTestingPinia()], stubs: ['AppAlert', 'AppModal', 'DataTable', 'DeleteModal', 'action-button', 'inline-loader', 'loader', 'Switch', 'Tooltip', 'DatePicker', 'RouterLink'] } })
+    it('shows current installs first; the history tab loads its table on first open', async () => {
         await flushPromises()
-        expect(service.vm.tab).toBe('features')
+        expect(wrapper.vm.installTab).toBe('current')
+        expect(wrapper.vm.historySeen).toBe(false)
+        wrapper.vm.selectInstallTab('history')
+        expect(wrapper.vm.installTab).toBe('history')
+        expect(wrapper.vm.historySeen).toBe(true)
+        expect(mockReplace).toHaveBeenLastCalledWith({ query: { installs: 'history' } })
+    })
+
+    it('unbinds one install after confirming, then reloads the order', async () => {
+        await flushPromises()
+        wrapper.vm.installs = [{ id: 7, domain: 'a.test', ip: '10.0.0.1', active: true }]
+        await wrapper.vm.$nextTick()
+        expect(wrapper.find('.table-striped.mb-0 tbody tr action-button-stub').attributes('icon')).toBe('fas fa-link-slash')
+        wrapper.vm.unbinding = wrapper.vm.installs[0] // what the row's Unbind button does
+
+        const reloads = globalThis.mockHttp.history.get.length
+        await wrapper.vm.onUnbound()
+        expect(wrapper.vm.unbinding).toBe(null)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(reloads)
+    })
+
+    it('masks the key but its last group, and flags a full install limit', async () => {
+        await flushPromises()
+        wrapper.vm.licenseDetails = { ...wrapper.vm.licenseDetails, licence_code: 'AAAABBBBCCCC0025', installation_limit: 2 }
+        wrapper.vm.installs = [{ domain: 'a.test', active: true }, { domain: 'b.test', active: false }]
+        wrapper.vm.keyHidden = true
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.keyText).toBe('•••• •••• •••• 0025')
+        expect(wrapper.vm.limitReached).toBe(true)
+
+        wrapper.vm.licenseDetails = { ...wrapper.vm.licenseDetails, installation_limit: 0 } // unlimited
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.limitReached).toBe(false)
+    })
+
+    it('puts the license end on the header bar and the other dates with the features', async () => {
+        await flushPromises()
+        const ymd = (days) => new Date(Date.now() + days * 86400000).toISOString().slice(0, 10)
+        wrapper.vm.order.created_at = ymd(-30)
+        wrapper.vm.rights.dates = [
+            { code: 'license', label: 'License', ends_at: ymd(30) },
+            { code: 'updates', label: 'Updates', ends_at: ymd(20) },
+            { code: 'support', label: 'Support', ends_at: ymd(-3) },
+        ]
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.featureDates.map(d => [d.code, d.tone])).toEqual([['updates', 'warn'], ['support', 'bad']])
+        expect(wrapper.vm.term.tone).toBe('good')
+        wrapper.vm.openDate(wrapper.vm.term.date)
+        expect(wrapper.vm.dating.code).toBe('license')
+
+        wrapper.vm.rights.dates = [{ code: 'license', label: 'License', ends_at: null }]
+        expect(wrapper.vm.term.endText).toBe('message.order_date_never')
+    })
+
+    it('shows the license key in groups of four', async () => {
+        await flushPromises()
+        expect(wrapper.vm.keyChunks).toEqual(['LIC-', 'ABC1', '23'])
+    })
+
+    it('shows the product with its plan in the summary', async () => {
+        await flushPromises()
+        wrapper.vm.order.subscription = { plan: { name: 'Gold' } }
+        await wrapper.vm.$nextTick()
+        expect(wrapper.text()).toContain('Test Product')
+        expect(wrapper.text()).toContain('message.plan: Gold')
+    })
+
+    it('keeps the open tab in the URL and mounts its table on first visit', async () => {
+        await flushPromises()
+        expect(wrapper.vm.seen.billing).toBe(true)
+        wrapper.vm.selectTab('features')
+        expect(wrapper.vm.tab).toBe('features')
+        expect(mockReplace).toHaveBeenLastCalledWith({ query: { tab: 'features' } })
+        wrapper.vm.selectTab('billing')
+        expect(mockReplace).toHaveBeenLastCalledWith({ query: { tab: undefined } })
     })
 
     it('marks a date that ended, one ending soon, and none for never', () => {
@@ -192,12 +321,14 @@ describe('OrderShow.vue', () => {
 
     it('saveLicenseEdit sends only the installation fields (dates moved to Features & dates)', async () => {
         await flushPromises()
+        wrapper.vm.openLicenseEditModal()
         await wrapper.vm.saveLicenseEdit()
         await flushPromises()
-        const call = globalThis.mockHttp.history.post.find(r => /\/update-license-details/.test(r.url))
+        const call = globalThis.mockHttp.history.post.filter(r => /\/update-license-details/.test(r.url)).at(-1)
         const body = JSON.parse(call.data)
         expect(body).toHaveProperty('limit')
-        expect(body).toHaveProperty('agents')
+        // Agents are changed like any feature, from Features & dates.
+        expect(body).not.toHaveProperty('agents')
         expect(body).not.toHaveProperty('update_end')
         expect(body).not.toHaveProperty('subscription_end')
         expect(body).not.toHaveProperty('support_end')

@@ -38,6 +38,12 @@ describe('PlanIndex.vue', () => {
         expect(wrapper.exists()).toBeTruthy()
     })
 
+    it('shows each plan\'s status as a badge', () => {
+        const template = wrapper.vm.tableOptions.templates.status
+        expect(template(null, { status: 1 }).props.class).toBe('badge bg-success')
+        expect(template(null, { status: 0 }).children).toBe('message.inactive')
+    })
+
     it('renders DataTable', () => {
         expect(wrapper.find('data-table-stub').exists()).toBe(true)
     })

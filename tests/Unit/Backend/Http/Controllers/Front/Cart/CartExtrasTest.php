@@ -32,7 +32,7 @@ class CartExtrasTest extends DBTestCase
         $plan = Plan::factory()->create(['product' => $product->id, 'status' => 1, 'days' => 30]);
         $periodId = (int) DB::table('periods')->insertGetId(['name' => 'Test 30 days', 'days' => '30']);
         $plan->periods()->attach($periodId);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => 100, 'offer_price' => 0, 'no_of_agents' => 0]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => 100, 'offer_price' => 0]);
         $this->postJson('my-cart/items', ['product_id' => $product->id, 'plan_id' => $plan->id])->assertOk();
         $cart = Cart::where('user_id', auth()->id())->firstOrFail();
         $this->assertSame($currency, (string) $cart->currency);
@@ -66,5 +66,33 @@ class CartExtrasTest extends DBTestCase
             [[$storage->id, 10, '2.0000'], [$chat->id, 1, '10.0000']],
             OrderEntitlement::where('order_id', $order->id)->get()->map(fn ($e) => [$e->entitlement_id, $e->quantity, $e->unit_price])->all(),
         );
+    }
+
+    public function test_a_limit_the_plan_includes_reports_its_included_amount_so_the_cart_can_start_there(): void
+    {
+        $this->withoutMiddleware();
+        $this->actingAs(User::factory()->create(['country' => 'US']));
+        $currency = (string) getCurrencyForClient('US');
+        $product = Product::factory()->create();
+        $plan = Plan::factory()->create(['product' => $product->id, 'status' => 1, 'days' => 30]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => 100, 'offer_price' => 0]);
+        $this->postJson('my-cart/items', ['product_id' => $product->id, 'plan_id' => $plan->id])->assertOk();
+
+        // Storage: the plan gives 10 and sells more. Chat: not in the plan, a pure add-on.
+        $storage = Entitlement::create(['code' => 'storage', 'label' => 'Storage', 'type' => 'number']);
+        $storage->prices()->create(['plan_id' => $plan->id, 'currency' => $currency, 'unit_price' => 2]);
+        $plan->entitlements()->attach($storage->id, ['value' => '10']);
+        $chat = Entitlement::create(['code' => 'chat', 'label' => 'Chat', 'type' => 'boolean']);
+        $chat->prices()->create(['plan_id' => $plan->id, 'currency' => $currency, 'unit_price' => 10]);
+
+        $line = Cart::where('user_id', auth()->id())->firstOrFail()->items()->firstOrFail();
+        $this->putJson("my-cart/items/{$line->id}", ['extras' => [$storage->id => 5]])->assertOk();
+
+        $extras = collect($line->refresh()->availableExtras($currency))->keyBy('entitlement_id');
+        $this->assertSame(10, $extras[$storage->id]['included']);
+        $this->assertSame(5, $extras[$storage->id]['quantity']); // the 5 on top: 15 in all, 5 charged
+        $this->assertNull($extras[$chat->id]['included']);
+        $this->assertSame(110.0, $line->unitPrice($currency)); // 100 + 5 × 2
+        $this->assertArrayNotHasKey('included', $line->chosenExtras($currency)[0]); // the invoice keeps only what's charged
     }
 }

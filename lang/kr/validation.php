@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => '제품 SKU는 고유해야 합니다.',
     'product_name_unique' => '이름은 고유해야 합니다.',
-    'product_show_agent_required' => '카트 페이지 선호도를 선택해 주세요.',
     'config_file_path_regex' => '../세그먼트가 없는 상대 경로여야 합니다.',
     'license_file_path_regex' => '../세그먼트가 없는 상대 경로여야 합니다.',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => '이미지 크기는 2048킬로바이트를 넘을 수 없습니다.',
         'product_sku_required' => '제품 SKU는 필수입니다.',
         'group_required' => '제품 그룹은 필수입니다.',
-        'show_agent_required' => '카트 페이지 선호도를 선택해 주세요.',
     ],
     'current_domain_required' => '현재 도메인은 필수입니다.',
     'new_domain_required' => '새 도메인은 필수입니다.',

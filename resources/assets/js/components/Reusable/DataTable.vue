@@ -66,7 +66,8 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import Pagination from '@/components/Reusable/Pagination.vue'
 import { makeRequestAdapter } from '@/helpers/tableUtils'
@@ -87,6 +88,14 @@ const from         = ref(null)
 const to           = ref(null)
 const perPage      = ref(props.option?.perPage ?? 10)
 
+// option.syncUrl: the search (?q=) and page (?page=) live in the URL, so a reload or a shared
+// link opens the same view. Opt-in, so pages with their own query params aren't affected.
+const syncUrl     = !!props.option?.syncUrl
+const route       = syncUrl ? useRoute() : null
+const router      = syncUrl ? useRouter() : null
+const appliedText = ref(syncUrl ? String(route?.query?.q ?? '') : '')
+if (syncUrl) searchStr.value = appliedText.value
+
 const perPageValues = computed(() => props.option?.perPageValues ?? [10, 25, 50, 100])
 // Only worth showing when a bigger page would show more rows: with total ≤ the smallest
 // option every choice renders the same. Hidden until the first load reports a total —
@@ -106,7 +115,14 @@ function onPerPageChange(event) {
 }
 
 function onSearch() {
+  appliedText.value = searchStr.value
   tableRef.value?.setFilter(searchStr.value)
+}
+
+if (syncUrl) {
+  watch([appliedText, currentPage], ([q, page]) => {
+    router?.replace({ query: { ...route?.query, q: q.trim() || undefined, page: page > 1 ? page : undefined } })
+  })
 }
 
 function onLoaded() {
@@ -139,6 +155,11 @@ const tableData = computed(() => tableRef.value?.data ?? [])
 
 onMounted(() => {
   if (globalThis.emitter) globalThis.emitter.on('refreshData', () => tableRef.value?.refresh())
+  // Open on the search from the URL (the page comes in through initialPage)
+  if (syncUrl && appliedText.value) {
+    tableRef.value?.setFilter(appliedText.value) // goes back to page 1, so restore the page after
+    if (Number(route?.query?.page) > 1) tableRef.value?.setPage(Number(route.query.page))
+  }
 })
 onBeforeUnmount(() => {
   if (globalThis.emitter) globalThis.emitter.off('refreshData')
@@ -180,6 +201,7 @@ const computedOptions = computed(() => ({
     })
   },
   ...props.option,
+  ...(syncUrl && Number(route?.query?.page) > 1 ? { initialPage: Number(route.query.page) } : {}),
   pagination: { chunk: 10, edge: false },
   responseAdapter: (response) => {
     const callerAdapter = props.option.responseAdapter

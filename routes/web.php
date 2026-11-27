@@ -349,9 +349,7 @@ Route::middleware('installAgora')->group(function (): void {
         Route::post('change/domain', [CloudExtraActivities::class, 'changeDomain']);
         Route::delete('delete/domain/{orderNumber}/{isDelete}', [TenantController::class, 'DeleteCloudInstanceForClient']);
         Route::post('get-cloud-upgrade-cost', [CloudExtraActivities::class, 'getUpgradeCost']);
-        Route::post('changeAgents', [CloudExtraActivities::class, 'agentAlteration']);
         Route::post('upgradeDowngradeCloud', [CloudExtraActivities::class, 'upgradeDowngradeCloud']);
-        Route::post('get-agent-inc-dec-cost', [CloudExtraActivities::class, 'getThePaymentCalculationDisplay']);
 
         // WhatsApp
         Route::get('get-webhook-url', [WhatsappController::class, 'getWebhookUrl']);
@@ -447,6 +445,7 @@ Route::middleware('installAgora')->group(function (): void {
         Route::get('getOrderPayments/{orderId}', [OrderController::class, 'getPaymentByOrderId']);
         Route::get('getOrderInvoices/{orderId}', [OrderController::class, 'getOrderInvoices']);
         Route::get('get-installation-details/{orderId}', [OrderController::class, 'getInstallationDetails']);
+        Route::delete('order/{orderId}/installations/{installationId}', [OrderController::class, 'unbindInstallation'])->whereNumber(['orderId', 'installationId']);
         Route::get('export-orders', [OrderController::class, 'exportOrders'])->name('export-orders');
         Route::post('update-license-details', [BaseOrderController::class, 'updateLicenseDetails']);
         Route::post('admin/renew/{id}', [RenewController::class, 'renew']); // extends dates immediately

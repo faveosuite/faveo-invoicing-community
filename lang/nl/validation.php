@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => 'Product SKU moet uniek zijn.',
     'product_name_unique' => 'Naam moet uniek zijn.',
-    'product_show_agent_required' => 'Selecteer je voorkeur voor de winkelwagenpagina.',
     'config_file_path_regex' => 'Moet een relatief pad zijn zonder ../-segmenten.',
     'license_file_path_regex' => 'Moet een relatief pad zijn zonder ../-segmenten.',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => 'De afbeelding mag niet groter zijn dan 2048 kilobytes.',
         'product_sku_required' => 'De product SKU is verplicht.',
         'group_required' => 'De productgroep is verplicht.',
-        'show_agent_required' => 'Selecteer je voorkeur voor de winkelwagenpagina.',
     ],
     'current_domain_required' => 'Huidig domein is verplicht.',
     'new_domain_required' => 'Nieuw domein is verplicht.',

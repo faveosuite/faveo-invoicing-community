@@ -129,4 +129,43 @@ describe('CartPage.vue', () => {
         expect(modal().props('show')).toBe(true)
         expect(modal().props('items')).toHaveLength(1)
     })
+
+    it('asks before removing a plan, and removes it only on confirm', async () => {
+        wrapper = createWrapper(cartWithItem)
+        const { useCartStore } = await import('@/core/stores/cart')
+        const store = useCartStore()
+        wrapper.findComponent({ name: 'CartItemRow' }).vm.$emit('remove', 1)
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.removing?.name).toBe('Product A')
+        expect(store.removeItem).not.toHaveBeenCalled()
+
+        await wrapper.vm.confirmRemove()
+        expect(store.removeItem).toHaveBeenCalledWith(1)
+        expect(wrapper.vm.removing).toBeNull()
+    })
+
+    it('says 1 add-on, not 1 add-ons', () => {
+        wrapper = createWrapper(cartWithItem)
+        expect(wrapper.vm.addonText({ extras: [] })).toBe('message.cart_plan_only')
+        expect(wrapper.vm.addonText({ extras: [{ quantity: 1 }] })).toBe('message.cart_plan_with_addon')
+        expect(wrapper.vm.addonText({ extras: [{ quantity: 1 }, { quantity: 2 }] })).toBe('message.cart_plan_with_addons')
+    })
+
+    it('keeps the domain modal open with the error when a domain is refused', async () => {
+        const state = { ...cartWithItem, cart: { ...cartWithItem.cart, items: [{ ...cartWithItem.cart.items[0], require_domain: true, domain: null }] } }
+        wrapper = mount(CartPage, {
+            global: {
+                plugins: [createTestingPinia({ initialState: { cart: state, auth: { user: { id: 1 }, isAuthenticated: true }, alert: {} } })],
+                stubs: ['loader', 'cart-item-row', 'router-link', 'CartDomainModal'],
+            },
+        })
+        const { useCartStore } = await import('@/core/stores/cart')
+        const store = useCartStore()
+        store.updateItem.mockImplementation(async () => { store.error = 'Domain not allowed' })
+        wrapper.vm.showDomainModal = true
+        await wrapper.vm.saveDomains({ 1: 'bad' })
+        expect(wrapper.vm.domainError).toBe('Domain not allowed')
+        expect(wrapper.vm.showDomainModal).toBe(true)
+        expect(store.error).toBeNull() // the cart stays on screen
+    })
 })

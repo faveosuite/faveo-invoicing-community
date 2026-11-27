@@ -49,15 +49,15 @@
                                         <div class="card-body">
                                             <!-- Basic Information fields -->
                                             <div class="row">
-                                                <div class="col-md-6 mb-3">
+                                                <div class="col-md-6">
                                                     <TextField name="name" :label="__('message.name')" :required="true" :value="form.name" :onChange="onChange" :error="errors.name" />
                                                 </div>
-                                                <div class="col-md-6 mb-3">
+                                                <div class="col-md-6">
                                                     <TextField name="product_sku" :label="__('message.product_sku')" :required="true" :value="form.product_sku" :onChange="onChange" :error="errors.product_sku" />
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-md-6 mb-3">
+                                                <div class="col-md-6">
                                                     <DynamicSelect
                                                         name="group"
                                                         :label="__('message.group')"
@@ -69,9 +69,7 @@
                                                         :error="errors.group"
                                                     />
                                                 </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
+                                                <div class="col-md-6">
                                                     <DynamicSelect
                                                         name="parent"
                                                         :label="__('message.parent')"
@@ -81,31 +79,30 @@
                                                         :onChange="onChange"
                                                     />
                                                 </div>
-                                                <div class="col-md-6 mb-3">
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <TextField name="config_file_path" :label="__('message.config_file_path') || 'Config File Path'"
+                                                        :hint="__('message.config_file_path_hint') || 'Where inside a shared build to write this product\'s identity. Leave blank to not write one.'"
+                                                        :value="form.config_file_path" :onChange="onChange" :error="errors.config_file_path" />
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <TextField name="license_file_path" :label="__('message.license_file_path') || 'License File Path'"
+                                                        :hint="__('message.license_file_path_hint') || 'Where inside a shared build to attach this product\'s signed license file. Leave blank to not attach one.'"
+                                                        :value="form.license_file_path" :onChange="onChange" :error="errors.license_file_path" />
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
                                                     <RadioButton
                                                         name="product_type"
                                                         :label="__('message.product_category') || 'Product Category'"
                                                         :options="[{ name: __('message.independent') || 'Independent', value: 'independent' }, { name: __('message.addon') || 'Addon / Plugin', value: 'addon' }]"
                                                         :value="form.product_type"
                                                         :onChange="onChange"
-                                                        classname="mb-0"
                                                     />
                                                 </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <TextField name="config_file_path" :label="__('message.config_file_path') || 'Config File Path'"
-                                                        :hint="__('message.config_file_path_hint') || 'Where inside a shared build to write this product\'s identity. Leave blank to not write one.'"
-                                                        :value="form.config_file_path" :onChange="onChange" :error="errors.config_file_path" />
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <TextField name="license_file_path" :label="__('message.license_file_path') || 'License File Path'"
-                                                        :hint="__('message.license_file_path_hint') || 'Where inside a shared build to attach this product\'s signed license file. Leave blank to not attach one.'"
-                                                        :value="form.license_file_path" :onChange="onChange" :error="errors.license_file_path" />
-                                                </div>
-                                            </div>
-                                            <div class="row" v-if="form.product_type === 'addon'">
-                                                <div class="col-md-6 mb-3">
+                                                <div v-if="form.product_type === 'addon'" class="col-md-6">
                                                     <TextField name="product_path" :label="__('message.product_path') || 'Plugin Folder'"
                                                         :hint="__('message.product_path_hint') || 'Folder this add-on installs into on the client, e.g. Calendar for app/Plugins/Calendar.'"
                                                         :value="form.product_path" :onChange="onChange" :error="errors.product_path" />
@@ -113,15 +110,9 @@
                                             </div>
 
                                             <!-- Content fields -->
-                                            <div class="mb-3">
-                                                <TinyMCE name="description" :label="__('message.description')" :required="true" id="editor-description" :value="form.description" :onChange="onChange" :error="errors.description" />
-                                            </div>
-                                            <div class="mb-3">
-                                                <TinyMCE name="short_description" :label="__('message.short_description')" :required="true" id="editor-short-description" :value="form.short_description" :onChange="onChange" :error="errors.short_description" />
-                                            </div>
-                                            <div class="mb-3">
-                                                <TinyMCE name="product_description" :label="__('message.product_description')" :required="true" id="editor-product-description" :value="form.product_description" :onChange="onChange" :error="errors.product_description" />
-                                            </div>
+                                            <TinyMCE name="description" :label="__('message.description')" :required="true" id="editor-description" :value="form.description" :onChange="onChange" :error="errors.description" />
+                                            <TinyMCE name="short_description" :label="__('message.short_description')" :required="true" id="editor-short-description" :value="form.short_description" :onChange="onChange" :error="errors.short_description" />
+                                            <TinyMCE name="product_description" :label="__('message.product_description')" :required="true" id="editor-product-description" :value="form.product_description" :onChange="onChange" :error="errors.product_description" />
                                         </div>
                                     </div>
                                 </div>
@@ -247,24 +238,9 @@
                                             </h4>
                                         </div>
                                         <div class="card-body">
-                                            <div class="mb-3">
-                                                <RadioButton
-                                                    name="show_agent"
-                                                    :label="__('message.show_cart_page')"
-                                                    :options="[{ name: __('message.agents'), value: 1 }, { name: __('message.product_quantity'), value: 0 }]"
-                                                    :value="form.show_agent ? 1 : 0"
-                                                    :onChange="(val) => form.show_agent = !!val"
-                                                    classname="mb-2"
-                                                />
-                                            </div>
 
                                             <div class="mb-3">
-                                                <div v-show="form.show_agent" class="ms-1">
-                                                    <Checkbox name="can_modify_agent" :label="__('message.allow_multiple_agents_quantity')" :value="form.can_modify_agent" :onChange="(val) => form.can_modify_agent = val" />
-                                                </div>
-                                                <div v-show="!form.show_agent" class="ms-1">
-                                                    <Checkbox name="can_modify_quantity" :label="__('message.allow_multiple_product_quantity')" :value="form.can_modify_quantity" :onChange="(val) => form.can_modify_quantity = val" />
-                                                </div>
+                                                <Checkbox name="can_modify_quantity" :label="__('message.allow_multiple_product_quantity')" :value="form.can_modify_quantity" :onChange="(val) => form.can_modify_quantity = val" />
                                             </div>
 
                                             <div class="mb-2">
@@ -603,10 +579,8 @@ const form = reactive({
     product_description: '',
     product_sku: '',
     currentImage: null,
-    show_agent: true,
     highlight: false,
     add_to_contact: false,
-    can_modify_agent: false,
     can_modify_quantity: false,
     require_domain: false,
     hidden: false,
@@ -667,13 +641,11 @@ onMounted(async () => {
         form.short_description    = p.short_description ?? ''
         form.product_description  = p.product_description ?? ''
         form.currentImage         = p.image ?? null
-        form.show_agent           = Boolean(p.show_agent)
         // highlight/add_to_contact/whatsapp_integration are string columns
         // ("0"/"1") — Boolean("0") is true in JS, so these three need an
         // actual value check rather than a truthy check like the others.
         form.highlight            = String(p.highlight) === '1'
         form.add_to_contact       = String(p.add_to_contact) === '1'
-        form.can_modify_agent     = Boolean(p.can_modify_agent)
         form.can_modify_quantity  = Boolean(p.can_modify_quantity)
         form.require_domain       = Boolean(p.require_domain)
         form.hidden               = Boolean(p.hidden)
@@ -712,7 +684,7 @@ onMounted(async () => {
 
 // On/off fields, sent as '1' / '0'.
 const SWITCH_FIELDS = [
-    'show_agent', 'highlight', 'add_to_contact', 'can_modify_agent', 'can_modify_quantity',
+    'highlight', 'add_to_contact', 'can_modify_quantity',
     'require_domain', 'hidden', 'invoice_hidden', 'whatsapp_integration', 'tax_status',
     'downloadable', 'keep_old_downloads', 'issues_license',
 ]

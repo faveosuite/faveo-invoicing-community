@@ -146,4 +146,9 @@ describe('DynamicSelect.vue', () => {
         wrapper = mountDynamic({ createOption })
         expect(wrapper.props('createOption')).toBe(createOption)
     })
+
+    it('names a label-less select for screen readers', () => {
+        wrapper = mountDynamic({ label: '', ariaLabel: 'Currency' })
+        expect(wrapper.find('label.visually-hidden').text()).toBe('Currency')
+    })
 })

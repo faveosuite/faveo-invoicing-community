@@ -29,7 +29,6 @@ use App\Traits\TaxCalculation;
 use App\User;
 use DB;
 use GuzzleHttp\Client;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Logger;
@@ -57,7 +56,7 @@ class PostPaymentService
         $metadata = $invoice->metadata ?? [];
 
         $result = match ($invoice->type) {
-            'agent_alteration' => $this->handleAgentAlteration($invoice, $metadata),
+            'agent_alteration' => $this->creditOldAgentChange($invoice, $metadata),
             'upgrade_downgrade' => $this->handleUpgradeDowngrade($invoice, $metadata),
             'renewal' => $this->handleRenewal($invoice),
             EntitlementSalesService::INVOICE_TYPE => $this->handleEntitlementPurchase($invoice, $metadata),
@@ -202,30 +201,15 @@ class PostPaymentService
     }
 
     /**
+     * An agent-change invoice raised before agents became an extra. That flow is gone (agents are
+     * bought as an Agents extra now), so its payment goes to the customer's credit instead.
+     *
      * @param  array<mixed>  $metadata
      * @return array<mixed>
      */
-    private function handleAgentAlteration(Invoice $invoice, array $metadata): array
+    private function creditOldAgentChange(Invoice $invoice, array $metadata): array
     {
-        $cloud = new CloudExtraActivities(new Client, new FaveoCloud);
-
-        if ($metadata['agent_increase_date'] ?? false) {
-            new RenewController()->successRenew($invoice);
-        }
-
-        // The tenant verifies the new license code against billing on a separate
-        // connection, so the rewrite must be committed first — same reason as
-        // provisionCloudTenantAfterCommit(). Otherwise it sees "license not found"
-        // and the change is reverted.
-        DB::afterCommit(fn (): JsonResponse => $cloud->doTheAgentAltering(
-            $metadata['new_agents'],
-            $metadata['old_license'],
-            $metadata['order_id'],
-            $metadata['installation_path'],
-            $metadata['product_id'],
-        ));
-
-        $this->updateSubscriptionPriceIfNeeded($metadata['order_id'], $invoice);
+        resolve(EntitlementSalesService::class)->creditInstead($invoice, $metadata, 'message.extra_invoice_stale_credited');
 
         return ['status' => 'success'];
     }

@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => 'SKU продукта должно быть уникальным',
     'product_name_unique' => 'Название должно быть уникальным',
-    'product_show_agent_required' => 'Выберите предпочтения страницы корзины',
     'config_file_path_regex' => 'Должен быть относительный путь без сегментов ../.',
     'license_file_path_regex' => 'Должен быть относительный путь без сегментов ../.',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => 'Размер изображения не должен превышать 2048 килобайт.',
         'product_sku_required' => 'SKU продукта обязательно.',
         'group_required' => 'Группа продукта обязательна.',
-        'show_agent_required' => 'Выберите предпочтения страницы корзины.',
     ],
     'current_domain_required' => 'Текущий домен обязателен.',
     'new_domain_required' => 'Новый домен обязателен.',

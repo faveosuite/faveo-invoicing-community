@@ -139,8 +139,9 @@ class Plan extends BaseModel
     }
 
     /**
-     * Plans a cloud order on $product can switch to: another cloud product that allows agent
-     * changes, priced to renew, and not a free plan. The client's plan list and the
+     * Plans a cloud order on $product can switch to: another cloud product's plan, priced to
+     * renew, and not a free plan. Extras (agents too) follow the order there by the plan-change
+     * carry rule (EntitlementSalesService::carriedNumbers). The client's plan list and the
      * plan-change endpoints both read this, so only listed plans can be bought.
      *
      * @param  Builder<static>  $query
@@ -149,7 +150,7 @@ class Plan extends BaseModel
     protected function cloudPlanChangeOptions(Builder $query, Product $product): void
     {
         $query->where('product', '!=', $product->id)
-            ->whereHas('productRelation', fn (\Illuminate\Contracts\Database\Query\Builder $q) => $q->whereIn('id', cloudPopupProducts())->where('can_modify_agent', 1))
+            ->whereHas('productRelation', fn (\Illuminate\Contracts\Database\Query\Builder $q) => $q->whereIn('id', cloudPopupProducts()))
             ->whereHas('planPrice', fn (\Illuminate\Contracts\Database\Query\Builder $q) => $q->where('renew_price', '!=', 0))
             ->where('name', 'not like', '%free%');
     }

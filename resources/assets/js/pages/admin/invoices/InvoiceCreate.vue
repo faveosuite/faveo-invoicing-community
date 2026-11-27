@@ -129,13 +129,15 @@
                             />
                         </div>
 
-                        <!-- Agents (conditional: product allows agent modification) -->
-                        <div v-if="dynamic.show_agents" class="col-md-4">
+                        <!-- Extras the plan sells (Agents, Storage…): how many on top of what it includes -->
+                        <div v-for="extra in dynamic.extras" :key="extra.entitlement_id" class="col-md-4">
                             <NumberField
-                                name="agents"
-                                :label="__('message.agents')"
-                                :value="form.agents"
-                                :onChange="onChange"
+                                :name="`extras.${extra.entitlement_id}`"
+                                :label="extra.label"
+                                :hint="extra.included !== null ? __('message.plan_summary_included', { count: extra.included }) : ''"
+                                :max="extra.type === 'boolean' ? 1 : ''"
+                                :value="form.extras[extra.entitlement_id]"
+                                :onChange="v => (form.extras[extra.entitlement_id] = v)"
                             />
                         </div>
 
@@ -182,7 +184,7 @@ const form = reactive({
     domain:       '',
     cloud_domain: '',
     quantity:     1,
-    agents:       null,
+    extras:       {}, // { <entitlement id>: quantity }
 })
 
 const dynamic = reactive({
@@ -190,7 +192,7 @@ const dynamic = reactive({
     is_cloud_product: false,
     cloud_domain_suffix: '',
     show_quantity: false,
-    show_agents: false,
+    extras: [],
 })
 
 const productId = computed(() => {
@@ -256,11 +258,11 @@ function resetDynamicFields() {
     dynamic.is_cloud_product = false
     dynamic.cloud_domain_suffix = ''
     dynamic.show_quantity = false
-    dynamic.show_agents = false
+    dynamic.extras = []
     form.domain = ''
     form.cloud_domain = ''
     form.quantity = 1
-    form.agents = null
+    form.extras = {}
 }
 
 async function fetchPrice() {
@@ -290,9 +292,8 @@ async function fetchPrice() {
         dynamic.show_quantity = !!qty.can_modify
         if (qty.can_modify) form.quantity = qty.quantity ?? 1
 
-        const agents = data.agents ?? {}
-        dynamic.show_agents = !!agents.can_modify
-        if (agents.can_modify) form.agents = agents.quantity ?? 0
+        dynamic.extras = data.extras ?? []
+        form.extras = Object.fromEntries(dynamic.extras.map(e => [e.entitlement_id, e.quantity]))
     } catch (e) {
         errorHandler(e, COMPONENT, { setErrors })
     }
@@ -314,7 +315,7 @@ async function submit() {
         domain:       dynamic.required_domain  ? form.domain       : null,
         cloud_domain: dynamic.is_cloud_product ? form.cloud_domain : null,
         quantity:     dynamic.show_quantity    ? form.quantity      : null,
-        agents:       dynamic.show_agents      ? form.agents        : null,
+        extras:       form.extras,
     }
 
     saving.value = true

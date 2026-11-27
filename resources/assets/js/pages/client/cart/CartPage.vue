@@ -3,7 +3,9 @@
     <div class="container pt-4">
 
       <!-- Loading -->
-      <div v-if="cartStore.loading && !cartStore.items.length" class="row justify-content-center py-3"><loader /></div>
+      <div v-if="cartStore.loading && !cartStore.items.length" class="row justify-content-center py-3" role="status" aria-busy="true">
+        <loader /><span class="visually-hidden">{{ __('message.cart_loading') }}</span>
+      </div>
 
       <!-- Error -->
       <div v-else-if="cartStore.error"
@@ -41,7 +43,7 @@
                   :key="item.id"
                   :item="item"
                   @customize="customizeId = $event"
-                  @remove="cartStore.removeItem($event)"
+                  @remove="removingId = $event"
                 />
               </ul>
             </section>
@@ -58,7 +60,7 @@
                 <div v-for="item in cartStore.items" :key="item.id" class="co-row">
                   <span class="min-w-0">
                     <span class="d-block fw-semibold text-color-dark">{{ item.name }}<template v-if="item.quantity > 1"> × {{ item.quantity }}</template></span>
-                    <span class="co-note">{{ addonCount(item) ? __('message.cart_plan_with_addons', { count: addonCount(item) }) : __('message.cart_plan_only') }}</span>
+                    <span class="co-note">{{ addonText(item) }}</span>
                   </span>
                   <span class="co-amt">{{ symbol }}{{ item.line_total }}</span>
                 </div>
@@ -77,7 +79,7 @@
                 </div>
                 <p class="co-note mb-3">{{ __('message.cart_tax_note') }}</p>
                 <button type="button" class="btn btn-primary btn-modern w-100 text-uppercase py-3 checkout" @click="checkout">
-                  <i class="fas fa-lock me-2" aria-hidden="true"></i>{{ __('message.checkout') }}
+                  <i class="fas fa-lock me-2" aria-hidden="true"></i>{{ __('message.proceed_checkout') }}
                 </button>
               </div>
             </aside>
@@ -89,8 +91,18 @@
 
     <CartCustomizeModal :item="customizing" :busy="cartStore.loading"
                         @close="customizeId = null" @update="onUpdate" />
-    <CartDomainModal :show="showDomainModal" :items="domainItems"
+    <CartDomainModal :show="showDomainModal" :items="domainItems" :error="domainError"
                      @close="showDomainModal = false" @save="saveDomains" />
+
+    <!-- Removing a plan takes its add-ons and settings with it: ask first -->
+    <Modal :showModal="!!removing" :onClose="() => (removingId = null)" :showCloseBtn="false" classname="modal-md">
+      <template #title><h2 class="modal-title h5 mb-0">{{ __('message.cart_remove_title', { name: removing?.name ?? '' }) }}</h2></template>
+      <template #fields><p class="mb-0">{{ __('message.cart_remove_body') }}</p></template>
+      <template #controls>
+        <action-button action="cancel" @click="removingId = null" />
+        <action-button action="remove" :label="__('message.cart_remove_confirm')" :loading="cartStore.loading" @click="confirmRemove" />
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -103,6 +115,7 @@ import { __ } from '@/plugins/i18n'
 import CartItemRow from '@/themes/porto/components/cart/CartItemRow.vue'
 import CartDomainModal from '@/themes/porto/components/cart/CartDomainModal.vue'
 import CartCustomizeModal from '@/themes/porto/components/cart/CartCustomizeModal.vue'
+import Modal from '@/themes/porto/components/common/Modal.vue'
 import { useAuthStore } from '@/core/stores/auth'
 
 const router     = useRouter()
@@ -134,8 +147,20 @@ onMounted(async () => {
     }
 })
 
-// How many add-ons a plan holds (order summary).
+// How many add-ons a plan holds (order summary), in words: "Plan only" / "Plan + 1 add-on" / "Plan + 3 add-ons".
 const addonCount = item => (item.extras ?? []).filter(e => e.quantity > 0).length
+function addonText(item) {
+  const n = addonCount(item)
+  return n === 0 ? __('message.cart_plan_only') : n === 1 ? __('message.cart_plan_with_addon') : __('message.cart_plan_with_addons', { count: n })
+}
+
+// The plan waiting for the admin's "Remove" confirmation.
+const removingId = ref(null)
+const removing = computed(() => cartStore.items.find(i => i.id === removingId.value) ?? null)
+async function confirmRemove() {
+  await cartStore.removeItem(removingId.value)
+  removingId.value = null
+}
 
 // The line open in the Customize panel (read live from the store so prices update in place).
 const customizeId = ref(null)
@@ -164,13 +189,23 @@ function checkout() {
   router.push('/checkout')
 }
 
-// { [itemId]: domain } from the modal: save the changed ones, then continue.
+// { [itemId]: domain } from the modal: save the changed ones, then continue. A refused domain
+// stays in the modal (next to the fields), instead of swapping the whole cart for the error screen.
+const domainError = ref('')
+watch(showDomainModal, open => { if (open) domainError.value = '' })
 async function saveDomains(domains) {
+  domainError.value = ''
   for (const item of domainItems.value) {
-    if (domains[item.id] !== item.domain) await cartStore.updateItem(item.id, { domain: domains[item.id] })
+    if (domains[item.id] === item.domain) continue
+    await cartStore.updateItem(item.id, { domain: domains[item.id] })
+    if (cartStore.error) {
+      domainError.value = cartStore.error
+      cartStore.error = null // the cart itself is unchanged: keep showing it
+      return
+    }
   }
   showDomainModal.value = false
-  if (!cartStore.error) router.push('/checkout')
+  router.push('/checkout')
 }
 
 // The Customize pop-up emits { id, quantity | agents | extras }.

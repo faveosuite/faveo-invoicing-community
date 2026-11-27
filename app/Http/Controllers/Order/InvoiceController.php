@@ -6,6 +6,7 @@ use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Http\Requests\InvoiceRequest;
 use App\Jobs\ReportExport;
+use App\Model\Cart\CartItem;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
 use App\Model\Common\Template;
@@ -25,6 +26,7 @@ use App\Model\Payment\TaxOption;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Price;
 use App\Model\Product\Product;
+use App\Services\EntitlementService;
 use App\Services\Payment\ProcessingFee;
 use App\Traits\CoupCodeAndInvoiceSearch;
 use App\Traits\PaymentsAndInvoices;
@@ -263,7 +265,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     {
         try {
             $cloud_domain = '';
-            $agents = $request->input('agents');
             $status = 'pending';
             $qty = $request->input('quantity');
             if ($user_id == '') {
@@ -283,7 +284,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $productid = $request->input('product');
 
             $plan = $request->input('plan');
-            $agents = $this->getAgents($agents, $productid, $plan);
             $qty = $this->getQuantity($qty);
 
             $code = $request->input('code');
@@ -297,6 +297,17 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $planObj = Plan::where('id', $plan)->first();
             $userCurrency = userCurrencyAndPrice($user_id, $planObj);
             $currency = $userCurrency['currency'];
+            // The extras the admin picked, as on a cart line: charged on the line and given to the
+            // order once paid. Agents = what the plan includes + the Agents extra (the license code's count).
+            $line = new CartItem(['plan_id' => $planObj?->id]);
+            $line->setRelation('plan', $planObj);
+            $line->extras = $line->cleanExtras((array) $request->input('extras', []), (string) $currency);
+            $extras = $line->chosenExtras((string) $currency) ?: null;
+            $agents = $line->totalAgents((string) $currency);
+            // A plan including no agents needs at least one sold on the line; 0 would be a 0000 (unlimited) license.
+            if ($agents === 0 && EntitlementService::includedAgents($planObj) === 0) {
+                return errorResponse([__('message.entitlement_agents_price_required')]);
+            }
             $number = random_int(11111111, 99999999);
             $date = Date::parse($request->input('date'));
             $product = Product::find($productid);
@@ -335,6 +346,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             if (! $items instanceof InvoiceItem) {
                 return errorResponse([__('message.can-not-generate-invoice')]);
             }
+            $items->update(['extras' => $extras]);
 
             return successResponse(__('message.invoice-generated-successfully'));
         } catch (Exception $exception) {

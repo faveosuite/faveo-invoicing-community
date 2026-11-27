@@ -1,7 +1,9 @@
 <template>
     <div>
 
-        <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
+        <div v-if="loading" class="row justify-content-center py-3" role="status" aria-busy="true">
+            <loader /><span class="visually-hidden">{{ __('message.order_loading') }}</span>
+        </div>
 
         <template v-else-if="!order">
             <div class="alert alert-warning">{{ __('message.no_records_found') }}</div>
@@ -12,28 +14,29 @@
             <!-- Summary Bar -->
             <div class="row justify-content-center mb-4">
                 <div class="col-lg-12 alert bg-color-grey">
-                    <div class="d-flex flex-column flex-md-row justify-content-between plan-features text-center">
+                    <!-- Label/value pairs, so screen readers read each value with its label -->
+                    <dl class="d-flex flex-column flex-md-row justify-content-between plan-features text-center mb-0">
                         <div>
-                            <strong>{{ __('message.order_number') }}</strong><br>
-                            #{{ order.number }}
+                            <dt>{{ __('message.order_number') }}</dt>
+                            <dd class="mb-0" translate="no">#{{ order.number }}</dd>
                         </div>
                         <div class="mt-3 mt-md-0">
-                            <strong>{{ __('message.date') }}</strong><br>
-                            {{ formatDate(order.order_date) }}
+                            <dt>{{ __('message.date') }}</dt>
+                            <dd class="mb-0">{{ formatDate(order.order_date) }}</dd>
                         </div>
                         <div class="mt-3 mt-md-0">
-                            <strong>{{ __('message.product') }}</strong><br>
-                            {{ order.product_name || '—' }}
+                            <dt>{{ __('message.product') }}</dt>
+                            <dd class="mb-0">{{ order.product_name || '—' }}</dd>
                         </div>
                         <div class="mt-3 mt-md-0">
-                            <strong>{{ __('message.status') }}</strong><br>
-                            {{ order.status || '—' }}
+                            <dt>{{ __('message.status') }}</dt>
+                            <dd class="mb-0">{{ order.status || '—' }}</dd>
                         </div>
                         <div class="mt-3 mt-md-0">
-                            <strong>{{ __('message.license_expiry') }}</strong><br>
-                            {{ formatDate(order.license_ends_at) }}
+                            <dt>{{ __('message.license_expiry') }}</dt>
+                            <dd class="mb-0">{{ formatDate(order.license_ends_at) }}</dd>
                         </div>
-                    </div>
+                    </dl>
                 </div>
             </div>
 
@@ -234,15 +237,24 @@
                                 </div>
                                 <div class="col-sm-7">
                                     <div v-if="featureLimits.length" class="d-flex flex-wrap gap-2" :class="{ 'mb-3': featureSwitches.length }">
-                                        <span v-for="item in featureLimits" :key="item.label" class="feature-limit">
-                                            {{ item.label }} <strong>{{ item.value === -1 ? __('message.unlimited') : item.value }}</strong>
+                                        <span v-for="item in featureLimits" :key="item.code" class="feature-limit">
+                                            {{ item.label }} <strong class="tabular-nums">{{ item.value === null ? __('message.unlimited') : item.value }}</strong>
+                                            <span v-if="item.bought" class="badge text-bg-light border fw-normal ms-1">{{ __('message.order_feature_bought_more') }}</span>
                                         </span>
                                     </div>
-                                    <ul v-if="featureSwitches.length" class="feature-list list-unstyled mb-0">
-                                        <li v-for="item in shownSwitches" :key="item.label">
-                                            <i class="fas fa-check text-success me-2" aria-hidden="true"></i>{{ item.label }}
-                                        </li>
-                                    </ul>
+                                    <!-- On/off features by category (Features, Plugins…); what was bought is marked -->
+                                    <div v-for="group in shownGroups" :key="group.name" class="mb-2">
+                                        <span v-if="switchGroups.length > 1" class="d-block small fw-bold text-uppercase text-muted mb-1">{{ group.name }}</span>
+                                        <ul class="feature-list list-unstyled mb-0">
+                                            <li v-for="item in group.items" :key="item.code">
+                                                <i class="fas fa-check text-success me-2" aria-hidden="true"></i>{{ item.label }}
+                                                <button v-if="item.bought && order.has_extras" type="button" class="badge text-bg-light border fw-normal ms-1 btn-reset"
+                                                        :aria-label="`${__('message.order_feature_addon')}: ${item.label}. ${__('message.order_feature_addon_manage')}`"
+                                                        @click="activeTab = 'extras'">{{ __('message.order_feature_addon') }}</button>
+                                                <span v-else-if="item.bought" class="badge text-bg-light border fw-normal ms-1">{{ __('message.order_feature_addon') }}</span>
+                                            </li>
+                                        </ul>
+                                    </div>
                                     <button v-if="featureSwitches.length > FEATURES_SHOWN" type="button"
                                             class="btn btn-link p-0 mt-2 text-2" :aria-expanded="showAllFeatures"
                                             @click="showAllFeatures = !showAllFeatures">
@@ -428,26 +440,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Increase / decrease agents -->
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card border-radius-1 bg-color-light box-shadow-6 box-shadow-hover cur-pointer h-100"
-                                         role="button" tabindex="0"
-                                         @click="openAgentsModal" @keydown.enter.space.prevent="openAgentsModal">
-                                        <div class="card-body p-relative zindex-1 p-3">
-                                            <div class="feature-box feature-box-style-6 text-center d-block">
-                                                <div class="feature-box-icon justify-content-center">
-                                                    <i class="fas fa-users text-primary" aria-hidden="true"></i>
-                                                </div>
-                                                <div class="feature-box-info">
-                                                    <h4 class="text-4 mt-3 mb-2 text-color-grey">{{ __('message.increase_decrease_agents') }}</h4>
-                                                    <p class="mb-2"><strong class="text-black text-2">{{ __('message.current_no_agents') }}</strong> {{ cloud.current_agents }}</p>
-                                                    <p class="mb-0 text-2">{{ __('message.update_agent_count') }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <!-- Upgrade / downgrade plan -->
                                 <div v-if="!cloud.is_free_plan" class="col-lg-6 mb-4">
                                     <div class="card border-radius-1 bg-color-light box-shadow-6 box-shadow-hover cur-pointer h-100"
@@ -556,75 +548,6 @@
                                    :loading="domainBusy"
                                    :disabled="!domainForm.newDomain"
                                    @click="submitDomain" />
-                </template>
-            </Modal>
-
-            <!-- ── Change Number of Agents modal ────────────────────── -->
-            <Modal :showModal="showAgentsModal" :onClose="closeAgentsModal" :showCloseBtn="false">
-                <template #title>
-                    <h5 class="modal-title fw-bold">{{ __('message.change_no_of_agents') }}</h5>
-                </template>
-                <template #fields>
-                    <AppAlert componentName="agents-modal" />
-                    <div class="border-bottom pb-3 mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-semibold text-dark">{{ __('message.current_no_agents') }}</span>
-                            <span class="text-dark">{{ cloud?.current_agents || '—' }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-semibold text-dark">{{ __('message.price_per_agent') }}</span>
-                            <span class="text-dark">{{ cloud?.price_per_agent || '—' }}</span>
-                        </div>
-                    </div>
-
-                    <div class="text-center mb-4">
-                        <div class="download-section-label mb-2">{{ __('message.choose_no_desired_agents') }}</div>
-                        <div class="d-flex align-items-center justify-content-center gap-3">
-                            <button type="button" class="btn btn-light agent-stepper-btn" :aria-label="__('message.remove_one_agent')" :disabled="agentAtMinimum" @click="stepAgents(-1)">
-                                <i class="fas fa-minus" aria-hidden="true"></i>
-                            </button>
-                            <span class="agent-count-display">{{ agentForm.number || 0 }}</span>
-                            <button type="button" class="btn btn-light agent-stepper-btn" :aria-label="__('message.add_one_agent')" @click="stepAgents(1)">
-                                <i class="fas fa-plus" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                        <!-- Plain sentence, not a bare "+1" symbol — says what's
-                             about to happen, not just a number. -->
-                        <div v-if="agentChanged" class="fw-bold mt-2" :class="agentIncreasing ? 'text-success' : 'text-danger'">
-                            {{ agentSubmitLabel }}
-                        </div>
-                    </div>
-
-                    <!-- Laid out like a receipt on purpose: a cost, a credit for
-                         what's unused, and the total — so it's obvious the two
-                         big numbers above aren't extra charges, they're what
-                         the final number below is calculated from. -->
-                    <div v-if="agentChanged" class="cost-breakdown rounded p-3 mb-1">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-semibold text-dark">{{ __('message.new_agent_count_cost', { count: agentForm.number }) }}</span>
-                            <span class="text-dark">{{ agentNewCost }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom">
-                            <span class="fw-semibold text-dark">{{ __('message.unused_current_agents_credit', { count: cloud?.current_agents }) }}</span>
-                            <span class="text-success">−{{ agentCurrentCost }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-bold text-dark">{{ __('message.price_due_today') }}</span>
-                            <span class="fw-bold text-dark fs-5">{{ agentCost }}</span>
-                        </div>
-                    </div>
-
-                    <p v-if="agentChanged" class="text-color-grey text-2 mb-0">
-                        {{ __('message.agent_proration_note', { count: agentForm.number }) }}
-                    </p>
-                </template>
-                <template #controls>
-                    <action-button action="cancel" @click="closeAgentsModal" />
-                    <action-button action="confirm"
-                                   :label="agentSubmitLabel"
-                                   :loading="agentBusy"
-                                   :disabled="!agentChanged"
-                                   @click="submitAgents" />
                 </template>
             </Modal>
 
@@ -912,13 +835,20 @@ watch(activeTab, (tab) => {
 
 // Only what the customer has: features that are on, and every limit/choice with a value.
 const includedEntitlements = computed(() => (order.value?.entitlements ?? [])
-    .filter(e => (e.type === 'boolean' ? e.value : e.value !== null && e.value !== '')))
+    .filter(e => (e.type === 'boolean' ? e.value : e.type === 'number' || (e.value !== null && e.value !== '')))) // a number's null is unlimited
 // Limits (agents, storage…) read as chips; on/off features as a checklist, folded after a few.
 const FEATURES_SHOWN = 8
 const showAllFeatures = ref(false)
 const featureLimits   = computed(() => includedEntitlements.value.filter(e => e.type !== 'boolean'))
 const featureSwitches = computed(() => includedEntitlements.value.filter(e => e.type === 'boolean'))
 const shownSwitches   = computed(() => (showAllFeatures.value ? featureSwitches.value : featureSwitches.value.slice(0, FEATURES_SHOWN)))
+// The on/off features grouped by category (no category = Features), in the order they come.
+const groupByCategory = list => [...list.reduce((m, i) => {
+    const name = i.category || __('message.features')
+    return m.set(name, [...(m.get(name) ?? []), i])
+}, new Map())].map(([name, items]) => ({ name, items }))
+const switchGroups = computed(() => groupByCategory(featureSwitches.value))
+const shownGroups  = computed(() => groupByCategory(shownSwitches.value))
 const installationsUrl = computed(() => `/get-my-installations/${orderId.value}`)
 const invoicesUrl      = computed(() => `/get-my-invoices/${orderId.value}/${userId}`)
 const paymentsUrl      = computed(() => `/get-my-payment-client/${orderId.value}/${userId}`)
@@ -988,52 +918,16 @@ const cloudLoading = ref(false)
 const cloudLoaded  = ref(false)
 
 const showDomainModal = ref(false)
-const showAgentsModal = ref(false)
 const showPlanModal   = ref(false)
 
 const domainForm = reactive({ newDomain: '' })
-// A single "desired total" field — simpler than an increase/decrease action
-// picker plus a delta amount. Direction and delta are worked out (here and
-// server-side) by comparing to the current count, not asked for directly.
-const agentForm  = reactive({ number: '' })
 const planForm   = reactive({ planId: '' })
-
-// Nothing to submit until the desired total actually differs from what's
-// already provisioned. Direction/delta are plain counts (not money), so
-// computing them here is fine — the one money figure shown (agentCost
-// below) always comes straight from the server, never computed here.
-const agentChanged = computed(() =>
-    !!agentForm.number && Number(agentForm.number) !== Number(cloud.value?.current_agents)
-)
-const agentIncreasing = computed(() => Number(agentForm.number || 0) > Number(cloud.value?.current_agents || 0))
-const agentCountDelta = computed(() => Math.abs(Number(agentForm.number || 0) - Number(cloud.value?.current_agents || 0)))
-const agentAtMinimum = computed(() => Number(agentForm.number || 0) <= 1)
-// "Add 1 agent" vs "Add 3 agents" — the __() helper has no pluralization, so
-// pick the right key by hand rather than showing "Add 1 agents". Used both
-// as the button label and as the plain-English line under the stepper, so
-// the two always say exactly the same thing.
-const agentSubmitLabel = computed(() => {
-    if (!agentChanged.value) return __('message.update_agents')
-    const count = agentCountDelta.value
-    if (agentIncreasing.value) return count === 1 ? __('message.add_one_agent') : __('message.add_agents_count', { count })
-    return count === 1 ? __('message.remove_one_agent') : __('message.remove_agents_count', { count })
-})
-
-function stepAgents(delta) {
-    const next = Number(agentForm.number || cloud.value?.current_agents || 1) + delta
-    agentForm.number = Math.max(1, next)
-    fetchAgentCost()
-}
 
 function onPlanChange(v) {
     planForm.planId = v?.id ?? ''
     fetchPlanCost()
 }
 
-const agentCost = ref('')
-// The two halves priceToPay (agentCost) is the difference of — see fetchAgentCost.
-const agentCurrentCost = ref('')
-const agentNewCost = ref('')
 const planCost  = ref(null)
 
 // Money fields from the backend are currency-formatted for display (e.g.
@@ -1050,7 +944,6 @@ function toNumber(v) {
 const planFutureCredit = computed(() => planCost.value ? toNumber(planCost.value.discount) : 0)
 
 const domainBusy = ref(false)
-const agentBusy  = ref(false)
 const planBusy   = ref(false)
 
 const alertStore = useAlertStore()
@@ -1513,58 +1406,6 @@ async function submitDomain() {
     }
 }
 
-/* ── Change agents ────────────────────────────────────────── */
-function openAgentsModal() {
-    agentForm.number = cloud.value?.current_agents ?? ''
-    agentCost.value = ''
-    agentCurrentCost.value = ''
-    agentNewCost.value = ''
-    showAgentsModal.value = true
-}
-function closeAgentsModal() { showAgentsModal.value = false; alertStore.unsetAlert() }
-
-function resetAgentCost() {
-    agentCost.value = ''
-    agentCurrentCost.value = ''
-    agentNewCost.value = ''
-}
-
-async function fetchAgentCost() {
-    if (!cloud.value || !agentChanged.value) { resetAgentCost(); return }
-    try {
-        const res = await http.post(`/get-agent-inc-dec-cost`, {
-            orderId:       cloud.value.order_id,
-            desiredAgents: agentForm.number,
-        })
-        // raw (un-wrapped) array response: { pricePerAgent, totalPrice, priceToPay, currentAgentsCost, newAgentsCost }
-        const symbol = res.data?.currency_symbol ?? ''
-        agentCost.value = symbol + (res.data?.priceToPay ?? '')
-        agentCurrentCost.value = symbol + (res.data?.currentAgentsCost ?? '')
-        agentNewCost.value = symbol + (res.data?.newAgentsCost ?? '')
-    } catch (e) {
-        resetAgentCost()
-        errorHandler(e, 'agents-modal')
-    }
-}
-
-async function submitAgents() {
-    if (!cloud.value || !agentChanged.value) return
-    agentBusy.value = true
-    try {
-        const res = await http.post(`/changeAgents`, {
-            orderId:       cloud.value.order_id,
-            subId:         cloud.value.sub_id,
-            desiredAgents: agentForm.number,
-        })
-        const invoiceId = res.data?.data?.invoice_id
-        if (invoiceId) router.push({ path: '/checkout', query: { invoice: invoiceId } })
-    } catch (e) {
-        errorHandler(e, 'agents-modal')
-    } finally {
-        agentBusy.value = false
-    }
-}
-
 /* ── Upgrade / downgrade plan ─────────────────────────────── */
 function openPlanModal() {
     planForm.planId = ''
@@ -1578,7 +1419,6 @@ async function fetchPlanCost() {
     try {
         const res = await http.post(`/get-cloud-upgrade-cost`, {
             plan:    planForm.planId,
-            agents:  cloud.value.current_agents,
             orderId: cloud.value.order_id,
         })
         // raw (un-wrapped) array response
@@ -1595,7 +1435,6 @@ async function submitPlan() {
     try {
         const res = await http.post(`/upgradeDowngradeCloud`, {
             id:      planForm.planId,
-            agents:  cloud.value.current_agents,
             userId:  userId,
             orderId: cloud.value.order_id,
         })
@@ -1670,25 +1509,11 @@ watch(orderId, async () => {
     color: #6c757d;
     margin-bottom: 0.5rem;
 }
-.agent-stepper-btn {
-    width: 42px;
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #dee2e6;
-    border-radius: 10px;
-}
-.agent-stepper-btn:disabled { opacity: 0.4; }
-.agent-count-display {
-    min-width: 2.5rem;
-    text-align: center;
-    font-size: 2rem;
-    font-weight: 800;
-    color: #212529;
-}
 .cost-breakdown { background-color: #e7f4fb; }
 .future-credit-callout { background-color: #e6f9ef; border: 1px dashed #1a9d5c; }
+.btn-reset { cursor: pointer; }
+.tabular-nums { font-variant-numeric: tabular-nums; }
+.plan-features dt { font-weight: 700; }
 .feature-limit { display: inline-block; padding: .2rem .6rem; border: 1px solid rgba(0, 0, 0, .09); background: #f7f7f7; font-size: .9em; }
 .feature-list { columns: 2; column-gap: 1.5rem; }
 .feature-list li { break-inside: avoid; padding: .15rem 0; }

@@ -19,6 +19,31 @@ use PHPUnit\Framework\Attributes\Test;
 class PluginFeaturesTest extends LicenseTestCase
 {
     #[Test]
+    public function running_the_seeder_again_after_grants_get_their_subscription_adds_nothing(): void
+    {
+        $product = $this->createProduct();
+        $byHand = $this->createProduct(['name' => 'By Hand '.uniqid()]);
+        $plan = Plan::factory()->create(['product' => $product->id]);
+        $order = Order::factory()->create(['product' => $product->id, 'number' => random_int(10000000, 99999999)]);
+        Subscription::factory()->create(['order_id' => $order->id, 'plan_id' => $plan->id, 'product_id' => $product->id]);
+        $license = $this->createLicense(['product_id' => $product->id, 'license_order_number' => $order->number]);
+        LicensePlugin::create(['license_id' => $license->id, 'product_id' => $byHand->id]);
+
+        $seeder = new DatabaseSeeder;
+        $seeder->seedPluginFeatures();
+        $seeder->seedLicenseDateGrants();
+        $seeder->seedGrantOwners(); // grants now carry their subscription
+        $before = Grant::where('license_id', $license->id)->count();
+
+        $seeder->seedPluginFeatures();
+        $seeder->seedLicenseDateGrants();
+        $seeder->seedGrantOwners();
+
+        $this->assertGreaterThan(0, $before);
+        $this->assertSame($before, Grant::where('license_id', $license->id)->count());
+    }
+
+    #[Test]
     public function plugin_links_become_features_without_anyone_losing_a_plugin(): void
     {
         $product = $this->createProduct();

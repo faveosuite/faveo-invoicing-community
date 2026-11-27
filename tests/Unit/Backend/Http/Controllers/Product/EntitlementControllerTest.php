@@ -42,6 +42,32 @@ class EntitlementControllerTest extends DBTestCase
             ->assertStatus(412);
     }
 
+    public function test_a_choice_or_text_needs_a_default_and_an_empty_number_default_is_unlimited(): void
+    {
+        $text = $this->row(['code' => 'region', 'type' => 'text', 'default_value' => null]);
+        $this->postJson('/entitlements', ['entitlements' => [$text]])
+            ->assertStatus(412)->assertJsonFragment([__('message.entitlement_default_required')]);
+
+        $this->postJson('/entitlements', ['entitlements' => [
+            [...$text, 'default_value' => 'US'],
+            $this->row(['code' => 'storage', 'type' => 'number', 'default_value' => null]),
+        ]])->assertOk();
+        $this->assertNull(Entitlement::where('code', 'storage')->value('default_value'));
+    }
+
+    public function test_index_pages_and_searches_when_a_limit_is_given(): void
+    {
+        $this->postJson('/entitlements', ['entitlements' => [
+            $this->row(), $this->row(['code' => 'chat', 'label' => 'Chat']), $this->row(['code' => 'kb', 'label' => 'Knowledge base']),
+        ]])->assertOk();
+        $total = count($this->getJson('/entitlements')->json('data.entitlements'));
+
+        $this->getJson('/entitlements?limit=2&page=1')->assertOk()
+            ->assertJsonPath('data.total', $total)->assertJsonPath('data.per_page', 2)->assertJsonCount(2, 'data.data');
+        $this->getJson('/entitlements?limit=10&search-query=knowledge')
+            ->assertJsonPath('data.total', 1)->assertJsonPath('data.data.0.code', 'kb');
+    }
+
     public function test_used_item_cannot_change_type_and_is_archived_when_removed(): void
     {
         $item = Entitlement::create([...$this->row()]);
@@ -78,10 +104,10 @@ class EntitlementControllerTest extends DBTestCase
         $this->assertFalse($used->fresh()->is_active);
     }
 
-    public function test_order_override_can_be_set_and_reset_but_not_for_agents(): void
+    public function test_order_override_can_be_set_and_reset(): void
     {
         $chat = Entitlement::create([...$this->row(['code' => 'chat'])]);
-        $agents = Entitlement::create([...$this->row(['code' => 'agents', 'type' => 'number', 'default_value' => '5'])]);
+        $agents = EntitlementService::agents();
         $order = \App\Model\Order\Order::factory()->create(['product' => $this->product->id, 'number' => 88800001]);
         $license = License::create([
             'product_id' => $this->product->id, 'license_code' => 'ENT'.uniqid().'X', 'license_order_number' => '88800001',
@@ -89,17 +115,135 @@ class EntitlementControllerTest extends DBTestCase
         ]);
 
         $this->putJson("/order/{$order->id}/entitlements/{$chat->id}", ['value' => '1', 'until' => now()->addMonth()->toDateString()])->assertOk();
-        $this->putJson("/order/{$order->id}/entitlements/{$agents->id}", ['value' => '99'])->assertStatus(412);
         $this->putJson("/order/{$order->id}/entitlements/{$chat->id}", ['value' => 'maybe'])->assertStatus(412);
 
-        $this->getJson("/order/{$order->id}/entitlements")
+        $page = $this->getJson("/order/{$order->id}/entitlements")
             ->assertOk()
             ->assertJsonPath('data.entitlements.0.value', true)
             ->assertJsonPath('data.entitlements.0.override', '1')
-            ->assertJsonCount(1, 'data.entitlements'); // the code has no agent count; agents aren't offered
+            ->assertJsonCount(1, 'data.entitlements'); // the code has no agent count
+        // Agents can be given like any other feature.
+        $this->assertContains($agents->id, array_column($page->json('data.available'), 'id'));
 
         $this->deleteJson("/order/{$order->id}/entitlements/{$chat->id}")->assertOk();
         $this->assertSame([], $this->grantsOf($license, 'admin'));
+    }
+
+    public function test_any_number_can_be_overridden_to_unlimited_but_not_left_blank(): void
+    {
+        $storage = Entitlement::create([...$this->row(['code' => 'storage', 'type' => 'number', 'default_value' => '5'])]);
+        $chat = Entitlement::create([...$this->row(['code' => 'chat'])]);
+        $order = $this->agentsOrder('0005');
+        $license = License::where('license_order_number', $order->number)->firstOrFail();
+
+        $this->putJson("/order/{$order->id}/entitlements/{$storage->id}", ['value' => ''])->assertStatus(412);
+        $this->putJson("/order/{$order->id}/entitlements/{$chat->id}", ['unlimited' => true])->assertStatus(412); // only numbers
+
+        $this->putJson("/order/{$order->id}/entitlements/{$storage->id}", ['unlimited' => true])->assertOk();
+        $row = collect($this->getJson("/order/{$order->id}/entitlements")->json('data.entitlements'))->firstWhere('code', 'storage');
+        $this->assertSame([true, null, false], [$row['overridden'], $row['value'], $row['in_plan']]);
+        $this->assertArrayHasKey('storage', resolve(EntitlementService::class)->payload($license)['limits']);
+        $this->assertNull(resolve(EntitlementService::class)->payload($license)['limits']['storage']);
+    }
+
+    /** A licensed order on a plan including 5 agents, its code ending in $digits. */
+    private function agentsOrder(string $digits, bool $cloud = false): Order
+    {
+        $plan = Plan::factory()->create(['product' => $this->product->id, 'days' => 30]);
+        $plan->entitlements()->attach(EntitlementService::agents()->id, ['value' => '5']);
+        if ($cloud) {
+            \App\Model\Product\CloudProducts::create(['cloud_product' => $this->product->id, 'cloud_free_plan' => Plan::factory()->create(['product' => $this->product->id])->id]);
+        }
+        $code = 'AGNT'.random_int(10000000, 99999999).$digits;
+        $order = Order::factory()->create(['product' => $this->product->id, 'number' => random_int(10000000, 99999999), 'order_status' => 'executed', 'serial_key' => \Illuminate\Support\Facades\Crypt::encrypt($code)]);
+        Subscription::factory()->create(['order_id' => $order->id, 'plan_id' => $plan->id, 'product_id' => $this->product->id, 'ends_at' => now()->addDays(20)]);
+        License::create(['product_id' => $this->product->id, 'license_code' => $code, 'license_order_number' => (string) $order->number, 'license_limit' => 1, 'license_status' => 1]);
+
+        return $order;
+    }
+
+    public function test_an_agents_override_writes_the_license_digits_and_a_reset_puts_them_back(): void
+    {
+        $order = $this->agentsOrder('0005');
+        $agents = EntitlementService::agents();
+        $digits = fn (): string => substr((string) $order->fresh()->serial_key, -4);
+        $licenseDigits = fn (): string => substr((string) License::where('license_order_number', $order->number)->value('license_code'), -4);
+        $row = fn () => collect($this->getJson("/order/{$order->id}/entitlements")->json('data.entitlements'))->firstWhere('code', 'agents');
+
+        $this->putJson("/order/{$order->id}/entitlements/{$agents->id}", ['value' => '12'])->assertOk();
+        $this->assertSame(['0012', '0012'], [$digits(), $licenseDigits()]);
+        $this->assertSame(12, $row()['value']);
+        $this->assertSame('12', $row()['override']);
+
+        // Unlimited is asked for on its own (0 would read as 0000), and stored empty like any number.
+        $this->putJson("/order/{$order->id}/entitlements/{$agents->id}", ['value' => '0'])->assertStatus(412);
+        $this->putJson("/order/{$order->id}/entitlements/{$agents->id}", ['unlimited' => true])->assertOk();
+        $this->assertSame(['0000', '0000'], [$digits(), $licenseDigits()]);
+        $this->assertTrue(resolve(\App\Services\AgentCountService::class)->unlimited($order));
+        $this->assertSame([true, null, null], [$row()['overridden'], $row()['override'], $row()['value']]);
+
+        $this->deleteJson("/order/{$order->id}/entitlements/{$agents->id}")->assertOk();
+        $this->assertSame(['0005', '0005'], [$digits(), $licenseDigits()]);
+        $this->assertFalse($row()['overridden']);
+
+        // Four digits only, and no end date: the license code can't change back on its own.
+        $this->putJson("/order/{$order->id}/entitlements/{$agents->id}", ['value' => '10000'])->assertStatus(412);
+        $this->putJson("/order/{$order->id}/entitlements/{$agents->id}", ['value' => '7', 'until' => now()->addMonth()->toDateString()])->assertStatus(412);
+        $this->assertSame('0005', $digits());
+    }
+
+    public function test_a_cloud_agents_override_below_the_agents_in_use_is_refused(): void
+    {
+        $order = $this->agentsOrder('0008', cloud: true);
+        $code = (string) License::where('license_order_number', $order->number)->value('license_code');
+        \App\License\Models\Installation::create(['product_id' => $this->product->id, 'license_code' => $code, 'installation_domain' => 'tenant.example.test']);
+        // The tenant answers "true": more agents in use than the 3 asked for.
+        $history = [];
+        $stack = \GuzzleHttp\HandlerStack::create(new \GuzzleHttp\Handler\MockHandler([new \GuzzleHttp\Psr7\Response(200, [], 'true{}')]));
+        $stack->push(\GuzzleHttp\Middleware::history($history));
+        $this->app->bind(\GuzzleHttp\Client::class, fn (): \GuzzleHttp\Client => new \GuzzleHttp\Client(['handler' => $stack]));
+
+        $this->putJson("/order/{$order->id}/entitlements/".EntitlementService::agents()->id, ['value' => '3'])
+            ->assertStatus(400)->assertJsonPath('message', __('message.agent_reduce'));
+
+        $this->assertStringContainsString('number_of_agents=3', (string) $history[0]['request']->getBody());
+        $this->assertSame('0008', substr((string) $order->fresh()->serial_key, -4));
+        $this->assertNull(resolve(\App\Services\AgentCountService::class)->override($order));
+    }
+
+    public function test_agents_cannot_be_overridden_while_an_agents_purchase_is_unpaid(): void
+    {
+        // Paying it later would add renewing agents the override hides.
+        $order = $this->agentsOrder('0005');
+        $agents = EntitlementService::agents();
+        $invoice = \App\Model\Order\Invoice::factory()->create(['status' => 'pending',
+            'metadata' => ['type' => \App\Services\EntitlementSalesService::INVOICE_TYPE, 'order_id' => $order->id, 'entitlement_id' => $agents->id, 'quantity' => 2]]);
+
+        $this->putJson("/order/{$order->id}/entitlements/{$agents->id}", ['value' => '12'])
+            ->assertStatus(400)->assertJsonPath('message', __('message.order_change_invoice_pending', ['number' => $invoice->number]));
+        $this->deleteJson("/order/{$order->id}/entitlements/{$agents->id}")->assertStatus(400);
+
+        $this->assertSame('0005', substr((string) $order->fresh()->serial_key, -4));
+        $this->assertNull(resolve(\App\Services\AgentCountService::class)->override($order));
+    }
+
+    public function test_a_lower_cloud_agents_override_needs_the_tenant(): void
+    {
+        $order = $this->agentsOrder('0008', cloud: true); // no installation: the agents in use can't be checked
+
+        $this->putJson("/order/{$order->id}/entitlements/".EntitlementService::agents()->id, ['value' => '3'])
+            ->assertStatus(400)->assertJsonPath('message', __('message.installation_path_not_found'));
+        $this->assertNull(resolve(\App\Services\AgentCountService::class)->override($order));
+    }
+
+    public function test_plan_features_list_the_products_other_plans_to_copy_from(): void
+    {
+        $plan = Plan::factory()->create(['product' => $this->product->id, 'name' => 'B plan']);
+        $other = Plan::factory()->create(['product' => $this->product->id, 'name' => 'A plan']);
+        Plan::factory()->create(['product' => Product::factory()->create()->id]); // another product's
+
+        $this->getJson("/plan/{$plan->id}/entitlements")->assertOk()
+            ->assertJsonPath('data.other_plans', [['id' => $other->id, 'name' => 'A plan']]);
     }
 
     public function test_plan_save_includes_features_with_values_and_prices(): void
@@ -128,30 +272,56 @@ class EntitlementControllerTest extends DBTestCase
         $this->assertEquals(10, $row['prices']['INR']['unit_price']);
     }
 
-    public function test_plan_sets_its_included_agents_in_the_features_table_and_keeps_them_on_a_price_edit(): void
+    public function test_plan_save_treats_agents_as_any_number_feature(): void
     {
-        $product = Product::factory()->create(['show_agent' => 1]);
-        $plan = Plan::factory()->create(['product' => $product->id]);
-        \App\Model\Payment\PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'no_of_agents' => 5]);
-        $agents = \App\Services\EntitlementService::agents();
-
+        $plan = Plan::factory()->create(['product' => $this->product->id]);
+        \App\Model\Payment\PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR']);
+        $agents = EntitlementService::agents();
+        $save = fn (array $row) => $this->postJson("/plan/{$plan->id}/entitlements", ['entitlements' => [['id' => $agents->id, ...$row]]]);
+        $value = fn () => \Illuminate\Support\Facades\DB::table('plan_entitlements')->where('plan_id', $plan->id)->where('entitlement_id', $agents->id)->value('value');
         $row = fn () => collect($this->getJson("/plan/{$plan->id}/entitlements")->json('data.entitlements'))->firstWhere('id', $agents->id);
-        $this->assertSame('5', $row()['value']);
 
-        $this->postJson("/plan/{$plan->id}/entitlements", ['entitlements' => [['id' => $agents->id, 'mode' => 'included', 'value' => '-3']]])->assertStatus(412);
-        $this->postJson("/plan/{$plan->id}/entitlements", ['entitlements' => [['id' => $agents->id, 'mode' => 'included', 'value' => '10']]])->assertOk();
-        $this->assertSame('10', $row()['value']);
+        $save(['mode' => 'included', 'value' => '-3'])->assertStatus(412);
+        $save(['mode' => 'included', 'value' => '10000', 'prices' => ['INR' => ['unit_price' => 20]]])->assertStatus(412); // four license digits
 
-        $this->postJson("/plan/{$plan->id}/entitlements", ['entitlements' => [['id' => $agents->id, 'mode' => 'included', 'value' => null]]])->assertStatus(412); // a count or Unlimited
-        $this->postJson("/plan/{$plan->id}/entitlements", ['entitlements' => [['id' => $agents->id, 'mode' => 'included', 'unlimited' => true]]])->assertOk();
-        $this->assertSame('', $row()['value']); // unlimited
+        $save(['mode' => 'included', 'value' => '7', 'prices' => ['INR' => ['unit_price' => 20]]])->assertOk();
+        $this->assertSame('7', $value());
+        $this->assertSame('7', $row()['value']);
+        $this->assertArrayNotHasKey('unlimited', $row());
+        $this->assertArrayNotHasKey('agents', $row());
 
-        $this->postJson("/plan/{$plan->id}/entitlements", ['entitlements' => [['id' => $agents->id, 'mode' => 'included', 'value' => '7']]])->assertOk();
+        // Empty = unlimited, like any number feature: nothing more to sell.
+        $save(['mode' => 'included', 'value' => null, 'prices' => ['INR' => ['unit_price' => 20]]])->assertOk();
+        $this->assertDatabaseMissing('entitlement_prices', ['plan_id' => $plan->id, 'entitlement_id' => $agents->id]);
+        $this->assertDatabaseHas('plan_entitlements', ['plan_id' => $plan->id, 'entitlement_id' => $agents->id, 'value' => null]);
+        $this->assertNull($row()['value']);
+        $this->assertTrue(EntitlementService::unlimitedAgents($plan));
+
+        // Agents can't be optional: a per-agent plan needs a count on the license.
+        $save(['mode' => 'optional', 'value' => '3', 'prices' => ['INR' => ['unit_price' => 20]]])->assertOk();
+        $this->assertSame('3', $value());
         $this->patchJson("/plan/{$plan->id}", [
-            'name' => 'Renamed', 'product' => $product->id, 'status' => 0,
+            'name' => 'Renamed', 'product' => $this->product->id, 'status' => 0,
             'currency' => ['INR'], 'add_price' => [500], 'renew_price' => [400], 'offer_price' => [null],
         ])->assertOk();
-        $this->assertSame('7', $row()['value']); // a price edit keeps the agent count
+        $this->assertSame('3', $row()['value']); // a price edit keeps the agent count
+
+        $save(['mode' => 'none', 'prices' => ['INR' => ['unit_price' => 20]]])->assertOk();
+        $this->assertDatabaseMissing('plan_entitlements', ['plan_id' => $plan->id, 'entitlement_id' => $agents->id]);
+        $this->assertDatabaseMissing('entitlement_prices', ['plan_id' => $plan->id, 'entitlement_id' => $agents->id]);
+        $this->assertSame('none', $row()['mode']);
+    }
+
+    public function test_an_empty_number_feature_is_unlimited(): void
+    {
+        $storage = Entitlement::create([...$this->row(['code' => 'storage', 'type' => 'number', 'default_value' => '5'])]);
+        $plan = Plan::factory()->create(['product' => $this->product->id]);
+
+        $this->postJson("/plan/{$plan->id}/entitlements", ['entitlements' => [['id' => $storage->id, 'mode' => 'included', 'value' => '']]])->assertOk();
+
+        $this->assertDatabaseHas('plan_entitlements', ['plan_id' => $plan->id, 'entitlement_id' => $storage->id, 'value' => null]);
+        $this->assertNull(collect($this->getJson("/plan/{$plan->id}/entitlements")->json('data.entitlements'))->firstWhere('id', $storage->id)['value']);
+        $this->assertNull((new EntitlementService)->forPlan($this->product->id, $plan->id)['storage']); // the license gets no limit
     }
 
     public function test_optional_feature_needs_a_price_and_is_sold_but_not_included(): void
@@ -173,9 +343,8 @@ class EntitlementControllerTest extends DBTestCase
 
     public function test_plan_can_charge_for_every_agent(): void
     {
-        $product = Product::factory()->create(['show_agent' => 1]);
-        $plan = Plan::factory()->create(['product' => $product->id]);
-        $price = \App\Model\Payment\PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 1000, 'offer_price' => 0, 'no_of_agents' => 5]);
+        $plan = Plan::factory()->create(['product' => $this->product->id]);
+        $price = \App\Model\Payment\PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 1000, 'offer_price' => 0]);
         $agents = \App\Services\EntitlementService::agents();
 
         // 0 included needs an agent price in every currency.
@@ -184,11 +353,8 @@ class EntitlementControllerTest extends DBTestCase
             ['id' => $agents->id, 'mode' => 'included', 'value' => '0', 'prices' => ['INR' => ['unit_price' => 20]]],
         ]])->assertOk();
 
-        $price->refresh();
-        $this->assertSame('1', (string) $price->no_of_agents); // customers start at one agent, never 0000 (unlimited)
-        $sales = new \App\Services\EntitlementSalesService;
-        $this->assertSame(1020.0, $sales->planCost($price, 1, 'purchase'));
-        $this->assertSame(1100.0, $sales->planCost($price, 5, 'purchase'));
+        $this->assertSame(0, EntitlementService::includedAgents($plan));
+        $this->assertTrue($agents->fresh()->canBeSoldOn($plan)); // every agent is an Agents extra
         $row = collect($this->getJson("/plan/{$plan->id}/entitlements")->json('data.entitlements'))->firstWhere('id', $agents->id);
         $this->assertSame('0', $row['value']);
     }

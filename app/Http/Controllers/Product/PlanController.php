@@ -59,6 +59,7 @@ class PlanController extends ExtendedPlanController
         $sortColumns = [
             'name' => 'name',
             'days' => 'days',
+            'status' => 'status',
             'created_at' => 'created_at',
             'product' => Product::select('name')->whereColumn('products.id', 'plans.product'),
         ];
@@ -87,6 +88,7 @@ class PlanController extends ExtendedPlanController
         $plans->getCollection()->transform(fn ($plan): array => [
             'id' => $plan->id,
             'name' => $plan->name,
+            'status' => (int) $plan->status,
             'product' => $plan->productRelation?->name,
             'product_id' => $plan->product,
             'period' => $plan->periodLabel(),
@@ -142,9 +144,6 @@ class PlanController extends ExtendedPlanController
 
             // Insert pricing data
             if ($request->filled('add_price')) {
-                // Empty agents means unlimited. For a product sold by agents, start at 1 so a sale
-                // before the admin sets the real count (Features tab) isn't an unlimited license.
-                $agents = Product::whereKey($plan->product)->value('show_agent') ? 1 : null;
                 $priceData = collect((array) $request->add_price)->map(fn ($addPrice, $key): array => [
                     'plan_id' => $plan->id,
                     'currency' => $request->currency[$key],
@@ -152,7 +151,6 @@ class PlanController extends ExtendedPlanController
                     'renew_price' => $request->renew_price[$key],
                     'offer_price' => $request->offer_price[$key] ?: null,
                     'price_description' => $request->price_description,
-                    'no_of_agents' => $agents,
                 ])->all();
 
                 $plan->planPrice()->insert($priceData);
@@ -203,8 +201,6 @@ class PlanController extends ExtendedPlanController
 
             // Update plan prices
             if ($request->filled('add_price')) {
-                // Agents included are set in the plan's Features table: keep them across a price edit.
-                $agents = $plan->planPrice()->value('no_of_agents');
                 $plan->planPrice()->delete();
 
                 $priceData = collect((array) $request->add_price)->map(fn ($addPrice, $key): array => [
@@ -214,7 +210,6 @@ class PlanController extends ExtendedPlanController
                     'renew_price' => $request->renew_price[$key],
                     'offer_price' => $request->offer_price[$key] ?? null,
                     'price_description' => $request->price_description,
-                    'no_of_agents' => $agents,
                 ])->all();
 
                 $plan->planPrice()->insert($priceData);

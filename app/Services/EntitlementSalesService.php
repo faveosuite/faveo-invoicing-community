@@ -19,6 +19,7 @@ use App\User;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Logger;
 
 /**
  * Selling extras on top of a plan: more units of a number (storage, policies) or an on/off
@@ -29,8 +30,8 @@ use Illuminate\Validation\ValidationException;
  *  - Reducing or cancelling applies at the next renewal; nothing is refunded.
  *
  * The purchase invoice is deliberately NOT linked to the order through order_invoice_relations
- * (same as plan-change invoices): the renewal agent count is read from the newest invoice line
- * linked to an order, and an extras line must not become that line.
+ * (same as plan-change invoices): renewals and the order's invoice history read the newest
+ * linked invoice line, and an extras line must not become that line.
  */
 class EntitlementSalesService
 {
@@ -50,10 +51,11 @@ class EntitlementSalesService
             $quantity < 1 || $quantity > 9999 => 'extra_quantity_range',
             $item->type === 'boolean' && $quantity !== 1 => 'extra_quantity_range',
             $item->type === 'boolean' && ($owned || $this->hasOpenInvoice($order, $item)) => 'extra_already_owned',
+            $item->code === EntitlementService::AGENTS && $quantity > $this->agentsRoom($order) => 'extra_agents_max',
             default => null,
         };
         if ($reason) {
-            throw ValidationException::withMessages(['quantity' => __("message.$reason")]);
+            throw ValidationException::withMessages(['quantity' => __("message.$reason", ['max' => max(0, $this->agentsRoom($order))])]);
         }
 
         $currency = $this->currencyFor($order, $subscription);
@@ -78,62 +80,22 @@ class EntitlementSalesService
     }
 
     /**
-     * The plan's price for a number of agents. The plan price covers its included agents; each
-     * agent more or fewer is priced at the plan's Agents price (falls back to "plan price ÷
-     * included agents"). Unlimited plans and an unlimited choice (0 agents) are the plan price.
-     * A plan that pays for every agent charges its price plus all agents.
+     * The plan's own price, for the agents it includes: renew_price, or add_price less offer_price %.
+     * More agents are an Agents extra, priced on top like any extra.
      *
      * @param  'purchase'|'renewal'  $kind
      */
-    public function planCost(PlanPrice $planPrice, int $agents, string $kind): float
+    public function planPrice(PlanPrice $planPrice, string $kind): float
     {
-        $base = $kind === 'renewal'
+        return $kind === 'renewal'
             ? (float) $planPrice->renew_price
             : (float) $planPrice->add_price * (1 - (float) ($planPrice->offer_price ?? 0) / 100);
-
-        if (EntitlementService::paysForEveryAgent($planPrice->plan)) {
-            return $base + max(1, $agents) * (float) $this->agentUnitPrice($planPrice, $kind);
-        }
-
-        $included = (int) $planPrice->no_of_agents;
-        if ($agents <= 0 || $included <= 0 || $agents === $included) {
-            return $base;
-        }
-
-        $share = $base / $included; // what one included agent is worth in the plan price
-        $unit = $this->agentUnitPrice($planPrice, $kind) ?? $share;
-        if ($agents < $included) {
-            // Fewer agents take off at most each agent's share, so the line never drops below 0
-            // (an agent price above the share would make it negative and discount the rest of the cart).
-            $unit = min($unit, $share);
-        }
-
-        return $base + ($agents - $included) * $unit;
     }
 
-    /**
-     * One agent's price on this plan in its currency (the plan's Agents price).
-     *
-     * @param  'purchase'|'renewal'|'list'  $kind
-     */
-    public function agentUnitPrice(PlanPrice $planPrice, string $kind): ?float
+    /** How many more agents the license code's four digits can hold (10000 would read as 0000, unlimited). */
+    private function agentsRoom(Order $order): int
     {
-        $plan = $planPrice->plan;
-        if (! $plan) {
-            return null;
-        }
-
-        return Entitlement::with('prices')->where('code', EntitlementService::AGENTS)->first()
-            ?->priceIn((string) $planPrice->currency, $plan, $kind);
-    }
-
-    /**
-     * Whether this plan price can be charged. A plan that charges for every agent needs an agent
-     * price in the currency: without one each agent would cost 0, so any number would be free.
-     */
-    public function canPrice(PlanPrice $planPrice): bool
-    {
-        return ! EntitlementService::paysForEveryAgent($planPrice->plan) || $this->agentUnitPrice($planPrice, 'purchase') !== null;
+        return 9999 - resolve(AgentCountService::class)->total($order);
     }
 
     /** Creates the unpaid invoice for buying extras. Paying it runs fulfil(). */
@@ -228,15 +190,45 @@ class EntitlementSalesService
             $extra->save();
 
             $invoice->update(['metadata' => [...$meta, 'applied' => true]]);
+
+            if (Entitlement::whereKey($extra->entitlement_id)->value('code') === EntitlementService::AGENTS) {
+                $this->writeAgentCount($extra->order_id);
+            }
         });
     }
 
     /**
-     * The extras invoice is paid but can't be applied: its payment goes to the customer's credit.
+     * After commit, puts the order's new agent count in its license (and cloud tenant). The extra
+     * is already saved and paid for: a failed write is logged for an admin to fix, not undone.
+     */
+    private function writeAgentCount(int $orderId): void
+    {
+        DB::afterCommit(function () use ($orderId): void {
+            $order = Order::find($orderId);
+            if (! $order || ! $order->serial_key) {
+                return; // no license to carry the count
+            }
+            $agents = resolve(AgentCountService::class);
+            $total = $agents->total($order);
+            try {
+                // 0 would be written as 0000, which means unlimited: never the result of a sale or reduction.
+                if ($total < 1) {
+                    throw new \RuntimeException('agent count would be 0 (unlimited)');
+                }
+                $agents->write($order, $total);
+            } catch (\Throwable $throwable) {
+                Logger::exception(new \Exception(sprintf('Agents changed on order %d but its license was not updated: %s', $orderId, $throwable->getMessage()), 0, $throwable));
+            }
+        });
+    }
+
+    /**
+     * A paid invoice that can't be applied (a stale extras invoice, or an old-style agent change):
+     * its payment goes to the customer's credit.
      *
      * @param  array<string, mixed>  $meta
      */
-    private function creditInstead(Invoice $invoice, array $meta, string $reason): void
+    public function creditInstead(Invoice $invoice, array $meta, string $reason): void
     {
         DB::transaction(function () use ($invoice, $meta, $reason): void {
             resolve(CreditBalanceService::class)->grant(
@@ -250,11 +242,19 @@ class EntitlementSalesService
     /** An unpaid invoice already raised for this extra on this order. */
     private function hasOpenInvoice(Order $order, Entitlement $item): bool
     {
-        return Invoice::where('status', '!=', 'success')
+        return $this->openInvoiceNumber($order, $item) !== null;
+    }
+
+    /** The number of an unpaid invoice already raised for this extra on this order, or null. */
+    public function openInvoiceNumber(Order $order, Entitlement $item): ?string
+    {
+        $number = Invoice::where('status', '!=', 'success')
             ->where('metadata->type', self::INVOICE_TYPE)
             ->where('metadata->order_id', $order->id)
             ->where('metadata->entitlement_id', $item->id)
-            ->exists();
+            ->value('number');
+
+        return $number === null ? null : (string) $number;
     }
 
     /**
@@ -281,8 +281,14 @@ class EntitlementSalesService
     {
         $extra = OrderEntitlement::where('order_id', $order->id)->where('entitlement_id', $item->id)->firstOrFail();
         $max = $item->type === 'boolean' ? 1 : $extra->quantity;
-        if ($quantity < 0 || $quantity > $max) {
-            throw ValidationException::withMessages(['quantity' => __('message.extra_reduce_range', ['max' => $max])]);
+        $min = match (true) {
+            $extra->quantity < 0 => $extra->quantity, // a "fewer" extra (seeded): customers can't take more off
+            // A plan including no agents keeps one: the license needs a count (0000 is unlimited).
+            EntitlementService::isAgents($item) && EntitlementService::includedAgents(Plan::find((int) Subscription::where('order_id', $order->id)->value('plan_id'))) === 0 => 1,
+            default => 0,
+        };
+        if ($quantity < $min || $quantity > $max) {
+            throw ValidationException::withMessages(['quantity' => __('message.extra_reduce_range', ['min' => $min, 'max' => $max])]);
         }
 
         $extra->renew_quantity = $quantity === $extra->quantity ? null : $quantity;
@@ -294,30 +300,61 @@ class EntitlementSalesService
     /** At renewal, reductions and cancellations take effect. */
     public function applyPendingReductions(int $orderId): void
     {
+        $agentsId = EntitlementService::agents()->id;
+        $agentsChanged = false;
         foreach (OrderEntitlement::where('order_id', $orderId)->whereNotNull('renew_quantity')->get() as $extra) {
             $extra->renew_quantity === 0
                 ? $extra->delete()
                 : $extra->update(['quantity' => $extra->renew_quantity, 'renew_quantity' => null]);
+            $agentsChanged = $agentsChanged || $extra->entitlement_id === $agentsId;
+        }
+
+        if ($agentsChanged) {
+            $this->writeAgentCount($orderId);
         }
     }
 
     /** What the order's extras add to one renewal, in the renewal's currency and billing period. */
     public function renewalCost(int $orderId, string $currency, ?Plan $plan): float
     {
-        $periodId = $plan?->periodId();
-        $total = 0.0;
-        foreach ($this->billableExtras($orderId, $plan) as $extra) {
-            $total += $this->extraUnitPrice($extra, $currency, $plan, $periodId) * $extra->renewingQuantity();
-        }
-
-        return round($total, 2);
+        return round(array_sum(array_map(
+            fn (array $extra): float => $extra['unit_price'] * $extra['quantity'],
+            $this->renewalExtras($orderId, $currency, $plan),
+        )), 2);
     }
 
     /**
-     * What the order's extras are worth for one full period of $plan: the plan-change price
-     * compares old and new plan *with* their extras, so an upgrade pays for the extras' new term
-     * and a downgrade credits their unused part. On/off extras the plan already includes are
-     * worth nothing there (carryExtras drops them).
+     * The extras one renewal bills, as the renewal invoice line lists them. A negative extra (less
+     * than the plan includes) reads "Fewer <feature> −n" and takes its price off.
+     *
+     * @return list<array{entitlement_id: int, label: string, quantity: int, unit_price: float}>
+     */
+    public function renewalExtras(int $orderId, string $currency, ?Plan $plan): array
+    {
+        $periodId = $plan?->periodId();
+        $rows = [];
+        foreach ($this->billableExtras($orderId, $plan) as $extra) {
+            $quantity = $extra->renewingQuantity();
+            if ($quantity === 0) {
+                continue;
+            }
+            $rows[] = [
+                'entitlement_id' => $extra->entitlement_id,
+                'label' => $quantity < 0
+                    ? __('message.extra_fewer', ['label' => $extra->entitlement->label, 'count' => -$quantity])
+                    : $extra->entitlement->label,
+                'quantity' => $quantity,
+                'unit_price' => $this->extraUnitPrice($extra, $currency, $plan, $periodId),
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * What the order's extras are worth for one full period of its own $plan: the plan-change
+     * price compares old and new plan *with* their extras, so a downgrade credits only what was
+     * actually paid. On/off extras the plan already includes are worth nothing.
      */
     public function extrasValue(Order $order, string $currency, ?Plan $plan): float
     {
@@ -325,6 +362,27 @@ class EntitlementSalesService
         $total = 0.0;
         foreach ($this->billableExtras($order->id, $plan) as $extra) {
             $total += $this->extraUnitPrice($extra, $currency, $plan, $periodId) * $extra->quantity;
+        }
+
+        return round($total, 2);
+    }
+
+    /**
+     * What the order's extras will be worth for one full period of $to, the plan it moves to: the
+     * number extras it carries there ({@see carriedNumbers()}) at $to's purchase price, plus its
+     * on/off extras $to doesn't include.
+     */
+    public function movedExtrasValue(Order $from, Plan $to, string $currency): float
+    {
+        $periodId = $to->periodId();
+        $total = 0.0;
+        foreach ($this->billableExtras($from->id, $to)->where('entitlement.type', 'boolean') as $extra) {
+            $total += $this->extraUnitPrice($extra, $currency, $to, $periodId) * $extra->quantity;
+        }
+        foreach ($this->carriedNumbers($from, $to, $currency) as $row) {
+            if ($row['sold']) {
+                $total += (float) $row['item']->priceIn($currency, $to) * $row['quantity'];
+            }
         }
 
         return round($total, 2);
@@ -366,8 +424,9 @@ class EntitlementSalesService
     }
 
     /**
-     * Moves extras to the order that replaces this one (plan upgrade or downgrade), except on/off
-     * features the new plan already switches on.
+     * Moves extras to the order that replaces this one (plan upgrade or downgrade). Number extras
+     * follow {@see carriedNumbers()}; one the new plan doesn't sell is dropped and logged. On/off
+     * extras move unless the new plan already switches them on.
      */
     public function carryExtras(Order $from, Order $to, EntitlementService $entitlements): void
     {
@@ -377,8 +436,8 @@ class EntitlementSalesService
 
         foreach (OrderEntitlement::with('entitlement.prices')->where('order_id', $from->id)->get() as $extra) {
             $item = $extra->entitlement;
-            if ($item->type === 'boolean' && ($planValues[$item->code] ?? false) === true) {
-                continue; // the new plan already includes it
+            if ($item->type !== 'boolean' || ($planValues[$item->code] ?? false) === true) {
+                continue; // numbers below; an on/off feature the new plan already includes
             }
 
             // The new plan's renewal price applies from now on; without one, the old price is kept.
@@ -390,6 +449,58 @@ class EntitlementSalesService
                     : [...$extra->only(['quantity', 'renew_quantity', 'currency']), 'unit_price' => (string) $newPrice, 'period_id' => $newPlan?->periodId()],
             );
         }
+
+        $currency = $this->currencyFor($to, Subscription::where('order_id', $to->id)->first());
+        foreach ($this->carriedNumbers($from, $newPlan, $currency) as $row) {
+            if (! $row['sold']) {
+                if ($row['bought'] > 0) { // paid units lost
+                    Logger::exception(new \RuntimeException(sprintf('Plan change from order %d to order %d dropped %d %s: the new plan does not sell it in %s',
+                        $from->id, $to->id, $row['bought'], $row['item']->label, $currency)));
+                }
+
+                continue;
+            }
+            OrderEntitlement::updateOrCreate(
+                ['order_id' => $to->id, 'entitlement_id' => $row['item']->id],
+                ['quantity' => $row['quantity'], 'renew_quantity' => $row['renew_quantity'] === $row['quantity'] ? null : $row['renew_quantity'],
+                    'unit_price' => (string) $row['item']->priceIn($currency, $newPlan, 'renewal'), 'currency' => $currency, 'period_id' => $newPlan?->periodId()],
+            );
+        }
+    }
+
+    /**
+     * The number extras the order keeps when it moves to $to: what the customer bought, as is. The
+     * old plan's own amount doesn't move (a 100 GB plan moved to a 50 GB plan gets 50 GB), and a
+     * "fewer" (negative) extra is dropped: the new plan's own price applies. Nothing when $to
+     * includes the feature without limit. `sold` = $to sells it in $currency, otherwise it can't be
+     * billed there and is dropped. Agents: a plan including none keeps at least one (the license
+     * needs a count), and an order an admin gave unlimited agents carries none (its override
+     * carries over instead).
+     *
+     * @return list<array{item: Entitlement, quantity: int, renew_quantity: int, sold: bool, bought: int}>
+     */
+    public function carriedNumbers(Order $from, ?Plan $to, string $currency): array
+    {
+        $new = $to ? $to->entitlements()->pluck('plan_entitlements.value', 'entitlements.id') : collect();
+        $agentCount = resolve(AgentCountService::class);
+        $agentsId = EntitlementService::agents()->id;
+        $agentsFloor = $new->has($agentsId) && $new[$agentsId] === '0' && ! $agentCount->hasOverride($from);
+
+        $extras = OrderEntitlement::where('order_id', $from->id)->where('quantity', '>', 0)->get()->keyBy('entitlement_id');
+        $ids = $extras->keys()->when($agentsFloor, fn ($ids) => $ids->push($agentsId));
+        $rows = [];
+        foreach (Entitlement::with('prices')->where('type', 'number')->whereIn('id', $ids->unique())->orderBy('sort')->orderBy('id')->get() as $item) {
+            $isAgents = $item->id === $agentsId;
+            if (($new->has($item->id) && $new[$item->id] === null) || ($isAgents && $agentCount->unlimited($from))) {
+                continue; // unlimited on the new plan, or by the admin's override: nothing to pay for
+            }
+            $extra = $extras->get($item->id);
+            $floor = $isAgents && $agentsFloor ? 1 : 0;
+            $rows[] = ['item' => $item, 'quantity' => max($floor, $extra->quantity ?? 0), 'renew_quantity' => max($floor, $extra?->renewingQuantity() ?? 0),
+                'sold' => $item->canBeSoldOn($to) && $item->priceIn($currency, $to, 'renewal') !== null, 'bought' => $extra->quantity ?? 0];
+        }
+
+        return $rows;
     }
 
     /**
@@ -415,15 +526,23 @@ class EntitlementSalesService
                 continue;
             }
 
+            // The same rules as buying it, so the page never offers what the purchase then refuses.
+            $why = match (true) {
+                $item->type === 'boolean' && $owned !== null => 'extra_already_owned',
+                default => $this->whyNotSellable($order, $item) ?? ($item->priceIn($currency, $plan) === null ? 'extra_no_price' : null),
+            };
             $rows[] = [
                 'id' => $item->id,
                 'label' => $item->label,
                 'type' => $item->type,
                 'quantity' => $owned ? $owned->quantity : 0,
                 'renew_quantity' => $owned ? $owned->renewingQuantity() : 0,
+                // What it costs each billing period (the list says so); buying today's share is quoted on Add.
                 'unit_price' => $owned && $owned->currency === $currency && $owned->period_id === $periodId ? (float) $owned->unit_price : $item->priceIn($currency, $plan, 'renewal'),
                 'currency' => $currency,
-                'can_buy' => $item->canBeSoldOn($plan) && $item->priceIn($currency, $plan) !== null && ! ($item->type === 'boolean' && $owned),
+                'can_buy' => $why === null,
+                // Shown next to an owned add-on that can't be bought more of (not for one already owned on/off).
+                'reason' => $why === null || $why === 'extra_already_owned' ? null : __("message.$why", ['currency' => $currency]),
             ];
         }
 
@@ -433,21 +552,30 @@ class EntitlementSalesService
     /** The order's active subscription, or why extras can't be bought for it. */
     private function sellableSubscription(Order $order, Entitlement $item): Subscription
     {
-        $subscription = Subscription::where('order_id', $order->id)->first();
-
-        $reason = match (true) {
-            $order->order_status === 'Terminated' || ! $subscription => 'extra_order_inactive',
-            ! $item->canBeSoldOn(Plan::find($subscription->plan_id)) => 'extra_not_for_sale',
-            ! $subscription->termEndsAt() || $subscription->termEndsAt()->isPast() => 'extra_order_expired',
-            CloudProducts::where('cloud_free_plan', $subscription->plan_id)->exists() => 'extra_free_trial',
-            default => null,
-        };
-
+        $reason = $this->whyNotSellable($order, $item);
         if ($reason) {
             throw ValidationException::withMessages(['entitlement_id' => __("message.$reason")]);
         }
 
-        return $subscription;
+        return Subscription::where('order_id', $order->id)->firstOrFail();
+    }
+
+    /** Why this extra can't be bought for the order right now (a message key), or null when it can. */
+    private function whyNotSellable(Order $order, Entitlement $item): ?string
+    {
+        $subscription = Subscription::where('order_id', $order->id)->first();
+
+        return match (true) {
+            $order->order_status === 'Terminated' || ! $subscription => 'extra_order_inactive',
+            ! $item->canBeSoldOn(Plan::find($subscription->plan_id)) => 'extra_not_for_sale',
+            // Unlimited by override, or on the license itself: bought agents would only lower it.
+            EntitlementService::isAgents($item) && (resolve(AgentCountService::class)->unlimited($order) || resolve(AgentCountService::class)->licenseUnlimited($order)) => 'extra_agents_unlimited',
+            // An admin's count replaces the order's: bought agents would change nothing.
+            EntitlementService::isAgents($item) && resolve(AgentCountService::class)->hasOverride($order) => 'extra_agents_overridden',
+            ! $subscription->termEndsAt() || $subscription->termEndsAt()->isPast() => 'extra_order_expired',
+            CloudProducts::where('cloud_free_plan', $subscription->plan_id)->exists() => 'extra_free_trial',
+            default => null,
+        };
     }
 
     private function currencyFor(Order $order, ?Subscription $subscription): string

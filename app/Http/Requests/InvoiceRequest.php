@@ -34,6 +34,9 @@ class InvoiceRequest extends FormRequest
             'plan' => ['required_if:subscription,true'],
             'price' => ['required'],
             'product' => ['required'],
+            // {"<entitlement id>": quantity} — extras sold with the plan.
+            'extras' => ['sometimes', 'array'],
+            'extras.*' => ['integer', 'min:0', 'max:9999'],
         ];
     }
 

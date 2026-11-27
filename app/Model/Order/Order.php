@@ -11,6 +11,8 @@ use App\License\Models\LicenseCallback;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Policies\OrderPolicy;
+use App\Services\EntitlementSalesService;
+use App\Services\EntitlementService;
 use App\Services\Payment\AutoRenewalActivationService;
 use App\Traits\SystemActivityLogsTrait;
 use App\User;
@@ -225,7 +227,9 @@ class Order extends BaseModel
         $number = Invoice::where('status', '!=', 'success')
             ->where(fn ($q) => $q
                 ->where(fn ($q) => $q->where('metadata->type', 'upgrade_downgrade')->where('metadata->old_order_id', $this->id))
-                ->orWhere(fn ($q) => $q->where('metadata->type', 'agent_alteration')->where('metadata->order_id', $this->id)))
+                ->orWhere(fn ($q) => $q->where('metadata->type', 'agent_alteration')->where('metadata->order_id', $this->id))
+                ->orWhere(fn ($q) => $q->where('metadata->type', EntitlementSalesService::INVOICE_TYPE)->where('metadata->order_id', $this->id)
+                    ->where('metadata->entitlement_id', EntitlementService::agents()->id)))
             ->value('number');
 
         return $number === null ? null : (string) $number;

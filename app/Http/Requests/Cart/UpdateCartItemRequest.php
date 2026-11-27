@@ -29,7 +29,6 @@ class UpdateCartItemRequest extends FormRequest
     {
         return [
             'quantity' => ['sometimes', 'integer', 'min:1'],
-            'agents' => ['sometimes', 'integer', 'min:1', 'max:9999'], // 4 license-code digits; more would read as 0000 = unlimited
             // {"<entitlement id>": quantity} — extras bought with the plan (0 removes one).
             'extras' => ['sometimes', 'array'],
             'extras.*' => ['integer', 'min:0', 'max:9999'],

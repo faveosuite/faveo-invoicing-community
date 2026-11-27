@@ -98,7 +98,7 @@ describe('ProductCreate.vue', () => {
         Object.assign(wrapper.vm.form, {
             name: 'P', product_type: 'addon', config_file_path: 'c', license_file_path: null, product_path: 'pp',
             group: 3, parent: null, description: 'd', short_description: 's', product_description: 'pd', product_sku: 'SKU',
-            show_agent: true, highlight: 0, add_to_contact: 1, can_modify_agent: false, can_modify_quantity: true,
+            highlight: 0, add_to_contact: 1, can_modify_quantity: true,
             require_domain: null, hidden: 1, invoice_hidden: 0, whatsapp_integration: true, tax_status: 1, tax_class_id: 7,
         })
 
@@ -110,7 +110,7 @@ describe('ProductCreate.vue', () => {
             ['name', 'P'], ['product_type', 'addon'], ['config_file_path', 'c'], ['license_file_path', ''],
             ['product_path', 'pp'], ['group', '3'], ['parent', ''], ['description', 'd'], ['short_description', 's'],
             ['product_description', 'pd'], ['product_sku', 'SKU'],
-            ['show_agent', '1'], ['highlight', '0'], ['add_to_contact', '1'], ['can_modify_agent', '0'],
+            ['highlight', '0'], ['add_to_contact', '1'],
             ['can_modify_quantity', '1'], ['require_domain', '0'], ['hidden', '1'], ['invoice_hidden', '0'],
             ['whatsapp_integration', '1'], ['tax_status', '1'], ['tax_class_id', '7'],
         ])

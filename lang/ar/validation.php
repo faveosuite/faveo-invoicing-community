@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => 'يجب أن يكون رمز المنتج فريدًا.',
     'product_name_unique' => 'يجب أن يكون الاسم فريدًا.',
-    'product_show_agent_required' => 'يرجى تحديد تفضيل صفحة السلة.',
     'config_file_path_regex' => 'يجب أن يكون مسارًا نسبيًا بدون ../ مقاطع.',
     'license_file_path_regex' => 'يجب أن يكون مسارًا نسبيًا بدون ../ مقاطع.',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => 'يجب ألا يتجاوز حجم الصورة 2048 كيلوبايت.',
         'product_sku_required' => 'رمز المنتج مطلوب.',
         'group_required' => 'مجموعة المنتج مطلوبة.',
-        'show_agent_required' => 'يرجى تحديد تفضيل صفحة السلة.',
     ],
     'current_domain_required' => 'اسم النطاق الحالي مطلوب.',
     'new_domain_required' => 'اسم النطاق الجديد مطلوب.',

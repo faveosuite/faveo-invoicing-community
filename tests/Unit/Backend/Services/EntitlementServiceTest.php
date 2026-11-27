@@ -22,7 +22,7 @@ class EntitlementServiceTest extends DBTestCase
     {
         parent::setUp();
         $this->service = new EntitlementService;
-        $this->product = Product::factory()->create(['show_agent' => 1]);
+        $this->product = Product::factory()->create();
     }
 
     private function item(string $code, string $type, ?string $default, array $extra = []): Entitlement
@@ -53,11 +53,11 @@ class EntitlementServiceTest extends DBTestCase
         $this->item('chat', 'boolean', '1'); // not on the plan: not sent
 
         $plan = Plan::factory()->create(['product' => $this->product->id]);
-        \App\Model\Payment\PlanPrice::factory()->create(['plan_id' => $plan->id, 'no_of_agents' => 5]); // agents come from the plan's Pricing
-        $plan->entitlements()->attach([$sla->id => ['value' => '1'], $region->id => ['value' => 'EU'], $storage->id => ['value' => null], $old->id => ['value' => '1']]);
+        $plan->entitlements()->attach([$sla->id => ['value' => '1'], $region->id => ['value' => 'EU'], $storage->id => ['value' => null], $old->id => ['value' => '1'],
+            EntitlementService::agents()->id => ['value' => '5']]);
 
         $this->assertSame(
-            ['sla' => true, 'region' => 'EU', 'storage' => 10, 'agents' => 5],
+            ['sla' => true, 'region' => 'EU', 'storage' => null, 'agents' => 5], // an empty number is unlimited
             $this->service->forPlan($this->product->id, $plan->id),
         );
     }
@@ -97,7 +97,7 @@ class EntitlementServiceTest extends DBTestCase
         $plan->entitlements()->attach($storage->id, ['value' => '40']);
 
         $this->assertSame(1, $this->service->applyPlanToLicenses($plan));
-        $this->assertEquals(['storage' => '40', 'agents' => '-1'], $this->grantsOf($liveLicense, 'plan'));
+        $this->assertEquals(['storage' => '40'], $this->grantsOf($liveLicense, 'plan'));
         $this->assertSame([], $this->grantsOf($deadLicense, 'plan'));
     }
 
@@ -156,15 +156,25 @@ class EntitlementServiceTest extends DBTestCase
         );
     }
 
-    public function test_plan_with_no_agent_count_gives_unlimited_agents(): void
+    public function test_an_unlimited_plan_stays_unlimited_with_bought_units_and_an_unlimited_override_wins(): void
     {
-        $plan = Plan::factory()->create(['product' => $this->product->id]);
-        \App\Model\Payment\PlanPrice::factory()->create(['plan_id' => $plan->id, 'no_of_agents' => 0]);
+        $storage = $this->item('storage', 'number', '10');
+        $mailboxes = $this->item('mailboxes', 'number', '1');
+        $order = Order::factory()->create(['product' => $this->product->id, 'number' => 999003]);
+        $license = $this->license(999003);
+        $this->planGrants($license, ['storage' => null, 'mailboxes' => '2']); // storage unlimited on the plan
+        \App\Model\Order\OrderEntitlement::create(['order_id' => $order->id, 'entitlement_id' => $storage->id, 'quantity' => 5, 'unit_price' => 2, 'currency' => 'USD']);
+        $this->service->setOverride($license, $mailboxes, null, null);
 
-        $this->assertSame(['agents' => EntitlementService::UNLIMITED], $this->service->forPlan($this->product->id, $plan->id));
+        $this->assertSame(['storage' => null, 'mailboxes' => null], $this->service->resolve($license->fresh()));
+        $this->assertSame(['storage' => null, 'mailboxes' => null], $this->service->payload($license->fresh())['limits']);
+    }
+
+    public function test_unlimited_agents_on_the_code_resolve_as_unlimited(): void
+    {
         EntitlementService::agents();
         $license = $this->license(123456, 'ABCDEFGHIJKL0000');
-        $this->assertSame(EntitlementService::UNLIMITED, $this->service->resolve($license)['agents']);
+        $this->assertNull($this->service->resolve($license)['agents']); // 0000: unlimited
     }
 
     public function test_normalize_rejects_values_that_do_not_fit_the_type(): void
@@ -318,5 +328,42 @@ class EntitlementServiceTest extends DBTestCase
 
         $extra->delete();
         $this->assertSame([], $this->grantsOf($license, Grant::EXTRA));
+    }
+
+    /** A plan with the Agents row of $value, or without the row when $value is false. */
+    private function agentsPlan(string|false|null $value): Plan
+    {
+        $plan = Plan::factory()->create(['product' => $this->product->id]);
+        if ($value !== false) {
+            $plan->entitlements()->attach(EntitlementService::agents()->id, ['value' => $value]);
+        }
+
+        return $plan;
+    }
+
+    public function test_included_agents_come_from_the_plans_agents_row(): void
+    {
+        $five = $this->agentsPlan('5');
+        $this->assertSame(5, EntitlementService::includedAgents($five));
+        $this->assertTrue(EntitlementService::perAgent($five));
+        $this->assertFalse(EntitlementService::unlimitedAgents($five));
+
+        $this->assertSame(0, EntitlementService::includedAgents($this->agentsPlan('0')));
+
+        $unlimited = $this->agentsPlan(null);
+        $this->assertNull(EntitlementService::includedAgents($unlimited));
+        $this->assertTrue(EntitlementService::unlimitedAgents($unlimited));
+
+        $flat = $this->agentsPlan(false);
+        $this->assertFalse(EntitlementService::perAgent($flat));
+        $this->assertNull(EntitlementService::includedAgents($flat));
+        $this->assertFalse(EntitlementService::unlimitedAgents($flat));
+    }
+
+    public function test_for_plan_gives_agents_only_to_per_agent_plans(): void
+    {
+        $this->assertSame(['agents' => 5], $this->service->forPlan($this->product->id, $this->agentsPlan('5')->id));
+        $this->assertSame(['agents' => null], $this->service->forPlan($this->product->id, $this->agentsPlan(null)->id));
+        $this->assertArrayNotHasKey('agents', $this->service->forPlan($this->product->id, $this->agentsPlan(false)->id));
     }
 }

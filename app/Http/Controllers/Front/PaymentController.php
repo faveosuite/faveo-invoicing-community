@@ -8,6 +8,7 @@ use App\Model\Order\InvoiceTaxLine;
 use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Currency;
+use App\Model\Payment\Plan;
 use App\Model\Payment\TaxOption;
 use App\Model\Product\Product;
 use App\Services\EntitlementSalesService;
@@ -17,6 +18,7 @@ use App\Services\Payment\ProcessingFee;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Throwable;
+use App\Services\EntitlementService;
 
 /**
  * Invoice-driven SPA payment (HTTP layer).
@@ -71,8 +73,8 @@ class PaymentController extends Controller
             'items' => $items->map(function ($item) use ($model) {
                 $data = $item->toArray();
                 $product = Product::find($item->product_id);
-                // Only per-agent products show an agent count (not extras lines or service products).
-                $data['agents'] = $model->type === EntitlementSalesService::INVOICE_TYPE || ! $product?->show_agent
+                // Only per-agent plans show an agent count (not extras lines or flat-price plans).
+                $data['agents'] = $model->type === EntitlementSalesService::INVOICE_TYPE || ! EntitlementService::perAgent(Plan::find($item->plan_id))
                     ? null
                     : agentCount($item->agents);
                 $data['image'] = $product?->image;

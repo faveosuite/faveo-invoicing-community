@@ -29,9 +29,11 @@ use Illuminate\Support\Facades\DB;
  * again. Features with no grant aren't sent. The license's dates are grants too (run, updates,
  * support), kept in step with its date columns. Each change bumps licenses.version.
  *
- * `agents` is special: the plan's Pricing sets how many are included, the agent count lives
- * in the license code's last four digits (installed helpdesks read it there) and changes only
- * through the paid agent flow, so a license always reads it from the code. UNLIMITED (-1) means no limit.
+ * `agents` is special: the plan's Agents row sets how many are included, the agent count lives
+ * in the license code's last four digits (installed helpdesks read it there) and is written only by
+ * AgentCountService (extras bought, an admin's override), so a license always reads it from the code.
+ * A number with an empty value (null) means no limit, everywhere: plan, override, payload
+ * (agents: 0000 in the license code).
  */
 class EntitlementService
 {
@@ -46,12 +48,9 @@ class EntitlementService
     /** A product keeps working on its saved record this long when billing can't be reached. */
     public const int VALID_DAYS = 30;
 
-    /** Number value meaning "no limit" (agents: 0000 in the license code). */
-    public const int UNLIMITED = -1;
-
     /**
-     * What a plan gives: the active features it includes, at its value or the feature's default.
-     * Per-agent products also get the plan's agents.
+     * What a plan gives: the active features it includes, at its value or the feature's default
+     * (an empty number is unlimited: null). Per-agent plans also give their agents.
      *
      * @return array<string, bool|int|string|null>
      */
@@ -66,11 +65,12 @@ class EntitlementService
         $result = [];
         foreach (Entitlement::whereIn('id', $values->keys())->where('is_active', true)->orderBy('sort')->orderBy('id')->get() as $item) {
             if (! self::isAgents($item) && $item->type !== 'date') { // dates are grants of their own (dateEnds)
-                $result[$item->code] = $item->cast($values[$item->id] ?? $item->default_value);
+                // A number left empty is unlimited; anything else empty takes the feature's default.
+                $result[$item->code] = $item->cast($item->type === 'number' ? $values[$item->id] : ($values[$item->id] ?? $item->default_value));
             }
         }
-        if (Product::whereKey($productId)->value('show_agent')) {
-            $result[self::AGENTS] = self::planAgents($plan);
+        if (self::perAgent($plan)) {
+            $result[self::AGENTS] = self::includedAgents($plan); // null: unlimited
         }
 
         return $result;
@@ -82,26 +82,34 @@ class EntitlementService
     }
 
     /**
-     * The plan charges for every agent, none included. Marked by an agents row on the plan (value
-     * 0); its agent count (plan_prices.no_of_agents) is then 1 so customers start at one agent —
-     * a license code ending 0000 would mean unlimited.
+     * The plan is sold by agents: it has the Agents row on its Features tab. Without it the plan
+     * has a flat price and no agents.
      */
-    public static function paysForEveryAgent(?Plan $plan): bool
+    public static function perAgent(?Plan $plan): bool
     {
         return $plan !== null && $plan->entitlements()->where('code', self::AGENTS)->exists();
     }
 
-    /** The agents a plan starts with (plan_prices.no_of_agents); 0 there means unlimited, sent as UNLIMITED. */
-    public static function planAgents(Plan $plan): int
+    /**
+     * Agents the plan's price includes, from its Agents row: N, or 0 when every agent is paid.
+     * Null when the plan isn't sold by agents or includes unlimited agents — tell them apart with perAgent().
+     */
+    public static function includedAgents(?Plan $plan): ?int
     {
-        $agents = (int) $plan->planPrice()->value('no_of_agents');
+        $value = $plan?->entitlements()->where('code', self::AGENTS)->value('plan_entitlements.value');
 
-        return $agents > 0 ? $agents : self::UNLIMITED;
+        return $value === null ? null : (int) $value;
+    }
+
+    /** The plan is sold by agents and includes any number of them. */
+    public static function unlimitedAgents(?Plan $plan): bool
+    {
+        return self::perAgent($plan) && self::includedAgents($plan) === null;
     }
 
     /**
-     * The built-in Agents feature. Its value comes from the plan's Pricing (No. of Agents) and
-     * the license code; plans set its per-agent price. It can't be removed.
+     * The built-in Agents feature. Plans set how many they include (their Agents row) and the
+     * per-agent price; a license reads its count from the code. It can't be removed.
      */
     public static function agents(): Entitlement
     {
@@ -262,7 +270,9 @@ class EntitlementService
     /**
      * Every item that applies to the license, with where its value comes from.
      *
-     * @return list<array{item: Entitlement, plan: bool|int|string|null, extra: int, override: string|null, until: string|null, value: bool|int|string|null, locked: bool}>
+     * A number's null value is unlimited; `overridden` tells an override of unlimited (null) from none.
+     *
+     * @return list<array{item: Entitlement, plan: bool|int|string|null, in_plan: bool, extra: int, overridden: bool, override: string|null, until: string|null, value: bool|int|string|null, locked: bool}>
      */
     public function rows(License|Subscription $owner): array
     {
@@ -272,9 +282,9 @@ class EntitlementService
         $base = ($grants[Grant::PLAN] ?? collect())->pluck('value', 'code')->all();
         $extras = ($grants[Grant::EXTRA] ?? collect())->pluck('value', 'code')->all();
         $overrides = ($grants[Grant::ADMIN] ?? collect())->mapWithKeys(fn (Grant $g): array => [
-            $g->code => ['value' => (string) $g->value, 'until' => $g->ends_at?->toDateString()],
+            $g->code => ['value' => $g->value, 'until' => $g->ends_at?->toDateString()],
         ])->all();
-        $agents = $owner instanceof License ? $this->agentsFromCode($owner->license_code) : null;
+        $agents = $owner instanceof License ? $this->agentDigits($owner->license_code) : null;
         $codes = [...array_keys($base), ...array_keys($extras), ...array_keys($overrides), ...($agents !== null ? [self::AGENTS] : [])];
         $rows = [];
 
@@ -289,13 +299,15 @@ class EntitlementService
 
             // Not in the plan: starts empty (off / 0), so only what was bought or overridden counts.
             $plan = $item->cast($inBase ? $base[$code] : null);
+            // A license's agents are its code's digits; an Agents override is shown, and already written there.
             $locked = $code === self::AGENTS && $agents !== null;
-            $override = $locked ? null : ($overrides[$code] ?? null);
+            $override = $overrides[$code] ?? null;
+            $unlimited = $item->type === 'number' && $inBase && $plan === null;
             $extra = (int) ($extras[$code] ?? 0);
 
             // Bought units add to the plan's number; a bought on/off feature is on.
             $withExtra = match (true) {
-                $extra === 0 => $plan,
+                $extra === 0, $unlimited => $plan, // bought units don't limit an unlimited plan
                 $item->type === 'number' => (int) $plan + $extra,
                 $item->type === 'boolean' => true,
                 default => $plan,
@@ -304,10 +316,16 @@ class EntitlementService
             $rows[] = [
                 'item' => $item,
                 'plan' => $plan,
+                'in_plan' => $inBase,
                 'extra' => $extra,
+                'overridden' => $override !== null,
                 'override' => $override['value'] ?? null,
                 'until' => $override['until'] ?? null,
-                'value' => $locked ? $agents : ($override ? $item->cast($override['value']) : $withExtra),
+                'value' => match (true) {
+                    $locked => (int) $agents > 0 ? (int) $agents : null, // 0000: unlimited
+                    $override !== null => $item->cast($override['value']),
+                    default => $withExtra,
+                },
                 'locked' => $locked,
             ];
         }
@@ -372,7 +390,7 @@ class EntitlementService
                 }
             } elseif ($row['item']->type === 'number') {
                 // A number left empty on the plan means no limit, like agents' 0000.
-                $limits[$code] = $value === null || $value === self::UNLIMITED ? null : (int) $value;
+                $limits[$code] = $value === null ? null : (int) $value;
             } elseif ($value !== null) {
                 $values[$code] = (string) $value;
             }
@@ -417,21 +435,25 @@ class EntitlementService
     }
 
     /**
-     * The license's list with labels, for showing to the customer.
+     * The license's list with labels, for showing to the customer: the code (a unique key), the
+     * category it's grouped under, and whether the customer bought it (an add-on, or units on top).
      *
-     * @return list<array{label: string, type: string, value: bool|int|string|null}>
+     * @return list<array{code: string, label: string, type: string, category: string|null, value: bool|int|string|null, bought: bool}>
      */
     public function forDisplay(License $license): array
     {
         return array_map(fn (array $row): array => [
+            'code' => $row['item']->code,
             'label' => $row['item']->label,
             'type' => $row['item']->type,
+            'category' => $row['item']->category,
             'value' => $row['value'],
+            'bought' => $row['extra'] > 0,
         ], $this->rows($license));
     }
 
-    /** Sets one item to a value for this license only, optionally until a date (Y-m-d). */
-    public function setOverride(License|Subscription $owner, Entitlement $item, string $value, ?string $until): void
+    /** Sets one item to a value for this license only, optionally until a date (Y-m-d). A number's null is unlimited. */
+    public function setOverride(License|Subscription $owner, Entitlement $item, ?string $value, ?string $until): void
     {
         $rows = $this->current($owner, Grant::ADMIN);
         $rows[$item->code] = ['value' => $value, 'ends_at' => $until];
@@ -512,8 +534,14 @@ class EntitlementService
             $code .= '_'.$plugin->id;
             $item = null;
         }
+        // Two plugins with the same name (a free and a Pro edition) get their SKU added, so plans
+        // and customers can tell them apart.
+        $label = (string) $plugin->name;
+        if (Entitlement::where('label', $label)->exists()) {
+            $label .= ' ('.$plugin->product_sku.')';
+        }
         $item ??= Entitlement::create([
-            'code' => $code, 'category' => 'Plugins', 'label' => $plugin->name, 'type' => 'boolean',
+            'code' => $code, 'category' => 'Plugins', 'label' => $label, 'type' => 'boolean',
             'default_value' => '0', 'is_active' => true, 'sort' => (int) Entitlement::max('sort') + 1,
         ]);
 
@@ -678,15 +706,12 @@ class EntitlementService
         return $date !== '' && ! str_starts_with($date, '0000') ? substr($date, 0, 10) : null;
     }
 
-    /** Agent count from the license code's last four digits (0000 = unlimited → UNLIMITED), or null for codes without them. */
-    private function agentsFromCode(string $code): ?int
+    /** The license code's last four digits, the agent count (0000 = unlimited), or null for codes without them. */
+    private function agentDigits(string $code): ?string
     {
         $digits = substr($code, -4);
-        if (strlen($code) <= 4 || ! ctype_digit($digits)) {
-            return null;
-        }
 
-        return (int) $digits > 0 ? (int) $digits : self::UNLIMITED;
+        return strlen($code) > 4 && ctype_digit($digits) ? $digits : null;
     }
 
     /**

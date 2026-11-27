@@ -19,6 +19,7 @@ use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
+use App\Services\AgentCountService;
 use App\Services\EntitlementService;
 use App\User;
 use DB;
@@ -468,7 +469,7 @@ class HomeController extends BaseHomeController
 
             $renewController = new RenewController;
             $cost = $renewController->renewalCost($order->id, $planPrice);
-            $invoiceItems = $renewController->generateInvoice($product_details, $user, $order->id, $planid, $cost, '', $item->agents, $oldcurrency);
+            $invoiceItems = $renewController->generateInvoice($product_details, $user, $order->id, $planid, $cost, '', resolve(AgentCountService::class)->total($order), $oldcurrency);
             if (! $invoiceItems instanceof InvoiceItem) {
                 throw new Exception('Renewal failed');
             }
@@ -556,7 +557,7 @@ class HomeController extends BaseHomeController
                 ->select(
                     'products.id', 'products.name', 'products.description', 'products.short_description', 'products.product_description',
                     'products.category', 'products.image', 'products.shoping_cart_link', 'products.highlight', 'products.status',
-                    'products.show_agent', 'products.can_modify_agent', 'products.can_modify_quantity', 'products.show_product_quantity',
+                    'products.can_modify_quantity', 'products.show_product_quantity',
                     'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
                 ->get();
 

@@ -87,4 +87,10 @@ class InstallationLog extends Model
             'installation_status' => 'integer',
         ];
     }
+
+    /** Active = checked in during the last 7 days. */
+    public function isActive(): bool
+    {
+        return $this->installation_last_active_date?->gte(now()->subDays(7)) ?? false;
+    }
 }

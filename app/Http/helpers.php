@@ -10,7 +10,6 @@ use App\Model\Common\Setting;
 use App\Model\Common\State;
 use App\Model\Common\Timezone;
 use App\Model\Payment\Currency;
-use App\Model\Payment\PlanPrice;
 use App\Model\Payment\TaxOption;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
@@ -897,29 +896,6 @@ function createUrl(string $path): string
     $baseUrl = getUrl();
 
     return rtrim($baseUrl, '/').'/'.ltrim($path, '/');
-}
-
-function isAgentAllowed(mixed $productId, mixed $planId): bool
-{
-    $planAgents = PlanPrice::where('plan_id', $planId)
-        ->value('no_of_agents');
-
-    // No agents configured → immediately false
-    if (empty($planAgents)) {
-        return false;
-    }
-
-    // Cloud popup products are always allowed
-    if (in_array($productId, cloudPopupProducts(), strict: true)) {
-        return true;
-    }
-
-    $product = Product::find($productId);
-    if ($product instanceof Product) {
-        return (bool) $product->can_modify_agent;
-    }
-
-    return false;
 }
 
 /**

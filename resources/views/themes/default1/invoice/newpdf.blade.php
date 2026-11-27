@@ -170,7 +170,6 @@
                 <th>{{ __('message.order_no') }}</th>
                 <th>{{ __('message.product') }}</th>
                 <th>{{ __('message.price') }}</th>
-                <th>{{ __('message.agents') }}</th>
                 <th>{{ __('message.quantity') }}</th>
                 <th>{{ __('message.sub_total') }}</th>
             </tr>
@@ -187,7 +186,6 @@
                         @endforeach
                     </td>
                     <td>{{ currencyFormat($item->regular_price, $symbol) }}</td>
-                    <td>{{ $item->agents ?: __('message.unlimited') }}</td>
                     <td>{{ $item->quantity }}</td>
                     <td>{{ currencyFormat($item->subtotal, $symbol) }}</td>
                 </tr>

@@ -2,7 +2,15 @@
     <div>
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
-            <div class="card-header"><h4 class="card-title">{{ __('message.edit_plan') }}</h4></div>
+            <div class="card-header">
+                <h4 class="card-title">{{ __('message.edit_plan') }}</h4>
+                <!-- On sale or not, visible at the top of the page -->
+                <div class="card-tools d-flex align-items-center gap-2">
+                    <span id="plan-status-label" class="fw-bold">{{ form.status ? __('message.active') : __('message.inactive') }}</span>
+                    <ToolTip :message="__('message.plan_status_help')" size="small" />
+                    <Switch name="status" :value="!!form.status" labelledby="plan-status-label" :onChange="(on) => (form.status = on ? 1 : 0)" />
+                </div>
+            </div>
             <div class="card-body pb-0">
         <div v-if="loading" class="text-center py-4"><loader /></div>
 
@@ -51,7 +59,7 @@
                     <div class="card-header"><h4 class="card-title">{{ __('message.price') }}</h4></div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <div style="min-width: 640px">
+                            <div class="price-table">
                                 <v-client-table :data="form.prices" :columns="priceColumns" :options="priceTableOptions">
                                     <template #currency="{ row }">
                                         <DynamicSelect
@@ -59,19 +67,20 @@
                                             :elements="availableCurrencies(row._key)"
                                             :value="currencies.find(c => c.id === row.currency) ?? null"
                                             :placeholder="__('message.choose')"
+                                            :ariaLabel="__('message.currency')"
                                             :onChange="(val) => setPrice(row, 'currency', val?.id ?? '')"
                                             :clearable="false"
                                             :appendToBody="true"
                                         />
                                     </template>
                                     <template #add_price="{ row }">
-                                        <TextField :name="'add_price_' + row._key" type="number" classname="mb-0" :value="row.add_price" :onChange="(v) => setPrice(row, 'add_price', v)" @keydown="blockInvalidKey" />
+                                        <TextField :name="'add_price_' + row._key" type="number" inputmode="decimal" autocomplete="off" :ariaLabel="`${__('message.price')} ${row.currency}`" classname="mb-0" :value="row.add_price" :onChange="(v) => setPrice(row, 'add_price', v)" @keydown="blockInvalidKey" />
                                     </template>
                                     <template #renew_price="{ row }">
-                                        <TextField :name="'renew_price_' + row._key" type="number" classname="mb-0" :value="row.renew_price" :onChange="(v) => setPrice(row, 'renew_price', v)" @keydown="blockInvalidKey" />
+                                        <TextField :name="'renew_price_' + row._key" type="number" inputmode="decimal" autocomplete="off" :ariaLabel="`${__('message.renew-price')} ${row.currency}`" classname="mb-0" :value="row.renew_price" :onChange="(v) => setPrice(row, 'renew_price', v)" @keydown="blockInvalidKey" />
                                     </template>
                                     <template #offer_price="{ row }">
-                                        <TextField :name="'offer_price_' + row._key" type="number" classname="mb-0" :value="row.offer_price" :placeholder="'0'" :onChange="(v) => setPrice(row, 'offer_price', v)" @keydown="(e) => blockInvalidKey(e, true)" />
+                                        <TextField :name="'offer_price_' + row._key" type="number" inputmode="decimal" autocomplete="off" :ariaLabel="`${__('message.plan_offer_percent')} ${row.currency}`" classname="mb-0" :value="row.offer_price" :placeholder="__('message.plan_no_offer')" :onChange="(v) => setPrice(row, 'offer_price', v)" @keydown="(e) => blockInvalidKey(e, true)" />
                                     </template>
                                     <template #action="{ row }">
                                         <action-button action="delete" variant="light" :iconOnly="true" class="table_btn" v-tooltip="__('message.delete')"
@@ -85,49 +94,41 @@
                     </div>
                 </div>
 
-                <!-- Agents and Features cards -->
+                <!-- Features card -->
                 <PlanEntitlements ref="featuresRef" :planId="route.params.id" :currencies="planCurrencies" :period="periodName" />
             </div>
 
             <!-- Right: status, save and what the customer gets -->
             <div class="col-lg-4">
-                <div class="sticky-top" style="top: 70px; z-index: 1">
-                    <div class="card card-light">
-                        <div class="card-header"><h4 class="card-title">{{ __('message.plan_summary') }}</h4></div>
-                        <div class="card-body pb-0">
-                            <DynamicSelect
-                                name="status"
-                                :label="__('message.status')"
-                                :elements="statusOptions"
-                                :value="statusOptions.find(o => o.id === form.status) ?? null"
-                                :onChange="(val) => form.status = val?.id ?? 1"
-                                :clearable="false"
-                                :searchable="false"
-                            />
-                        </div>
-                        <ul class="list-group list-group-flush">
-                            <li v-for="p in summaryPrices" :key="p.currency" class="list-group-item">
-                                <div class="fw-bold">{{ p.currency }} {{ p.add_price }} <span class="fw-normal text-muted">/ {{ periodName || '—' }}</span></div>
-                                <div class="small text-muted">
-                                    {{ __('message.plan_summary_renews', { price: `${p.currency} ${p.renew_price}` }) }}<template v-if="Number(p.offer_price) > 0"> · {{ __('message.plan_summary_offer', { percent: p.offer_price }) }}</template>
-                                </div>
-                            </li>
-                            <li v-for="line in featuresRef?.summary ?? []" :key="line.label" class="list-group-item d-flex justify-content-between gap-2">
-                                <span>{{ line.label }}</span>
-                                <span class="text-end">{{ line.value }}<div v-if="line.extra" class="small text-muted">{{ line.extra }}</div></span>
-                            </li>
-                            <li class="list-group-item small text-muted">
-                                {{ __('message.plan_summary_licenses', { count: featuresRef?.liveLicenses ?? 0 }) }}
-                            </li>
-                        </ul>
-                    </div>
+                <div class="card card-light">
+                    <div class="card-header"><h4 class="card-title">{{ __('message.plan_summary') }}</h4></div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between gap-2">
+                            <span>{{ __('message.status') }}</span>
+                            <span class="badge" :class="form.status ? 'bg-success' : 'bg-secondary'">{{ form.status ? __('message.active') : __('message.inactive') }}</span>
+                        </li>
+                        <li v-for="p in summaryPrices" :key="p.currency" class="list-group-item">
+                            <div class="fw-bold tabular-nums">{{ p.currency }} {{ p.add_price }} <span class="fw-normal text-muted">/ {{ periodName || '—' }}</span></div>
+                            <div class="small text-muted">
+                                {{ __('message.plan_summary_renews', { price: `${p.currency} ${p.renew_price}` }) }}<template v-if="Number(p.offer_price) > 0"> · {{ __('message.plan_summary_offer', { percent: p.offer_price }) }}</template>
+                            </div>
+                        </li>
+                        <li v-for="line in featuresRef?.summary ?? []" :key="line.label" class="list-group-item d-flex justify-content-between gap-2">
+                            <span>{{ line.label }}</span>
+                            <span class="text-end">{{ line.value }}<div v-if="line.extra" class="small text-muted">{{ line.extra }}</div></span>
+                        </li>
+                        <li class="list-group-item small text-muted d-flex justify-content-between gap-2">
+                            {{ __('message.plan_summary_licenses', { count: featuresRef?.liveLicenses ?? 0 }) }}
+                            <router-link v-if="form.product" :to="`/orders?product_id=${form.product}&plan_id=${route.params.id}`">{{ __('message.plan_view_orders') }}</router-link>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
 
             </div>
             <div v-if="!loading" class="card-footer d-flex align-items-center gap-2">
-                <action-button action="save" :loading="saving" @click="submit" />
+                <action-button action="save" :label="__('message.plan_save')" :loading="saving" @click="submit" />
                 <action-button variant="secondary" icon="fas fa-users" :label="`${__('message.entitlement_apply_existing')} (${featuresRef?.liveLicenses ?? 0})`"
                                @click="showApply = true" />
             </div>
@@ -149,8 +150,8 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { reactive, ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute, onBeforeRouteLeave } from 'vue-router'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
@@ -161,6 +162,8 @@ import TreeSelect from '@/components/Reusable/FormField/TreeSelect.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import PlanEntitlements from './PlanEntitlements.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import Switch from '@/components/Reusable/FormField/Switch.vue'
+import ToolTip from '@/components/Reusable/Tooltip.vue'
 
 const COMPONENT = 'plans-edit'
 const baseUrl = useBaseUrl()
@@ -176,10 +179,14 @@ const pricingError = ref('')
 const featuresRef = ref(null)
 const showApply = ref(false)
 
-const statusOptions = [
-    { id: 1, name: __('message.active') },
-    { id: 0, name: __('message.inactive') },
-]
+// Warn before leaving with unsaved edits: the plan's own fields, or its features (saved with it).
+const savedForm = ref('')
+const formSnapshot = () => JSON.stringify(form)
+const isDirty = () => !loading.value && ((savedForm.value !== '' && formSnapshot() !== savedForm.value) || !!featuresRef.value?.dirty)
+const warnOnUnload = e => { if (isDirty()) e.preventDefault() }
+onBeforeRouteLeave(() => !isDirty() || confirm(__('message.unsaved_changes_confirm')))
+window.addEventListener('beforeunload', warnOnUnload)
+onBeforeUnmount(() => window.removeEventListener('beforeunload', warnOnUnload))
 
 const form = reactive({
     name: '',
@@ -283,6 +290,7 @@ onMounted(async () => {
                 renew_price: p.renew_price ?? '',
             }))
         }
+        savedForm.value = formSnapshot()
     } catch (e) {
         errorHandler(e, COMPONENT, { setErrors })
     } finally {
@@ -328,8 +336,9 @@ async function submit() {
             offer_price:       form.prices.map(p => p.offer_price === '' ? null : p.offer_price),
         }
         const res = await http.patch(`/plan/${route.params.id}`, payload)
-        // Then the plan's agents and features, now that its currencies are saved.
+        // Then the plan's features, now that its currencies are saved.
         successHandler(featuresRef.value ? await featuresRef.value.save() : res, COMPONENT)
+        savedForm.value = formSnapshot()
     } catch (e) {
         errorHandler(e, COMPONENT, { setErrors })
     } finally {
@@ -337,3 +346,10 @@ async function submit() {
     }
 }
 </script>
+
+<style scoped>
+/* The price table keeps its columns usable; it scrolls sideways on small screens */
+.price-table { min-width: 640px; }
+/* Digits line up in the summary */
+.tabular-nums { font-variant-numeric: tabular-nums; }
+</style>

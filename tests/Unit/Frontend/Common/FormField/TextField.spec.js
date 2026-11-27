@@ -140,4 +140,18 @@ describe('TextField.vue', () => {
         wrapper = mountTextField({ required: true })
         expect(wrapper.find('input').attributes('required')).toBeDefined()
     })
+
+    it('a label focuses its input, and an error is linked to it and announced', () => {
+        const w = mount(TextField, { props: { name: 'limit', label: 'Limit', value: '', error: 'Enter a limit', onChange: onChangeMock } })
+        const input = w.find('input')
+        expect(w.find('label').attributes('for')).toBe(input.attributes('id'))
+        expect(input.attributes('aria-invalid')).toBe('true')
+        expect(w.find(`#${input.attributes('aria-describedby')}`).attributes('aria-live')).toBe('polite')
+    })
+
+    it('names a label-less input and sets its keyboard', () => {
+        wrapper = mountTextField({ ariaLabel: 'Price (USD)', inputmode: 'decimal' })
+        expect(wrapper.find('input').attributes('aria-label')).toBe('Price (USD)')
+        expect(wrapper.find('input').attributes('inputmode')).toBe('decimal')
+    })
 })

@@ -361,6 +361,88 @@ class OrderControllerTest extends DBTestCase
         $response->assertJsonPath('data.license_details.license_machine_id', 'MACHINE-42');
     }
 
+    public function test_get_order_lists_no_installs_for_a_fresh_order(): void
+    {
+        $this->getLoggedInUser('admin');
+        $order = Order::factory()->withRelations()->create();
+
+        $response = $this->getJson('/order/'.$order->id)->assertOk();
+
+        $this->assertSame([], $response->json('data.installations'));
+    }
+
+    /** An order whose license has the given live installs: [ip, domain, product_id|null (= the order's product)]. */
+    private function orderWithInstalls(array $installs): array
+    {
+        $order = Order::factory()->create(['serial_key' => 'INS'.uniqid()]);
+        License::create(['product_id' => $order->product, 'license_code' => $order->serial_key, 'license_order_number' => $order->number]);
+        $ids = [];
+        foreach ($installs as [$ip, $domain, $productId]) {
+            $ids[] = Installation::create([
+                'product_id' => $productId ?? $order->product, 'license_code' => $order->serial_key,
+                'installation_ip' => $ip, 'installation_domain' => $domain, 'installation_status' => 1,
+            ])->id;
+        }
+
+        return [$order, $ids];
+    }
+
+    public function test_get_order_lists_the_live_installs_with_last_seen_from_the_log(): void
+    {
+        $this->getLoggedInUser('admin');
+        [$order] = $this->orderWithInstalls([['10.0.0.1', 'old.example.com', null], ['10.0.0.2', 'new.example.com', null]]);
+        InstallationLog::create(['license_code' => $order->serial_key, 'installation_ip' => '10.0.0.1', 'installation_last_active_date' => now()->subDays(30)]);
+        InstallationLog::create(['license_code' => $order->serial_key, 'installation_ip' => '10.0.0.2', 'version_number' => 'v9.2.1', 'installation_last_active_date' => now()->subDay()]);
+        // Seen once but no longer installed: history only, not a current install
+        InstallationLog::create(['license_code' => $order->serial_key, 'installation_ip' => '10.0.0.9', 'installation_last_active_date' => now()]);
+
+        $installs = $this->getJson('/order/'.$order->id)->assertOk()->json('data.installations');
+
+        $this->assertSame(['new.example.com', 'old.example.com'], array_column($installs, 'domain'));
+        $this->assertSame([true, false], array_column($installs, 'active'));
+        $this->assertSame('v9.2.1', $installs[0]['version']);
+    }
+
+    public function test_unbind_frees_one_install_and_its_plugins_on_that_server(): void
+    {
+        $this->getLoggedInUser('admin');
+        $plugin = Product::factory()->create();
+        [$order, [$main, $sameIpOtherDomain, $pluginInstall, $other]] = $this->orderWithInstalls([
+            ['10.0.0.1', 'a.example.com', null],
+            ['10.0.0.1', 'b.example.com', null],
+            ['10.0.0.1', 'a.example.com', $plugin->id],
+            ['10.0.0.2', 'c.example.com', null],
+        ]);
+
+        $this->deleteJson("/order/{$order->id}/installations/{$main}")->assertOk()->assertJson(['success' => true]);
+
+        $this->assertSame([$sameIpOtherDomain, $other], Installation::where('license_code', $order->serial_key)->orderBy('id')->pluck('id')->all());
+    }
+
+    public function test_unbind_refuses_an_install_of_another_order(): void
+    {
+        $this->getLoggedInUser('admin');
+        [$order] = $this->orderWithInstalls([]);
+        [, [$foreign]] = $this->orderWithInstalls([['10.0.0.5', 'x.example.com', null]]);
+
+        $this->deleteJson("/order/{$order->id}/installations/{$foreign}")->assertNotFound();
+        $this->assertTrue(Installation::whereKey($foreign)->exists());
+    }
+
+    public function test_installation_history_is_paged_most_recent_first(): void
+    {
+        $this->getLoggedInUser('admin');
+        [$order] = $this->orderWithInstalls([]);
+        foreach ([3, 1, 2] as $daysAgo) {
+            InstallationLog::create(['license_code' => $order->serial_key, 'installation_domain' => "d{$daysAgo}.example.com", 'installation_last_active_date' => now()->subDays($daysAgo)]);
+        }
+
+        $page = $this->getJson("/get-installation-details/{$order->id}?limit=2")->assertOk()->json('data');
+
+        $this->assertSame(3, $page['total']);
+        $this->assertSame(['d1.example.com', 'd2.example.com'], array_column($page['data'], 'domain'));
+    }
+
     // =========================================================================
     // Small helper methods: plan(), product(), subscription(), expiry()
     // =========================================================================

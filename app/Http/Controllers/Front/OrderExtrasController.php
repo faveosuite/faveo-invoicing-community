@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Model\Order\Order;
+use App\Model\Order\OrderEntitlement;
 use App\Model\Product\Entitlement;
+use App\Services\AgentCountService;
 use App\Services\EntitlementSalesService;
+use App\Services\EntitlementService;
 use App\Services\Payment\PostPaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -56,6 +60,17 @@ class OrderExtrasController extends Controller
         $unpaid = $order->latestUnpaidInvoice();
         if ($unpaid) {
             return errorResponse(__('message.extra_renewal_blocked_unpaid', ['number' => $unpaid->number]), 409);
+        }
+
+        // Cutting a cloud order's seats below the agents actually in use would strand them. Not
+        // while an admin sets the count: the license stays at that, so nothing is stranded.
+        if (EntitlementService::isAgents($item) && ! resolve(AgentCountService::class)->hasOverride($order) && in_array((int) $order->product, array_map(intval(...), cloudPopupProducts()), strict: true)) {
+            $installationPath = $order->installedDomains()->first();
+            $extra = OrderEntitlement::where('order_id', $order->id)->where('entitlement_id', $item->id)->firstOrFail();
+            $target = resolve(AgentCountService::class)->billed($order) - $extra->quantity + $quantity;
+            if ($installationPath && resolve(CloudExtraActivities::class)->checktheAgent($target, $installationPath)) {
+                return errorResponse(__('message.agent_reduce'));
+            }
         }
 
         $this->sales->setRenewQuantity($order, $item, $quantity);

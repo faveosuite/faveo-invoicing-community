@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => 'उत्पाद SKU अद्वितीय होना चाहिए',
     'product_name_unique' => 'नाम अद्वितीय होना चाहिए',
-    'product_show_agent_required' => 'अपने कार्ट पेज प्राथमिकता का चयन करें',
     'config_file_path_regex' => 'कोई सापेक्ष पथ होना चाहिए जिसमें कोई ../ खंड न हो।',
     'license_file_path_regex' => 'कोई सापेक्ष पथ होना चाहिए जिसमें कोई ../ खंड न हो।',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => 'चित्र का आकार 2048 किलोबाइट से अधिक नहीं हो सकता।',
         'product_sku_required' => 'उत्पाद SKU आवश्यक है।',
         'group_required' => 'उत्पाद समूह आवश्यक है।',
-        'show_agent_required' => 'अपने कार्ट पेज प्राथमिकता का चयन करें।',
     ],
     'current_domain_required' => 'वर्तमान डोमेन आवश्यक है।',
     'new_domain_required' => 'नया डोमेन आवश्यक है।',

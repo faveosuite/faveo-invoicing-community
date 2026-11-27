@@ -6,11 +6,13 @@ use App\Http\Controllers\Order\RenewController;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Order\OrderEntitlement;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\EntitlementService;
 use App\User;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -271,6 +273,23 @@ class RenewControllerTest extends DBTestCase
         $this->assertSame(1, $renewal->payments()->where('payment_method', 'cash')->count());
     }
 
+    public function test_admin_renew_records_the_orders_agents_not_the_purchase_lines(): void
+    {
+        $sub = Subscription::factory()->create();
+        $original = $this->linkInvoice($sub, 'Success');
+        $line = InvoiceItem::factory()->create(['invoice_id' => $original->id, 'product_id' => $sub->product_id, 'agents' => 5]);
+        Order::whereKey($sub->order_id)->update(['invoice_item_id' => $line->id]);
+        $agents = EntitlementService::agents();
+        Plan::findOrFail($sub->plan_id)->entitlements()->attach($agents->id, ['value' => '5']);
+        OrderEntitlement::create(['order_id' => $sub->order_id, 'entitlement_id' => $agents->id, 'quantity' => 2, 'unit_price' => 10, 'currency' => 'USD']);
+
+        $this->adminRenew($sub)->assertOk();
+
+        $renewal = Invoice::whereHas('orders', fn (Builder $q) => $q->whereKey($sub->order_id))
+            ->where('is_renewed', 1)->latest('id')->firstOrFail();
+        $this->assertSame(7, (int) $renewal->invoiceItem()->value('agents')); // 5 included + 2 bought
+    }
+
     public function test_a_client_cannot_renew_someone_elses_subscription(): void
     {
         $sub = Subscription::factory()->create(); // another user's
@@ -288,7 +307,7 @@ class RenewControllerTest extends DBTestCase
         Order::whereKey($sub->order_id)->update(['client' => $client->id]);
         PlanPrice::where('plan_id', $sub->plan_id)->delete();
         foreach (['USD' => 50, 'INR' => 4000] as $currency => $price) {
-            PlanPrice::factory()->create(['plan_id' => $sub->plan_id, 'currency' => $currency, 'renew_price' => $price, 'no_of_agents' => 0]);
+            PlanPrice::factory()->create(['plan_id' => $sub->plan_id, 'currency' => $currency, 'renew_price' => $price]);
         }
 
         return [$client, $sub];
@@ -352,7 +371,7 @@ class RenewControllerTest extends DBTestCase
     {
         Plan::whereKey($planId)->update(['product' => $productId, 'status' => 1, 'days' => 365]);
         PlanPrice::where('plan_id', $planId)->delete();
-        PlanPrice::factory()->create(['plan_id' => $planId, 'currency' => getCurrencyForClient($this->user->country), 'renew_price' => 50, 'no_of_agents' => 0]);
+        PlanPrice::factory()->create(['plan_id' => $planId, 'currency' => getCurrencyForClient($this->user->country), 'renew_price' => 50]);
     }
 
     // ── A client can renew only onto a plan the renew popup offers ──
@@ -435,17 +454,19 @@ class RenewControllerTest extends DBTestCase
 
     // ── Batch 3 #1: the renew popup prices the order's real agent count, like the invoice ──
 
-    public function test_the_popup_price_uses_the_orders_agents_after_a_plan_switch(): void
+    public function test_the_popup_price_is_the_new_plan_price_plus_the_orders_extras(): void
     {
         $sub = $this->ownSubscription();
         $this->user->update(['country' => 'US']);
         $original = $this->linkInvoice($sub, 'Success');
-        InvoiceItem::factory()->create(['invoice_id' => $original->id, 'plan_id' => $sub->plan_id, 'agents' => 10]); // 10 agents, on plan P1
+        InvoiceItem::factory()->create(['invoice_id' => $original->id, 'plan_id' => $sub->plan_id, 'agents' => 10]); // not priced from
         $p2 = Plan::factory()->create(['product' => $sub->product_id]);
-        PlanPrice::factory()->create(['plan_id' => $p2->id, 'currency' => 'USD', 'renew_price' => 50, 'no_of_agents' => 5]);
+        PlanPrice::factory()->create(['plan_id' => $p2->id, 'currency' => 'USD', 'renew_price' => 50]);
+        OrderEntitlement::create(['order_id' => $sub->order_id, 'entitlement_id' => EntitlementService::agents()->id,
+            'quantity' => 5, 'unit_price' => 10, 'currency' => 'USD', 'period_id' => $p2->periodId()]);
 
         $data = $this->getJson("/get-renew-cost?plan={$p2->id}&order={$sub->order_id}")->assertOk()->json('data');
 
-        $this->assertSame(currencyFormat(100, 'USD'), $data['formatted_price']); // 50 / 5 × 10 — was 50
+        $this->assertSame(currencyFormat(100, 'USD'), $data['formatted_price']); // 50 + 5 × 10
     }
 }

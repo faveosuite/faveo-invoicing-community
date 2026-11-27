@@ -2,6 +2,10 @@ import { mount } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
 import DataTable from '@/components/Reusable/DataTable.vue'
 
+const mockReplace = jest.fn()
+const mockQuery = { q: 'chat', page: '3' }
+jest.mock('vue-router', () => ({ useRoute: () => ({ query: mockQuery }), useRouter: () => ({ replace: mockReplace }) }))
+
 const mountDataTable = (props = {}, options = {}) =>
     mount(DataTable, {
         props: {
@@ -194,5 +198,23 @@ describe('DataTable.vue', () => {
     it('defaultResponseAdapter handles empty data object', () => {
         const result = wrapper.vm.defaultResponseAdapter({ data: {} })
         expect(result.data).toEqual([])
+    })
+
+    it('with syncUrl, opens on the search and page from the URL and writes them back', async () => {
+        const w = mountDataTable({ option: { filterable: true, syncUrl: true } })
+        expect(w.vm.$.setupState.searchStr).toBe('chat')
+        expect(w.findComponent('.v-server-table').props('options').initialPage).toBe(3)
+
+        w.vm.$.setupState.searchStr = 'sla'
+        w.vm.$.setupState.onSearch()
+        await w.vm.$nextTick()
+        expect(mockReplace).toHaveBeenLastCalledWith({ query: { q: 'sla', page: undefined } }) // a new search starts at page 1
+    })
+
+    it('without syncUrl, leaves the URL alone', () => {
+        mockReplace.mockClear()
+        const w = mountDataTable({ option: { filterable: true } })
+        expect(w.vm.$.setupState.searchStr).toBe('')
+        expect(mockReplace).not.toHaveBeenCalled()
     })
 })

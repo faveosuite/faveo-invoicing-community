@@ -1,11 +1,12 @@
 <template>
   <Modal :showModal="show" :onClose="() => emit('close')" :showCloseBtn="false" classname="modal-md">
     <template #title>
-      <h5 class="modal-title fw-bold">{{ __('message.enter_domain_new') }}</h5>
+      <h2 class="modal-title h5 fw-bold mb-0">{{ __('message.enter_domain_new') }}</h2>
     </template>
 
     <template #fields>
       <p class="text-muted mb-3">{{ __('message.enter_domain_name') }}</p>
+      <div v-if="error" class="alert alert-danger" role="alert">{{ error }}</div>
       <ClientField
         v-for="item in items"
         :key="item.id"
@@ -13,6 +14,7 @@
         :label="item.name"
         placeholder="support.example.com…"
         autocomplete="off"
+        inputmode="url"
         :spellcheck="false"
         :modelValue="domains[`domain_${item.id}`]"
         :error="errors[`domain_${item.id}`]"
@@ -24,7 +26,7 @@
 
     <template #controls>
       <action-button action="cancel" @click="emit('close')" />
-      <action-button action="confirm" :label="submitting ? __('message.please_wait') : __('message.proceed_checkout')" :loading="submitting" @click="submit" />
+      <action-button action="confirm" :label="submitting ? __('message.saving') : __('message.proceed_checkout')" :loading="submitting" @click="submit" />
     </template>
   </Modal>
 </template>
@@ -41,6 +43,8 @@ import Modal from '../common/Modal.vue'
 const props = defineProps({
   show:  { type: Boolean, default: false },
   items: { type: Array, default: () => [] },
+  // The server's reason a domain was refused; the customer fixes it here
+  error: { type: String, default: '' },
 })
 const emit = defineEmits(['close', 'save'])
 
@@ -57,6 +61,9 @@ watch(() => props.show, (open) => {
   setErrors({})
   domains.value = Object.fromEntries(props.items.map(i => [`domain_${i.id}`, i.domain || '']))
 })
+
+// A refused domain hands the form back to the customer.
+watch(() => props.error, (err) => { if (err) submitting.value = false })
 
 function submit() {
   try {

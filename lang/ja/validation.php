@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => '製品SKUは一意である必要があります。',
     'product_name_unique' => '名前は一意である必要があります。',
-    'product_show_agent_required' => 'カートページの設定を選択してください。',
     'config_file_path_regex' => '../ セグメントのない相対パスである必要があります。',
     'license_file_path_regex' => '../ セグメントのない相対パスである必要があります。',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => '画像は2048キロバイトを超えてはいけません。',
         'product_sku_required' => '製品SKUは必須です。',
         'group_required' => '製品グループは必須です。',
-        'show_agent_required' => 'カートページの設定を選択してください。',
     ],
     'current_domain_required' => '現在のドメインは必須です。',
     'new_domain_required' => '新しいドメインは必須です。',

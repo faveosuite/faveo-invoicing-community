@@ -313,7 +313,10 @@ class PageControllerTest extends DBTestCase
         $product = Product::create($product + ['name' => 'Price '.uniqid()]);
         $plan = Plan::create(['name' => 'P'.uniqid(), 'product' => $product->id, 'days' => $days, 'status' => 1]);
         if ($price !== null) {
-            PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'USD', 'add_price' => $price, 'renew_price' => $price, 'no_of_agents' => $agents, 'price_description' => $description]);
+            PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'USD', 'add_price' => $price, 'renew_price' => $price, 'price_description' => $description]);
+        }
+        if ($agents !== null) {
+            $plan->entitlements()->attach(\App\Services\EntitlementService::agents()->id, ['value' => (string) $agents]);
         }
 
         return $product;
@@ -324,12 +327,13 @@ class PageControllerTest extends DBTestCase
         return (new PageController)->getPriceDescription($product->id, $days);
     }
 
-    public function test_get_price_description_for_an_active_product(): void
+    public function test_get_price_description_for_an_active_product_uses_the_plans_own_text(): void
     {
         $this->assertSame('free', $this->priceDescription($this->pricedProduct(['status' => 1], 365, 0)));
-        $this->assertSame('per month', $this->priceDescription($this->pricedProduct(['status' => 1], 366, 10)));
-        $this->assertSame('per month for <strong>5 agent</strong>', $this->priceDescription($this->pricedProduct(['status' => 1], 365, 10, agents: 5)));
-        $this->assertSame('per month', $this->priceDescription($this->pricedProduct(['status' => 1], 30, 10), [30, 31]));
+        $this->assertSame('One Time', $this->priceDescription($this->pricedProduct(['status' => 1], 366, 10)));
+        // Agents are a plan feature like any other: the price text doesn't mention them.
+        $this->assertSame('per year', $this->priceDescription($this->pricedProduct(['status' => 1], 365, 10, agents: 5, description: 'per year')));
+        $this->assertSame('per month', $this->priceDescription($this->pricedProduct(['status' => 1], 30, 10, description: 'per month'), [30, 31]));
     }
 
     public function test_get_price_description_for_an_inactive_product_uses_the_plans_own_text(): void

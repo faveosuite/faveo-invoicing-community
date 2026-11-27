@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => 'பொருள் SKU தனித்துவமாக இருக்க வேண்டும்',
     'product_name_unique' => 'பெயர் தனித்துவமாக இருக்க வேண்டும்',
-    'product_show_agent_required' => 'உங்கள் கார் பக்கம் விருப்பத்தைத் தேர்ந்தெடுக்கவும்',
     'config_file_path_regex' => '../ பிரிவுகள் இல்லாத தொடர்புடைய பாதையாக இருக்க வேண்டும்.',
     'license_file_path_regex' => '../ பிரிவுகள் இல்லாத தொடர்புடைய பாதையாக இருக்க வேண்டும்.',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => 'படம் 2048 கிலோபைட்டுகளை விட அதிகமாக இருக்கக்கூடாது.',
         'product_sku_required' => 'பொருள் SKU அவசியம்.',
         'group_required' => 'பொருள் குழு அவசியம்.',
-        'show_agent_required' => 'உங்கள் கார் பக்கம் விருப்பத்தைத் தேர்ந்தெடுக்கவும்.',
     ],
     'current_domain_required' => 'தற்போதைய டொமைன் அவசியம்.',
     'new_domain_required' => 'புதிய டொமைன் அவசியம்.',

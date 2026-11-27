@@ -385,6 +385,11 @@ a{
   box-shadow: none !important;
 }
 
+/* The rule above drops Bootstrap's focus ring; keyboard users still need one */
+.btn-primary:focus-visible, .btn-check:focus-visible + .btn {
+  box-shadow: 0 0 0 .25rem rgba(60, 141, 188, .5) !important;
+}
+
 
 label{
   display: inline-block;

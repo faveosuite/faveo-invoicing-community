@@ -6,7 +6,11 @@ namespace Tests\Unit\Backend\Services;
 
 use App\License\Models\License;
 use App\Model\Order\Order;
+use App\Model\Order\OrderEntitlement;
+use App\Model\Payment\Plan;
 use App\Model\Product\Subscription;
+use App\Services\EntitlementService;
+use Illuminate\Support\Facades\Date;
 use App\Services\SubscriptionRenewalService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
@@ -106,6 +110,25 @@ class SubscriptionRenewalServiceTest extends DBTestCase
         $this->service->extendDates($sub, 30);
 
         $this->assertTrue(true); // reaching here proves extendDates() didn't throw
+    }
+
+    public function test_a_renewal_with_a_pending_agents_reduction_still_extends_the_license(): void
+    {
+        // No transaction of its own around extendDates(): the license rewrite runs at once.
+        $order = Order::factory()->withRelations(['serial_key' => \Crypt::encrypt('RENEWAGENTSX0008')])->create();
+        $sub = Subscription::where('order_id', $order->id)->firstOrFail();
+        $sub->update(['ends_at' => now()->addDays(5)]);
+        $plan = Plan::findOrFail($sub->plan_id);
+        $agents = EntitlementService::agents();
+        $plan->entitlements()->syncWithoutDetaching([$agents->id => ['value' => '5']]);
+        OrderEntitlement::create(['order_id' => $order->id, 'entitlement_id' => $agents->id, 'quantity' => 3, 'renew_quantity' => 1, 'unit_price' => '3', 'currency' => 'USD']);
+        $license = License::create(['product_id' => $order->product, 'license_code' => 'RENEWAGENTSX0008', 'license_order_number' => $order->number, 'license_expire_date' => now()->addDays(5)->format('Y-m-d'), 'license_status' => 1]);
+
+        $this->service->extendDates($sub->fresh(), 30);
+
+        $license->refresh();
+        $this->assertSame('RENEWAGENTSX0006', $license->license_code);
+        $this->assertSame(now()->addDays(35)->format('Y-m-d'), Date::parse($license->license_expire_date)->format('Y-m-d'));
     }
 
     // --- updateInstallationLimit ---

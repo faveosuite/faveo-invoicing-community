@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Tenancy;
 use App\Enums\OrderAbility;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Order\InvoiceController as InvoiceCtrl;
-use App\Http\Controllers\Order\RenewController;
 use App\License\Services\LicenseService;
 use App\Model\CloudDataCenters;
 use App\Model\Common\Country;
@@ -22,12 +21,13 @@ use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\AgentCountService;
 use App\Services\Cloud\CloudApi;
 use App\Services\EntitlementSalesService;
+use App\Services\EntitlementService;
 use App\Services\Payment\CreditBalanceService;
 use App\Traits\TaxCalculation;
 use App\User;
-use Crypt;
 use DB;
 use Exception;
 use GuzzleHttp\Client;
@@ -117,9 +117,8 @@ class CloudExtraActivities extends Controller
                 'orderId' => 'required|integer',
             ]);
 
-            // agents is deliberately not read from the request — see
-            // calculatePlanChange()/licenseAgents(): the client cannot be
-            // trusted to report its own agent count.
+            // agents is deliberately not read from the request: the client cannot be
+            // trusted to report its own agent count (see calculatePlanChange()).
             $planId = (int) $request->input('plan');
             // Same rule as the purchase, so a price is never shown for a change that would be refused.
             $order = $this->cloudOrder((int) $request->input('orderId'), OrderAbility::ChangeCloudPlan, $planId);
@@ -220,90 +219,6 @@ class CloudExtraActivities extends Controller
         ]);
     }
 
-    /**
-     * Change an order's agent count to a target total. The UI asks for the
-     * desired total (not an increase/decrease amount) — simpler for the
-     * client, and it also means direction and delta are always derived from
-     * the order's own license here, never trusted from the request.
-     */
-    public function agentAlteration(Request $request): JsonResponse
-    {
-        try {
-            $this->validate($request, [
-                'orderId' => 'required|integer',
-                // The license stores agents in 4 digits; more would be written as 0000.
-                'desiredAgents' => 'required|integer|min:1|max:9999',
-            ]);
-
-            $order = $this->cloudOrder((int) $request->input('orderId'), OrderAbility::ChangeCloudAgents);
-            if ($order instanceof JsonResponse) {
-                return $order;
-            }
-
-            $oldAgents = $this->licenseAgents($order->serial_key);
-            $desiredAgents = (int) $request->input('desiredAgents');
-
-            if ($desiredAgents === $oldAgents) {
-                return errorResponse(trans('message.nothing_changed'));
-            }
-
-            $installationPath = $order->installedDomains()->first();
-
-            if (empty($installationPath)) {
-                return errorResponse(trans('message.installation_path_not_found'));
-            }
-
-            if ($this->checktheAgent($desiredAgents, $installationPath)) {
-                return errorResponse(trans('message.agent_reduce'));
-            }
-
-            $agentAction = $desiredAgents > $oldAgents ? 'increase' : 'decrease';
-            $delta = abs($desiredAgents - $oldAgents);
-
-            // The order's own subscription — never an id from the request: subId was trusted
-            // as-is, so another subscription's id linked this invoice to its owner.
-            $sub = Subscription::where('order_id', $order->id)->first();
-            if (! $sub) {
-                return errorResponse(trans('message.something_went_wrong'));
-            }
-
-            $items = $this->getThePaymentCalculation($delta, $order->serial_key, $order->id, agentAction: $agentAction);
-            if ($items === []) {
-                return errorResponse(trans('message.cart_plan_no_price_in_currency'));
-            }
-
-            $invoice = new RenewController()->renewBySubId($sub->id, $items['planId'], '', $items['price'], '', isAgentIncrease: false, agents: $desiredAgents);
-            if (! $invoice instanceof InvoiceItem) {
-                return errorResponse(trans('message.something_went_wrong'));
-            }
-
-            // Determine if subscription is expired — if so, renewal date extension is needed
-            $isExpired = Date::now() >= Date::parse($sub->ends_at);
-
-            $dbInvoice = Invoice::find($invoice->invoice_id);
-            if ($dbInvoice) {
-                $dbInvoice->update([
-                    'metadata' => [
-                        'type' => 'agent_alteration',
-                        'sub_id' => $sub->id,
-                        'new_agents' => $desiredAgents,
-                        'order_id' => $order->id,
-                        'installation_path' => $installationPath,
-                        'product_id' => $order->product,
-                        'old_license' => $order->serial_key,
-                        'agent_increase_date' => $isExpired,
-                    ],
-                ]);
-            }
-
-            return successResponse('success', ['invoice_id' => $invoice->invoice_id]);
-        } catch (Exception $exception) {
-            Logger::exception($exception);
-
-            return errorResponse(trans('message.wrong_agents'));
-        }
-    }
-
     public function upgradeDowngradeCloud(Request $request): JsonResponse
     {
         try {
@@ -313,10 +228,8 @@ class CloudExtraActivities extends Controller
             ]);
 
             $planId = (int) $request->input('id');
-            // agents is deliberately not read from the request — see
-            // calculatePlanChange()/licenseAgents(): the client cannot be
-            // trusted to report its own agent count when it's the very thing
-            // the price is multiplied by.
+            // agents is deliberately not read from the request: the client cannot be
+            // trusted to report its own agent count (see calculatePlanChange()).
             // One change at a time on a live cloud order, and only to an offered plan — see
             // OrderPolicy::changeCloudPlan. A second unpaid invoice would credit the same old
             // plan again (each downgrade banks its leftover value).
@@ -386,9 +299,23 @@ class CloudExtraActivities extends Controller
             // and the old order got wrongly marked Terminated in its place.
             // old_order_id in metadata above already carries this linkage.
 
+            // The new order's license digits: what the new plan includes + the Agents extra it
+            // carries there (the same carry the price used). An admin's Agents override carries
+            // over, so its count stays (0 = unlimited). Else 0 for a flat or unlimited plan; a
+            // plan that includes none never gets 0000.
+            $planNew = Plan::findOrFail($planId);
+            $agentCount = resolve(AgentCountService::class);
+            $included = EntitlementService::includedAgents($planNew);
+            $carried = collect(resolve(EntitlementSalesService::class)->carriedNumbers($order, $planNew, $currencyNew))
+                ->first(fn (array $row): bool => $row['sold'] && EntitlementService::isAgents($row['item']));
+            $agentsNew = match (true) {
+                $agentCount->hasOverride($order) => $agentCount->total($order),
+                $included === null => 0,
+                default => max($included === 0 ? 1 : 0, $included + ($carried['quantity'] ?? 0)),
+            };
             $item = $invoiceCtrl->createInvoiceItemsByAdmin(
                 $invoice->id, (string) $productNew->id, $grossPrice, $currencyNew,
-                1, $this->licenseAgents($order->serial_key), $planId, $user->id,
+                1, $agentsNew, $planId, $user->id,
                 $tax['name'], (float) $tax['value'], $grossPrice
             );
 
@@ -406,113 +333,6 @@ class CloudExtraActivities extends Controller
 
             return errorResponse(trans('message.wrong_upgrade'));
         }
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    private function getThePaymentCalculation(int $newAgents, string $oldLicense, int $orderId, ?int $planId = null, ?string $agentAction = null): array
-    {
-        try {
-            $sub = Subscription::where('order_id', $orderId)->first();
-            if (! $sub) {
-                return [];
-            }
-
-            $planId ??= $sub->plan_id;
-            $plan = Plan::with('productRelation')->find($planId);
-            if (! $plan) {
-                return [];
-            }
-
-            $product = $plan->productRelation;
-            if (! $product) {
-                return [];
-            }
-
-            $planTarget = $product->planRelation->find($planId);
-            $currency = userCurrencyAndPrice('', $planTarget);
-            $ends_at = (string) $sub->ends_at;
-            $planPrice = $currency['plan'];
-            if (! $planPrice || $planPrice->add_price === null) {
-                return [];
-            }
-            // One agent's price for this plan's currency and period (the product's Agents price
-            // points), falling back to the plan price per included agent.
-            $base_price = resolve(EntitlementSalesService::class)->agentUnitPrice($planPrice, 'list')
-                ?? (float) $planPrice->add_price / max(1, (int) $planPrice->no_of_agents);
-
-            $oldAgents = (int) substr($oldLicense, 12, 16);
-            $planDays = (int) $plan->days;
-
-            $totalAgents = 0;
-            $price = 0.0;
-            switch ($agentAction) {
-                case 'increase':
-                    $totalAgents = $newAgents + $oldAgents;
-                    break;
-                case 'decrease':
-                    $totalAgents = $oldAgents - $newAgents;
-                    break;
-                default:
-                    // No agent change requested: $totalAgents stays 0.
-                    break;
-            }
-
-            $price = $this->agentProration($ends_at, $base_price, $totalAgents, $oldAgents, $planDays)['price'];
-
-            return [
-                'id' => $product->id,
-                'name' => $product->name,
-                'price' => round($price),
-                'planId' => $planId,
-                'quantity' => 1,
-                'attributes' => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $totalAgents],
-                'associatedModel' => $product,
-            ];
-        } catch (Exception $exception) {
-            Logger::exception($exception);
-
-            return [];
-        }
-    }
-
-    /**
-     * Proration for changing an order's agent count, same formula regardless
-     * of direction: what the CURRENT agent count is worth for the rest of
-     * this billing cycle (priceRemaining), what the DESIRED agent count
-     * would cost for that same remaining period (priceToBePaid), and the
-     * difference (price) — never negative, since a decrease isn't refunded
-     * mid-cycle, only not-charged. Exposing the two halves (not just the net
-     * price) lets the UI show the client exactly what they're paying for
-     * instead of a single unexplained number.
-     *
-     * @return array{price: float, priceRemaining: float, priceToBePaid: float}
-     */
-    private function agentProration(string $ends_at, float|int $base_price, int $newAgents, int $oldAgents, int $planDays): array
-    {
-        if ($this->isExpired($ends_at)) {
-            $full = (float) ($base_price * $newAgents);
-
-            return ['price' => $full, 'priceRemaining' => 0.0, 'priceToBePaid' => $full];
-        }
-
-        $daysRemain = $this->daysRemaining($ends_at);
-        $pricePerDay = $base_price / $planDays;
-        $priceRemaining = $pricePerDay * $oldAgents * $daysRemain;
-        $priceToBePaid = $pricePerDay * $newAgents * $daysRemain;
-
-        return [
-            'price' => max(0.0, $priceToBePaid - $priceRemaining),
-            'priceRemaining' => $priceRemaining,
-            'priceToBePaid' => $priceToBePaid,
-        ];
-    }
-
-    /** Agent count encoded in a cloud license's serial key — the source of truth for pricing; a client's own claim about its agent count is never trusted. */
-    private function licenseAgents(?string $serialKey): int
-    {
-        return (int) substr((string) $serialKey, 12, 16);
     }
 
     /**
@@ -538,9 +358,8 @@ class CloudExtraActivities extends Controller
      * the one calculation both the pay page's preview ({@see getUpgradeCost})
      * and the actual charge ({@see upgradeDowngradeCloud}) use, so they can't
      * quietly disagree the way two hand-maintained copies of this formula
-     * once did. Agent count is always read off the order's own license (a
-     * plan swap doesn't change agents — that's the separate agentAlteration
-     * flow), never taken from the request.
+     * once did. Agents are priced as the order's Agents extra, never taken
+     * from the request.
      *
      * @return array{price: float, discount: float|null, product: ?Product, currency: string, priceoldplan: float, pricenewplan: float, days: int|null, keepOldExpiry: bool}
      */
@@ -554,7 +373,6 @@ class CloudExtraActivities extends Controller
                 return $empty;
             }
 
-            $agents = $this->licenseAgents($order->serial_key);
             $ends_at = (string) $sub->ends_at;
 
             $planOld = Plan::with('productRelation')->find($sub->plan_id);
@@ -564,7 +382,7 @@ class CloudExtraActivities extends Controller
             }
 
             $currencyOld = userCurrencyAndPrice('', $productOld->planRelation->find($sub->plan_id));
-            $base_priceOld = $this->planValue($order, $planOld, $currencyOld['currency'], $agents);
+            $base_priceOld = $this->planValue($order, $planOld, $currencyOld['currency'], moving: false);
             $planDaysOld = (int) $planOld->days;
 
             $planNew = Plan::with('productRelation')->find($planIdNew);
@@ -574,7 +392,7 @@ class CloudExtraActivities extends Controller
             }
 
             $currencyNew = userCurrencyAndPrice('', $productNew->planRelation->find($planIdNew));
-            $base_price_new = $this->planValue($order, $planNew, $currencyNew['currency'], $agents);
+            $base_price_new = $this->planValue($order, $planNew, $currencyNew['currency'], moving: true);
             $planDaysNew = (int) $planNew->days;
 
             if ($base_price_new > $base_priceOld) {
@@ -604,12 +422,13 @@ class CloudExtraActivities extends Controller
     }
 
     /**
-     * One full period of $plan for this order, as the shop prices it: the plan with the order's
-     * agents (offer applied, included agents covered) plus the extras the order carries onto it.
-     * Comparing old and new on this footing charges an upgrade for the extras' new term and
-     * credits a downgrade only what was actually paid, not the list price.
+     * One full period of $plan for this order, as the shop prices it: the plan price (offer
+     * applied) plus the extras the order carries onto it. Comparing old and new on this footing
+     * charges an upgrade for the extras' new term and credits a downgrade only what was actually
+     * paid, not the list price. On the plan the order is $moving to, its extras are the ones it
+     * will carry there ({@see EntitlementSalesService::carriedNumbers()}).
      */
-    private function planValue(Order $order, Plan $plan, string $currency, int $agents): float
+    private function planValue(Order $order, Plan $plan, string $currency, bool $moving = true): float
     {
         $row = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->first();
         if (! $row) {
@@ -617,7 +436,8 @@ class CloudExtraActivities extends Controller
         }
         $sales = resolve(EntitlementSalesService::class);
 
-        return $sales->planCost($row, $agents, 'purchase') + $sales->extrasValue($order, $currency, $plan);
+        return $sales->planPrice($row, 'purchase')
+            + ($moving ? $sales->movedExtrasValue($order, $plan, $currency) : $sales->extrasValue($order, $currency, $plan));
     }
 
     /**
@@ -754,113 +574,6 @@ class CloudExtraActivities extends Controller
         return ['price' => 0, 'priceRemaining' => 0, 'priceToBePaid' => 0, 'discount' => null] + $term;
     }
 
-    public function doTheAgentAltering(string $newAgents, string $oldLicense, int $orderId, ?string $installation_path, int $product_id): JsonResponse
-    {
-        try {
-            $len = strlen($newAgents);
-            $lastFour = match (true) {
-                $len === 1 => '000'.$newAgents,
-                $len === 2 => '00'.$newAgents,
-                $len === 3 => '0'.$newAgents,
-                $len === 4 => $newAgents,
-                default => '0000',
-            };
-
-            $order = Order::findOrFail($orderId);
-            // A paid invoice carries the license as it was when the invoice was raised; if
-            // it changed since, rewriting that stale code would miss the license row.
-            $oldLicense = (string) $order->serial_key;
-            // Raw ciphertext, so a revert doesn't write the key back in plaintext.
-            $oldSerialKey = $order->getRawOriginal('serial_key');
-
-            $licenseCode = substr($oldLicense, 0, -4).$lastFour;
-            resolve(LicenseService::class)->updateLicenseCode($oldLicense, $licenseCode);
-            Order::where('id', $orderId)->update(['serial_key' => Crypt::encrypt(substr($licenseCode, 0, 12).$lastFour)]);
-
-            // Self-hosted orders have no tenant to push to — rewriting the
-            // license above is the whole job for them.
-            if (! empty($installation_path)) {
-                try {
-                    $result = $this->cloudApi()->send('POST', '/performAgentUpgradeOrDowngrade', [
-                        'licenseCode' => $licenseCode,
-                        'installation_path' => $installation_path,
-                        'product_id' => $product_id,
-                        'old_lic_code' => $oldLicense,
-                    ]);
-                } catch (Exception $exception) {
-                    // The tenant never got the change (cloud down, 5xx, unreadable reply), so
-                    // billing must not claim the new seat count either: put the license back.
-                    $this->revertAgentAltering($oldLicense, $licenseCode, $orderId, $oldSerialKey, $installation_path, $product_id);
-                    Logger::exception(new Exception(sprintf('Cloud agent change to %s failed for order %d, license reverted: %s', $newAgents, $orderId, $exception->getMessage()), 0, $exception));
-
-                    return errorResponse(trans('message.change_agents_failed'));
-                }
-
-                if (($result['status'] ?? null) !== 'success') {
-                    $this->revertAgentAltering($oldLicense, $licenseCode, $orderId, $oldSerialKey, $installation_path, $product_id);
-                    Logger::exception(new Exception(sprintf('Cloud agent change to %s failed for order %d, license reverted: %s', $newAgents, $orderId, json_encode($result))));
-
-                    return errorResponse(trans('message.change_agents_failed'));
-                }
-            }
-
-            $this->syncInvoiceItemAgents($order, (int) $newAgents);
-
-            return successResponse(trans('message.agent_updated'));
-        } catch (Exception $exception) {
-            Logger::exception($exception);
-
-            return errorResponse(trans('message.wrong_agents'));
-        }
-    }
-
-    /**
-     * The order lists and renewal pricing read agents from invoice items, not the license,
-     * so a stale item shows (and re-bills) the old seat count. Two readers, two rows:
-     * the order's own item, and the newest item on any of its invoices (get-renew-cost).
-     */
-    private function syncInvoiceItemAgents(Order $order, int $agents): void
-    {
-        $order->invoiceItem?->update(['agents' => $agents]);
-
-        InvoiceItem::whereHas('invoice', fn (\Illuminate\Database\Eloquent\Builder $q) => $q->whereHas('orders', fn (\Illuminate\Database\Eloquent\Builder $q) => $q->where('orders.id', $order->id)))
-            ->orderByDesc('id')
-            ->first()?->update(['agents' => $agents]);
-    }
-
-    /**
-     * Undo the license rewrite done ahead of a cloud agent change that did not go through,
-     * so billing and the tenant keep agreeing on the seat count (and installedDomains()
-     * keeps finding the tenant by its license).
-     */
-    private function revertAgentAltering(string $oldLicense, string $newLicense, int $orderId, ?string $oldSerialKey, string $installationPath, int $productId): void
-    {
-        try {
-            resolve(LicenseService::class)->updateLicenseCode($newLicense, $oldLicense);
-            Order::where('id', $orderId)->update(['serial_key' => $oldSerialKey]);
-        } catch (Exception $exception) {
-            Logger::exception($exception);
-
-            return;
-        }
-
-        // The tenant drops its license before installing the new one, so a failed
-        // install leaves it unlicensed — put the old license back on it too.
-        try {
-            $result = $this->cloudApi()->send('POST', '/performAgentUpgradeOrDowngrade', [
-                'licenseCode' => $oldLicense,
-                'installation_path' => $installationPath,
-                'product_id' => $productId,
-                'old_lic_code' => $newLicense,
-            ]);
-            if (($result['status'] ?? null) !== 'success') {
-                throw new Exception(json_encode($result) ?: 'unreadable reply');
-            }
-        } catch (Exception $exception) {
-            Logger::exception(new Exception(sprintf('Restoring license %s on tenant %s failed, reinstall it by hand: %s', $oldLicense, $installationPath, $exception->getMessage()), 0, $exception));
-        }
-    }
-
     public function doTheProductUpgradeDowngrade(
         string $licenseCode,
         string $installationPath,
@@ -935,64 +648,6 @@ class CloudExtraActivities extends Controller
                 Order::whereKey($newActiveOrderId)->value('number') ?? $newActiveOrderId,
             ),
         );
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function getThePaymentCalculationDisplay(Request $request): array|JsonResponse
-    {
-        try {
-            $this->validate($request, [
-                'orderId' => 'required|integer',
-                'desiredAgents' => 'required|integer|min:1|max:9999',
-            ]);
-
-            $order = $this->cloudOrder((int) $request->input('orderId'), OrderAbility::ChangeCloudAgents);
-            if ($order instanceof JsonResponse) {
-                return $order;
-            }
-
-            $oldAgents = $this->licenseAgents($order->serial_key);
-            $desiredAgents = (int) $request->input('desiredAgents');
-
-            $planId = Subscription::where('order_id', $order->id)->value('plan_id');
-            $product = Product::find(Plan::where('id', $planId)->value('product'));
-            if (! $product instanceof Product) {
-                throw new Exception('Product not found');
-            }
-
-            $plan = $product->planRelation->find($planId);
-            $currency = userCurrencyAndPrice('', $plan);
-            $ends_at = (string) Subscription::where('order_id', $order->id)->value('ends_at');
-            $planDays = (int) Plan::where('id', $planId)->value('days');
-            $base_price = PlanPrice::where('plan_id', $planId)->where('currency', $currency['currency'])->value('add_price');
-            if ($base_price === null) {
-                return errorResponse(trans('message.cart_plan_no_price_in_currency'));
-            }
-
-            // A single net "price to pay" wasn't enough for the client to see
-            // what they're actually paying for — so this also exposes the
-            // two halves that net figure comes from: what the CURRENT agent
-            // count is worth for the rest of this cycle (currentAgentsCost),
-            // and what the DESIRED agent count would cost for that same
-            // remaining period (newAgentsCost). priceToPay is just their
-            // difference (never negative — see agentProration).
-            $calc = $this->agentProration($ends_at, $base_price, $desiredAgents, $oldAgents, $planDays);
-
-            return [
-                'pricePerAgent' => currencyFormat($base_price, $currency['currency'], includeSymbol: false),
-                'totalPrice' => currencyFormat($base_price * $desiredAgents, $currency['currency'], includeSymbol: false),
-                'currentAgentsCost' => currencyFormat($calc['priceRemaining'], $currency['currency'], includeSymbol: false),
-                'newAgentsCost' => currencyFormat($calc['priceToBePaid'], $currency['currency'], includeSymbol: false),
-                'priceToPay' => currencyFormat($calc['price'], $currency['currency'], includeSymbol: false),
-                'currency_symbol' => Currency::where('code', $currency['currency'])->value('symbol') ?? $currency['currency'],
-            ];
-        } catch (Exception $exception) {
-            Logger::exception($exception);
-
-            return errorResponse(trans('message.wrong_agents'));
-        }
     }
 
     /**

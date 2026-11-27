@@ -1440,30 +1440,6 @@ paths:
       responses:
         '200':
           description: Password updated successfully.
-  /renew/{id}/{agents}:
-    get:
-      summary: Show the renewal form
-      operationId: renewForm
-      tags:
-        - Renewal
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: agents
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: The renewal form data.
-          content:
-            application/json:
-              schema:
-                type: object
   /renew/{id}:
     post:
       summary: Renew a subscription (Admin)
@@ -1885,12 +1861,9 @@ paths:
               type: object
               required:
                 - plan
-                - agents
                 - orderId
               properties:
                 plan:
-                  type: integer
-                agents:
                   type: integer
                 orderId:
                   type: integer
@@ -1908,50 +1881,6 @@ paths:
                     type: number
                   currency:
                     type: string
-  /changeAgents:
-    post:
-      summary: Change agents
-      operationId: agentAlteration
-      tags:
-        - Cloud
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - newAgents
-                - orderId
-                - product_id
-                - subId
-              properties:
-                newAgents:
-                  type: integer
-                orderId:
-                  type: integer
-                product_id:
-                  type: integer
-                subId:
-                  type: integer
-      responses:
-        '200':
-          description: Agents changed successfully.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: object
-                    properties:
-                      url:
-                        type: string
-                        description: Payment URL to redirect to (e.g. /paynow/123)
   /upgradeDowngradeCloud:
     post:
       summary: Upgrade or downgrade a cloud product
@@ -1966,12 +1895,9 @@ paths:
               type: object
               required:
                 - id
-                - agents
                 - orderId
               properties:
                 id:
-                  type: integer
-                agents:
                   type: integer
                 orderId:
                   type: integer
@@ -2195,29 +2121,6 @@ paths:
             application/json:
               schema:
                 type: object
-  /update-agent-qty:
-    post:
-      summary: Update agent quantity in the cart
-      operationId: updateAgentQty
-      tags:
-        - Cart
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - productid
-                - planid
-              properties:
-                productid:
-                  type: integer
-                planid:
-                  type: integer
-      responses:
-        '200':
-          description: Agent quantity updated successfully.
   /update-qty:
     post:
       summary: Update product quantity in the cart
@@ -2264,29 +2167,6 @@ paths:
       responses:
         '200':
           description: Product quantity reduced successfully.
-  /reduce-agent-qty:
-    post:
-      summary: Reduce agent quantity in the cart
-      operationId: reduceAgentQty
-      tags:
-        - Cart
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - productid
-                - planid
-              properties:
-                productid:
-                  type: integer
-                planid:
-                  type: integer
-      responses:
-        '200':
-          description: Agent quantity reduced successfully.
   /cart/clear:
     post:
       summary: Clear the cart

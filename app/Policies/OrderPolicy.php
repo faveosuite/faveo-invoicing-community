@@ -179,7 +179,7 @@ class OrderPolicy
     /** Switch to another plan — only one the client's plan list offers ({@see Plan::cloudPlanChangeOptions}). */
     public function changeCloudPlan(User $user, Order $order, int $planId): Response
     {
-        $base = $this->changeCloudAgents($user, $order);
+        $base = $this->changeCloud($user, $order);
         if ($base->denied()) {
             return $base;
         }
@@ -191,7 +191,8 @@ class OrderPolicy
             : Response::deny(__('message.no_permission_for_action'));
     }
 
-    public function changeCloudAgents(User $user, Order $order): Response
+    /** A live cloud order with no unpaid change invoice — one change at a time. */
+    public function changeCloud(User $user, Order $order): Response
     {
         $base = $this->manageCloud($user, $order);
         if ($base->denied()) {

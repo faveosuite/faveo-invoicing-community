@@ -2,27 +2,27 @@
     <FormFieldTemplate :label="label" :labelStyle="labelStyle" :name="name" :classname="classname"
                        :hint="hint" :required="required" :showNewButton="showNewButton"
                        :newBtnName="newBtnName" :onClickEvent="getActionEvent"
-                       :inputGroupBtn="inputGroupBtn" :error="error">
+                       :inputGroupBtn="inputGroupBtn" :error="error" :inputId="inputId">
         <div v-if="type === 'textarea'">
-            <textarea :id="id ? id : 'text-field-' + name" :name="name"
+            <textarea :id="inputId" v-bind="a11y" :name="name"
                       :class="['form-control', inputClass, { 'is-invalid': error }]"
                       :maxlength="length" :type="type"
                       v-model="changedValue" @input="onChange(changedValue, name)"
                       :cols="columns" :rows="rows" :style="inputStyle"
-                      :placeholder="placeholderVal"
+                      :placeholder="placeholderVal" :spellcheck="spellcheck" :autocomplete="autocomplete"
                       :required="required">
             </textarea>
         </div>
         <div v-else-if="type === 'password'">
             <div class="input-group">
-                <input :id="id ? id : 'text-field-' + name" :name="name"
+                <input :id="inputId" v-bind="a11y" :name="name"
                        :class="['form-control', inputClass, { 'is-invalid': error }]"
                        :type="showPassword ? 'text' : 'password'"
                        :disabled="disabled" :readonly="readonly" :style="inputStyle"
                        v-model="changedValue" @input="onChange(changedValue, name)"
                        @keyup="keyupListener($event, name)" @keydown="keydownListener($event, name)"
                        @keypress="keypressEvt($event, name)" @paste="pasteEvt($event, name)"
-                       :placeholder="placeholderVal" :maxlength="max || undefined"
+                       :placeholder="placeholderVal" :maxlength="max || undefined" :spellcheck="spellcheck" :autocomplete="autocomplete"
                        :required="required" />
                 <span class="input-group-text cursor-pointer" @click="togglePasswordVisibility">
                     <i class="fa" :class="showPassword ? 'fa-eye' : 'fa-eye-slash'"></i>
@@ -30,23 +30,23 @@
             </div>
         </div>
         <div v-else-if="suffix" class="input-group">
-            <input :id="id ? id : 'text-field-' + name" :name="name"
+            <input :id="inputId" v-bind="a11y" :name="name"
                    :class="['form-control', inputClass, { 'is-invalid': error }]"
                    :type="type" :disabled="disabled" :readonly="readonly" :style="inputStyle"
                    v-model="changedValue" @input="onChange(changedValue, name)"
                    @keyup="keyupListener($event, name)" @keydown="keydownListener($event, name)"
                    @keypress="keypressEvt($event, name)" @paste="pasteEvt($event, name)"
-                   :placeholder="placeholderVal" :maxlength="max || undefined"
+                   :placeholder="placeholderVal" :maxlength="max || undefined" :spellcheck="spellcheck" :autocomplete="autocomplete"
                    :required="required" />
             <span class="input-group-text">{{ suffix }}</span>
         </div>
-        <input v-else :id="id ? id : 'text-field-' + name" :name="name"
+        <input v-else :id="inputId" v-bind="a11y" :name="name"
                :class="['form-control', inputClass, { 'is-invalid': error }]"
                :type="type" :disabled="disabled" :readonly="readonly" :style="inputStyle"
                v-model="changedValue" @input="onChange(changedValue, name)"
                @keyup="keyupListener($event, name)" @keydown="keydownListener($event, name)"
                @keypress="keypressEvt($event, name)" @paste="pasteEvt($event, name)"
-               :placeholder="placeholderVal" :maxlength="max || undefined"
+               :placeholder="placeholderVal" :maxlength="max || undefined" :spellcheck="spellcheck" :autocomplete="autocomplete"
                :required="required" />
     </FormFieldTemplate>
 </template>
@@ -78,6 +78,9 @@ const props = defineProps({
     columns:         { type: [String, Number], default: '' },
     inputStyle:      { type: Object,           default: () => ({}) },
     max:             { type: [Number, String], default: '' },
+    // Codes, keys and emails: no spell-check squiggles, no browser autofill
+    spellcheck:      { type: Boolean,          default: undefined },
+    autocomplete:    { type: String,           default: undefined },
     rows:            { type: [Number, String], default: '' },
     cols:            { type: [Number, String], default: '' },
     inputClass:      { type: String,           default: '' },
@@ -90,7 +93,20 @@ const props = defineProps({
     // Plain text appended after the input, e.g. ".example.com" for a
     // subdomain field — matches the client panel's cloud-domain field.
     suffix:          { type: String,           default: '' },
+    // For a field with no visible label (e.g. inside a table cell)
+    ariaLabel:       { type: String,           default: '' },
+    // Keyboard on phones, e.g. "decimal" for prices
+    inputmode:       { type: String,           default: undefined },
 })
+
+const inputId = computed(() => String(props.id || `text-field-${props.name}`))
+// Name, keyboard and error link for screen readers and phones
+const a11y = computed(() => ({
+    'aria-label': props.ariaLabel || undefined,
+    inputmode: props.inputmode,
+    'aria-invalid': props.error ? 'true' : undefined,
+    'aria-describedby': props.error ? `${inputId.value}-error` : undefined,
+}))
 
 const changedValue = ref(props.value)
 const showPassword = ref(false)

@@ -15,6 +15,7 @@ use App\Model\Mailjob\Condition;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Order\OrderEntitlement;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
@@ -23,6 +24,7 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Plugins\Payment\Dto\SubscriptionResult;
 use App\Plugins\Stripe\Controllers\SettingsController;
+use App\Services\EntitlementService;
 use App\Services\Payment\ProcessingFee;
 use App\Services\Payment\SubscriptionService;
 use App\User;
@@ -458,20 +460,20 @@ class SubscriptionControllerTest extends DBTestCase
     public function test_auto_renewal_price_matches_manual_renewal_price(): void
     {
         $user = User::factory()->create();
-        $plan = new PlanPrice(['renew_price' => 500, 'no_of_agents' => 3, 'currency' => 'USD']);
+        $plan = (new PlanPrice)->forceFill(['renew_price' => 500, 'currency' => 'USD']);
         $auto = new SubscriptionController($this->instantiateDependencies());
         $manual = new BaseRenewController;
 
-        // agents on the order's latest invoice line → expected price
-        foreach (['3' => 500.0, '6' => 1000.0, '0' => 500.0] as $agents => $expected) {
-            // Serial key deliberately disagrees: the price follows the order's agents, not the key.
+        // the order's Agents extra → expected price: the plan price plus the extra
+        foreach ([0 => 500.0, 3 => 800.0] as $extra => $expected) {
             $order = Order::create(['client' => $user->id, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999), 'serial_key' => 'ABCDEFGH0009']);
-            $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-            InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => 'P', 'agents' => $agents]);
-            OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
+            if ($extra) {
+                OrderEntitlement::create(['order_id' => $order->id, 'entitlement_id' => EntitlementService::agents()->id,
+                    'quantity' => $extra, 'unit_price' => 100, 'currency' => 'USD']);
+            }
 
-            $this->assertEquals($expected, $manual->renewalCost($order->id, $plan), "manual, {$agents} agents");
-            $this->assertEquals($expected, $auto->calculateRenewalCost(new Subscription, ['plan' => $plan], $order), "auto, {$agents} agents");
+            $this->assertEquals($expected, $manual->renewalCost($order->id, $plan), "manual, {$extra} extra agents");
+            $this->assertEquals($expected, $auto->calculateRenewalCost(new Subscription, ['plan' => $plan], $order), "auto, {$extra} extra agents");
         }
     }
 
@@ -607,7 +609,7 @@ class SubscriptionControllerTest extends DBTestCase
 
         $product = Product::create(['name' => 'RenewalSkip '.uniqid()]);
         $plan = Plan::create(['name' => 'RenewalSkipPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
-        PlanPrice::create(['plan_id' => $plan->id, 'currency' => $currency, 'renew_price' => 999, 'no_of_agents' => 1]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => $currency, 'renew_price' => 999]);
         $user = User::factory()->create(['role' => 'user', 'country' => 'ZZ']);
         $order = Order::create([
             'client' => $user->id, 'order_status' => 'executed',
@@ -922,7 +924,7 @@ class SubscriptionControllerTest extends DBTestCase
         $user = User::factory()->create();
         $product = Product::factory()->create();
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => getCurrencyForClient((string) $user->country), 'renew_price' => 0, 'no_of_agents' => 0]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => getCurrencyForClient((string) $user->country), 'renew_price' => 0]);
         $order = Order::create(['client' => $user->id, 'product' => $product->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999)]);
         $sub = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $user->id, 'is_subscribed' => 1]);
         \DB::table('subscriptions')->where('id', $sub->id)->update(['subscribe_id' => 'sub_old', 'autoRenew_status' => '3']);

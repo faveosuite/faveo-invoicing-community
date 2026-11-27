@@ -5,287 +5,288 @@
         <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
         <template v-else>
-            <!-- Order header: what was bought, its state, when it ends, and the main action -->
-            <div class="card card-light mb-4">
-                <div class="card-body">
-                    <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
-                        <div>
-                            <h2 class="h4 mb-1">
-                                {{ __('message.order_number_title', { number: order?.number }) }}
-                                <span class="badge align-middle ms-2 order-status" :class="statusBadgeClass">{{ order?.order_status || '—' }}</span>
-                            </h2>
-                            <p v-if="order?.product_relation" class="mb-0">
-                                <router-link :to="`/products/${order.product_relation.id}/edit`">{{ order.product_relation.name }}</router-link>
-                            </p>
-                        </div>
-                        <div v-if="canRenew">
-                            <router-link v-if="!renewBlockedReason" class="btn btn-primary" :to="`/orders/${orderId}/renew`">
-                                <i class="fas fa-rotate me-1"></i>{{ __('message.renew_order') }}
-                            </router-link>
-                            <span v-else class="d-inline-block" tabindex="0" v-tooltip="renewBlockedReason">
-                                <button type="button" class="btn btn-primary" disabled><i class="fas fa-rotate me-1"></i>{{ __('message.renew_order') }}</button>
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Key dates: when the order was placed, and when the license and each date feature end -->
-                    <dl class="row g-3 mt-2 mb-0 order-facts">
-                        <div v-if="planName" class="col-12 col-md">
-                            <dt>{{ __('message.plan') }}</dt>
-                            <dd class="mb-0">{{ planName }}</dd>
-                        </div>
-                        <div class="col-6 col-md">
-                            <dt>{{ __('message.order_ordered_on') }}</dt>
-                            <dd class="mb-0">{{ order?.created_at ? formatDate(order.created_at) : '—' }}</dd>
-                        </div>
-                        <div v-for="d in rights.dates" :key="d.code" class="col-6 col-md">
-                            <dt>{{ __('message.order_until', { label: d.label }) }}</dt>
-                            <dd class="mb-0 d-flex align-items-center gap-2">
-                                <span>{{ d.ends_at ? formatDate(d.ends_at) : __('message.order_date_never') }}</span>
-                                <button type="button" class="btn btn-link btn-sm p-0 text-muted" v-tooltip="__('message.edit')"
-                                        :aria-label="`${__('message.edit')} ${d.label}`" @click="openDate(d)">
-                                    <i class="fas fa-pen"></i>
-                                </button>
-                            </dd>
-                            <dd v-if="dateHint(d)" class="mb-0 small" :class="dateHint(d).class">{{ dateHint(d).text }}</dd>
-                        </div>
-                    </dl>
+            <!-- License ended / ending soon: said once, at the top -->
+            <div v-if="term && term.tone !== 'good'" class="alert d-flex align-items-start gap-2" :class="term.tone === 'bad' ? 'alert-danger' : 'alert-warning'" role="status">
+                <i class="fas fa-triangle-exclamation mt-1" aria-hidden="true"></i>
+                <div>
+                    <strong>{{ term.tone === 'bad' ? __('message.order_alert_ended', { date: term.endText }) : __('message.order_alert_ending', { date: term.endText }) }}</strong>
+                    <div class="small">{{ __('message.order_alert_body') }}</div>
                 </div>
             </div>
 
-            <div class="row g-4">
-                <div class="col-lg-8">
+            <!-- Announces "Copied" for the copy buttons -->
+            <span class="visually-hidden" aria-live="polite">{{ copyNotice }}</span>
+
+            <!-- ── 1. Order summary ── -->
+            <div class="card card-light">
+                <div class="card-header">
+                    <h4 class="card-title d-flex flex-wrap align-items-center gap-2">
+                        <span translate="no">{{ __('message.order_number_title', { number: order?.number }) }}</span>
+                        <action-button variant="tool" class="p-0" :iconOnly="true" :icon="copiedFlags.number ? 'fas fa-check' : 'far fa-copy'"
+                                       :label="__('message.order_copy_number')" v-tooltip="copiedFlags.number ? __('message.copied') : __('message.order_copy_number')"
+                                       @click="copyText(order?.number, 'number')" />
+                        <span class="badge" :class="BADGE[statusTone]">{{ order?.order_status || '—' }}</span>
+                        <span class="badge bg-info"><i :class="isCloud ? 'fas fa-cloud' : 'fas fa-server'" class="me-1" aria-hidden="true"></i>{{ isCloud ? __('message.order_type_cloud') : __('message.order_type_self_hosted') }}</span>
+                    </h4>
+                    <div class="card-tools d-flex align-items-center gap-1">
+                        <template v-if="canRenew">
+                            <action-button v-if="!renewBlockedReason" :to="`/orders/${orderId}/renew`" variant="light" class="btn-xs" icon="fas fa-rotate" :label="__('message.renew_order')" />
+                            <span v-else tabindex="0" v-tooltip="renewBlockedReason" :aria-label="`${__('message.renew_order')}: ${renewBlockedReason}`">
+                                <action-button variant="light" class="btn-xs" icon="fas fa-rotate" :label="__('message.renew_order')" :disabled="true" />
+                            </span>
+                        </template>
+                        <!-- Destructive, so it sits last and asks first -->
+                        <action-button action="delete" variant="light" class="btn-xs" :label="__('message.order_delete_button')" @click="showDeleteModal = true" />
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Product -->
+                        <div class="col-md-6 col-xl-3">
+                            <div class="border rounded p-3 h-100">
+                                <span class="form-label fw-bold d-block">{{ __('message.product') }}</span>
+                                <router-link v-if="order?.product_relation" :to="`/products/${order.product_relation.id}/edit`">{{ order.product_relation.name }}</router-link>
+                                <span v-else>—</span>
+                                <div v-if="planName" class="small text-muted">
+                                    {{ __('message.plan') }}:
+                                    <router-link v-if="order.subscription.plan.id" :to="`/products/plans/${order.subscription.plan.id}/edit`">{{ planName }}</router-link>
+                                    <template v-else>{{ planName }}</template>
+                                </div>
+                                <div class="small text-muted">{{ __('message.order_ordered_on') }}: {{ order?.created_at ? formatDate(order.created_at) : '—' }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Customer -->
+                        <div class="col-md-6 col-xl-3">
+                            <div class="border rounded p-3 h-100">
+                                <span class="form-label fw-bold d-block">{{ __('message.customer') }}</span>
+                                <router-link v-if="order?.user?.id" :to="`/users/${order.user.id}`">{{ userName }}</router-link>
+                                <span v-else>{{ userName }}</span>
+                                <div v-if="order?.user?.email" class="small text-muted d-flex align-items-center gap-1 text-break">
+                                    {{ order.user.email }}
+                                    <action-button variant="tool" class="p-0" :iconOnly="true" :icon="copiedFlags.email ? 'fas fa-check' : 'far fa-copy'"
+                                                   :label="__('message.copy')" v-tooltip="copiedFlags.email ? __('message.copied') : __('message.copy')"
+                                                   @click="copyText(order.user.email, 'email')" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- License ends -->
+                        <div v-if="term" class="col-md-6 col-xl-3">
+                            <div class="border rounded p-3 h-100">
+                                <span class="form-label fw-bold d-flex justify-content-between">
+                                    {{ __('message.order_subscription_ends') }}
+                                    <action-button variant="tool" class="p-0" :iconOnly="true" icon="fas fa-pen" :label="__('message.order_change_date')" v-tooltip="__('message.order_change_date')" @click="openDate(term.date)" />
+                                </span>
+                                {{ term.endText }}
+                                <span v-if="term.hint" class="badge ms-1" :class="BADGE[term.tone]">{{ term.hint }}</span>
+                                <p v-if="!term.date.ends_at" class="text-muted small mb-0 mt-1">{{ __('message.order_no_end_date') }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Auto renewal: hidden when nothing on the order expires -->
+                        <div v-if="canRenew" class="col-md-6 col-xl-3">
+                            <div class="border rounded p-3 h-100">
+                                <span class="form-label fw-bold d-flex justify-content-between align-items-center">
+                                    <span id="order-auto-renewal-label">{{ __('message.auto_renewal') }}</span>
+                                    <Switch :key="`renew-${switchKey}`" name="auto_renewal" labelledby="order-auto-renewal-label" :value="isSubscribed == 1"
+                                            :disabled="isSubscribed != 1 || saving.renewal" :onChange="askRenewalOff" />
+                                </span>
+                                <span class="badge" :class="RENEW_BADGE[autoRenewState] ?? 'bg-secondary'">{{ renewStateLabel }}</span>
+                                <p class="text-muted small mb-0 mt-1">
+                                    <template v-if="isSubscribed && paymentLog?.payment_method">{{ capitalize(paymentLog.payment_method) }}<template v-if="paymentLog.date">, {{ __('message.order_since', { date: formatDate(paymentLog.date) }) }}</template></template>
+                                    <template v-else>{{ __('message.order_manual_renewal') }}</template>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── 2. License and installations ── -->
+                    <div v-if="hasLicense" class="row mt-4">
+                        <div class="col-lg-5 d-flex">
+                            <div class="card card-light flex-fill">
+                                <div class="card-header">
+                                    <h4 class="card-title"><i class="fas fa-key me-2 text-muted" aria-hidden="true"></i>{{ __('message.order_license_binding') }}</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="border rounded p-3 mb-3">
+                                        <span class="form-label fw-bold d-flex justify-content-between align-items-center">
+                                            {{ __('message.order_license_key') }}
+                                            <action-button variant="tool" class="p-0" :icon="keyHidden ? 'far fa-eye' : 'far fa-eye-slash'" :aria-pressed="!keyHidden"
+                                                           :label="keyHidden ? __('message.order_show') : __('message.order_hide')" @click="keyHidden = !keyHidden" />
+                                        </span>
+                                        <div class="d-flex align-items-center justify-content-between gap-2">
+                                            <code class="fs-5 text-body text-break" translate="no" :aria-hidden="keyHidden || undefined">{{ keyText }}</code>
+                                            <span v-if="keyHidden" class="visually-hidden">{{ __('message.order_key_hidden', { last: keyChunks.at(-1) }) }}</span>
+                                            <action-button variant="light" class="btn-xs" :icon="copied ? 'fas fa-check' : 'far fa-copy'" :label="copied ? __('message.copied') : __('message.copy')" @click="copyLicenseCode" />
+                                        </div>
+                                    </div>
+
+                                    <div v-if="!isCloud" class="border rounded p-3">
+                                        <span class="form-label fw-bold d-flex justify-content-between align-items-center">
+                                            <span class="d-flex align-items-center gap-1">
+                                                <span id="order-license-mode-label">{{ __('message.localized_license') }}</span>
+                                                <Tooltip :message="__('message.localized_license_tooltip')" />
+                                            </span>
+                                            <Switch :key="`mode-${switchKey}`" name="license_mode" labelledby="order-license-mode-label" :value="order?.license_mode === 'File'"
+                                                    :disabled="saving.licenseMode" :onChange="askLicenseMode" />
+                                        </span>
+                                        <div v-if="order?.license_mode === 'File'" class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                            <span v-if="isLicenseBound()" class="badge bg-success text-wrap text-start">
+                                                <i class="fas fa-link me-1" aria-hidden="true"></i>{{ __('message.order_bound_to') }} <span translate="no">{{ licenseDetails.license_domain || licenseDetails.license_ip }}</span>
+                                            </span>
+                                            <span v-else class="badge bg-warning text-dark text-wrap text-start"><i class="far fa-clock me-1" aria-hidden="true"></i>{{ __('message.order_not_bound') }}</span>
+                                            <action-button action="download" variant="light" class="btn-xs" :label="__('message.download_license_file')" @click="handleDownloadClick" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-7 d-flex">
+                            <div class="card card-light flex-fill">
+                                <div class="card-header">
+                                    <h4 class="card-title">
+                                        <i class="fas fa-server me-2 text-muted" aria-hidden="true"></i>{{ __('message.installations') }}
+                                        <span class="badge ms-2" :class="limitReached ? 'bg-warning text-dark' : 'bg-secondary'">{{ __('message.order_installs_of', { used: installs.length, limit: limitLabel }) }}</span>
+                                    </h4>
+                                    <div class="card-tools d-flex gap-1">
+                                        <action-button v-if="canReissue" variant="light" class="btn-xs" icon="fas fa-id-card-alt" :label="__('message.reissue_license')"
+                                                       v-tooltip="__('message.reissuing_license')" @click="showReissueModal = true" />
+                                        <action-button variant="light" class="btn-xs" icon="fas fa-sliders" :label="__('message.order_edit_limit')" @click="openLicenseEditModal" />
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="nav nav-tabs mb-3" role="tablist" :aria-label="__('message.installations')"
+                                        @keydown="onTabKeys($event, INSTALL_TABS, installTab, selectInstallTab, 'installs-tab-')">
+                                        <li v-for="t in INSTALL_TABS" :key="t" class="nav-item" role="presentation">
+                                            <a href="#" class="nav-link" :class="{ active: installTab === t }" role="tab"
+                                               :id="`installs-tab-${t}`" :aria-controls="`installs-panel-${t}`" :aria-selected="installTab === t"
+                                               :tabindex="installTab === t ? 0 : -1" @click.prevent="selectInstallTab(t)">
+                                                <i :class="t === 'current' ? 'fas fa-server' : 'fas fa-clock-rotate-left'" class="me-1" aria-hidden="true"></i>
+                                                {{ t === 'current' ? __('message.order_current_installs') : __('message.order_tab_installations') }}
+                                                <span v-if="t === 'current'" class="badge bg-secondary ms-1">{{ installs.length }}</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+
+                                    <div v-show="installTab === 'current'" id="installs-panel-current" role="tabpanel" aria-labelledby="installs-tab-current">
+                                        <div v-if="!installs.length" class="text-center text-muted py-4">
+                                            <i class="fas fa-server fa-2x mb-2 opacity-50" aria-hidden="true"></i>
+                                            <p class="fw-semibold mb-1">{{ __('message.order_not_installed') }}</p>
+                                            <p class="small mb-0">{{ __('message.order_not_installed_hint') }}</p>
+                                        </div>
+                                        <div v-else class="table-responsive">
+                                            <table class="table table-hover table-striped table-bordered align-middle mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>{{ __('message.installation_path') }}</th>
+                                                        <th>{{ __('message.version') }}</th>
+                                                        <th>{{ __('message.status') }}</th>
+                                                        <th>{{ __('message.last_active') }}</th>
+                                                        <th>{{ __('message.action') }}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="i in installs" :key="i.id">
+                                                        <td class="text-break" translate="no">
+                                                            {{ i.domain || i.ip || '—' }}
+                                                            <small v-if="i.domain && i.ip" class="d-block text-muted">{{ i.ip }}</small>
+                                                        </td>
+                                                        <td class="tabular-nums" translate="no">{{ i.version || '—' }}</td>
+                                                        <td><span class="badge" :class="i.active ? 'bg-success' : 'bg-secondary'">{{ i.active ? __('message.active') : __('message.inactive') }}</span></td>
+                                                        <td class="text-nowrap tabular-nums">{{ i.last_active ? formatDate(i.last_active) : '—' }}</td>
+                                                        <td>
+                                                            <action-button variant="light" class="table_btn" icon="fas fa-link-slash" :iconOnly="true"
+                                                                           :label="`${__('message.order_unbind')} ${i.domain || i.ip}`" v-tooltip="__('message.order_unbind')" @click="unbinding = i" />
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <!-- Every server that ever checked in; loads on first open -->
+                                    <div v-if="historySeen" v-show="installTab === 'history'" id="installs-panel-history" role="tabpanel" aria-labelledby="installs-tab-history">
+                                        <DataTable ref="historyTable" :url="`${baseUrl}/get-installation-details/${orderId}`" :dataColumns="historyColumns" :option="historyTableOptions" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── 3. Billing and features ── -->
                     <div class="card card-light">
                         <div class="card-header p-0 border-bottom-0">
-                            <ul class="nav nav-tabs flex-nowrap overflow-x-auto px-3 pt-2 order-tabs" role="tablist">
-                                <li v-if="hasLicense" class="nav-item">
-                                    <a class="nav-link" :class="{ active: tab === 'license' }" href="#" @click.prevent="tab = 'license'">
-                                        <i class="fas fa-key me-1"></i>{{ __('message.order_tab_license') }}
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" :class="{ active: tab === 'features' }" href="#" @click.prevent="tab = 'features'">
-                                        <i class="fas fa-list-check me-1"></i>{{ __('message.order_features') }}
-                                        <span class="badge text-bg-light border ms-1">{{ rights.entitlements.length }}</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" :class="{ active: tab === 'installations' }" href="#" @click.prevent="tab = 'installations'">
-                                        <i class="fas fa-server me-1"></i>{{ __('message.order_tab_installations') }}
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" :class="{ active: tab === 'invoices' }" href="#" @click.prevent="tab = 'invoices'">
-                                        <i class="fas fa-file-invoice me-1"></i>{{ __('message.order_tab_invoices') }}
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" :class="{ active: tab === 'payments' }" href="#" @click.prevent="tab = 'payments'">
-                                        <i class="fas fa-receipt me-1"></i>{{ __('message.order_tab_payments') }}
+                            <ul class="nav nav-tabs px-3 pt-2" role="tablist" @keydown="onTabKeys($event, tabs.map(t => t.key), tab, selectTab, 'order-tab-')">
+                                <li v-for="t in tabs" :key="t.key" class="nav-item" role="presentation">
+                                    <a href="#" class="nav-link" :class="{ active: tab === t.key }" role="tab"
+                                       :id="`order-tab-${t.key}`" :aria-controls="`order-panel-${t.key}`"
+                                       :aria-selected="tab === t.key" :tabindex="tab === t.key ? 0 : -1" @click.prevent="selectTab(t.key)">
+                                        <i :class="t.icon + ' me-1'" aria-hidden="true"></i>{{ t.label }}
+                                        <span v-if="t.count" class="badge bg-secondary ms-1">{{ t.count }}</span>
                                     </a>
                                 </li>
                             </ul>
                         </div>
                         <div class="card-body">
-                            <!-- License: the installation's code and limits (products that issue one) -->
-                            <div v-if="hasLicense" v-show="tab === 'license'">
-                                <ul class="list-group list-group-flush">
-
-                                    <li class="list-group-item py-3 px-3">
-                                        <div class="row align-items-center">
-                                            <div class="col-4 fw-semibold">{{ __('message.order_license_code') }}</div>
-                                            <div class="col-8 d-flex align-items-center gap-2">
-                                                <span class="font-monospace license-code">{{ licenseDetails?.licence_code || '—' }}</span>
-                                                <button class="btn btn-light table_btn flex-shrink-0" v-tooltip="__('message.copy')" @click="copyLicenseCode">
-                                                    <i :class="copied ? 'fas fa-check' : 'fas fa-clipboard'"></i>
-                                                </button>
-                                                <button v-if="canReissue" class="btn btn-light table_btn flex-shrink-0" v-tooltip="__('message.reissue_license')" :disabled="saving.reissue" @click="showReissueModal = true">
-                                                    <i class="fas fa-credit-card"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </li>
-
-                                    <li class="list-group-item py-3 px-3">
-                                        <div class="row align-items-center">
-                                            <div class="col-4 fw-semibold">{{ __('message.installation_limit') }}</div>
-                                            <div class="col-8 d-flex align-items-center gap-2">
-                                                {{ licenseDetails?.installation_limit ?? '—' }}
-                                                <button type="button" class="btn btn-link btn-sm p-0 text-muted" v-tooltip="__('message.edit')"
-                                                        :aria-label="`${__('message.edit')} ${__('message.installation_limit')}`" @click="openLicenseEditModal">
-                                                    <i class="fas fa-pen"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </li>
-
-                                    <li class="list-group-item py-3 px-3">
-                                        <div class="row align-items-center">
-                                            <div class="col-4 fw-semibold">{{ __('message.agents') }}</div>
-                                            <div class="col-8 d-flex align-items-center gap-2">
-                                                {{ agentsLabel }}
-                                                <button type="button" class="btn btn-link btn-sm p-0 text-muted" v-tooltip="__('message.edit')"
-                                                        :aria-label="`${__('message.edit')} ${__('message.agents')}`" @click="openLicenseEditModal">
-                                                    <i class="fas fa-pen"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </li>
-
-                                    <li v-if="!isCloud" class="list-group-item py-3 px-3">
-                                        <div class="row align-items-center">
-                                            <div class="col-4 fw-semibold d-flex align-items-center gap-1">
-                                                {{ __('message.localized_license') }}
-                                                <Tooltip :message="__('message.localized_license_tooltip')" />
-                                            </div>
-                                            <div class="col-8 d-flex align-items-center gap-2">
-                                                <Switch
-                                                    name="license_mode"
-                                                    :value="order?.license_mode === 'File'"
-                                                    :disabled="saving.licenseMode"
-                                                    :onChange="toggleLicenseMode"
-                                                />
-                                                <button
-                                                    v-if="order?.license_mode === 'File'"
-                                                    class="btn btn-light table_btn"
-                                                    v-tooltip="__('message.download_license_file')"
-                                                    @click="handleDownloadClick"
-                                                >
-                                                    <i class="fas fa-download"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </li>
-
-                                </ul>
+                            <!-- Tables mount on first visit -->
+                            <div v-if="seen.billing" v-show="tab === 'billing'" id="order-panel-billing" role="tabpanel" aria-labelledby="order-tab-billing">
+                                <h5>{{ __('message.invoices') }}</h5>
+                                <div class="table-responsive mb-4">
+                                    <DataTable :url="`${baseUrl}/getOrderInvoices/${orderId}`" :dataColumns="invoiceColumns" :option="invoiceTableOptions" />
+                                </div>
+                                <h5>{{ __('message.order_tab_payments') }}</h5>
+                                <div class="table-responsive">
+                                    <DataTable :url="`${baseUrl}/getOrderPayments/${orderId}`" :dataColumns="paymentColumns" :option="paymentTableOptions" />
+                                </div>
                             </div>
 
-                            <div v-show="tab === 'features'">
-                                <OrderEntitlements :orderId="orderId" :items="rights.entitlements" :available="rights.available" @changed="loadRights" />
-                            </div>
-
-                            <div v-show="tab === 'installations'" class="table-responsive">
-                                <DataTable
-                                    :url="`${baseUrl}/get-installation-details/${orderId}`"
-                                    :dataColumns="installColumns"
-                                    :option="installTableOptions"
-                                />
-                            </div>
-                            <div v-show="tab === 'invoices'" class="table-responsive">
-                                <DataTable
-                                    :url="`${baseUrl}/getOrderInvoices/${orderId}`"
-                                    :dataColumns="invoiceColumns"
-                                    :option="invoiceTableOptions"
-                                />
-                            </div>
-                            <div v-show="tab === 'payments'" class="table-responsive">
-                                <DataTable
-                                    :url="`${baseUrl}/getOrderPayments/${orderId}`"
-                                    :dataColumns="paymentColumns"
-                                    :option="paymentTableOptions"
-                                />
+                            <div v-show="tab === 'features'" id="order-panel-features" role="tabpanel" aria-labelledby="order-tab-features">
+                                <OrderEntitlements :orderId="orderId" :items="rights.entitlements" :available="rights.available" :dates="featureDates"
+                                                   @changed="loadRights" @edit-date="openDate" />
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Right sidebar -->
-                <div class="col-lg-4">
-
-                    <!-- Customer card -->
-                    <div class="card card-light mb-4">
-                        <div class="card-header">
-                            <h4 class="card-title">
-                                {{ __('message.customer') }}
-                            </h4>
-                        </div>
-                        <div class="card-body p-0">
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item py-3 px-3">
-                                    <div class="row align-items-center">
-                                        <div class="col-4 fw-semibold">{{ __('message.name') }}</div>
-                                        <div class="col-8">
-                                            <router-link v-if="order?.user?.id" :to="`/users/${order.user.id}`">{{ userName }}</router-link>
-                                            <span v-else>{{ userName }}</span>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="list-group-item py-3 px-3">
-                                    <div class="row align-items-center">
-                                        <div class="col-4 fw-semibold">{{ __('message.email') }}</div>
-                                        <div class="col-8">{{ order?.user?.email || '—' }}</div>
-                                    </div>
-                                </li>
-                                <li class="list-group-item py-3 px-3">
-                                    <div class="row align-items-center">
-                                        <div class="col-4 fw-semibold">{{ __('message.mobile') }}</div>
-                                        <div class="col-8">
-                                            <span v-if="order?.user?.mobile_code">(+{{ order.user.mobile_code }}) </span>
-                                            {{ order?.user?.mobile || '—' }}
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="list-group-item py-3 px-3">
-                                    <div class="row align-items-center">
-                                        <div class="col-4 fw-semibold">{{ __('message.country') }}</div>
-                                        <div class="col-8">
-                                            <span v-if="order?.user?.country">
-                                                <span :class="`fi fi-${order.user.country.toLowerCase()} me-1`"></span>
-                                                {{ order.user.country_relation?.country_name || order.user.country }}
-                                                ({{ order.user.country }})
-                                            </span>
-                                            <span v-else>—</span>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Auto Renewal card — hidden when nothing on the order expires (lifetime) -->
-                    <div v-if="canRenew" class="card card-light">
-                        <div class="card-header">
-                            <h4 class="card-title">
-                                {{ __('message.auto_renewal') }}
-                            </h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div>
-                                    <div class="small fw-semibold">{{ __('message.auto_renewal_subscription') }}</div>
-                                    <div class="text-muted text-renewal-hint">{{ __('message.auto_renewal_subscription_hint') }}</div>
-                                </div>
-                                <Switch
-                                    name="auto_renewal"
-                                    :value="isSubscribed == 1"
-                                    :disabled="isSubscribed != 1 || saving.renewal"
-                                    :onChange="disableRenewal"
-                                />
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between">
-                                <span class="small text-muted">{{ __('message.status') }}</span>
-                                <span v-if="autoRenewState === 'active'" class="badge bg-success">{{ __('message.active') }}</span>
-                                <span v-else-if="autoRenewState === 'pending'" class="badge bg-warning text-dark">{{ __('message.pending_authorization') }}</span>
-                                <span v-else-if="autoRenewState === 'enabled'" class="badge bg-info text-dark">{{ __('message.enabled') }}</span>
-                                <span v-else class="badge bg-secondary">{{ __('message.inactive') }}</span>
-                            </div>
-                            <template v-if="isSubscribed && paymentLog">
-                                <hr class="my-3">
-                                <div class="d-flex justify-content-between small mb-2">
-                                    <span class="text-muted">{{ __('message.payment-method') }}</span>
-                                    <span class="fw-semibold">{{ paymentLog?.payment_method ? capitalize(paymentLog.payment_method) : '—' }}</span>
-                                </div>
-                                <div class="d-flex justify-content-between small">
-                                    <span class="text-muted">{{ __('message.subscription_start_date') }}</span>
-                                    <span class="fw-semibold">{{ paymentLog?.date ? formatDate(paymentLog.date) : '—' }}</span>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-
-                </div><!-- /right sidebar -->
-            </div><!-- /row -->
+            </div>
         </template>
+
+        <DeleteModal
+            v-if="showDeleteModal"
+            :showModal="true"
+            :onClose="() => (showDeleteModal = false)"
+            :deleteUrl="`${baseUrl}/orders`"
+            :deleteData="{ order_ids: [Number(orderId)] }"
+            :title="__('message.confirm_delete')"
+            :message="__('message.order_delete')"
+            componentName="orders-index"
+            @deleted="router.push('/orders')"
+        />
+
+        <!-- ── Unbind one install: frees its slot ── -->
+        <DeleteModal
+            v-if="unbinding"
+            :showModal="true"
+            :onClose="() => (unbinding = null)"
+            :deleteUrl="`/order/${orderId}/installations/${unbinding.id}`"
+            :componentName="COMPONENT"
+            :title="__('message.order_unbind_title', { host: unbinding.domain || unbinding.ip })"
+            :message="__('message.order_unbind_body')"
+            :btnLabel="__('message.order_unbind')"
+            btnIcon="fa-link-slash"
+            @deleted="onUnbound"
+        />
+
+        <!-- ── Confirm a switch that changes the license or billing right away ── -->
+        <AppModal :showModal="!!confirming" :onClose="cancelConfirm" :showCloseBtn="false">
+            <template #title><h4>{{ confirming?.title }}</h4></template>
+            <template #fields><p class="mb-0">{{ confirming?.body }}</p></template>
+            <template #controls>
+                <action-button action="cancel" @click="cancelConfirm" />
+                <action-button action="confirm" :label="confirming?.label" :loading="saving.renewal || saving.licenseMode" @click="runConfirm" />
+            </template>
+        </AppModal>
 
         <!-- ── Date edit: license end or a date feature (updates, support, …) ── -->
         <AppModal :showModal="!!dating" :onClose="closeDate" :showCloseBtn="false" classname="modal-md">
@@ -306,34 +307,12 @@
 
         <!-- ── License Details Edit Modal ─────────────────────────────── -->
         <AppModal :showModal="licenseEditModal.show" :onClose="() => licenseEditModal.show = false" :showCloseBtn="false">
-            <template #title><h4>{{ __('message.license_details') }}</h4></template>
+            <template #title><h4>{{ __('message.installation_limit') }}</h4></template>
             <template #alert><AppAlert :componentName="MODAL_COMPONENT" /></template>
             <template #fields>
-                <div class="mb-3">
-                    <label class="form-label fw-bold" for="license-installation-limit">{{ __('message.installation_limit') }}</label>
-                    <input
-                        id="license-installation-limit"
-                        type="number"
-                        class="form-control"
-                        :class="{ 'is-invalid': errors.limit }"
-                        v-model="licenseEditModal.limit"
-                        min="1"
-                    />
-                    <div v-if="errors.limit" class="invalid-feedback">{{ errors.limit }}</div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold" for="license-agents">{{ __('message.agents') }}</label>
-                    <input
-                        id="license-agents"
-                        type="number"
-                        class="form-control"
-                        :class="{ 'is-invalid': errors.agents }"
-                        v-model="licenseEditModal.agents"
-                        min="0"
-                    />
-                    <div v-if="errors.agents" class="invalid-feedback">{{ errors.agents }}</div>
-                    <small class="text-muted">{{ __('message.agents_unlimited_hint') }}</small>
-                </div>
+                <TextField name="limit" type="number" :label="__('message.installation_limit')"
+                           :value="String(licenseEditModal.limit ?? '')" :error="errors.limit"
+                           :onChange="v => (licenseEditModal.limit = v)" />
             </template>
             <template #controls>
                 <action-button action="save" :loading="saving.licenseEdit" @click="saveLicenseEdit" />
@@ -342,7 +321,7 @@
 
         <!-- ── Reissue License confirmation ── -->
         <AppModal :showModal="showReissueModal" :onClose="() => showReissueModal = false" :showCloseBtn="false">
-            <template #title><h4>{{ __('message.are_you_sure') }}</h4></template>
+            <template #title><h4>{{ __('message.order_reissue_title') }}</h4></template>
             <template #fields>
                 <p class="mb-0">{{ __('message.reissuing_license') }}</p>
             </template>
@@ -361,16 +340,15 @@
             <template #alert><AppAlert :componentName="MODAL_COMPONENT" /></template>
             <template #fields>
                 <p class="text-muted mb-3">{{ __('message.activation_code_tooltip') }}</p>
-                <div class="mb-3">
-                    <label class="form-label fw-bold" for="binding-activation-code">{{ __('message.activation_code') }}</label>
-                    <textarea id="binding-activation-code" class="form-control" rows="4" v-model="bindingForm.activationCode" :placeholder="__('message.enter_activation_code')"></textarea>
-                </div>
+                <TextField name="activation_code" type="textarea" rows="4" :label="__('message.activation_code')"
+                           :placeholder="__('message.enter_activation_code')" :value="bindingForm.activationCode"
+                           :spellcheck="false" autocomplete="off" :error="bindingError"
+                           :onChange="v => { bindingForm.activationCode = v; bindingError = '' }" />
             </template>
             <template #controls>
                 <action-button action="confirm"
                                :label="__('message.save_and_download')"
                                :loading="bindingBusy"
-                               :disabled="!bindingForm.activationCode"
                                @click="submitBinding" />
             </template>
         </AppModal>
@@ -384,13 +362,8 @@
                 <ul class="list-group mb-3">
                     <li class="list-group-item d-flex align-items-center justify-content-between">
                         <span>{{ order?.product_relation?.name || __('message.product') }}</span>
-                        <button
-                            class="btn btn-light table_btn"
-                            v-tooltip="__('message.download_license_file')"
-                            @click="selectDownload(null)"
-                        >
-                            <i class="fas fa-download"></i>
-                        </button>
+                        <action-button action="download" variant="light" :iconOnly="true" :label="__('message.download_license_file')"
+                            v-tooltip="__('message.download_license_file')" @click="selectDownload(null)" />
                     </li>
                 </ul>
 
@@ -403,13 +376,8 @@
                             class="list-group-item d-flex align-items-center justify-content-between"
                         >
                             <span>{{ plugin.name }}</span>
-                            <button
-                                class="btn btn-light table_btn"
-                                v-tooltip="__('message.download_license_file')"
-                                @click="selectDownload(plugin.id)"
-                            >
-                                <i class="fas fa-download"></i>
-                            </button>
+                            <action-button action="download" variant="light" :iconOnly="true" :label="__('message.download_license_file')"
+                                v-tooltip="__('message.download_license_file')" @click="selectDownload(plugin.id)" />
                         </li>
                     </ul>
                 </template>
@@ -419,14 +387,16 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, h } from 'vue'
-import { useRoute, RouterLink } from 'vue-router'
+import { ref, reactive, computed, onMounted, h, nextTick } from 'vue'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
 import { useForm } from 'vee-validate'
 import { validateForm } from '@/helpers/formUtils.js'
 import { licenseDetailsSchema } from '@/validations/admin/orderValidations.js'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
 import Checkbox from '@/components/Reusable/FormField/Checkbox.vue'
 import DatePicker from '@/components/Reusable/FormField/DatePicker.vue'
 import OrderEntitlements from './components/OrderEntitlements.vue'
@@ -440,32 +410,34 @@ const { formatDate } = useDateTime()
 const { errors, setErrors, resetForm } = useForm()
 
 const COMPONENT = 'orders-show'
-// Separate name for the three modals below — keeps their alerts from also
-// firing the page-level AppAlert (same store, matched by name) at the same time.
 const MODAL_COMPONENT = 'orders-show-modal'
 
 const baseUrl = useBaseUrl()
 
 const route   = useRoute()
+const router  = useRouter()
 const orderId = route.params.id
 
-const loading        = ref(true)
-const copied         = ref(false)
-const order          = ref(null)
-const licenseDetails = ref(null)
-const hasLicense     = ref(true) // false: the product issues no license (a service)
-const isSubscribed   = ref(0)
-const autoRenewState = ref('inactive')
-const canRenew       = ref(false)
-const canReissue     = ref(false)
-const isCloud        = ref(false)
-const paymentLog     = ref(null)
-const tab            = ref('license')
-const pluginLicenses = ref([])
+const loading           = ref(true)
+const copied            = ref(false)
+const copiedFlags       = reactive({ number: false, email: false })
+const keyHidden         = ref(false)
+const order             = ref(null)
+const licenseDetails    = ref(null)
+const hasLicense        = ref(true)
+const isSubscribed      = ref(0)
+const autoRenewState    = ref('inactive')
+const canRenew          = ref(false)
+const canReissue        = ref(false)
+const isCloud           = ref(false)
+const paymentLog        = ref(null)
+const installs          = ref([]) // [{ domain, ip, version, active, last_active }], most recently seen first
+// Opening tab comes from ?tab=, defaulting to Billing.
+const tab               = ref(route.query?.tab === 'features' ? 'features' : 'billing')
+const pluginLicenses    = ref([])
 const renewBlockedReason = ref('')
-// The order's rights (GET /order/{id}/entitlements): features it has, features it could be given, dates.
-const rights         = reactive({ entitlements: [], available: [], dates: [] })
-const dating         = ref(null)
+const rights            = reactive({ entitlements: [], available: [], dates: [] })
+const dating            = ref(null)
 
 const saving = reactive({
     reissue:     false,
@@ -478,9 +450,7 @@ const saving = reactive({
 const licenseEditModal = reactive({
     show:             false,
     limit:            null,
-    agents:           null,
 })
-
 
 // ── Computed ───────────────────────────────────────────────────────────────
 const userName = computed(() => {
@@ -489,23 +459,53 @@ const userName = computed(() => {
     return `${u.first_name ?? ''} ${u.last_name ?? ''}`.trim() || '—'
 })
 
+// The license and its installs sit above in plain view; the long lists go in tabs.
+const tabs = computed(() => [
+    { key: 'billing', icon: 'fas fa-file-invoice-dollar', label: __('message.order_tab_billing') },
+    { key: 'features', icon: 'fas fa-list-check', label: __('message.order_tab_features'), count: rights.entitlements.length + featureDates.value.length },
+])
+
+// The open tab lives in the URL (?tab=billing) so a reload or a shared link keeps it.
+const seen = reactive({})
+function selectTab(key) {
+    tab.value = key
+    seen[key] = true
+    router.replace({ query: { ...route.query, tab: key === 'billing' ? undefined : key } })
+}
 
 const planName = computed(() => order.value?.subscription?.plan?.name ?? null)
 
-const statusBadgeClass = computed(() => {
-    const s = (order.value?.order_status ?? '').toLowerCase()
-    if (s === 'executed') return 'bg-success'
-    if (s === 'pending')  return 'bg-warning text-dark'
-    if (s === 'failed')   return 'bg-danger'
-    return 'bg-secondary'
+// Tone → Bootstrap badge background.
+const BADGE = { good: 'bg-success', warn: 'bg-warning text-dark', bad: 'bg-danger', muted: 'bg-secondary' }
+
+const statusTone = computed(() => ({ executed: 'good', pending: 'warn', failed: 'bad' }[(order.value?.order_status ?? '').toLowerCase()] ?? 'muted'))
+
+// Keys are read in groups of four, so show them that way; copying still copies the raw code.
+const keyChunks = computed(() => (licenseDetails.value?.licence_code || '—').match(/.{1,4}/g) ?? ['—'])
+
+// One polite announcement for whichever copy button was used
+const copyNotice = computed(() => (copied.value || copiedFlags.number || copiedFlags.email ? __('message.copied') : ''))
+
+// Masked keeps the last group, so the key can still be told apart.
+const keyText = computed(() => keyHidden.value
+    ? [...keyChunks.value.slice(0, -1).map(() => '••••'), keyChunks.value.at(-1)].join(' ')
+    : keyChunks.value.join(' '))
+
+const RENEW_BADGE = { active: 'bg-success', pending: 'bg-warning text-dark', enabled: 'bg-info text-dark' }
+const renewStateLabel = computed(() => ({
+    active: __('message.active'), pending: __('message.pending_authorization'), enabled: __('message.enabled'),
+}[autoRenewState.value] ?? __('message.inactive')))
+
+const limitLabel = computed(() => {
+    const l = licenseDetails.value?.installation_limit
+    if (l === null || l === undefined) return '—'
+    return Number(l) === 0 ? __('message.unlimited') : l
 })
 
-
-// 0 in the license's last four digits means unlimited seats, not zero seats.
-const agentsLabel = computed(() => {
-    const a = licenseDetails.value?.agents
-    if (a === null || a === undefined) return '—'
-    return a === 0 ? __('message.unlimited') : a
+// Every slot taken (0 = unlimited, never full).
+const limitReached = computed(() => {
+    const l = Number(licenseDetails.value?.installation_limit)
+    return l > 0 && installs.value.length >= l
 })
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -517,13 +517,91 @@ function capitalize(str) {
 async function copyLicenseCode(e) {
     const code = licenseDetails.value?.licence_code
     if (!code) return
-    await navigator.clipboard.writeText(code)
-    copied.value = true
-    e.target.blur()
-    setTimeout(() => { copied.value = false }, 2000)
+    try {
+        await navigator.clipboard.writeText(code)
+        copied.value = true
+        if (e?.target?.blur) e.target.blur()
+        setTimeout(() => { copied.value = false }, 2000)
+    } catch {
+        // clipboard fallback
+    }
+}
+
+function copyText(text, flag) {
+    if (!text) return
+    navigator.clipboard?.writeText(String(text)).then(() => {
+        copiedFlags[flag] = true
+        setTimeout(() => { copiedFlags[flag] = false }, 2000)
+    }).catch(() => {})
+}
+
+const unbinding    = ref(null) // the install whose Unbind is being confirmed
+const historyTable = ref(null)
+// Current / History inside the Installations card; History lives in the URL (?installs=history).
+const INSTALL_TABS = ['current', 'history']
+const installTab   = ref(route.query?.installs === 'history' ? 'history' : 'current')
+const historySeen  = ref(installTab.value === 'history')
+
+function selectInstallTab(key) {
+    installTab.value = key
+    if (key === 'history') historySeen.value = true
+    router.replace({ query: { ...route.query, installs: key === 'history' ? key : undefined } })
+}
+
+// Arrow keys, Home and End move between tabs, as in any tab list.
+function onTabKeys(e, keys, current, select, idPrefix) {
+    const i = keys.indexOf(current)
+    const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: keys.length - 1 }[e.key]
+    if (next === undefined) return
+    e.preventDefault()
+    const key = keys[(next + keys.length) % keys.length]
+    select(key)
+    nextTick(() => document.getElementById(`${idPrefix}${key}`)?.focus())
+}
+
+// ── Switches that change billing or the license at once ask first ─────────
+const confirming = ref(null) // { title, body, label, run }
+const switchKey  = ref(0)    // bumped on cancel so the switch flips back
+
+function askRenewalOff(on) {
+    if (on) return
+    confirming.value = {
+        title: __('message.order_renew_off_title'),
+        body:  __('message.order_renew_off_body'),
+        label: __('message.order_renew_off_confirm'),
+        run:   disableRenewal,
+    }
+}
+
+function askLicenseMode(on) {
+    confirming.value = {
+        title: __(on ? 'message.order_file_on_title' : 'message.order_file_off_title'),
+        body:  __(on ? 'message.order_file_on_body' : 'message.order_file_off_body'),
+        label: __(on ? 'message.order_file_on_confirm' : 'message.order_file_off_confirm'),
+        run:   () => toggleLicenseMode(on),
+    }
+}
+
+function cancelConfirm() {
+    if (saving.renewal || saving.licenseMode) return
+    confirming.value = null
+    switchKey.value++
+}
+
+async function runConfirm() {
+    await confirming.value?.run()
+    confirming.value = null
+    switchKey.value++
+}
+
+async function onUnbound() {
+    unbinding.value = null
+    await reload()
+    historyTable.value?.refresh()
 }
 
 const showReissueModal = ref(false)
+const showDeleteModal  = ref(false)
 
 async function reissueLicense() {
     saving.reissue = true
@@ -570,20 +648,14 @@ async function toggleLicenseMode(checked) {
 const showBindingModal = ref(false)
 const bindingBusy      = ref(false)
 const bindingForm      = reactive({ activationCode: '' })
-// null = main product's license file; otherwise the plugin product_id whose
-// download triggered the binding modal, so it resumes the right one after.
+const bindingError     = ref('')
 const pendingDownloadProductId = ref(null)
 
-// The activation code is "FLC1." + base64url(JSON {domain, machine_id, ...}); decoded only to
-// refresh the bound state locally — billing re-validates and decodes it itself.
 function decodeActivationCode(code) {
     try { return JSON.parse(atob(code.trim().slice(5).replace(/-/g, '+').replace(/_/g, '/'))) } catch { return {} }
 }
 
 function isLicenseBound() {
-    // Binding stores either a domain OR an IP (LicenseService::parseIpAndDomain
-    // puts an IP address in license_ip, not license_domain) — a domain-only
-    // check wrongly says "not bound" for anyone who bound with an IP.
     return !!((licenseDetails.value?.license_domain || licenseDetails.value?.license_ip) && licenseDetails.value?.license_machine_id)
 }
 
@@ -599,6 +671,7 @@ function requestDownload(productId = null) {
     }
     pendingDownloadProductId.value = productId
     bindingForm.activationCode = ''
+    bindingError.value = ''
     showBindingModal.value = true
 }
 
@@ -614,11 +687,6 @@ function closeDownloadModal() {
 }
 
 function selectDownload(productId) {
-    // Only hide the picker if binding is about to be needed - otherwise its
-    // overlay would sit on top of the binding modal (both share the same
-    // z-index, and the picker comes later in the DOM). It's restored in
-    // submitBinding() once binding's done. If already bound, leave it open
-    // so multiple items can be downloaded without reopening it each time.
     if (!isLicenseBound()) {
         showDownloadModal.value = false
     }
@@ -630,7 +698,10 @@ function closeBindingModal() {
 }
 
 async function submitBinding() {
-    if (!bindingForm.activationCode) return
+    if (!bindingForm.activationCode.trim()) {
+        bindingError.value = __('message.order_activation_code_required')
+        return
+    }
     bindingBusy.value = true
     try {
         const res = await http.post('/license-binding', {
@@ -654,7 +725,6 @@ async function submitBinding() {
 // ── License details edit modal ─────────────────────────────────────────────
 function openLicenseEditModal() {
     licenseEditModal.limit            = licenseDetails.value?.installation_limit ?? null
-    licenseEditModal.agents           = licenseDetails.value?.agents ?? null
     licenseEditModal.show             = true
     resetForm()
 }
@@ -666,7 +736,6 @@ async function saveLicenseEdit() {
         const res = await http.post(`/update-license-details`, {
             orderid:          orderId,
             limit:            licenseEditModal.limit,
-            agents:           licenseEditModal.agents,
         })
         licenseEditModal.show = false
         successHandler(res, COMPONENT)
@@ -692,6 +761,7 @@ async function reload() {
     canReissue.value     = !!d.can_reissue
     isCloud.value        = !!d.is_cloud
     paymentLog.value     = d.payment_log
+    installs.value       = d.installations ?? []
     await Promise.all([loadPluginLicenses(), loadRights()])
 }
 
@@ -703,7 +773,6 @@ async function loadRights() {
         rights.available    = d.available ?? []
         rights.dates        = d.dates ?? []
     } catch (e) {
-        // An order with neither a license nor a subscription has no rights to show.
         if (e?.response?.status !== 404) errorHandler(e, COMPONENT)
         rights.entitlements = []
         rights.available    = []
@@ -714,14 +783,32 @@ async function loadRights() {
 // ── Dates (license end, updates, support, …) ──────────────────────────────
 const DAY = 24 * 60 * 60 * 1000
 
-/** "Ended", or how long is left when it ends within a year; nothing for "never". */
 function dateHint(d) {
     if (!d.ends_at) return null
     const days = Math.ceil((new Date(`${d.ends_at}T23:59:59`) - new Date()) / DAY)
     if (days < 0) return { text: __('message.order_date_ended'), class: 'text-danger fw-semibold' }
-    if (days <= 30) return { text: __('message.order_date_in_days', { days }), class: 'text-warning-emphasis' }
-    return days <= 365 ? { text: __('message.order_date_in_days', { days }), class: 'text-muted' } : null
+    const text = days === 1 ? __('message.order_date_in_one_day') : __('message.order_date_in_days', { days })
+    if (days <= 30) return { text, class: 'text-warning-emphasis' }
+    return days <= 365 ? { text, class: 'text-muted' } : null
 }
+
+// Each end date with its hint and tone: ended is bad, within 30 days warn.
+const toned = d => {
+    const hint = dateHint(d)
+    const tone = !hint ? 'good' : hint.class.includes('danger') ? 'bad' : hint.class.includes('warning') ? 'warn' : 'good'
+    return { ...d, hint: hint?.text ?? null, tone }
+}
+
+// Updates, support, …: date features, listed and changed with the other features.
+const featureDates = computed(() => rights.dates.filter(d => d.code !== 'license').map(toned))
+
+// The license end, shown with the order: its date, and "in N days" / "Ended" when that matters.
+const term = computed(() => {
+    const date = rights.dates.find(d => d.code === 'license')
+    if (!date) return null
+    const t = toned(date)
+    return { date, tone: t.tone, hint: t.hint, endText: date.ends_at ? formatDate(date.ends_at) : __('message.order_date_never') }
+})
 
 function openDate(d) {
     dating.value = { ...d, never: !d.ends_at, date: d.ends_at }
@@ -735,7 +822,7 @@ async function saveDate() {
     saving.date = true
     try {
         const res = await http.put(`/order/${orderId}/dates/${dating.value.code}`, {
-            date: dating.value.never ? null : (dating.value.date || null), // DatePicker gives YYYY-MM-DD
+            date: dating.value.never ? null : (dating.value.date || null),
         })
         successHandler(res, COMPONENT)
         dating.value = null
@@ -760,7 +847,7 @@ async function loadPluginLicenses() {
 onMounted(async () => {
     try {
         await reload()
-        tab.value = hasLicense.value ? 'license' : 'features'
+        seen[tab.value] = true
     } catch (e) {
         errorHandler(e, COMPONENT, { setErrors })
     } finally {
@@ -768,39 +855,24 @@ onMounted(async () => {
     }
 })
 
-// ── Installation table ─────────────────────────────────────────────────────
-const installColumns = ['path', 'ip', 'version', 'status', 'last_active_date']
-const installTableOptions = reactive({
+// ── Installation history table: every server that ever checked in ──────────
+const historyColumns = ['domain', 'version', 'active', 'last_active']
+const historyTableOptions = reactive({
     headings: {
-        path:             __('message.installation_path'),
-        ip:               __('message.installation_ip'),
-        version:          __('message.version'),
-        status:           __('message.status'),
-        last_active_date: __('message.last_active'),
-    },
-    columnsClasses: {
-        path:             'dt-text',
-        ip:               'dt-code',
-        version:          'dt-code',
-        status:           'dt-status',
-        last_active_date: 'dt-date',
+        domain:      __('message.installation_path'),
+        version:     __('message.version'),
+        active:      __('message.status'),
+        last_active: __('message.last_active'),
     },
     templates: {
-        path:             (f, row) => row.path || '—',
-        ip:               (f, row) => row.ip || '—',
-        version:          (f, row) => row.version || '—',
-        status:           (f, row) => h('span', { class: row.status === 'Active' ? 'badge bg-success' : 'badge bg-secondary' }, row.status || '—'),
-        last_active_date: (f, row) => formatDate(row.last_active_date),
+        domain:      (f, row) => h('span', { translate: 'no' }, [row.domain || row.ip || '—', row.domain && row.ip ? h('small', { class: 'd-block text-muted' }, row.ip) : null]),
+        version:     (f, row) => row.version || '—',
+        active:      (f, row) => h('span', { class: row.active ? 'badge bg-success' : 'badge bg-secondary' }, row.active ? __('message.active') : __('message.inactive')),
+        last_active: (f, row) => row.last_active ? formatDate(row.last_active) : '—',
     },
     sortable:   [],
     filterable: false,
-    requestAdapter(data) {
-        return { page: data.page, limit: data.limit }
-    },
-    responseAdapter({ data }) {
-        const rows = data?.data ?? []
-        return { data: rows, count: rows.length }
-    },
+    requestAdapter: data => ({ page: data.page, limit: data.limit }),
 })
 
 // ── Invoice table ──────────────────────────────────────────────────────────
@@ -883,44 +955,16 @@ const paymentTableOptions = reactive({
 </script>
 
 <style scoped>
-.text-renewal-hint { font-size: 11px; }
-/* Key facts under the order title: a quiet label, then the value people come for. */
-.order-facts dt { font-size: 0.8rem; font-weight: 500; color: var(--bs-secondary-color); margin-bottom: 0.15rem; }
-.order-facts dd { font-size: 1rem; font-weight: 600; }
-.order-facts dd.small { font-weight: 400; font-size: 0.8rem; }
-.order-status { font-size: 0.8rem; font-weight: 600; }
-.order-tabs .nav-link { white-space: nowrap; }
+/* Digits line up in dates, versions and amounts */
+.tabular-nums { font-variant-numeric: tabular-nums; }
 :deep(.download-modal-body) {
     max-height: 60vh;
     overflow-y: auto;
 }
 .download-section-label {
     font-weight: 600;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    font-size: 0.85rem;
     color: #6c757d;
     margin-bottom: 0.5rem;
-}
-.license-code {
-    /* A flex item won't shrink below its content's natural width by default
-       (min-width: auto), so a long unbroken license code just overflows the
-       row instead of wrapping — override that and let it break anywhere. */
-    min-width: 0;
-    overflow-wrap: anywhere;
-    word-break: break-all;
-}
-.order-avatar {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background-color: #17a2b8;
-    color: #fff;
-    font-weight: 700;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
 }
 </style>

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Order;
 use App\Enums\OrderAbility;
 use App\Events\UserOrderDelete;
 use App\Jobs\ReportExport;
+use App\License\Models\Installation;
+use App\License\Models\InstallationLog;
 use App\License\Services\LicenseService;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\Invoice;
@@ -176,7 +178,7 @@ class OrderController extends BaseOrderController
                     ->sortByDesc('installation_last_active_date')
                     ->unique(fn ($log): string => (string) $log->version_number)
                     ->values()
-                    ->map(fn ($log): array => [
+                    ->map(fn (InstallationLog $log): array => [
                         'version' => $log->version_number ?: '—',
                         'active' => $log->installation_last_active_date && $log->installation_last_active_date >= $threshold,
                     ])
@@ -264,14 +266,13 @@ class OrderController extends BaseOrderController
 
         $license = $licenseService->findByCode($order->serial_key);
 
+        $installs = $this->currentInstalls($order);
+
         return successResponse('', [
             'order' => $order,
             'license_details' => [
                 'licence_code' => $order->serial_key,
                 'expiry_dates' => $expiryDates,
-                // Last four digits of the license, 0 meaning unlimited — same
-                // derivation the orders list column uses.
-                'agents' => (int) substr((string) $order->serial_key, 12, 16),
                 'installation_limit' => $license?->license_limit,
                 'license_domain' => $license?->license_domain,
                 'license_ip' => $license?->license_ip,
@@ -284,33 +285,87 @@ class OrderController extends BaseOrderController
             'is_cloud' => in_array($order->getRawOriginal('product'), cloudPopupProducts()),
             'can_reissue' => Gate::allows(OrderAbility::Reissue, $order),
             'payment_log' => $paymentLog,
+            'installations' => $installs,
         ]);
     }
 
-    public function getInstallationDetails(int $orderId): JsonResponse
+    /**
+     * The servers holding a slot right now: the live installs of the order's product, which
+     * the install limit counts and reissue clears. Last seen and version come from the
+     * install log for the same IP; most recently seen first.
+     *
+     * @return array<int, array{id: int, domain: string|null, ip: string|null, version: string|null, active: bool, last_active: \Illuminate\Support\Carbon|null}>
+     */
+    private function currentInstalls(Order $order): array
     {
-        try {
-            $logs = Order::find($orderId)->installationLogs ?? collect();
+        $code = (string) $order->serial_key;
+        $logs = InstallationLog::where('license_code', $code)
+            ->orderByDesc('installation_last_active_date')
+            ->get(['installation_ip', 'version_number', 'installation_last_active_date']);
 
-            $installationDetails = $logs->map(function ($log): array {
-                $lastActive = $log->installation_last_active_date;
-                $isActive = $lastActive && now()->diffInDays($lastActive) <= 7;
+        return Installation::where('license_code', $code)
+            ->where('product_id', $order->getRawOriginal('product'))
+            ->get(['id', 'installation_domain', 'installation_ip', 'version'])
+            ->map(function (Installation $install) use ($logs): array {
+                $log = $logs->firstWhere('installation_ip', $install->installation_ip);
 
                 return [
-                    'path' => $log->installation_domain,
-                    'ip' => $log->installation_ip,
-                    'version' => $log->version_number,
-                    'status' => $isActive ? 'Active' : 'Inactive',
-                    'last_active_date' => $lastActive,
+                    'id' => $install->id,
+                    'domain' => $install->installation_domain,
+                    'ip' => $install->installation_ip,
+                    'version' => $log->version_number ?? $install->version,
+                    'active' => $log?->isActive() ?? false,
+                    'last_active' => $log?->installation_last_active_date,
                 ];
-            })->values()->all();
+            })
+            ->sortByDesc('last_active')
+            ->values()
+            ->all();
+    }
 
-            return successResponse('', $installationDetails);
-        } catch (Exception $exception) {
-            Logger::exception($exception);
+    /**
+     * Frees one slot: removes the install, and the plugin installs on the same server,
+     * so the license can be activated somewhere else. The install log stays as history.
+     */
+    public function unbindInstallation(int $orderId, int $installationId): JsonResponse
+    {
+        $order = Order::findOrFail($orderId);
+        $install = Installation::where('id', $installationId)
+            ->where('license_code', (string) $order->serial_key)
+            ->first();
 
-            return errorResponse(__('message.sorry_something_wrong'));
+        if (! $install) {
+            return errorResponse(__('message.record_not_found'), 404);
         }
+
+        Installation::where('license_code', $install->license_code)
+            ->where(fn ($q) => $q->where('id', $install->id)
+                ->orWhere(fn ($plugins) => $plugins->where('installation_ip', $install->installation_ip)->where('product_id', '!=', $install->product_id)))
+            ->delete();
+
+        return successResponse(__('message.order_install_unbound', ['host' => $install->installation_domain ?: $install->installation_ip]));
+    }
+
+    /** Every server that ever checked in for this order, most recently seen first, paged. */
+    public function getInstallationDetails(Request $request, int $orderId): JsonResponse
+    {
+        $order = Order::find($orderId);
+        if (! $order) {
+            return successResponse('', ['data' => [], 'total' => 0]);
+        }
+
+        $logs = $order->installationLogs()
+            ->orderByDesc('installation_logs.installation_last_active_date')
+            ->paginate((int) $request->input('limit', 10))
+            ->through(fn (InstallationLog $log): array => [
+                'domain' => $log->installation_domain,
+                'ip' => $log->installation_ip,
+                'version' => $log->version_number,
+                'active' => $log->isActive(),
+                'last_active' => $log->installation_last_active_date,
+            ]);
+
+        return successResponse('', $logs);
     }
 
     public function deleteBulkOrders(Request $request): JsonResponse

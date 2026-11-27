@@ -20,6 +20,8 @@ use App\Model\Product\CloudProducts;
 use App\Model\Product\Entitlement;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\EntitlementSalesService;
+use App\Services\EntitlementService;
 use App\Services\Cloud\CloudApi;
 use App\Services\Payment\CreditBalanceService;
 use App\Services\Payment\InvoicePaymentService;
@@ -77,14 +79,31 @@ class CloudActivitiesTest extends DBTestCase
 
     /**
      * A product the client's plan list offers to switch to (see Plan::cloudPlanChangeOptions):
-     * another cloud product that allows agent changes. Plan changes only go to such plans.
+     * another cloud product.
      */
     private function planChangeTarget(): Product
     {
-        $product = Product::factory()->create(['can_modify_agent' => 1]);
+        $product = Product::factory()->create();
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => Plan::factory()->create(['product' => $product->id])->id]);
 
         return $product;
+    }
+
+    /** Sells the plan by agents: its Agents row of $included, and a per-agent price on each of its prices — its share (price ÷ agents), so totals don't change. */
+    private function agentPriced(Plan $plan, int $included = 1): void
+    {
+        $plan->entitlements()->attach(EntitlementService::agents()->id, ['value' => (string) $included]);
+        foreach (PlanPrice::where('plan_id', $plan->id)->get() as $price) {
+            EntitlementService::agents()->prices()->create(['plan_id' => $plan->id, 'currency' => $price->currency,
+                'unit_price' => (float) $price->add_price / $included]);
+        }
+    }
+
+    /** The order's agents beyond its plan's one included: an Agents extra at the old plan's share. */
+    private function agentsExtra(Order $order, int $quantity): void
+    {
+        OrderEntitlement::create(['order_id' => $order->id, 'entitlement_id' => EntitlementService::agents()->id,
+            'quantity' => $quantity, 'unit_price' => 5000, 'currency' => 'INR']);
     }
 
     private function bindMockClientWithResponses(array $responses): void
@@ -118,102 +137,152 @@ class CloudActivitiesTest extends DBTestCase
         $this->assertFalse($check('{"status":"success"}'));
     }
 
-    #[Group('Cloud Agent Change')]
-    public function test_cloud_agents_change_plan_ended(): void
+    /**
+     * The customer's live cloud order on a paid plan that includes $included agents and sells
+     * more at 300 each (INR and USD), with $extra agents bought; the license carries the total.
+     */
+    private function perAgentCloudOrder(int $included = 5, int $extra = 0): Order
+    {
+        $order = $this->liveCloudOrder($this->user, 'customer.example.com');
+        $plan = Plan::create(['name' => 'Cloud paid '.uniqid(), 'product' => $order->product, 'days' => 30]);
+        $plan->entitlements()->attach(EntitlementService::agents()->id, ['value' => (string) $included]);
+        foreach (['INR', 'USD'] as $currency) {
+            PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => 5000, 'renew_price' => 5000]);
+            EntitlementService::agents()->prices()->create(['plan_id' => $plan->id, 'currency' => $currency, 'unit_price' => 300]);
+        }
+        Subscription::where('order_id', $order->id)->update(['plan_id' => $plan->id, 'ends_at' => Date::now()->addDays(15)->addHour()]);
+        if ($extra > 0) {
+            OrderEntitlement::create(['order_id' => $order->id, 'entitlement_id' => EntitlementService::agents()->id,
+                'quantity' => $extra, 'unit_price' => 300, 'currency' => resolve(EntitlementSalesService::class)->quote($order, EntitlementService::agents(), 1)['currency'],
+                'period_id' => $plan->periodId()]);
+        }
+        $order->update(['serial_key' => '123456789012'.str_pad((string) ($included + $extra), 4, '0', STR_PAD_LEFT)]);
+
+        return $order->fresh();
+    }
+
+    #[Group('Cloud plan Change')]
+    public function test_cloud_plan_change_invoice_counts_the_new_plans_agents_plus_the_bought_ones(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
-        $this->withoutMiddleware();
-
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
-        // serial_key's last 4 digits (0003) encode the current agent count —
-        // desiredAgents is a total, not a delta, so 3 -> 8 is "add 5 agents".
+        // The license says 9; the order's own count (1 included + 4 bought = 5) is what moves.
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
-            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => '1234567890120003']);
-        $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
+            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'serial_key' => 'eyJpdiI6IkpI0009']);
+        $plan = Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => Plan::factory()->create(['product' => $product->id])->id]);
+        $plan2 = Plan::create(['name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000]);
+        $this->agentPriced($plan);
+        $this->agentPriced($plan2, 2);
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => '']);
-        $response = $this->call('POST', 'get-agent-inc-dec-cost', ['desiredAgents' => 8, 'orderId' => $order->id]);
-        $priceToPay = currencyFormat($planPrice->add_price * 8, 'INR', includeSymbol: false);
-        $content = $response->json();
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
+        $this->agentsExtra($order, 4);
+
+        $response = $this->postJson('/upgradeDowngradeCloud', ['id' => $plan2->id, 'orderId' => $order->id]);
+
         $response->assertStatus(200);
-        $this->assertEquals($content['priceToPay'], $priceToPay);
+        // 2 included on the new plan + the 4 bought, carried as its Agents extra.
+        $this->assertSame(6, (int) InvoiceItem::where('invoice_id', $response->json('data.invoice_id'))->value('agents'));
     }
 
-    #[Group('Cloud Agent Change')]
-    public function test_cloud_agents_when_plan_not_ended(): void
+    /** A plan to move to at 5000, with $included agents ('flat' = no Agents row) at 300 each. */
+    private function movePlan(Order $order, string $included): Plan
+    {
+        $plan = Plan::create(['name' => 'Move '.uniqid(), 'product' => $order->product, 'days' => 30]);
+        if ($included !== 'flat') {
+            $plan->entitlements()->attach(EntitlementService::agents()->id, ['value' => $included]);
+        }
+        foreach (['INR', 'USD'] as $currency) {
+            PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => 5000, 'renew_price' => 5000, 'offer_price' => 0]);
+            if ($included !== 'flat') {
+                EntitlementService::agents()->prices()->create(['plan_id' => $plan->id, 'currency' => $currency, 'unit_price' => 300]);
+            }
+        }
+
+        return $plan;
+    }
+
+    /** What one period of $plan is worth for $order in the plan-change price. */
+    private function planValue(Order $order, Plan $plan): float
+    {
+        $currency = (string) OrderEntitlement::where('order_id', $order->id)->value('currency') ?: 'INR';
+
+        return (fn (): float => $this->planValue($order, $plan, $currency))->call(new CloudExtraActivities(new Client, new FaveoCloud));
+    }
+
+    public function test_a_plan_change_prices_the_bought_agents_it_carries(): void
+    {
+        // 5 included + 5 bought: the 5 bought move, whatever the new plan includes.
+        $order = $this->perAgentCloudOrder(included: 5, extra: 5);
+        $this->assertEqualsWithDelta(5000 + 5 * 300, $this->planValue($order, $this->movePlan($order, '10')), 0.01);
+        $this->assertEqualsWithDelta(5000 + 5 * 300, $this->planValue($order, $this->movePlan($order, '2')), 0.01);
+        $this->assertEqualsWithDelta(5000, $this->planValue($order, $this->movePlan($order, 'flat')), 0.01); // no agents to carry
+    }
+
+    public function test_a_downgrade_to_fewer_included_agents_bills_no_agents(): void
+    {
+        $order = $this->perAgentCloudOrder(included: 10); // 10 agents, nothing bought
+
+        $this->assertEqualsWithDelta(5000, $this->planValue($order, $this->movePlan($order, '5')), 0.01); // 5 agents now
+    }
+
+    public function test_a_plan_change_without_an_agents_price_in_the_currency_carries_no_agents(): void
+    {
+        $order = $this->perAgentCloudOrder(included: 5, extra: 5);
+        $plan = $this->movePlan($order, '2');
+        EntitlementService::agents()->prices()->where('plan_id', $plan->id)->delete();
+        EntitlementService::agents()->prices()->create(['plan_id' => $plan->id, 'currency' => 'EUR', 'unit_price' => 300]);
+
+        $this->assertEqualsWithDelta(5000, $this->planValue($order, $plan), 0.01); // the 5 bought can't be billed there: not charged
+    }
+
+    public function test_a_plan_change_prices_any_number_feature_by_the_same_rule_as_agents(): void
+    {
+        $order = $this->perAgentCloudOrder(included: 10); // 10 agents, nothing bought
+        $storage = Entitlement::create(['code' => 'storage_'.uniqid(), 'label' => 'Storage', 'type' => 'number']);
+        $oldPlan = Plan::find(Subscription::where('order_id', $order->id)->value('plan_id'));
+        $oldPlan->entitlements()->attach($storage->id, ['value' => '5']);
+        OrderEntitlement::create(['order_id' => $order->id, 'entitlement_id' => $storage->id, 'quantity' => 3, 'unit_price' => 40, 'currency' => 'INR']); // 8 in all
+        $move = function (string $storageIncluded) use ($order, $storage): Plan {
+            $plan = $this->movePlan($order, '10');
+            $plan->entitlements()->attach($storage->id, ['value' => $storageIncluded]);
+            $storage->prices()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'unit_price' => 50]);
+
+            return $plan;
+        };
+
+        $this->assertEqualsWithDelta(5000 + 3 * 50, $this->planValue($order, $move('8')), 0.01); // the 3 bought move
+        $this->assertEqualsWithDelta(5000 + 3 * 50, $this->planValue($order, $move('2')), 0.01);
+        OrderEntitlement::where('order_id', $order->id)->where('entitlement_id', $storage->id)->delete();
+        $this->assertEqualsWithDelta(5000, $this->planValue($order, $move('2')), 0.01); // nothing bought: nothing billed
+    }
+
+    #[Group('Cloud plan Change')]
+    public function test_an_unlimited_order_stays_unlimited_on_a_plan_change(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
-        $this->withoutMiddleware();
-
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
-            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => '1234567890120003']);
-        $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
-        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
-        Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(30)]);
-        $response = $this->call('POST', 'get-agent-inc-dec-cost', ['desiredAgents' => 8, 'orderId' => $order->id]);
+            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'serial_key' => 'eyJpdiI6IkpI0000']);
+        $plan = Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => Plan::factory()->create(['product' => $product->id])->id]);
+        $plan2 = Plan::create(['name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000]);
+        $this->agentPriced($plan, 5);
+        $this->agentPriced($plan2, 2);
+        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
+        resolve(EntitlementService::class)->setOverride($subscription, EntitlementService::agents(), null, null);
+
+        $response = $this->postJson('/upgradeDowngradeCloud', ['id' => $plan2->id, 'orderId' => $order->id]);
+
         $response->assertStatus(200);
-
-        $content = $response->json();
-        $this->assertNotEquals($content['priceToPay'], $content['totalPrice']);
-    }
-
-    #[Group('Cloud Agent Change')]
-    public function test_cloud_when_no_of_agents_less_then_old_agents(): void
-    {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-        $this->withoutMiddleware();
-
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
-        // serial_key encodes 5 agents currently; desiredAgents=2 is "remove 3".
-        $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
-            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => '1234567890120005']);
-        $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
-        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
-        Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => '']);
-        $response = $this->call('POST', 'get-agent-inc-dec-cost', ['desiredAgents' => 2, 'orderId' => $order->id]);
-        $priceToPay = currencyFormat($planPrice->add_price * 2, 'INR', includeSymbol: false);
-        $content = $response->json();
-        $response->assertStatus(200);
-        $this->assertEquals($content['priceToPay'], $priceToPay);
-    }
-
-    #[Group('Cloud Agent Change')]
-    public function test_when_days_are_more_less_no_of_agents(): void
-    {
-        $user = User::factory()->create(['country' => 'IN']);
-        $this->actingAs($user);
-        $this->withoutMiddleware();
-
-        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
-        $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
-            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => '1234567890120005']);
-        $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
-        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
-        Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(80)]);
-        $response = $this->call('POST', 'get-agent-inc-dec-cost', ['desiredAgents' => 2, 'orderId' => $order->id]);
-        $content = $response->json();
-        $response->assertStatus(200);
-        $this->assertEquals($content['priceToPay'], '0.00');
+        $this->assertSame(0, (int) InvoiceItem::where('invoice_id', $response->json('data.invoice_id'))->value('agents')); // 0000
     }
 
     #[Group('Cloud domain Change')]
@@ -266,20 +335,21 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 130]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
-        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 9000, 'no_of_agents' => 1]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 9000]);
+        $this->agentPriced($plan);
+        $this->agentPriced($plan2);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
         Subscription::create(['plan_id' => $plan2->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(130)]);
-        // Security fix: agent count is always read from the order's own
-        // license (here, 3 — the last 4 digits of serial_key), never from the
-        // request, so no 'agents' is sent here — a client can't influence
-        // pricing by claiming a different count.
+        $this->agentsExtra($order, 2); // 3 agents: 1 included + 2
+        // Agents are priced from the order's Agents extra, never from the request.
         $response = $this->call('POST', 'get-cloud-upgrade-cost', ['plan' => $plan2->id, 'orderId' => $order->id]);
         $content = $response->json();
-        $this->assertEquals('12,023.08', $content['price_to_be_paid']);
+        // The 2 agents the new plan doesn't include move at its per-agent price (9000).
+        $this->assertEquals('12,023.08', $content['price_to_be_paid']); // (9000 + 2 × 9000) × 129/130 − (5000 + 2 × 5000) × 64/65
         $this->assertEquals('26,792.31', $content['pricenewplan']);
         $this->assertEquals('9,000.00', $content['priceperagent']);
     }
@@ -299,12 +369,13 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 130]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
         // Same add_price as the old plan — with agents always read from the
         // license (server-side) for both, equal add_price is what makes the
         // two plans' total contract value equal, not a client-supplied agent
         // count trick.
-        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000]);
+        $this->agentPriced($plan2);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
@@ -331,16 +402,19 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 130]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
-        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 1]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000]);
+        $this->agentPriced($plan);
+        $this->agentPriced($plan2);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
         Subscription::create(['plan_id' => $plan2->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(130)]);
+        $this->agentsExtra($order, 4); // 5 agents: 1 included + 4
         $response = $this->call('POST', 'get-cloud-upgrade-cost', ['agents' => 5, 'plan' => $plan2->id, 'orderId' => $order->id]);
         $content = $response->json();
-        $this->assertEquals('9,730.77', $content['discount']);
+        $this->assertEquals('9,730.77', $content['discount']); // (5000 + 4 × 5000) × 64/65 − (3000 + 4 × 3000) × 129/130
     }
 
     #[Group('Cloud plan Change')]
@@ -357,15 +431,16 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 1]);
-        $planPrice2 = PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 5]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000]);
+        $planPrice2 = PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000]);
+        $this->agentPriced($plan2, 5);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
         Subscription::create(['plan_id' => $plan2->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
 
-        $response = $this->call('POST', 'upgradeDowngradeCloud', ['id' => $plan2->id, 'orderId' => $order->id, 'agents' => $planPrice2->no_of_agents]);
+        $response = $this->call('POST', 'upgradeDowngradeCloud', ['id' => $plan2->id, 'orderId' => $order->id, 'agents' => 5]);
         $response->assertStatus(200);
         $response->assertJsonStructure(['success', 'data' => ['invoice_id']]);
     }
@@ -390,8 +465,9 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
-        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 1]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000]);
+        $this->agentPriced($plan2);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
@@ -440,8 +516,9 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
-        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 1]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000]);
+        $this->agentPriced($plan2);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $oldOrder->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
@@ -492,8 +569,9 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 1]);
-        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 1]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000]);
+        $this->agentPriced($plan2);
 
         $makeOrder = function () use ($user, $product, $plan): Order {
             $invoice = Invoice::factory()->create(['user_id' => $user->id]);
@@ -561,8 +639,9 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 1]);
-        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 5]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000]);
+        $this->agentPriced($plan2, 5);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
@@ -589,8 +668,9 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $plan2 = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $this->planChangeTarget()->id, 'days' => 65]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 5]);
-        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 5]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
+        PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000]);
+        $this->agentPriced($plan2, 5);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
@@ -620,7 +700,7 @@ class CloudActivitiesTest extends DBTestCase
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => 'eyJpdiI6IkpI0005']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 5]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
         CloudProducts::create(['id' => 1, 'cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => 'HelpDesk']);
 
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
@@ -773,40 +853,6 @@ class CloudActivitiesTest extends DBTestCase
     }
 
     // =========================================================================
-    // getThePaymentCalculationDisplay – empty agents path
-    // =========================================================================
-
-    public function test_get_payment_calculation_display_error_on_missing_order(): void
-    {
-        $user = User::factory()->create(['role' => 'admin']);
-        $this->actingAs($user);
-        $this->withoutMiddleware();
-        $response = $this->postJson('/get-agent-inc-dec-cost', [
-            'orderId' => 999999,
-            'number' => 0,
-            'oldAgents' => 5,
-            'agentAction' => 'increase',
-        ]);
-        $this->assertTrue($response->status() >= 200);
-    }
-
-    // =========================================================================
-    // agentAlteration – validation or error
-    // =========================================================================
-
-    public function test_agent_alteration_with_missing_data_returns_error(): void
-    {
-        $user = User::factory()->create(['role' => 'admin']);
-        $this->actingAs($user);
-        $this->withoutMiddleware();
-        $response = $this->postJson('/changeAgents', [
-            'orderId' => 999999,
-            'agents' => 5,
-        ]);
-        $this->assertTrue($response->status() >= 200);
-    }
-
-    // =========================================================================
     // upgradeDowngradeCloud – missing data returns error
     // =========================================================================
 
@@ -897,36 +943,6 @@ class CloudActivitiesTest extends DBTestCase
         $this->postJson('/change/domain', ['newDomain' => 'same.example.com', 'order_id' => $order->id])
             ->assertStatus(400)
             ->assertJson(['success' => false, 'message' => __('message.nothing_changed')]);
-    }
-
-    // =========================================================================
-    // agentAlteration – additional early-return error branches
-    // =========================================================================
-
-    public function test_agent_alteration_returns_error_when_new_agents_empty(): void
-    {
-        $user = User::factory()->create(['email' => 'agent-alt-1-'.uniqid().'@test.local']);
-        $this->actingAs($user);
-        $this->withoutMiddleware();
-        $response = $this->postJson('/changeAgents', [
-            'desiredAgents' => '',  // empty
-            'orderId' => 999999,
-        ]);
-        $response->assertStatus(400);
-        $response->assertJson(['success' => false]);
-    }
-
-    public function test_agent_alteration_returns_error_when_order_not_found(): void
-    {
-        $user = User::factory()->create(['email' => 'agent-alt-2-'.uniqid().'@test.local']);
-        $this->actingAs($user);
-        $this->withoutMiddleware();
-        $response = $this->postJson('/changeAgents', [
-            'desiredAgents' => 5,
-            'orderId' => 999999,  // doesn't exist
-        ]);
-        $response->assertStatus(403);
-        $response->assertJson(['success' => false]);
     }
 
     // =========================================================================
@@ -1063,79 +1079,6 @@ class CloudActivitiesTest extends DBTestCase
     }
 
     // =========================================================================
-    // agentAlteration — branches that don't need Guzzle
-    // =========================================================================
-
-    public function test_agent_alteration_is_refused_when_user_does_not_own_order(): void
-    {
-        // Create an order owned by a DIFFERENT user
-        $otherUser = User::factory()->create(['email' => 'other-'.uniqid().'@test.local']);
-        $order = Order::create([
-            'client' => $otherUser->id,
-            'order_status' => 'executed',
-            'number' => 'ALT-OWN-'.uniqid(),
-        ]);
-
-        $response = $this->postJson('/changeAgents', [
-            'desiredAgents' => 5,
-            'orderId' => $order->id,
-        ]);
-
-        // Not the caller's order → refused by OrderPolicy
-        $response->assertStatus(403)
-            ->assertJson(['success' => false]);
-    }
-
-    public function test_agent_alteration_returns_400_when_decrease_invalid(): void
-    {
-        // Create order owned by authUser with serial_key that decodes to 3 agents
-        $order = Order::create([
-            'client' => $this->user->id,
-            'order_status' => 'executed',
-            'number' => 'ALT-DEC-'.uniqid(),
-            'serial_key' => '1234567890120003', // 12 prefix chars + '0003' = 3 agents
-        ]);
-
-        // Desired total of 0 is never valid (there's always at least 1 agent).
-        $response = $this->postJson('/changeAgents', [
-            'desiredAgents' => 0,
-            'orderId' => $order->id,
-        ]);
-
-        $response->assertStatus(400)
-            ->assertJson(['success' => false]);
-    }
-
-    public function test_agent_alteration_returns_400_when_installation_path_not_found(): void
-    {
-        $order = $this->liveCloudOrder($this->user, 'customer.example.com');
-        Installation::whereIn('license_code', License::where('license_order_number', $order->number)->pluck('license_code'))->delete();
-
-        $this->postJson('/changeAgents', ['desiredAgents' => 7, 'orderId' => $order->id])
-            ->assertStatus(400)
-            ->assertJson(['success' => false, 'message' => __('message.installation_path_not_found')]);
-    }
-
-    // =========================================================================
-    // agentAlteration — checktheAgent with Guzzle mock
-    // =========================================================================
-
-    public function test_agent_alteration_returns_400_when_check_agent_api_says_reduce(): void
-    {
-        $order = $this->liveCloudOrder($this->user, 'customer.example.com'); // 5 agents
-
-        // The tenant reports more agents in use than requested → "agent_reduce"
-        $this->bindMockClientWithResponses([
-            // The tenant answers "true"/"false" ahead of any JSON — true = too many agents in use.
-            new Response(200, [], 'true{"agents":10}'),
-        ]);
-
-        $this->postJson('/changeAgents', ['desiredAgents' => 4, 'orderId' => $order->id])
-            ->assertStatus(400)
-            ->assertJson(['success' => false, 'message' => __('message.agent_reduce')]);
-    }
-
-    // =========================================================================
     // changeDomain — order-not-owned branch (precise assertion)
     // =========================================================================
 
@@ -1150,58 +1093,8 @@ class CloudActivitiesTest extends DBTestCase
     }
 
     // =========================================================================
-    // doTheAgentAltering — via direct controller call (no HTTP route exists)
+    // CloudApi — reply parsing
     // =========================================================================
-
-    public function test_do_the_agent_altering_returns_error_when_no_app_key(): void
-    {
-        ThirdPartyApp::where('app_name', 'faveo_app_key')->delete();
-
-        $cloud = FaveoCloud::firstOrCreate([], [
-            'cloud_central_domain' => 'https://cloud.test.local',
-            'cloud_cname' => 'test',
-        ]);
-
-        $this->bindMockClientWithResponses([]);
-        $controller = new CloudExtraActivities(new Client, $cloud);
-
-        $response = $controller->doTheAgentAltering('0005', 'OLDLICENSE0005', 1, 'test.domain.com', 1);
-
-        $data = json_decode($response->getContent(), associative: true);
-        $this->assertFalse($data['success']);
-        $this->assertEquals(400, $response->getStatusCode());
-    }
-
-    public function test_do_the_agent_altering_returns_success_when_api_succeeds(): void
-    {
-        ThirdPartyApp::firstOrCreate(
-            ['app_name' => 'faveo_app_key'],
-            ['app_key' => 'test-key', 'app_secret' => 'test-secret']
-        );
-
-        $cloud = FaveoCloud::firstOrCreate([], [
-            'cloud_central_domain' => 'https://cloud.test.local',
-            'cloud_cname' => 'test',
-        ]);
-
-        // Mock two requests: LicenseService.updateLicenseCode may call Guzzle, plus the cloud API call
-        $this->bindMockClientWithResponses([
-            new Response(200, [], json_encode(['status' => 'success'])),
-        ]);
-
-        $controller = new CloudExtraActivities(new Client, $cloud);
-
-        try {
-            $response = $controller->doTheAgentAltering('0005', 'OLDLICENS0005', 999, 'test.domain.com', 1);
-            $data = json_decode($response->getContent(), associative: true);
-            // Either success (if LicenseService skips DB) or error (if it throws)
-            $this->assertIsArray($data);
-            $this->assertArrayHasKey('success', $data);
-        } catch (\Throwable $throwable) {
-            // LicenseService dependency may throw - method was entered
-            $this->assertTrue(true);
-        }
-    }
 
     public function test_cloud_api_reads_nested_json_after_notices_and_throws_on_garbage(): void
     {
@@ -1222,145 +1115,6 @@ class CloudActivitiesTest extends DBTestCase
 
         $this->expectException(\RuntimeException::class);
         $api->get('/x');
-    }
-
-    public function test_do_the_agent_altering_returns_error_when_api_returns_fails(): void
-    {
-        ThirdPartyApp::firstOrCreate(
-            ['app_name' => 'faveo_app_key'],
-            ['app_key' => 'test-key', 'app_secret' => 'test-secret']
-        );
-
-        $cloud = FaveoCloud::firstOrCreate([], [
-            'cloud_central_domain' => 'https://cloud.test.local',
-            'cloud_cname' => 'test',
-        ]);
-
-        // API returns 'fails' status
-        $this->bindMockClientWithResponses([
-            new Response(200, [], json_encode(['status' => 'fails', 'message' => 'error'])),
-        ]);
-
-        $controller = new CloudExtraActivities(new Client, $cloud);
-
-        try {
-            $response = $controller->doTheAgentAltering('0005', 'OLDLICENS0005', 999, 'test.domain.com', 1);
-            $data = json_decode($response->getContent(), associative: true);
-            // Returns 400 when status == 'fails'
-            $this->assertFalse($data['success']);
-        } catch (\Throwable $throwable) {
-            $this->assertTrue(true);
-        }
-    }
-
-    // =========================================================================
-    // doTheAgentAltering — license is only kept when the cloud took the change
-    // =========================================================================
-
-    /**
-     * @return array{0: CloudExtraActivities, 1: Order}
-     */
-    private function agentAlteringSetup(array $cloudResponses): array
-    {
-        ThirdPartyApp::firstOrCreate(['app_name' => 'faveo_app_key'], ['app_key' => 'test-key', 'app_secret' => 'test-secret']);
-        $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
-        $user = User::factory()->create();
-        $product = Product::factory()->create();
-        $order = Order::factory()->create(['client' => $user->id, 'product' => $product->id, 'serial_key' => \Crypt::encrypt('TESTAGENTLIC0002')]);
-        License::create(['product_id' => $product->id, 'license_code' => 'TESTAGENTLIC0002', 'license_order_number' => $order->number]);
-
-        $client = new Client(['handler' => HandlerStack::create(new MockHandler($cloudResponses))]);
-
-        return [new CloudExtraActivities($client, $cloud), $order];
-    }
-
-    public function test_do_the_agent_altering_keeps_new_license_when_cloud_succeeds(): void
-    {
-        [$controller, $order] = $this->agentAlteringSetup([
-            new Response(200, [], json_encode(['status' => 'success'])),
-        ]);
-
-        $response = $controller->doTheAgentAltering('4', 'TESTAGENTLIC0002', $order->id, 'tenant.example.test', $order->product);
-
-        $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('TESTAGENTLIC0004', $order->fresh()->serial_key);
-        $this->assertDatabaseHas('licenses', ['license_order_number' => $order->number, 'license_code' => 'TESTAGENTLIC0004']);
-        $this->assertDatabaseMissing('licenses', ['license_code' => 'TESTAGENTLIC0002']);
-    }
-
-    public function test_do_the_agent_altering_reverts_license_when_cloud_returns_500(): void
-    {
-        [$controller, $order] = $this->agentAlteringSetup([
-            new Response(500, [], json_encode(['success' => false, 'message' => 'Internal server error'])),
-        ]);
-
-        $response = $controller->doTheAgentAltering('4', 'TESTAGENTLIC0002', $order->id, 'tenant.example.test', $order->product);
-
-        $this->assertSame(400, $response->getStatusCode());
-        $this->assertSame(trans('message.change_agents_failed'), json_decode($response->getContent(), associative: true)['message']);
-        $this->assertSame('TESTAGENTLIC0002', $order->fresh()->serial_key);
-        $this->assertDatabaseHas('licenses', ['license_order_number' => $order->number, 'license_code' => 'TESTAGENTLIC0002']);
-        $this->assertDatabaseMissing('licenses', ['license_code' => 'TESTAGENTLIC0004']);
-    }
-
-    public function test_do_the_agent_altering_reverts_license_when_cloud_says_fails(): void
-    {
-        [$controller, $order] = $this->agentAlteringSetup([
-            new Response(200, [], json_encode(['status' => 'fails', 'message' => 'domain_not_found'])),
-        ]);
-
-        $response = $controller->doTheAgentAltering('4', 'TESTAGENTLIC0002', $order->id, 'tenant.example.test', $order->product);
-
-        $this->assertSame(400, $response->getStatusCode());
-        $this->assertSame('TESTAGENTLIC0002', $order->fresh()->serial_key);
-        $this->assertDatabaseHas('licenses', ['license_code' => 'TESTAGENTLIC0002']);
-        $this->assertDatabaseMissing('licenses', ['license_code' => 'TESTAGENTLIC0004']);
-    }
-
-    public function test_do_the_agent_altering_success_updates_the_orders_invoice_item_agents(): void
-    {
-        [$controller, $order] = $this->agentAlteringSetup([
-            new Response(200, [], json_encode(['status' => 'success'])),
-        ]);
-        $invoice = Invoice::factory()->create(['user_id' => $order->client]);
-        $item = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => 'Cloud', 'agents' => 2]);
-        $order->update(['invoice_item_id' => $item->id]);
-        OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
-
-        $controller->doTheAgentAltering('4', 'TESTAGENTLIC0002', $order->id, 'tenant.example.test', $order->product);
-
-        // The order list reads agents from this item, so it must follow the license.
-        $this->assertSame(4, (int) $item->fresh()->agents);
-    }
-
-    public function test_do_the_agent_altering_failure_restores_old_license_on_tenant_and_keeps_key_encrypted(): void
-    {
-        [$controller, $order] = $this->agentAlteringSetup([
-            new Response(200, [], json_encode(['status' => 'fails', 'message' => 'notification_license_not_found'])),
-            new Response(200, [], json_encode(['status' => 'success'])),
-        ]);
-        $history = [];
-        (fn () => $this->client)->call($controller)->getConfig('handler')->push(Middleware::history($history));
-
-        $controller->doTheAgentAltering('4', 'TESTAGENTLIC0002', $order->id, 'tenant.example.test', $order->product);
-
-        $this->assertCount(2, $history);
-        parse_str((string) $history[1]['request']->getBody(), $restore);
-        $this->assertSame('TESTAGENTLIC0002', $restore['licenseCode']);
-        $this->assertSame('TESTAGENTLIC0004', $restore['old_lic_code']);
-        $this->assertNotSame('TESTAGENTLIC0002', $order->fresh()->getRawOriginal('serial_key'));
-    }
-
-    public function test_do_the_agent_altering_self_hosted_rewrites_license_without_calling_cloud(): void
-    {
-        // No queued response: any HTTP call would throw from the empty MockHandler.
-        [$controller, $order] = $this->agentAlteringSetup([]);
-
-        $response = $controller->doTheAgentAltering('4', 'TESTAGENTLIC0002', $order->id, installation_path: null, product_id: $order->product);
-
-        $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('TESTAGENTLIC0004', $order->fresh()->serial_key);
-        $this->assertDatabaseHas('licenses', ['license_code' => 'TESTAGENTLIC0004']);
     }
 
     // =========================================================================
@@ -1472,19 +1226,6 @@ class CloudActivitiesTest extends DBTestCase
     }
 
     // =========================================================================
-    // agentAlteration — decrease when equal count (oldAgents <= newAgents)
-    // =========================================================================
-
-    public function test_agent_alteration_decrease_when_old_equals_new_returns_400(): void
-    {
-        $order = $this->liveCloudOrder($this->user, 'customer.example.com'); // serial ends 0005 → 5 agents
-
-        $this->postJson('/changeAgents', ['desiredAgents' => 5, 'orderId' => $order->id])
-            ->assertStatus(400)
-            ->assertJson(['success' => false, 'message' => __('message.nothing_changed')]);
-    }
-
-    // =========================================================================
     // getUpgradeCost — calls calculatePlanChange
     // Tests the array (not JsonResponse) return path
     // =========================================================================
@@ -1497,7 +1238,7 @@ class CloudActivitiesTest extends DBTestCase
         $product = Product::create(['name' => 'UGCostTest '.uniqid()]);
         $plan = Plan::create(['name' => 'UGCost Plan', 'product' => $product->id, 'days' => 365]);
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 1000, 'no_of_agents' => 1]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 1000]);
         $order = Order::create([
             'client' => $user->id,
             'order_status' => 'executed',
@@ -1605,9 +1346,10 @@ class CloudActivitiesTest extends DBTestCase
         CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $oldPlan->id]);
         $newPlan = Plan::create(['name' => 'new', 'product' => $this->planChangeTarget()->id, 'days' => $newDays]);
         foreach (['INR', 'USD'] as $currency) {
-            PlanPrice::factory()->create(['plan_id' => $oldPlan->id, 'currency' => $currency, 'add_price' => $oldPrice, 'offer_price' => 0, 'no_of_agents' => 1]);
-            PlanPrice::factory()->create(['plan_id' => $newPlan->id, 'currency' => $currency, 'add_price' => $newPrice, 'offer_price' => 0, 'no_of_agents' => 1]);
+            PlanPrice::factory()->create(['plan_id' => $oldPlan->id, 'currency' => $currency, 'add_price' => $oldPrice, 'offer_price' => 0]);
+            PlanPrice::factory()->create(['plan_id' => $newPlan->id, 'currency' => $currency, 'add_price' => $newPrice, 'offer_price' => 0]);
         }
+        $this->agentPriced($newPlan);
 
         Subscription::create(['plan_id' => $oldPlan->id, 'order_id' => $oldOrder->id, 'product_id' => $product->id, 'user_id' => $user->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays($daysLeft)->addHour()]);
@@ -1750,38 +1492,5 @@ class CloudActivitiesTest extends DBTestCase
         $credit = resolve(CreditBalanceService::class);
         $this->assertSame(40.0, $credit->balance($client->id, 'USD'));
         $this->assertSame(0.0, $credit->balance($admin->id, 'USD'));
-    }
-
-    // ── Batch 3 #11: agent change uses the order's own subscription, not one from the request ──
-
-    public function test_agent_change_ignores_a_subscription_id_sent_by_the_browser(): void
-    {
-        $product = Product::factory()->create();
-        $plan = Plan::create(['name' => 'agent plan', 'product' => $product->id, 'days' => 30]);
-        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        foreach (['INR', 'USD'] as $currency) {
-            PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => $currency, 'add_price' => 100, 'renew_price' => 100, 'no_of_agents' => 1, 'offer_price' => 0]);
-        }
-
-        $order = Order::create(['client' => $this->user->id, 'order_status' => 'executed', 'product' => $product->id,
-            'number' => mt_rand(100000, 999999), 'serial_key' => '1234567890120005']);
-        $own = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id, 'user_id' => $this->user->id,
-            'version' => 'v6.0.0', 'update_ends_at' => Date::now()->addDays(20), 'ends_at' => Date::now()->addDays(20)]);
-        License::create(['product_id' => $product->id, 'user_id' => $this->user->id, 'license_code' => $order->serial_key, 'license_order_number' => $order->number, 'license_status' => 1]);
-        Installation::create(['license_code' => $order->serial_key, 'installation_domain' => 'mine.test.faveo.com', 'installation_path' => 'mine.test.faveo.com',
-            'installation_ip' => '127.0.0.1', 'version_number' => '1.0.0', 'product_id' => $product->id]);
-        $original = Invoice::factory()->create(['user_id' => $this->user->id, 'status' => 'success']); // every real order has one
-        $item = InvoiceItem::create(['invoice_id' => $original->id, 'product_name' => $product->name, 'product_id' => $product->id, 'plan_id' => $plan->id, 'agents' => 5]);
-        OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $original->id]);
-        $order->update(['invoice_item_id' => $item->id]);
-        $someoneElses = Subscription::factory()->create(); // another user's
-        $this->bindMockClientWithResponses([new Response(200, [], '')]); // cloud: agents may change
-
-        $response = $this->postJson('/changeAgents', ['desiredAgents' => 7, 'orderId' => $order->id, 'subId' => $someoneElses->id]);
-
-        $invoice = Invoice::find($response->json('data.invoice_id'));
-        $this->assertNotNull($invoice, $response->getContent());
-        $this->assertSame($own->id, $invoice->metadata['sub_id']);
-        $this->assertSame($this->user->id, (int) $invoice->user_id);
     }
 }

@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => 'SKU proizvoda treba biti jedinstven',
     'product_name_unique' => 'Ime treba biti jedinstveno',
-    'product_show_agent_required' => 'Odaberite vašu preferencu stranice sa korpom',
     'config_file_path_regex' => 'Mora biti relativna putanja bez ../ segmenata.',
     'license_file_path_regex' => 'Mora biti relativna putanja bez ../ segmenata.',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => 'Slika ne smije biti veća od 2048 kilobajta.',
         'product_sku_required' => 'SKU proizvoda je obavezan.',
         'group_required' => 'Grupa proizvoda je obavezna.',
-        'show_agent_required' => 'Odaberite vašu preferencu stranice sa korpom.',
     ],
     'current_domain_required' => 'Trenutna domena je obavezna.',
     'new_domain_required' => 'Nova domena je obavezna.',

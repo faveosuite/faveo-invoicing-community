@@ -35,6 +35,9 @@ class OrderSearchController extends Controller
 
         $this->filterOrderNum($query, $request->order_no);
         $this->filterProduct($query, $request->product_id);
+        if ($request->filled('plan_id')) {
+            $query->whereIn('id', Subscription::where('plan_id', (int) $request->input('plan_id'))->select('order_id'));
+        }
         $this->filterDateRange($query, $request);
         $this->filterDomain($query, $request->domain);
         $this->filterInstallation($query, $request->act_ins);

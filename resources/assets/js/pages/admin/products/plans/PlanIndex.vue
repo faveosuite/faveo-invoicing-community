@@ -60,12 +60,13 @@ function confirmBulkDelete() {
     pendingBulkDelete.value = { select: [...selectedPlans.value] }
 }
 
-const columns = ['select', 'name', 'product', 'period', 'currencies', 'action']
+const columns = ['select', 'name', 'status', 'product', 'period', 'currencies', 'action']
 
 const tableOptions = reactive({
     headings: {
         select:     () => h('input', { type: 'checkbox', checked: allSelected.value, onChange: toggleAll }),
         name:       __('message.name'),
+        status:     __('message.status'),
         product:    __('message.product'),
         period:     __('message.period'),
         currencies: __('message.currency'),
@@ -74,6 +75,7 @@ const tableOptions = reactive({
     columnsClasses: {
         select: 'dt-select',
         name: 'dt-name',
+        status: 'dt-code',
         product: 'dt-name',
         period: 'dt-code',
         currencies: 'dt-text',
@@ -82,12 +84,14 @@ const tableOptions = reactive({
     templates: {
         select:     (f, row) => h('input', { type: 'checkbox', checked: selectedPlans.value.includes(row.id), onChange: () => toggleRow(row.id) }),
         name:       (f, row) => row.name || '—',
+        // On sale or not, at a glance
+        status:     (f, row) => h('span', { class: row.status ? 'badge bg-success' : 'badge bg-secondary' }, row.status ? __('message.active') : __('message.inactive')),
         product:    (f, row) => row.product && row.product_id ? h(RouterLink, { to: `/products/${row.product_id}/edit` }, () => row.product) : (row.product || '—'),
         period:     (f, row) => row.period || '—',
         currencies: (f, row) => (row.currencies ?? []).join(', ') || '—',
         action:     (f, row) => h(RouterLink, { to: `/products/plans/${row.id}/edit`, class: 'btn btn-light table_btn', title: __('message.edit') }, () => h('i', { class: 'fas fa-edit' })),
     },
-    sortable: ['name', 'product'],
+    sortable: ['name', 'status', 'product'],
     filterable: true,
     requestAdapter: makeRequestAdapter('created_at'),
     orderBy: { column: 'created_at', ascending: false },

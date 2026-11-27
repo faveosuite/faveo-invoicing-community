@@ -41,18 +41,6 @@ class CartControllerTest extends DBTestCase
         $response->assertJsonStructure(['success', 'data']);
     }
 
-    public function test_more_agents_than_a_license_code_holds_is_refused(): void
-    {
-        // 10000 would write 0000 into the license code, which reads as unlimited agents.
-        $this->actingAs(User::factory()->create());
-        $product = Product::factory()->create();
-        $plan = Plan::factory()->create(['product' => $product->id, 'status' => 1]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD', 'add_price' => 100]);
-
-        $this->postJson('my-cart/items', ['product_id' => $product->id, 'plan_id' => $plan->id, 'agents' => 10000])
-            ->assertStatus(412)->assertJsonValidationErrors(['agents'], 'message');
-    }
-
     public function test_plan_cost_get_cost_for_product_plan_return_cost(): void
     {
         $user = User::factory()->create(['country' => 'US']);

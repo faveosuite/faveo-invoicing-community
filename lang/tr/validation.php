@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => 'Ürün SKU’su benzersiz olmalıdır.',
     'product_name_unique' => 'Ad benzersiz olmalıdır.',
-    'product_show_agent_required' => 'Lütfen Sepet Sayfası Tercihinizi Seçin.',
     'config_file_path_regex' => '../ bölümü olmayan göreceli bir yol olmalıdır.',
     'license_file_path_regex' => '../ bölümü olmayan göreceli bir yol olmalıdır.',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => 'Resim en fazla 2048 kilobayt olabilir.',
         'product_sku_required' => 'Ürün SKU’su gereklidir.',
         'group_required' => 'Ürün grubu gereklidir.',
-        'show_agent_required' => 'Sepet Sayfası Tercihinizi Seçin.',
     ],
     'current_domain_required' => 'Geçerli domain gereklidir.',
     'new_domain_required' => 'Yeni domain gereklidir.',

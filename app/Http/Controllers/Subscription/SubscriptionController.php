@@ -19,6 +19,7 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Plugins\Stripe\Controllers\SettingsController;
+use App\Services\AgentCountService;
 use App\Services\Payment\AutoRenewalActivationService;
 use App\Services\Payment\ProcessingFee;
 use App\Services\Payment\SubscriptionService;
@@ -255,12 +256,7 @@ class SubscriptionController extends Controller
             return $unpaid;
         }
 
-        $originalInvoiceId = DB::table('order_invoice_relations')
-            ->where('order_id', $order->id)
-            ->oldest()
-            ->value('invoice_id');
-
-        $agents = DB::table('invoice_items')->where('invoice_id', $originalInvoiceId)->value('agents');
+        $agents = resolve(AgentCountService::class)->total($order);
         $invoiceItem = new BaseRenewController()->generateInvoice($product, $user, $order->id, $plan->id, $cost, '', $agents, $currency);
         if (! $invoiceItem instanceof InvoiceItem) {
             throw new Exception('Failed to generate invoice item.');

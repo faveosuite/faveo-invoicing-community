@@ -365,22 +365,44 @@ paths:
           description: Order not found
   /get-installation-details/{orderId}:
     get:
-      summary: Get installation details for an order
+      summary: Installation history of an order (every server that checked in), most recently seen first
       parameters:
         - in: path
           name: orderId
           required: true
           schema:
             type: integer
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
       responses:
         '200':
-          description: A list of installation details.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/InstallationDetail'
+          description: 'A page of history rows in data.data ({ domain, ip, version, active, last_active }), with total, per_page and current_page.'
+  /order/{orderId}/installations/{installationId}:
+    delete:
+      summary: Unbind one current install of the order, freeing its slot (plugin installs on that server go with it)
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: installationId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Unbound
+        '404':
+          description: The install is not one of this order's
   /getOrderPayments/{orderId}:
     get:
       summary: Get payments for an order
@@ -713,6 +735,27 @@ paths:
                     type: number
                   field:
                     type: string
+                  extras:
+                    type: array
+                    description: What the plan sells on top in the user's currency (Agents, Storage…); quantity is the extra units on top of what the plan includes, never below min.
+                    items:
+                      type: object
+                      properties:
+                        entitlement_id:
+                          type: integer
+                        label:
+                          type: string
+                        type:
+                          type: string
+                        unit_price:
+                          type: number
+                        quantity:
+                          type: integer
+                        included:
+                          type: integer
+                          nullable: true
+                        min:
+                          type: integer
   /products:
     get:
       summary: Get all products
@@ -1586,20 +1629,6 @@ components:
                   type: string
         autorenewal:
           type: boolean
-    InstallationDetail:
-      type: object
-      properties:
-        path:
-          type: string
-        ip:
-          type: string
-        version:
-          type: string
-        status:
-          type: string
-        last_active_date:
-          type: string
-          format: date-time
     Payment:
       type: object
       properties:
@@ -1793,8 +1822,6 @@ components:
           type: string
         group:
           type: integer
-        show_agent:
-          type: boolean
         tax:
           type: array
           items:
@@ -1806,8 +1833,6 @@ components:
         highlight:
           type: boolean
         add_to_contact:
-          type: boolean
-        can_modify_agent:
           type: boolean
         can_modify_quantity:
           type: boolean
@@ -1852,8 +1877,6 @@ components:
           type: string
         group:
           type: integer
-        show_agent:
-          type: boolean
         tax:
           type: array
           items:
@@ -1865,8 +1888,6 @@ components:
         highlight:
           type: boolean
         add_to_contact:
-          type: boolean
-        can_modify_agent:
           type: boolean
         can_modify_quantity:
           type: boolean

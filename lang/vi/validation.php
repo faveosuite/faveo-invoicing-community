@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => 'SKU sản phẩm phải là duy nhất.',
     'product_name_unique' => 'Tên phải là duy nhất.',
-    'product_show_agent_required' => 'Chọn tùy chọn trang giỏ hàng của bạn.',
     'config_file_path_regex' => 'Phải là đường dẫn tương đối không có phân đoạn ../.',
     'license_file_path_regex' => 'Phải là đường dẫn tương đối không có phân đoạn ../.',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => 'Kích thước hình ảnh không được vượt quá 2048 kilobytes.',
         'product_sku_required' => 'SKU sản phẩm là bắt buộc.',
         'group_required' => 'Nhóm sản phẩm là bắt buộc.',
-        'show_agent_required' => 'Chọn tùy chọn trang giỏ hàng của bạn.',
     ],
     'current_domain_required' => 'Tên miền hiện tại là bắt buộc.',
     'new_domain_required' => 'Tên miền mới là bắt buộc.',

@@ -88,7 +88,7 @@ class HomeControllerPricingDataTest extends TestCase
         $rows = $response->json('products');
         $this->assertSame(['both', 'both'], array_column($rows, 'name'));
         $this->assertEqualsCanonicalizing([30, 365], array_map('intval', array_column($rows, 'days')));
-        $this->assertSame('per month', $rows[0]['price_description']);
+        $this->assertSame('desc', $rows[0]['price_description']); // the plan's own text, as the admin wrote it
     }
 
     public function test_inactive_plans_are_not_listed(): void

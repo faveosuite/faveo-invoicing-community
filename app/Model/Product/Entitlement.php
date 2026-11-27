@@ -6,6 +6,7 @@ namespace App\Model\Product;
 
 use App\Model\Payment\Plan;
 use App\Services\DateRules;
+use App\Services\EntitlementService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
@@ -67,13 +68,18 @@ class Entitlement extends Model
         };
     }
 
-    /** Can be bought as an extra on this plan: an active number or on/off feature the plan has a price for. Agents are bought through the agent count, not here. */
+    /**
+     * Can be bought as an extra on this plan: an active number or on/off feature the plan has a
+     * price for. Not a number the plan already includes without limit. Agents only on a plan with
+     * an Agents count (its row): the license digits can't count agents on a flat plan.
+     */
     public function canBeSoldOn(?Plan $plan): bool
     {
         return $plan !== null && $this->is_active
             && in_array($this->type, ['boolean', 'number'], strict: true)
-            && $this->code !== 'agents'
-            && $this->prices->contains(fn (EntitlementPrice $p): bool => $p->plan_id === $plan->id);
+            && $this->prices->contains(fn (EntitlementPrice $p): bool => $p->plan_id === $plan->id)
+            && ! ($this->type === 'number' && $plan->entitlements()->whereKey($this->id)->whereNull('plan_entitlements.value')->exists())
+            && ($this->code !== EntitlementService::AGENTS || EntitlementService::includedAgents($plan) !== null);
     }
 
     /** Stored string → the typed value the product receives. */

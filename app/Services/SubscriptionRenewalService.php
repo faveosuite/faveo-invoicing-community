@@ -46,16 +46,17 @@ class SubscriptionRenewalService
         }
         $sub->save();
 
-        // A new period starts: extras the customer reduced or cancelled now take effect.
-        if ($days > 0) {
-            resolve(EntitlementSalesService::class)->applyPendingReductions((int) $sub->order_id);
-        }
-
         $this->syncLicenseServer($sub, $licenseExpiry, $sub->update_ends_at, $sub->support_ends_at, $dates);
 
         // No license to deliver to (a service): the subscription keeps its dates itself.
         if ($dates !== [] && ! $license instanceof License) {
             resolve(EntitlementService::class)->writeDates($sub, $dates);
+        }
+
+        // A new period starts: extras the customer reduced or cancelled now take effect. Last,
+        // because a changed agent count rewrites the license code the date sync above looks up.
+        if ($days > 0) {
+            resolve(EntitlementSalesService::class)->applyPendingReductions((int) $sub->order_id);
         }
     }
 

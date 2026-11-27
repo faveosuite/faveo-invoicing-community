@@ -18,7 +18,6 @@ enum OrderAbility: string
     case DeleteCloud = 'deleteCloud';
     case ManageCloud = 'manageCloud';
     case ChangeCloudPlan = 'changeCloudPlan';
-    case ChangeCloudAgents = 'changeCloudAgents';
     case EnableAutoRenew = 'enableAutoRenew';
     case Reissue = 'reissue';
     case UseLicenseFile = 'useLicenseFile';

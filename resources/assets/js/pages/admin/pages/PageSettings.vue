@@ -12,14 +12,14 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <StaticSelect
+                            <DynamicSelect
                                 name="default_page_id"
                                 :label="__('message.default-page')"
-                                :hint="__('message.tt_default_page')"
+                                :tooltip="__('message.tt_default_page')"
                                 :elements="pageOptions"
-                                :value="form.default_page_id"
-                                :onChange="(val) => form.default_page_id = val"
-                                :hideEmptySelect="true"
+                                :value="pageOptions.find(o => o.id === form.default_page_id) ?? null"
+                                :onChange="(o) => form.default_page_id = o?.id ?? ''"
+                                :clearable="false"
                             />
                         </div>
                         <div class="col-md-4 mb-3">
@@ -43,7 +43,7 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
-import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 import ToolTip from '@/components/Reusable/Tooltip.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'

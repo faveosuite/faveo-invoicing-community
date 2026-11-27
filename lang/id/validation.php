@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => 'SKU produk harus unik',
     'product_name_unique' => 'Nama harus unik',
-    'product_show_agent_required' => 'Pilih preferensi halaman keranjang Anda',
     'config_file_path_regex' => 'Harus berupa jalur relatif tanpa ../ segmen.',
     'license_file_path_regex' => 'Harus berupa jalur relatif tanpa ../ segmen.',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => 'Ukuran gambar tidak boleh lebih dari 2048 kilobyte.',
         'product_sku_required' => 'SKU produk wajib diisi.',
         'group_required' => 'Grup produk wajib diisi.',
-        'show_agent_required' => 'Pilih preferensi halaman keranjang Anda.',
     ],
     'current_domain_required' => 'Domain saat ini wajib diisi.',
     'new_domain_required' => 'Domain baru wajib diisi.',

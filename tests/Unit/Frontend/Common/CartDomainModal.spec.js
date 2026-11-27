@@ -46,4 +46,12 @@ describe('CartDomainModal.vue', () => {
         await w.find('button.btn-primary').trigger('click')
         expect(w.emitted('save')[0][0]).toEqual({ 1: 'a.example.com', 2: 'b.example.com' })
     })
+
+    it('shows the server\'s refusal and lets the customer try again', async () => {
+        const wrapper = await open()
+        wrapper.vm.submitting = true
+        await wrapper.setProps({ error: 'Domain not allowed' })
+        expect(wrapper.find('[role="alert"]').text()).toBe('Domain not allowed')
+        expect(wrapper.vm.submitting).toBe(false)
+    })
 })

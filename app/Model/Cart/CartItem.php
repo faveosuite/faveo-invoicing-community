@@ -17,7 +17,6 @@ use Illuminate\Support\Carbon;
  * @property int $product_id
  * @property int|null $plan_id
  * @property int $quantity
- * @property int $agents
  * @property array<int|string, int>|null $extras
  * @property string|null $domain
  * @property int|null $data_center_id
@@ -31,7 +30,6 @@ use Illuminate\Support\Carbon;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereAgents($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereBillingCycle($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereCartId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereCreatedAt($value)
@@ -51,7 +49,7 @@ class CartItem extends Model
 
     protected $fillable = [
         'cart_id', 'product_id', 'plan_id',
-        'quantity', 'agents', 'extras', 'domain', 'data_center_id', 'billing_cycle',
+        'quantity', 'extras', 'domain', 'data_center_id', 'billing_cycle',
     ];
 
     /**
@@ -89,7 +87,8 @@ class CartItem extends Model
 
     /**
      * False once the product is deleted, or its plan or this currency's price is gone —
-     * priceFor() would then charge 0, so such a line must leave the cart.
+     * priceFor() would then charge 0, so such a line must leave the cart. A plan that includes
+     * 0 agents also needs an Agents price in the currency, or every agent would be free.
      */
     public function isAvailable(string $currency): bool
     {
@@ -97,23 +96,16 @@ class CartItem extends Model
             && $this->plan !== null
             && (int) $this->plan->product === (int) $this->product_id
             && ($row = $this->plan->planPrice->firstWhere('currency', $currency)) !== null
-            && resolve(EntitlementSalesService::class)->canPrice($row);
+            && (EntitlementService::includedAgents($this->plan) !== 0
+                || EntitlementService::agents()->priceIn($currency, $this->plan) !== null);
     }
 
     public function priceFor(string $currency): float
     {
         $planPrice = $this->plan?->planPrice->firstWhere('currency', $currency);
-        if (! $planPrice) {
-            return 0.0;
-        }
 
-        // Mirror the storefront pricing (StoreController::getProductPlans):
-        // offer_price is a percentage discount off add_price. Charging add_price
-        // here would bill the original price instead of the discounted one shown.
-        $base = (float) ($planPrice->add_price ?? 0);
-        $offer = (float) ($planPrice->offer_price ?? 0);
-
-        return $offer > 0 ? $base * (1 - $offer / 100) : $base;
+        // The offer price is a discount off add_price, as the storefront shows it.
+        return $planPrice ? resolve(EntitlementSalesService::class)->planPrice($planPrice, 'purchase') : 0.0;
     }
 
     /**
@@ -125,56 +117,28 @@ class CartItem extends Model
         return (bool) $this->product?->require_domain && ! in_array($this->product_id, cloudPopupProducts());
     }
 
-    /**
-     * How many agents the plan's price covers (plan_prices.no_of_agents). 0 means unlimited,
-     * or simply not priced per agent — either way the plan price applies as-is.
-     */
-    public static function planAgents(?Plan $plan, string $currency): int
-    {
-        $prices = $plan?->planPrice;
-        $row = $prices?->firstWhere('currency', $currency) ?? $prices?->first();
-
-        return max(0, (int) ($row->no_of_agents ?? 0));
-    }
-
-    /**
-     * Price of one unit of this line. The plan price is for the plan's own agent count;
-     * a different count is charged pro rata — the same rule renewals use
-     * (BaseRenewController::getCost) and the development branch's cart used. Fixed-agent
-     * and unlimited lines always carry the plan's count, so they get the plan price.
-     */
+    /** Price of one unit of this line: the plan price plus the chosen extras (Agents among them). */
     public function unitPrice(string $currency): float
     {
-        $row = $this->plan?->planPrice->firstWhere('currency', $currency);
-        $planPrice = $row ? resolve(EntitlementSalesService::class)->planCost($row, (int) $this->agents, 'purchase') : 0.0;
-
-        return $planPrice + array_sum(array_map(
+        return $this->priceFor($currency) + array_sum(array_map(
             fn (array $extra): float => $extra['unit_price'] * $extra['quantity'],
             $this->chosenExtras($currency),
         ));
     }
 
-    /** Agents the plan price covers: 0 when every agent is paid, null when not priced per agent (or unlimited). */
-    public function includedAgents(string $currency): ?int
+    /**
+     * Agents the license gets: what the plan includes plus the Agents extra. 0 for a flat or an
+     * unlimited plan — the license code's 0000, which reads as unlimited.
+     */
+    public function totalAgents(string $currency): int
     {
-        if (EntitlementService::paysForEveryAgent($this->plan)) {
+        $included = EntitlementService::includedAgents($this->plan);
+        if ($included === null) {
             return 0;
         }
-        $included = self::planAgents($this->plan, $currency);
+        $extra = collect($this->chosenExtras($currency))->firstWhere('entitlement_id', EntitlementService::agents()->id);
 
-        return $included > 0 ? $included : null;
-    }
-
-    /** One agent's price for this line's plan (purchase), or null when the plan isn't priced per agent. */
-    public function agentPrice(string $currency): ?float
-    {
-        $row = $this->plan?->planPrice->firstWhere('currency', $currency);
-        if (! $row || (int) $row->no_of_agents <= 0) {
-            return null;
-        }
-        $sales = resolve(EntitlementSalesService::class);
-
-        return $sales->agentUnitPrice($row, 'purchase') ?? $sales->planCost($row, (int) $row->no_of_agents, 'purchase') / (int) $row->no_of_agents;
+        return $included + (int) ($extra['quantity'] ?? 0);
     }
 
     /** What the chosen extras add to this line (all units of the line). */
@@ -187,9 +151,16 @@ class CartItem extends Model
     }
 
     /**
-     * Extras the plan sells in the currency, with how many the customer picked.
+     * Extras the plan sells in the currency, with how many the customer picked. `included` is
+     * what the plan already gives of a number it also sells more of (Storage: 10 included, buy
+     * more); the customer starts there and can't go below it. `quantity` is always the extra
+     * units on top, which is what's charged. null = not in the plan, a pure add-on. `min` is the
+     * fewest extra units the line can have: 1 Agent on a plan that includes 0, else 0.
      *
-     * @return list<array{entitlement_id: int, label: string, type: string, unit_price: float, renew_price: float, quantity: int, period_id: int|null}>
+     * `max` is the most extra units it takes: 1 for an on/off feature; Agents stop where the license
+     * code's four digits do.
+     *
+     * @return list<array{entitlement_id: int, label: string, type: string, unit_price: float, renew_price: float, quantity: int, included: int|null, min: int, max: int, period_id: int|null}>
      */
     public function availableExtras(string $currency): array
     {
@@ -199,24 +170,62 @@ class CartItem extends Model
 
         $items = Entitlement::with('prices')->whereHas('prices', fn ($q) => $q->where('plan_id', $this->plan_id))
             ->orderBy('sort')->orderBy('id')->get();
+        $planValues = $this->plan?->entitlements()->pluck('plan_entitlements.value', 'entitlements.id') ?? collect();
         foreach ($items as $item) {
             $price = $item->priceIn($currency, $this->plan);
             $renewPrice = $item->priceIn($currency, $this->plan, 'renewal');
             if (! $item->canBeSoldOn($this->plan) || $price === null) {
                 continue;
             }
+            $included = $item->type === 'number' && $planValues->has($item->id) ? (int) $planValues[$item->id] : null;
+            $min = $item->code === EntitlementService::AGENTS && $included === 0 ? 1 : 0;
             $rows[] = [
                 'entitlement_id' => $item->id,
                 'label' => $item->label,
                 'type' => $item->type,
                 'unit_price' => $price,
                 'renew_price' => (float) $renewPrice,
-                'quantity' => (int) ($chosen[$item->id] ?? 0),
+                'quantity' => max($min, (int) ($chosen[$item->id] ?? 0)),
+                'included' => $included,
+                'min' => $min,
+                'max' => match (true) {
+                    $item->type === 'boolean' => 1,
+                    $item->code === EntitlementService::AGENTS => 9999 - (int) $included,
+                    default => 9999,
+                },
                 'period_id' => $periodId,
             ];
         }
 
         return $rows;
+    }
+
+    /**
+     * Keeps only extras this line's product sells in the currency, with a valid quantity
+     * (an on/off feature is 0 or 1, never below the extra's `min`). Agents stop where the license
+     * code's four digits do. Merged into what the line already has; 0 removes one.
+     *
+     * @param  array<int|string, mixed>  $requested
+     * @return array<int|string, int>
+     */
+    public function cleanExtras(array $requested, string $currency): array
+    {
+        $extras = $this->extras ?? [];
+
+        foreach ($this->availableExtras($currency) as $extra) {
+            $id = $extra['entitlement_id'];
+            if (! array_key_exists($id, $requested)) {
+                continue;
+            }
+            $qty = max($extra['min'], min($extra['max'], (int) $requested[$id]));
+            if ($qty === 0) {
+                unset($extras[$id]);
+            } else {
+                $extras[$id] = $qty;
+            }
+        }
+
+        return $extras;
     }
 
     /**
@@ -227,14 +236,10 @@ class CartItem extends Model
      */
     public function chosenExtras(string $currency): array
     {
-        if (empty($this->extras)) {
-            return [];
-        }
-
         $rows = [];
         foreach ($this->availableExtras($currency) as $extra) {
             if ($extra['quantity'] > 0) {
-                unset($extra['type']);
+                unset($extra['type'], $extra['included'], $extra['min'], $extra['max']); // display-only; the invoice keeps what's charged
                 $rows[] = $extra;
             }
         }

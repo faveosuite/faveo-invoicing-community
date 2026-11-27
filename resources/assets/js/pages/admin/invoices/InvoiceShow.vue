@@ -72,7 +72,6 @@
                                     <th>{{ __('message.order_no') }}</th>
                                     <th>{{ __('message.product') }}</th>
                                     <th class="text-end">{{ __('message.price') }}</th>
-                                    <th class="text-center">{{ __('message.agents') }}</th>
                                     <th class="text-center">{{ __('message.qty') }}</th>
                                     <th class="text-end">{{ __('message.sub_total') }}</th>
                                 </tr>
@@ -89,12 +88,11 @@
                                         <div v-for="e in (item.extras || [])" :key="e.entitlement_id" class="small text-muted">{{ e.label }}<template v-if="e.quantity > 1"> × {{ e.quantity }}</template></div>
                                     </td>
                                     <td class="text-end">{{ formatCurrency(item.regular_price) }}</td>
-                                    <td class="text-center">{{ item.agents || __('message.unlimited') }}</td>
                                     <td class="text-center">{{ item.quantity }}</td>
                                     <td class="text-end">{{ formatCurrency(item.subtotal) }}</td>
                                 </tr>
                                 <tr v-if="!items?.length">
-                                    <td colspan="6" class="text-center text-muted">{{ __('message.no_items_found') }}</td>
+                                    <td colspan="5" class="text-center text-muted">{{ __('message.no_items_found') }}</td>
                                 </tr>
                             </tbody>
                         </table>

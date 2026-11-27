@@ -4,6 +4,12 @@
         <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.create_product_plan') }}</h4>
+                <!-- On sale or not, visible at the top of the page -->
+                <div class="card-tools d-flex align-items-center gap-2">
+                    <span id="plan-status-label" class="fw-bold">{{ form.status ? __('message.active') : __('message.inactive') }}</span>
+                    <ToolTip :message="__('message.plan_status_help')" size="small" />
+                    <Switch name="status" :value="!!form.status" labelledby="plan-status-label" :onChange="(on) => (form.status = on ? 1 : 0)" />
+                </div>
             </div>
 
             <div class="card-body">
@@ -32,22 +38,6 @@
                             :elements="periods"
                             :value="periods.find(p => p.id === form.days) ?? null"
                             :onChange="(val) => form.days = val?.id ?? ''"
-                            :clearable="false"
-                            :searchable="false"
-                        />
-                    </div>
-                </div>
-
-                <!-- Row 2: Status -->
-                <div class="row">
-                    <div class="col-md-4">
-                        <DynamicSelect
-                            name="status"
-                            :label="__('message.status')"
-                            :required="true"
-                            :elements="statusOptions"
-                            :value="statusOptions.find(o => o.id === form.status) ?? null"
-                            :onChange="(val) => form.status = val?.id ?? 1"
                             :clearable="false"
                             :searchable="false"
                         />
@@ -133,6 +123,8 @@ import { validateForm, blockInvalidKey } from '@/helpers/formUtils.js'
 import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 import TreeSelect from '@/components/Reusable/FormField/TreeSelect.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import Switch from '@/components/Reusable/FormField/Switch.vue'
+import ToolTip from '@/components/Reusable/Tooltip.vue'
 
 const COMPONENT = 'plans-create'
 const baseUrl = useBaseUrl()
@@ -144,11 +136,6 @@ const saving = ref(false)
 const periods = ref([])
 const currencies = ref([])
 const pricingError = ref('')
-
-const statusOptions = [
-    { id: 1, name: __('message.active') },
-    { id: 0, name: __('message.inactive') },
-]
 
 const form = reactive({
     name: '',

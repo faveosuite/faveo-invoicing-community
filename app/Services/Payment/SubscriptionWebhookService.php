@@ -12,6 +12,7 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Plugins\Payment\Support\Money;
+use App\Services\AgentCountService;
 use App\User;
 use DB;
 use Exception;
@@ -322,31 +323,7 @@ class SubscriptionWebhookService
         $feePercent = ProcessingFee::percent($gateway);
         $netCost = rounding($cost / (1 + ($taxRate / 100)) / (1 + ($feePercent / 100)));
 
-        $latestInvoiceId = DB::table('order_invoice_relations')
-            ->where('order_id', $order->id)
-            ->latest('id')
-            ->value('invoice_id');
-
-        $agents = $latestInvoiceId
-            ? DB::table('invoice_items')->where('invoice_id', $latestInvoiceId)->whereNotNull('agents')->value('agents')
-            : null;
-
-        if (! $agents && ! empty($order->serial_key)) {
-            $license = (string) $order->serial_key;
-            $agentStr = ltrim(substr($license, -4), '0');
-            if ($agentStr !== '') {
-                $agents = (int) $agentStr;
-            }
-        }
-
-        if (! $agents) {
-            $originalInvoiceId = DB::table('order_invoice_relations')
-                ->where('order_id', $order->id)
-                ->oldest('id')
-                ->value('invoice_id');
-            $agents = $originalInvoiceId ? DB::table('invoice_items')->where('invoice_id', $originalInvoiceId)->value('agents') : null;
-        }
-
+        $agents = resolve(AgentCountService::class)->total($order);
         $invoiceItem = new BaseRenewController()->generateInvoice($product, $user, $order->id, (int) $subscription->plan_id, $netCost, '', $agents, $currency);
 
         $invoice = Invoice::findOrFail($invoiceItem->invoice_id); // @phpstan-ignore property.notFound

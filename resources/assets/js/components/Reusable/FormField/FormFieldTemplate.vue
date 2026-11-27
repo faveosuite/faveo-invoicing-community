@@ -5,7 +5,7 @@
         <!-- No label line when there is nothing to show in it (e.g. a field inside a table cell). -->
         <div v-if="label || required || hint || showNewButton || showPreview || isInlineForm || $slots['word-limit-counter']"
              :class="{ 'col-md-2 flex break': isInlineForm }">
-            <label class="form-label" :for="label" :style="labelStyle">{{ label }}</label>
+            <label class="form-label" :for="inputId || label" :style="labelStyle">{{ label }}</label>
             <span class="is-danger d-inline-block fw-semibold" :style="[{ marginBottom: '5px' }, labelStyle]" v-if="required">*</span>
             <ToolTip v-if="hint !== '' && !tipRule" :message="getHint(hint)" size="small" />
             <slot name="word-limit-counter"></slot>
@@ -35,7 +35,10 @@
                     <em v-html="getHint(hint)"></em> <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
                 </div>
             </template>
-            <div v-if="error" class="invalid-feedback d-block">{{ error }}</div>
+            <!-- Always present so a new error is announced; the input points at it (aria-describedby) -->
+            <div aria-live="polite" :id="inputId ? `${inputId}-error` : undefined">
+                <div v-if="error" class="invalid-feedback d-block">{{ error }}</div>
+            </div>
             <button v-if="actionBtn" class="btn btn-light form-field-action-button"
                     @click="() => actionBtn.action()">
                 <span>{{ lang(actionBtn.text) }}</span>
@@ -67,6 +70,8 @@ const props = defineProps({
     tipRule:       { type: [Number, Boolean],                    default: false },
     newBtnName:    { type: String,                               default: '' },
     error:         { type: String,                               default: undefined },
+    // The control's id, so the label focuses it and its error can be linked to it
+    inputId:       { type: String,                               default: '' },
 })
 
 function clickEvent(name) {

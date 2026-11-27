@@ -26,7 +26,7 @@ describe('InvoiceCreate.vue', () => {
     beforeEach(() => {
         globalThis.mockHttp.onGet(/\/user\//).reply(200, { data: { id: 5, first_name: 'Jane', last_name: 'Smith', email: 'jane@example.com' } })
         globalThis.mockHttp.onPost(/\/generate\/invoice/).reply(200, { data: { message: 'Invoice created' } })
-        globalThis.mockHttp.onPost(/\/get-price/).reply(200, { data: { price: '99.00', fields: {}, product_quantity: {}, agents: {} } })
+        globalThis.mockHttp.onPost(/\/get-price/).reply(200, { data: { price: '99.00', fields: {}, product_quantity: {}, extras: [] } })
         wrapper = mount(InvoiceCreate, {
             global: {
                 plugins: [createTestingPinia()],
@@ -73,7 +73,7 @@ describe('InvoiceCreate.vue', () => {
         globalThis.mockHttp.reset()
         globalThis.mockHttp.onGet(/\/user\/5/).reply(200, { data: { id: 5, first_name: 'Jane', last_name: 'Smith', email: 'jane@example.com' } })
         globalThis.mockHttp.onPost(/\/generate\/invoice/).reply(200, { data: { message: 'Invoice created' } })
-        globalThis.mockHttp.onPost(/\/get-price/).reply(200, { data: { price: '99.00', fields: {}, product_quantity: {}, agents: {} } })
+        globalThis.mockHttp.onPost(/\/get-price/).reply(200, { data: { price: '99.00', fields: {}, product_quantity: {}, extras: [] } })
 
         // Directly test the logic via vm method proxy
         await wrapper.vm.$nextTick()
@@ -121,6 +121,34 @@ describe('InvoiceCreate.vue', () => {
         await wrapper.vm.onPlanChange({ id: 7 })
         await flushPromises()
         expect(globalThis.mockHttp.history.post.some(r => /\/get-price/.test(r.url))).toBe(true)
+    })
+
+    it('offers the plan\'s extras and sends the picked quantities with the invoice', async () => {
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPost(/\/generate\/invoice/).reply(200, { data: { message: 'ok' } })
+        globalThis.mockHttp.onPost(/\/get-price/).reply(200, { data: { price: '99.00', fields: {}, product_quantity: {}, extras: [
+            { entitlement_id: 1, label: 'Agents', type: 'number', unit_price: 3, quantity: 1, included: 0, min: 1 },
+            { entitlement_id: 2, label: 'Storage', type: 'number', unit_price: 2, quantity: 0, included: null, min: 0 },
+        ] } })
+        wrapper.vm.form.product = { id: 3 }
+        wrapper.vm.form.user = { id: 1 }
+        wrapper.vm.form.date = '01/01/2024'
+        await wrapper.vm.onPlanChange({ id: 7 })
+        await flushPromises()
+
+        expect(wrapper.vm.dynamic.extras).toHaveLength(2)
+        expect(wrapper.vm.form.extras).toEqual({ 1: 1, 2: 0 })
+
+        wrapper.vm.form.extras[2] = 5
+        await wrapper.vm.submit()
+        await flushPromises()
+        const body = JSON.parse(globalThis.mockHttp.history.post.filter(r => /\/generate\/invoice/.test(r.url)).at(-1).data)
+        expect(body.extras).toEqual({ 1: 1, 2: 5 })
+        expect(body).not.toHaveProperty('agents')
+
+        wrapper.vm.onProductChange({ id: 4 })
+        expect(wrapper.vm.dynamic.extras).toEqual([])
+        expect(wrapper.vm.form.extras).toEqual({})
     })
 
     it('resets price and plan when product changes via onProductChange', () => {

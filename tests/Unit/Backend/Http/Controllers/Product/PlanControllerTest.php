@@ -52,6 +52,15 @@ class PlanControllerTest extends DBTestCase
         $this->assertIsArray($response->json('data.data'));
     }
 
+    public function test_list_shows_each_plans_status(): void
+    {
+        $this->getLoggedInUser('admin');
+        $plan = \App\Model\Payment\Plan::factory()->create(['name' => 'Status '.uniqid(), 'status' => 0]);
+
+        $row = collect($this->getJson('/plans?limit=50&search-query='.urlencode($plan->name))->json('data.data'))->firstWhere('id', $plan->id);
+        $this->assertSame(0, $row['status']);
+    }
+
     public function test_list_sorts_product_column_by_product_name_not_id(): void
     {
         $this->getLoggedInUser('admin');
@@ -200,26 +209,18 @@ class PlanControllerTest extends DBTestCase
             'currency' => ['USD'],
             'renew_price' => [99],
             'offer_price' => [null],
-            'no_of_agents' => 5,
         ]);
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
     }
 
-    public function test_a_new_plan_starts_at_one_agent_only_for_products_sold_by_agents(): void
+    public function test_a_new_plan_has_a_flat_price_until_its_features_add_agents(): void
     {
-        // Empty agents read as unlimited: a sale before the admin set the count was unlimited.
         $this->getLoggedInUser('admin');
-        $body = fn (int $productId): array => ['name' => 'P', 'product' => $productId, 'days' => 30, 'status' => 1,
-            'add_price' => [99], 'currency' => ['USD'], 'renew_price' => [99], 'offer_price' => [null]];
+        $planId = $this->postJson('/plans', ['name' => 'P', 'product' => Product::factory()->create()->id, 'days' => 30, 'status' => 1,
+            'add_price' => [99], 'currency' => ['USD'], 'renew_price' => [99], 'offer_price' => [null]])->assertOk()->json('data.id');
 
-        $agentProduct = Product::factory()->create(['show_agent' => 1]);
-        $otherProduct = Product::factory()->create(['show_agent' => 0]);
-        $agentPlan = $this->postJson('/plans', $body($agentProduct->id))->assertOk()->json('data.id');
-        $otherPlan = $this->postJson('/plans', $body($otherProduct->id))->assertOk()->json('data.id');
-
-        $this->assertSame('1', (string) PlanPrice::where('plan_id', $agentPlan)->value('no_of_agents'));
-        $this->assertNull(PlanPrice::where('plan_id', $otherPlan)->value('no_of_agents'));
+        $this->assertFalse(\App\Services\EntitlementService::perAgent(Plan::find($planId)));
     }
 
     public function test_update_plan_with_valid_data_returns_200(): void
@@ -243,7 +244,6 @@ class PlanControllerTest extends DBTestCase
             'currency' => ['USD'],
             'renew_price' => [199],
             'offer_price' => [null],
-            'no_of_agents' => 5,
         ]);
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);

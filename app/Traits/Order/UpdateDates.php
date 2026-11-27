@@ -2,8 +2,6 @@
 
 namespace App\Traits\Order;
 
-use App\Http\Controllers\Tenancy\CloudExtraActivities;
-use App\Model\Order\Order;
 use App\Model\Product\Subscription;
 use App\Services\SubscriptionRenewalService;
 use Exception;
@@ -18,7 +16,6 @@ trait UpdateDates
     {
         $this->validate($request, [
             'orderid' => 'required',
-            'agents' => 'sometimes|integer|min:0|max:9999',
         ]);
 
         try {
@@ -37,15 +34,6 @@ trait UpdateDates
                 $service->updateInstallationLimit($sub, (int) $request->input('limit'));
             }
 
-            // Agents is not a subscription column — it lives in the last four
-            // digits of the license, so it gets its own write path below.
-            if ($request->filled('agents')) {
-                $failure = $this->setAgents((int) $sub->order_id, (int) $request->input('agents'));
-                if ($failure !== null) {
-                    return errorResponse($failure);
-                }
-            }
-
             return successResponse(__('message.updated-successfully'));
         } catch (ModelNotFoundException $exception) {
             return errorResponse(__('message.record_not_found'));
@@ -54,58 +42,6 @@ trait UpdateDates
 
             return errorResponse(__('message.sorry_something_wrong'));
         }
-    }
-
-    /**
-     * Set an order's agent count to a target total, no invoice involved — this
-     * is the admin's correction path, as opposed to the client's paid
-     * CloudExtraActivities::agentAlteration() flow.
-     *
-     * @return string|null An error message, or null when the change went through.
-     */
-    private function setAgents(int $orderId, int $agents): ?string
-    {
-        /** @var Order $order */
-        $order = Order::findOrFail($orderId);
-        $license = (string) $order->serial_key;
-        $current = (int) substr($license, 12, 16);
-
-        if ($current === $agents) {
-            return null;
-        }
-
-        $cloud = resolve(CloudExtraActivities::class);
-
-        // Self-hosted installs phone home and stamp installation_path too (see
-        // BaseHomeController::...), so a path existing says nothing about there
-        // being a cloud tenant behind it — only the product does. Getting this
-        // backwards would POST a self-hosted customer's own domain to the cloud
-        // server, and ping their install's /api/agent-check.
-        $installationPath = null;
-
-        if (in_array((int) $order->product, cloudPopupProducts())) {
-            $installationPath = $order->installedDomains()->first();
-
-            if (! $installationPath) {
-                return __('message.installation_path_not_found');
-            }
-
-            // Cutting seats below the agents actually in use would strand them.
-            // 0 means unlimited, so it's never a reduction.
-            if ($agents > 0 && ($agents < $current || $current === 0)
-                && $cloud->checktheAgent($agents, $installationPath)) {
-                return __('message.agent_reduce');
-            }
-        }
-
-        $result = $cloud->doTheAgentAltering((string) $agents, $license, $orderId, $installationPath, (int) $order->product);
-
-        if ($result->getStatusCode() !== 200) {
-            return __('message.change_agents_failed');
-        }
-
-        // doTheAgentAltering() also brought the invoice items' agents in line.
-        return null;
     }
 
     private function parseDate(string $date): string

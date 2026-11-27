@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => 'Il-SKU tal-prodott għandu jkun uniku',
     'product_name_unique' => 'Ismijiet għandhom ikunu uniku',
-    'product_show_agent_required' => 'Agħżel il-preferenza tal-paġna tal-karrettun tiegħek',
     'config_file_path_regex' => 'Trid tkun mogħdija relattiva mingħajr ../ segmenti.',
     'license_file_path_regex' => 'Għandu jkun mogħdija relattiva mingħajr ../ segmenti.',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => 'L-immaġni ma tistax tkun ikbar minn 2048 kilobytes.',
         'product_sku_required' => 'Il-SKU tal-prodott huwa meħtieġ.',
         'group_required' => 'Il-grupp tal-prodott huwa meħtieġ.',
-        'show_agent_required' => 'Agħżel il-preferenza tal-paġna tal-karrettun tiegħek.',
     ],
     'current_domain_required' => 'Il-dominju kurrenti huwa meħtieġ.',
     'new_domain_required' => 'Il-dominju ġdid huwa meħtieġ.',

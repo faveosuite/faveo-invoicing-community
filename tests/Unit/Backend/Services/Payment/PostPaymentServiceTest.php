@@ -20,6 +20,7 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Plugins\Payment\Dto\SubscriptionResult;
 use App\Services\Payment\AutoRenewalActivationService;
+use App\Services\Payment\CreditBalanceService;
 use App\Services\Payment\PostPaymentService;
 use App\Services\Payment\SubscriptionService;
 use App\User;
@@ -229,13 +230,18 @@ class PostPaymentServiceTest extends DBTestCase
     // handle() — agent_alteration metadata type
     // =========================================================================
 
-    public function test_handle_agent_alteration_path(): void
+    public function test_paying_an_old_agent_change_invoice_credits_the_customer(): void
     {
+        // Raised by the agent-change flow before agents became an extra: it no longer changes
+        // agents, so its payment goes to the customer's credit.
+        $user = User::factory()->create();
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create([
+            'user_id' => $user->id,
             'grand_total' => 50.0,
+            'currency' => 'USD',
             'status' => 'pending',
-            'is_renewed' => 0,
+            'is_renewed' => 1,
             'metadata' => [
                 'type' => 'agent_alteration',
                 'sub_id' => 999999,
@@ -243,47 +249,17 @@ class PostPaymentServiceTest extends DBTestCase
                 'order_id' => 999999,
                 'installation_path' => 'test.example.com',
                 'product_id' => 1,
-                'old_license' => '123456789012',
-                'agent_increase_date' => false,
+                'old_license' => '1234567890120003',
+                'agent_increase_date' => true,
             ],
         ]);
+        $before = resolve(CreditBalanceService::class)->balance($user->id, 'USD');
 
-        // doTheAgentAltering will likely throw (no real cloud) — that's acceptable
-        try {
-            $result = $this->service->handle($invoice, 'Stripe');
-            $this->assertIsArray($result);
-            $this->assertSame('success', $result['status']);
-        } catch (\Throwable $throwable) {
-            // Method body was entered and executed
-            $this->assertTrue(true);
-        }
-    }
+        $result = $this->service->handle($invoice, 'Stripe');
 
-    public function test_handle_agent_alteration_with_increase_date_true(): void
-    {
-        /** @var Invoice $invoice */
-        $invoice = Invoice::factory()->create([
-            'grand_total' => 50.0,
-            'status' => 'pending',
-            'is_renewed' => 0,
-            'metadata' => [
-                'type' => 'agent_alteration',
-                'sub_id' => 999999,
-                'new_agents' => 3,
-                'order_id' => 999999,
-                'installation_path' => 'test.example.com',
-                'product_id' => 1,
-                'old_license' => '123456789012',
-                'agent_increase_date' => true, // triggers successRenew branch
-            ],
-        ]);
-
-        try {
-            $this->service->handle($invoice, 'Razorpay');
-            $this->assertTrue(true);
-        } catch (\Throwable $throwable) {
-            $this->assertTrue(true);
-        }
+        $this->assertSame('success', $result['status']);
+        $this->assertTrue($invoice->fresh()->metadata['credited']);
+        $this->assertEqualsWithDelta($before + 50, resolve(CreditBalanceService::class)->balance($user->id, 'USD'), 0.001);
     }
 
     // =========================================================================
@@ -576,9 +552,10 @@ class PostPaymentServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
         $this->user->update(['country' => 'US']);
-        $product = Product::factory()->create(['can_modify_agent' => 1]);
+        $product = Product::factory()->create();
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD', 'renew_price' => $renewPrice, 'no_of_agents' => $planAgents]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD', 'renew_price' => $renewPrice]);
+        $plan->entitlements()->attach(\App\Services\EntitlementService::agents()->id, ['value' => $planAgents === '0' ? null : $planAgents]);
         $order = Order::create(['client' => $this->user->id, 'product' => $product->id, 'order_status' => 'executed',
             'number' => mt_rand(100000, 999999), 'serial_key' => 'ABCDEFGHIJKL'.$serialLastFour]);
         $sub = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $this->user->id,
@@ -653,9 +630,9 @@ class PostPaymentServiceTest extends DBTestCase
     {
         $this->getLoggedInUser('user');
         $this->user->update(['country' => 'US']);
-        $product = Product::factory()->create(['can_modify_agent' => 1]);
+        $product = Product::factory()->create();
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD', 'renew_price' => 50, 'no_of_agents' => 1]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD', 'renew_price' => 50]);
         $order = Order::create(['client' => $this->user->id, 'product' => $product->id, 'order_status' => 'executed', 'number' => mt_rand(100000, 999999), 'serial_key' => 'ABCDEFGHIJKL0001']);
         $sub = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id, 'user_id' => $this->user->id, 'is_subscribed' => 1, 'autoRenew_status' => '3']);
         DB::table('subscriptions')->where('id', $sub->id)->update(['subscribe_id' => 'sub_test']);

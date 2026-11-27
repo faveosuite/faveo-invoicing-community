@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\License\Models\License;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
@@ -12,15 +13,20 @@ use App\Model\Product\Entitlement;
 use App\Model\Product\Grant;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\AgentCountService;
 use App\Services\DateRules;
+use App\Services\EntitlementSalesService;
 use App\Services\EntitlementService;
 use App\Services\LegacyDates;
 use App\Services\SubscriptionRenewalService;
+use Closure;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Logger;
 
 /**
  * Admin: the shared feature list, the features each plan includes with their extra prices, and
@@ -32,18 +38,36 @@ class EntitlementController extends Controller
     {
     }
 
-    public function index(): JsonResponse
+    /** The feature list: one page of it for the admin table (with `limit`), or all of it for saving. */
+    public function index(Request $request): JsonResponse
     {
         EntitlementService::agents();
 
-        $items = Entitlement::orderBy('sort')->orderBy('id')->get()
-            ->map(fn (Entitlement $item): array => [
-                ...$item->only(['id', 'code', 'category', 'label', 'type', 'options', 'default_value', 'is_active']),
-                'in_use' => $this->inUse($item),
-                'system' => EntitlementService::isAgents($item), // built in: agents, can't be removed
-            ]);
+        $row = fn (Entitlement $item): array => [
+            ...$item->only(['id', 'code', 'category', 'label', 'type', 'options', 'default_value', 'is_active']),
+            'in_use' => $this->inUse($item),
+            'system' => EntitlementService::isAgents($item), // built in: agents, can't be removed
+        ];
 
-        return successResponse('', ['entitlements' => $items]);
+        if (! $request->has('limit')) {
+            return successResponse('', ['entitlements' => Entitlement::orderBy('sort')->orderBy('id')->get()->map($row)]);
+        }
+
+        $search = trim((string) $request->input('search-query', ''));
+        $sortField = $request->input('sort-field');
+        $page = Entitlement::query()
+            ->when($search !== '', fn ($q) => $q->where(fn ($q) => $q
+                ->where('label', 'like', likePattern($search))
+                ->orWhere('code', 'like', likePattern($search))
+                ->orWhere('category', 'like', likePattern($search))))
+            ->when(in_array($sortField, ['label', 'category', 'type'], true),
+                fn ($q) => $q->orderBy($sortField, $request->input('sort-order') === 'asc' ? 'asc' : 'desc'),
+                fn ($q) => $q->orderBy('sort'))
+            ->orderBy('id')
+            ->paginate(min(100, max(1, (int) $request->input('limit', 10))));
+        $page->getCollection()->transform($row);
+
+        return successResponse('', $page);
     }
 
     /**
@@ -107,6 +131,9 @@ class EntitlementController extends Controller
                 if ($default === false) {
                     throw ValidationException::withMessages(["entitlements.$i.default_value" => __('message.entitlement_invalid_value', ['key' => $path])]);
                 }
+                if ($default === null && in_array($item->type, ['select', 'text'], strict: true)) { // a number left empty is unlimited
+                    throw ValidationException::withMessages(["entitlements.$i.default_value" => __('message.entitlement_default_required')]);
+                }
                 $item->default_value = $default;
                 $item->save();
 
@@ -144,41 +171,30 @@ class EntitlementController extends Controller
     /**
      * Every active feature with how this plan offers it:
      *  - none:     not available on this plan
-     *  - included: the plan price covers it (value = how much); a price lets customers buy more
+     *  - included: the plan price covers it (value = how much; a number left empty is unlimited);
+     *              a price lets customers buy more
      *  - optional: not included, customers can buy it (price required)
-     * Per-agent products also list Agents: included count (or unlimited) and the per-agent price.
      */
     public function planIndex(int $planId): JsonResponse
     {
         $plan = Plan::findOrFail($planId);
         $included = $plan->entitlements()->pluck('plan_entitlements.value', 'entitlements.id');
-        $showAgents = (bool) Product::whereKey($plan->product)->value('show_agent');
-        if ($showAgents) {
-            EntitlementService::agents();
-        }
+        EntitlementService::agents();
 
         $items = Entitlement::with(['prices' => fn ($q) => $q->where('plan_id', $plan->id)])
             ->where(fn ($q) => $q->where('is_active', true)->orWhereIn('id', $included->keys()))
             ->orderBy('sort')->orderBy('id')->get()
-            ->filter(fn (Entitlement $item): bool => $showAgents || ! EntitlementService::isAgents($item))
-            ->map(function (Entitlement $item) use ($plan, $included): array {
-                $agents = EntitlementService::isAgents($item);
+            ->map(function (Entitlement $item) use ($included): array {
                 $mode = match (true) {
-                    $agents, $included->has($item->id) => 'included',
+                    $included->has($item->id) => 'included',
                     $item->prices->isNotEmpty() => 'optional',
                     default => 'none',
                 };
 
                 return [
                     ...$item->only(['id', 'code', 'category', 'label', 'type', 'options', 'default_value', 'is_active']),
-                    'agents' => $agents,
                     'mode' => $mode,
-                    'value' => match (true) {
-                        $agents => $this->includedAgents($plan),
-                        $item->type === 'date' => DateRules::decode($included->get($item->id)), // how the plan ends it
-                        default => $included->get($item->id),
-                    },
-                    'unlimited' => $agents && EntitlementService::planAgents($plan) === EntitlementService::UNLIMITED,
+                    'value' => $item->type === 'date' ? DateRules::decode($included->get($item->id)) : $included->get($item->id), // a date: how the plan ends it
                     'sellable' => in_array($item->type, ['boolean', 'number'], strict: true),
                     'prices' => $item->prices->mapWithKeys(fn ($p): array => [$p->currency => [
                         'unit_price' => (float) $p->unit_price,
@@ -193,6 +209,8 @@ class EntitlementController extends Controller
             'currencies' => $plan->planPrice()->pluck('currency')->unique()->values(),
             'period' => $plan->periods()->value('name') ?? __('message.entitlement_billing_period'),
             'live_licenses' => $this->service->liveLicenses($plan)->count(),
+            // The product's other plans, to copy features from.
+            'other_plans' => Plan::where('product', $plan->product)->whereKeyNot($plan->id)->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -206,7 +224,6 @@ class EntitlementController extends Controller
             'entitlements.*.id' => ['required', 'integer', 'distinct', Rule::exists('entitlements', 'id')],
             'entitlements.*.mode' => ['required', Rule::in(['none', 'included', 'optional'])],
             'entitlements.*.value' => ['nullable'],
-            'entitlements.*.unlimited' => ['boolean'],
             'entitlements.*.prices' => ['sometimes', 'array'],
             'entitlements.*.prices.*.unit_price' => $money,
             'entitlements.*.prices.*.renew_price' => $money,
@@ -226,25 +243,31 @@ class EntitlementController extends Controller
                 $fail = fn (string $message) => throw ValidationException::withMessages(["entitlements.$i.value" => $message]);
                 $prices = $this->pricesFrom((array) ($row['prices'] ?? []));
                 $sellable = in_array($item->type, ['boolean', 'number'], strict: true);
-                $mode = EntitlementService::isAgents($item) ? 'included' : $row['mode'];
+                $agents = EntitlementService::isAgents($item);
+                // Agents can't be optional: a plan sold by agents needs a count on the license.
+                $mode = $agents && $row['mode'] === 'optional' ? 'included' : $row['mode'];
 
                 if ($mode === 'optional' && (! $sellable || $prices === [])) {
                     $fail(__('message.entitlement_optional_needs_price', ['key' => $item->label]));
                 }
 
                 $plan->entitlements()->detach($item->id);
-                if (EntitlementService::isAgents($item)) {
-                    $this->saveAgents($plan, $row, $prices, $currencies, $fail);
-                } elseif ($mode === 'included') {
+                $value = null;
+                if ($mode === 'included') {
                     $value = $item->normalize($row['value'] ?? null);
-                    if ($value === false) {
+                    // The license code carries agents in four digits.
+                    if ($value === false || ($agents && (int) $value > 9999)) {
                         $fail(__('message.entitlement_invalid_value', ['key' => $key]));
+                    }
+                    // 0 included: every agent is paid, so every currency needs an agent price (else 0000 = unlimited).
+                    if ($agents && $value === '0' && array_diff($currencies, array_keys($prices)) !== []) {
+                        $fail(__('message.entitlement_agents_price_required'));
                     }
                     $plan->entitlements()->attach($item->id, ['value' => $value]);
                 }
 
-                // Prices: none → not sold; included on/off → nothing more to buy.
-                $keep = $sellable && ($mode === 'optional' || ($mode === 'included' && $item->type === 'number'));
+                // Prices: none → not sold; included on/off or unlimited → nothing more to buy.
+                $keep = $sellable && ($mode === 'optional' || ($mode === 'included' && $item->type === 'number' && $value !== null));
                 $item->prices()->where('plan_id', $plan->id)->delete();
                 foreach ($keep ? $prices : [] as $currency => $price) {
                     $item->prices()->create(['plan_id' => $plan->id, 'currency' => $currency, ...$price]);
@@ -253,36 +276,6 @@ class EntitlementController extends Controller
         });
 
         return successResponse(__('message.updated-successfully'));
-    }
-
-    /**
-     * Agents: unlimited, N included (customers start at N), or 0 included — every agent paid,
-     * customers start at one agent, so every currency needs an agent price.
-     *
-     * @param  array<string, mixed>  $row
-     * @param  array<string, array<string, float|null>>  $prices
-     * @param  array<int, mixed>  $currencies
-     */
-    private function saveAgents(Plan $plan, array $row, array $prices, array $currencies, callable $fail): void
-    {
-        if ($row['unlimited'] ?? false) {
-            $plan->planPrice()->update(['no_of_agents' => 0]);
-
-            return;
-        }
-
-        $count = filter_var($row['value'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 9999]]);
-        if ($count === false) {
-            $fail(__('message.entitlement_agents_count_required'));
-        }
-
-        if ($count === 0) {
-            if (array_diff($currencies, array_keys($prices)) !== []) {
-                $fail(__('message.entitlement_agents_price_required'));
-            }
-            $plan->entitlements()->attach(EntitlementService::agents()->id, ['value' => '0']);
-        }
-        $plan->planPrice()->update(['no_of_agents' => max(1, (int) $count)]);
     }
 
     /**
@@ -329,21 +322,22 @@ class EntitlementController extends Controller
         $items = array_map(fn (array $row): array => [
             ...$row['item']->only(['id', 'code', 'category', 'label', 'type', 'options']),
             'plan_value' => $row['plan'],
+            'in_plan' => $row['in_plan'],
             'extra' => $row['extra'],
+            'overridden' => $row['overridden'], // an override of unlimited has a null value
             'override' => $row['override'],
             'until' => $row['until'],
             'value' => $row['value'],
             'from_code' => $row['locked'],
-            'locked' => $row['locked'] || EntitlementService::isAgents($row['item']),
         ], $this->service->rows($owner));
 
         $available = Entitlement::where('is_active', true)->whereNotIn('id', array_column($items, 'id'))
-            ->where('code', '!=', EntitlementService::AGENTS)->where('type', '!=', 'date') // dates come from the plan
+            ->where('type', '!=', 'date') // dates come from the plan
             ->orderBy('sort')->orderBy('id')->get(['id', 'code', 'category', 'label', 'type', 'options']);
 
         $current = $this->service->currentDates($owner);
         $licenseEnd = $subscription !== null ? $subscription->ends_at : ($owner instanceof License ? $owner->license_expire_date : null);
-        $dates = [['code' => 'license', 'label' => __('message.order_license'), 'ends_at' => EntitlementService::day($licenseEnd)]];
+        $dates = [['code' => 'license', 'label' => __('message.order_subscription'), 'ends_at' => EntitlementService::day($licenseEnd)]];
         foreach (Entitlement::where('type', 'date')->where('is_active', true)->orderBy('sort')->orderBy('id')->get(['code', 'label']) as $item) {
             $column = LegacyDates::COLUMNS[$item->code][1] ?? null;
             if (array_key_exists($item->code, $current) || $column !== null) {
@@ -385,26 +379,43 @@ class EntitlementController extends Controller
         return successResponse(__('message.updated-successfully'));
     }
 
-    /** Overrides one item for this order only, optionally until a date. */
+    /** Overrides one item for this order only, optionally until a date. A number can be set to unlimited (stored as null). */
     public function orderOverride(Request $request, int $orderId, int $entitlementId): JsonResponse
     {
-        [$owner] = $this->orderOwner($orderId);
+        [$owner, , $order] = $this->orderOwner($orderId);
         $item = Entitlement::findOrFail($entitlementId);
         $data = $request->validate([
-            'value' => ['required'],
+            'unlimited' => ['boolean'],
+            'value' => [Rule::requiredIf(! $request->boolean('unlimited'))],
             'until' => ['nullable', 'date', 'after_or_equal:today'],
         ]);
+        $unlimited = $request->boolean('unlimited');
+        $invalid = fn (): ValidationException => ValidationException::withMessages(['value' => __('message.entitlement_invalid_value', ['key' => $item->code])]);
+        if ($item->type === 'date' || ($unlimited && $item->type !== 'number')) {
+            throw $invalid();
+        }
 
         if (EntitlementService::isAgents($item)) {
-            throw ValidationException::withMessages(['value' => __('message.entitlement_agents_locked')]);
-        }
-        if ($item->type === 'date') {
-            throw ValidationException::withMessages(['value' => __('message.entitlement_invalid_value', ['key' => $item->code])]);
+            // The count goes into the license code's last four digits, which can't change back on a date.
+            if (isset($data['until'])) {
+                throw ValidationException::withMessages(['until' => __('message.entitlement_agents_no_until')]);
+            }
+            // 0 would read as 0000 (unlimited): unlimited is asked for on its own.
+            $count = $unlimited ? null : filter_var($data['value'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 9999]]);
+            if ($count === false) {
+                throw $invalid();
+            }
+            $value = $count === null ? null : (string) $count;
+
+            return $this->applyAgentsOverride($order, $owner, fn () => $this->service->setOverride($owner, $item, $value, null), __('message.updated-successfully'));
         }
 
-        $value = $item->normalize($data['value']);
-        if (! is_string($value)) {
-            throw ValidationException::withMessages(['value' => __('message.entitlement_invalid_value', ['key' => $item->code])]);
+        $value = null; // unlimited
+        if (! $unlimited) {
+            $value = $item->normalize($data['value']);
+            if (! is_string($value)) {
+                throw $invalid();
+            }
         }
 
         $until = isset($data['until']) ? date('Y-m-d', (int) strtotime((string) $data['until'])) : null;
@@ -416,17 +427,82 @@ class EntitlementController extends Controller
     /** Removes an order's override, so the plan value applies again. */
     public function orderReset(int $orderId, int $entitlementId): JsonResponse
     {
-        [$owner] = $this->orderOwner($orderId);
-        $this->service->removeOverride($owner, Entitlement::findOrFail($entitlementId));
+        [$owner, , $order] = $this->orderOwner($orderId);
+        $item = Entitlement::findOrFail($entitlementId);
+        if (EntitlementService::isAgents($item)) {
+            return $this->applyAgentsOverride($order, $owner, fn () => $this->service->removeOverride($owner, $item), __('message.entitlement_reset_done'));
+        }
+        $this->service->removeOverride($owner, $item);
 
         return successResponse(__('message.entitlement_reset_done'));
+    }
+
+    /**
+     * Applies an Agents override change, then writes the order's new count into its license code
+     * (and cloud tenant). Undone when a cloud tenant has more agents in use than the new count, when
+     * the count would be 0 on a plan with a count (0000 reads as unlimited), or when the write fails.
+     */
+    private function applyAgentsOverride(Order $order, License|Subscription $owner, Closure $change, string $done): JsonResponse
+    {
+        // Paying an open Agents purchase later would add agents the override hides.
+        $pending = resolve(EntitlementSalesService::class)->openInvoiceNumber($order, EntitlementService::agents());
+        if ($pending !== null) {
+            return errorResponse(__('message.order_change_invoice_pending', ['number' => $pending]));
+        }
+
+        $agentCount = resolve(AgentCountService::class);
+        $had = $agentCount->hasOverride($order);
+        $before = $agentCount->override($order); // null with $had: unlimited
+        $current = (int) substr((string) $order->serial_key, -4); // 0 = unlimited
+        $change();
+        $total = $agentCount->total($order);
+
+        $failure = match (true) {
+            $total === 0 && ! $agentCount->unlimited($order) && EntitlementService::includedAgents(Plan::find((int) Subscription::where('order_id', $order->id)->value('plan_id'))) !== null => __('message.entitlement_agents_none'),
+            $total > 0 && ($current === 0 || $total < $current) => $this->reduceRefusal($order, $total),
+            default => null,
+        };
+        if ($failure === null && $order->serial_key) { // no license code: nothing to write
+            try {
+                $agentCount->write($order, $total);
+            } catch (Exception $exception) {
+                Logger::exception($exception);
+                $failure = __('message.change_agents_failed');
+            }
+        }
+
+        if ($failure !== null) {
+            $agents = EntitlementService::agents();
+            $had ? $this->service->setOverride($owner, $agents, $before === null ? null : (string) $before, null) : $this->service->removeOverride($owner, $agents);
+
+            return errorResponse($failure);
+        }
+
+        return successResponse($done);
+    }
+
+    /**
+     * Why a cloud order can't go down to $agents: its tenant can't be found to check, or has more
+     * agents in use (cutting below that would strand them). Null when it can, or isn't cloud.
+     */
+    private function reduceRefusal(Order $order, int $agents): ?string
+    {
+        if (! in_array((int) $order->product, array_map(intval(...), cloudPopupProducts()), strict: true)) {
+            return null;
+        }
+        $installationPath = $order->installedDomains()->first();
+        if (! $installationPath) {
+            return (string) __('message.installation_path_not_found');
+        }
+
+        return resolve(CloudExtraActivities::class)->checktheAgent($agents, $installationPath) ? (string) __('message.agent_reduce') : null;
     }
 
     /**
      * Whose grants an order's page edits: its license, or its subscription when the product issues
      * none (old orders may have a license without a subscription). 404 when the order has neither.
      *
-     * @return array{0: License|Subscription, 1: Subscription|null}
+     * @return array{0: License|Subscription, 1: Subscription|null, 2: Order}
      */
     private function orderOwner(int $orderId): array
     {
@@ -437,18 +513,7 @@ class EntitlementController extends Controller
             abort(404);
         }
 
-        return [$owner, $subscription];
-    }
-
-    /** Agents the plan price includes, as the plan page shows it: '' = unlimited, '0' = every agent paid. */
-    private function includedAgents(Plan $plan): string
-    {
-        if (EntitlementService::paysForEveryAgent($plan)) {
-            return '0';
-        }
-        $agents = EntitlementService::planAgents($plan);
-
-        return $agents === EntitlementService::UNLIMITED ? '' : (string) $agents;
+        return [$owner, $subscription, $order];
     }
 
     private function inUse(Entitlement $item): bool

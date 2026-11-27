@@ -14,7 +14,7 @@ import { mount } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
 import MockAdapter from 'axios-mock-adapter'
 import http from '@/plugins/axios.js'
-import { errorHandler } from '@/helpers/responseHandler'
+import { errorHandler, successHandler } from '@/helpers/responseHandler'
 import OrderShow from '@/pages/client/orders/OrderShow.vue'
 
 const orderFixture = {
@@ -87,6 +87,31 @@ describe('OrderShow.vue', () => {
         await flushPromises()
         expect(wrapper.vm.order).toEqual(orderFixture)
         expect(wrapper.vm.loading).toBe(false)
+    })
+
+    it('groups on/off features by category, keys them by code, and marks bought ones', async () => {
+        await flushPromises()
+        wrapper.vm.order = { ...orderFixture, has_extras: true, entitlements: [
+            { code: 'adhocapp', label: 'Adhoc Approval', type: 'boolean', category: 'Plugins', value: true, bought: false },
+            { code: 'adhocapppro', label: 'Adhoc Approval', type: 'boolean', category: 'Plugins', value: true, bought: false },
+            { code: 'chat', label: 'Live Chat', type: 'boolean', category: null, value: true, bought: true },
+        ] }
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.switchGroups.map(g => [g.name, g.items.length])).toEqual([['Plugins', 2], ['message.features', 1]])
+        expect(wrapper.findAll('.feature-list li')).toHaveLength(3) // same names, both shown
+        await wrapper.find('.feature-list button').trigger('click')
+        expect(wrapper.vm.activeTab).toBe('extras')
+    })
+
+    it('shows an unlimited limit (null) instead of hiding it', async () => {
+        await flushPromises()
+        wrapper.vm.order = { ...orderFixture, entitlements: [
+            { code: 'storage', label: 'Storage', type: 'number', value: null },
+            { code: 'mailboxes', label: 'Mailboxes', type: 'number', value: 3 },
+            { code: 'region', label: 'Region', type: 'text', value: null },
+        ] }
+        await wrapper.vm.$nextTick()
+        expect(wrapper.findAll('.feature-limit').map(c => c.text())).toEqual(['Storage message.unlimited', 'Mailboxes 3'])
     })
 
     it('sets loading to false when API returns 500', async () => {
@@ -273,77 +298,6 @@ describe('OrderShow.vue — modal and state helpers', () => {
         expect(errorHandler).toHaveBeenCalled()
     })
 
-    // ── Agents modal ─────────────────────────────────────────────────
-    it('openAgentsModal opens the modal and resets agent form', () => {
-        wrapper.vm.agentForm.number = '5'
-        wrapper.vm.openAgentsModal()
-        expect(wrapper.vm.showAgentsModal).toBe(true)
-        expect(wrapper.vm.agentForm.number).toBe('')
-    })
-
-    it('closeAgentsModal closes the agents modal', () => {
-        wrapper.vm.showAgentsModal = true
-        wrapper.vm.closeAgentsModal()
-        expect(wrapper.vm.showAgentsModal).toBe(false)
-    })
-
-    it('fetchAgentCost clears agentCost when cloud is null', async () => {
-        wrapper.vm.cloud = null
-        wrapper.vm.agentCost = '100'
-        await wrapper.vm.fetchAgentCost()
-        expect(wrapper.vm.agentCost).toBe('')
-    })
-
-    it('fetchAgentCost clears agentCost when number is empty', async () => {
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
-        wrapper.vm.agentForm.number = ''
-        await wrapper.vm.fetchAgentCost()
-        expect(wrapper.vm.agentCost).toBe('')
-    })
-
-    it('fetchAgentCost posts and updates agentCost on success', async () => {
-        axiosMock.onPost('/get-agent-inc-dec-cost').reply(200, { priceToPay: '$50' })
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
-        wrapper.vm.agentForm.number = '10'
-        await wrapper.vm.fetchAgentCost()
-        await flushPromises()
-        expect(wrapper.vm.agentCost).toBe('$50')
-    })
-
-    it('fetchAgentCost clears agentCost and calls errorHandler on failure', async () => {
-        axiosMock.onPost('/get-agent-inc-dec-cost').reply(500)
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
-        wrapper.vm.agentForm.number = '10'
-        await wrapper.vm.fetchAgentCost()
-        await flushPromises()
-        expect(wrapper.vm.agentCost).toBe('')
-        expect(errorHandler).toHaveBeenCalled()
-    })
-
-    it('submitAgents returns early when cloud is null', async () => {
-        wrapper.vm.cloud = null
-        await wrapper.vm.submitAgents()
-        expect(axiosMock.history.post.length).toBe(0)
-    })
-
-    it('submitAgents posts to changeAgents and resets busy on completion', async () => {
-        axiosMock.onPost('/changeAgents').reply(200, { data: {} })
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1, product_id: 1, sub_id: 1 }
-        wrapper.vm.agentForm.number = '10'
-        await wrapper.vm.submitAgents()
-        await flushPromises()
-        expect(wrapper.vm.agentBusy).toBe(false)
-    })
-
-    it('submitAgents calls errorHandler on failure', async () => {
-        axiosMock.onPost('/changeAgents').reply(500)
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1, product_id: 1, sub_id: 1 }
-        wrapper.vm.agentForm.number = '10'
-        await wrapper.vm.submitAgents()
-        await flushPromises()
-        expect(errorHandler).toHaveBeenCalled()
-    })
-
     // ── Plan modal ───────────────────────────────────────────────────
     it('openPlanModal opens the modal and resets plan form', () => {
         wrapper.vm.planForm.planId = '5'
@@ -371,7 +325,7 @@ describe('OrderShow.vue — modal and state helpers', () => {
 
     it('fetchPlanCost fetches and sets planCost on success', async () => {
         axiosMock.onPost('/get-cloud-upgrade-cost').reply(200, { price_to_be_paid: '$20' })
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
+        wrapper.vm.cloud = { order_id: 1 }
         wrapper.vm.planForm.planId = 2
         await wrapper.vm.fetchPlanCost()
         await flushPromises()
@@ -379,7 +333,7 @@ describe('OrderShow.vue — modal and state helpers', () => {
     })
 
     it('submitPlan returns early when no planId', async () => {
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
+        wrapper.vm.cloud = { order_id: 1 }
         wrapper.vm.planForm.planId = ''
         await wrapper.vm.submitPlan()
         expect(axiosMock.history.post.length).toBe(0)
@@ -387,7 +341,7 @@ describe('OrderShow.vue — modal and state helpers', () => {
 
     it('submitPlan posts to upgradeDowngradeCloud and resets busy', async () => {
         axiosMock.onPost('/upgradeDowngradeCloud').reply(200, { data: {} })
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
+        wrapper.vm.cloud = { order_id: 1 }
         wrapper.vm.planForm.planId = 2
         await wrapper.vm.submitPlan()
         await flushPromises()
@@ -660,69 +614,6 @@ describe('OrderShow.vue — modal and state helpers', () => {
         expect(wrapper.vm.domainBusy).toBe(false)
     })
 
-    // ── Agents modal ──────────────────────────────────────────────────────────
-    it('openAgentsModal sets showAgentsModal=true', () => {
-        wrapper.vm.openAgentsModal()
-        expect(wrapper.vm.showAgentsModal).toBe(true)
-    })
-
-    it('closeAgentsModal sets showAgentsModal=false', () => {
-        wrapper.vm.showAgentsModal = true
-        wrapper.vm.closeAgentsModal()
-        expect(wrapper.vm.showAgentsModal).toBe(false)
-    })
-
-    it('fetchAgentCost returns early when cloud is null', async () => {
-        wrapper.vm.cloud = null
-        wrapper.vm.agentForm.number = '2'
-        axiosMock.resetHistory()
-        await wrapper.vm.fetchAgentCost()
-        expect(axiosMock.history.post.filter(r => r.url && r.url.includes('agent')).length).toBe(0)
-    })
-
-    it('fetchAgentCost calls the cost API and sets agentCost', async () => {
-        axiosMock.onPost('/get-agent-inc-dec-cost').reply(200, { priceToPay: '$10' })
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
-        wrapper.vm.agentForm.number = '2'
-        wrapper.vm.agentForm.action = 'increase'
-        await wrapper.vm.fetchAgentCost()
-        await flushPromises()
-        expect(wrapper.vm.agentCost).toBe('$10')
-    })
-
-    it('fetchAgentCost returns early when number is empty', async () => {
-        axiosMock.resetHistory()
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
-        wrapper.vm.agentForm.number = ''
-        await wrapper.vm.fetchAgentCost()
-        expect(axiosMock.history.post.filter(r => r.url && r.url.includes('agent')).length).toBe(0)
-    })
-
-    it('submitAgents returns early when cloud is null', async () => {
-        wrapper.vm.cloud = null
-        axiosMock.resetHistory()
-        await wrapper.vm.submitAgents()
-        expect(axiosMock.history.post.length).toBe(0)
-    })
-
-    it('submitAgents posts and sets agentBusy=false on success', async () => {
-        axiosMock.onPost('/changeAgents').reply(200, { data: {} })
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1, product_id: 1, sub_id: 'S1' }
-        wrapper.vm.agentForm.number = '3'
-        await wrapper.vm.submitAgents()
-        await flushPromises()
-        expect(wrapper.vm.agentBusy).toBe(false)
-    })
-
-    it('submitAgents handles API error', async () => {
-        axiosMock.onPost('/changeAgents').reply(500)
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1, product_id: 1, sub_id: 'S1' }
-        wrapper.vm.agentForm.number = '3'
-        await wrapper.vm.submitAgents()
-        await flushPromises()
-        expect(wrapper.vm.agentBusy).toBe(false)
-    })
-
     // ── Plan modal ────────────────────────────────────────────────────────────
     it('openPlanModal sets showPlanModal=true', () => {
         wrapper.vm.openPlanModal()
@@ -745,7 +636,7 @@ describe('OrderShow.vue — modal and state helpers', () => {
 
     it('fetchPlanCost calls cost API and sets planCost', async () => {
         axiosMock.onPost('/get-cloud-upgrade-cost').reply(200, { priceTotal: 100 })
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
+        wrapper.vm.cloud = { order_id: 1 }
         wrapper.vm.planForm.planId = '5'
         await wrapper.vm.fetchPlanCost()
         await flushPromises()
@@ -754,7 +645,7 @@ describe('OrderShow.vue — modal and state helpers', () => {
 
     it('fetchPlanCost returns early when planId is empty', async () => {
         axiosMock.resetHistory()
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
+        wrapper.vm.cloud = { order_id: 1 }
         wrapper.vm.planForm.planId = ''
         await wrapper.vm.fetchPlanCost()
         expect(axiosMock.history.post.filter(r => r.url && r.url.includes('plan')).length).toBe(0)
@@ -769,7 +660,7 @@ describe('OrderShow.vue — modal and state helpers', () => {
 
     it('submitPlan posts and sets planBusy=false on success', async () => {
         axiosMock.onPost('/upgradeDowngradeCloud').reply(200, { data: {} })
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
+        wrapper.vm.cloud = { order_id: 1 }
         wrapper.vm.planForm.planId = '5'
         await wrapper.vm.submitPlan()
         await flushPromises()
@@ -778,7 +669,7 @@ describe('OrderShow.vue — modal and state helpers', () => {
 
     it('submitPlan handles API error', async () => {
         axiosMock.onPost('/upgradeDowngradeCloud').reply(500)
-        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
+        wrapper.vm.cloud = { order_id: 1 }
         wrapper.vm.planForm.planId = '5'
         await wrapper.vm.submitPlan()
         await flushPromises()

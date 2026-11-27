@@ -68,7 +68,6 @@ class GuestCart
             'product_id' => (int) $data['product_id'],
             'plan_id' => $planId,
             'quantity' => $quantityLocked ? 1 : (int) ($data['quantity'] ?? 1),
-            'agents' => (int) ($data['agents'] ?? 1),
             'domain' => $data['domain'] ?? null,
             'billing_cycle' => $data['billing_cycle'] ?? 'monthly',
         ];
@@ -89,10 +88,6 @@ class GuestCart
 
         if (isset($data['quantity'])) {
             $cart['items'][$id]['quantity'] = (int) $data['quantity'];
-        }
-
-        if (isset($data['agents'])) {
-            $cart['items'][$id]['agents'] = (int) $data['agents'];
         }
 
         if (array_key_exists('domain', $data)) {

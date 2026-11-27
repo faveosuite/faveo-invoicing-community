@@ -280,13 +280,6 @@ const requiresGateway = computed(() =>
   toNumber(mode.value === 'invoice' ? invAmount.value : cartTotalPreview.value) > 0
 )
 
-// "1 agent" / "12 agents" / "Unlimited agents"; null = not priced per agent.
-function agentsLabel(n) {
-  if (n === null || n === undefined) return null
-  if (!n) return __('message.plan_agents_unlimited')
-  return n === 1 ? __('message.cart_one_agent') : __('message.cart_n_agents', { count: n })
-}
-
 // One unified item shape for the list, regardless of source; meta = the grey line under the name.
 const displayItems = computed(() => {
   if (mode.value === 'invoice') {
@@ -296,7 +289,7 @@ const displayItems = computed(() => {
       image: it.image,
       line_total: it.subtotal,
       extras: it.extras ?? [],
-      meta: [agentsLabel(it.agents), it.quantity > 1 ? __('message.cart_qty', { count: it.quantity }) : null].filter(Boolean),
+      meta: [it.quantity > 1 ? __('message.cart_qty', { count: it.quantity }) : null].filter(Boolean),
     }))
   }
   return cartStore.items.map((it) => {
@@ -308,7 +301,6 @@ const displayItems = computed(() => {
       line_total: it.line_total,
       meta: [
         it.period,
-        it.show_agent ? agentsLabel(it.agents) : null,
         addons ? __('message.cart_n_addons', { count: addons }) : null,
         it.quantity > 1 ? __('message.cart_qty', { count: it.quantity }) : null,
       ].filter(Boolean),

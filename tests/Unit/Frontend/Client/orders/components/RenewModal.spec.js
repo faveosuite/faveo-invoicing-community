@@ -154,4 +154,14 @@ describe('RenewModal.vue', () => {
 
         expect(errorHandler).toHaveBeenCalled()
     })
+
+    it('lists the add-ons that renew with the plan', async () => {
+        axiosMock.onGet('/renew-popup-details/10').reply(200, { data: { plans: [] } })
+        axiosMock.onGet('/my-order/1/extras').reply(200, { data: { extras: [
+            { label: 'Live Chat', renew_quantity: 1 }, { label: 'Storage', renew_quantity: 0 },
+        ] } })
+        await wrapper.setProps({ show: true })
+        await flushPromises()
+        expect(wrapper.vm.renewing.map(e => e.label)).toEqual(['Live Chat']) // one that ends at renewal isn't listed
+    })
 })

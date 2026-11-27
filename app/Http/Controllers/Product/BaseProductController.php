@@ -6,6 +6,7 @@ use App\Enums\OrderAbility;
 use App\Http\Controllers\Github\GithubApiController;
 use App\License\Models\License;
 use App\License\Services\LicenseService;
+use App\Model\Cart\CartItem;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
@@ -66,42 +67,16 @@ class BaseProductController extends ExtendedBaseProductController
     }
 
     /**
-     * @return array<mixed>
+     * What the plan sells on top in the currency, as on a cart line (the admin's invoice picks from these).
+     *
+     * @return list<array<string, mixed>>
      */
-    public function getAgentQtyCheck(int $productId, Plan $plan, string $currency): array
+    private function planExtras(Plan $plan, string $currency): array
     {
-        if (! self::checkMultiAgent($productId)) {
-            return [
-                'can_modify' => false,
-                'quantity' => null,
-            ];
-        }
+        $line = new CartItem(['plan_id' => $plan->id]);
+        $line->setRelation('plan', $plan);
 
-        $value = $plan->planPrice
-            ->where('currency', $currency)
-            ->value('no_of_agents');
-
-        return [
-            'can_modify' => true,
-            'quantity' => empty($value) ? 0 : (int) $value, // @phpstan-ignore cast.int
-        ];
-    }
-
-    /*
-    * Check whether No of the GAents can be modified or not fromAdmin Panel
-    * @param int $productid
-    *
-    * @return boolean
-     */
-    public function checkMultiAgent(int $productid): bool
-    {
-        $product = new Product;
-        $product = $product->find($productid);
-        if (! $product) {
-            return false;
-        }
-
-        return $product->can_modify_agent == 1;
+        return $line->availableExtras($currency);
     }
 
     public function userDownload(mixed $order_id, mixed $version_id = ''): Response|JsonResponse
@@ -205,7 +180,7 @@ class BaseProductController extends ExtendedBaseProductController
                         : false,
                 ],
                 'product_quantity' => $this->getProductQtyCheck($productId),
-                'agents' => $this->getAgentQtyCheck($productId, $plan, $currency),
+                'extras' => $this->planExtras($plan, (string) $currency),
             ];
 
             return successResponse('', $result);
@@ -224,39 +199,6 @@ class BaseProductController extends ExtendedBaseProductController
         $product = Product::findOrFail($productid);
         $product->version = resolve(GithubApiController::class)->latestTag($github_owner, $github_repository) ?? '';
         $product->save();
-    }
-
-    /**
-     * Check Whether No. of Agents Allowed or Product Qunatity on cart.
-     *
-     * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
-     *
-     * @date   2019-01-11T00:18:49+0530
-     */
-    public function allowQuantityOrAgent(int $productid): bool
-    {
-        /** @var Product $product */
-        $product = Product::find($productid);
-
-        return (bool) $product->show_agent;
-    }
-
-    /**
-     * Checks Permission for Incresing the no. of Agents/Quantity in Cart.
-     *
-     *
-     * @param  int  $productid  The id of the Product added to the cart
-     * @return array<mixed> The permissons for Agents and Quantity
-     */
-    public function isAllowedtoEdit(int $productid): array
-    {
-        /** @var Product $product */
-        $product = Product::where('id', $productid)->first();
-
-        $agentModifyPermission = $product->can_modify_agent;
-        $quantityModifyPermission = $product->can_modify_quantity;
-
-        return ['agent' => $agentModifyPermission, 'quantity' => $quantityModifyPermission];
     }
 
     public function getProductUsingLicenseCode(Request $request, LicenseService $licenseService): JsonResponse

@@ -254,7 +254,8 @@ class ClientController extends BaseClientController
             'invoice_id' => $latestInvoice?->id,
             'invoice_number' => $latestInvoice?->number,
             'sub_id' => $order->subscription?->id,
-            'agents' => agentCount($order->invoiceItem?->agents),
+            // The license's count, 0 = unlimited; null before the order has a license.
+            'agents' => $order->serial_key ? (int) substr((string) $order->serial_key, -4) : null,
             'current_plan' => $order->subscription?->plan?->name,
             'client_id' => $order->client,
             'is_cloud' => in_array($order->productRelation?->id, cloudPopupProducts()),
@@ -352,7 +353,8 @@ class ClientController extends BaseClientController
                 'status' => $order->order_status,
                 'order_date' => $order->created_at,
                 'license_ends_at' => $order->subscription?->ends_at,
-                'agents' => agentCount($order->invoiceItem?->agents),
+                // The license's count, 0 = unlimited; null before the order has a license.
+            'agents' => $order->serial_key ? (int) substr((string) $order->serial_key, -4) : null,
                 'current_plan' => $order->subscription?->plan?->name,
                 'product_id' => $order->productRelation?->id,
                 'client_id' => $order->client,
@@ -397,17 +399,12 @@ class ClientController extends BaseClientController
                 return deniedResponse($access);
             }
 
-            $currency = getCurrencyForClient($user->country);
             $subscription = $order->subscription;
 
             $installation_path = $order->installedDomains()->first();
 
-            $currentAgents = ltrim(substr($order->serial_key, 12), '0');
-
             $planIdOld = $subscription?->plan_id;
             $planName = Plan::where('id', $planIdOld)->value('name');
-            $pricePerAgent = PlanPrice::where('plan_id', $planIdOld)
-                ->where('currency', $currency)->latest()->value('add_price');
 
             // Plans available for upgrade/downgrade (other cloud products' plans, free excluded).
             $plans = $this->planPriceProductRelation($product);
@@ -424,12 +421,10 @@ class ClientController extends BaseClientController
                 'sub_id' => $subscription?->id,
                 'serial_key' => $order->serial_key,
                 'installation_path' => $installation_path,
-                'current_agents' => $currentAgents,
                 'current_plan_id' => $planIdOld,
                 'current_plan_name' => $planName,
                 'is_free_plan' => $planName && stripos((string) $planName, 'free') !== false,
                 'plan_expiry' => $subscription?->ends_at,
-                'price_per_agent' => currencyFormat($pricePerAgent, $currency, includeSymbol: true),
                 'plans' => $planOptions,
             ]);
         } catch (Exception $exception) {
@@ -787,7 +782,7 @@ class ClientController extends BaseClientController
                 continue;
             }
 
-            $plans[$planId] .= ' (Plan price-per agent: '.currencyFormat($renewalPrices[$planId], $currency, includeSymbol: true).')';
+            $plans[$planId] .= ' (Renewal price: '.currencyFormat($renewalPrices[$planId], $currency, includeSymbol: true).')';
         }
 
         // Add more cloud IDs until we have a generic way to differentiate

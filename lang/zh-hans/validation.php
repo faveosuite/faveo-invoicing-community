@@ -837,7 +837,6 @@ return [
     ],
     'product_sku_unique' => '产品SKU必须是唯一的。',
     'product_name_unique' => '名称必须是唯一的。',
-    'product_show_agent_required' => '请选择您的购物车页面偏好。',
     'config_file_path_regex' => '必须是不带 ../ 段的相对路径。',
     'license_file_path_regex' => '必须是不带 ../ 段的相对路径。',
     'product_controller' => [
@@ -852,7 +851,6 @@ return [
         'image_max' => '图片大小不得超过2048KB。',
         'product_sku_required' => '产品SKU是必填的。',
         'group_required' => '产品组是必填的。',
-        'show_agent_required' => '请选择您的购物车页面偏好。',
     ],
     'current_domain_required' => '当前域名是必填的。',
     'new_domain_required' => '新域名是必填的。',

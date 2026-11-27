@@ -41,12 +41,6 @@ class UpdateCartItemRequestTest extends TestCase
         $this->assertArrayNotHasKey('quantity', $v->errors()->toArray());
     }
 
-    public function test_agents_zero_fails(): void
-    {
-        $v = validator(['agents' => 0], $this->req->rules());
-        $this->assertArrayHasKey('agents', $v->errors()->toArray());
-    }
-
     public function test_domain_max_255_enforced(): void
     {
         $v = validator(['domain' => str_repeat('d', 256)], $this->req->rules());

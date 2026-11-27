@@ -21,7 +21,19 @@
                         :apiEndpoint="`${baseUrl}/dependency/products`"
                         dataKey="products"
                         :value="form.product_id"
-                        :onChange="(val) => form.product_id = val"
+                        :onChange="(val) => { form.product_id = val; form.plan_id = null }"
+                    />
+                </div>
+                <!-- Plans belong to a product, so this shows once one is chosen -->
+                <div v-if="productId" class="col-md-4">
+                    <DynamicSelect
+                        :key="productId"
+                        name="plan_id"
+                        :label="__('message.plan')"
+                        :apiEndpoint="`${baseUrl}/dependency/product-plans?product_id=${productId}`"
+                        dataKey="plans"
+                        :value="form.plan_id"
+                        :onChange="(val) => form.plan_id = val"
                     />
                 </div>
                 <div class="col-md-4">
@@ -94,7 +106,7 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, computed } from 'vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import TreeSelect from '@/components/Reusable/FormField/TreeSelect.vue'
 
@@ -120,7 +132,7 @@ const subscriptionOptions = [
 ]
 
 const empty = () => ({
-    order_no: '', product_id: null, from: null, till: null,
+    order_no: '', product_id: null, plan_id: null, from: null, till: null,
     domain: '', act_ins: null, renewal: null, version: null,
 })
 
@@ -132,6 +144,12 @@ const form = reactive({
     till:     props.initialValues.till     ?? null,
     act_ins:  installationOptions.find(o => o.id === props.initialValues.act_ins)  ?? null,
     renewal:  subscriptionOptions.find(o => o.id === props.initialValues.renewal)  ?? null,
+})
+
+// Only a real product has plans (not the paid / unpaid choices)
+const productId = computed(() => {
+    const id = form.product_id?.id ?? form.product_id
+    return /^\d+$/.test(String(id ?? '')) ? id : null
 })
 
 function apply() {

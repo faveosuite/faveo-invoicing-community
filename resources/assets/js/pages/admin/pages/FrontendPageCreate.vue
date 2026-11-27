@@ -18,13 +18,13 @@
 
                 <div class="row">
                     <div class="col-md-6">
-                        <StaticSelect
+                        <DynamicSelect
                             name="type"
                             :label="__('message.type')"
-                            :elements="[{ id: '', name: __('message.custom') }, { id: 'contactus', name: __('message.contact_us') }]"
-                            :value="form.type"
-                            :onChange="onChange"
-                            :hideEmptySelect="true"
+                            :elements="PAGE_TYPES"
+                            :value="PAGE_TYPES.find(o => o.id === form.type) ?? null"
+                            :onChange="(o, name) => onChange(o?.id ?? '', name)"
+                            :clearable="false"
                         />
                     </div>
                     <div class="col-md-6">
@@ -83,7 +83,9 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { validateForm } from '@/helpers/formUtils.js'
 import { buildFrontendPageCreateSchema } from '@/validations/admin/pageValidations'
-import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
+
+const PAGE_TYPES = [{ id: '', name: __('message.custom') }, { id: 'contactus', name: __('message.contact_us') }]
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 import SeoFieldsCard from '@/components/Reusable/FormField/SeoFieldsCard.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
